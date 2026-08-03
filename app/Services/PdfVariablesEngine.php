@@ -437,13 +437,13 @@ class PdfVariablesEngine
         // Auto-descubrir columnas de la BD
         $tablaMap = [
             'cotizacion'   => 'cotizaciones',
-            'op'           => 'ordenes_produccion',
+            'op'           => 'ops',
             'remision'     => 'remisiones',
             'recibo_pago'  => 'op_pagos',
             'trabajo'      => 'op_item_trabajos',
             'op_trabajo'   => 'op_item_trabajos',
-            'op_etiqueta'  => 'items_op',
-            'op_item'      => 'items_op',
+            'op_etiqueta'  => 'op_items',
+            'op_item'      => 'op_items',
             'colaborador'  => 'users',
             'mantenimiento'=> 'mantenimientos',
         ];

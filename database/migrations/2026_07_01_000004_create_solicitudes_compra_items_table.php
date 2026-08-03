@@ -20,7 +20,7 @@ return new class extends Migration
             $table->timestamps();
 
             $table->foreign('solicitud_id')->references('id')->on('solicitudes_compra')->cascadeOnDelete();
-            $table->foreign('item_id')->references('id')->on('inventario_items')->nullOnDelete();
+            $table->foreign('item_id')->references('id')->on('productos')->nullOnDelete();
         });
     }
 

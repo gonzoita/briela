@@ -22,9 +22,4 @@ class Proveedor extends Model
     {
         return $this->hasMany(OrdenCompra::class);
     }
-
-    public function inventarioItems(): HasMany
-    {
-        return $this->hasMany(InventarioItem::class);
-    }
 }

@@ -22,7 +22,7 @@ return new class extends Migration
             $table->timestamps();
 
             $table->foreign('orden_id')->references('id')->on('ordenes_compra')->cascadeOnDelete();
-            $table->foreign('item_id')->references('id')->on('inventario_items')->nullOnDelete();
+            $table->foreign('item_id')->references('id')->on('productos')->nullOnDelete();
         });
     }
 
