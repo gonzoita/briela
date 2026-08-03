@@ -298,11 +298,14 @@ un comercio o una empresa de servicios.
 
 ## graphify
 
-Hay un grafo de conocimiento en `graphify-out/`.
+**graphify es un skill de Claude Code (`/graphify`), no un comando de terminal.**
+No existe un binario `graphify` en el PATH: las instrucciones heredadas del SGI
+decían lo contrario y estaban equivocadas.
 
-- Para preguntas sobre el código, correr `graphify query "<pregunta>"` cuando
-  exista `graphify-out/graph.json`. `graphify path "<A>" "<B>"` para relaciones y
-  `graphify explain "<concepto>"` para conceptos puntuales.
-- `graphify-out/wiki/index.md` sirve para navegación amplia.
-- `graphify-out/GRAPH_REPORT.md` solo para revisión de arquitectura.
-- **Después de modificar código, correr `graphify update .`** (AST, sin costo de API).
+- El grafo se genera invocando el skill `/graphify` sobre el proyecto. Deja sus
+  salidas en `graphify-out/` (que está en `.gitignore` — se regenera).
+- Cuando exista `graphify-out/`, sirve para preguntas de arquitectura y
+  relaciones entre archivos antes de leer código a mano.
+- Conviene regenerarlo después de cambios que muevan estructura (borrar módulos,
+  mover carpetas), porque un grafo desactualizado es peor que no tenerlo.
+- Al 2 ago 2026 **todavía no se ha generado** para Briela.

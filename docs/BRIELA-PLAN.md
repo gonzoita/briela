@@ -303,9 +303,37 @@ y soporte limitado.
 
 ## 7. Plan por fases
 
-### Fase 0 — Higiene y arranque del repo
+### Fase 0 — Higiene y arranque del repo · **hecha el 2 ago 2026**
 
-La copia ya está en `C:\laragon\www\briela` y **todavía no tiene git**.
+Dos commits: `12a22d2` (arranque, 768 archivos) y `cd6c248` (borrado del código
+muerto). El repositorio quedó en 180 migraciones y 96 modelos.
+
+**Lo que quedó pendiente, y por qué:**
+
+| Pendiente | Por qué |
+|---|---|
+| Correr las migraciones de cero sobre una base vacía | MySQL de Laragon no estaba arriba. Es la verificación que confirma que el borrado no rompió la cadena de FK |
+| Crear los repos en `gonzoita` y hacer push | `gh` no está instalado en la máquina |
+| Generar el grafo con `/graphify` | Es un skill de Claude Code, se lanza aparte |
+| Definir el email de los commits | Se usó el de la cuenta del SGI; si `gonzoita` usa otro, GitHub no atribuirá los commits |
+
+**Hallazgos del camino** (no estaban previstos en el plan):
+
+- El `.env` de la copia **apuntaba a la base real de Interfrigo** y traía su llave
+  de OpenRouter en texto plano. Un `migrate` en Briela habría escrito en la base
+  de producción del SGI.
+- 150 archivos temporales `.fuse_hidden` repartidos por `resources/` y `app/`.
+- Credenciales SSH de Interfrigo en tres documentos del manual y en
+  `.claude/settings.local.json`.
+- `config/pdf_modulos.php` y `PdfVariablesEngine` apuntaban a las tablas muertas:
+  **el editor de plantillas PDF de OP ofrecía las columnas de la tabla vieja.**
+  Bug heredado, corregido.
+
+---
+
+*(Registro de lo que la fase implicaba, para referencia:)*
+
+La copia estaba en `C:\laragon\www\briela` **sin git**.
 
 Verificado contra el `.gitignore` heredado, que es mejor de lo esperado: `*.sql`
 ya está ignorado ([.gitignore:34](../.gitignore)), junto con `/graphify-out/` y
