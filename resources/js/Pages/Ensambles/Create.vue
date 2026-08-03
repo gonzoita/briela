@@ -5,6 +5,7 @@ import AppLayout from '@/Layouts/AppLayout.vue'
 import { useUnsavedChanges } from '@/composables/useUnsavedChanges'
 import CampoInstancia from '@/Components/CampoInstancia.vue'
 import EditorTexto from '@/Components/EditorTexto.vue'
+import { colorMarca } from '@/marca'
 
 const props = defineProps({
     plantillas: { type: Array, default: () => [] },
@@ -105,7 +106,7 @@ watch(comisionMaxDistribuidor, () => {
 
 // ── Modal nueva categoría ─────────────────────────────────────────────────────
 const showModalCat  = ref(false)
-const nuevaCat      = ref({ nombre: '', color: '#0A4283' })
+const nuevaCat      = ref({ nombre: '', color: colorMarca() })
 const guardandoCat  = ref(false)
 
 const csrf = () => { const c = document.cookie.split('; ').find(r => r.startsWith('XSRF-TOKEN=')); return c ? decodeURIComponent(c.split('=')[1]) : '' }
@@ -123,7 +124,7 @@ async function crearCategoria() {
         listaCats.value.push(cat)
         categoriaId.value  = cat.id
         showModalCat.value = false
-        nuevaCat.value = { nombre: '', color: '#0A4283' }
+        nuevaCat.value = { nombre: '', color: colorMarca() }
     } finally { guardandoCat.value = false }
 }
 

@@ -3,6 +3,7 @@ import AppLayout from '@/Layouts/AppLayout.vue'
 import { ref, reactive, computed } from 'vue'
 import { router } from '@inertiajs/vue3'
 import { useClipboard } from '@/composables/useClipboard'
+import { colorMarca } from '@/marca'
 
 const { copyText } = useClipboard()
 
@@ -25,7 +26,7 @@ const subiendoLogo = ref(false)
 
 const form = reactive({
     nombre:               props.template?.nombre               ?? 'Plantilla por defecto',
-    color_primario:       props.template?.color_primario       ?? '#0A4283',
+    color_primario:       props.template?.color_primario       ?? colorMarca(),
     color_secundario:     props.template?.color_secundario     ?? '#F8FAFC',
     color_texto:          props.template?.color_texto          ?? '#1A1A1A',
     fuente:               props.template?.fuente               ?? 'Arial',
@@ -209,7 +210,7 @@ async function copiarVariable(variable) {
                                             maxlength="7"
                                             class="flex-1 text-sm border border-gray-200 rounded-xl px-3 py-2 font-mono focus:outline-none focus:ring-2"
                                             style="--tw-ring-color: var(--marca);"
-                                            placeholder="#0A4283"
+                                            placeholder="#2563EB"
                                         />
                                     </div>
                                 </div>

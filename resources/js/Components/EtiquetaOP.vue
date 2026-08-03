@@ -1,6 +1,7 @@
 <script setup>
 import { ref, onMounted, watch } from 'vue'
 import QRCode from 'qrcode'
+import { colorMarca } from '@/marca'
 
 const props = defineProps({
     op:   { type: Object, required: true },
@@ -14,7 +15,7 @@ const renderQR = async () => {
     await QRCode.toCanvas(canvasQR.value, `/seguimiento/${props.item.numero_serie}`, {
         width: 80,
         margin: 1,
-        color: { dark: '#0A4283', light: '#ffffff' },
+        color: { dark: colorMarca(), light: '#ffffff' },
     })
 }
 
@@ -95,7 +96,7 @@ const descargarPNG = async () => {
 }
 
 .etiqueta-header {
-    background-color: #0A4283;
+    background-color: var(--marca);
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -114,7 +115,7 @@ const descargarPNG = async () => {
 .etiqueta-op {
     font-size: 16px;
     font-weight: bold;
-    color: #0A4283;
+    color: var(--marca);
     padding: 6px 10px 2px;
 }
 
@@ -143,7 +144,7 @@ const descargarPNG = async () => {
     font-family: 'Courier New', monospace;
     font-size: 11px;
     font-weight: bold;
-    color: #0A4283;
+    color: var(--marca);
     word-break: break-all;
     line-height: 1.3;
 }
@@ -182,7 +183,7 @@ const descargarPNG = async () => {
 }
 
 .btn-etiqueta-print {
-    background-color: #0A4283;
+    background-color: var(--marca);
     color: white;
 }
 

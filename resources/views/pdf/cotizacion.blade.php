@@ -5,7 +5,7 @@
 <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: DejaVu Sans, sans-serif; font-size: 10px; color: #1F2937; }
-    .header { background-color: #0A4283; color: white; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; }
+    .header { background-color: {{ $marcaColor }}; color: white; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; }
     .header-left { display: flex; align-items: center; gap: 12px; }
     .header-logo { width: 80px; background: white; padding: 4px; border-radius: 4px; }
     .header-empresa p { font-size: 9px; opacity: 0.8; margin-top: 2px; }
@@ -20,14 +20,14 @@
     .campo label { font-size: 8px; color: #9CA3AF; display: block; margin-bottom: 2px; }
     .campo p { font-size: 10px; color: #1F2937; font-weight: 500; }
     table { width: 100%; border-collapse: collapse; }
-    thead th { background-color: #0A4283; color: white; padding: 6px 8px; text-align: left; font-size: 8px; font-weight: bold; text-transform: uppercase; }
+    thead th { background-color: {{ $marcaColor }}; color: white; padding: 6px 8px; text-align: left; font-size: 8px; font-weight: bold; text-transform: uppercase; }
     tbody tr:nth-child(even) { background-color: #F9FAFB; }
     tbody td { padding: 6px 8px; font-size: 9px; border-bottom: 1px solid #F3F4F6; vertical-align: top; }
     .text-right { text-align: right; }
     .totales { padding: 12px 20px; }
     .totales-tabla { width: 280px; margin-left: auto; }
     .totales-fila { display: flex; justify-content: space-between; padding: 4px 0; font-size: 10px; }
-    .totales-fila.total { font-weight: bold; font-size: 13px; border-top: 2px solid #0A4283; padding-top: 8px; margin-top: 4px; color: #0A4283; }
+    .totales-fila.total { font-weight: bold; font-size: 13px; border-top: 2px solid {{ $marcaColor }}; padding-top: 8px; margin-top: 4px; color: {{ $marcaColor }}; }
     .condiciones { padding: 12px 20px; }
     .condiciones p { font-size: 8px; color: #6B7280; line-height: 1.5; }
     .footer { padding: 10px 20px; background: #F9FAFB; display: flex; justify-content: space-between; font-size: 8px; color: #9CA3AF; }

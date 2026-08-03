@@ -6,7 +6,7 @@
 * { margin:0; padding:0; box-sizing:border-box; }
 body { font-family: DejaVu Sans, sans-serif; font-size:10px; color:#1f2937; }
 
-.header { background:#0A4283; padding:14px 20px; }
+.header { background:{{ $marcaColor }}; padding:14px 20px; }
 .header-inner { display:table; width:100%; }
 .header-left  { display:table-cell; vertical-align:middle; }
 .header-right { display:table-cell; vertical-align:middle; text-align:right; }
@@ -19,9 +19,9 @@ body { font-family: DejaVu Sans, sans-serif; font-size:10px; color:#1f2937; }
 .rh-inner { display:table; width:100%; }
 .rh-left  { display:table-cell; vertical-align:middle; }
 .rh-right { display:table-cell; vertical-align:middle; text-align:right; }
-.mes-titulo { font-size:14px; font-weight:bold; color:#0A4283; }
+.mes-titulo { font-size:14px; font-weight:bold; color:{{ $marcaColor }}; }
 .vendedor-nombre { font-size:10px; color:#6b7280; margin-top:2px; }
-.total-mes-badge { background:#0A4283; color:white;
+.total-mes-badge { background:{{ $marcaColor }}; color:white;
                    display:inline-block; padding:8px 16px;
                    border-radius:8px; text-align:right; }
 .total-mes-label { font-size:7px; color:#93c5fd; }
@@ -34,7 +34,7 @@ body { font-family: DejaVu Sans, sans-serif; font-size:10px; color:#1f2937; }
 .cot-header-inner { display:table; width:100%; }
 .cot-left  { display:table-cell; vertical-align:middle; }
 .cot-right { display:table-cell; vertical-align:middle; text-align:right; }
-.cot-numero { font-weight:bold; color:#0A4283; font-size:10px; }
+.cot-numero { font-weight:bold; color:{{ $marcaColor }}; font-size:10px; }
 .cot-cliente { font-size:9px; color:#6b7280; }
 .cot-estado { font-size:7px; padding:2px 6px; border-radius:8px;
               font-weight:bold; display:inline; }
@@ -56,7 +56,7 @@ table.items td.left { text-align:left; }
 .separador { height:1px; background:#e5e7eb; margin:4px 20px; }
 
 .grand-total { margin:12px 20px; padding:14px 20px;
-               background:#0A4283; border-radius:8px; }
+               background:{{ $marcaColor }}; border-radius:8px; }
 .gt-inner { display:table; width:100%; }
 .gt-left  { display:table-cell; vertical-align:middle; }
 .gt-right { display:table-cell; vertical-align:middle; text-align:right; }
@@ -139,7 +139,7 @@ table.items td.left { text-align:left; }
         <span class="cot-estado estado-{{ $comision->estado }}">
           {{ ucfirst($comision->estado) }}
         </span>
-        <span style="font-weight:bold; color:#0A4283; font-size:10px; margin-left:8px;">
+        <span style="font-weight:bold; color:{{ $marcaColor }}; font-size:10px; margin-left:8px;">
           ${{ number_format($comision->total_comision, 0, ',', '.') }}
         </span>
       </div>

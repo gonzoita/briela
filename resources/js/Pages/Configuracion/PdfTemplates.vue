@@ -1,6 +1,7 @@
 <script setup>
 import AppLayout from '@/Layouts/AppLayout.vue'
 import { router } from '@inertiajs/vue3'
+import { colorMarca } from '@/marca'
 
 const props = defineProps({
     modulos: Array,
@@ -15,7 +16,7 @@ const ICONOS_MODULO = {
     etiqueta_op: { bg: '#FEE2E2', color: '#991B1B' },
 }
 
-const colorPrimario = (modulo) => modulo?.template?.color_primario ?? '#0A4283'
+const colorPrimario = (modulo) => modulo?.template?.color_primario ?? colorMarca()
 const colorIcono    = (key) => ICONOS_MODULO[key] ?? { bg: '#E5E7EB', color: '#374151' }
 </script>
 

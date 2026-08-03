@@ -228,6 +228,9 @@ class PdfVariablesEngine
     {
         return [
             'nombre'    => \App\Models\Configuracion::get('empresa_nombre', 'Mi Empresa'),
+            // El color de marca, para que las plantillas no lleven un color
+            // escrito a mano: así los PDF de cada cliente salen con SU color.
+            'color'     => \App\Support\Marca::color(),
             'nit'       => \App\Models\Configuracion::get('empresa_nit', ''),
             'ciudad'    => \App\Models\Configuracion::get('empresa_ciudad', ''),
             'tel'       => \App\Models\Configuracion::get('empresa_telefono', ''),
@@ -510,6 +513,7 @@ class PdfVariablesEngine
                 ['var' => '{{empresa.ciudad}}',            'desc' => 'Ciudad de la empresa',         'grupo' => 'Empresa'],
                 ['var' => '{{empresa.tel}}',               'desc' => 'Teléfono de la empresa',       'grupo' => 'Empresa'],
                 ['var' => '{{empresa.logo_url}}',          'desc' => 'URL del logo de la empresa',   'grupo' => 'Empresa'],
+                ['var' => '{{empresa.color}}',             'desc' => 'Color de marca (hex)',         'grupo' => 'Empresa'],
                 ['var' => '{{cotizacion.subtotal|moneda}}',      'desc' => 'Subtotal formateado',    'grupo' => 'Totales'],
                 ['var' => '{{cotizacion.descuento_total|moneda}}','desc' => 'Descuento total',       'grupo' => 'Totales'],
                 ['var' => '{{cotizacion.impuesto_total|moneda}}', 'desc' => 'Impuesto total',        'grupo' => 'Totales'],
@@ -541,6 +545,7 @@ class PdfVariablesEngine
                 ['var' => '{{responsable.nombre}}',                'desc' => 'Responsable de la OP',       'grupo' => 'Responsable'],
                 ['var' => '{{empresa.nombre}}',                    'desc' => 'Empresa',                    'grupo' => 'Empresa'],
                 ['var' => '{{empresa.logo_url}}',                  'desc' => 'URL del logo de la empresa',  'grupo' => 'Empresa'],
+                ['var' => '{{empresa.color}}',                     'desc' => 'Color de marca (hex)',        'grupo' => 'Empresa'],
                 ['var' => '{{op.anticipo|moneda}}',                'desc' => 'Anticipo formateado',        'grupo' => 'Totales'],
                 ['var' => '{{op.created_at|fecha}}',               'desc' => 'Fecha creación formateada',  'grupo' => 'Fechas'],
                 ['var' => '{{op.fecha_inicio_produccion|fecha}}',  'desc' => 'Inicio producción',          'grupo' => 'Fechas'],

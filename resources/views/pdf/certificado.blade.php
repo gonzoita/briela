@@ -7,7 +7,7 @@
   body { font-family: DejaVu Sans, Arial, sans-serif; font-size: 11px; color: #111; background: white; }
 
   .header {
-    background-color: #0A4283;
+    background-color: {{ $marcaColor }};
     color: white;
     padding: 16px 20px;
     display: flex;
@@ -47,11 +47,11 @@
   }
   tr:nth-child(even) td { background: #F9FAFB; }
 
-  .serie-mono { font-family: DejaVu Sans Mono, monospace; font-weight: bold; color: #0A4283; }
+  .serie-mono { font-family: DejaVu Sans Mono, monospace; font-weight: bold; color: {{ $marcaColor }}; }
 
   .checks { padding: 14px 20px; }
   .check-item { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; font-size: 11px; }
-  .check-icon { color: #0A4283; font-weight: bold; }
+  .check-icon { color: {{ $marcaColor }}; font-weight: bold; }
 
   .obs-box {
     background: #F9FAFB;

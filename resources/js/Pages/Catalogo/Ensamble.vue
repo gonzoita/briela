@@ -144,7 +144,7 @@ async function compartir() {
 .tiptap-content strong { font-weight: 700; }
 .tiptap-content em { font-style: italic; }
 .tiptap-content u { text-decoration: underline; }
-.tiptap-content a { color: #0A4283; text-decoration: underline; }
+.tiptap-content a { color: var(--marca); text-decoration: underline; }
 .tiptap-content h1 { font-size: 1.125rem; font-weight: 700; margin-bottom: 0.5rem; }
 .tiptap-content h2 { font-size: 1rem; font-weight: 700; margin-bottom: 0.5rem; }
 .tiptap-content h3 { font-size: 0.9rem; font-weight: 600; margin-bottom: 0.4rem; }

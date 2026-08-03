@@ -4,6 +4,7 @@ import { registerSW } from 'virtual:pwa-register';
 
 import { createInertiaApp } from '@inertiajs/vue3';
 import { createApp, h } from 'vue';
+import { colorMarca } from '@/marca';
 
 // El título de la pestaña sale de Ajustes > Marca, que app.blade.php deja en
 // un par de <meta>.
@@ -39,10 +40,8 @@ createInertiaApp({
             .mount(el);
     },
     progress: {
-        // La barra de carga necesita un color real, no una variable CSS, así
-        // que la leemos ya resuelta del :root que imprimió Blade.
-        color: getComputedStyle(document.documentElement)
-            .getPropertyValue('--marca').trim() || '#0A4283',
+        // La barra de carga necesita un color real, no una variable CSS.
+        color: colorMarca(),
     },
 });
 

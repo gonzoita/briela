@@ -27,7 +27,7 @@ return new class extends Migration
         // Seed con opciones base
         DB::table('segmentacion_opciones')->insert([
             // Tipos de contacto
-            ['tipo' => 'tipo_contacto', 'valor' => 'cliente_directo',    'etiqueta' => 'Cliente directo',    'color' => '#0A4283', 'orden' => 1],
+            ['tipo' => 'tipo_contacto', 'valor' => 'cliente_directo',    'etiqueta' => 'Cliente directo',    'color' => '#2563EB', 'orden' => 1],
             ['tipo' => 'tipo_contacto', 'valor' => 'distribuidor',       'etiqueta' => 'Distribuidor',       'color' => '#7c3aed', 'orden' => 2],
             ['tipo' => 'tipo_contacto', 'valor' => 'mayorista',          'etiqueta' => 'Mayorista',          'color' => '#dc2626', 'orden' => 3],
             ['tipo' => 'tipo_contacto', 'valor' => 'prospecto',          'etiqueta' => 'Prospecto',          'color' => '#d97706', 'orden' => 4],
@@ -45,7 +45,7 @@ return new class extends Migration
             ['tipo' => 'proceso_seguimiento', 'valor' => 'cliente_activo',     'etiqueta' => 'Cliente activo',     'color' => '#16a34a', 'orden' => 4],
             ['tipo' => 'proceso_seguimiento', 'valor' => 'cliente_inactivo',   'etiqueta' => 'Cliente inactivo',   'color' => '#475569', 'orden' => 5],
             // Fuentes de contacto
-            ['tipo' => 'fuente_contacto', 'valor' => 'referido',         'etiqueta' => 'Referido',          'color' => '#0A4283', 'orden' => 1],
+            ['tipo' => 'fuente_contacto', 'valor' => 'referido',         'etiqueta' => 'Referido',          'color' => '#2563EB', 'orden' => 1],
             ['tipo' => 'fuente_contacto', 'valor' => 'pagina_web',       'etiqueta' => 'Página web',        'color' => '#16a34a', 'orden' => 2],
             ['tipo' => 'fuente_contacto', 'valor' => 'whatsapp',         'etiqueta' => 'WhatsApp',          'color' => '#16a34a', 'orden' => 3],
             ['tipo' => 'fuente_contacto', 'valor' => 'llamada_fria',     'etiqueta' => 'Llamada fría',      'color' => '#d97706', 'orden' => 4],

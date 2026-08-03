@@ -2,6 +2,7 @@
 import AppLayout from '@/Layouts/AppLayout.vue'
 import { router } from '@inertiajs/vue3'
 import { reactive, ref, computed, watch } from 'vue'
+import { colorMarca } from '@/marca'
 
 const props = defineProps({
     productos:  Object,
@@ -104,7 +105,7 @@ const catCargando     = ref(false)
 const catGuardando    = ref(false)
 const catError        = ref('')
 const catEditando     = ref(null)   // null=cerrado | 'nueva' | id numérico
-const catForm         = reactive({ nombre: '', color: '#0A4283' })
+const catForm         = reactive({ nombre: '', color: colorMarca() })
 
 const csrf = () => { const c = document.cookie.split('; ').find(r => r.startsWith('XSRF-TOKEN=')); return c ? decodeURIComponent(c.split('=')[1]) : '' }
 
@@ -131,14 +132,14 @@ async function cargarCategorias() {
 function abrirNueva() {
     catEditando.value = 'nueva'
     catForm.nombre    = ''
-    catForm.color     = '#0A4283'
+    catForm.color     = colorMarca()
     catError.value    = ''
 }
 
 function abrirEditar(cat) {
     catEditando.value = cat.id
     catForm.nombre    = cat.nombre
-    catForm.color     = cat.color ?? '#0A4283'
+    catForm.color     = cat.color ?? colorMarca()
     catError.value    = ''
 }
 

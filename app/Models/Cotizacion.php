@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
+use App\Support\Marca;
 
 class Cotizacion extends Model
 {
@@ -184,7 +185,7 @@ class Cotizacion extends Model
             'aprobada'      => ['label' => 'Aprobada',      'bg' => '#D1FAE5', 'text' => '#065F46'],
             'rechazada'     => ['label' => 'Rechazada',     'bg' => '#FEE2E2', 'text' => '#991B1B'],
             'vencida'       => ['label' => 'Vencida',       'bg' => '#FEF3C7', 'text' => '#92400E'],
-            'en_produccion' => ['label' => 'En Producción', 'bg' => '#DBEAFE', 'text' => '#0A4283'],
+            'en_produccion' => ['label' => 'En Producción', 'bg' => '#DBEAFE', 'text' => Marca::color()],
             default         => ['label' => $this->estado,   'bg' => '#F3F4F6', 'text' => '#6B7280'],
         };
     }

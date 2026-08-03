@@ -13,7 +13,7 @@ body {
 
 /* HEADER */
 .header {
-  background: #0A4283;
+  background: {{ $marcaColor }};
   color: #fff;
   padding: 14px 24px;
 }
@@ -41,7 +41,7 @@ body {
 /* HERO */
 .hero {
   background: linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%);
-  border-bottom: 3px solid #0A4283;
+  border-bottom: 3px solid {{ $marcaColor }};
   padding: 16px 24px 14px;
 }
 .hero-inner { display: flex; gap: 18px; align-items: flex-start; }
@@ -64,14 +64,14 @@ body {
 .hero-info { flex: 1; }
 .hero-badge {
   display: inline-block;
-  background: #0A4283; color: #fff;
+  background: {{ $marcaColor }}; color: #fff;
   border-radius: 3px; padding: 2px 8px;
   font-size: 9px; font-weight: bold;
   text-transform: uppercase; letter-spacing: 0.5px;
   margin-bottom: 6px;
 }
 .hero-nombre {
-  font-size: 19px; font-weight: bold; color: #0A4283;
+  font-size: 19px; font-weight: bold; color: {{ $marcaColor }};
   line-height: 1.25; margin-bottom: 6px;
 }
 .hero-ref {
@@ -83,7 +83,7 @@ body {
   font-style: italic;
   padding: 8px 10px;
   background: rgba(255,255,255,0.65);
-  border-left: 3px solid #0A4283;
+  border-left: 3px solid {{ $marcaColor }};
   border-radius: 0 5px 5px 0;
 }
 
@@ -121,11 +121,11 @@ body {
   padding: 8px 4px; border-radius: 6px;
   border: 1px solid #e5e7eb;
 }
-.precio-card.highlight { border: 2px solid #0A4283; background: #EFF6FF; }
+.precio-card.highlight { border: 2px solid {{ $marcaColor }}; background: #EFF6FF; }
 .precio-canal { font-size: 8px; color: #6b7280; text-transform: uppercase; margin-bottom: 4px; }
 .precio-valor { font-size: 13px; font-weight: bold; color: #111827; }
-.precio-card.highlight .precio-canal { color: #0A4283; font-weight: bold; }
-.precio-card.highlight .precio-valor { color: #0A4283; }
+.precio-card.highlight .precio-canal { color: {{ $marcaColor }}; font-weight: bold; }
+.precio-card.highlight .precio-valor { color: {{ $marcaColor }}; }
 .precio-nota { font-size: 8px; color: #9ca3af; margin-top: 10px; font-style: italic; }
 
 /* TÉCNICOS */
@@ -151,7 +151,7 @@ body {
 
 /* FOOTER */
 .footer {
-  background: #0A4283;
+  background: {{ $marcaColor }};
   color: rgba(255,255,255,0.85);
   text-align: center;
   font-size: 9px;

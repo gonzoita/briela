@@ -7,7 +7,7 @@
     body { font-family: {{ $fuente ?? 'Arial' }}, sans-serif; font-size: {{ $tamanio_fuente ?? 10 }}px; color: {{ $color_texto ?? '#1A1A1A' }}; }
 
     .header {
-        background-color: {{ $color_primario ?? '#0A4283' }};
+        background-color: {{ $color_primario ?? '{{ $marcaColor }}' }};
         color: white;
         padding: 16px 20px;
         display: flex;
@@ -29,7 +29,7 @@
         font-size: 9px;
         font-weight: bold;
         background-color: {{ $color_secundario ?? '#F8FAFC' }};
-        color: {{ $color_primario ?? '#0A4283' }};
+        color: {{ $color_primario ?? '{{ $marcaColor }}' }};
         margin-top: 5px;
     }
 
@@ -49,7 +49,7 @@
 
     table { width: 100%; border-collapse: collapse; margin-top: 8px; }
     thead th {
-        background-color: {{ $color_primario ?? '#0A4283' }};
+        background-color: {{ $color_primario ?? '{{ $marcaColor }}' }};
         color: white;
         padding: 6px 8px;
         text-align: left;
@@ -63,7 +63,7 @@
     .totals { padding: 14px 20px; }
     .totals-table { width: 260px; margin-left: auto; }
     .totals-row { display: flex; justify-content: space-between; padding: 4px 0; font-size: 10px; }
-    .totals-row.grand { font-weight: bold; font-size: 13px; border-top: 2px solid {{ $color_primario ?? '#0A4283' }}; padding-top: 8px; margin-top: 4px; color: {{ $color_primario ?? '#0A4283' }}; }
+    .totals-row.grand { font-weight: bold; font-size: 13px; border-top: 2px solid {{ $color_primario ?? '{{ $marcaColor }}' }}; padding-top: 8px; margin-top: 4px; color: {{ $color_primario ?? '{{ $marcaColor }}' }}; }
 
     .footer {
         position: fixed;
@@ -78,7 +78,7 @@
         justify-content: space-between;
         align-items: center;
     }
-    .footer .brand { color: {{ $color_primario ?? '#0A4283' }}; font-weight: bold; }
+    .footer .brand { color: {{ $color_primario ?? '{{ $marcaColor }}' }}; font-weight: bold; }
 
     .preview-notice {
         background-color: #FEF3C7;
@@ -95,8 +95,8 @@
         border-radius: 4px;
         font-size: 8px;
         background-color: {{ $color_secundario ?? '#F8FAFC' }};
-        color: {{ $color_primario ?? '#0A4283' }};
-        border: 1px solid {{ $color_primario ?? '#0A4283' }}33;
+        color: {{ $color_primario ?? '{{ $marcaColor }}' }};
+        border: 1px solid {{ $color_primario ?? '{{ $marcaColor }}' }}33;
         margin: 2px 2px;
     }
 </style>
@@ -116,7 +116,7 @@
             <img src="{{ $logo_url }}" alt="Logo" style="width: {{ $logo_ancho ?? 120 }}px; height: auto;" />
         </div>
         @elseif($mostrar_logo ?? true)
-        <div style="background:white; padding: 6px 10px; border-radius:4px; color: {{ $color_primario ?? '#0A4283' }}; font-weight:bold; font-size:11px;">
+        <div style="background:white; padding: 6px 10px; border-radius:4px; color: {{ $color_primario ?? '{{ $marcaColor }}' }}; font-weight:bold; font-size:11px;">
             INTERFRIGO
         </div>
         @endif
@@ -211,7 +211,7 @@
     <div class="section-title">Configuración aplicada</div>
     <div class="grid-2">
         <div>
-            <div class="field"><label>Color primario</label><p>{{ $color_primario ?? '#0A4283' }}</p></div>
+            <div class="field"><label>Color primario</label><p>{{ $color_primario ?? '{{ $marcaColor }}' }}</p></div>
             <div class="field" style="margin-top:5px;"><label>Color secundario</label><p>{{ $color_secundario ?? '#F8FAFC' }}</p></div>
             <div class="field" style="margin-top:5px;"><label>Color texto</label><p>{{ $color_texto ?? '#1A1A1A' }}</p></div>
         </div>

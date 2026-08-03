@@ -17,7 +17,15 @@ use App\Models\Configuracion;
  */
 class Marca
 {
-    public const COLOR_POR_DEFECTO = '#0A4283';
+    /**
+     * Color de fábrica, el que ve una instalación recién hecha antes de que el
+     * cliente ponga el suyo.
+     *
+     * PROVISIONAL: es un azul neutro puesto al desacoplar la marca de
+     * Interfrigo. Cambiar por el color definitivo de Briela — es esta línea y
+     * nada más, porque toda la paleta se deriva de aquí.
+     */
+    public const COLOR_POR_DEFECTO = '#2563EB';
 
     /**
      * Color principal. Si lo guardado no es un hex válido, cae al de fábrica
@@ -124,7 +132,7 @@ class Marca
 
     public static function nombreEmpresa(): string
     {
-        return (string) Configuracion::get('empresa_nombre', 'Interfrigo SAS');
+        return (string) Configuracion::get('empresa_nombre', 'Mi empresa');
     }
 
     /**
@@ -134,7 +142,10 @@ class Marca
     {
         $valor = trim((string) Configuracion::get('marca_titulo', ''));
 
-        return $valor !== '' ? $valor : 'SGI — {empresa}';
+        // Por defecto, la pestaña muestra la empresa del cliente y no el nombre
+        // del producto: quien usa el sistema todos los días trabaja en su
+        // empresa, no en Briela.
+        return $valor !== '' ? $valor : '{empresa}';
     }
 
     /**

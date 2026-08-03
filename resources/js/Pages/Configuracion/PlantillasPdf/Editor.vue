@@ -5,6 +5,7 @@ import EditorBloques from '@/Components/PdfPlantillas/EditorBloques.vue'
 import { ref, reactive, computed, nextTick, onUnmounted } from 'vue'
 import { router } from '@inertiajs/vue3'
 import { useClipboard } from '@/composables/useClipboard'
+import { colorMarca } from '@/marca'
 
 const { copyText } = useClipboard()
 
@@ -43,7 +44,7 @@ function bloquesPorDefecto() {
             props: {
                 columnas: 2,
                 contenido_columnas: [
-                    { bloques: [{ id: nuevoId(), tipo: 'variable', props: { variable: 'empresa.nombre', font_size: 12, negrita: true, color: '#0A4283' } }] },
+                    { bloques: [{ id: nuevoId(), tipo: 'variable', props: { variable: 'empresa.nombre', font_size: 12, negrita: true, color: colorMarca() } }] },
                     { bloques: [{ id: nuevoId(), tipo: 'variable', props: { variable: 'cotizacion.numero', font_size: 12, negrita: true, color: '' } }] },
                 ],
             },

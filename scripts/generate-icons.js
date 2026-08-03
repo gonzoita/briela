@@ -18,7 +18,7 @@ for (const size of sizes) {
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0%" stop-color="#0d52a8"/>
-      <stop offset="100%" stop-color="#0A4283"/>
+      <stop offset="100%" stop-color="#2563EB"/>
     </linearGradient>
   </defs>
   <rect width="${size}" height="${size}" rx="${radius}" ry="${radius}" fill="url(#bg)"/>

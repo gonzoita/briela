@@ -12,7 +12,7 @@ body {
 }
 
 /* HEADER */
-.header { background: #0A4283; color: #fff; padding: 14px 24px; }
+.header { background: {{ $marcaColor }}; color: #fff; padding: 14px 24px; }
 .header-inner { display: flex; align-items: center; justify-content: space-between; }
 .header-logo { display: flex; align-items: center; gap: 10px; }
 .header-logo img { height: 38px; object-fit: contain; background: white; border-radius: 5px; padding: 3px 6px; }
@@ -23,7 +23,7 @@ body {
 /* HERO */
 .hero {
   background: linear-gradient(135deg, #F5F3FF 0%, #EDE9FE 100%);
-  border-bottom: 3px solid #0A4283;
+  border-bottom: 3px solid {{ $marcaColor }};
   padding: 16px 24px 14px;
 }
 .hero-inner { display: flex; gap: 18px; align-items: flex-start; }
@@ -33,8 +33,8 @@ body {
 .hero-info { flex: 1; }
 .hero-badges { margin-bottom: 6px; }
 .badge-plantilla { display: inline-block; background: #7c3aed; color: #fff; border-radius: 3px; padding: 2px 8px; font-size: 9px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; margin-right: 4px; }
-.badge-cat { display: inline-block; background: #0A4283; color: #fff; border-radius: 3px; padding: 2px 8px; font-size: 9px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; }
-.hero-nombre { font-size: 19px; font-weight: bold; color: #0A4283; line-height: 1.25; margin-bottom: 10px; }
+.badge-cat { display: inline-block; background: {{ $marcaColor }}; color: #fff; border-radius: 3px; padding: 2px 8px; font-size: 9px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; }
+.hero-nombre { font-size: 19px; font-weight: bold; color: {{ $marcaColor }}; line-height: 1.25; margin-bottom: 10px; }
 .hero-desc { font-size: 11px; color: #374151; line-height: 1.6; font-style: italic; padding: 8px 10px; background: rgba(255,255,255,0.65); border-left: 3px solid #7c3aed; border-radius: 0 5px 5px 0; }
 
 /* GRID INFO */
@@ -51,11 +51,11 @@ body {
 .seccion-titulo { font-size: 9px; font-weight: bold; color: #6b7280; text-transform: uppercase; letter-spacing: 0.8px; border-bottom: 1px solid #e5e7eb; padding-bottom: 3px; margin-bottom: 8px; }
 .precios-grid { display: flex; gap: 8px; }
 .precio-card { flex: 1; text-align: center; padding: 8px 4px; border-radius: 6px; border: 1px solid #e5e7eb; }
-.precio-card.highlight { border: 2px solid #0A4283; background: #EFF6FF; }
+.precio-card.highlight { border: 2px solid {{ $marcaColor }}; background: #EFF6FF; }
 .precio-canal { font-size: 8px; color: #6b7280; text-transform: uppercase; margin-bottom: 4px; }
 .precio-valor { font-size: 13px; font-weight: bold; color: #111827; }
-.precio-card.highlight .precio-canal { color: #0A4283; font-weight: bold; }
-.precio-card.highlight .precio-valor { color: #0A4283; }
+.precio-card.highlight .precio-canal { color: {{ $marcaColor }}; font-weight: bold; }
+.precio-card.highlight .precio-valor { color: {{ $marcaColor }}; }
 .precio-nota { font-size: 8px; color: #9ca3af; margin-top: 10px; font-style: italic; }
 
 /* SECCIONES */
@@ -74,7 +74,7 @@ body {
 .galeria-grid img { width: 130px; height: 130px; object-fit: contain; border-radius: 5px; border: 1px solid #e5e7eb; background: #f9fafb; }
 
 /* FOOTER */
-.footer { background: #0A4283; color: rgba(255,255,255,0.85); text-align: center; font-size: 9px; padding: 8px 24px; margin-top: 18px; }
+.footer { background: {{ $marcaColor }}; color: rgba(255,255,255,0.85); text-align: center; font-size: 9px; padding: 8px 24px; margin-top: 18px; }
 </style>
 </head>
 <body>

@@ -169,16 +169,16 @@ const chartPoints = computed(() => {
                         <!-- área rellena -->
                         <polygon v-if="chartPoints.filled"
                             :points="chartPoints.filled"
-                            fill="#0A4283" fill-opacity="0.08"/>
+                            fill="var(--marca)" fill-opacity="0.08"/>
                         <!-- línea -->
                         <polyline v-if="chartPoints.points"
                             :points="chartPoints.points"
-                            fill="none" stroke="#0A4283" stroke-width="2"
+                            fill="none" stroke="var(--marca)" stroke-width="2"
                             stroke-linecap="round" stroke-linejoin="round"/>
                         <!-- puntos -->
                         <circle v-for="(dot, i) in chartPoints.dots" :key="i"
                             :cx="dot.x" :cy="dot.y" r="3"
-                            fill="#0A4283"/>
+                            fill="var(--marca)"/>
                         <!-- etiquetas mes -->
                         <text v-for="(dot, i) in chartPoints.labels" :key="`l${i}`"
                             :x="dot.x" :y="svgH - 3"

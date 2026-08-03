@@ -8,11 +8,11 @@
         .page { padding: 28px 32px; }
 
         /* Header */
-        .header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #0A4283; padding-bottom: 14px; margin-bottom: 20px; }
-        .logo-text { font-size: 22px; font-weight: 700; color: #0A4283; letter-spacing: -0.5px; }
+        .header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid {{ $marcaColor }}; padding-bottom: 14px; margin-bottom: 20px; }
+        .logo-text { font-size: 22px; font-weight: 700; color: {{ $marcaColor }}; letter-spacing: -0.5px; }
         .logo-sub { font-size: 9px; color: #555; margin-top: 2px; }
         .doc-title { text-align: right; }
-        .doc-title h2 { font-size: 16px; font-weight: 700; color: #0A4283; }
+        .doc-title h2 { font-size: 16px; font-weight: 700; color: {{ $marcaColor }}; }
         .doc-title .numero { font-size: 13px; font-weight: 600; color: #333; margin-top: 4px; }
 
         /* Datos */
@@ -23,9 +23,9 @@
         .datos-box .valor-sub { font-size: 10px; color: #555; margin-top: 2px; }
 
         /* Tabla items */
-        .section-title { font-size: 9px; font-weight: 700; text-transform: uppercase; color: #0A4283; letter-spacing: 0.5px; margin-bottom: 6px; }
+        .section-title { font-size: 9px; font-weight: 700; text-transform: uppercase; color: {{ $marcaColor }}; letter-spacing: 0.5px; margin-bottom: 6px; }
         table { width: 100%; border-collapse: collapse; margin-bottom: 18px; }
-        thead tr { background: #0A4283; }
+        thead tr { background: {{ $marcaColor }}; }
         thead th { color: white; font-size: 9px; font-weight: 600; text-transform: uppercase; padding: 7px 10px; text-align: left; }
         tbody tr { border-bottom: 1px solid #E5E7EB; }
         tbody tr:last-child { border-bottom: none; }

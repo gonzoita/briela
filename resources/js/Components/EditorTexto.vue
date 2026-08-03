@@ -201,5 +201,5 @@ function toggleLink() {
 .ProseMirror p { margin-bottom: 0.5rem; }
 .ProseMirror p:last-child { margin-bottom: 0; }
 .ProseMirror:focus { outline: none; }
-.ProseMirror a { color: #0A4283; text-decoration: underline; }
+.ProseMirror a { color: var(--marca); text-decoration: underline; }
 </style>

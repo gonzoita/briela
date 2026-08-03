@@ -2,6 +2,7 @@
 import { ref, computed } from 'vue'
 import { router, Link } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
+import { colorMarca } from '@/marca'
 
 const props = defineProps({
     metricas:      Object,
@@ -63,7 +64,7 @@ function doRefresh() {
 
 // ─── Tarjetas OPs ───────────────────────────────────────────────────────────
 const tarjetasOps = [
-    { key: 'en_produccion',   label: 'En producción',   color: '#0A4283', bg: '#EFF6FF', href: '/produccion/ops?estado=en_produccion', icon: 'clipboard' },
+    { key: 'en_produccion',   label: 'En producción',   color: colorMarca(), bg: '#EFF6FF', href: '/produccion/ops?estado=en_produccion', icon: 'clipboard' },
     { key: 'borrador',        label: 'Por confirmar',   color: '#D97706', bg: '#FFFBEB', href: '/produccion/ops?estado=borrador',      icon: 'clock'     },
     { key: 'calidad',         label: 'Ctrl. calidad',   color: '#7C3AED', bg: '#F5F3FF', href: '/produccion/ops?estado=calidad',       icon: 'check'     },
     { key: 'despachadas_mes', label: 'Despachadas/mes', color: '#059669', bg: '#ECFDF5', href: '/produccion/ops?estado=despachada',    icon: 'truck'     },

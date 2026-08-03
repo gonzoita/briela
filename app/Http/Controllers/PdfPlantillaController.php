@@ -7,6 +7,7 @@ use App\Services\PdfVariablesEngine;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use App\Support\Marca;
 
 class PdfPlantillaController extends Controller
 {
@@ -244,23 +245,26 @@ class PdfPlantillaController extends Controller
     {
         $label = strtoupper($modulo);
 
-        return str_replace('__MODULO__', $label, <<<'TEMPLATE'
+        return str_replace(
+            ['__MODULO__', '__COLOR__'],
+            [$label, Marca::color()],
+            <<<'TEMPLATE'
 <!DOCTYPE html>
 <html>
 <head>
 <meta charset="utf-8"/>
 <style>
   body { font-family: Arial, sans-serif; font-size: 10px; color: #1a1a1a; margin: 0; padding: 20px; }
-  .header { border-bottom: 2px solid #0A4283; padding-bottom: 12px; margin-bottom: 16px; display: table; width: 100%; }
+  .header { border-bottom: 2px solid __COLOR__; padding-bottom: 12px; margin-bottom: 16px; display: table; width: 100%; }
   .header-left { display: table-cell; vertical-align: middle; }
   .header-right { display: table-cell; text-align: right; vertical-align: middle; }
-  h1 { color: #0A4283; font-size: 18px; margin: 0 0 4px; }
-  .badge { background: #0A4283; color: white; padding: 4px 12px; border-radius: 4px; font-size: 13px; font-weight: bold; }
+  h1 { color: __COLOR__; font-size: 18px; margin: 0 0 4px; }
+  .badge { background: __COLOR__; color: white; padding: 4px 12px; border-radius: 4px; font-size: 13px; font-weight: bold; }
   table { width: 100%; border-collapse: collapse; margin: 12px 0; }
-  th { background: #0A4283; color: white; padding: 6px 8px; text-align: left; font-size: 9px; }
+  th { background: __COLOR__; color: white; padding: 6px 8px; text-align: left; font-size: 9px; }
   td { padding: 5px 8px; border-bottom: 1px solid #eee; font-size: 9px; }
   .totales { text-align: right; margin-top: 8px; }
-  .total-final { font-size: 14px; font-weight: bold; color: #0A4283; }
+  .total-final { font-size: 14px; font-weight: bold; color: __COLOR__; }
   .footer { margin-top: 24px; border-top: 1px solid #ddd; padding-top: 8px; font-size: 9px; color: #999; text-align: center; }
   .info-grid { display: table; width: 100%; margin-bottom: 12px; }
   .info-col { display: table-cell; width: 50%; vertical-align: top; }

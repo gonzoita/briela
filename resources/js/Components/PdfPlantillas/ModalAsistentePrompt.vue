@@ -1,6 +1,7 @@
 <script setup>
 import { ref, reactive, computed, onMounted } from 'vue'
 import { useClipboard } from '@/composables/useClipboard'
+import { colorMarca } from '@/marca'
 
 const { copyText } = useClipboard()
 
@@ -36,7 +37,7 @@ const opcionesTabla = [
 
 const diseno = reactive({
     estilo:           'corporativo',
-    colorPrimario:    '#0A4283',
+    colorPrimario:    colorMarca(),
     colorSecundario:  '#F8FAFC',
     orientacion:      'portrait',
     papel:            'a4',

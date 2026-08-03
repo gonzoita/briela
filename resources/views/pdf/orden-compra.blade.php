@@ -7,12 +7,12 @@
 <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: 'DejaVu Sans', sans-serif; font-size: 11px; color: #333; }
-    .header { background: #0A4283; color: white; padding: 20px; display: flex; justify-content: space-between; align-items: center; }
+    .header { background: {{ $marcaColor }}; color: white; padding: 20px; display: flex; justify-content: space-between; align-items: center; }
     .header h1 { font-size: 20px; font-weight: bold; }
     .header p { font-size: 11px; opacity: 0.8; margin-top: 2px; }
     .numero { font-size: 18px; font-weight: bold; text-align: right; }
     .section { padding: 16px 20px; }
-    .section-title { font-weight: bold; color: #0A4283; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid #ddd; padding-bottom: 4px; margin-bottom: 10px; }
+    .section-title { font-weight: bold; color: {{ $marcaColor }}; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid #ddd; padding-bottom: 4px; margin-bottom: 10px; }
     .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
     .info-block label { font-size: 9px; color: #666; text-transform: uppercase; display: block; }
     .info-block p { font-weight: 600; font-size: 11px; margin-top: 2px; }
@@ -23,7 +23,7 @@
     td { padding: 7px 10px; border-bottom: 1px solid #eee; font-size: 11px; }
     .totales { padding: 12px 20px; border-top: 2px solid #eee; }
     .total-row { display: flex; justify-content: space-between; padding: 3px 0; }
-    .total-row.final { font-size: 14px; font-weight: bold; color: #0A4283; border-top: 1px solid #ccc; padding-top: 6px; margin-top: 4px; }
+    .total-row.final { font-size: 14px; font-weight: bold; color: {{ $marcaColor }}; border-top: 1px solid #ccc; padding-top: 6px; margin-top: 4px; }
     .footer { padding: 16px 20px; border-top: 1px solid #eee; color: #666; font-size: 10px; }
     .badge { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 10px; font-weight: 600; }
     .badge-borrador   { background: #f3f4f6; color: #374151; }

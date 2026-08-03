@@ -17,7 +17,7 @@ return new class extends Migration
         $claves = [
             [
                 'clave'       => 'marca_color',
-                'valor'       => '#0A4283',
+                'valor'       => '#2563EB',
                 'tipo'        => 'string',
                 'grupo'       => 'marca',
                 'etiqueta'    => 'Color principal',
@@ -25,7 +25,7 @@ return new class extends Migration
             ],
             [
                 'clave'       => 'marca_titulo',
-                'valor'       => 'SGI — {empresa}',
+                'valor'       => '{empresa}',
                 'tipo'        => 'string',
                 'grupo'       => 'marca',
                 'etiqueta'    => 'Título de la pestaña',

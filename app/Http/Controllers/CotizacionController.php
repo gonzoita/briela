@@ -21,6 +21,7 @@ use Illuminate\Http\Response as HttpResponse;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
+use App\Support\Marca;
 
 class CotizacionController extends Controller
 {
@@ -52,7 +53,7 @@ class CotizacionController extends Controller
             'en_produccion'      => (bool) $c->en_produccion,
             'dias_sin_respuesta' => $c->diasSinRespuesta(),
             'estado_badge'       => $c->en_produccion
-                ? ['label' => 'En Producción', 'bg' => '#DBEAFE', 'text' => '#0A4283']
+                ? ['label' => 'En Producción', 'bg' => '#DBEAFE', 'text' => Marca::color()]
                 : $c->estadoBadge(),
         ]);
 

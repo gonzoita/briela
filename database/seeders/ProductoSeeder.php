@@ -12,7 +12,7 @@ class ProductoSeeder extends Seeder
     public function run(): void
     {
         // ── Categorías ────────────────────────────────────────────────────────
-        $catPuertas   = CategoriaProducto::create(['nombre' => 'Puertas Refrigeradas', 'color' => '#0A4283']);
+        $catPuertas   = CategoriaProducto::create(['nombre' => 'Puertas Refrigeradas', 'color' => '#2563EB']);
         $catPaneleria = CategoriaProducto::create(['nombre' => 'Panelería', 'color' => '#1a6bb5']);
         $catAccesorios= CategoriaProducto::create(['nombre' => 'Accesorios', 'color' => '#2980d4']);
 

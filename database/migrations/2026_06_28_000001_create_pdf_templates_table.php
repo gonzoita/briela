@@ -13,7 +13,7 @@ return new class extends Migration
             $table->string('modulo', 50)->unique();
             $table->string('nombre', 200)->default('Plantilla por defecto');
             // Colores
-            $table->string('color_primario', 7)->default('#0A4283');
+            $table->string('color_primario', 7)->default('#2563EB');
             $table->string('color_secundario', 7)->default('#F8FAFC');
             $table->string('color_texto', 7)->default('#1A1A1A');
             $table->string('fuente', 50)->default('Arial');

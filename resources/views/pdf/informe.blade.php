@@ -7,7 +7,7 @@
     body { font-family: DejaVu Sans, sans-serif; font-size: 9px; color: #1F2937; }
 
     .header {
-        background-color: #0A4283;
+        background-color: {{ $marcaColor }};
         color: white;
         padding: 14px 20px;
         display: flex;
@@ -48,7 +48,7 @@
 
     table { width: 100%; border-collapse: collapse; margin-top: 8px; }
     thead th {
-        background-color: #0A4283;
+        background-color: {{ $marcaColor }};
         color: white;
         padding: 6px 8px;
         text-align: left;
@@ -161,9 +161,9 @@
                 </tbody>
                 @if(!empty($totales))
                 <tfoot>
-                    <tr style="background:#EFF6FF; font-weight:bold; color:#0A4283;">
+                    <tr style="background:#EFF6FF; font-weight:bold; color:{{ $marcaColor }};">
                         @foreach($informe->campos as $i => $campo)
-                            <td style="padding:6px 8px; border-top:2px solid #0A4283; font-size:8.5px;">
+                            <td style="padding:6px 8px; border-top:2px solid {{ $marcaColor }}; font-size:8.5px;">
                                 @if(isset($totales[$campo]))
                                     <span style="font-size:7px; color:#6B7280; text-transform:uppercase;">{{ $totales[$campo]['tipo'] === 'promedio' ? 'Prom.' : 'Total' }}</span>
                                     {{ $totales[$campo]['texto'] }}

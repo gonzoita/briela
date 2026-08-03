@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\CategoriaProducto;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use App\Support\Marca;
 
 class CategoriaProductoController extends Controller
 {
@@ -26,7 +27,7 @@ class CategoriaProductoController extends Controller
 
         $categoria = CategoriaProducto::create([
             'nombre' => $data['nombre'],
-            'color'  => $data['color'] ?? '#0A4283',
+            'color'  => $data['color'] ?? Marca::color(),
         ]);
 
         return response()->json($categoria->loadCount('productos'), 201);

@@ -107,6 +107,7 @@
 <script setup>
 import { ref, computed, watch, nextTick } from 'vue'
 import QRCode from 'qrcode'
+import { colorMarca } from '@/marca'
 
 const props = defineProps({
     item: Object,
@@ -148,7 +149,7 @@ watch(mostrar, async (val) => {
         await QRCode.toCanvas(qrCanvas.value, props.item.numero_serie ?? props.item.id.toString(), {
             width: 90,
             margin: 1,
-            color: { dark: '#0A4283', light: '#FFFFFF' },
+            color: { dark: colorMarca(), light: '#FFFFFF' },
         })
     } catch (e) {
         console.error('QR error:', e)

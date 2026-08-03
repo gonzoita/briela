@@ -11,7 +11,7 @@ return new class extends Migration
         Schema::create('categorias_producto', function (Blueprint $table) {
             $table->id();
             $table->string('nombre', 100);
-            $table->string('color', 20)->default('#0A4283');
+            $table->string('color', 20)->default('#2563EB');
             $table->text('descripcion')->nullable();
             $table->boolean('activa')->default(true);
             $table->timestamps();

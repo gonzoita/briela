@@ -1,6 +1,7 @@
 <script setup>
 import AppLayout from '@/Layouts/AppLayout.vue'
 import { router } from '@inertiajs/vue3'
+import { colorMarca } from '@/marca'
 
 const props = defineProps({
     cursos: { type: Array, default: () => [] },
@@ -14,7 +15,7 @@ const publicoLabel = (v) => ({
 }[v] ?? v)
 
 const publicoColor = (v) => ({
-    colaborador: '#0A4283',
+    colaborador: colorMarca(),
     contratista: '#B45309',
     cliente:     '#065F46',
     todos:       '#4B5563',

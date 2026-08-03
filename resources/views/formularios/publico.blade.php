@@ -86,13 +86,13 @@
           <button type="submit" id="btn-submit"
             onclick="this.disabled=true; this.innerText='Enviando...'; this.form.submit();"
             class="w-full py-3 rounded-xl text-white font-semibold text-sm"
-            style="background-color: #0A4283;">
+            style="background-color: {{ $marcaColor }};">
             {{ $formulario->texto_boton }}
           </button>
         @else
           <button type="submit" id="btn-submit"
             class="w-full py-3 rounded-xl text-white font-semibold text-sm"
-            style="background-color: #0A4283;">
+            style="background-color: {{ $marcaColor }};">
             {{ $formulario->texto_boton }}
           </button>
         @endif

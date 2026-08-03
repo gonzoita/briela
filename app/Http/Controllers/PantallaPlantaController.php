@@ -11,6 +11,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
+use App\Support\Marca;
 
 class PantallaPlantaController extends Controller
 {
@@ -30,7 +31,7 @@ class PantallaPlantaController extends Controller
             ->groupBy('estacion_trabajo_id')
             ->map(fn ($pasos) => [
                 'estacion'   => $pasos->first()->estacion?->nombre ?? 'Sin estación',
-                'color'      => $pasos->first()->estacion?->color ?? '#0A4283',
+                'color'      => $pasos->first()->estacion?->color ?? Marca::color(),
                 'pasos'      => $pasos->map(fn ($p) => [
                     'nombre'      => $p->nombre,
                     'op'          => $p->trabajo?->opItem?->op?->numero,

@@ -41,7 +41,7 @@ class MarcaController extends Controller
             'color'  => ['required', 'string', 'regex:/^#[0-9A-Fa-f]{6}$/'],
             'titulo' => ['required', 'string', 'max:120'],
         ], [
-            'color.regex' => 'El color debe venir en formato hexadecimal, por ejemplo #0A4283.',
+            'color.regex' => 'El color debe venir en formato hexadecimal, por ejemplo #2563EB.',
         ]);
 
         Configuracion::set('marca_color', strtoupper($data['color']));

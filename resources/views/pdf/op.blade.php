@@ -10,7 +10,7 @@ body { font-family: DejaVu Sans, Arial, sans-serif; font-size: 9px; color: #111;
 .pagenum:before { content: counter(page); }
 
 /* ── Header ── */
-.header { background: #0A4283; color: #fff; padding: 12px 18px; }
+.header { background: {{ $marcaColor }}; color: #fff; padding: 12px 18px; }
 .header-table { display: table; width: 100%; }
 .header-brand { display: table-cell; vertical-align: middle; width: 110px; }
 .header-brand-text { font-size: 20px; font-weight: bold; letter-spacing: 1px; color: #fff; }
@@ -25,7 +25,7 @@ body { font-family: DejaVu Sans, Arial, sans-serif; font-size: 9px; color: #111;
 .col-left { display: table-cell; vertical-align: top; width: 58%; padding-right: 14px; }
 .col-right { display: table-cell; vertical-align: top; width: 42%; text-align: center; }
 
-.product-name { font-size: 13px; font-weight: bold; color: #0A4283; margin-bottom: 4px; }
+.product-name { font-size: 13px; font-weight: bold; color: {{ $marcaColor }}; margin-bottom: 4px; }
 .product-ref { font-size: 9px; color: #6B7280; margin-bottom: 8px; }
 
 .field-row { display: table; width: 100%; margin-bottom: 4px; }
@@ -51,7 +51,7 @@ table.vars td:last-child { color: #111; }
 .section-block { padding: 8px 18px; }
 .section-title { font-size: 9px; font-weight: bold; color: #374151; text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 6px; padding-bottom: 4px; border-bottom: 1px solid #E5E7EB; }
 
-.seccion-header { background: #0A4283; color: #fff; padding: 4px 8px; font-size: 8px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.4px; margin-top: 6px; margin-bottom: 0; border-radius: 2px 2px 0 0; }
+.seccion-header { background: {{ $marcaColor }}; color: #fff; padding: 4px 8px; font-size: 8px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.4px; margin-top: 6px; margin-bottom: 0; border-radius: 2px 2px 0 0; }
 
 table.materiales { width: 100%; border-collapse: collapse; }
 table.materiales th { background: #F3F4F6; border: 1px solid #D1D5DB; padding: 4px 7px; font-size: 8px; font-weight: bold; text-align: left; text-transform: uppercase; color: #374151; }

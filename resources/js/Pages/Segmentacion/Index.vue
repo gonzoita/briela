@@ -1,6 +1,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import AppLayout from '@/Layouts/AppLayout.vue'
+import { colorMarca } from '@/marca'
 
 const TIPOS = [
     { key: 'tipo_contacto',       label: 'Tipos de contacto' },
@@ -38,7 +39,7 @@ const formNuevo = ref({})
 const editando  = ref({}) // { id, etiqueta, color }
 
 function iniciarNuevo(tipo) {
-    formNuevo.value[tipo] = { etiqueta: '', color: '#0A4283' }
+    formNuevo.value[tipo] = { etiqueta: '', color: colorMarca() }
 }
 
 function cancelarNuevo(tipo) {
@@ -62,7 +63,7 @@ async function guardarNuevo(tipo) {
 }
 
 function iniciarEdicion(op) {
-    editando.value = { id: op.id, etiqueta: op.etiqueta, color: op.color ?? '#0A4283' }
+    editando.value = { id: op.id, etiqueta: op.etiqueta, color: op.color ?? colorMarca() }
 }
 
 function cancelarEdicion() {

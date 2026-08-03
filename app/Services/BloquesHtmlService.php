@@ -2,6 +2,8 @@
 
 namespace App\Services;
 
+use App\Support\Marca;
+
 class BloquesHtmlService
 {
     public static function toHtml(array $bloques): string
@@ -19,17 +21,21 @@ class BloquesHtmlService
         $htmlBody   = static::toHtml($body);
         $htmlFooter = static::toHtml($footer);
 
+        // El color sale de la configuración de la instalación: estas plantillas
+        // las imprime dompdf, que no resuelve variables CSS.
+        $marcaColor = Marca::color();
+
         return "<!DOCTYPE html>
 <html>
 <head>
 <meta charset='utf-8'/>
 <style>
   body { font-family: Arial, sans-serif; font-size: 10px; color: #1a1a1a; margin: 0; padding: 0; }
-  .seccion-header { padding: 16px 20px 8px; border-bottom: 2px solid #0A4283; }
+  .seccion-header { padding: 16px 20px 8px; border-bottom: 2px solid {$marcaColor}; }
   .seccion-body   { padding: 12px 20px; }
   .seccion-footer { padding: 8px 20px 16px; border-top: 1px solid #ddd; margin-top: 16px; }
   table { width: 100%; border-collapse: collapse; }
-  th { background: #0A4283; color: white; padding: 6px 8px; text-align: left; font-size: 9px; }
+  th { background: {$marcaColor}; color: white; padding: 6px 8px; text-align: left; font-size: 9px; }
   td { padding: 5px 8px; border-bottom: 1px solid #eee; font-size: 9px; }
   .col-wrap { display: table; width: 100%; }
   .col-2-cell { display: table-cell; width: 50%; vertical-align: top; padding: 4px; }
@@ -38,7 +44,7 @@ class BloquesHtmlService
   .totales-box { text-align: right; margin-top: 8px; }
   .qr-box { text-align: center; }
   .separador { border: none; border-top: 1px solid #ddd; margin: 8px 0; }
-  .sello { border: 2px solid #0A4283; border-radius: 50%; width: 80px; height: 80px; display: inline-block; text-align: center; line-height: 80px; font-size: 9px; color: #0A4283; }
+  .sello { border: 2px solid {$marcaColor}; border-radius: 50%; width: 80px; height: 80px; display: inline-block; text-align: center; line-height: 80px; font-size: 9px; color: {$marcaColor}; }
 </style>
 </head>
 <body>
@@ -61,7 +67,7 @@ class BloquesHtmlService
             'titulo' => (function () use ($props, $estilo) {
                 $nivel     = (int) ($props['nivel'] ?? 2);
                 $contenido = htmlspecialchars($props['contenido'] ?? '', ENT_QUOTES);
-                return "<h{$nivel} style='color:#0A4283;margin:8px 0 4px;{$estilo}'>{$contenido}</h{$nivel}>";
+                return "<h{$nivel} style='color:{$marcaColor};margin:8px 0 4px;{$estilo}'>{$contenido}</h{$nivel}>";
             })(),
 
             'imagen' => !empty($props['src'])
@@ -167,7 +173,7 @@ class BloquesHtmlService
         $html = "<div class='totales-box'>";
         foreach ($filas as $fila) {
             $estilo = !empty($fila['destacado'])
-                ? "font-size:13px;font-weight:bold;color:#0A4283;"
+                ? "font-size:13px;font-weight:bold;color:{$marcaColor};"
                 : "font-size:9px;";
             $etiqueta = htmlspecialchars($fila['etiqueta'] ?? '', ENT_QUOTES);
             $variable = $fila['variable'] ?? '';

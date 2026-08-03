@@ -1,6 +1,7 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue'
 import AppLayout from '@/Layouts/AppLayout.vue'
+import { colorMarca } from '@/marca'
 
 const props = defineProps({
     informe:         Object,
@@ -23,7 +24,7 @@ const fuenteLabel = {
 }
 
 // ─── Colores para gráficas simples SVG ───────────────────────────────────────
-const COLORES = ['#0A4283', '#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#06B6D4', '#F97316']
+const COLORES = [colorMarca(), '#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#06B6D4', '#F97316']
 
 // ─── Ejecutar ──────────────────────────────────────────────────────────────
 
@@ -197,8 +198,8 @@ const lineaPuntos = computed(() => {
             <!-- Loading -->
             <div v-if="cargando && !ejecutado" class="flex flex-col items-center py-16 gap-3">
                 <svg class="w-10 h-10 animate-spin" fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-20" cx="12" cy="12" r="10" stroke="#0A4283" stroke-width="4"/>
-                    <path class="opacity-80" fill="#0A4283" d="M4 12a8 8 0 018-8v8H4z"/>
+                    <circle class="opacity-20" cx="12" cy="12" r="10" stroke="var(--marca)" stroke-width="4"/>
+                    <path class="opacity-80" fill="var(--marca)" d="M4 12a8 8 0 018-8v8H4z"/>
                 </svg>
                 <p class="text-sm text-gray-400">Ejecutando informe...</p>
             </div>
@@ -245,7 +246,7 @@ const lineaPuntos = computed(() => {
                         <polyline
                             :points="lineaPuntos"
                             fill="none"
-                            stroke="#0A4283"
+                            stroke="var(--marca)"
                             stroke-width="2.5"
                             stroke-linejoin="round"
                         />
@@ -254,7 +255,7 @@ const lineaPuntos = computed(() => {
                                 :cx="40 + (i / Math.max(graficaData.valores.length - 1, 1)) * (anchoBarras - 80)"
                                 :cy="alturaBarras - 30 - altoBar(val)"
                                 r="4"
-                                fill="#0A4283"
+                                fill="var(--marca)"
                             />
                             <text
                                 :x="40 + (i / Math.max(graficaData.valores.length - 1, 1)) * (anchoBarras - 80)"

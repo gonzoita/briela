@@ -4,6 +4,7 @@ import EditorTexto from '@/Components/EditorTexto.vue'
 import { useForm, router } from '@inertiajs/vue3'
 import { ref, computed, reactive, watch, onMounted } from 'vue'
 import { useUnsavedChanges } from '@/composables/useUnsavedChanges'
+import { colorMarca } from '@/marca'
 
 const props = defineProps({
     producto:    Object,
@@ -204,13 +205,13 @@ const formatCOP = (v) =>
 
 // ── Modal nueva categoría ────────────────────────────────────────────────────
 const coloresPaleta = [
-    '#0A4283', '#1d4ed8', '#7c3aed', '#db2777',
+    colorMarca(), '#1d4ed8', '#7c3aed', '#db2777',
     '#dc2626', '#ea580c', '#d97706', '#65a30d',
     '#16a34a', '#0891b2', '#475569', '#1a1a1a',
 ]
 const showModalCat = ref(false)
 const listaCats = ref([...(props.categorias || [])])
-const nuevaCat = reactive({ nombre: '', color: '#0A4283' })
+const nuevaCat = reactive({ nombre: '', color: colorMarca() })
 const guardandoCat = ref(false)
 
 const crearCategoria = async () => {
@@ -233,7 +234,7 @@ const crearCategoria = async () => {
             credentials: 'same-origin',
             body: JSON.stringify({
                 nombre: nuevaCat.nombre,
-                color: nuevaCat.color || '#0A4283',
+                color: nuevaCat.color || colorMarca(),
             }),
         })
 
@@ -247,7 +248,7 @@ const crearCategoria = async () => {
         form.categoria_id = String(cat.id)
         showModalCat.value = false
         nuevaCat.nombre = ''
-        nuevaCat.color = '#0A4283'
+        nuevaCat.color = colorMarca()
     } catch (e) {
         console.error('Error creando categoría:', e)
     } finally {
@@ -917,7 +918,7 @@ const badgeStyle = {
                                 type="text"
                                 :value="nuevaCat.color"
                                 @input="nuevaCat.color = $event.target.value"
-                                placeholder="#0A4283"
+                                placeholder="#2563EB"
                                 maxlength="7"
                                 class="flex-1 border border-gray-200 rounded-lg px-3 py-1.5 text-sm font-mono focus:ring-2 focus:ring-blue-100 focus:border-blue-400"
                             />
@@ -930,7 +931,7 @@ const badgeStyle = {
                 <div class="flex gap-3 mt-5">
                     <button
                         type="button"
-                        @click.stop="showModalCat = false; nuevaCat.nombre = ''; nuevaCat.color = '#0A4283'"
+                        @click.stop="showModalCat = false; nuevaCat.nombre = ''; nuevaCat.color = colorMarca()"
                         class="flex-1 py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 bg-white">
                         Cancelar
                     </button>

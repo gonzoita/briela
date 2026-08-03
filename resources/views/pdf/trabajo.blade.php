@@ -7,7 +7,7 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: DejaVu Sans, Arial, sans-serif; font-size: 10px; color: #111; margin: 0 5px; }
 
-.header { background: #0A4283; color: white; padding: 8px 12px; }
+.header { background: {{ $marcaColor }}; color: white; padding: 8px 12px; }
 .header-inner { display: table; width: 100%; }
 .header-text { display: table-cell; vertical-align: middle; }
 .header-logo { display: table-cell; width: 80px; text-align: right; vertical-align: middle; }
@@ -61,7 +61,7 @@ table.componentes tr:nth-child(even) td { background: #F9FAFB; }
 .firma-col { display: table-cell; width: 50%; padding: 0 10px; text-align: center; }
 .firma-line { border-top: 1px solid #374151; margin-top: 20px; padding-top: 4px; font-size: 9px; color: #374151; }
 
-.serie-mono { font-family: DejaVu Sans Mono, monospace; font-weight: bold; color: #0A4283; }
+.serie-mono { font-family: DejaVu Sans Mono, monospace; font-weight: bold; color: {{ $marcaColor }}; }
 </style>
 </head>
 <body>

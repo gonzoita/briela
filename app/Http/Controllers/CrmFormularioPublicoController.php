@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use App\Support\Marca;
 
 class CrmFormularioPublicoController extends Controller
 {
@@ -104,10 +105,11 @@ class CrmFormularioPublicoController extends Controller
                     </tr>";
                 }
 
-                $appUrl = config('app.url');
+                $appUrl     = config('app.url');
+                $marcaColor = Marca::color();
                 $html   = "
                 <div style='font-family:Arial,sans-serif;max-width:600px;margin:0 auto;'>
-                  <div style='background:#0A4283;padding:24px 20px;border-radius:12px 12px 0 0;'>
+                  <div style='background:{$marcaColor};padding:24px 20px;border-radius:12px 12px 0 0;'>
                     <h2 style='color:white;margin:0;font-size:18px;font-weight:700;'>
                       Nuevo lead: {$formulario->nombre}
                     </h2>
@@ -118,7 +120,7 @@ class CrmFormularioPublicoController extends Controller
                     </table>
                     <div style='margin-top:20px;text-align:center;'>
                       <a href='{$appUrl}/crm'
-                        style='background:#0A4283;color:white;padding:11px 28px;border-radius:8px;text-decoration:none;font-size:13px;font-weight:600;display:inline-block;'>
+                        style='background:{$marcaColor};color:white;padding:11px 28px;border-radius:8px;text-decoration:none;font-size:13px;font-weight:600;display:inline-block;'>
                         Ver en el CRM
                       </a>
                     </div>

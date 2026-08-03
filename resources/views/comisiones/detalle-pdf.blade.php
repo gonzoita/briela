@@ -6,7 +6,7 @@
 * { margin:0; padding:0; box-sizing:border-box; }
 body { font-family: DejaVu Sans, sans-serif; font-size:10px; color:#1f2937; }
 
-.header { background:#0A4283; padding:14px 20px; }
+.header { background:{{ $marcaColor }}; padding:14px 20px; }
 .header-inner { display:table; width:100%; }
 .header-left { display:table-cell; vertical-align:middle; }
 .header-right { display:table-cell; vertical-align:middle; text-align:right; }
@@ -22,10 +22,10 @@ body { font-family: DejaVu Sans, sans-serif; font-size:10px; color:#1f2937; }
 .info-label { font-size:7px; color:#9ca3af; text-transform:uppercase;
               letter-spacing:0.3px; margin-bottom:3px; }
 .info-value { font-size:10px; font-weight:bold; color:#111827; }
-.info-value-blue { font-size:10px; font-weight:bold; color:#0A4283; }
+.info-value-blue { font-size:10px; font-weight:bold; color:{{ $marcaColor }}; }
 
 .section { padding:12px 20px; }
-.section-title { font-size:8px; font-weight:bold; color:#0A4283;
+.section-title { font-size:8px; font-weight:bold; color:{{ $marcaColor }};
                  text-transform:uppercase; letter-spacing:0.5px;
                  margin-bottom:8px; padding-bottom:4px;
                  border-bottom:1px solid #dbeafe; }

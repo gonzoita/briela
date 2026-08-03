@@ -4,16 +4,16 @@
   <meta charset="utf-8"/>
   <style>
     body { font-family: Arial, sans-serif; font-size: 12px; color: #1a1a1a; margin: 0; padding: 20px; }
-    .header { text-align: center; border-bottom: 2px solid #0A4283; padding-bottom: 12px; margin-bottom: 16px; }
-    .header h1 { color: #0A4283; font-size: 20px; margin: 0 0 4px; }
+    .header { text-align: center; border-bottom: 2px solid {{ $marcaColor }}; padding-bottom: 12px; margin-bottom: 16px; }
+    .header h1 { color: {{ $marcaColor }}; font-size: 20px; margin: 0 0 4px; }
     .header p { margin: 2px 0; color: #555; font-size: 11px; }
-    .badge { display: inline-block; background: #0A4283; color: white; padding: 4px 12px; border-radius: 4px; font-size: 14px; font-weight: bold; margin-bottom: 16px; }
+    .badge { display: inline-block; background: {{ $marcaColor }}; color: white; padding: 4px 12px; border-radius: 4px; font-size: 14px; font-weight: bold; margin-bottom: 16px; }
     .grid { width: 100%; margin-bottom: 12px; border-collapse: collapse; }
     .grid td { padding: 5px 8px; border-bottom: 1px solid #eee; }
     .label { color: #666; font-size: 11px; width: 40%; }
     .value { font-weight: bold; }
     .total { background: #f0f5ff; border-radius: 6px; padding: 12px; text-align: center; margin-top: 16px; }
-    .total .monto { font-size: 24px; font-weight: bold; color: #0A4283; }
+    .total .monto { font-size: 24px; font-weight: bold; color: {{ $marcaColor }}; }
     .footer { margin-top: 24px; border-top: 1px solid #ddd; padding-top: 12px; font-size: 10px; color: #999; text-align: center; }
   </style>
 </head>

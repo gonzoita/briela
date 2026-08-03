@@ -1,5 +1,6 @@
 <script setup>
 import { ref, computed } from 'vue'
+import { colorMarca } from '@/marca'
 
 const props = defineProps({
     bloques:   { type: Array,  default: () => [] },
@@ -58,7 +59,7 @@ function tipoLabel(bloque) {
 function propsPorDefecto(tipo) {
     const mapa = {
         texto:       { contenido: 'Escribe tu texto aquí', color: '', font_size: 10, alineacion: 'left', negrita: false, italica: false, margin_top: 0, margin_bottom: 0 },
-        titulo:      { contenido: 'Título', nivel: 2, color: '#0A4283', alineacion: 'left' },
+        titulo:      { contenido: 'Título', nivel: 2, color: colorMarca(), alineacion: 'left' },
         imagen:      { src: '', ancho: 120, alineacion: 'left' },
         separador:   { color: '#dddddd', grosor: 1 },
         spacer:      { alto: 20 },
@@ -465,7 +466,7 @@ function onColDragEnd() {
                                 <div>
                                     <label class="prop-label">Color</label>
                                     <input type="color"
-                                        :value="bloqueSeleccionado.props.color || '#0A4283'"
+                                        :value="bloqueSeleccionado.props.color || colorMarca()"
                                         @input="actualizarProp(bloqueSeleccionado.id, 'color', $event.target.value)"
                                         class="prop-color" />
                                 </div>

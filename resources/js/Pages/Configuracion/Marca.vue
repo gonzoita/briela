@@ -2,10 +2,11 @@
 import { ref, computed, watch } from 'vue'
 import { useForm, router } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
+import { colorMarca } from '@/marca'
 
 const props = defineProps({
     marca:             { type: Object, default: () => ({}) },
-    color_por_defecto: { type: String, default: '#0A4283' },
+    color_por_defecto: { type: String, default: colorMarca() },
 })
 
 const form = useForm({

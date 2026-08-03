@@ -13,7 +13,7 @@ body {
 }
 
 .header {
-    background: #0A4283;
+    background: {{ $marcaColor }};
     color: #fff;
     text-align: center;
     padding: 5px 6px 4px;
@@ -26,7 +26,7 @@ body {
 .product-name {
     font-size: 12px;
     font-weight: bold;
-    color: #0A4283;
+    color: {{ $marcaColor }};
     text-align: center;
     padding: 6px 8px 2px;
     line-height: 1.3;
@@ -59,7 +59,7 @@ table.vars td:last-child { color: #111; font-weight: bold; }
     font-size: 8.5px;
     color: #374151;
 }
-.serie-block strong { font-size: 10px; display: block; color: #0A4283; margin-top: 1px; }
+.serie-block strong { font-size: 10px; display: block; color: {{ $marcaColor }}; margin-top: 1px; }
 
 /* Referencia */
 .ref-block {

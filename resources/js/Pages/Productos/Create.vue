@@ -4,6 +4,7 @@ import EditorTexto from '@/Components/EditorTexto.vue'
 import { useForm, router } from '@inertiajs/vue3'
 import { ref, computed, watch, reactive, onMounted } from 'vue'
 import { useUnsavedChanges } from '@/composables/useUnsavedChanges'
+import { colorMarca } from '@/marca'
 
 const props = defineProps({
     tipo:        String,
@@ -133,7 +134,7 @@ const marcarPrincipal = (i) => previews.value.forEach((p, idx) => { p.principal 
 // ── Modal nueva categoría ─────────────────────────────────────────────────────
 const showModalCat = ref(false)
 const listaCats = ref([...(props.categorias || [])])
-const nuevaCat = ref({ nombre: '', color: '#0A4283' })
+const nuevaCat = ref({ nombre: '', color: colorMarca() })
 const guardandoCat = ref(false)
 
 const crearCategoria = async () => {
@@ -148,7 +149,7 @@ const crearCategoria = async () => {
         listaCats.value.push(cat)
         form.categoria_id = String(cat.id)
         showModalCat.value = false
-        nuevaCat.value = { nombre: '', color: '#0A4283' }
+        nuevaCat.value = { nombre: '', color: colorMarca() }
     } finally { guardandoCat.value = false }
 }
 

@@ -7,7 +7,7 @@
   body { font-family: DejaVu Sans, Arial, sans-serif; color: #111; background: white; }
 
   .marco {
-    border: 3px solid #0A4283;
+    border: 3px solid {{ $marcaColor }};
     padding: 30px;
     margin: 10px;
     min-height: 480px;
@@ -23,9 +23,9 @@
 
   .logo { width: 90px; height: 90px; margin: 0 auto 10px; display: block; }
 
-  .empresa { font-size: 12px; letter-spacing: 2px; color: #0A4283; font-weight: bold; text-transform: uppercase; }
+  .empresa { font-size: 12px; letter-spacing: 2px; color: {{ $marcaColor }}; font-weight: bold; text-transform: uppercase; }
 
-  .titulo { font-size: 34px; color: #0A4283; font-weight: bold; margin-top: 18px; letter-spacing: 1px; }
+  .titulo { font-size: 34px; color: {{ $marcaColor }}; font-weight: bold; margin-top: 18px; letter-spacing: 1px; }
 
   .subtitulo { font-size: 13px; color: #6B7280; margin-top: 6px; }
 
@@ -35,7 +35,7 @@
 
   .descripcion { font-size: 13px; color: #374151; margin-top: 22px; line-height: 1.6; }
 
-  .curso-nombre { font-size: 16px; color: #0A4283; font-weight: bold; }
+  .curso-nombre { font-size: 16px; color: {{ $marcaColor }}; font-weight: bold; }
 
   .pie {
     margin-top: 45px;
@@ -52,7 +52,7 @@
   .verificacion { text-align: center; }
   .verificacion img { width: 70px; height: 70px; }
   .verificacion p { font-size: 9px; color: #6B7280; margin-top: 4px; }
-  .codigo-mono { font-family: DejaVu Sans Mono, monospace; font-weight: bold; color: #0A4283; font-size: 10px; }
+  .codigo-mono { font-family: DejaVu Sans Mono, monospace; font-weight: bold; color: {{ $marcaColor }}; font-size: 10px; }
 </style>
 </head>
 <body>

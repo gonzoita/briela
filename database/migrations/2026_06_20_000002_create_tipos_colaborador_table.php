@@ -28,7 +28,7 @@ return new class extends Migration
             ['nombre' => 'Comercial',      'color' => '#F59E0B', 'activo' => true, 'orden' => 3, 'created_at' => now(), 'updated_at' => now()],
             ['nombre' => 'Administrativo', 'color' => '#8B5CF6', 'activo' => true, 'orden' => 4, 'created_at' => now(), 'updated_at' => now()],
             ['nombre' => 'Ingeniero',      'color' => '#EF4444', 'activo' => true, 'orden' => 5, 'created_at' => now(), 'updated_at' => now()],
-            ['nombre' => 'Directivo',      'color' => '#0A4283', 'activo' => true, 'orden' => 6, 'created_at' => now(), 'updated_at' => now()],
+            ['nombre' => 'Directivo',      'color' => '#2563EB', 'activo' => true, 'orden' => 6, 'created_at' => now(), 'updated_at' => now()],
         ]);
     }
 
