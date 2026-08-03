@@ -24,7 +24,8 @@ function restaurarUrl() {
 }
 
 // ─── Probar la conexión con un NIT real ──────────────────────────────────────
-const nitPrueba = ref('901195995')   // Interfrigo: sirve de patrón conocido
+// Vacío a propósito: quien prueba escribe un NIT que conozca.
+const nitPrueba = ref('')
 const probando  = ref(false)
 const prueba    = ref(null)
 
@@ -222,7 +223,7 @@ function ic(extra = '') {
                 </div>
 
                 <p class="text-xs text-gray-400">
-                    Viene por defecto el NIT de Interfrigo. Si la prueba con ese falla, el problema
+                    Escribe un NIT que ya conozcas. Si la prueba con uno válido falla, el problema
                     es del servicio y no del número.
                 </p>
             </div>

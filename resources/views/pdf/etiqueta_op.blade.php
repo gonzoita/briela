@@ -73,7 +73,7 @@ table.vars td:last-child { color: #111; font-weight: bold; }
 <body>
 
 <div class="header">
-    <img src="{{ $logoPath }}" alt=""> INTERFRIGO
+    @if($logoPath && file_exists($logoPath))<img src="{{ $logoPath }}" alt="">@endif {{ strtoupper($marcaNombre) }}
 </div>
 
 <div class="product-name">{{ $item->descripcion }}</div>

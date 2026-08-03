@@ -166,19 +166,19 @@ body {
 <div class="header">
   <div class="header-inner">
     <div class="header-logo">
-      @php $logoPath = public_path('img/logo-interfrigo.png'); @endphp
+      @php $logoPath = $marcaLogoPath; @endphp
       @if($logoPath && file_exists($logoPath))
       <img src="{{ $logoPath }}" />
       @endif
       <div>
-        <div class="header-empresa">Interfrigo SAS</div>
+        <div class="header-empresa">{{ $marcaNombre }}</div>
         <div class="header-sub">Fabricación e instalación de cuartos fríos y puertas refrigeradas</div>
       </div>
     </div>
     <div class="header-right">
       Ficha de Producto<br>
       {{ now()->format('d/m/Y') }}<br>
-      interfrigo.com.co
+      {{ $marcaWeb }}
     </div>
   </div>
 </div>
@@ -277,7 +277,7 @@ body {
 </div>
 
 <div class="footer">
-  Interfrigo SAS &nbsp;·&nbsp; Cuartos fríos y puertas refrigeradas &nbsp;·&nbsp; interfrigo.com.co &nbsp;·&nbsp; Documento generado el {{ now()->format('d/m/Y') }}
+  {{ $marcaNombre }}@if($marcaWeb) &nbsp;·&nbsp; {{ $marcaWeb }}@endif &nbsp;·&nbsp; Documento generado el {{ now()->format('d/m/Y') }}
 </div>
 
 </body>

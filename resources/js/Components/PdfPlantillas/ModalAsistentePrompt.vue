@@ -237,7 +237,7 @@ No incluyas encabezado ni tabla de items.`,
     }
 
     return `Eres un experto en diseño de documentos PDF empresariales para Colombia.
-Genera HTML para el sistema SGI Interfrigo.
+Genera HTML para el sistema.
 
 ════════════════════════════════════════
 MÓDULO: ${moduloUp} | SECCIÓN: ${seccion.toUpperCase()}

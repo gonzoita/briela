@@ -67,7 +67,7 @@ table.materiales td.num { text-align: right; }
 <body>
 
 <div class="footer">
-    <span class="footer-left">SGI Interfrigo &mdash; Generado: {{ $fecha }}</span>
+    <span class="footer-left">{{ $marcaNombre }} &mdash; Generado: {{ $fecha }}</span>
     <span class="footer-right">Página <span class="pagenum"></span></span>
 </div>
 
@@ -86,7 +86,7 @@ table.materiales td.num { text-align: right; }
     <div class="header">
         <div class="header-table">
             <div class="header-brand">
-                <span class="header-brand-text">INTERFRIGO</span>
+                <span class="header-brand-text">{{ strtoupper($marcaNombre) }}</span>
             </div>
             <div class="header-center">
                 <h1>ORDEN DE PRODUCCIÓN</h1>

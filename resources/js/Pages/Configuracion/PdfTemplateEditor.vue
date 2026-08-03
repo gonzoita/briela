@@ -403,7 +403,7 @@ async function copiarVariable(variable) {
                                             @input="marcarCambio"
                                             type="text"
                                             class="w-full text-sm border border-gray-200 rounded-xl px-3 py-2 focus:outline-none"
-                                            placeholder="Ej: Interfrigo SAS"
+                                            placeholder="Ej: Mi Empresa SAS"
                                         />
                                     </div>
                                     <div>
@@ -474,7 +474,7 @@ async function copiarVariable(variable) {
                                             @input="marcarCambio"
                                             type="text"
                                             class="w-full text-sm border border-gray-200 rounded-xl px-3 py-2 focus:outline-none"
-                                            placeholder="Ej: Interfrigo SAS — Calle 0 # 0-0, Bogotá"
+                                            placeholder="Ej: Mi Empresa SAS — Calle 0 # 0-0, Bogotá"
                                         />
                                         <p class="text-xs text-gray-400 mt-1">Se muestra a la izquierda del pie.</p>
                                     </div>

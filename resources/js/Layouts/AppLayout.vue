@@ -18,7 +18,7 @@ const page     = usePage()
 // Logo y nombre salen de Ajustes, no del código: así el sistema se puede
 // entregar a otra empresa sin tocar una sola línea.
 const marca = computed(() => page.props.marca ?? {
-    nombre: 'SGI',
+    nombre: 'Mi empresa',
     logo:   '/icons/icon-512.png',
 })
 const user     = computed(() => page.props.auth?.user)

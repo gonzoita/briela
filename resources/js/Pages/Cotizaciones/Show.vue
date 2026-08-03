@@ -139,7 +139,7 @@ async function copiarLinkEnviar() {
 }
 
 function abrirWhatsApp() {
-    const msg = encodeURIComponent(`Hola, te envío la cotización *${cot.numero}* de Interfrigo SAS para tu revisión y aprobación:\n\n${linkPublico}`)
+    const msg = encodeURIComponent(`Hola, te envío la cotización *${cot.numero}* para tu revisión y aprobación:\n\n${linkPublico}`)
     window.open(`https://wa.me/?text=${msg}`, '_blank')
     marcarEnviadaSiAplica()
 }
@@ -215,8 +215,8 @@ function marcarEnviada() {
             <div class="rounded-2xl mb-5 overflow-hidden" style="background:var(--marca);">
                 <div class="flex items-center justify-between px-6 py-5">
                     <div class="flex items-center gap-4">
-                        <img src="https://interfrigo.com.co/wp-content/uploads/2024/11/cropped-Diseno-sin-titulo-15.png"
-                            alt="Interfrigo" class="h-10 w-auto object-contain"
+                        <img :src="$page.props.marca.logo"
+                            :alt="$page.props.marca.nombre" class="h-10 w-auto object-contain"
                             style="filter: brightness(0) invert(1);" />
                         <div class="w-px h-8 bg-white/30"/>
                         <div>

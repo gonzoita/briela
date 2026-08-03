@@ -44,11 +44,11 @@ const descargarPNG = async () => {
         <!-- Fila 1: Logo + empresa -->
         <div class="etiqueta-header">
             <img
-                src="https://interfrigo.com.co/wp-content/uploads/2024/11/cropped-Diseno-sin-titulo-15.png"
+                :src="$page.props.marca.logo"
                 class="etiqueta-logo"
-                alt="Interfrigo"
+                :alt="$page.props.marca.nombre"
             />
-            <span class="etiqueta-empresa">INTERFRIGO SAS</span>
+            <span class="etiqueta-empresa">{{ ($page.props.marca.nombre || '').toUpperCase() }}</span>
         </div>
 
         <!-- Fila 2: OP + cliente -->

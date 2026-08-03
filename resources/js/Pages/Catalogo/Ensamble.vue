@@ -17,7 +17,7 @@ const imagenPrincipal = computed(() =>
 
 async function compartir() {
     const url  = window.location.href
-    const text = `${props.ensamble.nombre} — Interfrigo SAS`
+    const text = `${props.ensamble.nombre}`
     if (navigator.share) {
         navigator.share({ title: text, url })
     } else if (await copyText(url)) {
@@ -34,8 +34,8 @@ async function compartir() {
         <header class="bg-white border-b border-gray-200 sticky top-0 z-20">
             <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
                 <div class="flex items-center gap-2">
-                    <img src="https://interfrigo.com.co/wp-content/uploads/2024/11/cropped-Diseno-sin-titulo-15.png"
-                        alt="Interfrigo" class="h-8 object-contain" />
+                    <img :src="$page.props.marca.logo"
+                        :alt="$page.props.marca.nombre" class="h-8 object-contain" />
                     <span class="text-xs text-gray-400 hidden sm:inline">Catálogo de Configuraciones</span>
                 </div>
                 <div class="flex items-center gap-2">
@@ -122,7 +122,7 @@ async function compartir() {
                     <div class="border-t border-gray-100 pt-5">
                         <p class="text-xs text-gray-400 text-center">
                             ¿Tienes preguntas? Contáctanos a través de
-                            <a href="https://interfrigo.com.co" target="_blank" class="text-blue-600 hover:underline">interfrigo.com.co</a>
+                            <a :href="$page.props.marca.web || '#'" target="_blank" class="text-blue-600 hover:underline">{{ $page.props.marca.web }}</a>
                         </p>
                     </div>
                 </div>
@@ -130,7 +130,7 @@ async function compartir() {
         </div>
 
         <footer class="mt-12 border-t border-gray-200 bg-white py-6 text-center text-xs text-gray-400">
-            Interfrigo SAS &copy; {{ new Date().getFullYear() }} · Cuartos fríos y puertas refrigeradas · Colombia
+            {{ $page.props.marca.nombre }} &copy; {{ new Date().getFullYear() }}
         </footer>
     </div>
 </template>

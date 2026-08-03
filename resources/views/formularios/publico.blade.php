@@ -13,8 +13,10 @@
   <div class="bg-white rounded-2xl shadow-lg w-full max-w-md p-6">
 
     <div class="mb-5 flex items-center gap-3">
-      <img src="https://interfrigo.com.co/wp-content/uploads/2024/11/cropped-Diseno-sin-titulo-15.png"
-           alt="Interfrigo" class="h-10 object-contain">
+      @if($marcaLogoUrl)
+        <img src="{{ $marcaLogoUrl }}"
+             alt="{{ $marcaNombre }}" class="h-10 object-contain">
+      @endif
     </div>
 
     <div class="mb-5">
@@ -99,7 +101,7 @@
       </form>
     @endif
 
-    <p class="text-center text-xs text-gray-400 mt-5">Powered by SGI Interfrigo</p>
+    
   </div>
 
   @if($formulario->captcha_activo && $siteKey)

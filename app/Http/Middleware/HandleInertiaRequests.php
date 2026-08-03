@@ -66,6 +66,11 @@ class HandleInertiaRequests extends Middleware
                 'nombre' => \App\Support\Marca::nombreEmpresa(),
                 'logo'   => \App\Support\Marca::logoUrl(),
                 'color'  => \App\Support\Marca::color(),
+                // Para los pies de página de las pantallas públicas (catálogo,
+                // seguimiento, aprobación de cotizaciones): antes llevaban el
+                // correo y el dominio escritos a mano.
+                'email'  => \App\Models\Configuracion::get('empresa_email', ''),
+                'web'    => \App\Models\Configuracion::get('empresa_web', ''),
             ],
             // Nombre del asistente de IA, para el menú, y si usa voz natural.
             'asistente' => [

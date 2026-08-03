@@ -12,7 +12,7 @@ return new class extends Migration
             ['clave' => 'smtp_encryption', 'valor' => 'ssl',                'tipo' => 'string', 'grupo' => 'email', 'etiqueta' => 'Cifrado'],
             ['clave' => 'smtp_username',   'valor' => '',                   'tipo' => 'string', 'grupo' => 'email', 'etiqueta' => 'Usuario (email)'],
             ['clave' => 'smtp_password',   'valor' => '',                   'tipo' => 'string', 'grupo' => 'email', 'etiqueta' => 'Contraseña'],
-            ['clave' => 'smtp_from_name',  'valor' => 'Interfrigo SGI',     'tipo' => 'string', 'grupo' => 'email', 'etiqueta' => 'Nombre remitente'],
+            ['clave' => 'smtp_from_name',  'valor' => '',     'tipo' => 'string', 'grupo' => 'email', 'etiqueta' => 'Nombre remitente'],
             ['clave' => 'smtp_from_email', 'valor' => '',                   'tipo' => 'string', 'grupo' => 'email', 'etiqueta' => 'Email remitente'],
         ];
 

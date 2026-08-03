@@ -179,4 +179,16 @@ class Marca
         return \App\Services\ImagenMarcaService::url('empresa_logo')
             ?? (trim((string) Configuracion::get('empresa_logo_url', '')) ?: asset('icons/icon-512.png'));
     }
+
+    /**
+     * Ruta en disco del logo, para los PDF.
+     *
+     * dompdf no puede incrustar una imagen desde una URL, necesita el archivo.
+     * Devuelve null si la empresa todavía no subió logo: las plantillas ya
+     * saben mostrar el nombre en texto cuando no hay imagen.
+     */
+    public static function logoPath(): ?string
+    {
+        return \App\Services\ImagenMarcaService::ruta('empresa_logo');
+    }
 }

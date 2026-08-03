@@ -26,9 +26,9 @@ const submit = () => {
             <!-- Logo -->
             <div class="flex justify-center mb-6">
                 <img
-                    src="https://interfrigo.com.co/wp-content/uploads/2024/11/cropped-Diseno-sin-titulo-15.png"
+                    :src="$page.props.marca.logo"
                     class="h-12 w-auto object-contain"
-                    alt="Interfrigo"
+                    :alt="$page.props.marca.nombre"
                 />
             </div>
 
@@ -81,7 +81,7 @@ const submit = () => {
             </div>
 
             <p class="mt-8 text-center text-xs text-gray-400">
-                © 2026 Interfrigo SAS. Todos los derechos reservados.
+                © {{ new Date().getFullYear() }} {{ $page.props.marca.nombre }}. Todos los derechos reservados.
             </p>
         </div>
     </div>

@@ -57,7 +57,7 @@ const sugerencias = computed(() => {
         .filter(Boolean)
         .slice(0, 4)
 
-    return [...deDatos, '¿Cuál es la promesa de Interfrigo?']
+    return [...deDatos, '¿Cuál es la promesa de la empresa?']
 })
 
 function getCookie(name) {

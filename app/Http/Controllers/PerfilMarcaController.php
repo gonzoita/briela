@@ -9,6 +9,7 @@ use App\Services\IA\IaService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use App\Support\Marca;
 
 class PerfilMarcaController extends Controller
 {
@@ -271,7 +272,7 @@ class PerfilMarcaController extends Controller
 
         try {
             $audio = $this->ia->voz(
-                "Hola, soy {$nombre}, tu asistente en el sistema de Interfrigo. "
+                "Hola, soy {$nombre}, tu asistente en el sistema de " . Marca::nombreEmpresa() . ". "
                 . 'Puedo contarte cómo va la producción, las ventas o el inventario. ¿En qué te ayudo?'
             );
         } catch (IaException $e) {

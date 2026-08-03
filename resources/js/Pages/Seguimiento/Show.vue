@@ -66,7 +66,7 @@ const timeline = [
 const compartir = () => {
     if (navigator.share) {
         navigator.share({
-            title: `OP ${props.op.numero_op} — Interfrigo`,
+            title: `OP ${props.op.numero_op}`,
             text: `Consulta el estado de tu pedido ${props.op.numero_op}`,
             url: window.location.href,
         })
@@ -81,9 +81,9 @@ const compartir = () => {
         <!-- Header -->
         <header class="px-6 pt-8 pb-6" style="background: white; border-bottom: 1px solid #E5E7EB;">
             <img
-                src="https://interfrigo.com.co/wp-content/uploads/2024/11/cropped-Diseno-sin-titulo-15.png"
+                :src="$page.props.marca.logo"
                 class="h-8 w-auto object-contain mb-4"
-                alt="Interfrigo"
+                :alt="$page.props.marca.nombre"
             />
             <div class="flex items-start justify-between">
                 <div>
@@ -192,7 +192,7 @@ const compartir = () => {
 
         <!-- Footer -->
         <footer class="px-6 mt-8 text-center">
-            <p class="text-xs text-gray-400">Interfrigo SAS · contacto@interfrigo.com.co</p>
+            <p class="text-xs text-gray-400">{{ $page.props.marca.nombre }}{{ $page.props.marca.email ? " · " + $page.props.marca.email : "" }}</p>
         </footer>
     </div>
 </template>

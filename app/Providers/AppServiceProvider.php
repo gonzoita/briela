@@ -36,7 +36,18 @@ class AppServiceProvider extends ServiceProvider
         // carpetas: así no se consulta la configuración en cada petición ni
         // durante las migraciones, cuando la tabla todavía no existe.
         View::composer(['pdf.*', 'comisiones.*', 'formularios.*'], function ($view) {
-            $view->with('marcaColor', Marca::color());
+            $view->with([
+                'marcaColor'    => Marca::color(),
+                'marcaNombre'   => Marca::nombreEmpresa(),
+                // Dos formas del logo, porque estas carpetas mezclan PDF y HTML:
+                // dompdf necesita la ruta en disco (no sabe leer una URL), y el
+                // formulario público es una página web, que necesita la URL.
+                // La ruta es null mientras la empresa no haya subido logo.
+                'marcaLogoPath' => Marca::logoPath(),
+                'marcaLogoUrl'  => Marca::logoUrl(),
+                'marcaEmail'    => \App\Models\Configuracion::get('empresa_email', ''),
+                'marcaWeb'      => \App\Models\Configuracion::get('empresa_web', ''),
+            ]);
         });
     }
 }

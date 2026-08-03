@@ -10,6 +10,7 @@ use App\Services\IA\IaService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use App\Support\Marca;
 
 class IaController extends Controller
 {
@@ -40,9 +41,12 @@ class IaController extends Controller
             return response()->json(['error' => 'No se encontró el elemento.'], 404);
         }
 
-        $instrucciones = <<<'TXT'
-        Eres el redactor comercial de Interfrigo SAS, una empresa colombiana que
-        fabrica e instala cuartos fríos y puertas refrigeradas.
+        // Qué fabrica la empresa no se escribe aquí: sale de su perfil de marca,
+        // porque cada instalación es de una empresa distinta.
+        $empresa = Marca::nombreEmpresa();
+
+        $instrucciones = <<<TXT
+        Eres el redactor comercial de {$empresa}.
 
         Reglas de redacción:
         - Español colombiano neutro. Nunca uses voseo (nada de "tomá", "mirá").

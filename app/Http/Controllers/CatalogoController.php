@@ -7,6 +7,7 @@ use App\Models\Producto;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use App\Support\Marca;
 
 class CatalogoController extends Controller
 {
@@ -81,7 +82,7 @@ class CatalogoController extends Controller
             ->values()
             ->all();
 
-        $logoPath = public_path('img/logo-interfrigo.png');
+        $logoPath = Marca::logoPath();
 
         $pdf = Pdf::loadView('pdf.catalogo-producto', [
             'producto'            => $producto,
@@ -113,7 +114,7 @@ class CatalogoController extends Controller
             ->values()
             ->all();
 
-        $logoPath = public_path('img/logo-interfrigo.png');
+        $logoPath = Marca::logoPath();
 
         $pdf = Pdf::loadView('pdf.catalogo-ensamble', [
             'ensamble'            => $ensamble,

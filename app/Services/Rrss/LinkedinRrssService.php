@@ -9,12 +9,12 @@ use Illuminate\Support\Facades\Log;
 
 /**
  * Integración con LinkedIn para publicar en la página de empresa de
- * Interfrigo (no en perfiles personales).
+ * la empresa (no en perfiles personales).
  *
  * IMPORTANTE: publicar en una página de EMPRESA requiere que LinkedIn
  * apruebe el producto "Community Management API" para la app — esto lo debe
  * solicitar Diego desde el LinkedIn Developer Portal (developer.linkedin.com),
- * asociando la app a la página de Interfrigo. La aprobación no es automática
+ * asociando la app a la página de la empresa. La aprobación no es automática
  * y puede tardar o ser rechazada para empresas pequeñas. Mientras no esté
  * aprobado, el diálogo de login mostrará error o no ofrecerá los scopes de
  * organización, y publicarPost() devolverá el error que dé LinkedIn.

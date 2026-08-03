@@ -48,7 +48,7 @@ class ProductoImportController extends Controller
         $filas = [
             self::COLUMNAS,
             [
-                'Cuarto frío modular 3x3', 'producto', '', 'Cuartos fríos', 'Interfrigo Insumos', 'unidad',
+                'Cuarto frío modular 3x3', 'producto', '', 'Cuartos fríos', 'Proveedor de ejemplo', 'unidad',
                 'Cuarto frío modular panel inyectado', '', 'Si', 'No', 'Si', 'Si',
                 '3500000', '25', '30', '35',
                 '', '', '',

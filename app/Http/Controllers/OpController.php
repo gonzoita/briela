@@ -26,6 +26,7 @@ use Illuminate\Http\Response as HttpResponse;
 use Inertia\Inertia;
 use Inertia\Response;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
+use App\Support\Marca;
 
 class OpController extends Controller
 {
@@ -841,7 +842,7 @@ class OpController extends Controller
         $op->load('cliente');
         $item->load('ensamble');
 
-        $logoPath = public_path('img/logo-interfrigo.png');
+        $logoPath = Marca::logoPath();
 
         $urlOp = url('/op/' . $op->token_publico);
         $qrOp  = 'data:image/svg+xml;base64,' . base64_encode(

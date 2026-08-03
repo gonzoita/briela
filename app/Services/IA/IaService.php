@@ -187,7 +187,7 @@ class IaService
                 'Authorization' => 'Bearer ' . $this->apiKey(),
                 'Content-Type'  => 'application/json',
                 'HTTP-Referer'  => config('app.url'),
-                'X-Title'       => 'SGI Interfrigo',
+                'X-Title'       => 'Briela',
             ])
             ->withOptions(['stream' => true])
             ->timeout(120)
@@ -405,7 +405,7 @@ class IaService
                 'Authorization' => 'Bearer ' . $this->apiKey(),
                 'Content-Type'  => 'application/json',
                 'HTTP-Referer'  => config('app.url'),
-                'X-Title'       => 'SGI Interfrigo',
+                'X-Title'       => 'Briela',
             ])
             ->timeout(90)
             ->post('https://openrouter.ai/api/v1/audio/speech', [
@@ -461,7 +461,7 @@ class IaService
                 'Authorization' => 'Bearer ' . $this->apiKey(),
                 'Content-Type'  => 'application/json',
                 'HTTP-Referer'  => config('app.url'),
-                'X-Title'       => 'SGI Interfrigo',
+                'X-Title'       => 'Briela',
             ])
             ->timeout(120)
             ->post(self::API_URL, [
@@ -714,7 +714,7 @@ class IaService
                 'Content-Type'  => 'application/json',
                 // OpenRouter pide identificar la aplicación que consume la API.
                 'HTTP-Referer'  => config('app.url'),
-                'X-Title'       => 'SGI Interfrigo',
+                'X-Title'       => 'Briela',
             ])
             ->timeout($timeout)
             ->post(self::API_URL, $payload);

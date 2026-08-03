@@ -21,7 +21,7 @@ let intervalo        = null
 let tickerIntervalo  = null
 
 const mensajesMotivacion = [
-    '🏆 ¡El equipo Interfrigo es el mejor!',
+    '🏆 ¡Este equipo es el mejor!',
     '💪 ¡Cada paso cuenta, cada minuto importa!',
     '⭐ ¡La calidad es nuestra firma!',
     '🚀 ¡Juntos llegamos más lejos!',
@@ -79,8 +79,8 @@ function pctColor(pct) {
     <div class="flex items-center justify-between px-8 py-4 border-b"
          style="background:#0D2E5A; border-color:var(--marca);">
         <div class="flex items-center gap-4">
-            <img src="https://interfrigo.com.co/wp-content/uploads/2024/11/cropped-Diseno-sin-titulo-15.png"
-                 alt="Interfrigo"
+            <img :src="$page.props.marca.logo"
+                 :alt="$page.props.marca.nombre"
                  class="h-12 object-contain"
                  onerror="this.style.display='none'" />
             <div>
@@ -287,9 +287,9 @@ function pctColor(pct) {
     <!-- FOOTER -->
     <div class="px-8 py-2 flex items-center justify-between border-t text-xs"
          style="background:#0D2E5A; border-color:var(--marca); color:#8BA3C1;">
-        <span>Interfrigo SAS © {{ new Date().getFullYear() }}</span>
+        <span>{{ $page.props.marca.nombre }} © {{ new Date().getFullYear() }}</span>
         <span>Sistema de Gestión Integral — Actualización cada 30s</span>
-        <span style="color:#00B4D8;">sgi.interfrigo.com.co</span>
+        <span style="color:#00B4D8;">{{ $page.props.marca.web }}</span>
     </div>
 </div>
 </template>

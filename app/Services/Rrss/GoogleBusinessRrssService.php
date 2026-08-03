@@ -9,12 +9,12 @@ use Illuminate\Support\Facades\Log;
 
 /**
  * Integración con Google Business Profile (antes "Google My Business") para
- * publicar "novedades" (Local Posts) en la ficha de Interfrigo en Google Maps
+ * publicar "novedades" (Local Posts) en la ficha de la empresa en Google Maps
  * / Búsqueda.
  *
  * IMPORTANTE: la Business Profile API NO es de acceso libre. Hay que llenar
  * el formulario de acceso de Google (soporte de Business Profile > "Solicitar
- * acceso a la API"), usando un correo del dominio de Interfrigo y con el
+ * acceso a la API"), usando un correo del dominio de la empresa y con el
  * sitio web activo. La revisión de Google tarda ~14 días y no siempre se
  * aprueba. Mientras no haya acceso, cualquier llamado a la API devuelve
  * PERMISSION_DENIED aunque el OAuth funcione.

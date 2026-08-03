@@ -22,9 +22,9 @@ function salir() {
         <header class="sticky top-0 z-30 flex items-center justify-between px-4 md:px-8 h-16 bg-white shadow-sm">
             <div class="flex items-center gap-3 min-w-0">
                 <img
-                    src="https://interfrigo.com.co/wp-content/uploads/2024/11/cropped-Diseno-sin-titulo-15.png"
+                    :src="$page.props.marca.logo"
                     class="h-8 w-auto object-contain shrink-0"
-                    alt="Interfrigo"
+                    :alt="$page.props.marca.nombre"
                 />
                 <span class="text-sm md:text-base font-semibold text-gray-800 truncate">{{ title }}</span>
             </div>

@@ -23,8 +23,8 @@ for (const size of sizes) {
   </defs>
   <rect width="${size}" height="${size}" rx="${radius}" ry="${radius}" fill="url(#bg)"/>
   <rect width="${size}" height="${Math.round(size * 0.35)}" rx="${radius}" ry="${radius}" fill="rgba(255,255,255,0.06)"/>
-  <text x="${size / 2}" y="${Math.round(size * 0.5)}" font-family="Arial,sans-serif" font-size="${fsMain}" font-weight="bold" fill="white" text-anchor="middle" dominant-baseline="middle">SGI</text>
-  <text x="${size / 2}" y="${Math.round(size * 0.72)}" font-family="Arial,sans-serif" font-size="${fsSub}" fill="rgba(255,255,255,0.5)" text-anchor="middle" dominant-baseline="middle">INTERFRIGO</text>
+  <text x="${size / 2}" y="${Math.round(size * 0.5)}" font-family="Arial,sans-serif" font-size="${fsMain}" font-weight="bold" fill="white" text-anchor="middle" dominant-baseline="middle">B</text>
+  <text x="${size / 2}" y="${Math.round(size * 0.72)}" font-family="Arial,sans-serif" font-size="${fsSub}" fill="rgba(255,255,255,0.5)" text-anchor="middle" dominant-baseline="middle">BRIELA</text>
   <rect x="${Math.round(size * 0.2)}" y="${Math.round(size * 0.8)}" width="${Math.round(size * 0.6)}" height="${Math.round(size * 0.04)}" fill="rgba(255,255,255,0.15)" rx="2"/>
 </svg>`
 

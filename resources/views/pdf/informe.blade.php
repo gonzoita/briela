@@ -89,11 +89,11 @@
             <img
                 src="{{ public_path('images/logo.png') }}"
                 class="header-logo"
-                alt="Interfrigo"
+                alt="{{ $marcaNombre }}"
                 onerror="this.style.display='none'"
             />
             <div class="header-empresa">
-                <div class="titulo">Interfrigo SAS</div>
+                <div class="titulo">{{ $marcaNombre }}</div>
                 <div class="subtitulo">Sistema de Gestión Integral</div>
             </div>
         </div>
@@ -181,7 +181,7 @@
 
     <!-- Footer -->
     <div class="footer">
-        <span>SGI Interfrigo SAS — sgi.interfrigo.com.co</span>
+        <span>{{ $marcaNombre }}</span>
         <span>{{ $fecha }}</span>
     </div>
 

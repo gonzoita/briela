@@ -70,12 +70,12 @@ table.componentes tr:nth-child(even) td { background: #F9FAFB; }
 <div class="header">
     <div class="header-inner">
         <div class="header-text">
-            <h1>Orden de Trabajo — Interfrigo SAS</h1>
+            <h1>Orden de Trabajo — {{ $marcaNombre }}</h1>
             <p>{{ $op->numero }} &nbsp;·&nbsp; Unidad {{ $trabajo->numero_unidad }}/{{ $trabajo->total_unidades }} &nbsp;·&nbsp; Generado: {{ $fecha }}</p>
         </div>
-        @if(file_exists($logoPath))
+        @if($logoPath && file_exists($logoPath))
         <div class="header-logo">
-            <img src="{{ $logoPath }}" alt="Interfrigo"/>
+            <img src="{{ $logoPath }}" alt="{{ $marcaNombre }}"/>
         </div>
         @endif
     </div>

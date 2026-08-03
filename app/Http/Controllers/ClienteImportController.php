@@ -52,13 +52,13 @@ class ClienteImportController extends Controller
             self::COLUMNAS,
             [
                 'empresa', 'NIT', '901195995',
-                'INTERFRIGO SAS', '',
-                'contacto@interfrigo.com.co', '6011234567', '3001234567',
+                'EMPRESA DE EJEMPLO SAS', '',
+                'contacto@empresa.com', '6011234567', '3001234567',
                 'Bogotá', 'Calle 1 # 2-3',
                 'Bogotá', 'Si', 'No',
                 'Alimentos,Retail', 'Referido', 'Cliente desde 2018',
                 'Renier', 'Domínguez', 'Gerente',
-                'renier@interfrigo.com.co', '6011234567', '3009876543',
+                'contacto2@empresa.com', '6011234567', '3009876543',
             ],
             [
                 'persona', 'CC', '1094370680',

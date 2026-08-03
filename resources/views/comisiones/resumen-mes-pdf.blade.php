@@ -79,11 +79,11 @@ table.items td.left { text-align:left; }
 <div class="header">
   <div class="header-inner">
     <div class="header-left">
-      @if(file_exists(public_path('img/logo-interfrigo.png')))
-      <img src="{{ public_path('img/logo-interfrigo.png') }}"
-           style="height:26px;" alt="Interfrigo"/>
+      @if($marcaLogoPath)
+      <img src="{{ $marcaLogoPath }}"
+           style="height:26px;" alt="{{ $marcaNombre }}"/>
       @endif
-      <p class="logo-sub">Interfrigo SAS · Fabricación e instalación
+      <p class="logo-sub">{{ $marcaNombre }}
          de cuartos fríos y puertas refrigeradas</p>
     </div>
     <div class="header-right">
@@ -213,8 +213,8 @@ table.items td.left { text-align:left; }
 <!-- FOOTER -->
 <div class="footer-bar">
   <div class="footer-inner">
-    <div class="footer-left">Interfrigo SAS · Generado el {{ now()->format('d/m/Y H:i') }}</div>
-    <div class="footer-right">interfrigo.com.co</div>
+    <div class="footer-left">{{ $marcaNombre }} · Generado el {{ now()->format('d/m/Y H:i') }}</div>
+    <div class="footer-right">{{ $marcaWeb }}</div>
   </div>
 </div>
 

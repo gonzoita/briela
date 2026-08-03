@@ -8,6 +8,7 @@ use App\Models\OpItemTrabajo;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Response as HttpResponse;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
+use App\Support\Marca;
 
 class TrabajoPdfController extends Controller
 {
@@ -53,7 +54,7 @@ class TrabajoPdfController extends Controller
             'qrTrabajo'            => $qrTrabajo,
             'qrOp'                 => $qrOp,
             'camposPlantilla'      => $camposPlantilla,
-            'logoPath'             => public_path('img/logo-interfrigo.png'),
+            'logoPath'             => Marca::logoPath(),
             'fecha'                => now()->format('d/m/Y H:i'),
             'componentesOrdenados' => $this->ordenarComponentes($item->componentes),
         ])->setPaper('a4', 'portrait');
@@ -96,7 +97,7 @@ class TrabajoPdfController extends Controller
             'op'                   => $op,
             'qrOp'                 => $qrOp,
             'camposPlantilla'      => $camposPlantilla,
-            'logoPath'             => public_path('img/logo-interfrigo.png'),
+            'logoPath'             => Marca::logoPath(),
             'fecha'                => now()->format('d/m/Y H:i'),
             'componentesOrdenados' => $this->ordenarComponentes($item->componentes),
         ])->setPaper('a4', 'portrait');

@@ -13,6 +13,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
+use App\Support\Marca;
 
 class EvaluacionService
 {
@@ -179,7 +180,7 @@ class EvaluacionService
             'codigoVerificacion' => $codigo,
             'urlVerificacion'    => $urlVerificacion,
             'qrBase64'           => $qrBase64,
-            'logoPath'           => public_path('img/logo-interfrigo.png'),
+            'logoPath'           => Marca::logoPath(),
         ])->setPaper('a4', 'landscape');
 
         $path = "certificados/{$codigo}.pdf";

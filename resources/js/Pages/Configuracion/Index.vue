@@ -491,11 +491,11 @@ const configPuntos = computed(() =>
                                 </div>
                                 <div class="flex items-start gap-2">
                                     <span class="w-5 h-5 rounded-full bg-[var(--marca)] text-white text-xs flex items-center justify-center flex-shrink-0 mt-0.5 font-bold">2</span>
-                                    <p class="text-xs text-gray-600">Haz click en <strong>"+"</strong> para crear un nuevo sitio. Escribe un nombre (ej: <em>Interfrigo SGI</em>), selecciona <strong>reCAPTCHA v3</strong>.</p>
+                                    <p class="text-xs text-gray-600">Haz click en <strong>"+"</strong> para crear un nuevo sitio. Escribe un nombre (ej: <em>Mi empresa</em>), selecciona <strong>reCAPTCHA v3</strong>.</p>
                                 </div>
                                 <div class="flex items-start gap-2">
                                     <span class="w-5 h-5 rounded-full bg-[var(--marca)] text-white text-xs flex items-center justify-center flex-shrink-0 mt-0.5 font-bold">3</span>
-                                    <p class="text-xs text-gray-600">En <strong>Dominios</strong> agrega: <code class="bg-gray-100 px-1 rounded text-xs">sgi.interfrigo.com.co</code> y también <code class="bg-gray-100 px-1 rounded text-xs">interfrigo-sgi.test</code> para pruebas locales.</p>
+                                    <p class="text-xs text-gray-600">En <strong>Dominios</strong> agrega: <code class="bg-gray-100 px-1 rounded text-xs">tu-dominio.com</code> y también <code class="bg-gray-100 px-1 rounded text-xs">localhost</code> para pruebas locales.</p>
                                 </div>
                                 <div class="flex items-start gap-2">
                                     <span class="w-5 h-5 rounded-full bg-[var(--marca)] text-white text-xs flex items-center justify-center flex-shrink-0 mt-0.5 font-bold">4</span>
@@ -654,7 +654,7 @@ const configPuntos = computed(() =>
                                 <input
                                     v-model="configForm['smtp_from_name']"
                                     type="text"
-                                    placeholder="Interfrigo SGI"
+                                    placeholder="Mi empresa"
                                     class="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 />
                             </div>

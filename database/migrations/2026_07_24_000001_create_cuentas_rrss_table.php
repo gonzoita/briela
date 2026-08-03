@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('cuentas_rrss', function (Blueprint $table) {
             $table->id();
             $table->enum('red', ['instagram', 'facebook', 'linkedin', 'google_business']);
-            $table->string('nombre_cuenta'); // nombre visible, ej. "Interfrigo SAS"
+            $table->string('nombre_cuenta'); // nombre visible de la cuenta
             $table->string('cuenta_id_externo'); // ID de la página/cuenta en la plataforma
             $table->string('cuenta_id_secundario')->nullable(); // ej. IG Business Account ID ligado a la página de FB
             $table->text('access_token');

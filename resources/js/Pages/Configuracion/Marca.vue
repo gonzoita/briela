@@ -11,7 +11,7 @@ const props = defineProps({
 
 const form = useForm({
     color:  props.marca.color ?? props.color_por_defecto,
-    titulo: props.marca.titulo ?? 'SGI — {empresa}',
+    titulo: props.marca.titulo ?? '{empresa}',
 })
 
 // La paleta que se está viendo en la vista previa. Arranca con la guardada y

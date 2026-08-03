@@ -13,28 +13,28 @@ class DatabaseSeeder extends Seeder
         $usuarios = [
             [
                 'name'     => 'Administrador',
-                'email'    => 'admin@interfrigo.com',
+                'email'    => 'admin@briela.app',
                 'password' => Hash::make('password'),
                 'rol'      => 'administrador',
                 'activo'   => true,
             ],
             [
                 'name'     => 'Jefe de Producción',
-                'email'    => 'jefe@interfrigo.com',
+                'email'    => 'jefe@briela.app',
                 'password' => Hash::make('password'),
                 'rol'      => 'jefe_produccion',
                 'activo'   => true,
             ],
             [
                 'name'     => 'Vendedor',
-                'email'    => 'vendedor@interfrigo.com',
+                'email'    => 'vendedor@briela.app',
                 'password' => Hash::make('password'),
                 'rol'      => 'vendedor',
                 'activo'   => true,
             ],
             [
                 'name'     => 'Operario',
-                'email'    => 'operario@interfrigo.com',
+                'email'    => 'operario@briela.app',
                 'password' => Hash::make('password'),
                 'rol'      => 'operario',
                 'activo'   => true,

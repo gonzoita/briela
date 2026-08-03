@@ -61,7 +61,7 @@
     <!-- Header -->
     <div class="header">
         <div>
-            <div class="logo-text">INTERFRIGO</div>
+            <div class="logo-text">{{ strtoupper($marcaNombre) }}</div>
             <div class="logo-sub">Cuartos fríos y puertas refrigeradas</div>
         </div>
         <div class="doc-title">
@@ -174,7 +174,7 @@
     <!-- Footer -->
     <div class="footer">
         <span>Generado el {{ now()->format('d/m/Y H:i') }} — {{ $remision->numero }}</span>
-        <span>INTERFRIGO SAS · Cuartos fríos y puertas refrigeradas · Colombia</span>
+        <span>{{ strtoupper($marcaNombre) }}</span>
     </div>
 
 </div>

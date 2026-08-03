@@ -34,8 +34,8 @@ class SmtpConfigService
     {
         try {
             static::aplicar();
-            Mail::raw('Prueba de configuración SMTP desde SGI Interfrigo.', function ($m) use ($emailDestino) {
-                $m->to($emailDestino)->subject('Prueba SMTP — SGI Interfrigo');
+            Mail::raw('Prueba de configuración SMTP.', function ($m) use ($emailDestino) {
+                $m->to($emailDestino)->subject('Prueba SMTP');
             });
             return ['ok' => true, 'mensaje' => 'Email enviado correctamente.'];
         } catch (\Exception $e) {

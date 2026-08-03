@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Log;
  * Integración con Meta Graph API para publicar en Facebook (páginas propias)
  * e Instagram (cuentas profesionales ligadas a una página de Facebook).
  *
- * Como la app solo va a manejar las páginas propias de Interfrigo (Standard
+ * Como la app solo va a manejar las páginas propias de la empresa (Standard
  * Access), NO requiere App Review de Meta — basta con que el usuario que
  * conecta la cuenta sea administrador de la página en Meta Business Suite.
  *

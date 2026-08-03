@@ -50,9 +50,9 @@ const submit = () => {
                 <!-- Logo -->
                 <div class="bg-white rounded-2xl p-5 mb-8 shadow-xl">
                     <img
-                        src="https://interfrigo.com.co/wp-content/uploads/2024/11/cropped-Diseno-sin-titulo-15.png"
+                        :src="$page.props.marca.logo"
                         class="h-16 w-auto object-contain"
-                        alt="Interfrigo"
+                        :alt="$page.props.marca.nombre"
                     />
                 </div>
 
@@ -72,9 +72,9 @@ const submit = () => {
                 <!-- Logo mobile -->
                 <div class="flex justify-center mb-8 lg:hidden">
                     <img
-                        src="https://interfrigo.com.co/wp-content/uploads/2024/11/cropped-Diseno-sin-titulo-15.png"
+                        :src="$page.props.marca.logo"
                         class="h-12 w-auto object-contain"
-                        alt="Interfrigo"
+                        :alt="$page.props.marca.nombre"
                     />
                 </div>
 
@@ -114,7 +114,7 @@ const submit = () => {
                                 :class="form.errors.email
                                     ? 'border-red-400 focus:ring-red-200'
                                     : 'border-gray-300 focus:ring-blue-200 focus:border-blue-400'"
-                                placeholder="usuario@interfrigo.com"
+                                placeholder="usuario@empresa.com"
                             />
                         </div>
                         <p v-if="form.errors.email" class="mt-1 text-xs text-red-600">{{ form.errors.email }}</p>
@@ -193,7 +193,7 @@ const submit = () => {
 
                 <!-- Footer -->
                 <p class="mt-10 text-center text-xs text-gray-400">
-                    © 2026 Interfrigo SAS. Todos los derechos reservados.
+                    © {{ new Date().getFullYear() }} {{ $page.props.marca.nombre }}. Todos los derechos reservados.
                 </p>
             </div>
         </div>

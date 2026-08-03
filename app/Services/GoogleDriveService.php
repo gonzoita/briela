@@ -26,7 +26,7 @@ class GoogleDriveService
         $client = new Client();
         $client->setAuthConfig($credPath);
         $client->addScope(Drive::DRIVE);
-        $client->setApplicationName('SGI Interfrigo');
+        $client->setApplicationName('Briela');
 
         static::$drive        = new Drive($client);
         static::$rootFolderId = env('GOOGLE_DRIVE_FOLDER_ID', '');

@@ -126,7 +126,7 @@ class CrmFormularioPublicoController extends Controller
                     </div>
                   </div>
                   <p style='text-align:center;color:#9ca3af;font-size:11px;margin-top:12px;'>
-                    SGI Interfrigo &middot; {$appUrl}
+                    {$marcaNombre} &middot; {$appUrl}
                   </p>
                 </div>";
 

@@ -19,7 +19,7 @@
 </head>
 <body>
   <div class="header">
-    <h1>INTERFRIGO SAS</h1>
+    <h1>{{ strtoupper($marcaNombre) }}</h1>
     <p>NIT: 900.XXX.XXX-X</p>
     <p>Bogotá, Colombia</p>
   </div>
@@ -73,7 +73,7 @@
   </div>
 
   <div class="footer">
-    Documento generado por SGI Interfrigo · {{ now()->setTimezone('America/Bogota')->format('d/m/Y H:i') }}
+    Documento generado por {{ $marcaNombre }} · {{ now()->setTimezone('America/Bogota')->format('d/m/Y H:i') }}
   </div>
 </body>
 </html>

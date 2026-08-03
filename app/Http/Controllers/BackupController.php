@@ -26,6 +26,9 @@ class BackupController extends Controller
                 'automatico' => $b['automatico'],
             ]),
             'db_size'     => $this->backups->tamanoBaseDatos(),
+            // La pantalla mostraba el nombre de la base escrito a mano, así que
+            // en cualquier instalación decía el de otra empresa.
+            'db_nombre'   => config('database.connections.mysql.database'),
             'diagnostico' => $this->backups->diagnostico(),
             'automatico' => [
                 'hora'      => '2:00 a.m.',

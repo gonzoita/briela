@@ -7,7 +7,7 @@
         // se aplica al recargar, sin recompilar.
         //
         // Antes el nombre no estaba conectado a nada y por eso los links
-        // compartidos (WhatsApp, etc.) mostraban "Laravel" en vez de "Interfrigo".
+        // compartidos (WhatsApp, etc.) mostraban "Laravel" en vez del nombre de la empresa.
         $empresaNombre = \App\Support\Marca::nombreEmpresa();
         $empresaLogo   = \App\Support\Marca::logoUrl();
         $tituloApp     = \App\Support\Marca::tituloBase();

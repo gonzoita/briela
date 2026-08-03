@@ -60,11 +60,11 @@
 <div class="marco">
   <div class="marco-interior">
 
-    @if(file_exists($logoPath))
+    @if($logoPath && file_exists($logoPath))
     <img src="{{ $logoPath }}" class="logo" />
     @endif
 
-    <div class="empresa">Interfrigo SAS</div>
+    <div class="empresa">{{ $marcaNombre }}</div>
     <div class="titulo">CERTIFICADO DE CAPACITACIÓN</div>
     <div class="subtitulo">Se otorga el presente certificado a</div>
 
@@ -82,14 +82,14 @@
 
     <div class="pie">
       <div class="firma">
-        <div class="firma-line">Interfrigo SAS</div>
+        <div class="firma-line">{{ $marcaNombre }}</div>
         <div class="firma-nombre">Capacitación y Desarrollo</div>
       </div>
 
       <div class="verificacion">
         <img src="{{ $qrBase64 }}" />
         <p>Escanea o verifica en</p>
-        <p class="codigo-mono">{{ $urlVerificacion ?? 'sgi.interfrigo.com.co/verificar-certificado' }}</p>
+        <p class="codigo-mono">{{ $urlVerificacion ?? url('/verificar-certificado') }}</p>
         <p>Código: <span class="codigo-mono">{{ $codigoVerificacion }}</span></p>
       </div>
     </div>

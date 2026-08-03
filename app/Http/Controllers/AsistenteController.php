@@ -13,6 +13,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Symfony\Component\HttpFoundation\StreamedResponse;
+use App\Support\Marca;
 
 class AsistenteController extends Controller
 {
@@ -284,8 +285,10 @@ class AsistenteController extends Controller
         $usuario   = trim(explode(' ', (string) auth()->user()?->name)[0] ?? '');
         $esInicio  = $conversacion === '';
 
-        $instrucciones = "Te llamas {$nombre}. Eres parte del equipo de Interfrigo SAS "
-            . "y trabajas dentro del SGI, el sistema de gestión de la empresa.\n\n";
+        $empresa = Marca::nombreEmpresa();
+
+        $instrucciones = "Te llamas {$nombre}. Eres parte del equipo de {$empresa} "
+            . "y trabajas dentro del sistema de gestión de la empresa.\n\n";
 
         $instrucciones .= <<<TXT
         Quién eres y cómo te comportas:
@@ -302,7 +305,7 @@ class AsistenteController extends Controller
           no la identidad de quien te escribe. Si te mencionan a "Diego González" como
           cliente, no empieces a llamar Diego a {$usuario}.
         - Nunca digas que eres un modelo de lenguaje ni una inteligencia artificial genérica:
-          eres {$nombre}, la asistente del SGI de Interfrigo.
+          eres {$nombre}, la asistente del sistema de {$empresa}.
         - Evita las muletillas de robot: nada de "¡Claro!", "Por supuesto", "Aquí tienes",
           "Espero que esto te ayude". Ve al punto.
         - Si algo va mal, está atrasado o falta información, lo dices directo, como lo haría
@@ -367,7 +370,7 @@ class AsistenteController extends Controller
         TXT;
 
         if ($perfil !== '') {
-            $instrucciones .= "\n\n# Perfil de marca de Interfrigo\n\n{$perfil}";
+            $instrucciones .= "\n\n# Perfil de marca de {$empresa}\n\n{$perfil}";
         }
 
         $prompt = ($conversacion !== '' ? "Conversación previa:\n{$conversacion}\n\n" : '')

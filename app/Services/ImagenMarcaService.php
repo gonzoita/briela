@@ -67,6 +67,23 @@ class ImagenMarcaService
         return Storage::disk('public')->url($ruta);
     }
 
+    /**
+     * Ruta en disco de la imagen guardada, o null si no hay.
+     *
+     * dompdf no puede leer una URL para incrustar una imagen en un PDF: necesita
+     * la ruta del archivo. Por eso esto existe además de url().
+     */
+    public static function ruta(string $clave): ?string
+    {
+        $ruta = trim((string) Configuracion::get("{$clave}_ruta", ''));
+
+        if ($ruta === '' || ! Storage::disk('public')->exists($ruta)) {
+            return null;
+        }
+
+        return Storage::disk('public')->path($ruta);
+    }
+
     private static function borrarAnterior(string $clave): void
     {
         $anterior = trim((string) Configuracion::get("{$clave}_ruta", ''));

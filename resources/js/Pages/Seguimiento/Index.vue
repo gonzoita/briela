@@ -59,9 +59,9 @@ const cerrarQR = async () => {
         <!-- Header -->
         <header class="flex flex-col items-center pt-12 pb-8 px-6">
             <img
-                src="https://interfrigo.com.co/wp-content/uploads/2024/11/cropped-Diseno-sin-titulo-15.png"
+                :src="$page.props.marca.logo"
                 class="h-14 w-auto object-contain mb-6"
-                alt="Interfrigo"
+                :alt="$page.props.marca.nombre"
             />
             <h1 class="text-2xl font-bold text-gray-900 text-center">Seguimiento de pedido</h1>
             <p class="text-gray-500 text-sm mt-1 text-center">Consulta el estado de tu orden de producción</p>
@@ -130,8 +130,8 @@ const cerrarQR = async () => {
 
         <!-- Footer -->
         <footer class="px-6 py-8 text-center">
-            <p class="text-xs text-gray-400">Interfrigo SAS · Cámaras y cuartos fríos</p>
-            <p class="text-xs text-gray-400 mt-1">contacto@interfrigo.com.co</p>
+            <p class="text-xs text-gray-400">{{ $page.props.marca.nombre }}</p>
+            <p v-if="$page.props.marca.email" class="text-xs text-gray-400 mt-1">{{ $page.props.marca.email }}</p>
         </footer>
     </div>
 

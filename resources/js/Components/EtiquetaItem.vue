@@ -55,7 +55,7 @@
                     >
                         <!-- Franja superior azul -->
                         <div style="background:var(--marca);height:32px;display:flex;align-items:center;padding:0 12px;justify-content:space-between;">
-                            <span style="color:white;font-weight:bold;font-size:13px;letter-spacing:1px;">INTERFRIGO SAS</span>
+                            <span style="color:white;font-weight:bold;font-size:13px;letter-spacing:1px;">{{ ($page.props.marca.nombre || '').toUpperCase() }}</span>
                             <span style="color:rgba(255,255,255,0.7);font-size:10px;">SGI</span>
                         </div>
 
@@ -90,7 +90,7 @@
                         <!-- Franja inferior -->
                         <div style="background:#f8fafc;border-top:1px solid #e2e8f0;height:24px;display:flex;align-items:center;padding:0 12px;justify-content:space-between;">
                             <span style="font-family:monospace;font-size:9px;color:#64748b;">{{ item.numero_serie }}</span>
-                            <span style="font-size:9px;color:#94a3b8;">interfrigo.com.co</span>
+                            
                         </div>
                     </div>
                 </div>

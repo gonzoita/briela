@@ -35,7 +35,7 @@
 
 <div class="header">
     <div>
-        <h1>Interfrigo SAS</h1>
+        <h1>{{ $marcaNombre }}</h1>
         <p>Cuartos fríos y puertas refrigeradas</p>
     </div>
     <div>
@@ -143,7 +143,7 @@
 @endif
 
 <div class="footer">
-    <p>Generado el {{ now()->format('d/m/Y H:i') }} · Interfrigo SAS · sgi.interfrigo.com.co</p>
+    <p>Generado el {{ now()->format('d/m/Y H:i') }} · {{ $marcaNombre }}</p>
 </div>
 
 </body>

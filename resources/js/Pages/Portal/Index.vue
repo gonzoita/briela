@@ -32,7 +32,7 @@ const inicial = (t) => (t ?? '?').charAt(0).toUpperCase()
 
             <div>
                 <h1 class="text-xl font-bold text-gray-900">Hola{{ nombreEstudiante ? ', ' + nombreEstudiante : '' }} 👋</h1>
-                <p class="text-sm text-gray-500 mt-0.5">Continúa tu formación en Interfrigo</p>
+                <p class="text-sm text-gray-500 mt-0.5">Continúa tu formación</p>
             </div>
 
             <!-- Pendientes obligatorios -->

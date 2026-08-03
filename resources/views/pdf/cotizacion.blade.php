@@ -43,14 +43,14 @@
 <!-- Header -->
 <div class="header">
     <div class="header-left">
-        @if(file_exists(public_path('img/logo-interfrigo.png')))
-        <img src="{{ public_path('img/logo-interfrigo.png') }}" alt="Interfrigo" style="max-height:50px; background:white; padding:4px; border-radius:4px;" />
+        @if($marcaLogoPath)
+        <img src="{{ $marcaLogoPath }}" alt="{{ $marcaNombre }}" style="max-height:50px; background:white; padding:4px; border-radius:4px;" />
         @endif
         <div class="header-empresa">
-            <strong style="font-size: 14px;">INTERFRIGO SAS</strong>
+            <strong style="font-size: 14px;">{{ strtoupper($marcaNombre) }}</strong>
             <p>NIT: 900.000.000-0</p>
             <p>Fabricación e instalación de cuartos fríos y puertas refrigeradas</p>
-            <p>Colombia | sgi.interfrigo.com.co</p>
+            @if($marcaWeb)<p>{{ $marcaWeb }}</p>@endif
         </div>
     </div>
     <div class="header-right">

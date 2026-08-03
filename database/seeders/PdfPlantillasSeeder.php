@@ -171,7 +171,7 @@ td{padding:5px 7px;border-bottom:1px solid #eee;font-size:9px;vertical-align:top
 <div class="footer">
   <div class="row">
     <div class="col">{{empresa.nombre}} &nbsp;|&nbsp; {{empresa.ciudad}} &nbsp;|&nbsp; Tel: {{empresa.tel}}</div>
-    <div class="col" style="text-align:right;">{{cotizacion.numero}} &nbsp;|&nbsp; SGI Interfrigo</div>
+    <div class="col" style="text-align:right;">{{cotizacion.numero}} &nbsp;|&nbsp; {{empresa.nombre}}</div>
   </div>
 </div>
 
@@ -293,7 +293,7 @@ td{padding:5px 7px;border-bottom:1px solid #eee;font-size:9px;vertical-align:top
 <div class="footer">
   <div class="row">
     <div class="col">{{empresa.nombre}} &nbsp;|&nbsp; {{empresa.ciudad}}</div>
-    <div class="col" style="text-align:right;">{{op.numero}} &nbsp;|&nbsp; SGI Interfrigo</div>
+    <div class="col" style="text-align:right;">{{op.numero}} &nbsp;|&nbsp; {{empresa.nombre}}</div>
   </div>
 </div>
 
@@ -416,7 +416,7 @@ td{padding:5px 7px;border-bottom:1px solid #eee;font-size:9px;}
 <div class="footer">
   <div class="row">
     <div class="col">{{empresa.nombre}} &nbsp;|&nbsp; {{empresa.ciudad}}</div>
-    <div class="col" style="text-align:right;">{{remision.numero}} &nbsp;|&nbsp; SGI Interfrigo</div>
+    <div class="col" style="text-align:right;">{{remision.numero}} &nbsp;|&nbsp; {{empresa.nombre}}</div>
   </div>
 </div>
 
@@ -527,7 +527,7 @@ body{font-family:Arial,sans-serif;font-size:10px;color:#1a1a1a;margin:0;padding:
   </div>
 </div>
 
-<div class="footer">{{empresa.nombre}} &nbsp;|&nbsp; {{empresa.ciudad}} &nbsp;|&nbsp; {{pago.numero_recibo}} &nbsp;|&nbsp; SGI Interfrigo</div>
+<div class="footer">{{empresa.nombre}} &nbsp;|&nbsp; {{empresa.ciudad}} &nbsp;|&nbsp; {{pago.numero_recibo}} &nbsp;|&nbsp; {{empresa.nombre}}</div>
 
 </body>
 </html>
@@ -648,7 +648,7 @@ td{padding:5px 7px;border-bottom:1px solid #eee;font-size:9px;vertical-align:mid
 <div class="footer">
   <div class="row">
     <div class="col">{{empresa.nombre}} &nbsp;|&nbsp; {{empresa.ciudad}}</div>
-    <div class="col" style="text-align:right;">{{trabajo.codigo}} &nbsp;|&nbsp; SGI Interfrigo</div>
+    <div class="col" style="text-align:right;">{{trabajo.codigo}} &nbsp;|&nbsp; {{empresa.nombre}}</div>
   </div>
 </div>
 
@@ -715,7 +715,7 @@ body{font-family:Arial,sans-serif;font-size:10px;color:#1a1a1a;margin:0;padding:
   </div>
 
   <div style="background:{{empresa.color}};color:white;text-align:center;padding:3px;margin-top:8px;font-size:7px;font-weight:bold;letter-spacing:0.5px;">
-    SGI INTERFRIGO &mdash; CUARTOS FRÍOS
+    {{empresa.nombre}}
   </div>
 
 </div>
@@ -814,7 +814,7 @@ body{font-family:Arial,sans-serif;font-size:10px;color:#1a1a1a;margin:0;padding:
   La firma del colaborador no implica aceptación de los hechos, sino constancia de haber recibido este comunicado.
 </p>
 
-<div class="footer">{{empresa.nombre}} &nbsp;|&nbsp; {{empresa.ciudad}} &nbsp;|&nbsp; Documento interno &nbsp;|&nbsp; SGI Interfrigo</div>
+<div class="footer">{{empresa.nombre}} &nbsp;|&nbsp; {{empresa.ciudad}} &nbsp;|&nbsp; Documento interno &nbsp;|&nbsp; {{empresa.nombre}}</div>
 
 </body>
 </html>
@@ -936,7 +936,7 @@ td{padding:5px 7px;border-bottom:1px solid #eee;font-size:9px;vertical-align:top
 <div class="footer">
   <div class="row">
     <div class="col">{{empresa.nombre}} &nbsp;|&nbsp; {{empresa.ciudad}}</div>
-    <div class="col" style="text-align:right;">{{comision.numero}} &nbsp;|&nbsp; SGI Interfrigo</div>
+    <div class="col" style="text-align:right;">{{comision.numero}} &nbsp;|&nbsp; {{empresa.nombre}}</div>
   </div>
 </div>
 

@@ -117,11 +117,11 @@
         </div>
         @elseif($mostrar_logo ?? true)
         <div style="background:white; padding: 6px 10px; border-radius:4px; color: {{ $color_primario ?? '{{ $marcaColor }}' }}; font-weight:bold; font-size:11px;">
-            INTERFRIGO
+            {{ strtoupper($marcaNombre) }}
         </div>
         @endif
         <div>
-            <div class="header-title">{{ $encabezado_titulo ?? 'Interfrigo SAS' }}</div>
+            <div class="header-title">{{ $encabezado_titulo ?? $marcaNombre }}</div>
             <div class="header-subtitle">{{ $encabezado_subtitulo ?? 'Cuartos Fríos y Puertas Refrigeradas' }}</div>
         </div>
     </div>
@@ -229,8 +229,8 @@
     @if($pie_html ?? null)
         {!! $pie_html !!}
     @else
-        <span>{{ $pie_texto ?? 'Interfrigo SAS — Calle 0 # 0-0, Bogotá' }}</span>
-        <span class="brand">sgi.interfrigo.com.co</span>
+        <span>{{ $pie_texto ?? $marcaNombre }}</span>
+        <span class="brand">{{ $marcaWeb }}</span>
     @endif
 </div>
 @endif

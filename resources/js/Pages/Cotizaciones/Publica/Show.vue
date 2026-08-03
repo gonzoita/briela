@@ -67,8 +67,8 @@ function calcularTotal(item) {
         <!-- Header -->
         <header class="px-4 py-4 shadow-sm" style="background:var(--marca);">
             <div class="max-w-3xl mx-auto flex items-center justify-between">
-                <img src="https://interfrigo.com.co/wp-content/uploads/2024/11/cropped-Diseno-sin-titulo-15.png"
-                    alt="Interfrigo" class="h-8 object-contain"
+                <img :src="$page.props.marca.logo"
+                    :alt="$page.props.marca.nombre" class="h-8 object-contain"
                     style="filter: brightness(0) invert(1);"/>
                 <div class="text-right">
                     <p class="text-white text-xs font-semibold leading-none">COTIZACIÓN</p>
@@ -284,7 +284,7 @@ function calcularTotal(item) {
 
             <!-- Footer -->
             <p class="text-center text-xs text-gray-400 pb-6">
-                Interfrigo SAS · sgi.interfrigo.com.co
+                {{ $page.props.marca.nombre }}
             </p>
 
         </div>

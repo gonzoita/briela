@@ -4,6 +4,7 @@ import { router, useForm } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
 
 const props = defineProps({
+    db_nombre:   { type: String, default: '' },
     backups:     { type: Array,  default: () => [] },
     db_size:     { type: String, default: '0 MB' },
     automatico:  { type: Object, default: () => ({ hora: '2:00 a.m.', retencion: 30, ultimo: null }) },
@@ -180,7 +181,7 @@ function eliminarBackup(filename) {
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <p class="text-xs text-gray-400">Base de datos</p>
-                        <p class="text-sm font-semibold text-gray-800 mt-0.5">{{ $page.props.auth?.user?.name ? 'interfrigo_sgi' : '—' }}</p>
+                        <p class="text-sm font-semibold text-gray-800 mt-0.5">{{ props.db_nombre || '—' }}</p>
                     </div>
                     <div>
                         <p class="text-xs text-gray-400">Tamaño</p>

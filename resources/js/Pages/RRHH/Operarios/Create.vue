@@ -282,7 +282,7 @@ const SECCIONES = [
                     </div>
                     <div>
                         <label class="block text-xs font-medium text-gray-500 mb-1.5">Correo electrónico *</label>
-                        <input v-model="form.usuario_email" type="email" placeholder="colaborador@interfrigo.com"
+                        <input v-model="form.usuario_email" type="email" placeholder="colaborador@empresa.com"
                             class="w-full rounded-xl border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2" />
                         <p v-if="errors.usuario_email" class="text-xs text-red-500 mt-1">{{ errors.usuario_email }}</p>
                     </div>

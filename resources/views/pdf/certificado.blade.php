@@ -94,7 +94,7 @@
   <div class="header-left">
     <h1>CERTIFICADO DE CALIDAD</h1>
     <p>{{ $op->numero_op }} &nbsp;|&nbsp; Fecha: {{ $fecha }}</p>
-    <p style="margin-top:4px;font-size:11px;font-weight:bold;">Interfrigo SAS</p>
+    <p style="margin-top:4px;font-size:11px;font-weight:bold;">{{ $marcaNombre }}</p>
   </div>
   <div class="header-right">
     <div class="qr-verify">
@@ -181,7 +181,7 @@
   <div class="firma-box">
     <div class="firma-line">Aprobado por</div>
     <div class="firma-nombre">Jefe de Producción</div>
-    <div style="font-size:9px;color:#9CA3AF;margin-top:2px;">Interfrigo SAS</div>
+    <div style="font-size:9px;color:#9CA3AF;margin-top:2px;">{{ $marcaNombre }}</div>
   </div>
   <div style="text-align:right;max-width:200px;">
     <div class="qr-verify">
@@ -193,7 +193,7 @@
 
 {{-- ── Footer ─────────────────────────────────────────────────────────────── --}}
 <div class="footer">
-  Interfrigo SAS &nbsp;·&nbsp; contacto@interfrigo.com.co &nbsp;·&nbsp; interfrigo.com.co
+  {{ $marcaNombre }}@if($marcaEmail) &nbsp;·&nbsp; {{ $marcaEmail }}@endif
   &nbsp;·&nbsp; Documento generado el {{ $fecha }}
 </div>
 

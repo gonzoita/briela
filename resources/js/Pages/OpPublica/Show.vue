@@ -27,11 +27,11 @@ const badgeItem = (e) => ESTADOS_ITEM[e] ?? ESTADOS_ITEM.pendiente
         <div style="background:var(--marca);" class="px-4 py-4">
             <div class="max-w-xl mx-auto flex items-center justify-between">
                 <div>
-                    <p class="text-white text-xs opacity-70 font-medium uppercase tracking-wider">Interfrigo SAS</p>
+                    <p class="text-white text-xs opacity-70 font-medium uppercase tracking-wider">{{ $page.props.marca.nombre }}</p>
                     <h1 class="text-white text-xl font-bold mt-0.5">{{ op.numero }}</h1>
                 </div>
-                <img src="https://interfrigo.com.co/wp-content/uploads/2024/11/cropped-Diseno-sin-titulo-15.png"
-                    alt="Interfrigo" class="h-10 w-auto opacity-90" />
+                <img :src="$page.props.marca.logo"
+                    :alt="$page.props.marca.nombre" class="h-10 w-auto opacity-90" />
             </div>
         </div>
 
@@ -118,7 +118,7 @@ const badgeItem = (e) => ESTADOS_ITEM[e] ?? ESTADOS_ITEM.pendiente
 
             <!-- Footer -->
             <p class="text-center text-xs text-gray-400 pb-6">
-                Interfrigo SAS &nbsp;·&nbsp; interfrigo.com.co
+                {{ $page.props.marca.nombre }}
             </p>
         </div>
     </div>

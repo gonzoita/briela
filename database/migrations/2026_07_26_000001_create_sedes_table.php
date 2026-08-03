@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('sedes', function (Blueprint $table) {
             $table->id();
             $table->string('nombre');
-            $table->string('codigo', 10)->unique(); // BOG, CAL, CUC — se usa en los prefijos
+            $table->string('codigo', 10)->unique(); // se usa en los prefijos de los documentos
             $table->boolean('tiene_ventas')->default(true);
             $table->boolean('tiene_produccion')->default(false);
             $table->boolean('es_principal')->default(false);
@@ -27,38 +27,17 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        // Sedes reales de Interfrigo. Bogotá queda como principal: todos los
-        // datos que ya existen en el sistema se le asignan a ella.
+        // Una sola sede, la principal, para que la instalación nazca usable.
+        // Cada empresa la renombra y agrega las suyas desde
+        // Configuración → Organización. En el SGI de origen aquí se sembraban
+        // las tres sedes reales de esa empresa.
         DB::table('sedes')->insert([
             [
-                'nombre'           => 'Bogotá',
-                'codigo'           => 'BOG',
+                'nombre'           => 'Principal',
+                'codigo'           => 'PRI',
                 'tiene_ventas'     => true,
                 'tiene_produccion' => true,
                 'es_principal'     => true,
-                'ciudad'           => 'Bogotá',
-                'activa'           => true,
-                'created_at'       => now(),
-                'updated_at'       => now(),
-            ],
-            [
-                'nombre'           => 'Cali',
-                'codigo'           => 'CAL',
-                'tiene_ventas'     => true,
-                'tiene_produccion' => true,
-                'es_principal'     => false,
-                'ciudad'           => 'Cali',
-                'activa'           => true,
-                'created_at'       => now(),
-                'updated_at'       => now(),
-            ],
-            [
-                'nombre'           => 'Cúcuta',
-                'codigo'           => 'CUC',
-                'tiene_ventas'     => true,
-                'tiene_produccion' => false,
-                'es_principal'     => false,
-                'ciudad'           => 'Cúcuta',
                 'activa'           => true,
                 'created_at'       => now(),
                 'updated_at'       => now(),
