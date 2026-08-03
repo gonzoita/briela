@@ -372,7 +372,50 @@ ningún dato de Interfrigo. Verificado leyendo el commit, no de memoria.
 
 *Aparte, para el SGI: esa contraseña de producción debería rotarse de todos modos.*
 
-### Fase 1 — Desacoplar de Interfrigo
+### Fase 1 — Desacoplar de Interfrigo · **hecha el 2 ago 2026**
+
+Dos commits: `50f1b3e` (el color, 68 archivos) y `2f9f0a6` (la identidad, 78
+archivos). El código pasó de 196 usos del color de Interfrigo y 165 textos con su
+nombre, a **cero**: solo quedan dos comentarios que explican el origen de una
+decisión.
+
+**Lo que salió y no estaba previsto:**
+
+- 17 pantallas cargaban el logo desde `interfrigo.com.co`, un servidor ajeno.
+- La migración de `perfil_marca` sembraba el perfil completo de Interfrigo, que
+  es lo que la IA lee para redactar: la IA de cada cliente habría escrito con la
+  voz de otra empresa. La tabla nace vacía.
+- Se sembraban las tres sedes reales de Interfrigo; ahora nace una sede
+  "Principal".
+- Los prompts del asistente y del redactor comercial decían trabajar para
+  Interfrigo SAS y describían su negocio.
+- La migración que siembra `marca_color` definía el azul de Interfrigo, así que
+  **toda instalación nueva arrancaba con él** por mucho que cambiara la constante
+  del código.
+- `storage/app` traía 28 archivos de datos reales de Interfrigo: el respaldo de su
+  base, el del incidente del 15 jul, PDFs y una hoja de cálculo de sus clientes,
+  fotos, y las credenciales de Google Drive. Ninguno había entrado al repo (los
+  `.gitignore` de Laravel lo cubrían); se movieron a `_briela-descartes`.
+
+**Cómo quedó la marca**, según lo que cada sitio puede usar: `var(--marca)` en la
+interfaz (567 usos), `$page.props.marca` en Vue, `colorMarca()` de
+`resources/js/marca.js` para canvas y colores sugeridos, `{{empresa.color}}` en
+las plantillas PDF, y un View Composer que comparte `marcaColor`, `marcaNombre`,
+`marcaEmail`, `marcaWeb` y el logo en sus dos formas (ruta en disco para dompdf,
+URL para HTML).
+
+**Pendiente de esta fase:**
+
+| Pendiente | Detalle |
+|---|---|
+| Color definitivo de Briela | Provisional `#2563EB` en `Marca.php`. Toda la paleta se deriva de esa constante |
+| Iconos PWA | Dicen "BRIELA" como placeholder; hay que generarlos con la identidad real (`node scripts/generate-icons.js`) |
+| Salir de Google Drive | `ArchivoController` todavía sube a Drive primero. Las credenciales ya no están en el proyecto |
+| Revisar `docs/manual/` | Sigue hablando de Interfrigo en el contenido (ya no tiene credenciales) |
+
+---
+
+*(Registro de lo que la fase implicaba:)*
 
 Que `sistema.briela.app` quede en pie como instalación propia y presentable.
 
