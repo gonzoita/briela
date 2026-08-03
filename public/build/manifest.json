@@ -1,0 +1,21 @@
+{
+  "node_modules/workbox-window/build/workbox-window.prod.es5.mjs": {
+    "file": "assets/workbox-window.prod.es5-Cch4wiA5.js",
+    "name": "workbox-window.prod.es5",
+    "src": "node_modules/workbox-window/build/workbox-window.prod.es5.mjs",
+    "isDynamicEntry": true
+  },
+  "resources/js/app.js": {
+    "file": "assets/app-BTZ1ObDX.js",
+    "name": "app",
+    "src": "resources/js/app.js",
+    "isEntry": true,
+    "dynamicImports": [
+      "resources/js/app.js",
+      "node_modules/workbox-window/build/workbox-window.prod.es5.mjs"
+    ],
+    "css": [
+      "assets/app-NgSfG0y0.css"
+    ]
+  }
+}

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head><title>Generador de íconos SGI</title></head>
+<body style="font-family:sans-serif;padding:20px">
+<h2>Generador de íconos — Interfrigo SGI</h2>
+<p style="color:#666;margin-bottom:16px">Haz clic en cada enlace para descargar el ícono. Guárdalos en esta misma carpeta <code>public/icons/</code>.</p>
+<canvas id="c" style="display:none"></canvas>
+<div id="links"></div>
+<script>
+const sizes = [72,96,128,144,152,192,384,512]
+const links = document.getElementById('links')
+
+sizes.forEach(size => {
+  const canvas = document.createElement('canvas')
+  canvas.width = size
+  canvas.height = size
+  const ctx = canvas.getContext('2d')
+
+  // Fondo azul marino con esquinas redondeadas
+  ctx.fillStyle = '#0A4283'
+  ctx.beginPath()
+  if (ctx.roundRect) {
+    ctx.roundRect(0, 0, size, size, size * 0.18)
+  } else {
+    ctx.rect(0, 0, size, size)
+  }
+  ctx.fill()
+
+  // Texto SGI centrado
+  ctx.fillStyle = '#FFFFFF'
+  ctx.font = `bold ${size * 0.32}px Arial`
+  ctx.textAlign = 'center'
+  ctx.textBaseline = 'middle'
+  ctx.fillText('SGI', size/2, size/2)
+
+  // Línea decorativa inferior
+  ctx.fillStyle = 'rgba(255,255,255,0.2)'
+  ctx.fillRect(size*0.15, size*0.72, size*0.7, size*0.06)
+
+  const a = document.createElement('a')
+  a.download = `icon-${size}.png`
+  a.href = canvas.toDataURL('image/png')
+  a.textContent = `⬇ Descargar icon-${size}.png`
+  a.style.cssText = 'display:block;margin:8px 0;color:#0A4283;font-weight:bold;font-size:14px'
+  links.appendChild(a)
+})
+
+// Nota apple-touch-icon
+const nota = document.createElement('p')
+nota.style.cssText = 'margin-top:24px;padding:12px;background:#FFF7ED;border-left:4px solid #F59E0B;color:#92400E'
+nota.innerHTML = '<strong>Importante:</strong> Después de descargar, copia el <code>icon-192.png</code> y renómbralo como <code>apple-touch-icon.png</code> en la carpeta <code>public/</code> (un nivel arriba).'
+document.body.appendChild(nota)
+</script>
+</body>
+</html>

@@ -1,0 +1,412 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Producto;
+use App\Models\PlantillaEnsamble;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+use App\Services\FormulaEvaluatorService;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Inertia\Inertia;
+use Inertia\Response;
+
+class PlantillaEnsambleController extends Controller
+{
+    public function index(Request $request): Response
+    {
+        $query = PlantillaEnsamble::with(['campos', 'componentes.producto', 'secciones', 'templateTrabajo.pasos'])
+            ->orderBy('orden')
+            ->orderBy('nombre');
+
+        if ($request->filled('search')) {
+            $s = $request->search;
+            $query->where(function ($q) use ($s) {
+                $q->where('nombre', 'like', "%$s%")
+                  ->orWhere('descripcion', 'like', "%$s%");
+            });
+        }
+
+        if ($request->filled('activo') && $request->activo !== '') {
+            $query->where('activo', $request->boolean('activo'));
+        }
+
+        $plantillas = $query->get();
+
+        $productos = Producto::where('activo', true)
+            ->whereIn('tipo', ['producto', 'servicio'])
+            ->orderBy('nombre')
+            ->get(['id', 'nombre', 'referencia', 'unidad_medida', 'precio_costo']);
+
+        return Inertia::render('Cotizadores/Plantillas/Index', [
+            'plantillas' => $plantillas,
+            'productos'  => $productos,
+            'filters'    => $request->only(['search', 'activo']),
+        ]);
+    }
+
+    public function store(Request $request): JsonResponse
+    {
+        $data = $request->validate([
+            'nombre'       => 'required|string|max:150',
+            'descripcion'  => 'nullable|string',
+            'activo'       => 'boolean',
+            'orden'        => 'nullable|integer',
+            'config_salida'=> 'nullable|array',
+        ]);
+
+        $plantilla = PlantillaEnsamble::create($data);
+
+        return response()->json($plantilla->load(['campos', 'componentes.producto']));
+    }
+
+    public function update(Request $request, PlantillaEnsamble $plantilla): JsonResponse
+    {
+        $data = $request->validate([
+            'nombre'       => 'required|string|max:150',
+            'descripcion'  => 'nullable|string',
+            'activo'       => 'boolean',
+            'orden'        => 'nullable|integer',
+            'config_salida'=> 'nullable|array',
+        ]);
+
+        $plantilla->update($data);
+
+        return response()->json($plantilla->fresh(['campos', 'componentes.producto']));
+    }
+
+    public function listar(): JsonResponse
+    {
+        return response()->json(
+            PlantillaEnsamble::with('campos')
+                ->where('activo', true)
+                ->orderBy('orden')
+                ->orderBy('nombre')
+                ->get()
+        );
+    }
+
+    public function destroy(PlantillaEnsamble $plantilla): JsonResponse
+    {
+        $plantilla->delete();
+
+        return response()->json(['ok' => true]);
+    }
+
+    public function duplicar(PlantillaEnsamble $plantilla)
+    {
+        $plantilla->load(['campos', 'componentes']);
+
+        $nueva = $plantilla->replicate();
+        $nueva->nombre = $plantilla->nombre . ' (copia)';
+        $nueva->activo = false;
+        $nueva->save();
+
+        foreach ($plantilla->campos as $campo) {
+            $nuevoCampo = $campo->replicate();
+            $nuevoCampo->plantilla_id = $nueva->id;
+            $nuevoCampo->save();
+        }
+
+        foreach ($plantilla->componentes as $componente) {
+            $nuevoComp = $componente->replicate();
+            $nuevoComp->plantilla_id = $nueva->id;
+            $nuevoComp->save();
+        }
+
+        $nueva->load(['campos', 'componentes.producto']);
+        return response()->json($nueva);
+    }
+
+    public function exportar(PlantillaEnsamble $plantilla): JsonResponse
+    {
+        $plantilla->load(['campos', 'componentes.producto', 'secciones']);
+
+        $data = [
+            'version'      => '1.0',
+            'exportado_en' => now()->toIso8601String(),
+            'plantillas'   => [$this->serializarPlantilla($plantilla)],
+        ];
+
+        return response()->json($data)
+            ->header('Content-Disposition',
+                'attachment; filename="plantilla-' .
+                Str::slug($plantilla->nombre) . '-' .
+                now()->format('Y-m-d') . '.json"');
+    }
+
+    public function exportarTodas(): JsonResponse
+    {
+        $plantillas = PlantillaEnsamble::with(['campos', 'componentes.producto', 'secciones'])->get();
+
+        $data = [
+            'version'      => '1.0',
+            'exportado_en' => now()->toIso8601String(),
+            'plantillas'   => $plantillas->map(fn ($p) => $this->serializarPlantilla($p))->values(),
+        ];
+
+        return response()->json($data)
+            ->header('Content-Disposition',
+                'attachment; filename="todas-las-plantillas-' .
+                now()->format('Y-m-d') . '.json"');
+    }
+
+    private function serializarPlantilla(PlantillaEnsamble $plantilla): array
+    {
+        // Las secciones se exportan en orden y los componentes referencian su sección
+        // por posición (seccion_index) en vez de por id, porque el id de sección no
+        // existe todavía en el destino de la importación (#seccion_id se pierde si se
+        // exporta directo, que es justo el bug que perdía la organización de secciones).
+        $seccionesOrdenadas = $plantilla->secciones->sortBy('orden')->values();
+        $indicePorSeccionId = [];
+        foreach ($seccionesOrdenadas as $i => $s) {
+            $indicePorSeccionId[$s->id] = $i;
+        }
+
+        return [
+            'nombre'       => $plantilla->nombre,
+            'activo'       => $plantilla->activo,
+            'config_salida'=> $plantilla->config_salida,
+            'secciones'    => $seccionesOrdenadas->map(fn ($s) => [
+                'nombre' => $s->nombre,
+                'orden'  => $s->orden,
+            ])->values(),
+            'campos'       => $plantilla->campos->sortBy('orden')->map(fn ($c) => [
+                'nombre'            => $c->nombre,
+                'etiqueta'          => $c->etiqueta,
+                'tipo'              => $c->tipo,
+                'tipo_campo'        => $c->tipo_campo ?? 'entrada',
+                'subtipo_variable'  => $c->subtipo_variable,
+                'opciones_selector' => $c->opciones_selector,
+                'formula_calculo'   => $c->formula_calculo,
+                'opciones'          => $c->opciones,
+                'valor_defecto'     => $c->valor_defecto,
+                'placeholder'       => $c->placeholder,
+                'ayuda'             => $c->ayuda,
+                'requerido'         => $c->requerido,
+                'orden'             => $c->orden,
+            ])->values(),
+            'componentes'  => $plantilla->componentes->sortBy('orden')->map(fn ($c) => [
+                'producto_referencia' => $c->producto?->referencia,
+                'producto_nombre'     => $c->producto?->nombre,
+                'etiqueta'            => $c->etiqueta,
+                'formula'             => $c->formula,
+                'formula_real'        => $c->formula_real,
+                'sub_formulas'        => $c->sub_formulas,
+                'condicion'           => $c->condicion,
+                'unidad'              => $c->unidad,
+                'incluir_en_precio'   => $c->incluir_en_precio,
+                'visible_cliente'     => $c->visible_cliente,
+                'visible_op'          => $c->visible_op,
+                'orden'               => $c->orden,
+                'activo'              => $c->activo,
+                'notas'               => $c->notas,
+                'seccion_index'       => $c->seccion_id !== null ? ($indicePorSeccionId[$c->seccion_id] ?? null) : null,
+            ])->values(),
+        ];
+    }
+
+    public function importar(Request $request): JsonResponse
+    {
+        $request->validate(['archivo' => 'required|file|max:2048']);
+
+        $contenido = file_get_contents($request->file('archivo')->getRealPath());
+        $data      = json_decode($contenido, true);
+
+        if (! $data || ! isset($data['plantillas'], $data['version'])) {
+            return response()->json(['message' => 'El archivo JSON no tiene el formato correcto.'], 422);
+        }
+
+        $importadas = 0;
+        $errores    = [];
+
+        foreach ($data['plantillas'] as $idx => $pData) {
+            try {
+                DB::transaction(function () use ($pData, &$importadas) {
+                    $nombre = $pData['nombre'];
+                    if (PlantillaEnsamble::where('nombre', $nombre)->exists()) {
+                        $nombre .= ' (importada ' . now()->format('d/m/Y H:i') . ')';
+                    }
+
+                    $plantilla = PlantillaEnsamble::create([
+                        'nombre'       => $nombre,
+                        'activo'       => $pData['activo'] ?? true,
+                        'config_salida'=> $pData['config_salida'] ?? null,
+                    ]);
+
+                    // Recrear secciones primero y guardar el mapa índice→id nuevo,
+                    // para poder enlazar los componentes a su sección correcta.
+                    $seccionIdPorIndice = [];
+                    foreach ($pData['secciones'] ?? [] as $idx => $secData) {
+                        $seccion = $plantilla->secciones()->create([
+                            'nombre' => $secData['nombre'],
+                            'orden'  => $secData['orden'] ?? $idx,
+                        ]);
+                        $seccionIdPorIndice[$idx] = $seccion->id;
+                    }
+
+                    foreach ($pData['campos'] ?? [] as $campo) {
+                        $plantilla->campos()->create($campo);
+                    }
+
+                    foreach ($pData['componentes'] ?? [] as $comp) {
+                        $productoId = null;
+                        if (! empty($comp['producto_referencia'])) {
+                            $productoId = \App\Models\Producto::where('referencia', $comp['producto_referencia'])->value('id');
+                        }
+                        $seccionId = null;
+                        if (isset($comp['seccion_index']) && isset($seccionIdPorIndice[$comp['seccion_index']])) {
+                            $seccionId = $seccionIdPorIndice[$comp['seccion_index']];
+                        }
+                        $plantilla->componentes()->create([
+                            'producto_id'       => $productoId,
+                            'etiqueta'          => $comp['etiqueta'] ?? $comp['producto_nombre'] ?? null,
+                            'formula'           => $comp['formula'],
+                            'formula_real'      => $comp['formula_real'] ?? null,
+                            'sub_formulas'      => $comp['sub_formulas'] ?? null,
+                            'condicion'         => $comp['condicion'] ?? null,
+                            'unidad'            => $comp['unidad'] ?? null,
+                            'incluir_en_precio' => $comp['incluir_en_precio'] ?? true,
+                            'visible_cliente'   => $comp['visible_cliente'] ?? false,
+                            'visible_op'        => $comp['visible_op'] ?? true,
+                            'orden'             => $comp['orden'] ?? 0,
+                            'activo'            => $comp['activo'] ?? true,
+                            'notas'             => $comp['notas'] ?? null,
+                            'seccion_id'        => $seccionId,
+                        ]);
+                    }
+
+                    $importadas++;
+                });
+            } catch (\Exception $e) {
+                $errores[] = "Plantilla #{$idx} ({$pData['nombre']}): " . $e->getMessage();
+            }
+        }
+
+        return response()->json([
+            'importadas' => $importadas,
+            'errores'    => $errores,
+        ], $importadas === 0 && $errores ? 422 : 200);
+    }
+
+    public function probar(Request $request, FormulaEvaluatorService $svc): JsonResponse
+    {
+        $data = $request->validate([
+            'plantilla_id' => 'required|exists:plantillas_ensamble,id',
+            'valores'      => 'required|array',
+        ]);
+
+        $componentes    = $svc->calcularPlantilla((int) $data['plantilla_id'], $data['valores']);
+        $totalCosto     = $svc->totalCosto($componentes);
+        $totalCostoReal = $svc->totalCostoReal($componentes);
+
+        return response()->json([
+            'componentes'      => $componentes,
+            'total_costo'      => $totalCosto,
+            'total_costo_real' => $totalCostoReal,
+        ]);
+    }
+
+    public function probarFormula(Request $request, PlantillaEnsamble $plantilla, FormulaEvaluatorService $svc): JsonResponse
+    {
+        $data = $request->validate([
+            'formula' => 'required|string',
+            'valores' => 'nullable|array',
+        ]);
+
+        $plantilla->load('campos');
+
+        // Valores por defecto de los campos de entrada como base del contexto
+        $defaults = [];
+        foreach ($plantilla->campos->whereNotIn('tipo_campo', ['calculado']) as $campo) {
+            $defaults[$campo->nombre] = is_numeric($campo->valor_defecto ?? '')
+                ? (float) $campo->valor_defecto
+                : ($campo->valor_defecto ?? 0);
+        }
+
+        // Los valores enviados por el frontend sobreescriben los defaults
+        $variablesInstancia = array_merge($defaults, $data['valores'] ?? []);
+
+        // Variables calculadas cargadas desde la DB, en orden
+        $camposCalculados = $plantilla->campos
+            ->where('tipo_campo', 'calculado')
+            ->sortBy('orden')
+            ->map(fn ($c) => ['nombre' => $c->nombre, 'formula' => $c->formula_calculo])
+            ->values()
+            ->toArray();
+
+        return response()->json(
+            $svc->testFormula($data['formula'], $variablesInstancia, $camposCalculados)
+        );
+    }
+
+    // ── Pasos de producción (fusión con Plantillas de Trabajo) ───────────────
+    // Cada plantilla de ensamble tiene un único TemplateTrabajo emparejado
+    // 1 a 1 (por eso no hace falta que el usuario elija ni cree nada aparte:
+    // se obtiene o se crea vacío la primera vez que se pide).
+
+    public function pasosTrabajo(PlantillaEnsamble $plantilla): JsonResponse
+    {
+        $template = $plantilla->obtenerOCrearTemplateTrabajo();
+
+        return response()->json([
+            'template_id' => $template->id,
+            'pasos'       => $template->pasos()->get(),
+        ]);
+    }
+
+    public function guardarPasosTrabajo(Request $request, PlantillaEnsamble $plantilla): JsonResponse
+    {
+        $data = $request->validate([
+            'pasos'                       => 'nullable|array',
+            'pasos.*.nombre'              => 'required|string|max:200',
+            'pasos.*.objetivo'            => 'nullable|string|max:500',
+            'pasos.*.descripcion'         => 'nullable|string',
+            'pasos.*.peso_porcentaje'     => 'required|numeric|min:0|max:100',
+            'pasos.*.orden'               => 'nullable|integer',
+            'pasos.*.nivel_dificultad'    => 'required|integer|min:1|max:5',
+            'pasos.*.depende_de'          => 'nullable|array',
+            'pasos.*.depende_de.*'        => 'nullable|integer|min:0',
+            'pasos.*.es_paso_final'       => 'boolean',
+            'pasos.*.imagen'              => 'nullable|string',
+            'pasos.*.archivo_plano'       => 'nullable|string',
+        ]);
+
+        $suma = array_sum(array_column($data['pasos'] ?? [], 'peso_porcentaje'));
+        if ($suma > 100.05) {
+            return response()->json(['message' => 'La suma de pesos no puede exceder 100%'], 422);
+        }
+
+        $template = $plantilla->obtenerOCrearTemplateTrabajo();
+        $template->sincronizarPasos($data['pasos'] ?? []);
+
+        return response()->json([
+            'template_id' => $template->id,
+            'pasos'       => $template->pasos()->get(),
+        ]);
+    }
+
+    /**
+     * Sube un adjunto (imagen o plano de referencia) para un paso de
+     * producción. No se asocia a un paso por id porque sincronizarPasos()
+     * borra y recrea todos los pasos en cada guardado — el frontend sube el
+     * archivo primero, recibe la ruta, y la manda como un campo más del paso
+     * en el siguiente guardado de pasos-trabajo.
+     */
+    public function subirAdjuntoPaso(Request $request, PlantillaEnsamble $plantilla): JsonResponse
+    {
+        $request->validate([
+            'tipo'    => 'required|in:imagen,plano',
+            'archivo' => 'required|file|max:8192|mimes:jpg,jpeg,png,webp,pdf',
+        ]);
+
+        $ruta = $request->file('archivo')->store("pasos-trabajo/{$plantilla->id}", 'public');
+
+        return response()->json([
+            'ruta' => $ruta,
+            'url'  => asset('storage/' . $ruta),
+        ]);
+    }
+}

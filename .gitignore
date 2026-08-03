@@ -1,0 +1,67 @@
+*.log
+.DS_Store
+.env
+.env.backup
+.env.production
+.phpactor.json
+.phpunit.result.cache
+/.codex
+/.cursor/
+/.idea
+/.nova
+/.phpunit.cache
+/.vscode
+/.zed
+/auth.json
+/node_modules
+
+/public/fonts-manifest.dev.json
+/public/hot
+/public/storage
+/storage/*.key
+/storage/app/backups/
+/storage/pail
+/vendor
+_ide_helper.php
+Homestead.json
+Homestead.yaml
+Thumbs.db
+
+binlog*.sql
+# Respaldos de la base: nunca deben subirse al repositorio. subir.ps1 hace
+# `git add -A`, así que sin esta regla un mysqldump con datos reales de
+# clientes terminaría publicado en GitHub.
+*.sql
+!database/**/*.sql
+
+# graphify: el grafo se regenera solo con `graphify update .`, no va al repo.
+/graphify-out/
+
+# Claude Code: las instrucciones y los skills SÍ van al repo (son del proyecto y
+# los comparten los colaboradores). Solo se ignora el estado local de la máquina.
+/.claude/settings.local.json
+/.claude/scheduled_tasks.lock
+
+# Scripts sueltos de parche y volcados de trabajo. Nunca al repo: en un producto
+# que se instala en servidores de clientes, un script de estos olvidado en la
+# raíz es una puerta abierta.
+/alter_*.php
+/crear_tabla*.php
+/*-dump.txt
+/rutas.txt
+
+# Temporales de editor. La copia heredada traía 150 de estos repartidos por
+# resources/ y app/; sin esta regla vuelven a colarse al commit.
+.fuse_hidden*
+*.orig
+*.rej
+*~
+
+# Scripts de prueba/debug — nunca deben ir al repo ni al servidor.
+# (info.php expone la config del servidor; dbtest.php tiene credenciales.)
+/check_*.php
+/fix.php
+/public/info.php
+/public/dbtest.php
+/public/test.php
+/public/phpinfo.php

@@ -1,0 +1,73 @@
+name: Deploy a sistema.briela.app
+
+# Cada push a main compila los assets con Vite, los guarda en el repo y —si hay
+# servidor configurado— actualiza la instalación propia de Briela
+# (sistema.briela.app), que es el banco de pruebas de cada versión.
+#
+# OJO: esto NO actualiza las instalaciones de los clientes. Esas se actualizan
+# con el botón de actualizar, desde un paquete firmado.
+# Ver docs/BRIELA-PLAN.md sección 6.2.
+#
+# Secretos que hay que crear en el repo (Settings → Secrets → Actions):
+#   SSH_HOST · SSH_USER · SSH_PASSWORD · SSH_PORT · DEPLOY_PATH
+# Mientras SSH_HOST esté vacío, el paso de deploy se salta y el workflow solo
+# compila. Así el repo funciona desde el primer día, sin servidor todavía.
+on:
+  push:
+    branches: [ main ]
+
+# Permite que el workflow committee el build compilado de vuelta al repo.
+permissions:
+  contents: write
+
+# Si se hacen dos push seguidos, se encolan en vez de pisarse entre sí.
+concurrency:
+  group: deploy-produccion
+  cancel-in-progress: false
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Traer el código
+        uses: actions/checkout@v4
+
+      - name: Preparar Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Instalar dependencias y compilar assets
+        run: |
+          npm ci
+          npm run build
+
+      - name: Guardar el build compilado en el repo
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add public/build -f
+          if git diff --staged --quiet; then
+            echo "El build no cambió, nada que commitear."
+          else
+            git commit -m "build: assets compilados por CI [skip ci]"
+            git push origin main
+          fi
+
+      - name: Deploy por SSH a la instalación propia
+        if: ${{ secrets.SSH_HOST != '' }}
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host:     ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          port:     ${{ secrets.SSH_PORT }}
+          script: |
+            cd ${{ secrets.DEPLOY_PATH }}
+            git pull origin main
+            php artisan migrate --force
+            php artisan config:clear
+            php artisan route:clear
+            php artisan view:clear
