@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Archivo;
 use App\Models\Op;
+use App\Services\ArchivoServidorService;
 use App\Services\GoogleDriveService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -60,21 +61,15 @@ class ArchivoController extends Controller
         $file    = $request->file('archivo');
         $ext     = strtolower($file->getClientOriginalExtension());
         $nombre  = \Illuminate\Support\Str::uuid() . '.' . $ext;
-        $driveId = null;
-        $driveUrl = null;
+        // Los archivos van al propio servidor, no a Google Drive. Drive
+        // entregaba enlaces de vista previa (páginas web) que el navegador no
+        // podía mostrar en un <img>, y ataba algo tan básico como subir una
+        // foto a credenciales de un servicio externo.
+        $resultado   = ArchivoServidorService::subir($file, 'multimedia/' . $request->categoria, $nombre);
+        $ruta        = $resultado['url'];
+        $driveId     = null;
+        $driveUrl    = null;
         $storageType = 'local';
-
-        try {
-            $resultado   = GoogleDriveService::upload($file, 'multimedia/' . $request->categoria, $nombre);
-            $ruta        = $resultado['url'];
-            $driveId     = $resultado['id'];
-            $driveUrl    = $resultado['view'];
-            $storageType = 'drive';
-        } catch (\Exception $e) {
-            \Log::error('GoogleDrive upload falló: ' . $e->getMessage());
-            $rutaLocal = $file->storeAs('multimedia', $nombre, 'public');
-            $ruta      = \Storage::url($rutaLocal);
-        }
 
         $datos = [
             'nombre_original' => $file->getClientOriginalName(),
@@ -107,8 +102,8 @@ class ArchivoController extends Controller
     {
         if (!empty($archivo->drive_id)) {
             GoogleDriveService::delete($archivo->drive_id);
-        } elseif (!str_starts_with($archivo->ruta, 'http')) {
-            \Storage::disk('public')->delete($archivo->ruta);
+        } else {
+            ArchivoServidorService::borrar($archivo->ruta);
         }
         $archivo->delete();
 

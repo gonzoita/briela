@@ -190,7 +190,7 @@ class ConfiguracionController extends Controller
     public function subirLogoEmpresa(Request $request): JsonResponse
     {
         $request->validate(['logo' => 'required|image|mimes:png,jpg,jpeg,svg|max:2048']);
-        $resultado = \App\Services\GoogleDriveService::upload($request->file('logo'), 'empresa');
+        $resultado = \App\Services\ArchivoServidorService::subir($request->file('logo'), 'empresa');
         Configuracion::set('empresa_logo_url', $resultado['url']);
         return response()->json(['url' => $resultado['url']]);
     }

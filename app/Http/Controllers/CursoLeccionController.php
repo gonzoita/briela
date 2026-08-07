@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\CursoLeccion;
 use App\Models\CursoModulo;
-use App\Services\GoogleDriveService;
+use App\Services\ArchivoServidorService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -85,7 +85,7 @@ class CursoLeccionController extends Controller
             'video_drive', 'video_externo' => $request->input('contenido_url'),
             'texto' => $request->input('contenido_texto'),
             'pdf'   => $request->hasFile('archivo_pdf')
-                ? GoogleDriveService::upload($request->file('archivo_pdf'), 'cursos/lecciones')['url']
+                ? ArchivoServidorService::subir($request->file('archivo_pdf'), 'cursos/lecciones')['url']
                 : null,
         };
     }

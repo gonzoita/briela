@@ -6,6 +6,7 @@ use App\Models\CategoriaProducto;
 use App\Models\Ensamble;
 use App\Models\PlantillaEnsamble;
 use App\Services\FormulaEvaluatorService;
+use App\Services\ArchivoServidorService;
 use App\Services\GoogleDriveService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -239,11 +240,11 @@ class EnsambleController extends Controller
 
         if ($ensamble->imagen_principal_drive_id) {
             GoogleDriveService::delete($ensamble->imagen_principal_drive_id);
-        } elseif ($ensamble->imagen_principal && !str_starts_with($ensamble->imagen_principal, 'http')) {
-            Storage::disk('public')->delete($ensamble->imagen_principal);
+        } else {
+            ArchivoServidorService::borrar($ensamble->imagen_principal);
         }
 
-        $resultado = GoogleDriveService::upload($request->file('imagen'), 'ensambles');
+        $resultado = ArchivoServidorService::subir($request->file('imagen'), 'ensambles');
         $ensamble->update([
             'imagen_principal'          => $resultado['url'],
             'imagen_principal_drive_id' => $resultado['id'],
@@ -256,8 +257,8 @@ class EnsambleController extends Controller
     {
         if ($ensamble->imagen_principal_drive_id) {
             GoogleDriveService::delete($ensamble->imagen_principal_drive_id);
-        } elseif ($ensamble->imagen_principal && !str_starts_with($ensamble->imagen_principal, 'http')) {
-            Storage::disk('public')->delete($ensamble->imagen_principal);
+        } else {
+            ArchivoServidorService::borrar($ensamble->imagen_principal);
         }
 
         $ensamble->update([
@@ -272,7 +273,7 @@ class EnsambleController extends Controller
     {
         $request->validate(['imagen' => 'required|image|max:5120']);
 
-        $resultado = GoogleDriveService::upload($request->file('imagen'), 'ensambles');
+        $resultado = ArchivoServidorService::subir($request->file('imagen'), 'ensambles');
         $imagenes  = $ensamble->imagenes_secundarias ?? [];
         $imagenes[] = $resultado['url'];
         $ensamble->update(['imagenes_secundarias' => $imagenes]);
@@ -293,7 +294,7 @@ class EnsambleController extends Controller
         if ($driveId) {
             GoogleDriveService::delete($driveId);
         } else {
-            Storage::disk('public')->delete($ruta);
+            ArchivoServidorService::borrar($ruta);
         }
 
         $imagenes = collect($ensamble->imagenes_secundarias ?? [])

@@ -7,7 +7,7 @@ use App\Models\CategoriaProducto;
 use App\Models\ImagenProducto;
 use App\Models\Producto;
 use App\Models\Proveedor;
-use App\Services\GoogleDriveService;
+use App\Services\ArchivoServidorService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -556,7 +556,7 @@ class ProductoController extends Controller
         $orden = $producto->imagenes()->max('orden') ?? 0;
 
         foreach ($request->file('imagenes') as $archivo) {
-            $resultado = GoogleDriveService::upload($archivo, 'productos');
+            $resultado = ArchivoServidorService::subir($archivo, 'productos');
             $orden++;
 
             ImagenProducto::create([

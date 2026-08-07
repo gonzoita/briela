@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Curso;
 use App\Models\CursoLeccion;
-use App\Services\GoogleDriveService;
+use App\Services\ArchivoServidorService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -118,6 +118,6 @@ class CursoController extends Controller
     {
         if (! $request->hasFile('imagen_portada')) return null;
 
-        return GoogleDriveService::upload($request->file('imagen_portada'), 'cursos')['url'];
+        return ArchivoServidorService::subir($request->file('imagen_portada'), 'cursos')['url'];
     }
 }
