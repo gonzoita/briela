@@ -55,8 +55,13 @@ class PortalCapacitacionController extends Controller
             ->values()
             ->map(fn (Inscripcion $i) => $this->serializarInscripcion($i));
 
+        // Incluye 'pendiente' además de 'en_progreso'. Al inscribirse a un curso
+        // opcional la inscripción nace en 'pendiente', y como el catálogo excluye
+        // los cursos ya inscritos, un curso recién tomado no aparecía en NINGUNA
+        // de las cuatro listas: el estudiante se inscribía y el curso se le
+        // desaparecía de la pantalla.
         $enProgreso = $inscripciones
-            ->where('estado', 'en_progreso')
+            ->whereIn('estado', ['pendiente', 'en_progreso'])
             ->where('obligatorio', false)
             ->values()
             ->map(fn (Inscripcion $i) => $this->serializarInscripcion($i));
