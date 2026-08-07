@@ -174,6 +174,11 @@ function enviar(accion) {
                         <p class="text-xs text-gray-400">
                             La imagen se guarda también en Multimedia para reutilizarla después.
                         </p>
+                        <p class="text-xs text-gray-400">
+                            Recomendado: <strong>1080 × 1080 px</strong> (cuadrada) — es el formato
+                            que aceptan bien todas las redes. Para Instagram también sirve
+                            1080 × 1350 px (vertical), que ocupa más espacio en el feed.
+                        </p>
                     </div>
 
                     <input type="file" accept="image/*" @change="onImagen"

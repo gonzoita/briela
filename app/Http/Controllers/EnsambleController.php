@@ -246,11 +246,15 @@ class EnsambleController extends Controller
 
         $resultado = ArchivoServidorService::subir($request->file('imagen'), 'ensambles');
         $ensamble->update([
-            'imagen_principal'          => $resultado['url'],
+            // Se guarda la RUTA relativa, no la URL completa: las vistas de
+            // ensambles arman el src como `/storage/${ruta}`, y además una URL
+            // con dominio quedaría apuntando al sitio anterior si el sistema
+            // se monta en otro dominio.
+            'imagen_principal'          => $resultado['ruta'],
             'imagen_principal_drive_id' => $resultado['id'],
         ]);
 
-        return response()->json(['ruta' => $resultado['url'], 'url' => $resultado['url']]);
+        return response()->json(['ruta' => $resultado['ruta'], 'url' => $resultado['url']]);
     }
 
     public function eliminarImagenPrincipal(Ensamble $ensamble): JsonResponse
@@ -275,11 +279,12 @@ class EnsambleController extends Controller
 
         $resultado = ArchivoServidorService::subir($request->file('imagen'), 'ensambles');
         $imagenes  = $ensamble->imagenes_secundarias ?? [];
-        $imagenes[] = $resultado['url'];
+        // Ruta relativa, igual que la imagen principal (ver comentario allá).
+        $imagenes[] = $resultado['ruta'];
         $ensamble->update(['imagenes_secundarias' => $imagenes]);
 
         return response()->json([
-            'ruta'     => $resultado['url'],
+            'ruta'     => $resultado['ruta'],
             'url'      => $resultado['url'],
             'imagenes' => $imagenes,
         ]);

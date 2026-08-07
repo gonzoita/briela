@@ -576,6 +576,7 @@ const badgeStyle = {
                         </div>
                         <label class="block border-2 border-dashed border-gray-200 rounded-xl p-4 text-center cursor-pointer hover:border-gray-300 transition-colors mb-2">
                             <p class="text-sm text-gray-400">+ Agregar más imágenes</p>
+                            <p class="text-xs text-gray-400 mt-0.5">Recomendado: <strong>1000 × 1000 px</strong> (cuadradas), máx. 5 MB. Se recortan al centro.</p>
                             <input type="file" multiple accept="image/*" class="hidden" @change="onImagenes" />
                         </label>
                         <div v-if="nuevasPreviews.length" class="grid grid-cols-3 sm:grid-cols-5 gap-2">

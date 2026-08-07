@@ -8,9 +8,11 @@ const props = defineProps({
 
 const formatCOP = (v) => new Intl.NumberFormat('es-CO', { maximumFractionDigits: 0 }).format(v ?? 0)
 
-const imagenUrl = props.ensamble.imagen_principal
-    ? `/storage/${props.ensamble.imagen_principal}`
-    : null
+// Las imágenes nuevas se guardan como ruta relativa, pero las viejas quedaron
+// con la URL completa de Google Drive. Se respeta la que ya venga absoluta.
+const urlImagen = (v) => (!v ? null : (v.startsWith('http') ? v : `/storage/${v}`))
+
+const imagenUrl = urlImagen(props.ensamble.imagen_principal)
 
 function recalcular() {
     if (!confirm('¿Recalcular los precios con los precios actuales de insumos?')) return

@@ -390,6 +390,7 @@ const badgeStyle = {
                             </svg>
                             <p class="text-sm text-gray-500">Toca para seleccionar imágenes</p>
                             <p class="text-xs text-gray-400 mt-0.5">JPG, PNG o WebP — máx. 5MB</p>
+                            <p class="text-xs text-gray-400 mt-0.5">Recomendado: <strong>1000 × 1000 px</strong> (cuadradas). Se recortan al centro.</p>
                             <input type="file" multiple accept="image/*" class="hidden" @change="onImagenes" />
                         </label>
                         <div v-if="previews.length" class="grid grid-cols-3 sm:grid-cols-5 gap-2">

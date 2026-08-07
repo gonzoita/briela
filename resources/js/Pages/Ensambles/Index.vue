@@ -14,6 +14,10 @@ const buscar      = ref(props.filters.buscar ?? '')
 const plantillaId = ref(props.filters.plantilla_id ?? '')
 let   timer       = null
 
+// Las imágenes nuevas se guardan como ruta relativa, pero las viejas quedaron
+// con la URL completa de Google Drive. Se respeta la que ya venga absoluta.
+const urlImagen = (v) => (!v ? null : (v.startsWith('http') ? v : `/storage/${v}`))
+
 // ── Toggle vista lista/grid ────────────────────────────────────────────────────
 const viewMode = ref(localStorage.getItem('ensambles_view') ?? 'list')
 watch(viewMode, (v) => localStorage.setItem('ensambles_view', v))
@@ -113,7 +117,7 @@ function inicial(nombre) {
                         class="flex items-center gap-3 px-4 py-3 hover:bg-blue-50/40 transition-colors cursor-pointer"
                         @click="router.visit(`/ensambles/${e.id}`)">
                         <div class="w-10 h-10 rounded-xl overflow-hidden shrink-0 shadow-sm">
-                            <img v-if="e.imagen_principal" :src="`/storage/${e.imagen_principal}`" :alt="e.nombre" class="w-full h-full object-cover"/>
+                            <img v-if="e.imagen_principal" :src="urlImagen(e.imagen_principal)" :alt="e.nombre" class="w-full h-full object-cover"/>
                             <div v-else class="w-full h-full flex items-center justify-center text-white text-sm font-bold"
                                 :style="`background:${e.categoria_color ?? 'var(--marca)'};`">
                                 {{ inicial(e.nombre) }}
@@ -166,7 +170,7 @@ function inicial(nombre) {
                     class="bg-white rounded-2xl shadow-sm overflow-hidden cursor-pointer active:scale-[0.98] transition-transform"
                     @click="router.visit(`/ensambles/${e.id}`)">
                     <div class="aspect-square overflow-hidden" style="background:#F1F5F9;">
-                        <img v-if="e.imagen_principal" :src="`/storage/${e.imagen_principal}`" :alt="e.nombre" class="w-full h-full object-cover"/>
+                        <img v-if="e.imagen_principal" :src="urlImagen(e.imagen_principal)" :alt="e.nombre" class="w-full h-full object-cover"/>
                         <div v-else class="w-full h-full flex items-center justify-center text-white text-3xl font-bold"
                             :style="`background:${e.categoria_color ?? 'var(--marca)'};`">
                             {{ inicial(e.nombre) }}

@@ -133,9 +133,11 @@ const imgSubiendo         = ref(false)
 const imagenPrincipal     = ref(props.ensamble?.imagen_principal ?? null)
 const imagenesSecundarias = ref(props.ensamble?.imagenes_secundarias ?? [])
 
-const imagenPrincipalUrl = computed(() =>
-    imagenPrincipal.value ? `/storage/${imagenPrincipal.value}` : null
-)
+// Las imágenes nuevas se guardan como ruta relativa, pero las viejas quedaron
+// con la URL completa de Google Drive. Se respeta la que ya venga absoluta.
+const urlImagen = (v) => (!v ? null : (v.startsWith('http') ? v : `/storage/${v}`))
+
+const imagenPrincipalUrl = computed(() => urlImagen(imagenPrincipal.value))
 
 async function subirImagenPrincipal(e) {
     const file = e.target.files?.[0]
@@ -476,17 +478,22 @@ onMounted(() => {
                                         </span>
                                     </label>
                                     <p class="text-xs text-gray-400 mt-1">JPG, PNG, WebP · máx 5 MB</p>
+                                    <p class="text-xs text-gray-400">
+                                        Recomendado: <strong>1000 × 1000 px</strong> (cuadrada). Se muestra
+                                        recortada al centro en los listados y en el catálogo.
+                                    </p>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Imágenes secundarias -->
                         <div>
-                            <label class="block text-xs font-medium text-gray-600 mb-2">Imágenes secundarias</label>
+                            <label class="block text-xs font-medium text-gray-600 mb-1">Imágenes secundarias</label>
+                            <p class="text-xs text-gray-400 mb-2">Mismo formato: <strong>1000 × 1000 px</strong> (cuadradas), máx 5 MB.</p>
                             <div class="flex flex-wrap gap-2">
                                 <div v-for="ruta in imagenesSecundarias" :key="ruta"
                                     class="relative w-20 h-20 rounded-xl overflow-hidden border border-gray-200 bg-gray-50">
-                                    <img :src="`/storage/${ruta}`" class="w-full h-full object-cover" />
+                                    <img :src="urlImagen(ruta)" class="w-full h-full object-cover" />
                                     <button @click="quitarImagenSecundaria(ruta)"
                                         class="absolute top-0.5 right-0.5 w-4 h-4 bg-red-500 text-white rounded-full text-xs flex items-center justify-center leading-none">✕</button>
                                 </div>

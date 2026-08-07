@@ -325,6 +325,9 @@ function ic(extra = '') {
                         Sale en el encabezado, en el menú lateral y en la vista previa de los
                         enlaces que compartes. Un PNG con fondo transparente es lo que mejor
                         queda. Máximo 2 MB.
+                        Recomendado: <strong>400 × 120 px</strong> (horizontal). Se muestra a
+                        unos 36 px de alto sin recortarse, y ese tamaño lo mantiene nítido en
+                        pantallas de alta resolución.
                     </p>
                 </div>
 
