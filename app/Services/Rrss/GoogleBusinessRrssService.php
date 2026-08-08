@@ -26,22 +26,28 @@ class GoogleBusinessRrssService
 {
     private const OAUTH_URL = 'https://accounts.google.com/o/oauth2/v2/auth';
     private const TOKEN_URL = 'https://oauth2.googleapis.com/token';
+    // Google partió su API de Business Profile en varias: cada recurso vive en
+    // un host distinto y hay que habilitarlas por separado en Google Cloud.
+    // Listar las CUENTAS es de Account Management; listar las UBICACIONES es de
+    // Business Information. Pedir /accounts al host equivocado devuelve un
+    // error confuso diciendo que "la API no está habilitada".
+    private const ACCOUNT_MGMT_URL = 'https://mybusinessaccountmanagement.googleapis.com/v1';
     private const BUSINESS_INFO_URL = 'https://mybusinessbusinessinformation.googleapis.com/v1';
     private const BUSINESS_POSTS_URL = 'https://mybusiness.googleapis.com/v4'; // Local Posts sigue en v4
 
     private function clientId(): string
     {
-        return (string) config('services.google_business_rrss.client_id');
+        return \App\Support\CredencialesRrss::valor('google', 'id');
     }
 
     private function clientSecret(): string
     {
-        return (string) config('services.google_business_rrss.client_secret');
+        return \App\Support\CredencialesRrss::valor('google', 'secret');
     }
 
     private function redirectUri(): string
     {
-        return (string) config('services.google_business_rrss.redirect_uri');
+        return \App\Support\CredencialesRrss::valor('google', 'redirect');
     }
 
     public function urlAutorizacion(): string
@@ -78,9 +84,9 @@ class GoogleBusinessRrssService
         $refreshToken = $resp->json('refresh_token');
         $expiraEnSegundos = $resp->json('expires_in');
 
-        // Listar las ubicaciones (locations) de la cuenta de Business Profile.
-        $respCuentas = Http::withToken($token)->get(self::BUSINESS_INFO_URL . '/accounts');
-        $this->lanzarSiFalla($respCuentas, 'Error listando las cuentas de Google Business Profile (¿ya te aprobaron el acceso a la API?)');
+        // Las cuentas se piden a Account Management (NO a Business Information).
+        $respCuentas = Http::withToken($token)->get(self::ACCOUNT_MGMT_URL . '/accounts');
+        $this->lanzarSiFalla($respCuentas, 'Error listando las cuentas de Google Business Profile. Revisa que en Google Cloud estén habilitadas "My Business Account Management API" y "My Business Business Information API", y que Google ya te haya aprobado el acceso');
 
         $cuentas = [];
         foreach ($respCuentas->json('accounts', []) as $cuentaGoogle) {

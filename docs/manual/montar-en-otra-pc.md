@@ -25,8 +25,8 @@ y hay que resolver en la máquina nueva:
 ### 2. Clonar el proyecto
 ```bash
 cd C:\laragon\www
-git clone https://github.com/Blueffalo/interfrigo-sgi.git
-cd interfrigo-sgi
+git clone https://github.com/gonzoita/briela.git
+cd briela
 ```
 
 ### 3. Instalar dependencias
@@ -44,7 +44,7 @@ php artisan key:generate
 Luego abrir `.env` y confirmar la conexión a la base local (normalmente ya
 viene bien para Laragon):
 ```
-DB_DATABASE=interfrigo_sgi
+DB_DATABASE=briela
 DB_USERNAME=root
 DB_PASSWORD=
 ```
@@ -75,7 +75,7 @@ rotas) aunque estén en el disco. Se hace una sola vez.
 
 ### 5. Crear la base de datos y las tablas
 En MySQL (o desde HeidiSQL que trae Laragon), crear una base vacía llamada
-`interfrigo_sgi`. Luego:
+`briela`. Luego:
 ```powershell
 php artisan migrate --seed
 ```
@@ -96,7 +96,7 @@ npm run dev
 ```
 
 Usuarios de prueba (del seeder):
-`admin@interfrigo.com` / `password` — administrador
+`admin@briela.app` / `password` — administrador
 
 ### 7. Subir cambios desde la máquina nueva
 Igual que siempre — el deploy automático no depende de la computadora:
@@ -115,14 +115,14 @@ la máquina nueva hay que **exportar** la base acá e **importarla** allá.
 **Exportar (en la computadora vieja).** Con Laragon encendido, desde la raíz
 del proyecto:
 ```powershell
-& "C:\laragon\bin\mysql\mysql-8.4.3-winx64\bin\mysqldump.exe" -u root interfrigo_sgi > respaldo-sgi.sql
+& "C:\laragon\bin\mysql\mysql-8.4.3-winx64\bin\mysqldump.exe" -u root briela > respaldo-briela.sql
 ```
 
 **Importar (en la computadora nueva).** Primero crear la base vacía y después
 cargar el archivo:
 ```powershell
-& "C:\laragon\bin\mysql\mysql-8.4.3-winx64\bin\mysql.exe" -u root -e "CREATE DATABASE interfrigo_sgi"
-& "C:\laragon\bin\mysql\mysql-8.4.3-winx64\bin\mysql.exe" -u root interfrigo_sgi < respaldo-sgi.sql
+& "C:\laragon\bin\mysql\mysql-8.4.3-winx64\bin\mysql.exe" -u root -e "CREATE DATABASE briela"
+& "C:\laragon\bin\mysql\mysql-8.4.3-winx64\bin\mysql.exe" -u root briela < respaldo-briela.sql
 ```
 
 En ese caso **no** corras `migrate --seed`: el archivo ya trae las tablas y
@@ -140,9 +140,9 @@ nueva, copia esa carpeta completa por USB o nube y pégala en la misma ruta.
 Si no lo haces, el sistema funciona igual pero esas imágenes salen rotas.
 
 > **Nunca** corras `migrate:fresh`, `migrate:refresh` ni `db:wipe` contra
-> `interfrigo_sgi`. Borran todo. Esa regla existe porque ya causó dos pérdidas
+> `briela`. Borran todo. Esa regla existe porque ya causó dos pérdidas
 > totales de datos.
 
 > Nota: esto es solo para el entorno de desarrollo local. El sistema en
-> producción (el que usan de verdad, en https://sgi.interfrigo.com.co) tiene
+> producción (el que usan de verdad, en el servidor de producción) tiene
 > su propia base en el servidor y no se toca con esto.

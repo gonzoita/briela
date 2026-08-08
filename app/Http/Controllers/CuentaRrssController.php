@@ -6,6 +6,7 @@ use App\Models\CuentaRrss;
 use App\Services\Rrss\GoogleBusinessRrssService;
 use App\Services\Rrss\LinkedinRrssService;
 use App\Services\Rrss\MetaRrssService;
+use App\Support\CredencialesRrss;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -13,31 +14,57 @@ class CuentaRrssController extends Controller
 {
     public function index()
     {
+        // Se le dice a la pantalla qué redes están listas para conectar y cuál
+        // es la URL de retorno de cada una. Sin esto, el administrador tenía
+        // que buscar ese dato en la documentación y pegarlo a mano en Meta —
+        // y si lo escribía distinto, la conexión fallaba sin explicar por qué.
+        $configuracion = [];
+
+        foreach (CredencialesRrss::redes() as $red) {
+            $configuracion[$red] = [
+                'lista'       => CredencialesRrss::lista($red),
+                'faltantes'   => CredencialesRrss::faltantes($red),
+                'url_retorno' => url("/rrss/cuentas/callback/{$red}"),
+                // El secreto NO se devuelve nunca a la pantalla: solo si ya hay
+                // uno guardado, para poder mostrar "configurado" sin exponerlo.
+                'id_actual'     => CredencialesRrss::valor($red, 'id'),
+                'tiene_secreto' => CredencialesRrss::valor($red, 'secret') !== '',
+            ];
+        }
+
         return Inertia::render('Rrss/Cuentas', [
             'cuentas' => CuentaRrss::orderBy('red')->orderBy('nombre_cuenta')->get([
                 'id', 'red', 'nombre_cuenta', 'activa', 'ultimo_error',
                 'ultima_publicacion_en', 'token_expira_en', 'created_at',
             ]),
+            'configuracion' => $configuracion,
         ]);
     }
 
     /**
-     * Credenciales que cada red necesita en el .env para poder conectarse.
-     * Se revisan ANTES de armar la URL: sin ellas, el diálogo de la red
-     * rechaza la petición (client_id vacío) y el usuario solo ve una página
-     * de error sin explicación.
+     * Guarda las credenciales de una red desde la interfaz, sin tocar el .env.
+     * El secreto solo se reemplaza si se envía uno nuevo: así se puede
+     * corregir el App ID sin tener que volver a escribir el secreto.
      */
-    private const CREDENCIALES = [
-        'meta'     => ['services.meta_rrss.app_id'           => 'META_APP_ID',
-                       'services.meta_rrss.app_secret'       => 'META_APP_SECRET',
-                       'services.meta_rrss.redirect_uri'     => 'META_REDIRECT_URI'],
-        'linkedin' => ['services.linkedin_rrss.client_id'     => 'LINKEDIN_CLIENT_ID',
-                       'services.linkedin_rrss.client_secret' => 'LINKEDIN_CLIENT_SECRET',
-                       'services.linkedin_rrss.redirect_uri'  => 'LINKEDIN_REDIRECT_URI'],
-        'google'   => ['services.google_business_rrss.client_id'     => 'GOOGLE_RRSS_CLIENT_ID',
-                       'services.google_business_rrss.client_secret' => 'GOOGLE_RRSS_CLIENT_SECRET',
-                       'services.google_business_rrss.redirect_uri'  => 'GOOGLE_RRSS_REDIRECT_URI'],
-    ];
+    public function guardarCredenciales(Request $request, string $red)
+    {
+        abort_unless(in_array($red, CredencialesRrss::redes(), true), 404);
+
+        $datos = $request->validate([
+            'id'       => 'nullable|string|max:255',
+            'secret'   => 'nullable|string|max:255',
+            'redirect' => 'nullable|string|max:255',
+        ]);
+
+        CredencialesRrss::guardar($red, 'id', $datos['id'] ?? '');
+        CredencialesRrss::guardar($red, 'redirect', $datos['redirect'] ?? '');
+
+        if (filled($datos['secret'] ?? null)) {
+            CredencialesRrss::guardar($red, 'secret', $datos['secret']);
+        }
+
+        return back()->with('success', 'Credenciales guardadas. Ya puedes conectar la cuenta.');
+    }
 
     /**
      * Redirige al diálogo de autorización de la red elegida.
@@ -45,24 +72,16 @@ class CuentaRrssController extends Controller
      */
     public function conectar(string $red, MetaRrssService $meta, LinkedinRrssService $linkedin, GoogleBusinessRrssService $google)
     {
-        if (! isset(self::CREDENCIALES[$red])) {
+        if (! in_array($red, CredencialesRrss::redes(), true)) {
             return back()->with('error', 'Red no soportada.');
         }
 
-        // Sin credenciales no tiene sentido salir a la red: se avisa cuáles
-        // faltan en vez de mandar al usuario a una pantalla de error ajena.
-        $faltantes = [];
-        foreach (self::CREDENCIALES[$red] as $clave => $variable) {
-            if (blank(config($clave))) {
-                $faltantes[] = $variable;
-            }
-        }
-
-        if ($faltantes) {
+        // Sin credenciales no tiene sentido salir a la red: se avisa qué falta
+        // en vez de mandar al usuario a una pantalla de error ajena.
+        if ($faltantes = CredencialesRrss::faltantes($red)) {
             return back()->with('error',
-                'Faltan credenciales en el .env del servidor para conectar esta red: '
-                . implode(', ', $faltantes)
-                . '. Ver docs/manual/redes-sociales.md.');
+                'Faltan credenciales para conectar esta red: ' . implode(', ', $faltantes)
+                . '. Puedes cargarlas aquí mismo, en "¿Primera vez? Cómo dejar lista una red".');
         }
 
         $url = match ($red) {

@@ -1,4 +1,4 @@
-# Manual de uso — SGI Interfrigo
+# Manual de uso
 
 Este manual se va construyendo módulo por módulo, a medida que se revisa y mejora
 cada parte del sistema. No es un manual técnico para desarrolladores (para eso

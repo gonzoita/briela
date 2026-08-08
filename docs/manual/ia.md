@@ -79,7 +79,7 @@ de apoyo, banners genéricos. **La foto del producto siempre es la real.**
 
 Por eso el generador incluye la instrucción de no meter texto ni logotipos
 dentro de la imagen: los modelos escriben mal las letras y el logo de
-Interfrigo se pone aparte, con el diseño real.
+la empresa se pone aparte, con el diseño real.
 
 ## Cómo activarlo
 
@@ -192,7 +192,7 @@ propuesta de valor, misión, visión, valores, elevator pitch, mensaje clave,
 tono y voz, clientes ideales, KPIs y DOFA.
 
 **Ya viene cargado** con el contenido del documento "Perfil de Marca
-Interfrigo", así que el módulo nace funcionando.
+la empresa", así que el módulo nace funcionando.
 
 Cada sección se puede:
 

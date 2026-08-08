@@ -671,6 +671,7 @@ Route::middleware('auth')->group(function () {
 
         Route::prefix('cuentas')->name('cuentas.')->group(function () {
             Route::get('/',                   [CuentaRrssController::class, 'index'])->name('index');
+            Route::post('/credenciales/{red}',[CuentaRrssController::class, 'guardarCredenciales'])->name('credenciales');
             Route::get('/conectar/{red}',     [CuentaRrssController::class, 'conectar'])->name('conectar');
             Route::get('/callback/{red}',     [CuentaRrssController::class, 'callback'])->name('callback');
             Route::delete('/{cuenta}',        [CuentaRrssController::class, 'destroy'])->name('destroy');

@@ -6,7 +6,7 @@
     "isDynamicEntry": true
   },
   "resources/js/app.js": {
-    "file": "assets/app-B8lTGJ8I.js",
+    "file": "assets/app-C01Wu48n.js",
     "name": "app",
     "src": "resources/js/app.js",
     "isEntry": true,
@@ -15,7 +15,7 @@
       "node_modules/workbox-window/build/workbox-window.prod.es5.mjs"
     ],
     "css": [
-      "assets/app-CFH6U-8e.css"
+      "assets/app-uDpz1kw-.css"
     ]
   }
 }

@@ -59,13 +59,13 @@ Admite dos comodines:
 Ejemplos:
 
 ```
-SGI — {empresa}          →  SGI — Interfrigo SAS
-{pagina} · {empresa}     →  Clientes · Interfrigo SAS
+SGI — {empresa}          →  SGI — Mi Empresa SAS
+{pagina} · {empresa}     →  Clientes · Mi Empresa SAS
 {pagina} | Mi ERP        →  Clientes | Mi ERP
 ```
 
 Si la pantalla no trae título propio, el separador huérfano se recorta solo:
-nunca vas a ver "— Interfrigo SAS" con el guion suelto al principio.
+nunca vas a ver "— Mi Empresa SAS" con el guion suelto al principio.
 
 Este título también es el que aparece en la vista previa de los enlaces al
 compartirlos por WhatsApp.

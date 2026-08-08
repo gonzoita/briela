@@ -24,17 +24,17 @@ class MetaRrssService
 
     private function appId(): string
     {
-        return (string) config('services.meta_rrss.app_id');
+        return \App\Support\CredencialesRrss::valor('meta', 'id');
     }
 
     private function appSecret(): string
     {
-        return (string) config('services.meta_rrss.app_secret');
+        return \App\Support\CredencialesRrss::valor('meta', 'secret');
     }
 
     private function redirectUri(): string
     {
-        return (string) config('services.meta_rrss.redirect_uri');
+        return \App\Support\CredencialesRrss::valor('meta', 'redirect');
     }
 
     /**

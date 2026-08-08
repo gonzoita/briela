@@ -16,10 +16,10 @@ use Illuminate\Support\Facades\DB;
  *
  *     php artisan db:seed --class=CursoSistemaSeeder
  *
- * A diferencia del curso del SGI de Interfrigo, este está redactado en
- * términos GENÉRICOS: Briela se instala en empresas distintas, así que no
- * puede hablar de cuartos fríos, ni nombrar a una empresa concreta. Habla de
- * "productos fabricados a la medida" y de "la empresa".
+ * El contenido está redactado en términos GENÉRICOS a propósito: Briela se
+ * instala en empresas distintas, así que no puede nombrar a ninguna ni hablar
+ * de un producto concreto. Habla de "productos fabricados a la medida" y de
+ * "la empresa".
  *
  * Es idempotente: al volver a correrlo reemplaza el contenido del curso sin
  * tocar las inscripciones ni el progreso de quien ya lo empezó.

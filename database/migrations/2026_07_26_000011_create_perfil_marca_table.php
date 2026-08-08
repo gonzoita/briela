@@ -10,11 +10,10 @@ return new class extends Migration
     // verdad que usa la IA para redactar con la voz de la empresa y para
     // responder preguntas sobre ella.
     //
-    // La tabla nace VACÍA a propósito. En el SGI de origen esta migración
-    // sembraba el perfil completo de Interfrigo —identidad, historia,
-    // propósito, tono de voz—, y en un producto que se instala en el servidor
-    // de cada cliente eso significaría que la IA de todos redacta con la voz de
-    // otra empresa.
+    // La tabla nace VACÍA a propósito. Sembrar aquí el perfil de una empresa
+    // concreta —identidad, historia, propósito, tono de voz— haría que, en un
+    // producto que se instala en el servidor de cada cliente, la IA de todos
+    // redactara con la voz de otra empresa.
     //
     // Las secciones disponibles las define App\Models\PerfilMarca::catalogo(),
     // así que la pantalla de configuración las muestra igual estando vacías, y

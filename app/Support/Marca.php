@@ -21,9 +21,9 @@ class Marca
      * Color de fábrica, el que ve una instalación recién hecha antes de que el
      * cliente ponga el suyo.
      *
-     * PROVISIONAL: es un azul neutro puesto al desacoplar la marca de
-     * Interfrigo. Cambiar por el color definitivo de Briela — es esta línea y
-     * nada más, porque toda la paleta se deriva de aquí.
+     * PROVISIONAL: es un azul neutro, sin identidad de ninguna empresa.
+     * Cambiar por el color definitivo de Briela — es esta línea y nada más,
+     * porque toda la paleta se deriva de aquí.
      */
     public const COLOR_POR_DEFECTO = '#2563EB';
 

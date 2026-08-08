@@ -28,17 +28,17 @@ class LinkedinRrssService
 
     private function clientId(): string
     {
-        return (string) config('services.linkedin_rrss.client_id');
+        return \App\Support\CredencialesRrss::valor('linkedin', 'id');
     }
 
     private function clientSecret(): string
     {
-        return (string) config('services.linkedin_rrss.client_secret');
+        return \App\Support\CredencialesRrss::valor('linkedin', 'secret');
     }
 
     private function redirectUri(): string
     {
-        return (string) config('services.linkedin_rrss.redirect_uri');
+        return \App\Support\CredencialesRrss::valor('linkedin', 'redirect');
     }
 
     public function urlAutorizacion(): string

@@ -53,7 +53,7 @@ Cuando se aprueba y se genera una Orden de Producción, queda marcada como
    ES el envío. El botón de estado sigue disponible como respaldo manual.
 6. **"Aprobada"/"Rechazada" ya son automáticas**: cuando el cliente entra al
    link público y decide, el sistema cambia el estado solo — nadie de
-   Interfrigo tiene que hacerlo a mano.
+   la empresa tiene que hacerlo a mano.
 7. **"Vencida" automática** *(nuevo, 23 jul 2026)*: todos los días a la
    1:00 a.m. corre `cotizaciones:marcar-vencidas`, que pasa a "Vencida"
    cualquier cotización que siga en "Enviada" con la fecha de validez ya

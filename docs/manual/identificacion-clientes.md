@@ -101,7 +101,7 @@ Ahí se puede:
   consultas por hora).
 - **Ajustar el tiempo de espera** (entre 2 y 30 segundos).
 - **Probar**: consulta un NIT real, sin usar caché, y muestra si respondió,
-  qué devolvió y en cuántos milisegundos. Viene con el NIT de Interfrigo
+  qué devolvió y en cuántos milisegundos. Viene con un NIT de ejemplo
   precargado — si falla con ese, el problema es del servicio y no del número.
 
 El dígito de verificación y la detección de duplicados no aparecen como
