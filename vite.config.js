@@ -20,11 +20,14 @@ export default defineConfig({
                 'icons/*.png',
             ],
             manifest: {
-                name: 'Interfrigo SGI',
-                short_name: 'SGI',
-                description: 'Sistema de Gestión Integral — Interfrigo SAS',
-                theme_color: '#0A4283',
-                background_color: '#0A4283',
+                name: 'Briela',
+                short_name: 'Briela',
+                description: 'Sistema de gestión integral para empresas de fabricación',
+                // Azul neutro, el mismo de fábrica de App\Support\Marca. No
+                // puede ser el color de una empresa concreta: la PWA se
+                // instala en el celular de cada cliente.
+                theme_color: '#2563EB',
+                background_color: '#2563EB',
                 display: 'standalone',
                 orientation: 'portrait-primary',
                 scope: '/',
@@ -77,14 +80,6 @@ export default defineConfig({
                             cacheName: 'ops-cache',
                             expiration: { maxEntries: 50, maxAgeSeconds: 3600 },
                             networkTimeoutSeconds: 5,
-                        },
-                    },
-                    {
-                        urlPattern: ({ url }) => url.hostname === 'interfrigo.com.co',
-                        handler: 'CacheFirst',
-                        options: {
-                            cacheName: 'assets-externos',
-                            expiration: { maxEntries: 10, maxAgeSeconds: 604800 },
                         },
                     },
                     {

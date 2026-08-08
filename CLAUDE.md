@@ -1,8 +1,8 @@
 # Briela — Contexto del proyecto para Claude Code
 
 **Briela** es un ERP para fabricantes por pedido, que se vende e **instala en el
-servidor de cada cliente**. Nació el 1 ago 2026 como copia del código del SGI de
-Interfrigo, y desde entonces es un producto independiente.
+servidor de cada cliente**. Nació el 1 ago 2026 a partir de un ERP interno ya
+probado en operación real, y desde entonces es un producto independiente.
 
 Repositorio: https://github.com/gonzoita/briela (privado)
 Superadmin: https://github.com/gonzoita/briela-superadmin (privado, app aparte)
@@ -11,16 +11,16 @@ Rama principal: main | Cuenta: gonzoita
 **Documentos maestros del proyecto** — leerlos antes de diseñar algo nuevo:
 - `docs/BRIELA-PLAN.md` — arquitectura decidida y plan por fases. **Fuente de verdad.**
 - `docs/BRIELA-CONTEXTO.md` — documento de arranque y decisiones de origen.
-- `docs/manual/00-indice.md` — manual funcional módulo por módulo (heredado; la
-  mayoría sirve, pero todavía habla de Interfrigo).
+- `docs/manual/00-indice.md` — manual funcional módulo por módulo.
 
 ---
 
 ## Lo que Briela NO es
 
-- **No es el SGI de Interfrigo.** El SGI sigue vivo en su propio repo
-  (`Blueffalo/interfrigo-sgi`), su servidor y su base. **No se toca nunca.**
-  Interfrigo no es cliente de Briela.
+- **No es el sistema del que se originó.** Ese ERP interno sigue vivo en su
+  propio repositorio, su servidor y su base, y **no se toca nunca**. Se usa como
+  banco de pruebas en operación real; no es cliente de Briela ni forma parte del
+  producto. **Su nombre no debe aparecer en este repositorio.**
 - **No es multiempresa por dentro.** Se evaluó y se descartó: cada cliente tiene
   su **propia instalación con su propia base de datos**, así que el aislamiento es
   físico. No hay `tenant_id`, no hay `stancl/tenancy`, no hay base central de
@@ -118,10 +118,10 @@ npm run build      # Build de producción (incluye PWA/SW)
 php artisan serve  # Servidor PHP
 ```
 
-> ⚠️ La base local de Briela es **`briela`**. La base `interfrigo_sgi` es de otro
+> ⚠️ La base local de Briela es **`briela`**. Cualquier otra base es de otro
 > proyecto: **jamás apuntar el `.env` de Briela ahí.** El `.env` heredado de la
-> copia venía apuntando a `interfrigo_sgi`; ya se corrigió, pero conviene
-> verificarlo antes de correr cualquier `migrate`.
+> copia venía apuntando a la base del sistema de origen; ya se corrigió, pero
+> conviene verificarlo antes de correr cualquier `migrate`.
 
 ---
 
@@ -190,7 +190,7 @@ Middleware **`permiso:`** (`VerificarPermiso`) en rutas nuevas. `VerificarRol` e
 legado, no usar.
 
 **Usuarios de prueba (seeder):** conviene renombrarlos a dominio `briela.app` al
-tocar los seeders — hoy todavía dicen `@interfrigo.com`.
+tocar los seeders.
 
 ---
 
@@ -251,7 +251,7 @@ proceso. Al construir algo nuevo, evaluarlo también bajo ese criterio.
 | Fase | Qué |
 |---|---|
 | 0 | Higiene, `git init`, repos en `gonzoita`, este archivo |
-| 1 | Desacoplar de Interfrigo: marca configurable, salir de Google Drive |
+| 1 | Desacoplar la marca: identidad configurable, salir de Google Drive |
 | 2 | Superadmin + licencias (serial, latido, gracia offline, bloqueo) |
 | 3 | Proxy de IA — el modelo de ganancia |
 | 4 | Asistente de instalación (`/instalar`) |
@@ -281,8 +281,9 @@ un comercio o una empresa de servicios.
   proyecto de origen. Con una instalación por cliente el riesgo se multiplica, y
   la base que se pierde puede no ser la propia. Para tests, `RefreshDatabase`
   dentro de archivos de test reales.
-- ⛔ Apuntar el `.env` de Briela a `interfrigo_sgi`
-- Escribir código o credenciales de Interfrigo en este repo
+- ⛔ Apuntar el `.env` de Briela a la base de otro proyecto
+- ⛔ Escribir en este repositorio el nombre, el código o las credenciales de la
+  empresa donde se hacen las pruebas
 - Inventar rutas con Ziggy o `route()`
 - Usar `resolvePageComponent`
 - Poner CSS en archivos separados

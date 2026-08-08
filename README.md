@@ -61,8 +61,8 @@ npm run dev
 php artisan serve
 ```
 
-> ⚠️ La base de este proyecto es **`briela`**. Nunca apuntar el `.env` a
-> `interfrigo_sgi`, que es de otro proyecto.
+> ⚠️ La base de este proyecto es **`briela`**. Nunca apuntar el `.env` a la
+> base de otro proyecto.
 
 ## Reglas que no se rompen
 

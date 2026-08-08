@@ -319,11 +319,11 @@ muerto). El repositorio quedó en 180 migraciones y 96 modelos.
 
 **Hallazgos del camino** (no estaban previstos en el plan):
 
-- El `.env` de la copia **apuntaba a la base real de Interfrigo** y traía su llave
+- El `.env` de la copia **apuntaba a la base real del sistema de origen** y traía su llave
   de OpenRouter en texto plano. Un `migrate` en Briela habría escrito en la base
   de producción del SGI.
 - 150 archivos temporales `.fuse_hidden` repartidos por `resources/` y `app/`.
-- Credenciales SSH de Interfrigo en tres documentos del manual y en
+- Credenciales SSH del sistema de origen en tres documentos del manual y en
   `.claude/settings.local.json`.
 - `config/pdf_modulos.php` y `PdfVariablesEngine` apuntaban a las tablas muertas:
   **el editor de plantillas PDF de OP ofrecía las columnas de la tabla vieja.**
@@ -350,15 +350,15 @@ producto que se va a vender.
 El resto de la fase:
 
 - `git init` con historial limpio. Nunca un fork: el historial del SGI lleva la
-  contraseña de producción de Interfrigo en texto plano.
+  contraseña de producción del sistema de origen en texto plano.
 - **Repos privados en `gonzoita`**: `briela` y `briela-superadmin`.
 - El `user.name` de git en esta máquina es `Blueffalo`. Definir con qué identidad
   firman los commits de Briela y configurarla **en el repo**, no global.
 - Borrar el código muerto: `OrdenProduccion`, `LineaOP`, `ItemOP`,
   `InventarioItem`, `InventarioMovimiento` y sus migraciones.
-- Sacar credenciales y datos de Interfrigo de `CLAUDE.md`, `.env` y
+- Sacar credenciales y datos del sistema de origen de `CLAUDE.md`, `.env` y
   `.github/workflows/deploy.yml`. Secretos nuevos en la cuenta `gonzoita`.
-- **Reescribir `CLAUDE.md` para Briela** — hoy sigue siendo el de Interfrigo, con
+- **Reescribir `CLAUDE.md` para Briela** — hoy sigue siendo el del sistema de origen, con
   el SSH y la contraseña de Hostinger dentro.
 - Ajustes al `.gitignore`: agregar los archivos sueltos, y **cambiar `/.claude/`**
   por reglas finas — versionar `.claude/CLAUDE.md` y `.claude/skills/`, ignorar
@@ -368,31 +368,31 @@ El resto de la fase:
   en `.claude/skills/graphify`). Correr `graphify update .` después de cada fase.
 
 **Criterio de aceptación:** el primer commit no contiene ninguna credencial ni
-ningún dato de Interfrigo. Verificado leyendo el commit, no de memoria.
+ningún dato del sistema de origen. Verificado leyendo el commit, no de memoria.
 
 *Aparte, para el SGI: esa contraseña de producción debería rotarse de todos modos.*
 
-### Fase 1 — Desacoplar de Interfrigo · **hecha el 2 ago 2026**
+### Fase 1 — Desacoplar del sistema de origen · **hecha el 2 ago 2026**
 
 Dos commits: `50f1b3e` (el color, 68 archivos) y `2f9f0a6` (la identidad, 78
-archivos). El código pasó de 196 usos del color de Interfrigo y 165 textos con su
+archivos). El código pasó de 196 usos del color del sistema de origen y 165 textos con su
 nombre, a **cero**: solo quedan dos comentarios que explican el origen de una
 decisión.
 
 **Lo que salió y no estaba previsto:**
 
-- 17 pantallas cargaban el logo desde `interfrigo.com.co`, un servidor ajeno.
-- La migración de `perfil_marca` sembraba el perfil completo de Interfrigo, que
+- 17 pantallas cargaban el logo desde un dominio externo, un servidor ajeno.
+- La migración de `perfil_marca` sembraba el perfil completo del sistema de origen, que
   es lo que la IA lee para redactar: la IA de cada cliente habría escrito con la
   voz de otra empresa. La tabla nace vacía.
-- Se sembraban las tres sedes reales de Interfrigo; ahora nace una sede
+- Se sembraban las tres sedes reales del sistema de origen; ahora nace una sede
   "Principal".
 - Los prompts del asistente y del redactor comercial decían trabajar para
-  Interfrigo SAS y describían su negocio.
-- La migración que siembra `marca_color` definía el azul de Interfrigo, así que
+  la empresa de pruebas y describían su negocio.
+- La migración que siembra `marca_color` definía el azul del sistema de origen, así que
   **toda instalación nueva arrancaba con él** por mucho que cambiara la constante
   del código.
-- `storage/app` traía 28 archivos de datos reales de Interfrigo: el respaldo de su
+- `storage/app` traía 28 archivos de datos reales del sistema de origen: el respaldo de su
   base, el del incidente del 15 jul, PDFs y una hoja de cálculo de sus clientes,
   fotos, y las credenciales de Google Drive. Ninguno había entrado al repo (los
   `.gitignore` de Laravel lo cubrían); se movieron a `_briela-descartes`.
@@ -411,7 +411,7 @@ URL para HTML).
 | Color definitivo de Briela | Provisional `#2563EB` en `Marca.php`. Toda la paleta se deriva de esa constante |
 | Iconos PWA | Dicen "BRIELA" como placeholder; hay que generarlos con la identidad real (`node scripts/generate-icons.js`) |
 | Salir de Google Drive | `ArchivoController` todavía sube a Drive primero. Las credenciales ya no están en el proyecto |
-| Revisar `docs/manual/` | Sigue hablando de Interfrigo en el contenido (ya no tiene credenciales) |
+| Revisar `docs/manual/` | Sigue hablando del sistema de origen en el contenido (ya no tiene credenciales) |
 
 ---
 
@@ -420,14 +420,14 @@ URL para HTML).
 Que `sistema.briela.app` quede en pie como instalación propia y presentable.
 
 - Marca configurable de verdad: `PerfilMarca` ya existe, pero el color `#0A4283`
-  y el logo de Interfrigo están sembrados en el código. Que la instalación se vea
-  como el cliente, no como Interfrigo.
+  y el logo del sistema de origen están sembrados en el código. Que la instalación se vea
+  como el cliente, no como el sistema de origen.
 - Identidad de Briela: nombre, colores, favicon, correos.
 - `.env.example` limpio y documentado para instalaciones nuevas.
 - Salir de Google Drive: `ArchivoController` todavía sube a Drive primero. En
   Briela no hay archivos históricos que migrar, así que sale gratis hacerlo bien.
 - Revisar `docs/manual/` uno por uno: la mayoría sirve como base, pero hablan de
-  Interfrigo.
+  el sistema de origen.
 
 ### Fase 2 — Superadmin y licencias
 
@@ -505,7 +505,7 @@ es perfectamente viable con pocos clientes.
    recargar.
 4. **Redes sociales**: cada cliente con sus propias apps de Meta, o apps de
    Briela. El módulo nunca se ha conectado de verdad.
-5. **Soporte** con 20 instalaciones, y **quién mantiene el SGI de Interfrigo**
+5. **Soporte** con 20 instalaciones, y **quién mantiene el sistema de origen**
    ahora que los caminos se separan.
 6. **Qué tanto se personaliza por cliente** sin volver el código un nudo. Con
    instalaciones separadas la tentación es grande, y es la forma más rápida de

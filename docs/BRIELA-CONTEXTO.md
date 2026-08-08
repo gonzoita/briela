@@ -4,24 +4,24 @@
 > SGI porque es donde nació la idea, pero **se copia al repositorio de Briela**
 > y allá se convierte en su documento de contexto.
 
-Fecha: 1 ago 2026 · Punto de partida: una copia del código del SGI Interfrigo.
+Fecha: 1 ago 2026 · Punto de partida: una copia del código del sistema de origen.
 
 ---
 
 ## 1. Qué es Briela
 
 **Briela es un proyecto NUEVO, con su propio repositorio, que arranca copiando
-el código del SGI de Interfrigo.** El objetivo es convertirlo en un producto
+el código del sistema de origen.** El objetivo es convertirlo en un producto
 SaaS multiempresa para vender a otros fabricantes.
 
 Lo que esto implica, y es lo más importante de entender:
 
-- **El SGI de Interfrigo NO se toca.** Sigue en https://sgi.interfrigo.com.co
-  con su repo, su base de datos y su deploy. Interfrigo no es cliente de
+- **El sistema de origen NO se toca.** Sigue en https://el servidor del sistema de origen
+  con su repo, su base de datos y su deploy. el sistema de origen no es cliente de
   Briela ni depende de ella.
 - **Briela es un fork en el sentido práctico**: mismo código de partida, dos
   caminos separados desde el día uno. Un cambio en Briela no afecta a
-  Interfrigo y viceversa.
+  el sistema de origen y viceversa.
 - **Briela sí es multiempresa por dentro**: un solo sistema donde cada empresa
   cliente ve únicamente sus datos.
 
@@ -41,13 +41,13 @@ historial limpio:
 
 ```powershell
 # Desde donde quieras que viva el proyecto nuevo
-robocopy C:\laragon\www\interfrigo-sgi C:\laragon\www\briela /E /XD .git node_modules vendor graphify-out storage\app\public storage\logs public\build
+robocopy <carpeta-del-sistema-de-origen> C:\laragon\www\briela /E /XD .git node_modules vendor graphify-out storage\app\public storage\logs public\build
 cd C:\laragon\www\briela
 git init
 ```
 
 **Por qué el historial limpio y no un fork:** el historial del SGI contiene la
-contraseña de la base de datos de producción de Interfrigo en texto plano
+contraseña de la base de datos de producción del sistema de origen en texto plano
 dentro de `CLAUDE.md`. Un fork se la lleva completa, y borrarla después no la
 saca del historial. Para un producto que se va a vender —y que puede terminar
 con colaboradores externos— eso no puede viajar. Arrancar con `git init` corta
@@ -63,11 +63,11 @@ Esto es lo que **no** debe existir en Briela:
 |---|---|
 | `OrdenProduccion`, `LineaOP`, `ItemOP` + sus tablas y migraciones | Código muerto del sistema viejo de "3 líneas". No arrastrar a un producto que se vende |
 | `InventarioItem`, `InventarioMovimiento` | Stock viejo, ya reemplazado por `Producto` |
-| Credenciales de Interfrigo en `CLAUDE.md` y `.env` | Servidor, base, dominio y llaves son otros |
+| Credenciales del sistema de origen en `CLAUDE.md` y `.env` | Servidor, base, dominio y llaves son otros |
 | `HANDOFF.md` | Documento muerto del 16 jul, ya obsoleto en el propio SGI |
-| Marca de Interfrigo (logo, color `#0A4283`, textos) | Briela tiene identidad propia, y además la marca pasa a ser configurable por cada empresa cliente |
+| Marca del sistema de origen (logo, color `#0A4283`, textos) | Briela tiene identidad propia, y además la marca pasa a ser configurable por cada empresa cliente |
 | `.github/workflows/deploy.yml` con los datos de Hostinger | Briela tiene su propio servidor y sus propios secretos |
-| `docs/manual/*.md` específicos de Interfrigo | Se revisan uno por uno: la mayoría sirve como base, pero hablan de Interfrigo |
+| `docs/manual/*.md` específicos del sistema de origen | Se revisan uno por uno: la mayoría sirve como base, pero hablan del sistema de origen |
 | `graphify-out/` | Se regenera con `graphify .` en el proyecto nuevo |
 
 ### 2.3 Infraestructura propia
@@ -217,7 +217,7 @@ No las contesta el código. Deben decidirse antes o durante el diseño:
 2. **Precio y modelo**: por usuario, por empresa, por volumen.
 3. **¿Quién da soporte** cuando haya 20 empresas?
 4. **¿Qué tanto se puede personalizar** por empresa sin volver el código un nudo?
-5. **¿Quién mantiene el SGI de Interfrigo** ahora que los caminos se separan?
+5. **¿Quién mantiene el sistema de origen** ahora que los caminos se separan?
 
 ---
 
@@ -240,7 +240,7 @@ repositorio, el dominio, el servidor, la base, la marca y el propósito.
 Sugerencia de primer mensaje, ya parado en la carpeta de Briela:
 
 > Estamos arrancando **Briela**: un producto SaaS multiempresa que parte de una
-> copia del código del SGI de Interfrigo. El SGI original no se toca.
+> copia del código del sistema de origen. El SGI original no se toca.
 > Lee en este orden: `docs/BRIELA-CONTEXTO.md`, `CLAUDE.md` y
 > `docs/manual/00-indice.md`. No re-explores el código ya documentado.
 >

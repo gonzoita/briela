@@ -18,5 +18,5 @@ Formato: [versionado semántico](https://semver.org/lang/es/).
 - Nada todavía.
 
 ### Cambiado
-- Arranque del proyecto a partir del código del SGI de Interfrigo (2 ago 2026):
+- Arranque del proyecto a partir de un ERP interno ya probado (2 ago 2026):
   identidad propia, configuración limpia y salida de las credenciales heredadas.

@@ -1,4 +1,4 @@
-# Replicar cambios del SGI de Interfrigo en Briela
+# Replicar cambios del sistema de origen en Briela
 
 Briela nació como copia del SGI con **historial de git nuevo**, así que los dos
 repos no tienen ancestro común: no se pueden mezclar con `merge`. Sí se pueden
@@ -16,7 +16,7 @@ commit como parche.
 ## Preparación — una sola vez
 
 ```bash
-git remote add sgi C:/laragon/www/interfrigo-sgi
+git remote add origen <ruta-local-del-sistema-de-origen>
 ```
 
 Apunta a la carpeta local, así que solo funciona en la máquina donde están los
@@ -92,18 +92,18 @@ Dirección recomendada del flujo:
 
 | Caso | Dónde se arregla primero |
 |---|---|
-| Bug que detiene la operación de Interfrigo | En el SGI, y se replica a Briela **el mismo día** |
+| Bug que detiene la operación del sistema de origen | En el SGI, y se replica a Briela **el mismo día** |
 | Mejora, módulo nuevo, refactor | **En Briela**, y de ahí se lleva al SGI |
 
 Lo segundo es lo que conviene por defecto: Briela es el producto que se vende, y
-su código es el que debe estar bien. Si todo se arregla primero en Interfrigo,
+su código es el que debe estar bien. Si todo se arregla primero en el sistema de origen,
 Briela vive siempre poniéndose al día, y la deriva termina haciendo imposible el
 cherry-pick.
 
 ## La salida de fondo
 
 Mantener dos ERPs completos en paralelo es un costo permanente que crece con cada
-fase de Briela. La única salida que lo elimina de raíz es que **Interfrigo pase a
+fase de Briela. La única salida que lo elimina de raíz es que **el sistema de origen pase a
 ser una instalación de Briela** — con su serial, su marca y sus datos.
 
 `BRIELA-CONTEXTO.md` descartó esa idea al arrancar, y para arrancar tenía razón:
