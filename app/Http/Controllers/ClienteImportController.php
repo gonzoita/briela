@@ -63,13 +63,15 @@ class ClienteImportController extends Controller
             self::COLUMNAS,
             [
                 'empresa', 'NIT', '901195995',
-                'INTERFRIGO SAS', '',
-                'contacto@interfrigo.com.co', '6011234567', '3001234567',
+                'COMERCIAL EJEMPLO SAS', '',
+                'contacto@ejemplo.com', '6011234567', '3001234567',
                 'Bogotá', 'Calle 1 # 2-3',
                 'Bogotá', 'Si', 'No',
-                'Alimentos,Retail', 'Referido', 'Cliente desde 2018',
-                'Renier', 'Domínguez', 'Gerente',
-                'renier@interfrigo.com.co', '6011234567', '3009876543',
+                // Segmentación: tipos_contacto, industrias, proceso_seguimiento, fuentes_contacto
+                'Cliente directo', 'Alimentos y bebidas', 'Cliente activo', 'Referido',
+                'Cliente desde 2018',
+                'Ana', 'Gómez', 'Gerente',
+                'ana@ejemplo.com', '6011234567', '3009876543',
             ],
             [
                 'persona', 'CC', '1094370680',
@@ -77,11 +79,25 @@ class ClienteImportController extends Controller
                 'juan@correo.com', '', '3151234567',
                 'Cali', 'Carrera 5 # 6-7',
                 'Cali', 'Si', 'Si',
-                '', 'Página web', '',
+                'Prospecto', '', 'Primer contacto', 'Página web',
+                '',
                 '', '', '',
                 '', '', '',
             ],
         ];
+
+        // Las filas de ejemplo tienen que tener exactamente tantas celdas como
+        // columnas: si se agrega una columna y se olvida el ejemplo, la
+        // plantilla sale corrida y todo el mundo importa los datos cambiados
+        // de sitio sin darse cuenta.
+        foreach ($filas as $i => $fila) {
+            if (count($fila) !== count(self::COLUMNAS)) {
+                throw new \LogicException(
+                    "La fila de ejemplo {$i} de la plantilla tiene " . count($fila) .
+                    ' celdas y las columnas son ' . count(self::COLUMNAS) . '.'
+                );
+            }
+        }
 
         $handle = fopen('php://temp', 'w+');
         fwrite($handle, "\xEF\xBB\xBF"); // BOM — para que Excel abra los acentos bien
