@@ -422,6 +422,49 @@ cualquiera podía inventarse un historial falso desde la consola.
 Acceso: cualquier usuario autenticado puede usarlo. Editar el perfil y el
 asistente requiere permiso de **Configuración → Editar**.
 
+## Perfiles de acceso: qué puede consultar la IA según a quién atiende
+
+No todos los que hablan con la IA pueden ver lo mismo. Hay **dos catálogos de
+consulta separados a propósito**, no uno recortado.
+
+| Perfil | A quién atiende | Qué puede consultar |
+|---|---|---|
+| **Interno** | Un usuario del sistema con sesión iniciada | El catálogo completo, **filtrado por los permisos de su rol**. Un vendedor sin acceso a compras no puede preguntar por órdenes de compra |
+| **Público** | Cualquiera que escriba sin identificarse: WhatsApp, chat de la web, lo que sea | Solo **quién es la empresa**, **datos de contacto** y **qué productos ofrece**. Nada más |
+
+### Por qué son dos catálogos y no uno con filtro
+
+El catálogo interno (`ConsultasDatosService`) decide qué mostrar según los
+permisos del usuario. Pero **un desconocido no tiene usuario ni permisos**, así
+que usar ese mismo catálogo significaría confiar en que el filtro nunca falle.
+Un solo descuido y alguien de afuera vería cotizaciones, cartera o inventario.
+
+Por eso el agente público usa un catálogo aparte
+(`ConsultasPublicasService`) que **no conoce** las consultas internas: no es que
+las tenga bloqueadas, es que no existen para él. Pedirle una devuelve nulo.
+
+Todo lo que ese catálogo entrega **ya es público por otro lado** (el catálogo en
+`/catalogo` y los datos de contacto), así que responderlo por chat no expone
+nada nuevo. No incluye costos, márgenes ni existencias.
+
+### El flujo con un desconocido
+
+1. Alguien escribe por WhatsApp (o por donde sea) y **no sabemos quién es**.
+2. El agente lo atiende con lo público: qué hace la empresa, qué vende, horarios.
+3. En paralelo, el sistema **crea el lead y lo reparte** a un vendedor (ver
+   [WhatsApp](./whatsapp.md)).
+4. El vendedor toma la conversación desde ahí.
+
+El agente **nunca** promete precios de productos a la medida: esos dependen de
+las dimensiones y los tiene que cotizar una persona.
+
+### Pendiente: el modo "cliente identificado"
+
+Falta un tercer perfil para cuando alguien **sí demuestre** quién es (como ya
+hace el portal de seguimiento, que exige el número de OP más el apellido o el
+documento). Ese perfil podría responder "¿cómo va mi pedido?" mirando
+únicamente **los datos de esa persona**. No está construido todavía.
+
 ## Siguientes pasos posibles
 
 No están construidos todavía:
