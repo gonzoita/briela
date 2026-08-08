@@ -87,6 +87,27 @@ Se pueden tener varias: un saludo, y respuestas a las preguntas de siempre
 ("horario", "dirección", "precio"). **Solo se envía la primera que coincida** —
 mandar varias seguidas se ve como spam y Meta lo penaliza.
 
+#### Que responda el agente de IA
+
+Dentro de "Responder automáticamente" se puede activar el **agente de IA**. En
+vez de comparar palabras clave, entiende la pregunta y contesta.
+
+Se le pone un **nombre** (cómo se presenta) e **indicaciones propias del
+negocio** — por ejemplo *"Somos fabricantes, no vendemos al detal"*. Esas
+indicaciones se suman a las reglas de fondo, que no se pueden desactivar.
+
+**Qué sabe y qué no:**
+
+- Solo conoce **quién es la empresa, cómo contactarla y qué vende**. Nada de
+  ningún cliente. Ver [IA — perfiles de acceso](./ia.md).
+- Tiene **prohibido** dar precios de productos a la medida, prometer plazos,
+  descuentos o condiciones de pago, e inventar lo que no está en sus datos.
+- Si le preguntan por un pedido o una factura, responde que un asesor lo
+  revisa — **y no finge tener acceso**.
+
+**Si la IA no contesta** (está caída, sin cupo, lo que sea), salen los mensajes
+fijos. Nunca se deja a alguien sin respuesta.
+
 ### 3. Crear el lead en el CRM
 
 Si se activa, el mensaje entra al pipeline con `fuente: whatsapp`.

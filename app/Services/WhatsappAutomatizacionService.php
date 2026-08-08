@@ -147,6 +147,23 @@ class WhatsappAutomatizacionService
         $textoNormalizado = mb_strtolower(trim($texto));
         $whatsapp = app(WhatsAppService::class);
 
+        // Si el agente de IA está encendido, contesta él: entiende la pregunta
+        // en vez de comparar palabras. Los mensajes fijos quedan como respaldo
+        // para cuando la IA no conteste — dejar a alguien sin respuesta es peor
+        // que mandarle algo genérico.
+        $agente = app(\App\Services\IA\AgentePublicoService::class);
+
+        if ($agente->activo()) {
+            $respuestaIa = $agente->responder($texto, $this->historial($conversacion));
+
+            if ($respuestaIa !== null) {
+                $whatsapp->enviarMensaje($numero, $conversacion->numero_contacto, $respuestaIa);
+                return;
+            }
+
+            Log::warning('Agente público: sin respuesta, se usan los mensajes fijos.');
+        }
+
         foreach ($respuestas as $r) {
             $mensaje = trim((string) ($r['mensaje'] ?? ''));
             $clave   = mb_strtolower(trim((string) ($r['palabra_clave'] ?? '')));

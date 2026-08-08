@@ -9,7 +9,23 @@ const props = defineProps({
     conexion: { type: Object, default: () => ({ lista: false, faltantes: [], url_webhook: '' }) },
     automatizacion: { type: Object, default: () => ({}) },
     etapas: { type: Array, default: () => [] },
+    agente: { type: Object, default: () => ({}) },
 })
+
+// ── Agente de IA ─────────────────────────────────────────────────────────────
+const agenteForm = ref({
+    activo:       props.agente?.activo ?? false,
+    nombre:       props.agente?.nombre ?? 'Asistente',
+    indicaciones: props.agente?.indicaciones ?? '',
+})
+
+function guardarAgente() {
+    ocupado.value = 'agente'
+    router.post('/configuracion/whatsapp-numeros/agente', agenteForm.value, {
+        preserveScroll: true,
+        onFinish: () => { ocupado.value = '' },
+    })
+}
 
 // ── Automatización ───────────────────────────────────────────────────────────
 const autoAbierta = ref(false)
@@ -286,8 +302,37 @@ function eliminar(id) {
                             <span><strong class="text-gray-700">Responder automáticamente.</strong></span>
                         </label>
 
-                        <div v-if="auto.responder" class="pl-6 space-y-2">
+                        <div v-if="auto.responder" class="pl-6 space-y-3">
+                            <!-- Agente de IA -->
+                            <div class="rounded-lg border border-gray-200 p-3 space-y-2">
+                                <label class="flex items-start gap-2 cursor-pointer">
+                                    <input type="checkbox" v-model="agenteForm.activo" class="mt-0.5 rounded" />
+                                    <span><strong class="text-gray-700">Que responda el agente de IA.</strong>
+                                        <span class="text-gray-400">Entiende la pregunta en vez de comparar palabras.
+                                        Si no logra responder, se usan los mensajes fijos de abajo.</span></span>
+                                </label>
+
+                                <template v-if="agenteForm.activo">
+                                    <input v-model="agenteForm.nombre" type="text" placeholder="Cómo se presenta (ej. Ofe)"
+                                        class="w-full border border-gray-200 rounded-lg px-2 py-1.5 text-[12px] focus:outline-none focus:border-blue-400" />
+                                    <textarea v-model="agenteForm.indicaciones" rows="4"
+                                        placeholder="Indicaciones propias del negocio. Ej: «Somos fabricantes, no vendemos al detal. Si preguntan por instalación, aclara que sí la hacemos en todo el país.»"
+                                        class="w-full border border-gray-200 rounded-lg px-2 py-1.5 text-[12px] focus:outline-none focus:border-blue-400"></textarea>
+                                    <p class="text-gray-400">
+                                        El agente solo conoce <strong>quién es la empresa, cómo contactarla y qué
+                                        vende</strong>. No tiene acceso a datos de ningún cliente, y tiene prohibido
+                                        dar precios de productos a la medida o prometer plazos.
+                                    </p>
+                                </template>
+
+                                <button type="button" @click="guardarAgente" :disabled="ocupado === 'agente'"
+                                    class="px-2.5 py-1.5 rounded-lg border border-gray-200 text-[11px] font-semibold text-gray-600 hover:bg-gray-50 disabled:opacity-50">
+                                    {{ ocupado === 'agente' ? 'Guardando...' : 'Guardar agente' }}
+                                </button>
+                            </div>
+
                             <p class="text-gray-400">
+                                <strong class="text-gray-600">Mensajes fijos.</strong>
                                 Sin palabra clave, el mensaje es de <strong>bienvenida</strong> y sale solo en el primer
                                 contacto. Con palabra clave, sale cada vez que el mensaje la contenga.
                                 Solo se envía la primera que coincida.

@@ -30,6 +30,12 @@ class UserFactory extends Factory
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
+            // La columna tiene valor por defecto en la base, pero el modelo
+            // recién creado no lo trae, y User::permisos() se lo pasa a
+            // Permisos::porRolLegado(), que exige string. Sin esto, cualquier
+            // petición autenticada en las pruebas revienta con un TypeError.
+            'rol' => 'administrador',
+            'activo' => true,
         ];
     }
 

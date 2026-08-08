@@ -2,18 +2,28 @@
 
 namespace Tests\Feature;
 
-// use Illuminate\Foundation\Testing\RefreshDatabase;
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class ExampleTest extends TestCase
 {
-    /**
-     * A basic test example.
-     */
-    public function test_the_application_returns_a_successful_response(): void
-    {
-        $response = $this->get('/');
+    use RefreshDatabase;
 
-        $response->assertStatus(200);
+    /**
+     * La raíz nunca muestra contenido: siempre reparte según haya sesión o no.
+     * El test que venía de fábrica esperaba un 200 y por eso fallaba — nunca
+     * se adaptó a esta aplicación.
+     */
+    public function test_la_raiz_manda_al_login_si_no_hay_sesion(): void
+    {
+        $this->get('/')->assertRedirect('/login');
+    }
+
+    public function test_la_raiz_manda_al_dashboard_si_hay_sesion(): void
+    {
+        $this->actingAs(User::factory()->create())
+            ->get('/')
+            ->assertRedirect('/dashboard');
     }
 }

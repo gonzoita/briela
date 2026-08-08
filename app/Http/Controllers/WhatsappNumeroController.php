@@ -29,6 +29,7 @@ class WhatsappNumeroController extends Controller
                 'url_webhook'    => url('/webhook/whatsapp'),
             ],
             'automatizacion' => \App\Services\WhatsappAutomatizacionService::config(),
+            'agente'         => \App\Services\IA\AgentePublicoService::config(),
             'etapas'         => \App\Models\CrmEtapa::where('activa', true)
                 ->orderBy('orden')->get(['id', 'nombre']),
         ]);
@@ -75,6 +76,25 @@ class WhatsappNumeroController extends Controller
         \App\Models\Configuracion::set('whatsapp_auto_responsables', json_encode(array_values($datos['responsables'] ?? [])));
 
         return back()->with('success', 'Automatización guardada.');
+    }
+
+    /**
+     * Guarda el agente de IA que atiende a los desconocidos: si está encendido,
+     * su nombre y las indicaciones propias del negocio.
+     */
+    public function guardarAgente(Request $request)
+    {
+        $datos = $request->validate([
+            'activo'       => 'boolean',
+            'nombre'       => 'nullable|string|max:60',
+            'indicaciones' => 'nullable|string|max:4000',
+        ]);
+
+        \App\Models\Configuracion::set('agente_publico_activo', !empty($datos['activo']) ? '1' : '0');
+        \App\Models\Configuracion::set('agente_publico_nombre', trim((string) ($datos['nombre'] ?? '')));
+        \App\Models\Configuracion::set('agente_publico_prompt', trim((string) ($datos['indicaciones'] ?? '')));
+
+        return back()->with('success', 'Agente guardado.');
     }
 
     /**
