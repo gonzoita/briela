@@ -141,18 +141,22 @@ class ComentarioController extends Controller
         return response()->json(['comentario' => $comentario->fresh(['autor:id,name', 'asignado:id,name', 'resueltoPor:id,name'])]);
     }
 
+    /**
+     * Los mensajes NO se borran.
+     *
+     * Un hilo es evidencia: sirve para responder "¿quién pidió este cambio?"
+     * o "¿esto se avisó a tiempo?". Si cualquiera puede quitar lo que dijo,
+     * el rastro deja de servir justo cuando más se necesita — que es cuando
+     * alguien quiere que no aparezca.
+     *
+     * Se deja el método respondiendo explícitamente en vez de quitar la ruta
+     * para que quede claro que es una decisión, no un olvido.
+     */
     public function destroy(Comentario $comentario): JsonResponse
     {
-        // Cada quien borra lo suyo; el administrador puede borrar cualquiera.
-        abort_unless(
-            $comentario->user_id === auth()->id() || auth()->user()->esAdmin(),
-            403,
-            'Solo puedes borrar tus propios mensajes.'
-        );
-
-        $comentario->delete();
-
-        return response()->json(['ok' => true]);
+        return response()->json([
+            'message' => 'Los mensajes del chat no se pueden borrar: quedan como evidencia de lo que se dijo y cuándo.',
+        ], 403);
     }
 
     // ─── Avisos ───────────────────────────────────────────────────────────────

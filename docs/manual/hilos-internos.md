@@ -96,10 +96,27 @@ pierden.
 Como todos los avisos del sistema, cada uno se puede apagar en Ajustes. Ver
 [Notificaciones](./notificaciones.md).
 
-## Quién puede borrar
+## Nada se borra: las conversaciones son evidencia
 
-Cada quien borra lo suyo. El administrador puede borrar cualquiera. Se borra de
-forma suave: el registro queda, no se pierde el historial.
+**No hay botón de borrar, y no es un olvido.** Un hilo sirve para responder
+"¿quién pidió este cambio?", "¿esto se avisó a tiempo?", "¿quién autorizó el
+descuento?". Si cualquiera pudiera quitar lo que dijo, el rastro dejaría de
+servir justo cuando más se necesita — que es cuando a alguien le conviene que
+no aparezca.
+
+Hay **tres candados**, no uno:
+
+1. **No existe el botón** en la interfaz.
+2. **El sistema rechaza la petición** aunque alguien la mande a mano.
+3. **El modelo se niega a borrarse por código**: un borrado en cascada, una
+   limpieza mal apuntada o un script de mantenimiento fallan en vez de dejar
+   un hueco silencioso en la conversación.
+
+Y en la base de datos, **borrar un usuario ya no arrastra sus mensajes**. Antes
+sí: estaban en cascada, así que eliminar una cuenta habría borrado en silencio
+todo lo que esa persona escribió. Ahora la base lo impide. (El módulo de
+Usuarios de todos modos **desactiva** en vez de borrar, precisamente para
+conservar el rastro.)
 
 ## Nota técnica
 

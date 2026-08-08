@@ -84,13 +84,8 @@ async function resolver(c, estado) {
     } catch (e) { error.value = e.message }
 }
 
-async function borrar(c) {
-    if (!confirm('¿Borrar este mensaje?')) return
-    try {
-        await pedir(`/api/comentarios/${c.id}`, { method: 'DELETE' })
-        comentarios.value = comentarios.value.filter(x => x.id !== c.id)
-    } catch (e) { error.value = e.message }
-}
+// No hay función de borrar a propósito: los mensajes quedan como evidencia.
+// Ver ComentarioController::destroy.
 
 const fecha = (v) => new Date(v).toLocaleString('es-CO', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })
 
@@ -149,7 +144,6 @@ onMounted(cargar)
                     <span v-else-if="c.resuelto_por" class="text-[11px] text-gray-400">
                         Cerrada por {{ c.resuelto_por.name }}
                     </span>
-                    <button @click="borrar(c)" class="ml-auto text-[11px] text-red-500 hover:underline">Borrar</button>
                 </div>
             </div>
 

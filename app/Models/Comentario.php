@@ -32,6 +32,26 @@ class Comentario extends Model
         'leido_at'     => 'datetime',
     ];
 
+    /**
+     * Último candado: un hilo es evidencia y no se borra ni por código.
+     *
+     * Se conserva SoftDeletes por si algún día hace falta ocultar algo por una
+     * razón de peso, pero cualquier `delete()` accidental —un borrado en
+     * cascada, una limpieza mal apuntada, un script de mantenimiento— falla
+     * en vez de dejar un hueco silencioso en la conversación.
+     */
+    protected static function booted(): void
+    {
+        static::deleting(function (self $comentario) {
+            if (! $comentario->isForceDeleting()) {
+                throw new \RuntimeException(
+                    'Los mensajes del chat no se borran: son la evidencia de lo que se dijo. '
+                    . 'Si de verdad hay que quitar uno, hay que hacerlo a conciencia con forceDelete().'
+                );
+            }
+        });
+    }
+
     public function comentable()
     {
         return $this->morphTo();
