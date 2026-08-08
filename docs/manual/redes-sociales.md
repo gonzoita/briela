@@ -107,6 +107,13 @@ Google revisa la solicitud y suele tardar unas dos semanas.
    con un correo del dominio de la empresa.
 6. Copiar el **ID de cliente** y el **Secreto del cliente**.
 
+> **Si sale "Quota exceeded", no es tráfico.** Mientras Google no apruebe la
+> solicitud, deja la cuota del proyecto en **cero**, y la API responde
+> "Quota exceeded ... Requests per minute" desde la primera llamada. Se puede
+> confirmar en *IAM y administración → Cuotas*: si "Requests per minute" está
+> en 0, lo único que falta es la aprobación. El sistema ya traduce ese error
+> para que no confunda.
+
 ## Cómo se publica
 
 - Al crear una publicación se elige el texto, una imagen opcional, la fecha y

@@ -188,6 +188,22 @@ class GoogleBusinessRrssService
         Log::error('Google Business RRSS: ' . $mensaje, ['status' => $resp->status(), 'respuesta' => $data]);
 
         $detalle = $data['error']['message'] ?? $resp->body();
+
+        // Google no dice "te falta la aprobación": deja la cuota en CERO y
+        // responde "Quota exceeded", que se lee como si hubiéramos hecho
+        // demasiadas peticiones. Se traduce para no mandar a nadie a buscar
+        // un problema de tráfico que no existe.
+        if ($resp->status() === 429 || str_contains($detalle, 'Quota exceeded')) {
+            throw new RrssApiException(
+                'Google todavía NO ha aprobado el acceso de este proyecto a Business Profile. '
+                . 'La API está habilitada pero con cuota en cero, y por eso responde "Quota exceeded" '
+                . '(no es que hayas hecho demasiadas peticiones). Hay que solicitar el acceso en '
+                . 'support.google.com/business/contact/api_default y esperar la aprobación, '
+                . 'que suele tardar unas dos semanas.',
+                $data
+            );
+        }
+
         throw new RrssApiException("{$mensaje}: {$detalle}", $data);
     }
 }
