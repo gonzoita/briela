@@ -38,6 +38,7 @@ use App\Http\Controllers\CotizacionPublicaController;
 use App\Http\Controllers\CalculadorController;
 use App\Http\Controllers\CategoriaProductoController;
 use App\Http\Controllers\ClienteController;
+use App\Http\Controllers\ChatDirectoController;
 use App\Http\Controllers\ComentarioController;
 use App\Http\Controllers\CursoController;
 use App\Http\Controllers\CursoEvaluacionController;
@@ -286,6 +287,13 @@ Route::middleware('auth')->group(function () {
     // ─── Hilos internos pegados a un documento ───────────────────────────────
     // Cualquier usuario autenticado puede comentar en los documentos que ya
     // puede ver: el permiso lo da el acceso al documento, no el hilo.
+    // ─── Chat directo entre usuarios ─────────────────────────────────────────
+    Route::get('/api/chat/usuarios',        [ChatDirectoController::class, 'usuarios'])->name('chat.usuarios');
+    Route::get('/api/chat/conversaciones',  [ChatDirectoController::class, 'conversaciones'])->name('chat.conversaciones');
+    Route::get('/api/chat/compartibles',    [ChatDirectoController::class, 'compartibles'])->name('chat.compartibles');
+    Route::get('/api/chat/{usuario}',       [ChatDirectoController::class, 'hilo'])->name('chat.hilo');
+    Route::post('/api/chat/{usuario}',      [ChatDirectoController::class, 'enviar'])->name('chat.enviar');
+
     // 'pendientes' va ANTES de {documento}/{id} para que no lo capture la ruta genérica.
     Route::get('/api/comentarios/pendientes',        [ComentarioController::class, 'pendientes'])->name('comentarios.pendientes');
     Route::get('/api/comentarios/{documento}/{id}',  [ComentarioController::class, 'index'])->name('comentarios.index');

@@ -19,6 +19,24 @@ Sobre el botón sale un **globito rojo** con cuántos pendientes tienes.
 El hilo también aparece dentro de la propia ficha de la orden de producción,
 al final, para quien prefiera verlo ahí.
 
+## Escribirle a una persona
+
+Arriba a la derecha del panel hay un **ícono de personas**. Ahí se busca a
+cualquier usuario del sistema por nombre o correo y se le escribe directo.
+
+Es el mismo motor que los hilos de documento, así que un mensaje directo
+también puede ser una **solicitud** o una **tarea** con fecha límite — y en ese
+caso queda a cargo de quien lo recibe, con su estado pendiente hasta que lo
+cierre.
+
+**Compartir un documento.** Un mensaje puede llevar adjunta una cotización, una
+orden de compra, una OP o un cliente. Llega como un enlace: quien lo recibe
+toca y va directo al documento.
+
+Debajo del buscador aparecen tus **conversaciones recientes**, con el último
+mensaje y cuántos tienes sin leer de cada persona. Al abrir una conversación,
+sus mensajes se marcan como leídos.
+
 ## Qué es y qué no es
 
 Un espacio para que el equipo hable **sobre un documento concreto**, dejando

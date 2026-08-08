@@ -14,6 +14,85 @@ const abierto    = ref(false)
 const pendientes = ref([])
 const cargando   = ref(false)
 
+// vista: 'inicio' (documento o pendientes) | 'personas' | 'hilo'
+const vista          = ref('inicio')
+const conversaciones = ref([])
+const usuarios       = ref([])
+const buscar         = ref('')
+const conQuien       = ref(null)
+const mensajes       = ref([])
+const enviando       = ref(false)
+const nuevo          = ref({ contenido: '', tipo: 'comentario', fecha_limite: '' })
+
+const sinLeerChat = computed(() => conversaciones.value.reduce((s, c) => s + (c.sin_leer || 0), 0))
+
+const csrf = () => {
+    const c = document.cookie.split('; ').find(r => r.startsWith('XSRF-TOKEN='))
+    return c ? decodeURIComponent(c.split('=')[1]) : ''
+}
+
+async function api(url, opciones = {}) {
+    const res = await fetch(url, {
+        credentials: 'same-origin',
+        headers: {
+            'Content-Type': 'application/json', Accept: 'application/json',
+            'X-XSRF-TOKEN': csrf(), 'X-Requested-With': 'XMLHttpRequest',
+        },
+        ...opciones,
+    })
+    if (!res.ok) throw new Error('No se pudo completar la acción')
+    return res.json()
+}
+
+async function abrirPersonas() {
+    vista.value = 'personas'
+    try {
+        const [c, u] = await Promise.all([
+            api('/api/chat/conversaciones'),
+            api('/api/chat/usuarios'),
+        ])
+        conversaciones.value = c.conversaciones
+        usuarios.value = u.usuarios
+    } catch { /* el panel sigue usable */ }
+}
+
+let temporizador = null
+function buscarUsuarios() {
+    clearTimeout(temporizador)
+    temporizador = setTimeout(async () => {
+        try {
+            usuarios.value = (await api('/api/chat/usuarios?buscar=' + encodeURIComponent(buscar.value))).usuarios
+        } catch { /* se deja la lista anterior */ }
+    }, 250)
+}
+
+async function abrirHilo(usuario) {
+    conQuien.value = usuario
+    vista.value = 'hilo'
+    mensajes.value = []
+    try {
+        const d = await api('/api/chat/' + usuario.usuario_id ?? usuario.id)
+        mensajes.value = d.mensajes
+        await cargarConversaciones()
+    } catch { /* queda vacío */ }
+}
+
+async function cargarConversaciones() {
+    try { conversaciones.value = (await api('/api/chat/conversaciones')).conversaciones } catch {}
+}
+
+async function enviarMensaje() {
+    if (!nuevo.value.contenido.trim() || !conQuien.value) return
+    enviando.value = true
+    try {
+        const id = conQuien.value.usuario_id ?? conQuien.value.id
+        const d = await api('/api/chat/' + id, { method: 'POST', body: JSON.stringify(nuevo.value) })
+        mensajes.value.push(d.mensaje)
+        nuevo.value = { contenido: '', tipo: 'comentario', fecha_limite: '' }
+    } catch { /* se conserva lo escrito para reintentar */ }
+    finally { enviando.value = false }
+}
+
 const page = usePage()
 
 // Se deduce del URL en vez de pasarlo por props: así el botón vive en el
@@ -36,7 +115,7 @@ const documento = computed(() => {
     return null
 })
 
-const sinLeer = computed(() => pendientes.value.length)
+const sinLeer = computed(() => pendientes.value.length + sinLeerChat.value)
 
 async function cargarPendientes() {
     cargando.value = true
@@ -52,7 +131,11 @@ async function cargarPendientes() {
 
 function alternar() {
     abierto.value = !abierto.value
-    if (abierto.value && !documento.value) cargarPendientes()
+    if (abierto.value) {
+        vista.value = 'inicio'
+        cargarConversaciones()
+        if (!documento.value) cargarPendientes()
+    }
 }
 
 function ir(url) {
@@ -63,7 +146,7 @@ function ir(url) {
 // Al cambiar de pantalla se recuenta, para que el globito esté al día.
 watch(() => page.url, () => { if (!abierto.value) cargarPendientes() })
 
-onMounted(cargarPendientes)
+onMounted(() => { cargarPendientes(); cargarConversaciones() })
 
 const etiquetaTipo = { solicitud: 'Solicitud', tarea: 'Tarea' }
 </script>
@@ -104,13 +187,32 @@ const etiquetaTipo = { solicitud: 'Solicitud', tarea: 'Tarea' }
                                 d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.99 1.99 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z" />
                         </svg>
                     </div>
+                    <button v-if="vista !== 'inicio'" @click="vista = vista === 'hilo' ? 'personas' : 'inicio'"
+                        class="p-1 rounded-lg hover:bg-gray-100 text-gray-400 -ml-1">
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+                        </svg>
+                    </button>
                     <div class="min-w-0">
-                        <p class="text-sm font-semibold text-gray-800 leading-tight">Chat del equipo</p>
+                        <p class="text-sm font-semibold text-gray-800 leading-tight">
+                            {{ vista === 'hilo' ? conQuien?.nombre ?? conQuien?.name : 'Chat del equipo' }}
+                        </p>
                         <p class="text-[11px] text-gray-400 truncate">
-                            {{ documento ? documento.etiqueta : 'Lo que tienes pendiente' }}
+                            {{ vista === 'personas' ? 'Escríbele a alguien'
+                             : vista === 'hilo' ? 'Mensaje directo'
+                             : documento ? documento.etiqueta : 'Lo que tienes pendiente' }}
                         </p>
                     </div>
-                    <button @click="abierto = false" class="ml-auto p-1.5 rounded-lg hover:bg-gray-100 text-gray-400">
+                    <button v-if="vista === 'inicio'" @click="abrirPersonas"
+                        class="ml-auto p-1.5 rounded-lg hover:bg-gray-100 text-gray-500" title="Escribirle a alguien">
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
+                        </svg>
+                    </button>
+                    <button @click="abierto = false"
+                        :class="vista === 'inicio' ? 'p-1.5' : 'ml-auto p-1.5'"
+                        class="rounded-lg hover:bg-gray-100 text-gray-400">
                         <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
                         </svg>
@@ -118,8 +220,95 @@ const etiquetaTipo = { solicitud: 'Solicitud', tarea: 'Tarea' }
                 </div>
 
                 <div class="overflow-y-auto p-3">
+                    <!-- ── Buscar persona ─────────────────────────────── -->
+                    <template v-if="vista === 'personas'">
+                        <input v-model="buscar" @input="buscarUsuarios" type="text" placeholder="Buscar a alguien..."
+                            class="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm mb-3 focus:outline-none focus:border-blue-400" />
+
+                        <p v-if="conversaciones.length && !buscar" class="text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Conversaciones</p>
+                        <ul v-if="!buscar" class="space-y-1 mb-3">
+                            <li v-for="c in conversaciones" :key="'c'+c.usuario_id">
+                                <button @click="abrirHilo(c)" class="w-full text-left px-3 py-2 rounded-xl hover:bg-gray-50 flex items-center gap-2">
+                                    <span class="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0" style="background:#0F766E;">
+                                        {{ (c.nombre || '?').charAt(0).toUpperCase() }}
+                                    </span>
+                                    <span class="min-w-0 flex-1">
+                                        <span class="block text-sm text-gray-800 truncate">{{ c.nombre }}</span>
+                                        <span class="block text-[11px] text-gray-400 truncate">{{ c.mio ? 'Tú: ' : '' }}{{ c.ultimo }}</span>
+                                    </span>
+                                    <span v-if="c.sin_leer" class="shrink-0 min-w-[18px] h-[18px] px-1 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center">
+                                        {{ c.sin_leer }}
+                                    </span>
+                                </button>
+                            </li>
+                        </ul>
+
+                        <p class="text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Personas</p>
+                        <ul class="space-y-1">
+                            <li v-for="u in usuarios" :key="'u'+u.id">
+                                <button @click="abrirHilo(u)" class="w-full text-left px-3 py-2 rounded-xl hover:bg-gray-50 flex items-center gap-2">
+                                    <span class="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0" style="background:#94A3B8;">
+                                        {{ (u.name || '?').charAt(0).toUpperCase() }}
+                                    </span>
+                                    <span class="min-w-0">
+                                        <span class="block text-sm text-gray-800 truncate">{{ u.name }}</span>
+                                        <span class="block text-[11px] text-gray-400 truncate">{{ u.rol }}</span>
+                                    </span>
+                                </button>
+                            </li>
+                            <li v-if="!usuarios.length" class="text-xs text-gray-400 px-3 py-4">Nadie coincide con esa búsqueda.</li>
+                        </ul>
+                    </template>
+
+                    <!-- ── Conversación con una persona ───────────────── -->
+                    <template v-else-if="vista === 'hilo'">
+                        <div class="space-y-2 mb-3">
+                            <p v-if="!mensajes.length" class="text-xs text-gray-400 py-6 text-center">
+                                Todavía no se han escrito. Manda el primer mensaje.
+                            </p>
+                            <div v-for="m in mensajes" :key="m.id" class="flex" :class="m.mio ? 'justify-end' : 'justify-start'">
+                                <div class="max-w-[85%] rounded-2xl px-3 py-2"
+                                    :class="m.mio ? 'text-white' : 'bg-gray-100 text-gray-800'"
+                                    :style="m.mio ? 'background:#0F766E;' : ''">
+                                    <p v-if="m.tipo !== 'comentario'"
+                                        class="text-[10px] font-bold uppercase tracking-wider mb-0.5 opacity-80">
+                                        {{ m.tipo }}<template v-if="m.estado"> · {{ m.estado }}</template>
+                                    </p>
+                                    <p class="text-sm whitespace-pre-line">{{ m.contenido }}</p>
+                                    <a v-if="m.referencia" :href="m.referencia.url"
+                                        class="mt-1 inline-block text-[11px] underline"
+                                        :class="m.mio ? 'text-white/90' : 'text-blue-600'">
+                                        📎 {{ m.referencia.etiqueta }}
+                                    </a>
+                                    <p class="text-[10px] mt-0.5" :class="m.mio ? 'text-white/70' : 'text-gray-400'">
+                                        {{ new Date(m.creado).toLocaleString('es-CO', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' }) }}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="border-t border-gray-100 pt-3 space-y-2">
+                            <textarea v-model="nuevo.contenido" rows="2" placeholder="Escribe un mensaje..."
+                                class="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-400"></textarea>
+                            <div class="flex flex-wrap gap-2 items-center">
+                                <select v-model="nuevo.tipo" class="border border-gray-200 rounded-lg px-2 py-1.5 text-xs focus:outline-none">
+                                    <option value="comentario">Mensaje</option>
+                                    <option value="solicitud">Solicitud</option>
+                                    <option value="tarea">Tarea</option>
+                                </select>
+                                <input v-if="nuevo.tipo !== 'comentario'" v-model="nuevo.fecha_limite" type="date"
+                                    class="border border-gray-200 rounded-lg px-2 py-1.5 text-xs focus:outline-none" />
+                                <button @click="enviarMensaje" :disabled="enviando || !nuevo.contenido.trim()"
+                                    class="ml-auto px-4 py-1.5 rounded-lg text-xs font-semibold text-white disabled:opacity-50"
+                                    style="background:#0F766E;">
+                                    {{ enviando ? 'Enviando...' : 'Enviar' }}
+                                </button>
+                            </div>
+                        </div>
+                    </template>
+
                     <!-- Hilo del documento en el que estoy -->
-                    <HiloComentarios v-if="documento" :key="documento.tipo + documento.id"
+                    <HiloComentarios v-else-if="documento" :key="documento.tipo + documento.id"
                         :documento="documento.tipo" :id="documento.id" />
 
                     <!-- Fuera de un documento: mis pendientes -->

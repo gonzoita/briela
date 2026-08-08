@@ -18,20 +18,51 @@ class Comentario extends Model
     protected $table = 'comentarios';
 
     protected $fillable = [
-        'comentable_type', 'comentable_id', 'user_id', 'contenido',
+        'comentable_type', 'comentable_id', 'user_id', 'destinatario_id', 'contenido',
         'tipo', 'estado', 'asignado_a', 'fecha_limite',
         'resuelto_at', 'resuelto_por', 'mencionados',
+        'referencia_type', 'referencia_id', 'leido_at',
     ];
 
     protected $casts = [
         'mencionados'  => 'array',
         'fecha_limite' => 'date',
         'resuelto_at'  => 'datetime',
+        'leido_at'     => 'datetime',
     ];
 
     public function comentable()
     {
         return $this->morphTo();
+    }
+
+    /** Documento compartido dentro del mensaje, si lo hay. */
+    public function referencia()
+    {
+        return $this->morphTo();
+    }
+
+    public function destinatario(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'destinatario_id');
+    }
+
+    public function esDirecto(): bool
+    {
+        return $this->destinatario_id !== null;
+    }
+
+    /**
+     * La conversación entre dos personas: lo que uno le mandó al otro, en
+     * ambos sentidos.
+     */
+    public function scopeEntre($query, int $unUsuario, int $otroUsuario)
+    {
+        return $query->whereNotNull('destinatario_id')
+            ->where(function ($q) use ($unUsuario, $otroUsuario) {
+                $q->where(fn ($s) => $s->where('user_id', $unUsuario)->where('destinatario_id', $otroUsuario))
+                  ->orWhere(fn ($s) => $s->where('user_id', $otroUsuario)->where('destinatario_id', $unUsuario));
+            });
     }
 
     public function autor(): BelongsTo

@@ -36,6 +36,7 @@ class NotificacionService
                 ['tipo' => 'cotizacion_sin_respuesta','label' => 'Cotización sin respuesta (recordatorio)'],
             ],
             'Hilos internos' => [
+                ['tipo' => 'chat_mensaje',        'label' => 'Alguien te escribió por el chat'],
                 ['tipo' => 'comentario_mencion',  'label' => 'Te mencionaron en un documento'],
                 ['tipo' => 'comentario_asignado', 'label' => 'Te asignaron una tarea o solicitud'],
                 ['tipo' => 'comentario_resuelto', 'label' => 'Resolvieron tu solicitud'],
