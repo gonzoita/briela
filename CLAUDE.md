@@ -217,7 +217,12 @@ tocar los seeders.
 
 **Portales públicos (sin login):** `/op/{token}` · `/seguimiento` (exige apellido
 o documento) · `/cotizaciones/{token}/aprobar` · `/verificar-certificado/{codigo}`
-· `/catalogo` · `/planta/{token}`.
+· `/catalogo/productos/{id}` y `/catalogo/ensambles/{id}` (con sus `/pdf`) ·
+`/planta/{token}`.
+
+> No existe un índice `/catalogo`: solo fichas individuales. El manual heredado
+> decía `/catalogo` y devuelve 404 — verificado el 2 ago 2026.
+
 El QR de trabajo del operario (`/trabajo/{token}`) **sí exige login**.
 
 ---

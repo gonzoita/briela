@@ -132,7 +132,14 @@ class Marca
 
     public static function nombreEmpresa(): string
     {
-        return (string) Configuracion::get('empresa_nombre', 'Mi empresa');
+        // Se compara con vacío, no solo con null: la instalación nace con la
+        // clave creada y sin valor, y en ese caso Configuracion::get devuelve la
+        // cadena vacía en vez del valor por defecto. Sin esto, una instalación
+        // recién hecha muestra el título de la pestaña y los pies de página en
+        // blanco hasta que alguien escriba el nombre.
+        $valor = trim((string) Configuracion::get('empresa_nombre', ''));
+
+        return $valor !== '' ? $valor : 'Mi empresa';
     }
 
     /**
