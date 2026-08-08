@@ -66,7 +66,15 @@ async function subirArchivo(e) {
     finally { subiendo.value = false; e.target.value = '' }
 }
 
-const sinLeerChat = computed(() => conversaciones.value.reduce((s, c) => s + (c.sin_leer || 0), 0))
+const grupos       = ref([])
+const enGrupo      = ref(null)
+const creandoGrupo = ref(false)
+const grupoNuevo   = ref({ nombre: '', miembros: [] })
+
+const sinLeerChat = computed(() =>
+    conversaciones.value.reduce((s, c) => s + (c.sin_leer || 0), 0) +
+    grupos.value.reduce((s, g) => s + (g.sin_leer || 0), 0)
+)
 
 const csrf = () => {
     const c = document.cookie.split('; ').find(r => r.startsWith('XSRF-TOKEN='))
@@ -89,13 +97,41 @@ async function api(url, opciones = {}) {
 async function abrirPersonas() {
     vista.value = 'personas'
     try {
-        const [c, u] = await Promise.all([
+        const [c, u, g] = await Promise.all([
             api('/api/chat/conversaciones'),
             api('/api/chat/usuarios'),
+            api('/api/chat/grupos'),
         ])
         conversaciones.value = c.conversaciones
         usuarios.value = u.usuarios
+        grupos.value = g.grupos
     } catch { /* el panel sigue usable */ }
+}
+
+async function cargarGrupos() {
+    try { grupos.value = (await api('/api/chat/grupos')).grupos } catch {}
+}
+
+async function abrirGrupo(g) {
+    enGrupo.value = g
+    conQuien.value = null
+    vista.value = 'hilo'
+    mensajes.value = []
+    try {
+        const d = await api('/api/chat/grupos/' + g.id)
+        mensajes.value = d.mensajes
+        await cargarGrupos()
+    } catch { /* queda vacío */ }
+}
+
+async function crearGrupo() {
+    if (!grupoNuevo.value.nombre.trim() || !grupoNuevo.value.miembros.length) return
+    try {
+        await api('/api/chat/grupos', { method: 'POST', body: JSON.stringify(grupoNuevo.value) })
+        grupoNuevo.value = { nombre: '', miembros: [] }
+        creandoGrupo.value = false
+        await cargarGrupos()
+    } catch { /* se conserva lo escrito */ }
 }
 
 let temporizador = null
@@ -109,11 +145,15 @@ function buscarUsuarios() {
 }
 
 async function abrirHilo(usuario) {
+    enGrupo.value = null
     conQuien.value = usuario
     vista.value = 'hilo'
     mensajes.value = []
     try {
-        const d = await api('/api/chat/' + usuario.usuario_id ?? usuario.id)
+        // Los paréntesis importan: sin ellos se concatena primero y el ?? nunca
+        // se aplica, así que al tocar a alguien de "Personas" (que trae `id` y
+        // no `usuario_id`) la URL quedaba /api/chat/undefined.
+        const d = await api('/api/chat/' + (usuario.usuario_id ?? usuario.id))
         mensajes.value = d.mensajes
         await cargarConversaciones()
     } catch { /* queda vacío */ }
@@ -124,10 +164,12 @@ async function cargarConversaciones() {
 }
 
 async function enviarMensaje() {
-    if (!nuevo.value.contenido.trim() || !conQuien.value) return
+    if (!nuevo.value.contenido.trim() || (!conQuien.value && !enGrupo.value)) return
     enviando.value = true
     try {
-        const id = conQuien.value.usuario_id ?? conQuien.value.id
+        const url = enGrupo.value
+            ? '/api/chat/grupos/' + enGrupo.value.id
+            : '/api/chat/' + (conQuien.value.usuario_id ?? conQuien.value.id)
         const cuerpo = {
             ...nuevo.value,
             ref_tipo:   refAdjunta.value?.tipo ?? null,
@@ -138,8 +180,10 @@ async function enviarMensaje() {
                 mime: a.mime, extension: a.extension, tamano: a.tamano,
             })),
         }
-        const d = await api('/api/chat/' + id, { method: 'POST', body: JSON.stringify(cuerpo) })
-        mensajes.value.push(d.mensaje)
+        const d = await api(url, { method: 'POST', body: JSON.stringify(cuerpo) })
+        // El grupo no devuelve el mensaje armado: se recarga el hilo.
+        if (enGrupo.value) { await abrirGrupo(enGrupo.value) }
+        else { mensajes.value.push(d.mensaje) }
         nuevo.value = { contenido: '', tipo: 'comentario', fecha_limite: '' }
         refAdjunta.value = null
         archivos.value = []
@@ -200,7 +244,7 @@ function ir(url) {
 // Al cambiar de pantalla se recuenta, para que el globito esté al día.
 watch(() => page.url, () => { if (!abierto.value) cargarPendientes() })
 
-onMounted(() => { cargarPendientes(); cargarConversaciones() })
+onMounted(() => { cargarPendientes(); cargarConversaciones(); cargarGrupos() })
 
 const etiquetaTipo = { solicitud: 'Solicitud', tarea: 'Tarea' }
 </script>
@@ -249,11 +293,11 @@ const etiquetaTipo = { solicitud: 'Solicitud', tarea: 'Tarea' }
                     </button>
                     <div class="min-w-0">
                         <p class="text-sm font-semibold text-gray-800 leading-tight">
-                            {{ vista === 'hilo' ? conQuien?.nombre ?? conQuien?.name : 'Chat del equipo' }}
+                            {{ vista === 'hilo' ? (enGrupo?.nombre ?? conQuien?.nombre ?? conQuien?.name) : 'Chat del equipo' }}
                         </p>
                         <p class="text-[11px] text-gray-400 truncate">
-                            {{ vista === 'personas' ? 'Escríbele a alguien'
-                             : vista === 'hilo' ? 'Mensaje directo'
+                            {{ vista === 'personas' ? 'Escríbele a alguien o a un grupo'
+                             : vista === 'hilo' ? (enGrupo ? 'Grupo' : 'Mensaje directo')
                              : documento ? documento.etiqueta : 'Lo que tienes pendiente' }}
                         </p>
                     </div>
@@ -296,6 +340,55 @@ const etiquetaTipo = { solicitud: 'Solicitud', tarea: 'Tarea' }
                                 </button>
                             </li>
                         </ul>
+
+                        <!-- Grupos -->
+                        <div v-if="!buscar" class="mb-3">
+                            <div class="flex items-center justify-between mb-1">
+                                <p class="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Grupos</p>
+                                <button @click="creandoGrupo = !creandoGrupo"
+                                    class="text-[11px] font-semibold" style="color:#0F766E;">
+                                    {{ creandoGrupo ? 'Cancelar' : '+ Nuevo grupo' }}
+                                </button>
+                            </div>
+
+                            <div v-if="creandoGrupo" class="rounded-xl border border-gray-200 p-2 mb-2 space-y-2">
+                                <input v-model="grupoNuevo.nombre" type="text" placeholder="Nombre del grupo (ej. Producción)"
+                                    class="w-full border border-gray-200 rounded-lg px-2 py-1.5 text-xs focus:outline-none focus:border-blue-400" />
+                                <div class="flex flex-wrap gap-1">
+                                    <label v-for="u in usuarios" :key="'g'+u.id"
+                                        class="inline-flex items-center gap-1 px-2 py-1 rounded-lg border cursor-pointer text-[11px]"
+                                        :class="grupoNuevo.miembros.includes(u.id) ? 'border-teal-300 bg-teal-50 text-teal-800' : 'border-gray-200 text-gray-600'">
+                                        <input type="checkbox" :value="u.id" v-model="grupoNuevo.miembros" class="hidden" />
+                                        {{ u.name }}
+                                    </label>
+                                </div>
+                                <button @click="crearGrupo" :disabled="!grupoNuevo.nombre.trim() || !grupoNuevo.miembros.length"
+                                    class="w-full py-1.5 rounded-lg text-[11px] font-semibold text-white disabled:opacity-50"
+                                    style="background:#0F766E;">Crear grupo</button>
+                            </div>
+
+                            <ul class="space-y-1">
+                                <li v-for="g in grupos" :key="'gr'+g.id">
+                                    <button @click="abrirGrupo(g)" class="w-full text-left px-3 py-2 rounded-xl hover:bg-gray-50 flex items-center gap-2">
+                                        <span class="w-8 h-8 rounded-xl flex items-center justify-center text-white text-xs font-bold shrink-0" style="background:#0F766E;">
+                                            #
+                                        </span>
+                                        <span class="min-w-0 flex-1">
+                                            <span class="block text-sm text-gray-800 truncate">{{ g.nombre }}</span>
+                                            <span class="block text-[11px] text-gray-400 truncate">
+                                                {{ g.miembros }} personas{{ g.ultimo ? ' · ' + g.ultimo : '' }}
+                                            </span>
+                                        </span>
+                                        <span v-if="g.sin_leer" class="shrink-0 min-w-[18px] h-[18px] px-1 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center">
+                                            {{ g.sin_leer }}
+                                        </span>
+                                    </button>
+                                </li>
+                                <li v-if="!grupos.length && !creandoGrupo" class="text-[11px] text-gray-400 px-3 py-1">
+                                    Todavía no perteneces a ningún grupo.
+                                </li>
+                            </ul>
+                        </div>
 
                         <p class="text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Personas</p>
                         <ul class="space-y-1">
@@ -420,7 +513,7 @@ const etiquetaTipo = { solicitud: 'Solicitud', tarea: 'Tarea' }
 
                     <!-- Hilo del documento en el que estoy -->
                     <HiloComentarios v-else-if="documento" :key="documento.tipo + documento.id"
-                        :documento="documento.tipo" :id="documento.id" />
+                        :documento="documento.tipo" :id="documento.id" embebido />
 
                     <!-- Fuera de un documento: mis pendientes -->
                     <template v-else>

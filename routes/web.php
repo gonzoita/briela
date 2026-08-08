@@ -39,6 +39,7 @@ use App\Http\Controllers\CalculadorController;
 use App\Http\Controllers\CategoriaProductoController;
 use App\Http\Controllers\ClienteController;
 use App\Http\Controllers\ChatDirectoController;
+use App\Http\Controllers\ChatGrupoController;
 use App\Http\Controllers\ComentarioController;
 use App\Http\Controllers\CursoController;
 use App\Http\Controllers\CursoEvaluacionController;
@@ -291,6 +292,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/api/chat/usuarios',        [ChatDirectoController::class, 'usuarios'])->name('chat.usuarios');
     Route::get('/api/chat/conversaciones',  [ChatDirectoController::class, 'conversaciones'])->name('chat.conversaciones');
     Route::get('/api/chat/adjuntar',        [ChatDirectoController::class, 'buscarParaAdjuntar'])->name('chat.adjuntar');
+    // Grupos: van antes de /api/chat/{usuario} para que no los capture.
+    Route::get('/api/chat/grupos',          [ChatGrupoController::class, 'index'])->name('chat.grupos');
+    Route::post('/api/chat/grupos',         [ChatGrupoController::class, 'store'])->name('chat.grupos.crear');
+    Route::get('/api/chat/grupos/{grupo}',  [ChatGrupoController::class, 'hilo'])->name('chat.grupos.hilo');
+    Route::post('/api/chat/grupos/{grupo}', [ChatGrupoController::class, 'enviar'])->name('chat.grupos.enviar');
     Route::post('/api/chat/subir',          [ChatDirectoController::class, 'subirAdjunto'])->name('chat.subir');
     Route::get('/api/chat/{usuario}',       [ChatDirectoController::class, 'hilo'])->name('chat.hilo');
     Route::post('/api/chat/{usuario}',      [ChatDirectoController::class, 'enviar'])->name('chat.enviar');

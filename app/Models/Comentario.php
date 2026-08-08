@@ -18,7 +18,7 @@ class Comentario extends Model
     protected $table = 'comentarios';
 
     protected $fillable = [
-        'comentable_type', 'comentable_id', 'user_id', 'destinatario_id', 'contenido',
+        'comentable_type', 'comentable_id', 'user_id', 'destinatario_id', 'grupo_id', 'contenido',
         'tipo', 'estado', 'asignado_a', 'fecha_limite',
         'resuelto_at', 'resuelto_por', 'mencionados',
         'referencia_type', 'referencia_id', 'leido_at',
@@ -72,6 +72,11 @@ class Comentario extends Model
     public function destinatario(): BelongsTo
     {
         return $this->belongsTo(User::class, 'destinatario_id');
+    }
+
+    public function grupo(): BelongsTo
+    {
+        return $this->belongsTo(ChatGrupo::class, 'grupo_id');
     }
 
     public function esDirecto(): bool

@@ -10,6 +10,9 @@ import { ref, computed, onMounted } from 'vue'
 const props = defineProps({
     documento: { type: String, required: true },  // op | cotizacion | cliente | orden_compra
     id:        { type: [Number, String], required: true },
+    // Dentro del panel flotante sobra el marco y el título: el panel ya dice
+    // "Chat del equipo" y de qué documento se trata.
+    embebido:  { type: Boolean, default: false },
 })
 
 const comentarios = ref([])
@@ -95,8 +98,8 @@ onMounted(cargar)
 </script>
 
 <template>
-    <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden">
-        <div class="px-5 py-3 border-b border-gray-100 flex items-center gap-2 flex-wrap">
+    <div :class="embebido ? '' : 'bg-white rounded-2xl border border-gray-200 overflow-hidden'">
+        <div v-if="!embebido" class="px-5 py-3 border-b border-gray-100 flex items-center gap-2 flex-wrap">
             <h2 class="text-sm font-semibold text-gray-700">Hilo interno</h2>
             <span v-if="abiertos" class="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-700 leading-none">
                 {{ abiertos }} sin resolver
@@ -104,7 +107,7 @@ onMounted(cargar)
             <span class="text-xs text-gray-400 ml-auto">Solo lo ve el equipo, nunca el cliente.</span>
         </div>
 
-        <div class="px-5 py-4 space-y-4">
+        <div :class="embebido ? 'space-y-4' : 'px-5 py-4 space-y-4'">
             <p v-if="cargando" class="text-xs text-gray-400">Cargando...</p>
             <p v-else-if="!comentarios.length" class="text-xs text-gray-400">
                 Todavía no hay nada. Escribe abajo para dejar el primer mensaje.
