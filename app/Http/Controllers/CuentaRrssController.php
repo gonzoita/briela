@@ -20,7 +20,7 @@ class CuentaRrssController extends Controller
         // y si lo escribía distinto, la conexión fallaba sin explicar por qué.
         $configuracion = [];
 
-        foreach (CredencialesRrss::redes() as $red) {
+        foreach (CredencialesRrss::redesSociales() as $red) {
             $configuracion[$red] = [
                 'lista'       => CredencialesRrss::lista($red),
                 'faltantes'   => CredencialesRrss::faltantes($red),
@@ -48,7 +48,7 @@ class CuentaRrssController extends Controller
      */
     public function guardarCredenciales(Request $request, string $red)
     {
-        abort_unless(in_array($red, CredencialesRrss::redes(), true), 404);
+        abort_unless(in_array($red, CredencialesRrss::redesSociales(), true), 404);
 
         $datos = $request->validate([
             'id'       => 'nullable|string|max:255',
@@ -72,7 +72,7 @@ class CuentaRrssController extends Controller
      */
     public function conectar(string $red, MetaRrssService $meta, LinkedinRrssService $linkedin, GoogleBusinessRrssService $google)
     {
-        if (! in_array($red, CredencialesRrss::redes(), true)) {
+        if (! in_array($red, CredencialesRrss::redesSociales(), true)) {
             return back()->with('error', 'Red no soportada.');
         }
 

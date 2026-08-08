@@ -91,9 +91,13 @@ const redes = [
             'Habilita LAS DOS APIs: "My Business Account Management API" y "My Business Business Information API". Si falta una, la conexión falla diciendo que la API no está habilitada.',
             'Configura la pantalla de consentimiento OAuth y crea credenciales de tipo "ID de cliente de OAuth" para aplicación web.',
             'En "URI de redirección autorizados", pega la URL de retorno de arriba.',
-            'Llena el formulario de acceso a Google Business Profile con un correo del dominio de la empresa.',
             'Copia el ID de cliente y el Secreto del cliente.',
         ],
+        aviso: 'Google mantiene la cuota en CERO hasta que aprueba tu solicitud, y mientras tanto la conexión falla con "Quota exceeded" (no es exceso de tráfico). Hay que llenar el formulario de acceso y esperar unas dos semanas.',
+        enlace: {
+            url: 'https://support.google.com/business/contact/api_default',
+            texto: 'Formulario de acceso a Google Business Profile',
+        },
     },
 ]
 
@@ -194,9 +198,18 @@ function reactivar(c) {
                                        class="font-semibold underline" style="color:var(--marca);">{{ r.portal }}</a>
                                     siguiendo estos pasos:
                                 </p>
-                                <ol class="list-decimal list-inside space-y-1 mb-3 pl-1">
+                                <ol class="list-decimal list-inside space-y-1 mb-2 pl-1">
                                     <li v-for="(paso, i) in r.pasos" :key="i">{{ paso }}</li>
                                 </ol>
+
+                                <p v-if="r.enlace" class="mb-2">
+                                    <a :href="r.enlace.url" target="_blank" rel="noopener"
+                                       class="font-semibold underline" style="color:var(--marca);">{{ r.enlace.texto }}</a>
+                                </p>
+
+                                <p v-if="r.aviso" class="mb-3 rounded-lg bg-blue-50 border border-blue-100 p-2.5 text-blue-800">
+                                    {{ r.aviso }}
+                                </p>
 
                                 <p class="mb-1">2. Cuando te pida la <strong>URL de retorno</strong>, es esta:</p>
                                 <div class="flex items-center gap-2 mb-3">

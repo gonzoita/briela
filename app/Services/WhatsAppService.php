@@ -18,9 +18,14 @@ class WhatsAppService
      */
     public function enviarMensaje(WhatsappNumero $numero, string $numeroDestino, string $texto): array
     {
-        $token = config('services.whatsapp.token');
+        // El token se carga desde la pantalla de configuración (y si no hay,
+        // cae al .env). Ver App\Support\CredencialesRrss.
+        $token = \App\Support\CredencialesRrss::valor('whatsapp', 'secret');
         if (empty($token)) {
-            throw new \RuntimeException('WhatsApp no configurado: falta WHATSAPP_TOKEN en .env');
+            throw new \RuntimeException(
+                'WhatsApp no está conectado todavía: falta el token de acceso. '
+                . 'Se carga en Configuración → Números de WhatsApp.'
+            );
         }
 
         $version = config('services.whatsapp.api_version', 'v21.0');
@@ -205,7 +210,7 @@ class WhatsAppService
 
     public function verificarWebhook(string $mode, string $token, string $challenge): ?string
     {
-        $verifyToken = config('services.whatsapp.verify_token');
+        $verifyToken = \App\Support\CredencialesRrss::valor('whatsapp', 'redirect');
 
         if ($mode === 'subscribe' && $verifyToken && hash_equals($verifyToken, $token)) {
             return $challenge;

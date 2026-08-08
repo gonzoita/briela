@@ -6,7 +6,61 @@ import AppLayout from '@/Layouts/AppLayout.vue'
 const props = defineProps({
     numeros: Array,
     usuarios: Array,
+    conexion: { type: Object, default: () => ({ lista: false, faltantes: [], url_webhook: '' }) },
 })
+
+// ── Conexión con Meta ────────────────────────────────────────────────────────
+const guiaAbierta = ref(false)
+const copiado     = ref('')
+const ocupado     = ref('')
+
+const cred = ref({
+    id:       props.conexion?.id_actual ?? '',
+    secret:   '',
+    redirect: props.conexion?.verify_actual ?? '',
+})
+
+const pasosMeta = [
+    'Entra a developers.facebook.com y abre (o crea) una aplicación tipo Empresa.',
+    'Agrégale el producto "WhatsApp".',
+    'En WhatsApp → Configuración de la API, copia el "Identificador del número de teléfono" y genera un token de acceso.',
+    'Usa un token permanente de un Usuario del Sistema del Business Manager: los temporales vencen en 24 horas.',
+    'En WhatsApp → Configuración → Webhooks, pega la URL de devolución de llamada de abajo y el token de verificación que inventes.',
+    'Suscribe el webhook al campo "messages" para recibir los mensajes entrantes.',
+]
+
+async function copiar(texto, marca) {
+    try {
+        await navigator.clipboard.writeText(texto)
+        copiado.value = marca
+        setTimeout(() => { copiado.value = '' }, 2000)
+    } catch { /* si el navegador no deja copiar, el texto igual está a la vista */ }
+}
+
+function guardarCredenciales() {
+    ocupado.value = 'guardar'
+    router.post('/configuracion/whatsapp-numeros/credenciales', cred.value, {
+        preserveScroll: true,
+        onFinish: () => { ocupado.value = ''; cred.value.secret = '' },
+    })
+}
+
+function probarConexion() {
+    ocupado.value = 'probar'
+    router.post('/configuracion/whatsapp-numeros/probar', {}, {
+        preserveScroll: true,
+        onFinish: () => { ocupado.value = '' },
+    })
+}
+
+function desconectar() {
+    if (!confirm('¿Desconectar WhatsApp?\n\nLos números y el historial de conversaciones se conservan. Solo se borran las credenciales, y puedes volver a conectarte cuando quieras.')) return
+    ocupado.value = 'desconectar'
+    router.post('/configuracion/whatsapp-numeros/desconectar', {}, {
+        preserveScroll: true,
+        onFinish: () => { ocupado.value = '' },
+    })
+}
 
 const numeros = ref(props.numeros.map(n => ({ ...n })))
 
@@ -73,6 +127,92 @@ function eliminar(id) {
                     </svg>
                 </button>
                 <h1 class="text-xl font-bold text-gray-900">Números de WhatsApp</h1>
+            </div>
+
+            <!-- Conexión con Meta -->
+            <div class="bg-white rounded-2xl border border-gray-200 p-5 mb-4">
+                <div class="flex items-center gap-2 flex-wrap mb-1">
+                    <h2 class="text-sm font-semibold text-gray-700">Conexión con WhatsApp</h2>
+                    <span v-if="conexion.lista"
+                        class="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-green-100 text-green-700 leading-none">Conectado</span>
+                    <span v-else
+                        class="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-700 leading-none">Sin conectar</span>
+                </div>
+                <p class="text-xs text-gray-400 mb-3">
+                    Sin esta conexión los números de abajo no pueden enviar ni recibir mensajes.
+                </p>
+
+                <div v-if="conexion.lista" class="flex flex-wrap gap-2">
+                    <button type="button" @click="probarConexion" :disabled="ocupado === 'probar'"
+                        class="px-3 py-2 rounded-xl border border-gray-200 text-xs font-semibold text-gray-700 hover:bg-gray-50 disabled:opacity-50">
+                        {{ ocupado === 'probar' ? 'Probando...' : 'Probar conexión' }}
+                    </button>
+                    <button type="button" @click="guiaAbierta = !guiaAbierta"
+                        class="px-3 py-2 rounded-xl border border-gray-200 text-xs font-semibold text-gray-700 hover:bg-gray-50">
+                        Cambiar credenciales
+                    </button>
+                    <button type="button" @click="desconectar" :disabled="ocupado === 'desconectar'"
+                        class="px-3 py-2 rounded-xl border border-red-200 text-xs font-semibold text-red-600 hover:bg-red-50 disabled:opacity-50">
+                        {{ ocupado === 'desconectar' ? 'Desconectando...' : 'Desconectar' }}
+                    </button>
+                </div>
+
+                <button v-else type="button" @click="guiaAbierta = !guiaAbierta"
+                    class="flex items-center gap-2 text-xs font-semibold text-gray-600 hover:text-gray-800">
+                    <svg class="w-3.5 h-3.5 transition-transform" :class="guiaAbierta ? 'rotate-90' : ''"
+                        fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+                    </svg>
+                    ¿Primera vez? Cómo conectar WhatsApp
+                </button>
+
+                <div v-if="guiaAbierta" class="mt-3 text-xs text-gray-600 leading-relaxed">
+                    <div class="mb-3 rounded-lg bg-amber-50 border border-amber-100 p-2.5 text-amber-800">
+                        <p class="font-semibold mb-1">Antes de empezar, asegúrate de:</p>
+                        <ul class="list-disc list-inside space-y-0.5">
+                            <li>Tener una cuenta de WhatsApp Business API en Meta (no sirve WhatsApp normal ni Business de la tienda de apps).</li>
+                            <li>Ser administrador del Business Manager donde vive el número.</li>
+                        </ul>
+                    </div>
+
+                    <p class="mb-1">
+                        1. Configura la aplicación en
+                        <a href="https://developers.facebook.com" target="_blank" rel="noopener"
+                           class="font-semibold underline" style="color:var(--marca);">developers.facebook.com</a>:
+                    </p>
+                    <ol class="list-decimal list-inside space-y-1 mb-3 pl-1">
+                        <li v-for="(paso, i) in pasosMeta" :key="i">{{ paso }}</li>
+                    </ol>
+
+                    <p class="mb-1">2. Esta es la <strong>URL de devolución de llamada</strong> del webhook:</p>
+                    <div class="flex items-center gap-2 mb-3">
+                        <code class="flex-1 min-w-0 truncate bg-gray-50 border border-gray-200 rounded-lg px-2 py-1.5 text-[11px] text-gray-700">{{ conexion.url_webhook }}</code>
+                        <button type="button" @click="copiar(conexion.url_webhook, 'webhook')"
+                            class="shrink-0 px-2.5 py-1.5 rounded-lg border border-gray-200 text-[11px] font-semibold text-gray-600 hover:bg-gray-50">
+                            {{ copiado === 'webhook' ? 'Copiada' : 'Copiar' }}
+                        </button>
+                    </div>
+
+                    <p class="mb-1.5">3. Pega acá lo que te dio Meta:</p>
+                    <div class="space-y-2">
+                        <input v-model="cred.id" type="text" placeholder="Identificador del número de teléfono (Phone Number ID)"
+                            class="w-full bg-white border border-gray-200 rounded-lg px-2.5 py-2 text-[12px] focus:outline-none focus:border-blue-400" />
+                        <input v-model="cred.secret" type="password"
+                            :placeholder="conexion.tiene_secreto ? 'Token de acceso (ya hay uno guardado — deja vacío para conservarlo)' : 'Token de acceso permanente'"
+                            class="w-full bg-white border border-gray-200 rounded-lg px-2.5 py-2 text-[12px] focus:outline-none focus:border-blue-400" />
+                        <input v-model="cred.redirect" type="text" placeholder="Token de verificación del webhook (lo inventas tú)"
+                            class="w-full bg-white border border-gray-200 rounded-lg px-2.5 py-2 text-[12px] focus:outline-none focus:border-blue-400" />
+                        <button type="button" @click="guardarCredenciales" :disabled="ocupado === 'guardar'"
+                            class="w-full py-2 rounded-lg text-[12px] font-semibold text-white disabled:opacity-50"
+                            style="background:var(--marca);">
+                            {{ ocupado === 'guardar' ? 'Guardando...' : 'Guardar conexión' }}
+                        </button>
+                    </div>
+                    <p class="mt-1.5 text-gray-400">
+                        El token se guarda cifrado y no se vuelve a mostrar. El de verificación es una
+                        contraseña que inventas y que debe quedar igual acá y en Meta.
+                    </p>
+                </div>
             </div>
 
             <!-- Lista -->

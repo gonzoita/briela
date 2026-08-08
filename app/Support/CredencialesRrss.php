@@ -42,7 +42,21 @@ class CredencialesRrss
             'secret'   => ['rrss_google_client_secret', 'services.google_business_rrss.client_secret', 'GOOGLE_RRSS_CLIENT_SECRET'],
             'redirect' => ['rrss_google_redirect_uri',  'services.google_business_rrss.redirect_uri',  'GOOGLE_RRSS_REDIRECT_URI'],
         ],
+        // WhatsApp no publica en un muro, pero se configura igual: una app de
+        // Meta con su token. Va acá para que la conexión se cargue desde la
+        // interfaz como las demás, en vez de obligar a entrar al servidor.
+        'whatsapp' => [
+            'id'       => ['whatsapp_phone_number_id', 'services.whatsapp.phone_number_id', 'WHATSAPP_PHONE_NUMBER_ID'],
+            'secret'   => ['whatsapp_token',           'services.whatsapp.token',           'WHATSAPP_TOKEN'],
+            'redirect' => ['whatsapp_verify_token',    'services.whatsapp.verify_token',    'WHATSAPP_VERIFY_TOKEN'],
+        ],
     ];
+
+    /** Solo las redes sociales (WhatsApp se configura en su propia pantalla). */
+    public static function redesSociales(): array
+    {
+        return ['meta', 'linkedin', 'google'];
+    }
 
     public static function redes(): array
     {

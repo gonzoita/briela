@@ -616,6 +616,9 @@ Route::middleware('auth')->group(function () {
 
         // ─── Números de WhatsApp ─────────────────────────────────────────────
         Route::get('/whatsapp-numeros',                       [WhatsappNumeroController::class, 'index'])->name('whatsapp-numeros.index');
+        Route::post('/whatsapp-numeros/credenciales',         [WhatsappNumeroController::class, 'guardarCredenciales'])->name('whatsapp-numeros.credenciales');
+        Route::post('/whatsapp-numeros/probar',               [WhatsappNumeroController::class, 'probarConexion'])->name('whatsapp-numeros.probar');
+        Route::post('/whatsapp-numeros/desconectar',          [WhatsappNumeroController::class, 'desconectar'])->name('whatsapp-numeros.desconectar');
         Route::post('/whatsapp-numeros',                      [WhatsappNumeroController::class, 'store'])->name('whatsapp-numeros.store');
         Route::put('/whatsapp-numeros/{whatsappNumero}',      [WhatsappNumeroController::class, 'update'])->name('whatsapp-numeros.update');
         Route::delete('/whatsapp-numeros/{whatsappNumero}',   [WhatsappNumeroController::class, 'destroy'])->name('whatsapp-numeros.destroy');
