@@ -246,28 +246,15 @@ watch(() => page.url, () => { if (!abierto.value) cargarPendientes() })
 
 onMounted(() => { cargarPendientes(); cargarConversaciones(); cargarGrupos() })
 
+// El lanzador flotante abre el panel y lee el contador de no leídos.
+defineExpose({ abrir: alternar, sinLeer })
+
 const etiquetaTipo = { solicitud: 'Solicitud', tarea: 'Tarea' }
 </script>
 
 <template>
-    <!-- Botón flotante -->
-    <button
-        v-if="!abierto"
-        @click="alternar"
-        class="burbuja-chat fixed z-40 flex items-center justify-center rounded-full shadow-lg"
-        style="background:#0F766E; width:56px; height:56px; right:20px; bottom:152px;"
-        title="Chat del equipo"
-    >
-        <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round"
-                d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.99 1.99 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z" />
-        </svg>
-
-        <span v-if="sinLeer"
-            class="globito absolute -top-1 -right-1 min-w-[20px] h-5 px-1 rounded-full bg-red-500 text-white text-[11px] font-bold flex items-center justify-center">
-            {{ sinLeer > 9 ? '9+' : sinLeer }}
-        </span>
-    </button>
+    <!-- El botón flotante lo dibuja BotonesFlotantes: dos círculos fijos
+         tapaban el contenido, sobre todo en celular. -->
 
     <!-- Panel -->
     <Teleport to="body">

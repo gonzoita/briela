@@ -5,6 +5,7 @@ import { Head } from '@inertiajs/vue3'
 import ModalQR from '@/Components/ModalQR.vue'
 import AsistenteBurbuja from '@/Components/AsistenteBurbuja.vue'
 import ChatBurbuja from '@/Components/ChatBurbuja.vue'
+import BotonesFlotantes from '@/Components/BotonesFlotantes.vue'
 import BuscadorGlobal from '@/Components/BuscadorGlobal.vue'
 
 const props = defineProps({
@@ -223,6 +224,7 @@ let _fotoCallback = null
 // no encuentra nada. La búsqueda literal es instantánea; la IA es el respaldo
 // para lo que la literal no alcanza.
 const asistenteRef = ref(null)
+const chatRef      = ref(null)
 
 provide('abrirAsistente', (texto = '') => {
     asistenteRef.value?.abrirCon(texto)
@@ -1278,7 +1280,12 @@ onUnmounted(() => {
     <!-- Asistente de IA: disponible en cualquier pantalla. Al vivir en el
          layout, la conversación sobrevive al navegar entre módulos. -->
     <AsistenteBurbuja ref="asistenteRef" />
-    <ChatBurbuja />
+    <ChatBurbuja ref="chatRef" />
+    <BotonesFlotantes
+        :sin-leer="chatRef?.sinLeer ?? 0"
+        @ia="asistenteRef?.abrir()"
+        @chat="chatRef?.abrir()"
+    />
 
     <!-- Modal disciplinas pendientes (operarios) -->
     <teleport to="body">

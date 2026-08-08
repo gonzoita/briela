@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Cliente;
 use App\Models\ContactoCliente;
 use App\Models\Sede;
+use App\Models\SegmentacionOpcion;
 use App\Services\ConsultaNitService;
 use App\Support\ContextoSede;
 use Illuminate\Http\JsonResponse;
@@ -33,7 +34,11 @@ class ClienteImportController extends Controller
         'email', 'telefono', 'celular',
         'ciudad', 'direccion',
         'sede', 'activo', 'requiere_anticipo',
-        'industrias', 'fuentes_contacto', 'notas',
+        // Segmentación: los cuatro campos, no solo dos. `tipos_contacto` es el
+        // que decide si alguien es cliente directo, distribuidor, mayorista o
+        // prospecto — y faltaba.
+        'tipos_contacto', 'industrias', 'proceso_seguimiento', 'fuentes_contacto',
+        'notas',
         'contacto_nombre', 'contacto_apellido', 'contacto_cargo',
         'contacto_email', 'contacto_telefono', 'contacto_celular',
     ];
@@ -43,6 +48,12 @@ class ClienteImportController extends Controller
         return Inertia::render('Clientes/Importar', [
             'columnas' => self::COLUMNAS,
             'sedes'    => Sede::where('activa', true)->orderBy('nombre')->pluck('nombre'),
+            // Las opciones válidas de segmentación, para que nadie tenga que
+            // adivinar qué escribir en esas columnas.
+            'segmentacion' => SegmentacionOpcion::orderBy('tipo')->orderBy('orden')
+                ->get(['tipo', 'etiqueta'])
+                ->groupBy('tipo')
+                ->map(fn ($g) => $g->pluck('etiqueta')),
         ]);
     }
 
@@ -52,13 +63,13 @@ class ClienteImportController extends Controller
             self::COLUMNAS,
             [
                 'empresa', 'NIT', '901195995',
-                'EMPRESA DE EJEMPLO SAS', '',
-                'contacto@empresa.com', '6011234567', '3001234567',
+                'INTERFRIGO SAS', '',
+                'contacto@interfrigo.com.co', '6011234567', '3001234567',
                 'Bogotá', 'Calle 1 # 2-3',
                 'Bogotá', 'Si', 'No',
                 'Alimentos,Retail', 'Referido', 'Cliente desde 2018',
                 'Renier', 'Domínguez', 'Gerente',
-                'contacto2@empresa.com', '6011234567', '3009876543',
+                'renier@interfrigo.com.co', '6011234567', '3009876543',
             ],
             [
                 'persona', 'CC', '1094370680',
@@ -113,6 +124,9 @@ class ClienteImportController extends Controller
             'actualizados' => 0,
             'errores'      => [],
             'sin_contacto' => [],
+            // Cosas que no impidieron importar la fila pero conviene saber:
+            // por ejemplo una segmentación escrita con un nombre que no existe.
+            'avisos'       => [],
         ];
 
         // Las sedes se resuelven por nombre una sola vez, no una por fila.
@@ -154,6 +168,60 @@ class ClienteImportController extends Controller
         }
 
         return array_values(array_filter(array_map('trim', explode(',', $valor))));
+    }
+
+    /**
+     * Igual que lista(), pero traduce cada valor al que guarda la base.
+     *
+     * En pantalla se lee "Cliente directo" y en la base se guarda
+     * `cliente_directo`. Quien llena el CSV escribe lo que ve, así que hay que
+     * aceptar la etiqueta, el valor interno o cualquier variación de mayúsculas
+     * y tildes. Sin esto se guardaba el texto tal cual y la segmentación
+     * quedaba rota: el cliente no aparecía en ningún filtro.
+     *
+     * Lo que no coincide con ninguna opción se descarta y se avisa, en vez de
+     * guardar basura silenciosamente.
+     */
+    private function listaSegmentacion(?string $valor, string $tipo, int $numero, array &$resultado): ?array
+    {
+        $partes = $this->lista($valor);
+
+        if ($partes === null) {
+            return null;
+        }
+
+        $opciones = static::$catalogoSegmentacion[$tipo] ??= SegmentacionOpcion::where('tipo', $tipo)
+            ->get(['valor', 'etiqueta']);
+
+        $encontrados = [];
+
+        foreach ($partes as $parte) {
+            $buscado = $this->normalizar($parte);
+
+            $opcion = $opciones->first(fn ($o) =>
+                $this->normalizar($o->valor) === $buscado || $this->normalizar($o->etiqueta) === $buscado
+            );
+
+            if ($opcion) {
+                $encontrados[] = $opcion->valor;
+            } else {
+                $resultado['avisos'][] = "Fila {$numero}: «{$parte}» no es una opción válida de {$tipo}; se omitió.";
+            }
+        }
+
+        return $encontrados ?: null;
+    }
+
+    /** Catálogo cacheado por tipo: se consulta una vez, no una por fila. */
+    private static array $catalogoSegmentacion = [];
+
+    /** Sin tildes, sin mayúsculas y con guiones bajos como espacios. */
+    private function normalizar(?string $texto): string
+    {
+        $t = mb_strtolower(trim((string) $texto));
+        $t = strtr($t, ['á'=>'a','é'=>'e','í'=>'i','ó'=>'o','ú'=>'u','ñ'=>'n','ü'=>'u']);
+
+        return str_replace([' ', '-'], '_', $t);
     }
 
     private function procesarFila(array $d, int $numero, array &$resultado, $sedes, ConsultaNitService $nit): void
@@ -213,8 +281,10 @@ class ClienteImportController extends Controller
                     'notas'                 => $this->texto($d['notas'] ?? null, $cliente?->notas),
                     'activo'                => $this->esSi($d['activo'] ?? null, $cliente?->activo ?? true),
                     'requiere_anticipo'     => $this->esSi($d['requiere_anticipo'] ?? null, $cliente?->requiere_anticipo ?? false),
-                    'industrias'            => $this->lista($d['industrias'] ?? null) ?? $cliente?->industrias,
-                    'fuentes_contacto'      => $this->lista($d['fuentes_contacto'] ?? null) ?? $cliente?->fuentes_contacto,
+                    'tipos_contacto'        => $this->listaSegmentacion($d['tipos_contacto'] ?? null, 'tipo_contacto', $numero, $resultado) ?? $cliente?->tipos_contacto,
+                    'industrias'            => $this->listaSegmentacion($d['industrias'] ?? null, 'industria', $numero, $resultado) ?? $cliente?->industrias,
+                    'proceso_seguimiento'   => $this->listaSegmentacion($d['proceso_seguimiento'] ?? null, 'proceso_seguimiento', $numero, $resultado) ?? $cliente?->proceso_seguimiento,
+                    'fuentes_contacto'      => $this->listaSegmentacion($d['fuentes_contacto'] ?? null, 'fuente_contacto', $numero, $resultado) ?? $cliente?->fuentes_contacto,
                 ];
 
                 if ($esNuevo) {

@@ -6,7 +6,16 @@ import { ref } from 'vue'
 const props = defineProps({
     columnas: { type: Array, default: () => [] },
     sedes:    { type: Array, default: () => [] },
+    segmentacion: { type: Object, default: () => ({}) },
 })
+
+// Los nombres técnicos de las columnas de segmentación, con su etiqueta.
+const camposSegmentacion = [
+    ['tipos_contacto',      'tipo_contacto',       'Tipo de contacto'],
+    ['industrias',          'industria',           'Industria'],
+    ['proceso_seguimiento', 'proceso_seguimiento', 'Proceso de seguimiento'],
+    ['fuentes_contacto',    'fuente_contacto',     'Fuente de contacto'],
+]
 
 const csrf = () => {
     const c = document.cookie.split('; ').find(r => r.startsWith('XSRF-TOKEN='))
@@ -116,6 +125,21 @@ async function importar() {
                     Sedes disponibles para la columna <span class="font-mono">sede</span>:
                     <span class="font-medium text-gray-600">{{ sedes.join(', ') }}</span>
                 </p>
+
+                <!-- Opciones válidas de segmentación: sin esto hay que adivinar
+                     qué escribir, y lo que no coincide se pierde. -->
+                <div v-if="Object.keys(segmentacion).length" class="mt-3 space-y-1.5">
+                    <p class="text-xs text-gray-500">
+                        En las columnas de segmentación puedes poner <strong>varias separadas por coma</strong>.
+                        Estas son las opciones válidas:
+                    </p>
+                    <p v-for="[columna, tipo, etiqueta] in camposSegmentacion" :key="columna"
+                        class="text-xs text-gray-400">
+                        <span class="font-mono">{{ columna }}</span>
+                        <span class="text-gray-300"> ({{ etiqueta }})</span>:
+                        <span class="font-medium text-gray-600">{{ (segmentacion[tipo] || []).join(', ') || '—' }}</span>
+                    </p>
+                </div>
             </div>
 
             <!-- Paso 2: subir -->
@@ -165,6 +189,17 @@ async function importar() {
                     <div v-for="e in resultado.errores" :key="e.fila"
                         class="bg-red-50 rounded-lg px-3 py-2 text-xs text-red-700">
                         Fila {{ e.fila }}: {{ e.motivo }}
+                    </div>
+                </div>
+
+                <div v-if="resultado.avisos?.length" class="space-y-1.5 mb-3">
+                    <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Avisos</p>
+                    <p class="text-xs text-gray-500">
+                        Estas filas se cargaron, pero algo de su segmentación no se reconoció y se omitió.
+                    </p>
+                    <div v-for="(a, i) in resultado.avisos" :key="i"
+                        class="bg-amber-50 rounded-lg px-3 py-2 text-xs text-amber-800">
+                        {{ a }}
                     </div>
                 </div>
 

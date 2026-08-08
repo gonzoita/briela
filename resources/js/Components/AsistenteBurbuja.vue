@@ -100,7 +100,9 @@ function abrirCon(texto = '') {
     if (texto.trim()) enviar(texto)
 }
 
-defineExpose({ abrirCon })
+// `abrir` lo usa el lanzador flotante, que ahora es un solo botón compartido
+// con el chat: dos círculos fijos tapaban el contenido en celular.
+defineExpose({ abrirCon, abrir: () => { abierto.value = true; bajar() } })
 
 async function enviar(texto = null) {
     const pregunta = (texto ?? entrada.value).trim()
@@ -263,21 +265,8 @@ async function limpiar() {
 </script>
 
 <template>
-    <!-- Botón flotante -->
-    <button
-        v-if="!abierto"
-        @click="alternar"
-        class="burbuja-ia fixed z-40 flex items-center justify-center rounded-full shadow-lg"
-        style="background:var(--marca); width:56px; height:56px; right:20px; bottom:88px;"
-        :title="nombre"
-    >
-        <!-- Destellos: el ícono de chat pasó al botón del chat del equipo, que
-             es el que de verdad es una conversación entre personas. -->
-        <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round"
-                d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
-        </svg>
-    </button>
+    <!-- El botón flotante ya no vive aquí: lo dibuja BotonesFlotantes, que
+         junta la IA y el chat en un solo lanzador para no tapar el contenido. -->
 
     <!-- Panel de chat -->
     <Teleport to="body">

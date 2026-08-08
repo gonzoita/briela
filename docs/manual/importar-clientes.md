@@ -55,8 +55,23 @@ que cuando se crea desde el formulario.
   y coma; se detecta solo.
 - **Acentos**: la plantilla trae BOM, así que Excel abre bien las tildes y las
   eñes.
-- **Listas**: `industrias` y `fuentes_contacto` van separadas por coma dentro
-  de la misma celda. Ej: `Alimentos,Retail`.
+- **Segmentación**: son cuatro columnas y admiten **varias opciones separadas
+  por coma** en la misma celda:
+
+  | Columna | Es | Ejemplo |
+  |---|---|---|
+  | `tipos_contacto` | Tipo de contacto | `Cliente directo,Distribuidor` |
+  | `industrias` | Industria | `Alimentos y bebidas,Supermercados` |
+  | `proceso_seguimiento` | En qué va | `Primer contacto` |
+  | `fuentes_contacto` | De dónde salió | `Referido,WhatsApp` |
+
+  Se puede escribir **la etiqueta tal como aparece en pantalla** ("Cliente
+  directo") o el valor interno (`cliente_directo`); da igual mayúsculas y
+  tildes. Lo que no coincida con ninguna opción **se omite y se avisa** al
+  final de la importación, en vez de guardarse mal.
+
+  La pantalla de importación lista las opciones válidas de cada columna, para
+  no tener que adivinarlas.
 - **Sí/No**: se acepta `Si`, `Sí`, `1`, `true` o `x`. Cualquier otra cosa se
   lee como No.
 - **Cada fila es independiente**: si una falla, las demás se cargan igual.
