@@ -29,6 +29,82 @@ class ChatDirectoController extends Controller
 
     public function __construct(private readonly NotificacionService $notificaciones) {}
 
+    /**
+     * Resumen para el tablero: lo que ESPERA POR MÍ.
+     *
+     * A propósito no muestra "toda la actividad del equipo": sería ruido para
+     * la mayoría y expondría conversaciones entre roles que no tienen por qué
+     * verse. Aquí solo va lo que uno tiene que atender.
+     */
+    public function resumen(): JsonResponse
+    {
+        $yo = auth()->id();
+
+        $pendientes = Comentario::with('autor:id,name')
+            ->abiertos()
+            ->where('asignado_a', $yo)
+            ->latest()
+            ->limit(10)
+            ->get()
+            ->map(fn (Comentario $c) => [
+                'id'           => $c->id,
+                'tipo'         => $c->tipo,
+                'contenido'    => mb_strimwidth($c->contenido, 0, 90, '...'),
+                'autor'        => $c->autor?->name,
+                'fecha_limite' => $c->fecha_limite?->format('Y-m-d'),
+                'vencida'      => $c->fecha_limite && $c->fecha_limite->isPast(),
+                'url'          => $c->destinatario_id ? '/dashboard' : $this->urlDeDocumento($c),
+            ]);
+
+        // Mensajes directos sin leer, agrupados por quién escribió.
+        $directos = Comentario::with('autor:id,name')
+            ->where('destinatario_id', $yo)
+            ->whereNull('leido_at')
+            ->get()
+            ->groupBy('user_id')
+            ->map(fn ($ms) => [
+                'nombre'     => $ms->first()->autor?->name ?? 'Alguien',
+                'usuario_id' => $ms->first()->user_id,
+                'cuantos'    => $ms->count(),
+                'ultimo'     => mb_strimwidth($ms->sortByDesc('created_at')->first()->contenido, 0, 70, '...'),
+            ])
+            ->values();
+
+        // Grupos con mensajes posteriores a mi última lectura.
+        $grupos = \App\Models\ChatGrupo::de($yo)->with('miembros:id')->get()
+            ->map(function ($g) use ($yo) {
+                $leido = $g->miembros->firstWhere('id', $yo)?->pivot?->leido_hasta;
+
+                $cuantos = $g->mensajes()
+                    ->where('user_id', '!=', $yo)
+                    ->when($leido, fn ($q) => $q->where('created_at', '>', $leido))
+                    ->count();
+
+                return $cuantos ? ['id' => $g->id, 'nombre' => $g->nombre, 'cuantos' => $cuantos] : null;
+            })
+            ->filter()
+            ->values();
+
+        return response()->json([
+            'pendientes' => $pendientes,
+            'directos'   => $directos,
+            'grupos'     => $grupos,
+            'total'      => $pendientes->count() + $directos->sum('cuantos') + $grupos->sum('cuantos'),
+        ]);
+    }
+
+    /** Ruta del documento del que cuelga un comentario (si cuelga de uno). */
+    private function urlDeDocumento(Comentario $c): string
+    {
+        return match ($c->comentable_type) {
+            \App\Models\Op::class          => "/produccion/ops/{$c->comentable_id}",
+            \App\Models\Cotizacion::class  => "/cotizaciones/{$c->comentable_id}",
+            \App\Models\Cliente::class     => "/clientes/{$c->comentable_id}",
+            \App\Models\OrdenCompra::class => "/compras/ordenes/{$c->comentable_id}",
+            default                        => '/dashboard',
+        };
+    }
+
     /** Buscar a quién escribirle. */
     public function usuarios(Request $request): JsonResponse
     {

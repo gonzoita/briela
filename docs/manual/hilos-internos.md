@@ -29,6 +29,35 @@ también puede ser una **solicitud** o una **tarea** con fecha límite — y en 
 caso queda a cargo de quien lo recibe, con su estado pendiente hasta que lo
 cierre.
 
+## Grupos
+
+En la vista de personas hay una sección **Grupos** y un botón **"+ Nuevo
+grupo"**: se le pone nombre, se marcan los miembros y listo. Quien lo crea
+queda dentro automáticamente.
+
+Funcionan igual que los mensajes directos: se pueden mandar **solicitudes** y
+**tareas**, adjuntar documentos, imágenes y archivos, y todos los miembros
+reciben el aviso.
+
+**Solo los miembros ven y escriben** en un grupo. Los no leídos se llevan por
+persona, con una marca de hasta dónde leyó cada quien.
+
+## En el tablero
+
+Si algo espera por ti, aparece en el **Inicio** bajo "Del chat del equipo":
+
+- **Tareas y solicitudes** que te asignaron y siguen abiertas. Las que ya
+  pasaron su fecha salen en rojo.
+- **Mensajes directos** sin leer, agrupados por quién escribió.
+- **Grupos** con mensajes nuevos.
+
+Si no hay nada, **el bloque no aparece**. Un recuadro que dice "todo bien" se
+vuelve ruido y la gente deja de mirarlo.
+
+> Muestra **lo que espera por ti**, no toda la actividad del equipo: eso sería
+> ruido para la mayoría y dejaría ver conversaciones entre roles que no tienen
+> por qué cruzarse.
+
 ### Adjuntar
 
 Al escribir un mensaje hay dos botones:

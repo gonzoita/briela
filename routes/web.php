@@ -291,6 +291,7 @@ Route::middleware('auth')->group(function () {
     // ─── Chat directo entre usuarios ─────────────────────────────────────────
     Route::get('/api/chat/usuarios',        [ChatDirectoController::class, 'usuarios'])->name('chat.usuarios');
     Route::get('/api/chat/conversaciones',  [ChatDirectoController::class, 'conversaciones'])->name('chat.conversaciones');
+    Route::get('/api/chat/resumen',         [ChatDirectoController::class, 'resumen'])->name('chat.resumen');
     Route::get('/api/chat/adjuntar',        [ChatDirectoController::class, 'buscarParaAdjuntar'])->name('chat.adjuntar');
     // Grupos: van antes de /api/chat/{usuario} para que no los capture.
     Route::get('/api/chat/grupos',          [ChatGrupoController::class, 'index'])->name('chat.grupos');
