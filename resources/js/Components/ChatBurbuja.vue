@@ -519,14 +519,57 @@ const etiquetaTipo = { solicitud: 'Solicitud', tarea: 'Tarea' }
                     <template v-else>
                         <p v-if="cargando" class="text-xs text-gray-400 py-6 text-center">Cargando...</p>
 
-                        <div v-else-if="!pendientes.length" class="py-8 text-center">
-                            <p class="text-sm text-gray-500">No tienes nada pendiente.</p>
-                            <p class="text-xs text-gray-400 mt-1">
-                                Abre una orden, cotización o cliente para conversar sobre ella.
+                        <!-- Conversaciones y grupos, a la vista desde el primer
+                             momento. Antes había que descubrir el ícono de
+                             personas para llegar a ellos, y la pantalla inicial
+                             era un callejón sin salida. -->
+                        <div v-else-if="!pendientes.length && !conversaciones.length && !grupos.length" class="py-6 text-center">
+                            <p class="text-sm text-gray-500">Todavía no hay conversaciones.</p>
+                            <button @click="abrirPersonas"
+                                class="mt-3 px-4 py-2 rounded-xl text-xs font-semibold text-white"
+                                style="background:#0F766E;">
+                                Escribirle a alguien
+                            </button>
+                            <p class="text-xs text-gray-400 mt-3">
+                                También puedes abrir una orden, cotización o cliente para conversar sobre ella.
                             </p>
                         </div>
 
-                        <ul v-else class="space-y-2">
+                        <template v-else>
+                            <!-- Grupos y conversaciones -->
+                            <div v-if="grupos.length || conversaciones.length" class="mb-3 space-y-1">
+                                <div class="flex items-center justify-between mb-1">
+                                    <p class="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Conversaciones</p>
+                                    <button @click="abrirPersonas" class="text-[11px] font-semibold" style="color:#0F766E;">
+                                        + Nueva
+                                    </button>
+                                </div>
+
+                                <button v-for="g in grupos" :key="'ig'+g.id" @click="abrirGrupo(g)"
+                                    class="w-full text-left px-3 py-2 rounded-xl hover:bg-gray-50 flex items-center gap-2">
+                                    <span class="w-8 h-8 rounded-xl flex items-center justify-center text-white text-xs font-bold shrink-0" style="background:#0F766E;">#</span>
+                                    <span class="min-w-0 flex-1">
+                                        <span class="block text-sm text-gray-800 truncate">{{ g.nombre }}</span>
+                                        <span class="block text-[11px] text-gray-400 truncate">{{ g.ultimo || (g.miembros + ' personas') }}</span>
+                                    </span>
+                                    <span v-if="g.sin_leer" class="shrink-0 min-w-[18px] h-[18px] px-1 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center">{{ g.sin_leer }}</span>
+                                </button>
+
+                                <button v-for="c in conversaciones" :key="'ic'+c.usuario_id" @click="abrirHilo(c)"
+                                    class="w-full text-left px-3 py-2 rounded-xl hover:bg-gray-50 flex items-center gap-2">
+                                    <span class="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0" style="background:#0F766E;">
+                                        {{ (c.nombre || '?').charAt(0).toUpperCase() }}
+                                    </span>
+                                    <span class="min-w-0 flex-1">
+                                        <span class="block text-sm text-gray-800 truncate">{{ c.nombre }}</span>
+                                        <span class="block text-[11px] text-gray-400 truncate">{{ c.mio ? 'Tú: ' : '' }}{{ c.ultimo }}</span>
+                                    </span>
+                                    <span v-if="c.sin_leer" class="shrink-0 min-w-[18px] h-[18px] px-1 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center">{{ c.sin_leer }}</span>
+                                </button>
+                            </div>
+
+                            <p v-if="pendientes.length" class="text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Pendientes</p>
+                            <ul class="space-y-2">
                             <li v-for="p in pendientes" :key="p.id">
                                 <button @click="ir(p.url)"
                                     class="w-full text-left rounded-xl border border-amber-200 bg-amber-50/50 p-3 hover:bg-amber-50 transition-colors">
@@ -542,6 +585,7 @@ const etiquetaTipo = { solicitud: 'Solicitud', tarea: 'Tarea' }
                                 </button>
                             </li>
                         </ul>
+                        </template>
                     </template>
                 </div>
             </div>
