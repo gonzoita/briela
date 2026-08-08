@@ -267,13 +267,15 @@ async function limpiar() {
     <button
         v-if="!abierto"
         @click="alternar"
-        class="fixed z-40 flex items-center justify-center rounded-full shadow-lg transition-transform hover:scale-105"
+        class="burbuja-ia fixed z-40 flex items-center justify-center rounded-full shadow-lg"
         style="background:var(--marca); width:56px; height:56px; right:20px; bottom:88px;"
         :title="nombre"
     >
+        <!-- Destellos: el ícono de chat pasó al botón del chat del equipo, que
+             es el que de verdad es una conversación entre personas. -->
         <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round"
-                d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-6l-4 4v-4z" />
+                d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
         </svg>
     </button>
 
@@ -440,3 +442,20 @@ async function limpiar() {
         </div>
     </Teleport>
 </template>
+
+<style scoped>
+/* Mismas animaciones que el botón del chat, para que el par se sienta uno solo. */
+.burbuja-ia {
+    animation: entrar-ia 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+.burbuja-ia:hover  { transform: scale(1.08) rotate(-6deg); box-shadow: 0 10px 25px rgba(0,0,0,0.25); }
+.burbuja-ia:active { transform: scale(0.94); }
+
+@keyframes entrar-ia { from { opacity: 0; transform: scale(0.5) translateY(10px); } to { opacity: 1; transform: scale(1); } }
+
+@media (prefers-reduced-motion: reduce) {
+    .burbuja-ia { animation: none; transition: none; }
+    .burbuja-ia:hover { transform: none; }
+}
+</style>

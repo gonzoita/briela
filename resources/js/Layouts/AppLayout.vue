@@ -4,6 +4,7 @@ import { usePage, router } from '@inertiajs/vue3'
 import { Head } from '@inertiajs/vue3'
 import ModalQR from '@/Components/ModalQR.vue'
 import AsistenteBurbuja from '@/Components/AsistenteBurbuja.vue'
+import ChatBurbuja from '@/Components/ChatBurbuja.vue'
 import BuscadorGlobal from '@/Components/BuscadorGlobal.vue'
 
 const props = defineProps({
@@ -18,7 +19,7 @@ const page     = usePage()
 // Logo y nombre salen de Ajustes, no del código: así el sistema se puede
 // entregar a otra empresa sin tocar una sola línea.
 const marca = computed(() => page.props.marca ?? {
-    nombre: 'Mi empresa',
+    nombre: 'SGI',
     logo:   '/icons/icon-512.png',
 })
 const user     = computed(() => page.props.auth?.user)
@@ -1277,6 +1278,7 @@ onUnmounted(() => {
     <!-- Asistente de IA: disponible en cualquier pantalla. Al vivir en el
          layout, la conversación sobrevive al navegar entre módulos. -->
     <AsistenteBurbuja ref="asistenteRef" />
+    <ChatBurbuja />
 
     <!-- Modal disciplinas pendientes (operarios) -->
     <teleport to="body">

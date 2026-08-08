@@ -286,6 +286,8 @@ Route::middleware('auth')->group(function () {
     // ─── Hilos internos pegados a un documento ───────────────────────────────
     // Cualquier usuario autenticado puede comentar en los documentos que ya
     // puede ver: el permiso lo da el acceso al documento, no el hilo.
+    // 'pendientes' va ANTES de {documento}/{id} para que no lo capture la ruta genérica.
+    Route::get('/api/comentarios/pendientes',        [ComentarioController::class, 'pendientes'])->name('comentarios.pendientes');
     Route::get('/api/comentarios/{documento}/{id}',  [ComentarioController::class, 'index'])->name('comentarios.index');
     Route::post('/api/comentarios/{documento}/{id}', [ComentarioController::class, 'store'])->name('comentarios.store');
     Route::patch('/api/comentarios/{comentario}',    [ComentarioController::class, 'resolver'])->name('comentarios.resolver');

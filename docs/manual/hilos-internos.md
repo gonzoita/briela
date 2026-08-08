@@ -1,7 +1,23 @@
 # Hilos internos — comentar sobre un documento
 
-Aparece dentro de cada documento que lo tenga habilitado (hoy: la **orden de
-producción**). Acceso: cualquier usuario que ya pueda ver ese documento.
+## Dónde está
+
+Hay un **botón flotante verde** abajo a la derecha, justo encima del de la IA.
+Son dos botones hermanos: el de **destellos** abre el asistente, el de **globo
+de diálogo** abre el chat del equipo.
+
+El botón del chat es sensible a dónde estás:
+
+- **Dentro de un documento** (una OP, una cotización, un cliente, una orden de
+  compra) → abre el hilo de ese documento.
+- **En cualquier otra pantalla** → muestra **lo que tienes pendiente**: las
+  solicitudes y tareas que te asignaron y siguen abiertas. Al tocar una, te
+  lleva a su documento.
+
+Sobre el botón sale un **globito rojo** con cuántos pendientes tienes.
+
+El hilo también aparece dentro de la propia ficha de la orden de producción,
+al final, para quien prefiera verlo ahí.
 
 ## Qué es y qué no es
 

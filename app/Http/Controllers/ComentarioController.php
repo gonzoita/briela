@@ -33,6 +33,34 @@ class ComentarioController extends Controller
         return self::DOCUMENTOS[$documento];
     }
 
+    /**
+     * Lo que tengo pendiente: solicitudes y tareas abiertas que me asignaron.
+     * Es lo que hace útil el botón de chat fuera de un documento — si no, en
+     * el dashboard no tendría nada que mostrar.
+     */
+    public function pendientes(): JsonResponse
+    {
+        $comentarios = Comentario::with('autor:id,name')
+            ->abiertos()
+            ->where('asignado_a', auth()->id())
+            ->latest()
+            ->limit(30)
+            ->get();
+
+        return response()->json([
+            'pendientes' => $comentarios->map(fn (Comentario $c) => [
+                'id'          => $c->id,
+                'tipo'        => $c->tipo,
+                'contenido'   => $c->contenido,
+                'autor'       => $c->autor?->name,
+                'fecha_limite'=> $c->fecha_limite?->format('Y-m-d'),
+                'creado'      => $c->created_at->toIso8601String(),
+                'url'         => $this->urlDocumento($c),
+                'documento'   => class_basename($c->comentable_type),
+            ]),
+        ]);
+    }
+
     public function index(string $documento, int $id): JsonResponse
     {
         $clase = $this->claseDe($documento);
