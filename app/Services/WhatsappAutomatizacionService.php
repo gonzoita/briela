@@ -220,6 +220,18 @@ class WhatsappAutomatizacionService
                 '/crm'
             );
         }
+
+        // Aviso hacia afuera, para quien quiera engancharse. Va al final y en
+        // su propio servicio: si el destino externo falla, el lead ya quedó
+        // creado y avisado por dentro.
+        app(\App\Services\IA\AgenteWebhookService::class)->disparar('lead_creado', [
+            'lead_id'   => $lead->id,
+            'nombre'    => $nombre,
+            'telefono'  => $telefono,
+            'canal'     => 'whatsapp',
+            'mensaje'   => $texto,
+            'responsable_id' => $lead->responsable_id,
+        ]);
     }
 
     /**
