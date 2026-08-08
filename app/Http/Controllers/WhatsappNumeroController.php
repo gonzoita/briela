@@ -28,7 +28,53 @@ class WhatsappNumeroController extends Controller
                 'verify_actual'  => CredencialesRrss::valor('whatsapp', 'redirect'),
                 'url_webhook'    => url('/webhook/whatsapp'),
             ],
+            'automatizacion' => \App\Services\WhatsappAutomatizacionService::config(),
+            'etapas'         => \App\Models\CrmEtapa::where('activa', true)
+                ->orderBy('orden')->get(['id', 'nombre']),
         ]);
+    }
+
+    /**
+     * Guarda la automatización: aviso, respuestas y creación de leads.
+     * Todo vive en `configuraciones`, así que no hace falta migración.
+     */
+    public function guardarAutomatizacion(Request $request)
+    {
+        $datos = $request->validate([
+            'activo'                    => 'boolean',
+            'avisar'                    => 'boolean',
+            'responder'                 => 'boolean',
+            'respuestas'                => 'nullable|array|max:20',
+            'respuestas.*.palabra_clave'=> 'nullable|string|max:60',
+            'respuestas.*.mensaje'      => 'nullable|string|max:1000',
+            'crear_lead'                => 'boolean',
+            'lead_etapa_id'             => 'nullable|integer|exists:crm_etapas,id',
+            'asignacion'                => 'required|in:fijo,round_robin',
+            'responsables'              => 'nullable|array',
+            'responsables.*'            => 'integer|exists:users,id',
+        ]);
+
+        // Se descartan las respuestas vacías para que no queden filas fantasma
+        // que el motor tendría que saltarse en cada mensaje.
+        $respuestas = collect($datos['respuestas'] ?? [])
+            ->filter(fn ($r) => filled($r['mensaje'] ?? null))
+            ->map(fn ($r) => [
+                'palabra_clave' => trim((string) ($r['palabra_clave'] ?? '')),
+                'mensaje'       => trim((string) $r['mensaje']),
+            ])
+            ->values()
+            ->all();
+
+        \App\Models\Configuracion::set('whatsapp_auto_activo',       !empty($datos['activo']) ? '1' : '0');
+        \App\Models\Configuracion::set('whatsapp_auto_avisar',       !empty($datos['avisar']) ? '1' : '0');
+        \App\Models\Configuracion::set('whatsapp_auto_responder',    !empty($datos['responder']) ? '1' : '0');
+        \App\Models\Configuracion::set('whatsapp_auto_crear_lead',   !empty($datos['crear_lead']) ? '1' : '0');
+        \App\Models\Configuracion::set('whatsapp_auto_lead_etapa_id', (string) ($datos['lead_etapa_id'] ?? ''));
+        \App\Models\Configuracion::set('whatsapp_auto_asignacion',   $datos['asignacion']);
+        \App\Models\Configuracion::set('whatsapp_auto_respuestas',   json_encode($respuestas));
+        \App\Models\Configuracion::set('whatsapp_auto_responsables', json_encode(array_values($datos['responsables'] ?? [])));
+
+        return back()->with('success', 'Automatización guardada.');
     }
 
     /**

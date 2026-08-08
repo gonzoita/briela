@@ -7,7 +7,38 @@ const props = defineProps({
     numeros: Array,
     usuarios: Array,
     conexion: { type: Object, default: () => ({ lista: false, faltantes: [], url_webhook: '' }) },
+    automatizacion: { type: Object, default: () => ({}) },
+    etapas: { type: Array, default: () => [] },
 })
+
+// ── Automatización ───────────────────────────────────────────────────────────
+const autoAbierta = ref(false)
+const auto = ref({
+    activo:        props.automatizacion?.activo ?? false,
+    avisar:        props.automatizacion?.avisar ?? true,
+    responder:     props.automatizacion?.responder ?? false,
+    respuestas:    (props.automatizacion?.respuestas ?? []).map(r => ({ ...r })),
+    crear_lead:    props.automatizacion?.crear_lead ?? false,
+    lead_etapa_id: props.automatizacion?.lead_etapa_id || '',
+    asignacion:    props.automatizacion?.asignacion ?? 'fijo',
+    responsables:  props.automatizacion?.responsables ?? [],
+})
+
+function agregarRespuesta() {
+    auto.value.respuestas.push({ palabra_clave: '', mensaje: '' })
+}
+
+function quitarRespuesta(i) {
+    auto.value.respuestas.splice(i, 1)
+}
+
+function guardarAutomatizacion() {
+    ocupado.value = 'auto'
+    router.post('/configuracion/whatsapp-numeros/automatizacion', auto.value, {
+        preserveScroll: true,
+        onFinish: () => { ocupado.value = '' },
+    })
+}
 
 // ── Conexión con Meta ────────────────────────────────────────────────────────
 const guiaAbierta = ref(false)
@@ -212,6 +243,115 @@ function eliminar(id) {
                         El token se guarda cifrado y no se vuelve a mostrar. El de verificación es una
                         contraseña que inventas y que debe quedar igual acá y en Meta.
                     </p>
+                </div>
+            </div>
+
+            <!-- Automatización -->
+            <div class="bg-white rounded-2xl border border-gray-200 p-5 mb-4">
+                <button @click="autoAbierta = !autoAbierta" class="w-full flex items-center justify-between text-left">
+                    <div>
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <h2 class="text-sm font-semibold text-gray-700">Automatización</h2>
+                            <span v-if="auto.activo"
+                                class="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-green-100 text-green-700 leading-none">Activa</span>
+                            <span v-else
+                                class="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-500 leading-none">Apagada</span>
+                        </div>
+                        <p class="text-xs text-gray-400 mt-0.5">
+                            Qué pasa cuando alguien escribe: avisar, responder solo y crear el lead en el CRM.
+                        </p>
+                    </div>
+                    <svg class="w-4 h-4 text-gray-400 shrink-0 transition-transform" :class="autoAbierta ? 'rotate-90' : ''"
+                        fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+                    </svg>
+                </button>
+
+                <div v-if="autoAbierta" class="mt-4 space-y-4 text-xs">
+                    <label class="flex items-start gap-2 cursor-pointer">
+                        <input type="checkbox" v-model="auto.activo" class="mt-0.5 rounded" />
+                        <span><strong class="text-gray-700">Activar la automatización.</strong>
+                            <span class="text-gray-400">Si está apagada, nada de lo de abajo ocurre.</span></span>
+                    </label>
+
+                    <div class="border-t border-gray-100 pt-3 space-y-3">
+                        <label class="flex items-start gap-2 cursor-pointer">
+                            <input type="checkbox" v-model="auto.avisar" class="mt-0.5 rounded" />
+                            <span><strong class="text-gray-700">Avisar por la campanita</strong>
+                                <span class="text-gray-400">cuando escriba alguien por primera vez.</span></span>
+                        </label>
+
+                        <label class="flex items-start gap-2 cursor-pointer">
+                            <input type="checkbox" v-model="auto.responder" class="mt-0.5 rounded" />
+                            <span><strong class="text-gray-700">Responder automáticamente.</strong></span>
+                        </label>
+
+                        <div v-if="auto.responder" class="pl-6 space-y-2">
+                            <p class="text-gray-400">
+                                Sin palabra clave, el mensaje es de <strong>bienvenida</strong> y sale solo en el primer
+                                contacto. Con palabra clave, sale cada vez que el mensaje la contenga.
+                                Solo se envía la primera que coincida.
+                            </p>
+                            <div v-for="(r, i) in auto.respuestas" :key="i" class="flex gap-2 items-start">
+                                <input v-model="r.palabra_clave" type="text" placeholder="palabra clave (opcional)"
+                                    class="w-36 shrink-0 border border-gray-200 rounded-lg px-2 py-1.5 text-[12px] focus:outline-none focus:border-blue-400" />
+                                <textarea v-model="r.mensaje" rows="2" placeholder="Mensaje que se envía"
+                                    class="flex-1 border border-gray-200 rounded-lg px-2 py-1.5 text-[12px] focus:outline-none focus:border-blue-400"></textarea>
+                                <button type="button" @click="quitarRespuesta(i)"
+                                    class="shrink-0 w-7 h-7 rounded-lg text-red-500 hover:bg-red-50 leading-none">✕</button>
+                            </div>
+                            <button type="button" @click="agregarRespuesta"
+                                class="px-2.5 py-1.5 rounded-lg border border-gray-200 text-[11px] font-semibold text-gray-600 hover:bg-gray-50">
+                                + Agregar respuesta
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="border-t border-gray-100 pt-3 space-y-3">
+                        <label class="flex items-start gap-2 cursor-pointer">
+                            <input type="checkbox" v-model="auto.crear_lead" class="mt-0.5 rounded" />
+                            <span><strong class="text-gray-700">Crear el lead en el CRM.</strong>
+                                <span class="text-gray-400">Solo si el número no es de un cliente registrado
+                                ni tiene ya un lead abierto, para no llenar el CRM de repetidos.</span></span>
+                        </label>
+
+                        <div v-if="auto.crear_lead" class="pl-6 space-y-2">
+                            <div>
+                                <label class="block text-gray-500 mb-1">Etapa donde entra</label>
+                                <select v-model="auto.lead_etapa_id"
+                                    class="w-full border border-gray-200 rounded-lg px-2 py-1.5 text-[12px] focus:outline-none">
+                                    <option value="">La primera etapa del pipeline</option>
+                                    <option v-for="e in etapas" :key="e.id" :value="e.id">{{ e.nombre }}</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-gray-500 mb-1">Cómo se reparte</label>
+                                <select v-model="auto.asignacion"
+                                    class="w-full border border-gray-200 rounded-lg px-2 py-1.5 text-[12px] focus:outline-none">
+                                    <option value="fijo">Siempre al primero de la lista</option>
+                                    <option value="round_robin">Rotando entre los seleccionados</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-gray-500 mb-1">Quiénes reciben</label>
+                                <div class="flex flex-wrap gap-1.5">
+                                    <label v-for="u in usuarios" :key="u.id"
+                                        class="inline-flex items-center gap-1 px-2 py-1 rounded-lg border cursor-pointer text-[11px]"
+                                        :class="auto.responsables.includes(u.id) ? 'border-blue-300 bg-blue-50 text-blue-700' : 'border-gray-200 text-gray-600'">
+                                        <input type="checkbox" :value="u.id" v-model="auto.responsables" class="hidden" />
+                                        {{ u.name }}
+                                    </label>
+                                </div>
+                                <p class="text-gray-400 mt-1">Si no eliges a nadie, el lead se crea sin responsable y el aviso va a los administradores.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="button" @click="guardarAutomatizacion" :disabled="ocupado === 'auto'"
+                        class="w-full py-2 rounded-xl text-xs font-semibold text-white disabled:opacity-50"
+                        style="background:var(--marca);">
+                        {{ ocupado === 'auto' ? 'Guardando...' : 'Guardar automatización' }}
+                    </button>
                 </div>
             </div>
 

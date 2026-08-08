@@ -60,6 +60,59 @@ identificador sin volver a escribir el token, se deja ese campo vacío.
 - **Volver a conectar** — se cargan las credenciales nuevas y la conexión queda
   activa otra vez, con los mismos números y conversaciones de antes.
 
+## Automatización: qué pasa cuando alguien escribe
+
+En la misma pantalla, el bloque **Automatización** define qué hace el sistema
+con un mensaje entrante. Antes no hacía nada: guardaba la conversación y, si
+nadie abría la bandeja, el cliente se quedaba sin respuesta.
+
+Hay un interruptor general (**Activar la automatización**); si está apagado,
+nada de lo de abajo ocurre.
+
+### 1. Avisar por la campanita
+
+Cuando alguien escribe **por primera vez**, les llega el aviso a los vendedores.
+Es lo mínimo para que ningún mensaje se quede sin ver.
+
+### 2. Responder automáticamente
+
+Se arma una **lista de respuestas**, y cada una puede llevar una palabra clave:
+
+| Palabra clave | Cuándo sale |
+|---|---|
+| *(vacía)* | Es el **saludo de bienvenida**: sale solo en el primer contacto |
+| `horario` | Cada vez que el mensaje contenga esa palabra |
+
+Se pueden tener varias: un saludo, y respuestas a las preguntas de siempre
+("horario", "dirección", "precio"). **Solo se envía la primera que coincida** —
+mandar varias seguidas se ve como spam y Meta lo penaliza.
+
+### 3. Crear el lead en el CRM
+
+Si se activa, el mensaje entra al pipeline con `fuente: whatsapp`.
+
+> **Solo se crea si el número es desconocido.** Si ya es un cliente registrado
+> o ya tiene un lead abierto, no se crea nada. Sin esa regla, el CRM se
+> llenaría de leads repetidos cada vez que un cliente escribe para preguntar
+> por su pedido. La comparación se hace por los últimos 10 dígitos, porque los
+> teléfonos están escritos de mil formas (con +57, con espacios, con guiones) y
+> WhatsApp los manda sin nada de eso.
+
+Se elige **en qué etapa** entra y **cómo se reparte**, con el mismo criterio que
+los formularios web:
+
+- **Fijo** — siempre al primero de la lista.
+- **Rotando** — se van alternando los seleccionados.
+
+Si no se elige a nadie, el lead se crea sin responsable y el aviso va a los
+administradores, para que no quede huérfano en silencio.
+
+### Si algo falla, no se cae el resto
+
+Cada paso está aislado: que falle el aviso no impide crear el lead, y un error
+del CRM no deja al cliente sin respuesta. Y si toda la automatización falla, el
+mensaje **igual queda guardado** — Meta recibe su confirmación y no reintenta.
+
 ## Los números
 
 Debajo de la conexión se administran los números. Cada uno tiene:

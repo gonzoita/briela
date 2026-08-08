@@ -31,7 +31,8 @@ class NotificacionService
             'Comercial' => [
                 ['tipo' => 'cotizacion_aprobada',    'label' => 'Cliente aprobó una cotización'],
                 ['tipo' => 'cotizacion_rechazada',   'label' => 'Cliente rechazó una cotización'],
-                ['tipo' => 'lead_nuevo',             'label' => 'Lead nuevo desde la web'],
+                ['tipo' => 'lead_nuevo',             'label' => 'Lead nuevo (formulario web o WhatsApp)'],
+                ['tipo' => 'whatsapp_mensaje_nuevo', 'label' => 'Mensaje nuevo de WhatsApp'],
                 ['tipo' => 'cotizacion_sin_respuesta','label' => 'Cotización sin respuesta (recordatorio)'],
             ],
             'Compras' => [

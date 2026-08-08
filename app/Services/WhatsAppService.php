@@ -138,6 +138,13 @@ class WhatsAppService
 
             $nombreContacto = $contactos->get($numeroContacto)['profile']['name'] ?? null;
 
+            // Se mira ANTES de guardar: si la conversación no existía, este es
+            // un primer contacto, y de eso depende si se saluda y si se crea
+            // el lead. Después del updateOrCreate ya no habría cómo saberlo.
+            $esNueva = ! WhatsappConversacion::where('whatsapp_numero_id', $numero->id)
+                ->where('numero_contacto', $numeroContacto)
+                ->exists();
+
             $conversacion = WhatsappConversacion::updateOrCreate(
                 [
                     'whatsapp_numero_id' => $numero->id,
@@ -150,13 +157,26 @@ class WhatsAppService
                 ]
             );
 
+            $texto = $msg['text']['body'] ?? null;
+
             WhatsappMensaje::create([
                 'whatsapp_conversacion_id' => $conversacion->id,
                 'wa_message_id' => $msg['id'] ?? null,
                 'direccion' => 'entrante',
                 'tipo' => $msg['type'] ?? 'texto',
-                'contenido' => $msg['text']['body'] ?? null,
+                'contenido' => $texto,
             ]);
+
+            // La automatización va aparte y no puede tumbar el webhook: si
+            // falla, el mensaje igual quedó guardado y Meta recibe su 200.
+            try {
+                app(WhatsappAutomatizacionService::class)
+                    ->alRecibirMensaje($numero, $conversacion, (string) $texto, $esNueva);
+            } catch (\Throwable $e) {
+                Log::error('WhatsApp: falló la automatización del mensaje entrante', [
+                    'error' => $e->getMessage(),
+                ]);
+            }
         }
     }
 
