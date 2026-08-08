@@ -5,6 +5,7 @@ import AppLayout from '@/Layouts/AppLayout.vue'
 import FinancieroOP from '@/Components/FinancieroOP.vue'
 import ModalAnticipo from '@/Components/ModalAnticipo.vue'
 import BtnPdf from '@/Components/BtnPdf.vue'
+import HiloComentarios from '@/Components/HiloComentarios.vue'
 import { useUnsavedChanges } from '@/composables/useUnsavedChanges'
 
 const props = defineProps({
@@ -1320,6 +1321,11 @@ function marcarTerminado(item) {
                 :op-id="op.id"
                 :total-op="parseFloat(op.total ?? 0)"
             />
+
+            <!-- Hilo interno del equipo -->
+            <div class="mt-4">
+                <HiloComentarios documento="op" :id="op.id" />
+            </div>
 
             <!-- Eliminar -->
             <div class="pb-4 mt-4">

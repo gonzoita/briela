@@ -35,6 +35,11 @@ class NotificacionService
                 ['tipo' => 'whatsapp_mensaje_nuevo', 'label' => 'Mensaje nuevo de WhatsApp'],
                 ['tipo' => 'cotizacion_sin_respuesta','label' => 'Cotización sin respuesta (recordatorio)'],
             ],
+            'Hilos internos' => [
+                ['tipo' => 'comentario_mencion',  'label' => 'Te mencionaron en un documento'],
+                ['tipo' => 'comentario_asignado', 'label' => 'Te asignaron una tarea o solicitud'],
+                ['tipo' => 'comentario_resuelto', 'label' => 'Resolvieron tu solicitud'],
+            ],
             'Compras' => [
                 ['tipo' => 'solicitud_compra',    'label' => 'Solicitud de compra por revisar'],
                 ['tipo' => 'mercancia_recibida',  'label' => 'Mercancía recibida'],

@@ -1,0 +1,72 @@
+# Hilos internos — comentar sobre un documento
+
+Aparece dentro de cada documento que lo tenga habilitado (hoy: la **orden de
+producción**). Acceso: cualquier usuario que ya pueda ver ese documento.
+
+## Qué es y qué no es
+
+Un espacio para que el equipo hable **sobre un documento concreto**, dejando
+rastro. La discusión sobre la OP-045 vive dentro de la OP-045, no perdida en el
+celular de alguien.
+
+> **No compite con WhatsApp para lo urgente.** Para eso la gente ya tiene el
+> celular abierto. El valor de esto es otro: que la conversación quede pegada al
+> documento y que se pueda responder "¿por qué se cambió este precio?" mirando
+> el hilo.
+
+**El cliente nunca lo ve.** Es interno.
+
+## Tres tipos de mensaje
+
+| Tipo | Para qué | Tiene estado |
+|---|---|---|
+| **Comentario** | Dejar una nota, explicar algo | No |
+| **Solicitud** | Pedirle algo a alguien | Sí: pendiente → resuelta / rechazada |
+| **Tarea** | Encargar algo, con responsable y fecha | Sí |
+
+La diferencia importa: un comentario se lee y ya, pero una solicitud **queda
+abierta hasta que alguien la cierre**. Arriba del hilo se ve cuántas hay sin
+resolver, para que no se pierdan.
+
+## Menciones
+
+Escribir **`@` y el nombre** de alguien le manda un aviso por la campanita.
+Funciona con el nombre completo o solo el primero: `@Diego` encuentra a Diego
+González. Sin esto, en un hilo activo la gente deja de leer y las cosas se
+pierden.
+
+## Avisos que salen solos
+
+- **Te mencionaron** en un documento.
+- **Te asignaron** una tarea o una solicitud.
+- **Resolvieron tu solicitud** — le llega a quien la pidió, que es el que está
+  esperando.
+
+Como todos los avisos del sistema, cada uno se puede apagar en Ajustes. Ver
+[Notificaciones](./notificaciones.md).
+
+## Quién puede borrar
+
+Cada quien borra lo suyo. El administrador puede borrar cualquiera. Se borra de
+forma suave: el registro queda, no se pierde el historial.
+
+## Nota técnica
+
+- Tabla: `comentarios`, **polimórfica** (`comentable_type` + `comentable_id`).
+  El mismo hilo sirve para una OP, una cotización, un cliente o una orden de
+  compra, sin una tabla por módulo.
+- El tipo de documento llega desde el navegador, así que el controlador tiene
+  una **lista blanca**: sin ella, alguien podría colgar comentarios de cualquier
+  modelo del sistema. También se comprueba que el documento exista, para no
+  dejar hilos huérfanos.
+- Componente: `resources/js/Components/HiloComentarios.vue`. Para agregarlo a
+  otra pantalla basta con `<HiloComentarios documento="cotizacion" :id="..." />`
+  y sumar el modelo a la lista blanca del controlador.
+
+## Pendiente
+
+- **Adjuntar archivos** dentro del hilo (la tabla `archivos` ya es polimórfica,
+  así que engancharla es directo).
+- **Buscar** dentro de los hilos: se llenan rápido.
+- Montarlo en cotizaciones, clientes y órdenes de compra — el backend ya los
+  acepta, falta ponerlo en esas pantallas.

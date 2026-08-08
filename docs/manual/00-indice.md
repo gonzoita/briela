@@ -26,6 +26,7 @@ está `CLAUDE.md`), sino una guía de uso para quienes operan el sistema día a 
 - [Capacitación (cursos, evaluaciones y certificados)](./capacitacion.md)
 - [Recursos Humanos (colaboradores, disciplina, bonos, gamificación)](./rrhh.md)
 - [Notificaciones internas (la campanita)](./notificaciones.md)
+- [Hilos internos — comentar sobre un documento](./hilos-internos.md)
 - [Conexiones con servicios externos — índice de todas](./conexiones.md)
 - [Redes Sociales — programador de publicaciones](./redes-sociales.md)
 - [WhatsApp — conexión y números](./whatsapp.md)

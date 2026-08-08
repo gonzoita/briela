@@ -38,6 +38,7 @@ use App\Http\Controllers\CotizacionPublicaController;
 use App\Http\Controllers\CalculadorController;
 use App\Http\Controllers\CategoriaProductoController;
 use App\Http\Controllers\ClienteController;
+use App\Http\Controllers\ComentarioController;
 use App\Http\Controllers\CursoController;
 use App\Http\Controllers\CursoEvaluacionController;
 use App\Http\Controllers\CursoLeccionController;
@@ -281,6 +282,14 @@ Route::middleware('auth')->group(function () {
         Route::patch('/imagenes/{id}/principal', [ImagenProductoController::class, 'setPrincipal'])->name('imagenes.principal');
     });
     Route::get('/api/productos/buscar', [ProductoController::class, 'buscar'])->name('productos.buscar');
+
+    // ─── Hilos internos pegados a un documento ───────────────────────────────
+    // Cualquier usuario autenticado puede comentar en los documentos que ya
+    // puede ver: el permiso lo da el acceso al documento, no el hilo.
+    Route::get('/api/comentarios/{documento}/{id}',  [ComentarioController::class, 'index'])->name('comentarios.index');
+    Route::post('/api/comentarios/{documento}/{id}', [ComentarioController::class, 'store'])->name('comentarios.store');
+    Route::patch('/api/comentarios/{comentario}',    [ComentarioController::class, 'resolver'])->name('comentarios.resolver');
+    Route::delete('/api/comentarios/{comentario}',   [ComentarioController::class, 'destroy'])->name('comentarios.destroy');
 
     Route::middleware('permiso:configuracion.editar')->group(function () {
         Route::get('/api/categorias-producto',                [CategoriaProductoController::class, 'index'])->name('categorias-producto.index');
