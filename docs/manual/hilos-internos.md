@@ -29,9 +29,26 @@ también puede ser una **solicitud** o una **tarea** con fecha límite — y en 
 caso queda a cargo de quien lo recibe, con su estado pendiente hasta que lo
 cierre.
 
-**Compartir un documento.** Un mensaje puede llevar adjunta una cotización, una
-orden de compra, una OP o un cliente. Llega como un enlace: quien lo recibe
-toca y va directo al documento.
+### Adjuntar
+
+Al escribir un mensaje hay dos botones:
+
+**📎 Adjuntar un documento del sistema.** Abre un buscador que encuentra
+**cualquier cosa**: cotizaciones, remisiones, órdenes de producción y de
+compra, clientes, productos, proveedores, solicitudes, leads, números de serie.
+Es el mismo buscador global (Ctrl+K), así que **respeta tus permisos y tu
+sede** — no puedes compartir lo que no puedes ver — y cualquier módulo nuevo
+aparece ahí solo, sin que haya que programarlo.
+
+Llega como un enlace: quien lo recibe toca y va directo al documento.
+
+**🖼️ Adjuntar una imagen o un archivo.** Hasta 10 MB. Las imágenes se ven
+dentro del mensaje; los demás archivos llegan como enlace para descargar. Se
+pueden mandar hasta cinco por mensaje.
+
+> Solo se admiten enlaces **internos del sistema**. Si alguien intentara
+> adjuntar una dirección externa, se rechaza: si no, el chat sería una vía
+> cómoda para mandar enlaces de phishing "de parte de un compañero".
 
 Debajo del buscador aparecen tus **conversaciones recientes**, con el último
 mensaje y cuántos tienes sin leer de cada persona. Al abrir una conversación,

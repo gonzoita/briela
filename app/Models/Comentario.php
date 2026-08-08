@@ -22,6 +22,7 @@ class Comentario extends Model
         'tipo', 'estado', 'asignado_a', 'fecha_limite',
         'resuelto_at', 'resuelto_por', 'mencionados',
         'referencia_type', 'referencia_id', 'leido_at',
+        'referencia_tipo', 'referencia_titulo', 'referencia_url',
     ];
 
     protected $casts = [
@@ -40,6 +41,12 @@ class Comentario extends Model
     public function referencia()
     {
         return $this->morphTo();
+    }
+
+    /** Archivos e imágenes adjuntos al mensaje. */
+    public function archivos()
+    {
+        return $this->morphMany(Archivo::class, 'archivable');
     }
 
     public function destinatario(): BelongsTo

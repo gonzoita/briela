@@ -290,7 +290,8 @@ Route::middleware('auth')->group(function () {
     // ─── Chat directo entre usuarios ─────────────────────────────────────────
     Route::get('/api/chat/usuarios',        [ChatDirectoController::class, 'usuarios'])->name('chat.usuarios');
     Route::get('/api/chat/conversaciones',  [ChatDirectoController::class, 'conversaciones'])->name('chat.conversaciones');
-    Route::get('/api/chat/compartibles',    [ChatDirectoController::class, 'compartibles'])->name('chat.compartibles');
+    Route::get('/api/chat/adjuntar',        [ChatDirectoController::class, 'buscarParaAdjuntar'])->name('chat.adjuntar');
+    Route::post('/api/chat/subir',          [ChatDirectoController::class, 'subirAdjunto'])->name('chat.subir');
     Route::get('/api/chat/{usuario}',       [ChatDirectoController::class, 'hilo'])->name('chat.hilo');
     Route::post('/api/chat/{usuario}',      [ChatDirectoController::class, 'enviar'])->name('chat.enviar');
 

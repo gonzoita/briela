@@ -24,6 +24,48 @@ const mensajes       = ref([])
 const enviando       = ref(false)
 const nuevo          = ref({ contenido: '', tipo: 'comentario', fecha_limite: '' })
 
+// ── Adjuntos ─────────────────────────────────────────────────────────────────
+const buscadorAbierto = ref(false)
+const buscarDoc       = ref('')
+const gruposDoc       = ref([])
+const refAdjunta      = ref(null)   // { tipo, titulo, url }
+const archivos        = ref([])     // [{ nombre, ruta, url, esImagen }]
+const subiendo        = ref(false)
+
+let tempDoc = null
+function buscarDocumentos() {
+    clearTimeout(tempDoc)
+    tempDoc = setTimeout(async () => {
+        if (buscarDoc.value.trim().length < 2) { gruposDoc.value = []; return }
+        try {
+            gruposDoc.value = (await api('/api/chat/adjuntar?buscar=' + encodeURIComponent(buscarDoc.value))).grupos
+        } catch { gruposDoc.value = [] }
+    }, 250)
+}
+
+function elegirDocumento(grupo, r) {
+    refAdjunta.value = { tipo: grupo.tipo, titulo: r.titulo, url: r.url }
+    buscadorAbierto.value = false
+    buscarDoc.value = ''
+    gruposDoc.value = []
+}
+
+async function subirArchivo(e) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    subiendo.value = true
+    try {
+        const fd = new FormData()
+        fd.append('archivo', file)
+        const res = await fetch('/api/chat/subir', {
+            method: 'POST', credentials: 'same-origin', body: fd,
+            headers: { 'X-XSRF-TOKEN': csrf(), 'X-Requested-With': 'XMLHttpRequest', Accept: 'application/json' },
+        })
+        if (res.ok) archivos.value.push(await res.json())
+    } catch { /* el usuario puede reintentar */ }
+    finally { subiendo.value = false; e.target.value = '' }
+}
+
 const sinLeerChat = computed(() => conversaciones.value.reduce((s, c) => s + (c.sin_leer || 0), 0))
 
 const csrf = () => {
@@ -86,9 +128,21 @@ async function enviarMensaje() {
     enviando.value = true
     try {
         const id = conQuien.value.usuario_id ?? conQuien.value.id
-        const d = await api('/api/chat/' + id, { method: 'POST', body: JSON.stringify(nuevo.value) })
+        const cuerpo = {
+            ...nuevo.value,
+            ref_tipo:   refAdjunta.value?.tipo ?? null,
+            ref_titulo: refAdjunta.value?.titulo ?? null,
+            ref_url:    refAdjunta.value?.url ?? null,
+            archivos:   archivos.value.map(a => ({
+                nombre: a.nombre, ruta: a.ruta,
+                mime: a.mime, extension: a.extension, tamano: a.tamano,
+            })),
+        }
+        const d = await api('/api/chat/' + id, { method: 'POST', body: JSON.stringify(cuerpo) })
         mensajes.value.push(d.mensaje)
         nuevo.value = { contenido: '', tipo: 'comentario', fecha_limite: '' }
+        refAdjunta.value = null
+        archivos.value = []
     } catch { /* se conserva lo escrito para reintentar */ }
     finally { enviando.value = false }
 }
@@ -276,10 +330,25 @@ const etiquetaTipo = { solicitud: 'Solicitud', tarea: 'Tarea' }
                                     </p>
                                     <p class="text-sm whitespace-pre-line">{{ m.contenido }}</p>
                                     <a v-if="m.referencia" :href="m.referencia.url"
-                                        class="mt-1 inline-block text-[11px] underline"
+                                        class="mt-1 block text-[11px] underline"
                                         :class="m.mio ? 'text-white/90' : 'text-blue-600'">
                                         📎 {{ m.referencia.etiqueta }}
                                     </a>
+
+                                    <div v-if="m.archivos?.length" class="mt-1.5 space-y-1">
+                                        <template v-for="(a, i) in m.archivos" :key="i">
+                                            <a v-if="a.esImagen" :href="a.url" target="_blank" rel="noopener" class="block">
+                                                <img :src="a.url" :alt="a.nombre"
+                                                    class="rounded-lg max-h-40 w-auto border"
+                                                    :class="m.mio ? 'border-white/30' : 'border-gray-200'" />
+                                            </a>
+                                            <a v-else :href="a.url" target="_blank" rel="noopener"
+                                                class="block text-[11px] underline truncate"
+                                                :class="m.mio ? 'text-white/90' : 'text-blue-600'">
+                                                📄 {{ a.nombre }}
+                                            </a>
+                                        </template>
+                                    </div>
                                     <p class="text-[10px] mt-0.5" :class="m.mio ? 'text-white/70' : 'text-gray-400'">
                                         {{ new Date(m.creado).toLocaleString('es-CO', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' }) }}
                                     </p>
@@ -288,9 +357,51 @@ const etiquetaTipo = { solicitud: 'Solicitud', tarea: 'Tarea' }
                         </div>
 
                         <div class="border-t border-gray-100 pt-3 space-y-2">
+                            <!-- Buscador de documentos para adjuntar -->
+                            <div v-if="buscadorAbierto" class="rounded-xl border border-gray-200 p-2">
+                                <input v-model="buscarDoc" @input="buscarDocumentos" type="text"
+                                    placeholder="Buscar cotización, remisión, OP, cliente..."
+                                    class="w-full border border-gray-200 rounded-lg px-2 py-1.5 text-xs mb-2 focus:outline-none focus:border-blue-400" />
+                                <div class="max-h-48 overflow-y-auto">
+                                    <div v-for="g in gruposDoc" :key="g.tipo" class="mb-2">
+                                        <p class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-0.5">{{ g.etiqueta }}</p>
+                                        <button v-for="(r, i) in g.resultados" :key="i" @click="elegirDocumento(g, r)"
+                                            class="w-full text-left px-2 py-1.5 rounded-lg hover:bg-gray-50">
+                                            <span class="block text-xs text-gray-800 truncate">{{ r.titulo }}</span>
+                                            <span class="block text-[11px] text-gray-400 truncate">{{ r.detalle }}</span>
+                                        </button>
+                                    </div>
+                                    <p v-if="buscarDoc.length >= 2 && !gruposDoc.length" class="text-[11px] text-gray-400 px-2 py-2">
+                                        Nada coincide.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <!-- Adjuntos listos para enviar -->
+                            <div v-if="refAdjunta || archivos.length" class="flex flex-wrap gap-1.5">
+                                <span v-if="refAdjunta"
+                                    class="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-teal-50 border border-teal-200 text-[11px] text-teal-800">
+                                    📎 {{ refAdjunta.titulo }}
+                                    <button @click="refAdjunta = null" class="text-teal-600 hover:text-teal-900">✕</button>
+                                </span>
+                                <span v-for="(a, i) in archivos" :key="i"
+                                    class="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-gray-100 border border-gray-200 text-[11px] text-gray-700">
+                                    {{ a.esImagen ? '🖼️' : '📄' }} {{ a.nombre }}
+                                    <button @click="archivos.splice(i, 1)" class="text-gray-500 hover:text-gray-900">✕</button>
+                                </span>
+                            </div>
+
                             <textarea v-model="nuevo.contenido" rows="2" placeholder="Escribe un mensaje..."
                                 class="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-400"></textarea>
                             <div class="flex flex-wrap gap-2 items-center">
+                                <button type="button" @click="buscadorAbierto = !buscadorAbierto"
+                                    class="w-8 h-8 rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-50 flex items-center justify-center"
+                                    title="Adjuntar un documento del sistema">📎</button>
+                                <label class="w-8 h-8 rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-50 flex items-center justify-center cursor-pointer"
+                                    :title="subiendo ? 'Subiendo...' : 'Adjuntar imagen o archivo'">
+                                    <input type="file" class="hidden" @change="subirArchivo" :disabled="subiendo" />
+                                    <span>{{ subiendo ? '…' : '🖼️' }}</span>
+                                </label>
                                 <select v-model="nuevo.tipo" class="border border-gray-200 rounded-lg px-2 py-1.5 text-xs focus:outline-none">
                                     <option value="comentario">Mensaje</option>
                                     <option value="solicitud">Solicitud</option>
