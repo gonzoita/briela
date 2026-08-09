@@ -91,8 +91,21 @@ foreach ($requisitos as $r) {
         . '<span class="detalle">' . e($r['detalle']) . '</span></span></li>';
 }
 
+// Se muestra la carpeta destino porque el paquete se descomprime en la carpeta
+// que CONTIENE a esta. Si el archivo se sube al sitio equivocado, Briela
+// terminaría encima de otro sitio: verlo antes de empezar evita el accidente.
+$ajenos = archivosAjenos($raiz);
+$avisoRuta = '<div class="caja' . ($ajenos > 3 ? ' mal' : '') . '">'
+    . 'Briela se instalará en:<br><code>' . e($raiz) . '</code>'
+    . ($ajenos > 3
+        ? '<br><br><strong>Ojo:</strong> esa carpeta ya tiene ' . $ajenos . ' archivos.'
+          . ' Comprueba que sea la carpeta correcta y que el dominio apunte a'
+          . ' <code>' . e(basename(__DIR__)) . '</code> dentro de ella.'
+        : '')
+    . '</div>';
+
 $formulario = $puedeSeguir
-    ? '
+    ? $avisoRuta . '
     <label for="codigo">Código de instalación</label>
     <input type="text" id="codigo" name="codigo" autocomplete="off" spellcheck="false" placeholder="BRL-XXXX-XXXX-XXXX">
     <p class="ayuda">Es el código que te entregaron al contratar Briela.</p>
@@ -335,6 +348,27 @@ function prepararEnv(string $raiz): ?string
     }
 
     return null;
+}
+
+/**
+ * Cuántos archivos hay ya en la carpeta destino que no son de una instalación
+ * a medias. Sirve para avisar si el instalador se subió al sitio equivocado.
+ */
+function archivosAjenos(string $raiz): int
+{
+    $propios = ['public', 'briela-paquete.zip', 'briela-instalador-estado.json',
+                'artisan', 'app', 'vendor', 'bootstrap', 'config', 'database',
+                'resources', 'routes', 'storage', '.env', '.env.example', 'version.txt'];
+
+    $cuenta = 0;
+    foreach ((array) @scandir($raiz) as $entrada) {
+        if ($entrada === '.' || $entrada === '..' || in_array($entrada, $propios, true)) {
+            continue;
+        }
+        $cuenta++;
+    }
+
+    return $cuenta;
 }
 
 function urlDelSitio(): string
