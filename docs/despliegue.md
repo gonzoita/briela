@@ -1,8 +1,69 @@
 # Desplegar una instalación de Briela
 
-Guía de la primera instalación en un servidor y del deploy automático posterior.
-Sirve tanto para `sistema.briela.app` (la instalación propia) como para la de un
-cliente.
+Hay dos caminos, y para un cliente **siempre es el primero**:
+
+| Camino | Cuándo |
+|---|---|
+| **Instalador web** (sección 0) | Instalaciones de clientes. Sin consola, sin composer, sin git |
+| **Manual por SSH** (secciones 1 a 5) | La instalación propia y el desarrollo, donde sí hay acceso |
+
+---
+
+## 0. Instalador web — el camino normal
+
+### Cómo se prepara el paquete (esto lo haces tú)
+
+```bash
+composer install --no-dev --optimize-autoloader
+```
+
+```bash
+php artisan briela:empaquetar 1.0.0
+```
+
+Eso deja en `storage/app/paquetes/` tres cosas: el ZIP, su `.sha256` y el
+`instalar.php`. El comando **se niega a empaquetar** si `vendor/` todavía tiene
+paquetes de desarrollo, porque uno de ellos (whoops) muestra el código fuente en
+las pantallas de error.
+
+El ZIP lleva `vendor/` y `public/build/` ya compilados —para que el cliente no
+necesite composer ni Node— y **no lleva** `.env`, `docs/`, `CLAUDE.md`, `tests/`,
+`installer/`, ni las herramientas de compilación. Son unos 46.000 archivos.
+
+Después subes el ZIP a tu origen de descargas (por defecto el instalador lo busca
+en `https://briela.app/descargas/`).
+
+### Cómo lo instala el cliente
+
+1. En su panel de hosting, crea el subdominio apuntando a una carpeta **`public`**
+   (por ejemplo `sistema/public`).
+2. Sube **solo `instalar.php`** (20 KB) a esa carpeta `public`.
+3. Abre `https://su-dominio/instalar.php`, escribe su código y espera.
+
+El instalador revisa el servidor, descarga el paquete, lo descomprime **por
+tandas** con barra de progreso, crea el `.env` con una llave de cifrado propia de
+esa instalación, se borra a sí mismo y lo deja en el asistente de configuración.
+
+> Lo de las tandas no es un lujo: descomprimir 46.000 archivos tomó 89 segundos en
+> pruebas, repartidos en 78 peticiones de alrededor de un segundo. En una sola
+> petición se pasaría del tiempo máximo de casi cualquier hosting compartido, y
+> dejaría la instalación a medias.
+
+Si el servidor del cliente no puede salir a internet, hay salida: subir el ZIP a
+mano como `briela-paquete.zip` en la carpeta padre de `public`. El instalador lo
+detecta y se salta la descarga.
+
+### El asistente de configuración
+
+Tres pasos en `/instalar`: revisión del servidor, datos de la base de datos —que
+se prueban antes de guardar nada— y por último la empresa y el administrador. Al
+terminar se cierra solo: quien entre después a `/instalar` va al inicio de sesión.
+
+---
+
+## Instalación manual
+
+Lo que sigue es para la instalación propia y el desarrollo, donde hay consola.
 
 > **Nunca correr `db:seed` en un servidor real.** Crea cuatro usuarios con la
 > contraseña `password` y siembra productos y plantillas de ejemplo que son de

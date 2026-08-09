@@ -65,3 +65,6 @@ binlog*.sql
 /public/dbtest.php
 /public/test.php
 /public/phpinfo.php
+
+# Lo genera briela:empaquetar en cada paquete.
+/version.txt
