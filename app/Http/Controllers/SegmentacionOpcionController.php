@@ -54,6 +54,15 @@ class SegmentacionOpcionController extends Controller
 
     public function destroy(SegmentacionOpcion $opcion): JsonResponse
     {
+        // Borrar «Mayorista» o «Distribuidor» no da error en ninguna parte: los
+        // clientes que las tuvieran simplemente empezarían a cotizarse al precio
+        // de cliente final. Un daño silencioso y difícil de rastrear después.
+        if ($opcion->atada_a_precios) {
+            return response()->json([
+                'message' => "«{$opcion->etiqueta}» no se puede eliminar: el cotizador la usa para decidir el precio y la comisión. Si no la necesitas, desactívala.",
+            ], 422);
+        }
+
         $opcion->delete();
 
         return response()->json(['ok' => true]);

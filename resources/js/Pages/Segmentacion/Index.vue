@@ -14,6 +14,7 @@ const opciones = ref({})
 const cargando = ref(true)
 const abiertos = ref({})
 const mensaje  = ref('')
+const mensajeEsError = ref(false)
 
 const csrf = () => {
     const c = document.cookie.split('; ').find(r => r.startsWith('XSRF-TOKEN='))
@@ -93,10 +94,18 @@ async function eliminar(id) {
         headers: headers(),
     })
     if (r.ok) {
+        mensajeEsError.value = false
         mensaje.value = 'Eliminada.'
         setTimeout(() => mensaje.value = '', 2000)
         await cargar()
+        return
     }
+
+    // El servidor bloquea las opciones que definen el precio: hay que decir por qué.
+    const cuerpo = await r.json().catch(() => ({}))
+    mensajeEsError.value = true
+    mensaje.value = cuerpo.message ?? 'No se pudo eliminar la opción.'
+    setTimeout(() => mensaje.value = '', 6000)
 }
 
 function toggleAbierto(key) {
@@ -119,7 +128,7 @@ function toggleAbierto(key) {
 
             <!-- Toast -->
             <div v-if="mensaje" class="mb-3 px-4 py-2 rounded-xl text-sm font-medium text-white"
-                style="background:var(--marca);">
+                :style="`background:${mensajeEsError ? '#B91C1C' : 'var(--marca)'};`">
                 {{ mensaje }}
             </div>
 
@@ -172,11 +181,16 @@ function toggleAbierto(key) {
                                     <div class="w-3 h-3 rounded-full shrink-0"
                                         :style="`background:${op.color ?? '#9CA3AF'};`"/>
                                     <span class="text-sm text-gray-700 flex-1">{{ op.etiqueta }}</span>
+                                    <span v-if="op.atada_a_precios"
+                                        class="text-[10px] px-1.5 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200 shrink-0"
+                                        title="El cotizador usa esta opción para decidir el precio y la comisión. No se puede eliminar.">
+                                        define precio
+                                    </span>
                                     <span class="text-xs text-gray-400 font-mono hidden sm:block">{{ op.valor }}</span>
                                     <div class="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
                                         <button type="button" @click="iniciarEdicion(op)"
                                             class="text-xs px-2 py-1 rounded text-blue-600 hover:bg-blue-50">Editar</button>
-                                        <button type="button" @click="eliminar(op.id)"
+                                        <button v-if="!op.atada_a_precios" type="button" @click="eliminar(op.id)"
                                             class="text-xs px-2 py-1 rounded text-red-500 hover:bg-red-50">Eliminar</button>
                                     </div>
                                 </div>

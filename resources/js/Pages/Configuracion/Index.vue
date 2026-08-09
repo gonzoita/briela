@@ -375,8 +375,36 @@ const crmAccionLabel = { ninguna: 'Ninguna', cotizacion: 'Crear cotización', op
 const tokenPantalla = computed(() =>
     props.configuraciones.find(c => c.clave === 'pantalla_planta_token')?.valor ?? ''
 )
-const urlPantalla     = computed(() => `/planta/${tokenPantalla.value}`)
+const tokenPantallaNuevo = ref('')
+const regenerandoPantalla = ref(false)
+
+// Si se acaba de regenerar, la URL nueva se muestra de una sin recargar.
+const urlPantalla     = computed(() => `/planta/${tokenPantallaNuevo.value || tokenPantalla.value}`)
 const urlPantallaFull = computed(() => window.location.origin + urlPantalla.value)
+
+async function regenerarTokenPantalla() {
+    const aviso = 'Se va a generar una URL nueva para la pantalla de planta.\n\n'
+        + 'La URL actual dejará de funcionar de inmediato: hay que ir a cada '
+        + 'pantalla de la planta y cargar la nueva.\n\n¿Continuar?'
+
+    if (!confirm(aviso)) return
+
+    regenerandoPantalla.value = true
+    try {
+        const res = await fetch('/configuracion/pantalla-planta/regenerar', {
+            method: 'POST',
+            headers: { 'X-XSRF-TOKEN': getCsrf() },
+            credentials: 'same-origin',
+        })
+        if (!res.ok) throw new Error('No se pudo regenerar')
+        const data = await res.json()
+        tokenPantallaNuevo.value = data.token
+    } catch (e) {
+        alert('No se pudo generar la URL nueva. Intenta otra vez.')
+    } finally {
+        regenerandoPantalla.value = false
+    }
+}
 
 async function copiarUrlPantalla() {
     if (await copyText(urlPantallaFull.value)) {
@@ -1212,6 +1240,21 @@ const configPuntos = computed(() =>
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
                             </svg>
                         </a>
+                        <a href="/configuracion/integraciones/wordpress" @click.prevent="router.visit('/configuracion/integraciones/wordpress')"
+                            class="flex items-center gap-3 bg-white rounded-xl border border-gray-200 p-4 hover:border-blue-300 hover:shadow-sm transition-all">
+                            <div class="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center shrink-0">
+                                <svg class="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 010 5.656l-4 4a4 4 0 01-5.656-5.656l1.5-1.5M10.172 13.828a4 4 0 010-5.656l4-4a4 4 0 015.656 5.656l-1.5 1.5" />
+                                </svg>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-semibold text-gray-800">Integraciones — WordPress</p>
+                                <p class="text-xs text-gray-500 mt-0.5">Token para conectar el plugin Briela Connect</p>
+                            </div>
+                            <svg class="w-4 h-4 text-gray-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                            </svg>
+                        </a>
                         <a href="/configuracion/roles" @click.prevent="router.visit('/configuracion/roles')"
                             class="flex items-center gap-3 bg-white rounded-xl border border-gray-200 p-4 hover:border-blue-300 hover:shadow-sm transition-all">
                             <div class="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center shrink-0">
@@ -1421,6 +1464,23 @@ const configPuntos = computed(() =>
                             >
                                 Ver
                             </a>
+                        </div>
+
+                        <div class="mt-3 pt-3 border-t border-gray-100">
+                            <p class="text-xs text-gray-500 mb-2">
+                                Cualquiera con esta URL ve las órdenes en curso, sin contraseña.
+                                Si se filtró, genera una nueva.
+                            </p>
+                            <button
+                                @click="regenerarTokenPantalla"
+                                :disabled="regenerandoPantalla"
+                                class="px-3 py-2 rounded-lg text-xs font-medium border border-amber-300 text-amber-700 hover:bg-amber-50 disabled:opacity-50"
+                            >
+                                {{ regenerandoPantalla ? 'Generando…' : 'Generar URL nueva' }}
+                            </button>
+                            <p v-if="tokenPantallaNuevo" class="text-xs text-green-600 mt-2 font-medium">
+                                Listo. La URL de arriba ya es la nueva — cópiala y cárgala en las pantallas de la planta.
+                            </p>
                         </div>
                     </div>
                 </div>

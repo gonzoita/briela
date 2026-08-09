@@ -15,7 +15,10 @@ Formato: [versionado semántico](https://semver.org/lang/es/).
 ## [Sin publicar]
 
 ### Agregado
-- Nada todavía.
+- Integración con WordPress (plugin "Briela Connect"): los leads que llegan
+  por los formularios del sitio web del cliente entran solos al CRM, con el
+  canal de origen (utm_source / utm_medium / utm_campaign) de la visita que
+  los trajo. Se conecta desde Configuración → Integraciones → WordPress.
 
 ### Cambiado
 - Arranque del proyecto a partir de un ERP interno ya probado (2 ago 2026):

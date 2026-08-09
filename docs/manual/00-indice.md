@@ -12,6 +12,7 @@ está `CLAUDE.md`), sino una guía de uso para quienes operan el sistema día a 
 - [CRM — Pipeline de leads](./crm-pipeline.md)
 - [Identificación de clientes (NIT, dígito de verificación y RUES)](./identificacion-clientes.md)
 - [Importar clientes desde CSV](./importar-clientes.md)
+- [Segmentación de clientes y su efecto en el precio](./segmentacion-y-precios.md)
 - [Cotizaciones](./cotizaciones.md)
 - [Cotización aprobada → OP (la venta)](./cotizacion-a-op.md)
 - [Plantillas de Ensamble (el cotizador que arma productos)](./plantillas-ensamble.md)

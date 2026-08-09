@@ -23,6 +23,7 @@ use App\Http\Controllers\CuentaRrssController;
 use App\Http\Controllers\AsistenteController;
 use App\Http\Controllers\IaController;
 use App\Http\Controllers\PerfilMarcaController;
+use App\Http\Controllers\IntegracionWordpressController;
 use App\Http\Controllers\BuscadorController;
 use App\Http\Controllers\ClienteImportController;
 use App\Http\Controllers\IdentificacionConfigController;
@@ -586,6 +587,7 @@ Route::middleware('auth')->group(function () {
         Route::delete('/niveles/{nivel}',           [ConfiguracionController::class, 'destroyNivel'])->name('niveles.destroy');
         Route::post('/smtp/probar',                 [ConfiguracionController::class, 'probarSmtp'])->name('smtp.probar');
         Route::post('/logo-empresa',                [ConfiguracionController::class, 'subirLogoEmpresa'])->name('logo-empresa');
+        Route::post('/pantalla-planta/regenerar',   [ConfiguracionController::class, 'regenerarTokenPantalla'])->name('pantalla-planta.regenerar');
 
         // ─── Plantillas PDF (legacy — estilos) ───────────────────────────────
         Route::get('/pdf-templates',                          [PdfTemplateController::class, 'index'])->name('pdf-templates.index');
@@ -684,6 +686,13 @@ Route::middleware('auth')->group(function () {
         Route::post('/api/perfil-marca/probar-voz',          [PerfilMarcaController::class, 'probarVoz'])->name('perfil-marca.probar-voz');
         Route::post('/api/perfil-marca/generar',             [PerfilMarcaController::class, 'generar'])->name('perfil-marca.generar');
         Route::post('/api/perfil-marca/importar',            [PerfilMarcaController::class, 'importar'])->name('perfil-marca.importar');
+    });
+
+    // Integraciones → WordPress (plugin "Briela Connect", solo quien administra la configuración).
+    Route::middleware('permiso:configuracion.editar')->group(function () {
+        Route::get('/configuracion/integraciones/wordpress',               [IntegracionWordpressController::class, 'index'])->name('integraciones.wordpress.index');
+        Route::post('/configuracion/integraciones/wordpress/generar-token', [IntegracionWordpressController::class, 'generarToken'])->name('integraciones.wordpress.generar-token');
+        Route::post('/configuracion/integraciones/wordpress/revocar-token', [IntegracionWordpressController::class, 'revocarToken'])->name('integraciones.wordpress.revocar-token');
     });
 
     // ─── Auditoría — bitácora de actividad (solo administrador) ──────────────

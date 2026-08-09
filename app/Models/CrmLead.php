@@ -17,6 +17,9 @@ class CrmLead extends Model
         'nombre_contacto', 'email_contacto', 'telefono_contacto',
         'empresa_contacto', 'descripcion', 'fuente', 'estado',
         'motivo_cierre', 'fecha_cierre', 'orden_en_etapa',
+        // Atribución: de dónde vino el lead cuando entra por el plugin de
+        // WordPress (Briela Connect).
+        'pagina_origen', 'utm_source', 'utm_medium', 'utm_campaign',
     ];
 
     protected $casts = [

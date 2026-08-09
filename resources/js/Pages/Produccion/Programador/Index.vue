@@ -121,7 +121,6 @@ function getCsrf() {
 }
 
 async function refrescarDatos() {
-    console.log('polling...')
     try {
         const res = await fetch(`/produccion/programador/datos?fecha=${fechaInput.value}`, {
             headers: { 'X-XSRF-TOKEN': getCsrf() }

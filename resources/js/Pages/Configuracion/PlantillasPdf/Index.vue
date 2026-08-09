@@ -114,7 +114,6 @@ async function eliminar(plantilla) {
 function irACrear() {
     const select = document.getElementById('select-modulo-nueva')
     const modulo = select?.value
-    console.log('modulo seleccionado:', modulo)
     if (!modulo) return
     modalNueva.value = false
     window.location.href = `/configuracion/plantillas-pdf/crear?modulo=${modulo}`

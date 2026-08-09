@@ -187,6 +187,25 @@ class ConfiguracionController extends Controller
         return response()->json($resultado, $resultado['ok'] ? 200 : 422);
     }
 
+    /**
+     * Cambia el token de la pantalla de planta.
+     *
+     * `/planta/{token}` no pide login: ese token es la única llave de una
+     * pantalla que muestra las OPs activas con nombre de cliente. Si se filtra,
+     * la única forma de cerrar la puerta es cambiarlo.
+     *
+     * Al hacerlo, la URL vieja deja de servir: hay que ir a cada pantalla de la
+     * planta y cargar la nueva.
+     */
+    public function regenerarTokenPantalla(): JsonResponse
+    {
+        Configuracion::set('pantalla_planta_token', \Illuminate\Support\Str::random(32));
+
+        return response()->json([
+            'token' => Configuracion::get('pantalla_planta_token'),
+        ]);
+    }
+
     public function subirLogoEmpresa(Request $request): JsonResponse
     {
         $request->validate(['logo' => 'required|image|mimes:png,jpg,jpeg,svg|max:2048']);
