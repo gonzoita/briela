@@ -43,6 +43,64 @@ class Marca
         return (bool) preg_match('/^#[0-9A-Fa-f]{6}$/', $valor);
     }
 
+    // ─── Tipografía ──────────────────────────────────────────────────────────
+
+    public const FUENTE_POR_DEFECTO = 'sistema';
+
+    /**
+     * Tipografías que puede elegir la empresa.
+     *
+     * Todas son pilas de fuentes ya presentes en los dispositivos: no se descarga
+     * ningún archivo. Eso importa en un producto que se instala en servidores de
+     * clientes — una fuente traída de un CDN externo deja de verse el día que ese
+     * servicio falla, y de paso le reporta cada visita a un tercero.
+     *
+     * La opción del sistema usa San Francisco en Mac y iPhone, Segoe UI Variable
+     * en Windows y Roboto en Android: la tipografía nativa de cada aparato, que es
+     * la que el usuario ya está acostumbrado a leer.
+     *
+     * @return array<string, array{nombre:string, pila:string, nota:string}>
+     */
+    public static function fuentes(): array
+    {
+        return [
+            'sistema' => [
+                'nombre' => 'Del sistema',
+                'pila'   => '-apple-system, BlinkMacSystemFont, "Segoe UI Variable Text", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+                'nota'   => 'La tipografía propia de cada dispositivo. La más rápida y la que mejor se lee.',
+            ],
+            'neutra' => [
+                'nombre' => 'Neutra',
+                'pila'   => '"Helvetica Neue", Helvetica, "Liberation Sans", Arial, sans-serif',
+                'nota'   => 'Sobria y sin carácter propio. Se ve igual en todas partes.',
+            ],
+            'clasica' => [
+                'nombre' => 'Clásica con serifas',
+                'pila'   => 'Iowan Old Style, "Palatino Linotype", Palatino, Georgia, "Times New Roman", serif',
+                'nota'   => 'Más formal. Va bien si tus documentos son lo que el cliente más ve.',
+            ],
+            'compacta' => [
+                'nombre' => 'Compacta',
+                'pila'   => '"Segoe UI", Tahoma, Verdana, sans-serif',
+                'nota'   => 'Aprovecha mejor el ancho en pantallas pequeñas y en tablas con muchas columnas.',
+            ],
+        ];
+    }
+
+    /** La clave elegida, o la de fábrica si lo guardado no existe. */
+    public static function fuenteClave(): string
+    {
+        $valor = trim((string) Configuracion::get('marca_fuente', ''));
+
+        return array_key_exists($valor, self::fuentes()) ? $valor : self::FUENTE_POR_DEFECTO;
+    }
+
+    /** La pila CSS lista para poner en font-family. */
+    public static function fuente(): string
+    {
+        return self::fuentes()[self::fuenteClave()]['pila'];
+    }
+
     /**
      * Paleta completa derivada del color principal.
      *
@@ -61,18 +119,62 @@ class Marca
             'marca-medio'  => self::ajustarLuz($base, 0.75),
             // Texto que se pone ENCIMA del color principal.
             'marca-texto'  => self::textoLegible($base),
+            // Un tono apenas teñido para bordes y separadores: el gris puro al
+            // lado de un color de marca se ve sucio.
+            'marca-borde'  => self::ajustarLuz($base, 0.86),
         ];
     }
 
-    /** Las variables listas para meter en un bloque <style>. */
+    /**
+     * Las variables listas para meter en un bloque <style>.
+     *
+     * Además del color y la tipografía van los tokens de forma —radios y
+     * sombras—, para poder ajustar el aspecto de todo el sistema desde un solo
+     * lugar en vez de tocar clases en 128 pantallas.
+     */
     public static function comoCss(): string
     {
         $lineas = [];
+
         foreach (self::paleta() as $nombre => $valor) {
             $lineas[] = "--{$nombre}:{$valor}";
         }
 
+        $lineas[] = '--fuente:' . self::fuente();
+
+        foreach (self::tokens() as $nombre => $valor) {
+            $lineas[] = "--{$nombre}:{$valor}";
+        }
+
         return ':root{' . implode(';', $lineas) . '}';
+    }
+
+    /**
+     * Tokens de forma: lo que hace que la interfaz se sienta de una pieza.
+     *
+     * Sombras muy suaves y en dos capas, como las de las interfaces de Apple: una
+     * sombra marcada envejece cualquier pantalla. Los radios crecen con el tamaño
+     * del elemento, que es lo que hace que un botón y una tarjeta se vean de la
+     * misma familia sin tener el mismo radio.
+     *
+     * @return array<string,string>
+     */
+    public static function tokens(): array
+    {
+        return [
+            'radio-sm'  => '8px',
+            'radio'     => '12px',
+            'radio-lg'  => '16px',
+            'radio-xl'  => '22px',
+            'sombra-sm' => '0 1px 2px rgba(16,24,40,.04), 0 1px 3px rgba(16,24,40,.06)',
+            'sombra'    => '0 1px 3px rgba(16,24,40,.04), 0 8px 24px -8px rgba(16,24,40,.10)',
+            'sombra-lg' => '0 2px 6px rgba(16,24,40,.04), 0 24px 48px -12px rgba(16,24,40,.14)',
+            'borde'     => '#EDEFF2',
+            'texto'     => '#101828',
+            'texto-2'   => '#475467',
+            'texto-3'   => '#98A2B3',
+            'fondo'     => '#FBFBFC',
+        ];
     }
 
     /**

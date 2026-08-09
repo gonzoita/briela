@@ -29,8 +29,11 @@ class PerfilMarcaController extends Controller
             'label'          => $cfg['label'],
             'ayuda'          => $cfg['ayuda'],
             'pregunta'       => $cfg['pregunta'],
-            'contenido'      => $guardadas[$clave]->contenido ?? '',
-            'generado_ia_at' => $guardadas[$clave]->generado_ia_at?->format('d/m/Y') ?? null,
+            // ->get() y no [$clave]: en una instalación nueva la tabla está
+            // vacía, y el acceso con corchetes lanza "Undefined array key" antes
+            // de que el ?? alcance a actuar.
+            'contenido'      => $guardadas->get($clave)?->contenido ?? '',
+            'generado_ia_at' => $guardadas->get($clave)?->generado_ia_at?->format('d/m/Y'),
         ])->values();
 
         return Inertia::render('Configuracion/PerfilMarca', [

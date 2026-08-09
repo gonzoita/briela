@@ -50,9 +50,7 @@
     <link rel="apple-touch-icon" sizes="192x192" href="/icons/icon-192.png">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet"/>
+    
 
     <!-- Vite -->
     <?php echo app('Illuminate\Foundation\Vite')(['resources/js/app.js']); ?>
@@ -61,9 +59,13 @@
     <style>
         .slide-up-enter-active,.slide-up-leave-active{transition:all .3s ease}
         .slide-up-enter-from,.slide-up-leave-to{transform:translateY(100px);opacity:0}
+
+        /* Texto más parejo en pantallas de alta densidad, como en las interfaces
+           de Apple: sin esto la tipografía del sistema se ve más gruesa en Mac. */
+        body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; text-rendering: optimizeLegibility; }
     </style>
 </head>
-<body class="font-sans antialiased bg-gray-50">
+<body class="font-sans antialiased bg-lienzo text-tinta-900">
     <?php if (!isset($__inertiaSsrDispatched)) { $__inertiaSsrDispatched = true; $__inertiaSsrResponse = app(\Inertia\Ssr\Gateway::class)->dispatch($page); }  if ($__inertiaSsrResponse) { echo $__inertiaSsrResponse->body; } elseif (config('inertia.use_script_element_for_initial_page')) { ?><script data-page="app" type="application/json"><?php echo json_encode($page); ?></script><div id="app"></div><?php } else { ?><div id="app" data-page="<?php echo e(json_encode($page)); ?>"></div><?php } ?>
 </body>
 </html>

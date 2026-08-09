@@ -65,6 +65,10 @@ class HandleInertiaRequests extends Middleware
             'marca' => [
                 'nombre' => \App\Support\Marca::nombreEmpresa(),
                 'logo'   => \App\Support\Marca::logoUrl(),
+                // Si la empresa subió su logo o si se está viendo el de fábrica.
+                // Las pantallas públicas prefieren mostrar el nombre en
+                // tipografía antes que un icono genérico que no es de nadie.
+                'logo_propio' => \App\Services\ImagenMarcaService::url('empresa_logo') !== null,
                 'color'  => \App\Support\Marca::color(),
                 // Para los pies de página de las pantallas públicas (catálogo,
                 // seguimiento, aprobación de cotizaciones): antes llevaban el

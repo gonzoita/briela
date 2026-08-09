@@ -30,8 +30,17 @@ class MarcaController extends Controller
                 'logo_url'    => ImagenMarcaService::url('empresa_logo') ?? '',
                 'empresa'     => Marca::nombreEmpresa(),
                 'paleta'      => Marca::paleta(),
+                'fuente'      => Marca::fuenteClave(),
             ],
             'color_por_defecto' => Marca::COLOR_POR_DEFECTO,
+            // Las tipografías disponibles, con su pila real para que la vista
+            // previa se dibuje con la fuente de verdad y no con una aproximación.
+            'fuentes' => collect(Marca::fuentes())->map(fn ($f, $clave) => [
+                'clave'  => $clave,
+                'nombre' => $f['nombre'],
+                'pila'   => $f['pila'],
+                'nota'   => $f['nota'],
+            ])->values(),
         ]);
     }
 
@@ -40,12 +49,15 @@ class MarcaController extends Controller
         $data = $request->validate([
             'color'  => ['required', 'string', 'regex:/^#[0-9A-Fa-f]{6}$/'],
             'titulo' => ['required', 'string', 'max:120'],
+            'fuente' => ['required', 'string', 'in:' . implode(',', array_keys(Marca::fuentes()))],
         ], [
             'color.regex' => 'El color debe venir en formato hexadecimal, por ejemplo #2563EB.',
+            'fuente.in'   => 'Esa tipografía no está entre las disponibles.',
         ]);
 
         Configuracion::set('marca_color', strtoupper($data['color']));
         Configuracion::set('marca_titulo', trim($data['titulo']));
+        Configuracion::set('marca_fuente', $data['fuente']);
 
         return back()->with('success', 'Identidad visual actualizada.');
     }

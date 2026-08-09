@@ -7,12 +7,20 @@ import { colorMarca } from '@/marca'
 const props = defineProps({
     marca:             { type: Object, default: () => ({}) },
     color_por_defecto: { type: String, default: colorMarca() },
+    fuentes:           { type: Array,  default: () => [] },
 })
 
 const form = useForm({
     color:  props.marca.color ?? props.color_por_defecto,
     titulo: props.marca.titulo ?? '{empresa}',
+    fuente: props.marca.fuente ?? 'sistema',
 })
+
+// La pila real de la tipografía elegida, para que la vista previa se dibuje con
+// la fuente de verdad y no con una aproximación.
+const pilaElegida = computed(
+    () => props.fuentes.find(f => f.clave === form.fuente)?.pila ?? 'inherit'
+)
 
 // La paleta que se está viendo en la vista previa. Arranca con la guardada y
 // se recalcula en el servidor cada vez que se mueve el selector, para que la
@@ -261,6 +269,39 @@ function ic(extra = '') {
                         <span class="text-xs text-gray-700 truncate">{{ tituloEjemplo }}</span>
                         <span class="text-gray-300 text-xs">✕</span>
                     </div>
+                </div>
+
+                <!-- ── Tipografía ─────────────────────────────────────────── -->
+                <div class="pt-4 border-t border-gray-200">
+                    <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Tipografía</p>
+                    <p class="text-xs text-gray-500 mt-1">
+                        La familia que se usa en toda la interfaz y en los documentos. Ninguna
+                        descarga archivos: son las que ya trae cada dispositivo, así que el
+                        sistema no depende de servidores ajenos para verse bien.
+                    </p>
+
+                    <div class="mt-3 space-y-2">
+                        <label
+                            v-for="f in fuentes"
+                            :key="f.clave"
+                            class="flex items-start gap-3 rounded-lg border p-3 cursor-pointer transition-colors"
+                            :class="form.fuente === f.clave
+                                ? 'border-[var(--marca)] bg-[var(--marca-suave)]'
+                                : 'border-gray-200 hover:border-gray-300'"
+                        >
+                            <input type="radio" v-model="form.fuente" :value="f.clave" class="mt-1 shrink-0"/>
+                            <span class="min-w-0">
+                                <span class="block text-sm font-semibold text-gray-800">{{ f.nombre }}</span>
+                                <span class="block text-xs text-gray-500 mt-0.5">{{ f.nota }}</span>
+                                <!-- Se dibuja con la pila real, así se ve tal como quedaría -->
+                                <span class="block mt-2 text-gray-800" :style="{ fontFamily: f.pila }">
+                                    Cotización 1042 · Cuarto frío 3×3 · $12.480.000
+                                </span>
+                            </span>
+                        </label>
+                    </div>
+
+                    <p v-if="form.errors.fuente" class="text-red-500 text-xs mt-2">{{ form.errors.fuente }}</p>
                 </div>
 
                 <div class="flex items-center gap-3 pt-1">

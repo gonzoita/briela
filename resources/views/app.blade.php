@@ -50,9 +50,13 @@
     <link rel="apple-touch-icon" sizes="192x192" href="/icons/icon-192.png">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet"/>
+    {{--
+        Sin fuentes de servidores ajenos. Antes se traía Figtree de un CDN, y en un
+        producto instalado en el servidor de cada cliente eso significa que la
+        tipografía deja de verse el día que ese servicio falla, además de reportarle
+        cada visita a un tercero. Ahora la tipografía la elige la empresa en Ajustes
+        y sale de la variable --fuente, con las que ya trae cada dispositivo.
+    --}}
 
     <!-- Vite -->
     @vite(['resources/js/app.js'])
@@ -61,9 +65,13 @@
     <style>
         .slide-up-enter-active,.slide-up-leave-active{transition:all .3s ease}
         .slide-up-enter-from,.slide-up-leave-to{transform:translateY(100px);opacity:0}
+
+        /* Texto más parejo en pantallas de alta densidad, como en las interfaces
+           de Apple: sin esto la tipografía del sistema se ve más gruesa en Mac. */
+        body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; text-rendering: optimizeLegibility; }
     </style>
 </head>
-<body class="font-sans antialiased bg-gray-50">
+<body class="font-sans antialiased bg-lienzo text-tinta-900">
     @inertia
 </body>
 </html>
