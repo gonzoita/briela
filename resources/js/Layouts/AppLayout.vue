@@ -613,7 +613,7 @@ onUnmounted(() => {
         ═══════════════════════════════════════════════════════════════════ -->
         <header
             class="hidden md:flex fixed top-0 left-64 right-0 z-30 items-center justify-between px-8 border-b border-linea"
-            style="height: 64px; background: rgba(255,255,255,.85); backdrop-filter: saturate(180%) blur(20px);"
+            style="height: 64px; background: var(--velo); backdrop-filter: saturate(180%) blur(20px);"
         >
             <!-- Título de la página -->
             <h1 class="text-[17px] font-semibold text-tinta-900 tracking-[-0.01em]">{{ title }}</h1>

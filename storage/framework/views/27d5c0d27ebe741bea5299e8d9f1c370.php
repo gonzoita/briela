@@ -20,8 +20,8 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="SGI">
-    <meta name="application-name" content="SGI">
+    <meta name="apple-mobile-web-app-title" content="<?php echo e($empresaNombre); ?>">
+    <meta name="application-name" content="<?php echo e($empresaNombre); ?>">
     <meta name="theme-color" content="<?php echo e($colorMarca); ?>">
     <meta name="msapplication-TileColor" content="<?php echo e($colorMarca); ?>">
     <meta name="msapplication-TileImage" content="/icons/icon-144.png">
@@ -68,16 +68,16 @@
            entero desplazando listas y seleccionando datos para copiarlos: la
            barra de scroll gruesa y la selección azul del navegador son dos de las
            cosas que más delatan una aplicación web genérica. */
-        * { scrollbar-width: thin; scrollbar-color: #D0D5DD transparent; }
+        * { scrollbar-width: thin; scrollbar-color: var(--scroll) transparent; }
         ::-webkit-scrollbar { width: 10px; height: 10px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb {
-            background: #D0D5DD;
+            background: var(--scroll);
             border-radius: 999px;
             border: 3px solid transparent;
             background-clip: content-box;
         }
-        ::-webkit-scrollbar-thumb:hover { background: #98A2B3; background-clip: content-box; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--scroll-hover); background-clip: content-box; }
 
         ::selection { background: var(--marca-medio); color: var(--texto); }
 

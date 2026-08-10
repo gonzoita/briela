@@ -242,6 +242,12 @@ class Marca
                 'texto-ambar'   => '#93370D',
                 'texto-rojo'    => '#B42318',
                 'texto-violeta' => '#5925DC',
+                // El velo de las barras fijas, que van translúcidas con desenfoque.
+                // Tiene que teñir del color del tema: un velo blanco sobre el fondo
+                // de noche deja una banda clara arriba de la pantalla.
+                'velo'         => 'rgba(255,255,255,.85)',
+                'scroll'       => '#D0D5DD',
+                'scroll-hover' => '#98A2B3',
             ],
             'oscuro' => [
                 // Grises con un asomo de azul, no negro puro: el negro absoluto
@@ -281,6 +287,9 @@ class Marca
                 'texto-ambar'   => '#FEC84B',
                 'texto-rojo'    => '#FDA29B',
                 'texto-violeta' => '#BDB4FE',
+                'velo'         => 'rgba(28,32,41,.85)',
+                'scroll'       => '#3B4454',
+                'scroll-hover' => '#55617A',
             ],
         ];
     }
