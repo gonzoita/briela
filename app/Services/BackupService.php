@@ -305,9 +305,18 @@ class BackupService
             throw new \RuntimeException("No se pudo escribir en {$rutaDestino}. Revisa los permisos de la carpeta.");
         }
 
+        $pdo = DB::getPdo();
+
         try {
-            fwrite($fh, "-- SGI Backup ({$dbName})\n");
+            fwrite($fh, "-- Briela · respaldo de {$dbName}\n");
             fwrite($fh, '-- Generado: ' . now()->toDateTimeString() . "\n\n");
+
+            // La codificación es lo primero, y es lo que faltaba: sin esta línea,
+            // un cliente que asuma latin1 al restaurar convierte las tildes y las
+            // ñ en caracteres rotos, y el daño solo se ve cuando alguien abre la
+            // ficha de un cliente y su nombre está mal escrito.
+            fwrite($fh, "SET NAMES utf8mb4;\n");
+            fwrite($fh, "SET SQL_MODE='NO_AUTO_VALUE_ON_ZERO';\n");
             fwrite($fh, "SET FOREIGN_KEY_CHECKS=0;\n\n");
 
             $tablas = DB::select('SHOW TABLES');
@@ -320,17 +329,37 @@ class BackupService
                 fwrite($fh, "DROP TABLE IF EXISTS `{$t}`;\n");
                 fwrite($fh, $create[0]->{'Create Table'} . ";\n\n");
 
-                $escribirBloque = function ($filas) use ($fh, $t) {
+                // Qué columnas guardan binario. Un valor binario entre comillas
+                // no sobrevive al viaje: se escribe en hexadecimal.
+                $binarias = [];
+                foreach (DB::select("SHOW COLUMNS FROM `{$t}`") as $col) {
+                    $tipo = strtolower($col->Type);
+                    if (str_contains($tipo, 'blob') || str_contains($tipo, 'binary')) {
+                        $binarias[$col->Field] = true;
+                    }
+                }
+
+                $escribirBloque = function ($filas) use ($fh, $t, $pdo, $binarias) {
                     if ($filas->isEmpty()) {
                         return;
                     }
 
                     $columnas = '`' . implode('`, `', array_keys((array) $filas->first())) . '`';
-                    $valores  = $filas->map(function ($fila) {
-                        $escapados = array_map(
-                            fn ($v) => is_null($v) ? 'NULL' : "'" . addslashes((string) $v) . "'",
-                            (array) $fila
-                        );
+                    $valores  = $filas->map(function ($fila) use ($pdo, $binarias) {
+                        $escapados = [];
+
+                        foreach ((array) $fila as $campo => $v) {
+                            if ($v === null) {
+                                $escapados[] = 'NULL';
+                            } elseif (isset($binarias[$campo])) {
+                                $escapados[] = '0x' . bin2hex((string) $v);
+                            } else {
+                                // quote() del propio PDO en vez de addslashes:
+                                // escapa según la conexión y su juego de
+                                // caracteres, que es lo que addslashes no sabe.
+                                $escapados[] = $pdo->quote((string) $v);
+                            }
+                        }
 
                         return '(' . implode(', ', $escapados) . ')';
                     });
