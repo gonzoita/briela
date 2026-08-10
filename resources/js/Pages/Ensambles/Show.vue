@@ -106,7 +106,7 @@ const variablesEntries = Object.entries(props.ensamble.variables ?? {})
                 <h2 class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-3">Variables configuradas</h2>
                 <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
                     <div v-for="[k, v] in variablesEntries" :key="k"
-                        class="p-3 rounded-xl" style="background:#F8F9FA;">
+                        class="p-3 rounded-xl" style="background:var(--superficie-2);">
                         <p class="text-xs text-tinta-300 font-mono">{{ k }}</p>
                         <p class="text-sm font-semibold text-tinta-900 mt-0.5">{{ v === true ? 'Sí' : v === false ? 'No' : v }}</p>
                     </div>
@@ -150,19 +150,19 @@ const variablesEntries = Object.entries(props.ensamble.variables ?? {})
             <div class="bg-superficie rounded-2xl shadow-sm p-5 mb-4">
                 <h2 class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-3">Precios por canal</h2>
                 <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                    <div class="p-4 rounded-xl text-center" style="background:#F8F9FA;">
+                    <div class="p-4 rounded-xl text-center" style="background:var(--superficie-2);">
                         <p class="text-xs text-tinta-300 mb-1">Costo</p>
                         <p class="text-lg font-semibold text-tinta-700">${{ formatCOP(ensamble.precio_costo) }}</p>
                     </div>
-                    <div class="p-4 rounded-xl text-center" style="background:#F0F9FF;">
+                    <div class="p-4 rounded-xl text-center" style="background:var(--pastel-azul);">
                         <p class="text-xs text-tinta-300 mb-1">Mayorista</p>
                         <p class="text-lg font-semibold text-tinta-900">${{ formatCOP(ensamble.precio_mayorista) }}</p>
                     </div>
-                    <div class="p-4 rounded-xl text-center" style="background:#EFF6FF; border:2px solid #93C5FD;">
+                    <div class="p-4 rounded-xl text-center" style="background:var(--pastel-azul); border:2px solid #93C5FD;">
                         <p class="text-xs font-medium mb-1" style="color:#1D4ED8;">Distribuidor</p>
                         <p class="text-lg font-semibold" style="color:#1D4ED8;">${{ formatCOP(ensamble.precio_distribuidor) }}</p>
                     </div>
-                    <div class="p-4 rounded-xl text-center" style="background:#F0FDF4;">
+                    <div class="p-4 rounded-xl text-center" style="background:var(--pastel-verde);">
                         <p class="text-xs text-tinta-300 mb-1">Cliente final</p>
                         <p class="text-lg font-semibold text-tinta-900">${{ formatCOP(ensamble.precio_cliente_final) }}</p>
                     </div>

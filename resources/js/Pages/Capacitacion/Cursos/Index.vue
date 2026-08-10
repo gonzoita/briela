@@ -69,7 +69,7 @@ function eliminar(curso) {
                     class="bg-superficie rounded-2xl shadow-sm overflow-hidden cursor-pointer active:scale-[0.98] transition-transform"
                     :class="{ 'opacity-50': !c.activo }"
                     @click="router.visit(`/capacitacion/cursos/${c.id}`)">
-                    <div class="aspect-video overflow-hidden" style="background:#F1F5F9;">
+                    <div class="aspect-video overflow-hidden" style="background:var(--superficie-2);">
                         <img v-if="c.imagen_portada" :src="c.imagen_portada" :alt="c.titulo" class="w-full h-full object-cover"/>
                         <div v-else class="w-full h-full flex items-center justify-center text-white text-3xl font-semibold" style="background:var(--marca);">
                             {{ inicial(c.titulo) }}
@@ -87,7 +87,7 @@ function eliminar(curso) {
                         <div class="flex items-center justify-between" @click.stop>
                             <button @click="toggleActivo(c)"
                                 class="relative inline-flex h-5 w-9 items-center rounded-full transition-colors shrink-0"
-                                :style="c.activo ? 'background:var(--marca);' : 'background:#D1D5DB;'">
+                                :style="c.activo ? 'background:var(--marca);' : 'background:var(--tinta-200);'">
                                 <span class="inline-block h-4 w-4 transform rounded-full bg-superficie transition-transform"
                                     :style="c.activo ? 'transform:translateX(18px);' : 'transform:translateX(2px);'"/>
                             </button>

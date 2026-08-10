@@ -55,7 +55,7 @@ const cerrarQR = async () => {
 <template>
     <Head title="Seguimiento de pedido" />
 
-    <div class="min-h-screen flex flex-col" style="background: #F8F9FA;">
+    <div class="min-h-screen flex flex-col" style="background: var(--superficie-2);">
         <!-- Header -->
         <header class="flex flex-col items-center pt-12 pb-8 px-6">
             <img
@@ -73,7 +73,7 @@ const cerrarQR = async () => {
             <div
                 v-if="flash?.error"
                 class="mb-4 px-4 py-3 rounded-xl text-sm text-red-800"
-                style="background: #FEE2E2; border-left: 4px solid #EF4444;"
+                style="background: var(--pastel-rojo); border-left: 4px solid #EF4444;"
             >
                 {{ flash.error }}
             </div>

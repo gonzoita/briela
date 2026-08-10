@@ -22,7 +22,7 @@ const badgeItem = (e) => ESTADOS_ITEM[e] ?? ESTADOS_ITEM.pendiente
 </script>
 
 <template>
-    <div class="min-h-screen" style="background:#F8F9FA;">
+    <div class="min-h-screen" style="background:var(--superficie-2);">
         <!-- Header -->
         <div style="background:var(--marca);" class="px-4 py-4">
             <div class="max-w-xl mx-auto flex items-center justify-between">

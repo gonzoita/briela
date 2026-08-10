@@ -368,7 +368,7 @@ onMounted(() => {
             <!-- Badge cambios sin guardar -->
             <div v-if="hasChanges"
                 class="mb-3 inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold text-orange-700"
-                style="background:#FEF3C7; border:1px solid #F59E0B;">
+                style="background:var(--pastel-ambar); border:1px solid #F59E0B;">
                 ● Cambios sin guardar
             </div>
 
@@ -605,8 +605,8 @@ onMounted(() => {
                 <div class="mt-4 pt-4 border-t border-linea grid grid-cols-3 gap-3">
                     <div class="text-center p-3 rounded-xl transition-all"
                         :style="margenesActuales.por_defecto === 'mayorista'
-                            ? 'background:#EFF6FF; border:2px solid #93C5FD;'
-                            : 'background:#F0F9FF;'">
+                            ? 'background:var(--pastel-azul); border:2px solid #93C5FD;'
+                            : 'background:var(--pastel-azul);'">
                         <p class="text-xs mb-1"
                            :style="margenesActuales.por_defecto === 'mayorista' ? 'color:#1D4ED8; font-weight:500;' : 'color:#6B7280;'">
                             Mayorista ({{ margenesActuales.mayorista }}%)
@@ -618,8 +618,8 @@ onMounted(() => {
                     </div>
                     <div class="text-center p-3 rounded-xl transition-all"
                         :style="margenesActuales.por_defecto === 'distribuidor' || !['mayorista','cliente_final'].includes(margenesActuales.por_defecto)
-                            ? 'background:#EFF6FF; border:2px solid #93C5FD;'
-                            : 'background:#F0F9FF;'">
+                            ? 'background:var(--pastel-azul); border:2px solid #93C5FD;'
+                            : 'background:var(--pastel-azul);'">
                         <p class="text-xs mb-1"
                            :style="margenesActuales.por_defecto === 'distribuidor' || !['mayorista','cliente_final'].includes(margenesActuales.por_defecto) ? 'color:#1D4ED8; font-weight:500;' : 'color:#6B7280;'">
                             Distribuidor ({{ margenesActuales.distribuidor }}%)
@@ -631,8 +631,8 @@ onMounted(() => {
                     </div>
                     <div class="text-center p-3 rounded-xl transition-all"
                         :style="margenesActuales.por_defecto === 'cliente_final'
-                            ? 'background:#EFF6FF; border:2px solid #93C5FD;'
-                            : 'background:#F0FDF4;'">
+                            ? 'background:var(--pastel-azul); border:2px solid #93C5FD;'
+                            : 'background:var(--pastel-verde);'">
                         <p class="text-xs mb-1"
                            :style="margenesActuales.por_defecto === 'cliente_final' ? 'color:#1D4ED8; font-weight:500;' : 'color:#6B7280;'">
                             Cliente final ({{ margenesActuales.cliente_final }}%)

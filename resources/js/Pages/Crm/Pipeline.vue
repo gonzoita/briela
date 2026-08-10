@@ -277,7 +277,7 @@ function getCookie(name) {
                         v-for="etapa in etapas"
                         :key="etapa.id"
                         class="flex flex-col rounded-xl"
-                        style="width: 280px; background: #F3F4F6;"
+                        style="width: 280px; background: var(--superficie-2);"
                         @dragover.prevent
                         @drop="onDrop($event, etapa.id)"
                     >

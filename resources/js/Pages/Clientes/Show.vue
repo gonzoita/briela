@@ -154,7 +154,7 @@ function eliminar() {
                 <div v-if="contactos.length > 0" class="space-y-3">
                     <div v-for="c in contactos" :key="c.id"
                          class="flex items-start gap-3 p-3 rounded-xl border"
-                         :style="c.es_principal ? 'border-color: var(--marca); background: #EFF6FF;' : 'border-color: #F3F4F6; background: #FAFAFA;'">
+                         :style="c.es_principal ? 'border-color: var(--marca); background: var(--pastel-azul);' : 'border-color: #F3F4F6; background: var(--superficie-2);'">
                         <div class="w-9 h-9 rounded-full flex items-center justify-center text-sm font-semibold text-white flex-shrink-0"
                              :style="c.es_principal ? 'background:var(--marca);' : 'background:#9CA3AF;'">
                             {{ (c.nombre[0] ?? '') + (c.apellido?.[0] ?? '') || c.nombre.substring(0,2).toUpperCase() }}
@@ -164,7 +164,7 @@ function eliminar() {
                                 <p class="text-sm font-semibold text-tinta-900">{{ c.nombre }} {{ c.apellido }}</p>
                                 <span v-if="c.es_principal"
                                     class="text-xs px-1.5 py-0.5 rounded-full font-medium"
-                                    style="background:#DBEAFE; color:#1D4ED8;">
+                                    style="background:var(--pastel-azul-2); color:#1D4ED8;">
                                     Principal
                                 </span>
                             </div>
@@ -194,7 +194,7 @@ function eliminar() {
                     <a v-for="a in archivos" :key="a.id"
                        :href="a.url" target="_blank"
                        class="flex items-center gap-3 p-2.5 rounded-lg border border-linea hover:bg-tinta-50 transition-colors">
-                        <div class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style="background:#EFF6FF;">
+                        <div class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style="background:var(--pastel-azul);">
                             <svg class="w-4 h-4" style="color:var(--marca);" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
                             </svg>

@@ -159,7 +159,7 @@ function toggleAbierto(key) {
                             <div v-for="op in (opciones[tipo.key] ?? [])" :key="op.id">
                                 <!-- Modo edición inline -->
                                 <div v-if="editando.id === op.id"
-                                    class="flex items-center gap-2 p-2 rounded-lg border-2" style="border-color:var(--marca); background:#F0F7FF;">
+                                    class="flex items-center gap-2 p-2 rounded-lg border-2" style="border-color:var(--marca); background:var(--pastel-azul);">
                                     <input v-model="editando.etiqueta" type="text"
                                         class="flex-1 text-sm border border-tinta-200 rounded-lg px-2 py-1 focus:outline-none focus:border-[var(--marca)]"
                                         @keyup.enter="guardarEdicion" @keyup.escape="cancelarEdicion" />
@@ -203,7 +203,7 @@ function toggleAbierto(key) {
 
                         <!-- Formulario nueva opción -->
                         <div v-if="formNuevo[tipo.key]"
-                            class="flex items-center gap-2 p-2 rounded-lg border-2 border-dashed" style="border-color:var(--marca); background:#F0F7FF;">
+                            class="flex items-center gap-2 p-2 rounded-lg border-2 border-dashed" style="border-color:var(--marca); background:var(--pastel-azul);">
                             <input v-model="formNuevo[tipo.key].etiqueta" type="text" placeholder="Etiqueta..."
                                 class="flex-1 text-sm border border-tinta-200 rounded-lg px-2 py-1 focus:outline-none focus:border-[var(--marca)]"
                                 @keyup.enter="guardarNuevo(tipo.key)" @keyup.escape="cancelarNuevo(tipo.key)"

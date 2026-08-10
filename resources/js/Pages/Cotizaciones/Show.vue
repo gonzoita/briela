@@ -237,10 +237,10 @@ function marcarEnviada() {
             <!-- Comisión del vendedor: visible siempre aquí para no tener que ir a buscarla a otra página -->
             <div class="mb-5 inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold"
                 :style="!cot.comision || !cot.comision.total_comision
-                    ? 'background:#F3F4F6;color:#6B7280;'
+                    ? 'background:var(--superficie-2);color:#6B7280;'
                     : cot.comision.estado === 'confirmada'
-                        ? 'background:#D1FAE5;color:#065F46;'
-                        : 'background:#FEF3C7;color:#92400E;'">
+                        ? 'background:var(--pastel-verde);color:#065F46;'
+                        : 'background:var(--pastel-ambar);color:#92400E;'">
                 <template v-if="cot.comision && cot.comision.total_comision > 0">
                     Comisión: {{ cot.comision.estado === 'confirmada' ? 'Confirmada' : 'Proyectada' }}
                     — ${{ new Intl.NumberFormat('es-CO', { maximumFractionDigits: 0 }).format(cot.comision.total_comision) }}
@@ -378,7 +378,7 @@ function marcarEnviada() {
                 <div class="flex items-center justify-between mb-3">
                     <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">Seguimiento</p>
                     <span v-if="diasSinRespuestaLocal >= 5"
-                        class="text-xs px-2 py-0.5 rounded-full font-semibold" style="background:#FEF3C7;color:#92400E;">
+                        class="text-xs px-2 py-0.5 rounded-full font-semibold" style="background:var(--pastel-ambar);color:#92400E;">
                         ⚠ {{ diasSinRespuestaLocal }} días sin respuesta
                     </span>
                 </div>

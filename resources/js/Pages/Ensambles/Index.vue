@@ -169,7 +169,7 @@ function inicial(nombre) {
                 <div v-for="e in ensambles.data" :key="e.id"
                     class="bg-superficie rounded-2xl shadow-sm overflow-hidden cursor-pointer active:scale-[0.98] transition-transform"
                     @click="router.visit(`/ensambles/${e.id}`)">
-                    <div class="aspect-square overflow-hidden" style="background:#F1F5F9;">
+                    <div class="aspect-square overflow-hidden" style="background:var(--superficie-2);">
                         <img v-if="e.imagen_principal" :src="urlImagen(e.imagen_principal)" :alt="e.nombre" class="w-full h-full object-cover"/>
                         <div v-else class="w-full h-full flex items-center justify-center text-white text-3xl font-semibold"
                             :style="`background:${e.categoria_color ?? 'var(--marca)'};`">

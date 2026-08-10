@@ -1268,7 +1268,7 @@ const badgesTipo = {
                         <!-- Editor inline de campo -->
                         <div v-if="editandoCampo !== null"
                             :class="['border-t p-4 space-y-3', campoBorrador.tipo_campo === 'calculado' ? 'border-purple-100' : campoBorrador.tipo_campo === 'variable_instancia' ? 'border-amber-100' : 'border-blue-100']"
-                            :style="campoBorrador.tipo_campo === 'calculado' ? 'background:#FAF5FF;' : campoBorrador.tipo_campo === 'variable_instancia' ? 'background:#FFFBEB;' : 'background:#F0F7FF;'">
+                            :style="campoBorrador.tipo_campo === 'calculado' ? 'background:var(--pastel-violeta);' : campoBorrador.tipo_campo === 'variable_instancia' ? 'background:var(--pastel-ambar);' : 'background:var(--pastel-azul);'">
 
                             <div class="flex items-center justify-between">
                                 <p :class="['text-xs font-semibold uppercase', campoBorrador.tipo_campo === 'calculado' ? 'text-purple-700' : campoBorrador.tipo_campo === 'variable_instancia' ? 'text-amber-700' : 'text-blue-700']">
@@ -1546,7 +1546,7 @@ const badgesTipo = {
                                 <span class="text-xs text-blue-500">{{ ayudaVisible ? '▲ Ocultar' : '▼ Ver' }}</span>
                             </button>
 
-                            <div v-if="ayudaVisible" class="px-4 pb-5 pt-2 text-xs text-tinta-700 space-y-4" style="background:#EFF6FF; border-left: 3px solid var(--marca);">
+                            <div v-if="ayudaVisible" class="px-4 pb-5 pt-2 text-xs text-tinta-700 space-y-4" style="background:var(--pastel-azul); border-left: 3px solid var(--marca);">
 
                                 <!-- 1. Producto -->
                                 <div class="space-y-1">
@@ -1793,7 +1793,7 @@ const badgesTipo = {
                                     </div>
 
                                     <!-- INLINE EDIT row -->
-                                    <div v-else class="border-t border-[var(--marca-borde)] p-4 space-y-3" style="background:#F5F3FF;">
+                                    <div v-else class="border-t border-[var(--marca-borde)] p-4 space-y-3" style="background:var(--pastel-violeta);">
                                     <div class="flex items-center justify-between">
                                         <p class="text-xs font-semibold text-[var(--marca)] uppercase">Editar componente</p>
                                         <button @click="cancelarComponente" class="w-6 h-6 rounded-full flex items-center justify-center text-tinta-300 hover:bg-[var(--marca-suave)] text-sm leading-none">✕</button>
@@ -2022,7 +2022,7 @@ const badgesTipo = {
                                 @dragover.prevent="dragCompId !== null && (dropCompTarget = null)"
                                 @drop.prevent="onDropComp($event, null)">
 
-                                <div class="px-4 py-2 flex items-center gap-2 cursor-pointer select-none" style="background:#F9FAFB;"
+                                <div class="px-4 py-2 flex items-center gap-2 cursor-pointer select-none" style="background:var(--superficie-2);"
                                     @click="toggleSeccion('__sin__')">
                                     <span class="text-xs font-semibold text-tinta-400 uppercase tracking-wide">Sin sección</span>
                                     <span class="text-xs bg-tinta-200 text-tinta-500 px-1.5 py-0.5 rounded-full font-medium leading-none">{{ componentesSinSeccion.length }}</span>
@@ -2081,7 +2081,7 @@ const badgesTipo = {
                                     </div>
 
                                     <!-- EDIT row sin sección -->
-                                    <div v-else class="border-t border-[var(--marca-borde)] p-4 space-y-3" style="background:#F5F3FF;">
+                                    <div v-else class="border-t border-[var(--marca-borde)] p-4 space-y-3" style="background:var(--pastel-violeta);">
                                         <div class="flex items-center justify-between">
                                             <p class="text-xs font-semibold text-[var(--marca)] uppercase">Editar componente</p>
                                             <button @click="cancelarComponente" class="w-6 h-6 rounded-full flex items-center justify-center text-tinta-300 hover:bg-[var(--marca-suave)] text-sm leading-none">✕</button>
@@ -2195,7 +2195,7 @@ const badgesTipo = {
                         </div>
 
                         <!-- Nuevo componente (bottom) -->
-                        <div v-if="editandoComponente === 'nuevo'" class="border-t border-[var(--marca-borde)] p-4 space-y-3" style="background:#F5F3FF;">
+                        <div v-if="editandoComponente === 'nuevo'" class="border-t border-[var(--marca-borde)] p-4 space-y-3" style="background:var(--pastel-violeta);">
                             <p class="text-xs font-semibold text-[var(--marca)] uppercase">Nuevo componente</p>
 
                             <div class="relative">

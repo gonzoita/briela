@@ -161,7 +161,7 @@ function guardar() {
                     >
                         <!-- Ícono -->
                         <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
-                            :style="fuente === f.key ? 'background-color:var(--marca)' : 'background:#F3F4F6'">
+                            :style="fuente === f.key ? 'background-color:var(--marca)' : 'background:var(--superficie-2)'">
                             <!-- clipboard -->
                             <svg v-if="f.icon === 'clipboard'" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6"
                                 :style="fuente === f.key ? 'color:white' : 'color:#6B7280'">
@@ -375,7 +375,7 @@ function guardar() {
                         <button
                             @click="publico = !publico"
                             class="relative w-11 h-6 rounded-full transition-colors"
-                            :style="publico ? 'background-color:var(--marca)' : 'background-color:#D1D5DB'"
+                            :style="publico ? 'background-color:var(--marca)' : 'background-color:var(--tinta-200)'"
                         >
                             <span
                                 class="absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-superficie shadow-sm transition-transform"

@@ -332,7 +332,7 @@ const precioMostrar = (p) => {
                 @click="form.es_vendible = form.es_vendible ? '' : '1'; form.es_insumo = ''; filtrar()"
                 class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-medium whitespace-nowrap border transition-colors shrink-0"
                 :style="form.es_vendible
-                    ? 'background:#DBEAFE; color:#1D4ED8; border-color:#BFDBFE;'
+                    ? 'background:var(--pastel-azul-2); color:#1D4ED8; border-color:#BFDBFE;'
                     : 'background:white; color:#374151; border-color:#E5E7EB;'"
             >
                 <span>Vendible</span>
@@ -341,7 +341,7 @@ const precioMostrar = (p) => {
                 @click="form.es_insumo = form.es_insumo ? '' : '1'; form.es_vendible = ''; filtrar()"
                 class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-medium whitespace-nowrap border transition-colors shrink-0"
                 :style="form.es_insumo
-                    ? 'background:#FEF3C7; color:#B45309; border-color:#FDE68A;'
+                    ? 'background:var(--pastel-ambar); color:#B45309; border-color:#FDE68A;'
                     : 'background:white; color:#374151; border-color:#E5E7EB;'"
             >
                 <span>Insumo</span>
@@ -373,7 +373,7 @@ const precioMostrar = (p) => {
         </div>
 
         <!-- ── Barra de búsqueda ───────────────────────────────────────────── -->
-        <div class="sticky z-20 -mx-4 px-4 py-2 mb-4" style="top: 56px; background: #F8F9FA;">
+        <div class="sticky z-20 -mx-4 px-4 py-2 mb-4" style="top: 56px; background: var(--superficie-2);">
             <div class="flex items-center gap-2">
                 <div class="flex-1 relative">
                     <input
@@ -406,7 +406,7 @@ const precioMostrar = (p) => {
         <div v-else-if="viewMode === 'list'" class="bg-superficie rounded-2xl shadow-sm overflow-hidden">
             <table class="w-full text-sm">
                 <thead>
-                    <tr style="background:#F8FAFC; border-bottom:1px solid #E5E7EB;">
+                    <tr style="background:var(--superficie-2); border-bottom:1px solid #E5E7EB;">
                         <th class="text-left px-4 py-3 text-xs font-semibold text-tinta-400 uppercase w-12"></th>
                         <th class="text-left px-4 py-3 text-xs font-semibold text-tinta-400 uppercase">Nombre</th>
                         <th class="hidden sm:table-cell text-left px-3 py-3 text-xs font-semibold text-tinta-400 uppercase">Referencia</th>
@@ -424,14 +424,14 @@ const precioMostrar = (p) => {
                     >
                         <!-- Imagen / chevron -->
                         <td class="px-4 py-2.5">
-                            <div v-if="p.es_padre" class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style="background:#F1F5F9;">
+                            <div v-if="p.es_padre" class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style="background:var(--superficie-2);">
                                 <svg class="w-4 h-4 text-tinta-400 transition-transform"
                                     :style="padresExpandidos.has(p.id) ? 'transform:rotate(90deg);' : ''"
                                     fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
                                 </svg>
                             </div>
-                            <div v-else class="w-10 h-10 rounded-xl overflow-hidden shrink-0" style="background:#F1F5F9;">
+                            <div v-else class="w-10 h-10 rounded-xl overflow-hidden shrink-0" style="background:var(--superficie-2);">
                                 <img v-if="p.imagen_url" :src="p.imagen_url" :alt="p.nombre" class="w-full h-full object-cover"/>
                                 <div v-else class="w-full h-full flex items-center justify-center text-white text-xs font-semibold" style="background:var(--marca);">
                                     {{ p.nombre.charAt(0).toUpperCase() }}
@@ -446,13 +446,13 @@ const precioMostrar = (p) => {
                                     :style="{ background: badgeStyle(p.tipo_color).bg, color: badgeStyle(p.tipo_color).text }">
                                     {{ p.tipo_label }}
                                 </span>
-                                <span v-if="p.es_padre" class="text-xs font-medium px-1.5 py-0.5 rounded-full" style="background:#EDE9FE;color:#6D28D9;">
+                                <span v-if="p.es_padre" class="text-xs font-medium px-1.5 py-0.5 rounded-full" style="background:var(--pastel-violeta);color:#6D28D9;">
                                     {{ p.variantes?.length ?? 0 }} variante{{ (p.variantes?.length ?? 0) === 1 ? '' : 's' }}
                                 </span>
-                                <span v-if="p.es_vendible" class="text-xs font-medium px-1.5 py-0.5 rounded-full" style="background:#DBEAFE;color:#1D4ED8;">
+                                <span v-if="p.es_vendible" class="text-xs font-medium px-1.5 py-0.5 rounded-full" style="background:var(--pastel-azul-2);color:#1D4ED8;">
                                     Vendible
                                 </span>
-                                <span v-if="p.es_insumo" class="text-xs font-medium px-1.5 py-0.5 rounded-full" style="background:#FEF3C7;color:#B45309;">
+                                <span v-if="p.es_insumo" class="text-xs font-medium px-1.5 py-0.5 rounded-full" style="background:var(--pastel-ambar);color:#B45309;">
                                     Insumo
                                 </span>
                                 <button v-if="p.es_padre" @click.stop="router.visit(`/productos/${p.id}/editar`)"
@@ -502,7 +502,7 @@ const precioMostrar = (p) => {
                     <!-- Filas de variantes (indentadas) -->
                     <tr v-if="p.es_padre && padresExpandidos.has(p.id)" v-for="v in p.variantes" :key="`v-${v.id}`"
                         class="cursor-pointer transition-colors hover:bg-blue-50/40"
-                        style="background:#FAFBFC;"
+                        style="background:var(--superficie-2);"
                         @click="router.visit(`/productos/${v.id}`)"
                     >
                         <td></td>
@@ -510,7 +510,7 @@ const precioMostrar = (p) => {
                             <div class="flex items-center gap-2">
                                 <span class="text-tinta-200">↳</span>
                                 <span class="text-sm text-tinta-700">{{ v.nombre }}</span>
-                                <span class="text-xs font-medium px-1.5 py-0.5 rounded-full" style="background:#EDE9FE;color:#6D28D9;">
+                                <span class="text-xs font-medium px-1.5 py-0.5 rounded-full" style="background:var(--pastel-violeta);color:#6D28D9;">
                                     {{ v.valor_variante }}
                                 </span>
                             </div>
@@ -544,7 +544,7 @@ const precioMostrar = (p) => {
                 class="bg-superficie rounded-2xl shadow-sm overflow-hidden cursor-pointer active:scale-[0.98] transition-transform"
                 @click="p.es_padre ? toggleExpandido(p.id) : router.visit(`/productos/${p.id}`)"
             >
-                <div class="aspect-square relative overflow-hidden" style="background: #F1F5F9;">
+                <div class="aspect-square relative overflow-hidden" style="background: var(--superficie-2);">
                     <img v-if="p.imagen_url" :src="p.imagen_url" :alt="p.nombre" class="w-full h-full object-cover"/>
                     <div v-else class="w-full h-full flex items-center justify-center">
                         <span class="text-3xl font-semibold text-white rounded-full flex items-center justify-center"
@@ -565,7 +565,7 @@ const precioMostrar = (p) => {
                         {{ p.categoria_nombre }}
                     </span>
                     <template v-if="p.es_padre">
-                        <span class="inline-block text-xs font-semibold px-2 py-0.5 rounded-full" style="background:#EDE9FE;color:#6D28D9;">
+                        <span class="inline-block text-xs font-semibold px-2 py-0.5 rounded-full" style="background:var(--pastel-violeta);color:#6D28D9;">
                             {{ p.variantes?.length ?? 0 }} variante{{ (p.variantes?.length ?? 0) === 1 ? '' : 's' }}
                         </span>
                         <p class="text-xs text-tinta-300 mt-1">Toca para ver variantes</p>
@@ -659,7 +659,7 @@ const precioMostrar = (p) => {
                         </button>
                     </div>
 
-                    <div v-if="catEditando !== null" class="rounded-2xl p-4 space-y-3 border border-linea" style="background:#F8F9FA;">
+                    <div v-if="catEditando !== null" class="rounded-2xl p-4 space-y-3 border border-linea" style="background:var(--superficie-2);">
                         <p class="text-xs font-semibold text-tinta-400 uppercase tracking-wide">
                             {{ catEditando === 'nueva' ? 'Nueva categoría' : 'Editar categoría' }}
                         </p>

@@ -20,7 +20,7 @@ const submit = () => {
 <template>
     <Head title="Portal de Capacitación" />
 
-    <div class="min-h-screen flex flex-col items-center justify-center px-4 py-10" style="background-color: #F8F9FA;">
+    <div class="min-h-screen flex flex-col items-center justify-center px-4 py-10" style="background-color: var(--superficie-2);">
         <div class="w-full max-w-sm">
 
             <!-- Logo -->

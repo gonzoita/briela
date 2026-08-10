@@ -90,10 +90,23 @@ function restaurarColor() {
 const faviconUrl = ref(props.marca.favicon_url ?? '')
 const logoUrl    = ref(props.marca.logo_url ?? '')
 
-const subiendo = ref({ favicon: false, logo: false })
-const errores  = ref({ favicon: '', logo: '' })
+// Versiones para el modo de noche. Un logo con el texto oscuro desaparece sobre
+// fondo oscuro, y como es una imagen no hay CSS que lo arregle: se sube aparte.
+const logoOscuroUrl    = ref(props.marca.logo_oscuro_url ?? '')
+const faviconOscuroUrl = ref(props.marca.favicon_oscuro_url ?? '')
 
-const urls = { favicon: faviconUrl, logo: logoUrl }
+const subiendo = ref({ favicon: false, logo: false, logo_oscuro: false, favicon_oscuro: false })
+const errores  = ref({ favicon: '', logo: '', logo_oscuro: '', favicon_oscuro: '' })
+
+const urls = {
+    favicon: faviconUrl,
+    logo: logoUrl,
+    logo_oscuro: logoOscuroUrl,
+    favicon_oscuro: faviconOscuroUrl,
+}
+
+// Las rutas de subida usan guion, no guion bajo.
+const rutaDe = (cual) => cual.replace('_', '-')
 
 function abrirSelector(cual) {
     document.getElementById(`input-${cual}`)?.click()
@@ -110,7 +123,7 @@ async function subirImagen(e, cual) {
         const datos = new FormData()
         datos.append(cual, archivo)
 
-        const resp = await fetch(`/configuracion/marca/${cual}`, {
+        const resp = await fetch(`/configuracion/marca/${rutaDe(cual)}`, {
             method: 'POST',
             headers: { 'Accept': 'application/json', 'X-XSRF-TOKEN': tokenCsrf() },
             body: datos,
@@ -135,7 +148,7 @@ async function subirImagen(e, cual) {
 }
 
 function quitarImagen(cual) {
-    router.delete(`/configuracion/marca/${cual}`, {
+    router.delete(`/configuracion/marca/${rutaDe(cual)}`, {
         preserveScroll: true,
         onSuccess: () => { urls[cual].value = '' },
     })
@@ -395,6 +408,50 @@ function ic(extra = '') {
                 </div>
 
                 <p v-if="errores.logo" class="text-red-500 text-xs">{{ errores.logo }}</p>
+            </div>
+
+            <!-- ── Versiones para el modo de noche ────────────────────────── -->
+            <div class="bg-superficie rounded-xl border border-linea p-4 space-y-4">
+                <div>
+                    <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">Para el modo de noche</p>
+                    <p class="text-xs text-tinta-400 mt-1">
+                        Opcional. Un logo con las letras oscuras desaparece sobre el fondo
+                        de noche, y al ser una imagen no hay forma de corregirlo desde el
+                        sistema. Sube aquí la versión clara y se usará sola cuando el modo
+                        de noche esté activo. Si no subes nada, se sigue usando la de día.
+                    </p>
+                </div>
+
+                <div v-for="cual in ['logo_oscuro', 'favicon_oscuro']" :key="cual" class="flex items-center gap-3">
+                    <!-- La vista previa va sobre fondo oscuro a propósito: es donde
+                         se va a ver, y así se comprueba de una que el logo se lee. -->
+                    <div class="w-28 h-14 rounded-lg border border-linea flex items-center justify-center shrink-0 overflow-hidden p-1"
+                         style="background:#1C2029;">
+                        <img v-if="urls[cual].value" :src="urls[cual].value" class="max-w-full max-h-full object-contain" :alt="cual"/>
+                        <span v-else class="text-[10px] text-tinta-300 text-center px-1">Sin versión</span>
+                    </div>
+
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-medium text-tinta-700">
+                            {{ cual === 'logo_oscuro' ? 'Logo de noche' : 'Favicon de noche' }}
+                        </p>
+                        <div class="flex flex-wrap gap-2 mt-1.5">
+                            <button type="button" @click="abrirSelector(cual)" :disabled="subiendo[cual]"
+                                class="rounded-lg border border-tinta-200 px-3 py-1.5 text-sm font-semibold text-tinta-700 hover:bg-tinta-50 disabled:opacity-50">
+                                {{ subiendo[cual] ? 'Subiendo…' : 'Subir' }}
+                            </button>
+                            <button v-if="urls[cual].value" type="button" @click="quitarImagen(cual)"
+                                class="rounded-lg px-3 py-1.5 text-sm font-semibold text-red-600 hover:bg-red-50">
+                                Quitar
+                            </button>
+                        </div>
+                        <p v-if="errores[cual]" class="text-red-500 text-xs mt-1">{{ errores[cual] }}</p>
+                    </div>
+
+                    <input :id="`input-${cual}`" type="file" class="hidden"
+                        accept="image/png,image/svg+xml,image/jpeg,image/webp"
+                        @change="e => subirImagen(e, cual)"/>
+                </div>
             </div>
         </div>
     </AppLayout>

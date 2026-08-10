@@ -326,7 +326,7 @@ async function limpiar() {
                 </div>
 
                 <!-- Conversación -->
-                <div ref="scroller" class="flex-1 overflow-y-auto p-3 space-y-2.5" style="background:#F8F9FA;">
+                <div ref="scroller" class="flex-1 overflow-y-auto p-3 space-y-2.5" style="background:var(--superficie-2);">
                     <div v-if="!mensajes.length" class="py-6 text-center">
                         <p class="text-sm font-medium text-tinta-700">Hola, soy {{ nombre }}</p>
                         <p class="text-xs text-tinta-300 mt-1 mb-3 px-4">

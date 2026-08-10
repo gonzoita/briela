@@ -19,7 +19,7 @@ function verificar() {
 <template>
     <Head title="Verificar certificado" />
 
-    <div class="min-h-screen flex flex-col" style="background:#F8F9FA;">
+    <div class="min-h-screen flex flex-col" style="background:var(--superficie-2);">
         <header class="flex flex-col items-center pt-12 pb-6 px-6">
             <img
                 :src="$page.props.marca.logo"
@@ -56,7 +56,7 @@ function verificar() {
             <!-- Resultado: válido -->
             <div v-if="certificado?.valido"
                 class="rounded-2xl p-6 mb-4"
-                style="background:#ECFDF5; border:1px solid #10B981;">
+                style="background:var(--pastel-verde); border:1px solid #10B981;">
                 <div class="flex items-center gap-2 mb-4">
                     <svg class="w-7 h-7" style="color:#065F46;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
@@ -86,7 +86,7 @@ function verificar() {
             <!-- Resultado: no encontrado -->
             <div v-else-if="noEncontrado"
                 class="rounded-2xl p-6 mb-4 text-center"
-                style="background:#FEF2F2; border:1px solid #EF4444;">
+                style="background:var(--pastel-rojo); border:1px solid #EF4444;">
                 <svg class="w-7 h-7 mx-auto mb-2" style="color:#991B1B;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
                 </svg>

@@ -53,7 +53,7 @@ const inicial = (t) => (t ?? '?').charAt(0).toUpperCase()
                             </p>
                         </div>
                         <span v-if="insc.fecha_limite" class="inline-block px-2 py-0.5 rounded-full text-xs font-semibold shrink-0"
-                            :style="diasRestantes(insc.fecha_limite) <= 3 ? 'background:#FEE2E2;color:#B91C1C;' : 'background:#FEF3C7;color:#92400E;'">
+                            :style="diasRestantes(insc.fecha_limite) <= 3 ? 'background:var(--pastel-rojo);color:#B91C1C;' : 'background:var(--pastel-ambar);color:#92400E;'">
                             {{ diasRestantes(insc.fecha_limite) >= 0 ? `${diasRestantes(insc.fecha_limite)}d restantes` : 'Vencido' }}
                         </span>
                     </div>
@@ -90,7 +90,7 @@ const inicial = (t) => (t ?? '?').charAt(0).toUpperCase()
                 <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
                     <div v-for="curso in catalogo" :key="curso.id"
                         class="bg-superficie rounded-2xl shadow-sm overflow-hidden">
-                        <div class="aspect-video overflow-hidden" style="background:#F1F5F9;">
+                        <div class="aspect-video overflow-hidden" style="background:var(--superficie-2);">
                             <img v-if="curso.imagen_portada" :src="curso.imagen_portada" :alt="curso.titulo" class="w-full h-full object-cover"/>
                             <div v-else class="w-full h-full flex items-center justify-center text-white text-2xl font-semibold" style="background:var(--marca);">
                                 {{ inicial(curso.titulo) }}
@@ -114,7 +114,7 @@ const inicial = (t) => (t ?? '?').charAt(0).toUpperCase()
                 <div class="space-y-2">
                     <div v-for="insc in completados" :key="insc.id"
                         class="bg-superficie rounded-2xl shadow-sm p-4 flex items-center gap-3">
-                        <div class="w-9 h-9 rounded-full flex items-center justify-center shrink-0 cursor-pointer" style="background:#D1FAE5;" @click="irACurso(insc.curso.id)">
+                        <div class="w-9 h-9 rounded-full flex items-center justify-center shrink-0 cursor-pointer" style="background:var(--pastel-verde);" @click="irACurso(insc.curso.id)">
                             <svg class="w-5 h-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
                             </svg>

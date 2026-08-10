@@ -105,7 +105,7 @@ function eliminarBackup(filename) {
         <div class="max-w-2xl mx-auto space-y-5 py-2">
 
             <!-- ── INFO ─────────────────────────────────────────────────────── -->
-            <div class="rounded-2xl border border-blue-200 p-5 space-y-3" style="background:#EFF6FF;">
+            <div class="rounded-2xl border border-blue-200 p-5 space-y-3" style="background:var(--pastel-azul);">
                 <div class="flex items-center gap-2 mb-1">
                     <svg class="w-4 h-4 shrink-0" style="color:var(--marca);" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
@@ -126,7 +126,7 @@ function eliminarBackup(filename) {
                         <span><strong>Restaurar:</strong> reemplaza <em>todos</em> los datos actuales con los del archivo <code class="font-mono text-xs bg-blue-100 px-1 rounded">.sql</code> que subas. Úsalo solo para recuperar datos perdidos o revertir un error grave.</span>
                     </li>
                 </ul>
-                <div class="flex gap-2 p-3 rounded-xl" style="background:#FEF3C7; border:1px solid #FDE68A;">
+                <div class="flex gap-2 p-3 rounded-xl" style="background:var(--pastel-ambar); border:1px solid #FDE68A;">
                     <svg class="w-4 h-4 text-amber-600 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
                     </svg>
@@ -251,7 +251,7 @@ function eliminarBackup(filename) {
                 <h2 class="text-sm font-semibold text-tinta-400 uppercase tracking-wide mb-3">Restaurar</h2>
 
                 <!-- Advertencia -->
-                <div class="flex gap-3 p-3 rounded-xl mb-4" style="background: #FFF7ED; border: 1px solid #FED7AA;">
+                <div class="flex gap-3 p-3 rounded-xl mb-4" style="background: var(--pastel-naranja); border: 1px solid #FED7AA;">
                     <svg class="w-5 h-5 text-orange-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                     </svg>
@@ -312,7 +312,7 @@ function eliminarBackup(filename) {
                         v-for="backup in backups"
                         :key="backup.filename"
                         class="flex items-center gap-3 px-4 py-3 rounded-xl"
-                        style="background: #F8F9FA;"
+                        style="background: var(--superficie-2);"
                     >
                         <svg class="w-5 h-5 text-tinta-300 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -350,7 +350,7 @@ function eliminarBackup(filename) {
                     <!-- Header -->
                     <div class="px-6 pt-6 pb-4">
                         <div class="flex items-center gap-3 mb-4">
-                            <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style="background: #FEF3C7;">
+                            <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style="background: var(--pastel-ambar);">
                                 <svg class="w-6 h-6 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                                 </svg>

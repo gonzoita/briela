@@ -585,14 +585,14 @@ function submit() {
             <!-- Badge cambios sin guardar -->
             <div v-if="hasChanges"
                 class="mb-3 inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold text-orange-700"
-                style="background:#FEF3C7; border:1px solid #F59E0B;">
+                style="background:var(--pastel-ambar); border:1px solid #F59E0B;">
                 ● Cambios sin guardar
             </div>
 
             <!-- Badge generada desde lead -->
             <div v-if="props.lead_preseleccionado && !esEdicion"
                 class="mb-3 inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold text-blue-700"
-                style="background:#DBEAFE; border:1px solid #93C5FD;">
+                style="background:var(--pastel-azul-2); border:1px solid #93C5FD;">
                 Generada automáticamente desde el lead: {{ props.lead_preseleccionado.titulo }}
             </div>
 
@@ -637,7 +637,7 @@ function submit() {
                             </div>
                             <div v-if="clienteSeleccionado"
                                 class="mt-2 flex items-center gap-3 px-3 py-2 rounded-xl"
-                                style="background:#EFF6FF; border:1px solid #BFDBFE;">
+                                style="background:var(--pastel-azul); border:1px solid #BFDBFE;">
                                 <svg class="w-4 h-4 shrink-0" style="color:var(--marca)" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
                                 </svg>
@@ -734,9 +734,9 @@ function submit() {
                                     </svg>
                                 </div>
                                 <!-- Badge tipo -->
-                                <span v-if="item.tipo === 'producto'" class="text-xs px-2 py-0.5 rounded-full font-medium shrink-0" style="background:#EFF6FF;color:#1D4ED8;">Producto</span>
-                                <span v-else-if="item.tipo === 'servicio'" class="text-xs px-2 py-0.5 rounded-full font-medium shrink-0" style="background:#ECFDF5;color:#065F46;">Servicio</span>
-                                <span v-else-if="item.tipo === 'ensamble'" class="text-xs px-2 py-0.5 rounded-full font-medium shrink-0" style="background:#FFF7ED;color:#C2410C;">Ensamble</span>
+                                <span v-if="item.tipo === 'producto'" class="text-xs px-2 py-0.5 rounded-full font-medium shrink-0" style="background:var(--pastel-azul);color:#1D4ED8;">Producto</span>
+                                <span v-else-if="item.tipo === 'servicio'" class="text-xs px-2 py-0.5 rounded-full font-medium shrink-0" style="background:var(--pastel-verde);color:#065F46;">Servicio</span>
+                                <span v-else-if="item.tipo === 'ensamble'" class="text-xs px-2 py-0.5 rounded-full font-medium shrink-0" style="background:var(--pastel-naranja);color:#C2410C;">Ensamble</span>
                                 <span v-else class="text-xs px-2 py-0.5 rounded-full font-medium bg-tinta-100 text-tinta-400 shrink-0">Texto libre</span>
 
                                 <div class="flex-1"/>
@@ -826,7 +826,7 @@ function submit() {
                                 <!-- Panel comisión compacto -->
                                 <div v-if="itemTieneComision(item)"
                                     class="mt-2 flex items-center gap-2 px-3 py-2 rounded-xl"
-                                    style="background:#FFFBEB;border:1px solid #FCD34D;">
+                                    style="background:var(--pastel-ambar);border:1px solid #FCD34D;">
                                     <span class="text-xs font-medium shrink-0" style="color:#B45309;">Com.</span>
                                     <button type="button" @click="ajustarComision(item, idx, -0.5)"
                                         :disabled="(item.comision_pct_actual || getCanalComisionMax(item)) <= getCanalComisionMin(item)"
@@ -955,7 +955,7 @@ function submit() {
                         <!-- Opción A: Producto -->
                         <button type="button" @click="modalPanel = 'producto'"
                             class="w-full flex items-center gap-4 p-4 rounded-2xl border-2 border-linea hover:border-blue-400 hover:bg-blue-50 transition-colors text-left group">
-                            <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 group-hover:bg-blue-100 transition-colors" style="background:#EFF6FF;">
+                            <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 group-hover:bg-blue-100 transition-colors" style="background:var(--pastel-azul);">
                                 <svg class="w-5 h-5" style="color:var(--marca);" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7l8 4"/>
                                 </svg>
@@ -972,7 +972,7 @@ function submit() {
                         <!-- Opción B: Ensamble -->
                         <button type="button" @click="modalPanel = 'ensamble'"
                             class="w-full flex items-center gap-4 p-4 rounded-2xl border-2 border-linea hover:border-orange-400 hover:bg-orange-50 transition-colors text-left group">
-                            <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-colors" style="background:#FFF7ED;">
+                            <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-colors" style="background:var(--pastel-naranja);">
                                 <svg class="w-5 h-5" style="color:#C2410C;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
                                 </svg>
@@ -1053,7 +1053,7 @@ function submit() {
                                     </div>
                                 </div>
                                 <!-- Panel de precios resaltados por canal -->
-                                <div v-if="ensambleExpandido?.id === e.id" class="px-5 pb-4 pt-2" style="background:#FFFBF5;">
+                                <div v-if="ensambleExpandido?.id === e.id" class="px-5 pb-4 pt-2" style="background:var(--pastel-ambar);">
                                     <div class="grid grid-cols-2 gap-2">
                                         <!-- Mayorista -->
                                         <button type="button" @click="agregarItemDesdeEnsamble(e, e.precio_mayorista)"

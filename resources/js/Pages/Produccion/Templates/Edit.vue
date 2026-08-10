@@ -171,7 +171,7 @@ function submit() {
 
             <div v-if="hasChanges"
                 class="mb-4 inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold text-orange-700"
-                style="background:#FEF3C7; border:1px solid #F59E0B;">
+                style="background:var(--pastel-ambar); border:1px solid #F59E0B;">
                 ● Cambios sin guardar
             </div>
 

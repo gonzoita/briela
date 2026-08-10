@@ -91,17 +91,17 @@ async function liquidar(id) {
 
             <!-- Cards resumen -->
             <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
-                <div class="rounded-xl border p-4" style="background:#EFF6FF;border-color:#BFDBFE;">
+                <div class="rounded-xl border p-4" style="background:var(--pastel-azul);border-color:#BFDBFE;">
                     <p class="text-xs font-semibold uppercase mb-1" style="color:#3B82F6;">Proyectadas</p>
                     <p class="text-xl font-semibold" style="color:#1D4ED8;">{{ formatCOP(totales.proyectada) }}</p>
                     <p class="text-xs mt-1" style="color:#93C5FD;">Cotizaciones enviadas</p>
                 </div>
-                <div class="rounded-xl border p-4" style="background:#FFFBEB;border-color:#FDE68A;">
+                <div class="rounded-xl border p-4" style="background:var(--pastel-ambar);border-color:#FDE68A;">
                     <p class="text-xs font-semibold uppercase mb-1" style="color:#D97706;">Confirmadas</p>
                     <p class="text-xl font-semibold" style="color:#92400E;">{{ formatCOP(totales.confirmada) }}</p>
                     <p class="text-xs mt-1" style="color:#FCD34D;">Cotizaciones aprobadas</p>
                 </div>
-                <div class="rounded-xl border p-4" style="background:#F0FDF4;border-color:#BBF7D0;">
+                <div class="rounded-xl border p-4" style="background:var(--pastel-verde);border-color:#BBF7D0;">
                     <p class="text-xs font-semibold uppercase mb-1" style="color:#16A34A;">Ejecutadas</p>
                     <p class="text-xl font-semibold" style="color:#14532D;">{{ formatCOP(totales.ejecutada) }}</p>
                     <p class="text-xs mt-1" style="color:#86EFAC;">OPs completadas</p>

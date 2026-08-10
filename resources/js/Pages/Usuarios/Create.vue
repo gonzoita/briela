@@ -186,7 +186,7 @@ const submit = () => {
                             type="button"
                             @click="form.activo = !form.activo"
                             class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors"
-                            :style="form.activo ? 'background-color: var(--marca);' : 'background-color: #D1D5DB;'"
+                            :style="form.activo ? 'background-color: var(--marca);' : 'background-color: var(--tinta-200);'"
                         >
                             <span
                                 class="inline-block h-4 w-4 transform rounded-full bg-superficie shadow transition-transform"

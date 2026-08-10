@@ -356,7 +356,7 @@ function marcarTerminado(item) {
 
             <!-- Aviso de material faltante — no bloquea, solo informa -->
             <div v-if="op.insumos_faltantes?.length" class="mb-5 rounded-2xl p-4"
-                style="background:#FEF3C7; border:1px solid #F59E0B;">
+                style="background:var(--pastel-ambar); border:1px solid #F59E0B;">
                 <div class="flex items-start gap-2">
                     <svg class="w-5 h-5 flex-shrink-0 mt-0.5" style="color:#92400E;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
@@ -460,9 +460,9 @@ function marcarTerminado(item) {
                                         <div class="flex items-center gap-2">
                                             <span class="font-medium text-tinta-900">{{ item.descripcion }}</span>
                                             <span class="text-xs px-1.5 py-0.5 rounded-full"
-                                                :style="item.tipo === 'ensamble' ? 'background:#EDE9FE;color:#5B21B6;'
-                                                    : item.tipo === 'servicio' ? 'background:#FEF9C3;color:#713F12;'
-                                                    : 'background:#E0F2FE;color:#0369A1;'">
+                                                :style="item.tipo === 'ensamble' ? 'background:var(--pastel-violeta);color:#5B21B6;'
+                                                    : item.tipo === 'servicio' ? 'background:var(--pastel-ambar);color:#713F12;'
+                                                    : 'background:var(--pastel-azul-2);color:#0369A1;'">
                                                 {{ item.tipo }}
                                             </span>
                                         </div>
@@ -513,18 +513,18 @@ function marcarTerminado(item) {
                                             <template v-if="item.trabajos?.length">
                                                 <span v-if="item.remisionado"
                                                     class="text-xs px-2 py-0.5 rounded-full font-medium"
-                                                    style="background:#D1FAE5;color:#065F46;">
+                                                    style="background:var(--pastel-verde);color:#065F46;">
                                                     Remisionado ✓
                                                 </span>
                                                 <span v-else-if="item.trabajos.some(t => t.remisionado)"
                                                     class="text-xs px-2 py-0.5 rounded-full font-medium"
-                                                    style="background:#FEF3C7;color:#92400E;">
+                                                    style="background:var(--pastel-ambar);color:#92400E;">
                                                     Rem. {{ item.trabajos.filter(t => t.remisionado).length }}/{{ item.trabajos.length }} unid.
                                                 </span>
                                             </template>
                                             <span v-else-if="item.remisionado"
                                                 class="text-xs px-2 py-0.5 rounded-full font-medium"
-                                                style="background:#D1FAE5;color:#065F46;">
+                                                style="background:var(--pastel-verde);color:#065F46;">
                                                 Remisionado ✓
                                             </span>
                                         </div>
@@ -754,12 +754,12 @@ function marcarTerminado(item) {
                                                     <div v-for="t in item.trabajos" :key="t.id"
                                                         class="flex items-center gap-1.5 text-xs px-2 py-1 rounded-lg border"
                                                         :style="t.remisionado
-                                                            ? 'background:#D1FAE5;border-color:#6EE7B7;color:#065F46;'
+                                                            ? 'background:var(--pastel-verde);border-color:#6EE7B7;color:#065F46;'
                                                             : t.porcentaje_avance >= 100
-                                                                ? 'background:#DBEAFE;border-color:#93C5FD;color:#1D4ED8;'
+                                                                ? 'background:var(--pastel-azul-2);border-color:#93C5FD;color:#1D4ED8;'
                                                                 : t.porcentaje_avance > 0
-                                                                    ? 'background:#FEF3C7;border-color:#FCD34D;color:#92400E;'
-                                                                    : 'background:#F3F4F6;border-color:#E5E7EB;color:#6B7280;'">
+                                                                    ? 'background:var(--pastel-ambar);border-color:#FCD34D;color:#92400E;'
+                                                                    : 'background:var(--superficie-2);border-color:#E5E7EB;color:#6B7280;'">
                                                         <span class="font-semibold">U{{ t.numero_unidad }}</span>
                                                         <span v-if="t.remisionado">Remisionado ✓</span>
                                                         <span v-else-if="t.porcentaje_avance >= 100">Completado ✓</span>
@@ -858,9 +858,9 @@ function marcarTerminado(item) {
                                 <div class="flex items-center gap-2 mb-0.5 flex-wrap">
                                     <span class="text-sm font-medium text-tinta-900">{{ item.descripcion }}</span>
                                     <span class="text-xs px-1.5 py-0.5 rounded-full"
-                                        :style="item.tipo === 'ensamble' ? 'background:#EDE9FE;color:#5B21B6;'
-                                            : item.tipo === 'servicio' ? 'background:#FEF9C3;color:#713F12;'
-                                            : 'background:#E0F2FE;color:#0369A1;'">
+                                        :style="item.tipo === 'ensamble' ? 'background:var(--pastel-violeta);color:#5B21B6;'
+                                            : item.tipo === 'servicio' ? 'background:var(--pastel-ambar);color:#713F12;'
+                                            : 'background:var(--pastel-azul-2);color:#0369A1;'">
                                         {{ item.tipo }}
                                     </span>
                                 </div>
@@ -901,18 +901,18 @@ function marcarTerminado(item) {
                                 <template v-if="item.trabajos?.length">
                                     <span v-if="item.remisionado"
                                         class="text-xs px-2 py-0.5 rounded-full font-medium"
-                                        style="background:#D1FAE5;color:#065F46;">
+                                        style="background:var(--pastel-verde);color:#065F46;">
                                         Remisionado ✓
                                     </span>
                                     <span v-else-if="item.trabajos.some(t => t.remisionado)"
                                         class="text-xs px-2 py-0.5 rounded-full font-medium"
-                                        style="background:#FEF3C7;color:#92400E;">
+                                        style="background:var(--pastel-ambar);color:#92400E;">
                                         Rem. {{ item.trabajos.filter(t => t.remisionado).length }}/{{ item.trabajos.length }} unid.
                                     </span>
                                 </template>
                                 <span v-else-if="item.remisionado"
                                     class="text-xs px-2 py-0.5 rounded-full font-medium"
-                                    style="background:#D1FAE5;color:#065F46;">
+                                    style="background:var(--pastel-verde);color:#065F46;">
                                     Remisionado ✓
                                 </span>
                             </div>
@@ -1134,12 +1134,12 @@ function marcarTerminado(item) {
                                     <div v-for="t in item.trabajos" :key="t.id"
                                         class="flex items-center gap-1.5 text-xs px-2 py-1 rounded-lg border"
                                         :style="t.remisionado
-                                            ? 'background:#D1FAE5;border-color:#6EE7B7;color:#065F46;'
+                                            ? 'background:var(--pastel-verde);border-color:#6EE7B7;color:#065F46;'
                                             : t.porcentaje_avance >= 100
-                                                ? 'background:#DBEAFE;border-color:#93C5FD;color:#1D4ED8;'
+                                                ? 'background:var(--pastel-azul-2);border-color:#93C5FD;color:#1D4ED8;'
                                                 : t.porcentaje_avance > 0
-                                                    ? 'background:#FEF3C7;border-color:#FCD34D;color:#92400E;'
-                                                    : 'background:#F3F4F6;border-color:#E5E7EB;color:#6B7280;'">
+                                                    ? 'background:var(--pastel-ambar);border-color:#FCD34D;color:#92400E;'
+                                                    : 'background:var(--superficie-2);border-color:#E5E7EB;color:#6B7280;'">
                                         <span class="font-semibold">U{{ t.numero_unidad }}</span>
                                         <span v-if="t.remisionado">Remisionado ✓</span>
                                         <span v-else-if="t.porcentaje_avance >= 100">Completado ✓</span>
@@ -1243,11 +1243,11 @@ function marcarTerminado(item) {
                     <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">Control de calidad</p>
                 </div>
 
-                <div v-if="op.motivo_rechazo" class="mb-3 px-3 py-2 rounded-xl text-xs" style="background:#FFF7ED; color:#9A3412;">
+                <div v-if="op.motivo_rechazo" class="mb-3 px-3 py-2 rounded-xl text-xs" style="background:var(--pastel-naranja); color:#9A3412;">
                     <span class="font-semibold">Motivo de rechazo:</span> {{ op.motivo_rechazo }}
                 </div>
 
-                <div v-if="op.calidad_aprobada_at" class="mb-3 px-3 py-2 rounded-xl text-xs flex items-center gap-2" style="background:#ECFDF5; color:#065F46;">
+                <div v-if="op.calidad_aprobada_at" class="mb-3 px-3 py-2 rounded-xl text-xs flex items-center gap-2" style="background:var(--pastel-verde); color:#065F46;">
                     <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                     </svg>

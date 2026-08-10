@@ -372,7 +372,7 @@ async function eliminarPregunta(pregunta, target = evaluacion) {
 
             <!-- Info curso -->
             <div class="bg-superficie rounded-2xl shadow-sm overflow-hidden mb-4">
-                <div class="aspect-video overflow-hidden" style="background:#F1F5F9;" v-if="curso.imagen_portada">
+                <div class="aspect-video overflow-hidden" style="background:var(--superficie-2);" v-if="curso.imagen_portada">
                     <img :src="curso.imagen_portada" :alt="curso.titulo" class="w-full h-full object-cover"/>
                 </div>
                 <div class="p-4">
@@ -381,7 +381,7 @@ async function eliminarPregunta(pregunta, target = evaluacion) {
                         <span v-if="curso.categoria" class="inline-block px-2 py-0.5 rounded-full text-xs font-semibold text-white" style="background:#64748B;">{{ curso.categoria }}</span>
                         <span class="inline-block px-2 py-0.5 rounded-full text-xs font-semibold text-white" style="background:var(--marca);">{{ publicoLabel(curso.publico_objetivo) }}</span>
                         <span v-if="curso.obligatorio" class="inline-block px-2 py-0.5 rounded-full text-xs font-semibold text-white" style="background:#B91C1C;">Obligatorio</span>
-                        <span class="inline-block px-2 py-0.5 rounded-full text-xs font-semibold" :style="curso.activo ? 'background:#D1FAE5;color:#065F46;' : 'background:#F3F4F6;color:#6B7280;'">{{ curso.activo ? 'Activo' : 'Inactivo' }}</span>
+                        <span class="inline-block px-2 py-0.5 rounded-full text-xs font-semibold" :style="curso.activo ? 'background:var(--pastel-verde);color:#065F46;' : 'background:var(--superficie-2);color:#6B7280;'">{{ curso.activo ? 'Activo' : 'Inactivo' }}</span>
                     </div>
                 </div>
             </div>
@@ -438,7 +438,7 @@ async function eliminarPregunta(pregunta, target = evaluacion) {
                         </button>
 
                         <!-- Evaluación de módulo (candado de avance, opcional) -->
-                        <div class="border-t border-linea p-4 space-y-3" style="background:#FAFAFA;">
+                        <div class="border-t border-linea p-4 space-y-3" style="background:var(--superficie-2);">
                             <div class="flex items-center justify-between">
                                 <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">Evaluación del módulo (opcional)</p>
                                 <button v-if="modulo.evalCfg.id" @click="router.visit('/capacitacion/revision-evaluaciones')" class="text-xs font-semibold" style="color:var(--marca);">

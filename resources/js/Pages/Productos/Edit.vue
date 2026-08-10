@@ -334,8 +334,8 @@ const submit = () => {
 }
 
 const badgeStyle = {
-    producto: 'background:#DBEAFE;color:#1D4ED8;',
-    servicio: 'background:#D1FAE5;color:#065F46;',
+    producto: 'background:var(--pastel-azul-2);color:#1D4ED8;',
+    servicio: 'background:var(--pastel-verde);color:#065F46;',
 }
 </script>
 
@@ -346,7 +346,7 @@ const badgeStyle = {
             <!-- ═══ Producto PADRE: formulario reducido + variantes ═══════════ -->
             <div v-if="p.es_padre" class="space-y-4">
                 <div class="flex items-center gap-2">
-                    <span class="px-2.5 py-1 rounded-full text-xs font-semibold" style="background:#EDE9FE;color:#6D28D9;">Producto padre</span>
+                    <span class="px-2.5 py-1 rounded-full text-xs font-semibold" style="background:var(--pastel-violeta);color:#6D28D9;">Producto padre</span>
                     <span class="font-mono text-xs text-tinta-300">{{ p.referencia }}</span>
                 </div>
 
@@ -393,7 +393,7 @@ const badgeStyle = {
                                     <p class="text-xs text-tinta-300 font-mono">{{ v.referencia }}</p>
                                 </div>
                                 <div class="flex items-center gap-2">
-                                    <span class="text-xs font-medium px-2 py-0.5 rounded-full" style="background:#EDE9FE;color:#6D28D9;">{{ v.valor_variante }}</span>
+                                    <span class="text-xs font-medium px-2 py-0.5 rounded-full" style="background:var(--pastel-violeta);color:#6D28D9;">{{ v.valor_variante }}</span>
                                     <span class="text-xs font-semibold text-green-600">{{ v.stock_total }}</span>
                                 </div>
                             </div>
@@ -414,7 +414,7 @@ const badgeStyle = {
                             <p v-if="!variantesNuevas.length" class="text-center text-sm text-tinta-300 py-2">
                                 Agrega nuevas variantes para este producto padre.
                             </p>
-                            <div v-for="(v, idx) in variantesNuevas" :key="idx" class="border border-linea rounded-xl p-4 space-y-3" style="background:#F8F9FA;">
+                            <div v-for="(v, idx) in variantesNuevas" :key="idx" class="border border-linea rounded-xl p-4 space-y-3" style="background:var(--superficie-2);">
                                 <div class="flex items-center justify-between">
                                     <p class="text-xs font-semibold text-tinta-400 uppercase tracking-wide">Nueva variante {{ idx + 1 }}</p>
                                     <button type="button" @click="quitarVarianteNueva(idx)" class="text-xs text-red-500 hover:underline">Quitar</button>
@@ -466,7 +466,7 @@ const badgeStyle = {
             <template v-else>
 
             <!-- Alerta cambios sin guardar -->
-            <div v-if="hasChanges" class="mb-3 inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold text-orange-700" style="background:#FEF3C7; border:1px solid #F59E0B;">
+            <div v-if="hasChanges" class="mb-3 inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold text-orange-700" style="background:var(--pastel-ambar); border:1px solid #F59E0B;">
                 ● Cambios sin guardar
             </div>
 
@@ -478,7 +478,7 @@ const badgeStyle = {
                         {{ p.tipo === 'producto' ? 'Producto' : 'Servicio' }}
                     </span>
                     <span class="font-mono text-xs text-tinta-300">{{ p.referencia }}</span>
-                    <span v-if="p.valor_variante" class="text-xs font-semibold px-2.5 py-1 rounded-full" style="background:#EDE9FE;color:#6D28D9;">
+                    <span v-if="p.valor_variante" class="text-xs font-semibold px-2.5 py-1 rounded-full" style="background:var(--pastel-violeta);color:#6D28D9;">
                         Variante de: {{ p.padre?.nombre }} — {{ p.valor_variante }}
                     </span>
                 </div>
@@ -597,7 +597,7 @@ const badgeStyle = {
                     </div>
                     <div class="p-5 space-y-3">
                         <label class="flex items-center gap-3 cursor-pointer">
-                            <div class="relative w-9 h-5 rounded-full transition-colors" :style="form.es_vendible ? 'background:var(--marca);' : 'background:#D1D5DB;'" @click="form.es_vendible = !form.es_vendible">
+                            <div class="relative w-9 h-5 rounded-full transition-colors" :style="form.es_vendible ? 'background:var(--marca);' : 'background:var(--tinta-200);'" @click="form.es_vendible = !form.es_vendible">
                                 <div class="absolute top-0.5 w-4 h-4 bg-superficie rounded-full shadow transition-transform" :style="form.es_vendible ? 'transform:translateX(18px);' : 'transform:translateX(2px);'" />
                             </div>
                             <div>
@@ -606,7 +606,7 @@ const badgeStyle = {
                             </div>
                         </label>
                         <label class="flex items-center gap-3 cursor-pointer">
-                            <div class="relative w-9 h-5 rounded-full transition-colors" :style="form.es_insumo ? 'background:#F59E0B;' : 'background:#D1D5DB;'" @click="form.es_insumo = !form.es_insumo">
+                            <div class="relative w-9 h-5 rounded-full transition-colors" :style="form.es_insumo ? 'background:#F59E0B;' : 'background:var(--tinta-200);'" @click="form.es_insumo = !form.es_insumo">
                                 <div class="absolute top-0.5 w-4 h-4 bg-superficie rounded-full shadow transition-transform" :style="form.es_insumo ? 'transform:translateX(18px);' : 'transform:translateX(2px);'" />
                             </div>
                             <div>
@@ -630,7 +630,7 @@ const badgeStyle = {
                         <h3 class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">Inventario</h3>
                         <label class="flex items-center gap-2 cursor-pointer">
                             <span class="text-xs text-tinta-400">Inventariable</span>
-                            <div class="relative w-9 h-5 rounded-full transition-colors cursor-pointer" :style="form.inventariable ? 'background:var(--marca);' : 'background:#D1D5DB;'" @click="form.inventariable = !form.inventariable">
+                            <div class="relative w-9 h-5 rounded-full transition-colors cursor-pointer" :style="form.inventariable ? 'background:var(--marca);' : 'background:var(--tinta-200);'" @click="form.inventariable = !form.inventariable">
                                 <div class="absolute top-0.5 w-4 h-4 bg-superficie rounded-full shadow transition-transform" :style="form.inventariable ? 'transform:translateX(18px);' : 'transform:translateX(2px);'" />
                             </div>
                         </label>

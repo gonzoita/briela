@@ -248,7 +248,7 @@ function guardarConfig() {
                                 <tbody class="divide-y divide-gray-50">
                                     <tr v-for="(v, idx) in versionesLamina" :key="idx"
                                         :class="['cursor-pointer transition-colors', versionSeleccionada === idx ? '' : 'hover:bg-tinta-50']"
-                                        :style="versionSeleccionada === idx ? 'background:#EFF6FF;' : ''"
+                                        :style="versionSeleccionada === idx ? 'background:var(--pastel-azul);' : ''"
                                         @click="versionSeleccionada = idx">
                                         <td class="px-4 py-2.5 font-medium text-tinta-700">{{ v.label }}</td>
                                         <td class="px-3 py-2.5 text-right text-tinta-400">${{ formatCOP(v.costo) }}</td>

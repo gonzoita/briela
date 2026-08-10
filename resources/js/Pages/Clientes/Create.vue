@@ -125,7 +125,7 @@ function submit() {
             <!-- Badge cambios sin guardar -->
             <div v-if="hasChanges"
                 class="mb-3 inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold text-orange-700"
-                style="background:#FEF3C7; border:1px solid #F59E0B;">
+                style="background:var(--pastel-ambar); border:1px solid #F59E0B;">
                 ● Cambios sin guardar
             </div>
 
@@ -251,11 +251,11 @@ function submit() {
                     <div v-if="form.contactos.length > 0" class="space-y-2 mb-4">
                         <div v-for="(c, idx) in form.contactos" :key="idx"
                              class="flex items-center gap-3 px-3 py-2.5 rounded-lg border"
-                             :style="c.es_principal ? 'border-color:var(--marca); background:#EFF6FF;' : 'border-color:#E5E7EB;'">
+                             :style="c.es_principal ? 'border-color:var(--marca); background:var(--pastel-azul);' : 'border-color:#E5E7EB;'">
                             <div class="flex-1 min-w-0">
                                 <div class="flex items-center gap-2">
                                     <p class="text-sm font-medium text-tinta-900">{{ c.nombre }} {{ c.apellido }}</p>
-                                    <span v-if="c.es_principal" class="text-xs px-1.5 py-0.5 rounded-full font-medium" style="background:#DBEAFE;color:#1D4ED8;">Principal</span>
+                                    <span v-if="c.es_principal" class="text-xs px-1.5 py-0.5 rounded-full font-medium" style="background:var(--pastel-azul-2);color:#1D4ED8;">Principal</span>
                                 </div>
                                 <p v-if="c.cargo" class="text-xs text-tinta-400">{{ c.cargo }}</p>
                                 <p v-if="c.email || c.celular" class="text-xs text-tinta-300">{{ [c.email, c.celular].filter(Boolean).join(' · ') }}</p>
@@ -278,7 +278,7 @@ function submit() {
                     </p>
 
                     <!-- Formulario inline nuevo contacto -->
-                    <div v-if="nuevoContactoAbierto" class="mt-4 p-4 rounded-xl border-2 border-dashed" style="border-color:var(--marca); background:#F0F7FF;">
+                    <div v-if="nuevoContactoAbierto" class="mt-4 p-4 rounded-xl border-2 border-dashed" style="border-color:var(--marca); background:var(--pastel-azul);">
                         <p class="text-xs font-semibold mb-3" style="color:var(--marca);">Nuevo contacto</p>
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             <div>

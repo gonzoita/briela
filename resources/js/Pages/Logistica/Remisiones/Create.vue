@@ -197,7 +197,7 @@ watch(() => form.tipo, () => {
             <div class="flex items-center gap-3 mb-6">
                 <div v-for="n in [1,2]" :key="n" class="flex items-center gap-2">
                     <div class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-semibold transition-colors"
-                        :style="paso >= n ? 'background:var(--marca);color:white;' : 'background:#E5E7EB;color:#6B7280;'">
+                        :style="paso >= n ? 'background:var(--marca);color:white;' : 'background:var(--tinta-200);color:#6B7280;'">
                         {{ n }}
                     </div>
                     <span class="text-xs text-tinta-400">{{ n === 1 ? 'Origen e ítems' : 'Datos de remisión' }}</span>

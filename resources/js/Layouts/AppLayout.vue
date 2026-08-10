@@ -693,7 +693,7 @@ onUnmounted(() => {
                             </div>
                             <button v-for="n in notificaciones" :key="n.id" @click="abrirNotif(n)"
                                 class="flex items-start gap-3 w-full px-4 py-3 text-left hover:bg-tinta-50 border-b border-gray-50"
-                                :style="!n.leida ? 'background:#EFF6FF;' : ''">
+                                :style="!n.leida ? 'background:var(--pastel-azul);' : ''">
                                 <span class="mt-0.5 w-2 h-2 rounded-full flex-shrink-0"
                                     :style="!n.leida ? 'background:var(--marca);' : 'background:transparent;'" />
                                 <span class="min-w-0 flex-1">
@@ -848,7 +848,7 @@ onUnmounted(() => {
                         </div>
                         <button v-for="n in notificaciones" :key="n.id" @click="abrirNotif(n)"
                             class="flex items-start gap-3 w-full px-4 py-3 text-left hover:bg-tinta-50 border-b border-gray-50"
-                            :style="!n.leida ? 'background:#EFF6FF;' : ''">
+                            :style="!n.leida ? 'background:var(--pastel-azul);' : ''">
                             <span class="mt-0.5 w-2 h-2 rounded-full flex-shrink-0"
                                 :style="!n.leida ? 'background:var(--marca);' : 'background:transparent;'" />
                             <span class="min-w-0 flex-1">

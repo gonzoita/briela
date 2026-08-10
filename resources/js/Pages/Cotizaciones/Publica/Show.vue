@@ -62,7 +62,7 @@ function calcularTotal(item) {
 </script>
 
 <template>
-    <div class="min-h-screen" style="background:#F8F9FA;">
+    <div class="min-h-screen" style="background:var(--superficie-2);">
 
         <!-- Header -->
         <header class="px-4 py-4 shadow-sm" style="background:var(--marca);">
@@ -82,7 +82,7 @@ function calcularTotal(item) {
             <!-- Flash success -->
             <div v-if="flash.success"
                 class="rounded-xl px-4 py-3 text-sm font-medium flex items-center gap-3"
-                style="background:#DCFCE7; color:#15803D; border:1px solid #BBF7D0;">
+                style="background:var(--pastel-verde); color:#15803D; border:1px solid #BBF7D0;">
                 <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
                 </svg>
@@ -92,7 +92,7 @@ function calcularTotal(item) {
             <!-- Flash error -->
             <div v-if="errors.error"
                 class="rounded-xl px-4 py-3 text-sm font-medium flex items-center gap-3"
-                style="background:#FEE2E2; color:#DC2626; border:1px solid #FECACA;">
+                style="background:var(--pastel-rojo); color:#DC2626; border:1px solid #FECACA;">
                 <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                 </svg>
@@ -264,10 +264,10 @@ function calcularTotal(item) {
                 class="rounded-2xl border p-5"
                 :class="estadoActual === 'aprobada' ? 'text-center' : ''"
                 :style="estadoActual === 'aprobada'
-                    ? 'background:#DCFCE7;border-color:#BBF7D0;'
+                    ? 'background:var(--pastel-verde);border-color:#BBF7D0;'
                     : estadoActual === 'rechazada'
-                        ? 'background:#FEE2E2;border-color:#FECACA;'
-                        : 'background:#FEF3C7;border-color:#FDE68A;'">
+                        ? 'background:var(--pastel-rojo);border-color:#FECACA;'
+                        : 'background:var(--pastel-ambar);border-color:#FDE68A;'">
                 <p class="text-sm font-semibold"
                     :style="estadoActual === 'aprobada' ? 'color:#15803D;'
                         : estadoActual === 'rechazada' ? 'color:#DC2626;'

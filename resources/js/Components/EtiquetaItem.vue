@@ -88,7 +88,7 @@
                         </div>
 
                         <!-- Franja inferior -->
-                        <div style="background:#f8fafc;border-top:1px solid #e2e8f0;height:24px;display:flex;align-items:center;padding:0 12px;justify-content:space-between;">
+                        <div style="background:var(--superficie-2);border-top:1px solid #e2e8f0;height:24px;display:flex;align-items:center;padding:0 12px;justify-content:space-between;">
                             <span style="font-family:monospace;font-size:9px;color:#64748b;">{{ item.numero_serie }}</span>
                             
                         </div>

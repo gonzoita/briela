@@ -357,7 +357,7 @@ const badgesTipo = {
                             </div>
 
                             <!-- Editor de campo (inline) -->
-                            <div v-if="editandoCampo !== null" class="border-t border-blue-100 p-4 space-y-3" style="background:#F0F7FF;">
+                            <div v-if="editandoCampo !== null" class="border-t border-blue-100 p-4 space-y-3" style="background:var(--pastel-azul);">
                                 <p class="text-xs font-semibold text-blue-700 uppercase">{{ editandoCampo === 'nuevo' ? 'Nuevo campo' : 'Editar campo' }}</p>
 
                                 <div class="flex flex-wrap gap-2">
@@ -452,7 +452,7 @@ const badgesTipo = {
                             </div>
 
                             <!-- Editor de componente (inline) -->
-                            <div v-if="editandoComponente !== null" class="border-t border-[var(--marca-borde)] p-4 space-y-3" style="background:#F5F3FF;">
+                            <div v-if="editandoComponente !== null" class="border-t border-[var(--marca-borde)] p-4 space-y-3" style="background:var(--pastel-violeta);">
                                 <p class="text-xs font-semibold text-[var(--marca)] uppercase">{{ editandoComponente === 'nuevo' ? 'Nuevo componente' : 'Editar componente' }}</p>
 
                                 <!-- Buscador de producto -->

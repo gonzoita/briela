@@ -119,7 +119,7 @@ const ic = (extra = '') =>
                         <div class="flex items-center gap-2">
                             <span class="text-sm font-semibold text-tinta-900">{{ grupo.categoria }}</span>
                             <span class="text-xs px-2 py-0.5 rounded-full font-medium"
-                                  style="background:#EFF6FF; color:#1D4ED8;">
+                                  style="background:var(--pastel-azul); color:#1D4ED8;">
                                 {{ grupo.items.length }} insumos
                             </span>
                         </div>
@@ -136,7 +136,7 @@ const ic = (extra = '') =>
                         <div class="overflow-x-auto">
                             <table class="w-full text-sm">
                                 <thead>
-                                    <tr style="background:#F8FAFC; border-top: 1px solid #E5E7EB;">
+                                    <tr style="background:var(--superficie-2); border-top: 1px solid #E5E7EB;">
                                         <th class="text-left text-xs font-semibold text-tinta-400 uppercase px-4 py-2">Nombre</th>
                                         <th class="text-center text-xs font-semibold text-tinta-400 uppercase px-3 py-2 w-16">Unidad</th>
                                         <th class="text-right text-xs font-semibold text-tinta-400 uppercase px-4 py-2 w-36">Precio Costo</th>

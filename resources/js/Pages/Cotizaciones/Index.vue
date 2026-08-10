@@ -143,7 +143,7 @@ const chartPoints = computed(() => {
                 <!-- Alerta: cotizaciones enviadas sin respuesta -->
                 <div v-if="metricas?.necesitan_seguimiento > 0"
                     class="mb-3 px-4 py-3 rounded-2xl"
-                    style="background:#FEF3C7; border:1px solid #F59E0B;">
+                    style="background:var(--pastel-ambar); border:1px solid #F59E0B;">
                     <div class="flex items-center gap-3 mb-2">
                         <svg class="w-5 h-5 shrink-0" style="color:#92400E;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/>
@@ -231,7 +231,7 @@ const chartPoints = computed(() => {
                 <div class="hidden md:block overflow-x-auto">
                     <table class="w-full text-sm">
                         <thead>
-                            <tr style="background:#F8FAFC; border-bottom: 1px solid #E5E7EB;">
+                            <tr style="background:var(--superficie-2); border-bottom: 1px solid #E5E7EB;">
                                 <th class="text-left px-4 py-3 text-xs font-semibold text-tinta-400 uppercase">Número</th>
                                 <th class="text-left px-4 py-3 text-xs font-semibold text-tinta-400 uppercase">Cliente</th>
                                 <th class="text-left px-4 py-3 text-xs font-semibold text-tinta-400 uppercase">Responsable</th>

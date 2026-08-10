@@ -77,7 +77,7 @@ const compartir = () => {
 <template>
     <Head :title="`${op.numero_op} — Seguimiento`" />
 
-    <div class="min-h-screen pb-8" style="background: #F8F9FA;">
+    <div class="min-h-screen pb-8" style="background: var(--superficie-2);">
         <!-- Header -->
         <header class="px-6 pt-8 pb-6" style="background: white; border-bottom: 1px solid #E5E7EB;">
             <img

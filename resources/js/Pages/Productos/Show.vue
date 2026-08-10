@@ -142,7 +142,7 @@ const fmtFecha = (d) => d ? new Date(d).toLocaleDateString('es-CO', { day: '2-di
             <div class="md:col-span-2 space-y-4">
                 <div class="bg-superficie rounded-2xl shadow-sm overflow-hidden">
                     <!-- Imagen compacta -->
-                    <div class="flex items-center justify-center" style="height:288px; background:#F1F5F9;">
+                    <div class="flex items-center justify-center" style="height:288px; background:var(--superficie-2);">
                         <img
                             v-if="imagenActiva"
                             :src="imagenActiva.url"
@@ -267,13 +267,13 @@ const fmtFecha = (d) => d ? new Date(d).toLocaleDateString('es-CO', { day: '2-di
                             {{ p.categoria_nombre }}
                         </span>
                         <span class="text-xs font-medium px-2.5 py-1 rounded-full"
-                            :style="p.activo ? 'background:#D1FAE5;color:#065F46;' : 'background:#FEE2E2;color:#991B1B;'">
+                            :style="p.activo ? 'background:var(--pastel-verde);color:#065F46;' : 'background:var(--pastel-rojo);color:#991B1B;'">
                             {{ p.activo ? 'Activo' : 'Inactivo' }}
                         </span>
-                        <span v-if="p.valor_variante" class="text-xs font-semibold px-2.5 py-1 rounded-full" style="background:#EDE9FE;color:#6D28D9;">
+                        <span v-if="p.valor_variante" class="text-xs font-semibold px-2.5 py-1 rounded-full" style="background:var(--pastel-violeta);color:#6D28D9;">
                             Variante de: {{ p.padre?.nombre }} — {{ p.valor_variante }}
                         </span>
-                        <span v-if="p.es_padre" class="text-xs font-semibold px-2.5 py-1 rounded-full" style="background:#EDE9FE;color:#6D28D9;">
+                        <span v-if="p.es_padre" class="text-xs font-semibold px-2.5 py-1 rounded-full" style="background:var(--pastel-violeta);color:#6D28D9;">
                             Producto padre · {{ p.variantes?.length ?? 0 }} variante{{ (p.variantes?.length ?? 0) === 1 ? '' : 's' }}
                         </span>
                     </div>
@@ -329,7 +329,7 @@ const fmtFecha = (d) => d ? new Date(d).toLocaleDateString('es-CO', { day: '2-di
                                     <p class="text-xs text-tinta-300 font-mono">{{ v.referencia }}</p>
                                 </div>
                                 <div class="flex items-center gap-2">
-                                    <span class="text-xs font-medium px-2 py-0.5 rounded-full" style="background:#EDE9FE;color:#6D28D9;">{{ v.valor_variante }}</span>
+                                    <span class="text-xs font-medium px-2 py-0.5 rounded-full" style="background:var(--pastel-violeta);color:#6D28D9;">{{ v.valor_variante }}</span>
                                     <span class="text-xs font-semibold text-green-600">{{ v.stock_total }}</span>
                                 </div>
                             </div>
@@ -380,10 +380,10 @@ const fmtFecha = (d) => d ? new Date(d).toLocaleDateString('es-CO', { day: '2-di
 
                     <!-- Badges vendible / insumo -->
                     <div v-if="p.es_vendible || p.es_insumo" class="flex gap-2 mb-4">
-                        <span v-if="p.es_vendible" class="text-xs font-medium px-2.5 py-1 rounded-full" style="background:#DBEAFE;color:#1D4ED8;">
+                        <span v-if="p.es_vendible" class="text-xs font-medium px-2.5 py-1 rounded-full" style="background:var(--pastel-azul-2);color:#1D4ED8;">
                             Vendible
                         </span>
-                        <span v-if="p.es_insumo" class="text-xs font-medium px-2.5 py-1 rounded-full" style="background:#FEF3C7;color:#B45309;">
+                        <span v-if="p.es_insumo" class="text-xs font-medium px-2.5 py-1 rounded-full" style="background:var(--pastel-ambar);color:#B45309;">
                             Insumo
                         </span>
                     </div>
@@ -441,7 +441,7 @@ const fmtFecha = (d) => d ? new Date(d).toLocaleDateString('es-CO', { day: '2-di
             <div class="overflow-x-auto">
                 <table class="w-full text-xs min-w-[480px]">
                     <thead>
-                        <tr style="background:#F8FAFC; border-bottom:1px solid #E5E7EB;">
+                        <tr style="background:var(--superficie-2); border-bottom:1px solid #E5E7EB;">
                             <th class="text-left px-4 py-2.5 font-semibold text-tinta-400">Fecha</th>
                             <th class="text-left px-3 py-2.5 font-semibold text-tinta-400">Tipo</th>
                             <th class="text-right px-3 py-2.5 font-semibold text-tinta-400">Cantidad</th>

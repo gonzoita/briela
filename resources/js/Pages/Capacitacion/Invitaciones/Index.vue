@@ -215,7 +215,7 @@ function limpiarCliente() {
                         </div>
                         <div v-if="clienteSeleccionado"
                             class="mt-2 flex items-center gap-3 px-3 py-2 rounded-xl"
-                            style="background:#EFF6FF; border:1px solid #BFDBFE;">
+                            style="background:var(--pastel-azul); border:1px solid #BFDBFE;">
                             <p class="text-sm font-medium flex-1" style="color:#1D4ED8;">
                                 {{ clienteSeleccionado.nombre }}{{ clienteSeleccionado.apellido ? ' ' + clienteSeleccionado.apellido : '' }}
                             </p>

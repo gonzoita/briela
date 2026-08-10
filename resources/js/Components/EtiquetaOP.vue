@@ -188,7 +188,7 @@ const descargarPNG = async () => {
 }
 
 .btn-etiqueta-png {
-    background-color: #F3F4F6;
+    background-color: var(--superficie-2);
     color: #374151;
 }
 

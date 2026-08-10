@@ -64,7 +64,7 @@ function reintentar() {
 
             <!-- Ya aprobado previamente -->
             <div v-if="yaAprobado && !resultado" class="bg-superficie rounded-2xl shadow-sm py-10 px-6 text-center">
-                <div class="w-16 h-16 rounded-full mx-auto mb-3 flex items-center justify-center" style="background:#D1FAE5;">
+                <div class="w-16 h-16 rounded-full mx-auto mb-3 flex items-center justify-center" style="background:var(--pastel-verde);">
                     <svg class="w-8 h-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
                     </svg>
@@ -77,7 +77,7 @@ function reintentar() {
 
             <!-- Pendiente de revisión -->
             <div v-else-if="resultado?.estado === 'pendiente_revision'" class="bg-superficie rounded-2xl shadow-sm py-10 px-6 text-center">
-                <div class="w-16 h-16 rounded-full mx-auto mb-3 flex items-center justify-center" style="background:#FEF3C7;">
+                <div class="w-16 h-16 rounded-full mx-auto mb-3 flex items-center justify-center" style="background:var(--pastel-ambar);">
                     <svg class="w-8 h-8" style="color:#92400E;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
                     </svg>
@@ -92,7 +92,7 @@ function reintentar() {
             <!-- Aprobado -->
             <div v-else-if="resultado?.aprobado" class="bg-superficie rounded-2xl shadow-sm py-10 px-6 text-center">
                 <p class="text-4xl mb-2">🎉</p>
-                <div class="w-16 h-16 rounded-full mx-auto mb-3 flex items-center justify-center" style="background:#D1FAE5;">
+                <div class="w-16 h-16 rounded-full mx-auto mb-3 flex items-center justify-center" style="background:var(--pastel-verde);">
                     <svg class="w-8 h-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
                     </svg>
@@ -106,7 +106,7 @@ function reintentar() {
 
             <!-- Reprobado -->
             <div v-else-if="resultado && resultado.aprobado === false" class="bg-superficie rounded-2xl shadow-sm py-10 px-6 text-center">
-                <div class="w-16 h-16 rounded-full mx-auto mb-3 flex items-center justify-center" style="background:#FEE2E2;">
+                <div class="w-16 h-16 rounded-full mx-auto mb-3 flex items-center justify-center" style="background:var(--pastel-rojo);">
                     <svg class="w-8 h-8 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
                     </svg>

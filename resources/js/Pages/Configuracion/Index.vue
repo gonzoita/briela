@@ -574,13 +574,13 @@ const configPuntos = computed(() =>
                             <div class="flex items-center gap-8">
                                 <button type="button" @click="n.activa = !n.activa"
                                     class="relative w-11 h-6 rounded-full transition-colors flex-shrink-0"
-                                    :style="n.activa ? 'background:var(--marca)' : 'background:#D1D5DB'">
+                                    :style="n.activa ? 'background:var(--marca)' : 'background:var(--tinta-200)'">
                                     <span class="absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-superficie shadow-sm transition-transform"
                                         :class="n.activa ? 'translate-x-5' : 'translate-x-0'" />
                                 </button>
                                 <button type="button" @click="n.email = !n.email"
                                     class="relative w-11 h-6 rounded-full transition-colors flex-shrink-0"
-                                    :style="n.email ? 'background:var(--marca)' : 'background:#D1D5DB'">
+                                    :style="n.email ? 'background:var(--marca)' : 'background:var(--tinta-200)'">
                                     <span class="absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-superficie shadow-sm transition-transform"
                                         :class="n.email ? 'translate-x-5' : 'translate-x-0'" />
                                 </button>

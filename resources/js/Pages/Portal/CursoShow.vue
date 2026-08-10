@@ -132,7 +132,7 @@ const tipoLabel = (v) => ({ video_drive: 'Video', video_externo: 'Video', texto:
                                         class="w-full flex items-center gap-2.5 px-4 py-2.5 text-left transition-colors"
                                         :class="leccionActual?.id === leccion.id ? 'bg-blue-50' : 'hover:bg-tinta-50'">
                                         <div class="w-5 h-5 rounded-full flex items-center justify-center shrink-0"
-                                            :style="completadas[leccion.id] ? 'background:#D1FAE5;' : 'background:#F3F4F6;'">
+                                            :style="completadas[leccion.id] ? 'background:var(--pastel-verde);' : 'background:var(--superficie-2);'">
                                             <svg v-if="completadas[leccion.id]" class="w-3 h-3 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
                                             </svg>
