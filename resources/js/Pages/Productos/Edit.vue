@@ -334,8 +334,8 @@ const submit = () => {
 }
 
 const badgeStyle = {
-    producto: 'background:var(--pastel-azul-2);color:#1D4ED8;',
-    servicio: 'background:var(--pastel-verde);color:#065F46;',
+    producto: 'background:var(--pastel-azul-2);color:var(--texto-azul);',
+    servicio: 'background:var(--pastel-verde);color:var(--texto-verde);',
 }
 </script>
 
@@ -346,7 +346,7 @@ const badgeStyle = {
             <!-- ═══ Producto PADRE: formulario reducido + variantes ═══════════ -->
             <div v-if="p.es_padre" class="space-y-4">
                 <div class="flex items-center gap-2">
-                    <span class="px-2.5 py-1 rounded-full text-xs font-semibold" style="background:var(--pastel-violeta);color:#6D28D9;">Producto padre</span>
+                    <span class="px-2.5 py-1 rounded-full text-xs font-semibold" style="background:var(--pastel-violeta);color:var(--texto-violeta);">Producto padre</span>
                     <span class="font-mono text-xs text-tinta-300">{{ p.referencia }}</span>
                 </div>
 
@@ -393,7 +393,7 @@ const badgeStyle = {
                                     <p class="text-xs text-tinta-300 font-mono">{{ v.referencia }}</p>
                                 </div>
                                 <div class="flex items-center gap-2">
-                                    <span class="text-xs font-medium px-2 py-0.5 rounded-full" style="background:var(--pastel-violeta);color:#6D28D9;">{{ v.valor_variante }}</span>
+                                    <span class="text-xs font-medium px-2 py-0.5 rounded-full" style="background:var(--pastel-violeta);color:var(--texto-violeta);">{{ v.valor_variante }}</span>
                                     <span class="text-xs font-semibold text-green-600">{{ v.stock_total }}</span>
                                 </div>
                             </div>
@@ -478,7 +478,7 @@ const badgeStyle = {
                         {{ p.tipo === 'producto' ? 'Producto' : 'Servicio' }}
                     </span>
                     <span class="font-mono text-xs text-tinta-300">{{ p.referencia }}</span>
-                    <span v-if="p.valor_variante" class="text-xs font-semibold px-2.5 py-1 rounded-full" style="background:var(--pastel-violeta);color:#6D28D9;">
+                    <span v-if="p.valor_variante" class="text-xs font-semibold px-2.5 py-1 rounded-full" style="background:var(--pastel-violeta);color:var(--texto-violeta);">
                         Variante de: {{ p.padre?.nombre }} — {{ p.valor_variante }}
                     </span>
                 </div>

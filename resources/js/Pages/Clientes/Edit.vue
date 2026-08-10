@@ -292,7 +292,7 @@ function eliminarArchivo(id) {
                             <div class="flex-1 min-w-0">
                                 <div class="flex items-center gap-2">
                                     <p class="text-sm font-medium text-tinta-900">{{ c.nombre }} {{ c.apellido }}</p>
-                                    <span v-if="c.es_principal" class="text-xs px-1.5 py-0.5 rounded-full font-medium" style="background:var(--pastel-azul-2);color:#1D4ED8;">Principal</span>
+                                    <span v-if="c.es_principal" class="text-xs px-1.5 py-0.5 rounded-full font-medium" style="background:var(--pastel-azul-2);color:var(--texto-azul);">Principal</span>
                                 </div>
                                 <p v-if="c.cargo" class="text-xs text-tinta-400">{{ c.cargo }}</p>
                                 <p v-if="c.email || c.celular" class="text-xs text-tinta-300">{{ [c.email, c.celular].filter(Boolean).join(' · ') }}</p>

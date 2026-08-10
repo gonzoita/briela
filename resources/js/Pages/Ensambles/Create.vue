@@ -608,11 +608,11 @@ onMounted(() => {
                             ? 'background:var(--pastel-azul); border:2px solid #93C5FD;'
                             : 'background:var(--pastel-azul);'">
                         <p class="text-xs mb-1"
-                           :style="margenesActuales.por_defecto === 'mayorista' ? 'color:#1D4ED8; font-weight:500;' : 'color:#6B7280;'">
+                           :style="margenesActuales.por_defecto === 'mayorista' ? 'color:var(--texto-azul); font-weight:500;' : 'color:var(--texto-3);'">
                             Mayorista ({{ margenesActuales.mayorista }}%)
                         </p>
                         <p class="text-base font-semibold"
-                           :style="margenesActuales.por_defecto === 'mayorista' ? 'color:#1D4ED8;' : 'color:#1F2937;'">
+                           :style="margenesActuales.por_defecto === 'mayorista' ? 'color:var(--texto-azul);' : 'color:var(--texto);'">
                             ${{ formatCOP(precioMayor) }}
                         </p>
                     </div>
@@ -621,11 +621,11 @@ onMounted(() => {
                             ? 'background:var(--pastel-azul); border:2px solid #93C5FD;'
                             : 'background:var(--pastel-azul);'">
                         <p class="text-xs mb-1"
-                           :style="margenesActuales.por_defecto === 'distribuidor' || !['mayorista','cliente_final'].includes(margenesActuales.por_defecto) ? 'color:#1D4ED8; font-weight:500;' : 'color:#6B7280;'">
+                           :style="margenesActuales.por_defecto === 'distribuidor' || !['mayorista','cliente_final'].includes(margenesActuales.por_defecto) ? 'color:var(--texto-azul); font-weight:500;' : 'color:var(--texto-3);'">
                             Distribuidor ({{ margenesActuales.distribuidor }}%)
                         </p>
                         <p class="text-base font-semibold"
-                           :style="margenesActuales.por_defecto === 'distribuidor' || !['mayorista','cliente_final'].includes(margenesActuales.por_defecto) ? 'color:#1D4ED8;' : 'color:#1F2937;'">
+                           :style="margenesActuales.por_defecto === 'distribuidor' || !['mayorista','cliente_final'].includes(margenesActuales.por_defecto) ? 'color:var(--texto-azul);' : 'color:var(--texto);'">
                             ${{ formatCOP(precioDist) }}
                         </p>
                     </div>
@@ -634,11 +634,11 @@ onMounted(() => {
                             ? 'background:var(--pastel-azul); border:2px solid #93C5FD;'
                             : 'background:var(--pastel-verde);'">
                         <p class="text-xs mb-1"
-                           :style="margenesActuales.por_defecto === 'cliente_final' ? 'color:#1D4ED8; font-weight:500;' : 'color:#6B7280;'">
+                           :style="margenesActuales.por_defecto === 'cliente_final' ? 'color:var(--texto-azul); font-weight:500;' : 'color:var(--texto-3);'">
                             Cliente final ({{ margenesActuales.cliente_final }}%)
                         </p>
                         <p class="text-base font-semibold"
-                           :style="margenesActuales.por_defecto === 'cliente_final' ? 'color:#1D4ED8;' : 'color:#1F2937;'">
+                           :style="margenesActuales.por_defecto === 'cliente_final' ? 'color:var(--texto-azul);' : 'color:var(--texto);'">
                             ${{ formatCOP(precioFinal) }}
                         </p>
                     </div>

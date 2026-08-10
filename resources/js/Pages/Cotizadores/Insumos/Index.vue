@@ -119,7 +119,7 @@ const ic = (extra = '') =>
                         <div class="flex items-center gap-2">
                             <span class="text-sm font-semibold text-tinta-900">{{ grupo.categoria }}</span>
                             <span class="text-xs px-2 py-0.5 rounded-full font-medium"
-                                  style="background:var(--pastel-azul); color:#1D4ED8;">
+                                  style="background:var(--pastel-azul); color:var(--texto-azul);">
                                 {{ grupo.items.length }} insumos
                             </span>
                         </div>

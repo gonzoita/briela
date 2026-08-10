@@ -218,7 +218,7 @@ function marcarEnviada() {
                         <img :src="$page.props.marca.logo"
                             :alt="$page.props.marca.nombre" class="h-10 w-auto object-contain"
                             style="filter: brightness(0) invert(1);" />
-                        <div class="w-px h-8 bg-superficie/30"/>
+                        <div class="w-px h-8 bg-white/30"/>
                         <div>
                             <p class="text-xs text-blue-200 font-medium uppercase tracking-widest">Cotización</p>
                             <h1 class="text-2xl font-semibold text-white leading-none">{{ cot.numero }}</h1>
@@ -237,10 +237,10 @@ function marcarEnviada() {
             <!-- Comisión del vendedor: visible siempre aquí para no tener que ir a buscarla a otra página -->
             <div class="mb-5 inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold"
                 :style="!cot.comision || !cot.comision.total_comision
-                    ? 'background:var(--superficie-2);color:#6B7280;'
+                    ? 'background:var(--superficie-2);color:var(--texto-3);'
                     : cot.comision.estado === 'confirmada'
-                        ? 'background:var(--pastel-verde);color:#065F46;'
-                        : 'background:var(--pastel-ambar);color:#92400E;'">
+                        ? 'background:var(--pastel-verde);color:var(--texto-verde);'
+                        : 'background:var(--pastel-ambar);color:var(--texto-ambar);'">
                 <template v-if="cot.comision && cot.comision.total_comision > 0">
                     Comisión: {{ cot.comision.estado === 'confirmada' ? 'Confirmada' : 'Proyectada' }}
                     — ${{ new Intl.NumberFormat('es-CO', { maximumFractionDigits: 0 }).format(cot.comision.total_comision) }}
@@ -378,7 +378,7 @@ function marcarEnviada() {
                 <div class="flex items-center justify-between mb-3">
                     <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">Seguimiento</p>
                     <span v-if="diasSinRespuestaLocal >= 5"
-                        class="text-xs px-2 py-0.5 rounded-full font-semibold" style="background:var(--pastel-ambar);color:#92400E;">
+                        class="text-xs px-2 py-0.5 rounded-full font-semibold" style="background:var(--pastel-ambar);color:var(--texto-ambar);">
                         ⚠ {{ diasSinRespuestaLocal }} días sin respuesta
                     </span>
                 </div>

@@ -249,7 +249,7 @@ const precioMostrar = (p) => {
                     <button
                         @click="viewMode = 'list'"
                         class="w-9 h-9 flex items-center justify-center transition-colors"
-                        :style="viewMode === 'list' ? 'background:var(--marca);color:white;' : 'color:#9CA3AF;'"
+                        :style="viewMode === 'list' ? 'background:var(--marca);color:white;' : 'color:var(--texto-3);'"
                         title="Vista lista"
                     >
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
@@ -259,7 +259,7 @@ const precioMostrar = (p) => {
                     <button
                         @click="viewMode = 'grid'"
                         class="w-9 h-9 flex items-center justify-center transition-colors"
-                        :style="viewMode === 'grid' ? 'background:var(--marca);color:white;' : 'color:#9CA3AF;'"
+                        :style="viewMode === 'grid' ? 'background:var(--marca);color:white;' : 'color:var(--texto-3);'"
                         title="Vista grid"
                     >
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
@@ -320,7 +320,7 @@ const precioMostrar = (p) => {
                 class="px-3.5 py-1.5 rounded-full text-sm font-medium whitespace-nowrap border transition-colors shrink-0"
                 :style="form.tipo === opt.value
                     ? 'background-color: var(--marca); color: white; border-color: var(--marca);'
-                    : 'background: white; color: #374151; border-color: #E5E7EB;'"
+                    : 'background: white; color: var(--texto-2); border-color: #E5E7EB;'"
             >
                 {{ opt.label }}
             </button>
@@ -332,8 +332,8 @@ const precioMostrar = (p) => {
                 @click="form.es_vendible = form.es_vendible ? '' : '1'; form.es_insumo = ''; filtrar()"
                 class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-medium whitespace-nowrap border transition-colors shrink-0"
                 :style="form.es_vendible
-                    ? 'background:var(--pastel-azul-2); color:#1D4ED8; border-color:#BFDBFE;'
-                    : 'background:white; color:#374151; border-color:#E5E7EB;'"
+                    ? 'background:var(--pastel-azul-2); color:var(--texto-azul); border-color:#BFDBFE;'
+                    : 'background:white; color:var(--texto-2); border-color:#E5E7EB;'"
             >
                 <span>Vendible</span>
             </button>
@@ -341,8 +341,8 @@ const precioMostrar = (p) => {
                 @click="form.es_insumo = form.es_insumo ? '' : '1'; form.es_vendible = ''; filtrar()"
                 class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-medium whitespace-nowrap border transition-colors shrink-0"
                 :style="form.es_insumo
-                    ? 'background:var(--pastel-ambar); color:#B45309; border-color:#FDE68A;'
-                    : 'background:white; color:#374151; border-color:#E5E7EB;'"
+                    ? 'background:var(--pastel-ambar); color:var(--texto-ambar); border-color:#FDE68A;'
+                    : 'background:white; color:var(--texto-2); border-color:#E5E7EB;'"
             >
                 <span>Insumo</span>
             </button>
@@ -354,8 +354,8 @@ const precioMostrar = (p) => {
                 @click="form.categoria = ''; filtrar()"
                 class="px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap border transition-colors shrink-0"
                 :style="!form.categoria
-                    ? 'background-color: #374151; color: white; border-color: #374151;'
-                    : 'background: white; color: #374151; border-color: #E5E7EB;'"
+                    ? 'background-color: var(--marca); color: var(--marca-texto); border-color: var(--marca);'
+                    : 'background: white; color: var(--texto-2); border-color: #E5E7EB;'"
             >
                 Todas
             </button>
@@ -446,13 +446,13 @@ const precioMostrar = (p) => {
                                     :style="{ background: badgeStyle(p.tipo_color).bg, color: badgeStyle(p.tipo_color).text }">
                                     {{ p.tipo_label }}
                                 </span>
-                                <span v-if="p.es_padre" class="text-xs font-medium px-1.5 py-0.5 rounded-full" style="background:var(--pastel-violeta);color:#6D28D9;">
+                                <span v-if="p.es_padre" class="text-xs font-medium px-1.5 py-0.5 rounded-full" style="background:var(--pastel-violeta);color:var(--texto-violeta);">
                                     {{ p.variantes?.length ?? 0 }} variante{{ (p.variantes?.length ?? 0) === 1 ? '' : 's' }}
                                 </span>
-                                <span v-if="p.es_vendible" class="text-xs font-medium px-1.5 py-0.5 rounded-full" style="background:var(--pastel-azul-2);color:#1D4ED8;">
+                                <span v-if="p.es_vendible" class="text-xs font-medium px-1.5 py-0.5 rounded-full" style="background:var(--pastel-azul-2);color:var(--texto-azul);">
                                     Vendible
                                 </span>
-                                <span v-if="p.es_insumo" class="text-xs font-medium px-1.5 py-0.5 rounded-full" style="background:var(--pastel-ambar);color:#B45309;">
+                                <span v-if="p.es_insumo" class="text-xs font-medium px-1.5 py-0.5 rounded-full" style="background:var(--pastel-ambar);color:var(--texto-ambar);">
                                     Insumo
                                 </span>
                                 <button v-if="p.es_padre" @click.stop="router.visit(`/productos/${p.id}/editar`)"
@@ -510,7 +510,7 @@ const precioMostrar = (p) => {
                             <div class="flex items-center gap-2">
                                 <span class="text-tinta-200">↳</span>
                                 <span class="text-sm text-tinta-700">{{ v.nombre }}</span>
-                                <span class="text-xs font-medium px-1.5 py-0.5 rounded-full" style="background:var(--pastel-violeta);color:#6D28D9;">
+                                <span class="text-xs font-medium px-1.5 py-0.5 rounded-full" style="background:var(--pastel-violeta);color:var(--texto-violeta);">
                                     {{ v.valor_variante }}
                                 </span>
                             </div>
@@ -565,7 +565,7 @@ const precioMostrar = (p) => {
                         {{ p.categoria_nombre }}
                     </span>
                     <template v-if="p.es_padre">
-                        <span class="inline-block text-xs font-semibold px-2 py-0.5 rounded-full" style="background:var(--pastel-violeta);color:#6D28D9;">
+                        <span class="inline-block text-xs font-semibold px-2 py-0.5 rounded-full" style="background:var(--pastel-violeta);color:var(--texto-violeta);">
                             {{ p.variantes?.length ?? 0 }} variante{{ (p.variantes?.length ?? 0) === 1 ? '' : 's' }}
                         </span>
                         <p class="text-xs text-tinta-300 mt-1">Toca para ver variantes</p>
@@ -615,7 +615,7 @@ const precioMostrar = (p) => {
                         @click="router.visit(link.url)"
                         v-html="link.label"
                         class="px-3 py-1.5 rounded-lg text-sm"
-                        :style="link.active ? 'background-color: var(--marca); color: white;' : 'color: #374151;'"
+                        :style="link.active ? 'background-color: var(--marca); color: white;' : 'color: var(--texto-2);'"
                     />
                 </template>
             </div>

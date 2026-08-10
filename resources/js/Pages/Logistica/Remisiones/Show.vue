@@ -141,7 +141,7 @@ function eliminar() {
                             </span>
                             <span class="text-xs px-2 py-0.5 rounded-full"
                                 :style="remision.tipo === 'op'
-                                    ? 'background:var(--pastel-violeta);color:#5B21B6;'
+                                    ? 'background:var(--pastel-violeta);color:var(--texto-violeta);'
                                     : 'background:var(--pastel-azul-2);color:#0369A1;'">
                                 {{ remision.tipo === 'op' ? 'Desde OP' : 'Manual' }}
                             </span>

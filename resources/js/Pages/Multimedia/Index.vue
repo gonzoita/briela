@@ -308,7 +308,7 @@ const iconoExtension = (ext) => {
                             <a
                                 :href="archivo.url"
                                 target="_blank"
-                                class="w-8 h-8 rounded-full bg-superficie/20 hover:bg-superficie/30 flex items-center justify-center text-white transition-colors"
+                                class="w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center text-white transition-colors"
                                 title="Ver"
                                 @click.stop
                             >
@@ -396,7 +396,7 @@ const iconoExtension = (ext) => {
                         @click="router.visit(link.url)"
                         v-html="link.label"
                         class="px-3 py-1.5 rounded-lg text-sm"
-                        :style="link.active ? 'background-color: var(--marca); color: white;' : 'color: #374151;'"
+                        :style="link.active ? 'background-color: var(--marca); color: white;' : 'color: var(--texto-2);'"
                     />
                 </template>
             </div>

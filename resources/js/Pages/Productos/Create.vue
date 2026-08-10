@@ -256,8 +256,8 @@ const submit = () => {
 }
 
 const badgeStyle = {
-    producto: 'background:var(--pastel-azul-2);color:#1D4ED8;',
-    servicio: 'background:var(--pastel-verde);color:#065F46;',
+    producto: 'background:var(--pastel-azul-2);color:var(--texto-azul);',
+    servicio: 'background:var(--pastel-verde);color:var(--texto-verde);',
 }
 </script>
 

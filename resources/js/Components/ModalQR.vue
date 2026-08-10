@@ -15,7 +15,7 @@
                     </div>
                     <button
                         @click="cerrar"
-                        class="w-8 h-8 flex items-center justify-center text-white/70 hover:text-white rounded-lg hover:bg-superficie/10 transition-colors"
+                        class="w-8 h-8 flex items-center justify-center text-white/70 hover:text-white rounded-lg hover:bg-white/10 transition-colors"
                     >
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24">
                             <path d="M6 18L18 6M6 6l12 12"/>

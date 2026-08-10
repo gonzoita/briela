@@ -504,8 +504,8 @@ function submit() {
                                 </svg>
                             </div>
                             <!-- Badge tipo -->
-                            <span v-if="item.tipo === 'ensamble'" class="text-xs px-2 py-0.5 rounded-full font-medium shrink-0" style="background:var(--pastel-violeta);color:#5B21B6;">Ensamble</span>
-                            <span v-else-if="item.tipo === 'servicio'" class="text-xs px-2 py-0.5 rounded-full font-medium shrink-0" style="background:var(--pastel-verde);color:#065F46;">Servicio</span>
+                            <span v-if="item.tipo === 'ensamble'" class="text-xs px-2 py-0.5 rounded-full font-medium shrink-0" style="background:var(--pastel-violeta);color:var(--texto-violeta);">Ensamble</span>
+                            <span v-else-if="item.tipo === 'servicio'" class="text-xs px-2 py-0.5 rounded-full font-medium shrink-0" style="background:var(--pastel-verde);color:var(--texto-verde);">Servicio</span>
                             <span v-else class="text-xs px-2 py-0.5 rounded-full font-medium shrink-0" style="background:var(--pastel-azul-2);color:#0369A1;">Producto</span>
                             <div class="flex-1"/>
                             <!-- ↑↓ mobile -->
@@ -765,7 +765,7 @@ function submit() {
                         <button type="button" @click="modalPanel = 'ensamble'"
                             class="w-full flex items-center gap-4 p-4 rounded-2xl border-2 border-linea hover:border-purple-400 hover:bg-purple-50 transition-colors text-left">
                             <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style="background:var(--pastel-violeta);">
-                                <svg class="w-5 h-5" style="color:#5B21B6;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
+                                <svg class="w-5 h-5" style="color:var(--texto-violeta);" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
                                 </svg>
                             </div>

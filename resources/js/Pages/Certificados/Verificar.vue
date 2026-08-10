@@ -58,10 +58,10 @@ function verificar() {
                 class="rounded-2xl p-6 mb-4"
                 style="background:var(--pastel-verde); border:1px solid #10B981;">
                 <div class="flex items-center gap-2 mb-4">
-                    <svg class="w-7 h-7" style="color:#065F46;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                    <svg class="w-7 h-7" style="color:var(--texto-verde);" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                     </svg>
-                    <p class="text-lg font-semibold" style="color:#065F46;">Certificado válido</p>
+                    <p class="text-lg font-semibold" style="color:var(--texto-verde);">Certificado válido</p>
                 </div>
                 <dl class="space-y-2 text-sm">
                     <div class="flex justify-between gap-4">

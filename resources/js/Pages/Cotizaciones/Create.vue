@@ -641,7 +641,7 @@ function submit() {
                                 <svg class="w-4 h-4 shrink-0" style="color:var(--marca)" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
                                 </svg>
-                                <p class="text-sm font-medium flex-1" style="color:#1D4ED8;">
+                                <p class="text-sm font-medium flex-1" style="color:var(--texto-azul);">
                                     {{ clienteSeleccionado.nombre }}{{ clienteSeleccionado.apellido ? ' ' + clienteSeleccionado.apellido : '' }}
                                 </p>
                                 <button type="button" @click="limpiarCliente" class="text-blue-300 hover:text-blue-500">
@@ -734,8 +734,8 @@ function submit() {
                                     </svg>
                                 </div>
                                 <!-- Badge tipo -->
-                                <span v-if="item.tipo === 'producto'" class="text-xs px-2 py-0.5 rounded-full font-medium shrink-0" style="background:var(--pastel-azul);color:#1D4ED8;">Producto</span>
-                                <span v-else-if="item.tipo === 'servicio'" class="text-xs px-2 py-0.5 rounded-full font-medium shrink-0" style="background:var(--pastel-verde);color:#065F46;">Servicio</span>
+                                <span v-if="item.tipo === 'producto'" class="text-xs px-2 py-0.5 rounded-full font-medium shrink-0" style="background:var(--pastel-azul);color:var(--texto-azul);">Producto</span>
+                                <span v-else-if="item.tipo === 'servicio'" class="text-xs px-2 py-0.5 rounded-full font-medium shrink-0" style="background:var(--pastel-verde);color:var(--texto-verde);">Servicio</span>
                                 <span v-else-if="item.tipo === 'ensamble'" class="text-xs px-2 py-0.5 rounded-full font-medium shrink-0" style="background:var(--pastel-naranja);color:#C2410C;">Ensamble</span>
                                 <span v-else class="text-xs px-2 py-0.5 rounded-full font-medium bg-tinta-100 text-tinta-400 shrink-0">Texto libre</span>
 
@@ -827,11 +827,11 @@ function submit() {
                                 <div v-if="itemTieneComision(item)"
                                     class="mt-2 flex items-center gap-2 px-3 py-2 rounded-xl"
                                     style="background:var(--pastel-ambar);border:1px solid #FCD34D;">
-                                    <span class="text-xs font-medium shrink-0" style="color:#B45309;">Com.</span>
+                                    <span class="text-xs font-medium shrink-0" style="color:var(--texto-ambar);">Com.</span>
                                     <button type="button" @click="ajustarComision(item, idx, -0.5)"
                                         :disabled="(item.comision_pct_actual || getCanalComisionMax(item)) <= getCanalComisionMin(item)"
                                         class="w-6 h-6 rounded-full flex items-center justify-center font-semibold text-sm disabled:opacity-40 shrink-0 hover:bg-amber-100 transition-colors"
-                                        style="border:1px solid #FCD34D;color:#B45309;">−</button>
+                                        style="border:1px solid #FCD34D;color:var(--texto-ambar);">−</button>
                                     <input type="range"
                                         :min="getCanalComisionMin(item)"
                                         :max="getCanalComisionMax(item)"
@@ -842,8 +842,8 @@ function submit() {
                                     <button type="button" @click="ajustarComision(item, idx, 0.5)"
                                         :disabled="(item.comision_pct_actual || getCanalComisionMax(item)) >= getCanalComisionMax(item)"
                                         class="w-6 h-6 rounded-full flex items-center justify-center font-semibold text-sm disabled:opacity-40 shrink-0 hover:bg-amber-100 transition-colors"
-                                        style="border:1px solid #FCD34D;color:#B45309;">+</button>
-                                    <span class="text-xs font-semibold shrink-0 text-right" style="color:#92400E;min-width:5.5rem;">
+                                        style="border:1px solid #FCD34D;color:var(--texto-ambar);">+</button>
+                                    <span class="text-xs font-semibold shrink-0 text-right" style="color:var(--texto-ambar);min-width:5.5rem;">
                                         {{ (item.comision_pct_actual || getCanalComisionMax(item)).toFixed(1) }}% · ${{ formatCOP(comisionActualValor(item)) }}
                                     </span>
                                 </div>

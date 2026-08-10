@@ -53,7 +53,7 @@ const inicial = (t) => (t ?? '?').charAt(0).toUpperCase()
                             </p>
                         </div>
                         <span v-if="insc.fecha_limite" class="inline-block px-2 py-0.5 rounded-full text-xs font-semibold shrink-0"
-                            :style="diasRestantes(insc.fecha_limite) <= 3 ? 'background:var(--pastel-rojo);color:#B91C1C;' : 'background:var(--pastel-ambar);color:#92400E;'">
+                            :style="diasRestantes(insc.fecha_limite) <= 3 ? 'background:var(--pastel-rojo);color:var(--texto-rojo);' : 'background:var(--pastel-ambar);color:var(--texto-ambar);'">
                             {{ diasRestantes(insc.fecha_limite) >= 0 ? `${diasRestantes(insc.fecha_limite)}d restantes` : 'Vencido' }}
                         </span>
                     </div>

@@ -381,7 +381,7 @@ async function eliminarPregunta(pregunta, target = evaluacion) {
                         <span v-if="curso.categoria" class="inline-block px-2 py-0.5 rounded-full text-xs font-semibold text-white" style="background:#64748B;">{{ curso.categoria }}</span>
                         <span class="inline-block px-2 py-0.5 rounded-full text-xs font-semibold text-white" style="background:var(--marca);">{{ publicoLabel(curso.publico_objetivo) }}</span>
                         <span v-if="curso.obligatorio" class="inline-block px-2 py-0.5 rounded-full text-xs font-semibold text-white" style="background:#B91C1C;">Obligatorio</span>
-                        <span class="inline-block px-2 py-0.5 rounded-full text-xs font-semibold" :style="curso.activo ? 'background:var(--pastel-verde);color:#065F46;' : 'background:var(--superficie-2);color:#6B7280;'">{{ curso.activo ? 'Activo' : 'Inactivo' }}</span>
+                        <span class="inline-block px-2 py-0.5 rounded-full text-xs font-semibold" :style="curso.activo ? 'background:var(--pastel-verde);color:var(--texto-verde);' : 'background:var(--superficie-2);color:var(--texto-3);'">{{ curso.activo ? 'Activo' : 'Inactivo' }}</span>
                     </div>
                 </div>
             </div>

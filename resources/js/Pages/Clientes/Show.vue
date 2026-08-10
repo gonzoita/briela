@@ -164,7 +164,7 @@ function eliminar() {
                                 <p class="text-sm font-semibold text-tinta-900">{{ c.nombre }} {{ c.apellido }}</p>
                                 <span v-if="c.es_principal"
                                     class="text-xs px-1.5 py-0.5 rounded-full font-medium"
-                                    style="background:var(--pastel-azul-2); color:#1D4ED8;">
+                                    style="background:var(--pastel-azul-2); color:var(--texto-azul);">
                                     Principal
                                 </span>
                             </div>

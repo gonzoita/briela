@@ -234,6 +234,14 @@ class Marca
                 'pastel-rojo'    => '#FEF3F2',
                 'pastel-violeta' => '#F4F3FF',
                 'pastel-naranja' => '#FEF6EE',
+                // Texto de color. En el modo de noche se aclara: un azul oscuro
+                // sobre fondo oscuro se lee con esfuerzo, y en un sistema de
+                // trabajo eso cansa en media hora.
+                'texto-azul'    => '#1849A9',
+                'texto-verde'   => '#05603A',
+                'texto-ambar'   => '#93370D',
+                'texto-rojo'    => '#B42318',
+                'texto-violeta' => '#5925DC',
             ],
             'oscuro' => [
                 // Grises con un asomo de azul, no negro puro: el negro absoluto
@@ -268,6 +276,11 @@ class Marca
                 'pastel-rojo'    => '#3A1D1D',
                 'pastel-violeta' => '#251F41',
                 'pastel-naranja' => '#37220F',
+                'texto-azul'    => '#84CAFF',
+                'texto-verde'   => '#6CE9A6',
+                'texto-ambar'   => '#FEC84B',
+                'texto-rojo'    => '#FDA29B',
+                'texto-violeta' => '#BDB4FE',
             ],
         ];
     }

@@ -384,7 +384,7 @@ function formatFecha(fecha) {
                                         </select>
                                         <button @click="vincularCliente" :disabled="!clienteExistenteId"
                                             class="text-white text-sm px-3 py-1.5 rounded-lg disabled:opacity-40"
-                                            style="background-color: #374151;">
+                                            style="background-color: var(--marca);">
                                             Vincular
                                         </button>
                                     </div>

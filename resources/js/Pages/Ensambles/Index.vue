@@ -59,7 +59,7 @@ function inicial(nombre) {
                     <div class="flex items-center rounded-xl border border-linea bg-superficie overflow-hidden shadow-sm">
                         <button @click="viewMode = 'list'"
                             class="w-9 h-9 flex items-center justify-center transition-colors"
-                            :style="viewMode === 'list' ? 'background:var(--marca);color:white;' : 'color:#9CA3AF;'"
+                            :style="viewMode === 'list' ? 'background:var(--marca);color:white;' : 'color:var(--texto-3);'"
                             title="Vista lista">
                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 10h16M4 14h16M4 18h16"/>
@@ -67,7 +67,7 @@ function inicial(nombre) {
                         </button>
                         <button @click="viewMode = 'grid'"
                             class="w-9 h-9 flex items-center justify-center transition-colors"
-                            :style="viewMode === 'grid' ? 'background:var(--marca);color:white;' : 'color:#9CA3AF;'"
+                            :style="viewMode === 'grid' ? 'background:var(--marca);color:white;' : 'color:var(--texto-3);'"
                             title="Vista grid">
                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M4 5a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1V5zm10 0a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM4 15a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1v-4zm10 0a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"/>

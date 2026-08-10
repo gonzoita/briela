@@ -375,7 +375,7 @@ onUnmounted(() => {
                             :style="{ background: est.color || 'var(--marca)' }"
                         >
                             <span class="flex-1 text-sm font-semibold truncate">{{ est.nombre }}</span>
-                            <span class="text-xs px-1.5 py-0.5 rounded-full bg-superficie/20 font-semibold shrink-0">
+                            <span class="text-xs px-1.5 py-0.5 rounded-full bg-white/20 font-semibold shrink-0">
                                 {{ (kanbanPorEstacion[est.id] ?? []).length }}
                             </span>
                         </div>

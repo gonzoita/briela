@@ -37,7 +37,7 @@
                         </button>
                         <button
                             @click="mostrar = false"
-                            class="text-white/70 hover:text-white p-1 rounded-lg hover:bg-superficie/10"
+                            class="text-white/70 hover:text-white p-1 rounded-lg hover:bg-white/10"
                         >
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>

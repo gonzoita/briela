@@ -40,7 +40,7 @@ const imprimir = () => {
         <style>
           body { margin: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; font-family: sans-serif; }
           img { display: block; }
-          p { color: #6B7280; font-size: 12px; margin-top: 8px; }
+          p { color: var(--texto-3); font-size: 12px; margin-top: 8px; }
           @media print { button { display: none; } }
         </style></head>
         <body>

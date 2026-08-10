@@ -164,7 +164,7 @@ function toggleLista(ordenada) {
    usa el scoping normal, así que un selector "scoped" común (.rte-content ul)
    nunca los matchea y Tailwind preflight (que resetea list-style a none) se
    queda ganando. :deep() saca el atributo scoped de esa parte del selector. */
-.rte-content:empty:before { content: attr(data-placeholder); color: #9CA3AF; }
+.rte-content:empty:before { content: attr(data-placeholder); color: var(--texto-3); }
 .rte-content :deep(ul) { list-style: disc; padding-left: 1.25rem; }
 .rte-content :deep(ol) { list-style: decimal; padding-left: 1.25rem; }
 </style>

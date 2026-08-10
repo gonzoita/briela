@@ -87,7 +87,7 @@ function pctColor(pct) {
                 <h1 class="text-2xl font-semibold" style="color:#00B4D8;">
                     Planta de Producción
                 </h1>
-                <p class="text-sm capitalize" style="color:#8BA3C1;">{{ fecha }}</p>
+                <p class="text-sm capitalize" style="color:var(--texto-3);">{{ fecha }}</p>
             </div>
         </div>
         <div class="text-right">
@@ -146,12 +146,12 @@ function pctColor(pct) {
                         </div>
                         <div class="text-right shrink-0">
                             <p class="font-semibold text-lg" style="color:#00B4D8;">{{ c.puntos_semana }}</p>
-                            <p class="text-xs" style="color:#8BA3C1;">pts</p>
+                            <p class="text-xs" style="color:var(--texto-3);">pts</p>
                         </div>
                     </div>
                 </div>
 
-                <div v-else class="text-center py-8" style="color:#8BA3C1;">
+                <div v-else class="text-center py-8" style="color:var(--texto-3);">
                     <p class="text-3xl mb-2">🏅</p>
                     <p class="text-sm">Sin movimientos esta semana</p>
                     <p class="text-xs mt-1">¡Completa trabajos para aparecer aquí!</p>
@@ -204,11 +204,11 @@ function pctColor(pct) {
                                    :style="{ color: paso.completado ? '#00C853' : '#fff' }">
                                     {{ paso.nombre }}
                                 </p>
-                                <p class="text-xs truncate" style="color:#8BA3C1;">
+                                <p class="text-xs truncate" style="color:var(--texto-3);">
                                     {{ paso.op }}<span v-if="paso.cliente"> · {{ paso.cliente }}</span><span v-if="paso.colaborador"> · {{ paso.colaborador }}</span>
                                 </p>
                             </div>
-                            <span v-if="paso.tiempo_est" class="text-xs shrink-0" style="color:#8BA3C1;">
+                            <span v-if="paso.tiempo_est" class="text-xs shrink-0" style="color:var(--texto-3);">
                                 {{ paso.tiempo_est }}m
                             </span>
                         </div>
@@ -217,7 +217,7 @@ function pctColor(pct) {
             </div>
 
             <div v-else class="flex flex-col items-center justify-center h-48"
-                 style="color:#8BA3C1;">
+                 style="color:var(--texto-3);">
                 <p class="text-4xl mb-3">📋</p>
                 <p class="text-sm">Sin trabajos programados para hoy</p>
                 <p class="text-xs mt-1">Usa el Programador para asignar trabajos</p>
@@ -238,7 +238,7 @@ function pctColor(pct) {
                         <div class="flex items-start justify-between mb-1.5">
                             <div class="min-w-0 flex-1">
                                 <p class="font-semibold text-sm" style="color:#00B4D8;">{{ op.numero }}</p>
-                                <p class="text-xs truncate" style="color:#8BA3C1;">{{ op.cliente }}</p>
+                                <p class="text-xs truncate" style="color:var(--texto-3);">{{ op.cliente }}</p>
                             </div>
                             <span class="font-semibold text-xl shrink-0 ml-2"
                                   :style="{ color: pctColor(op.porcentaje_avance) }">
@@ -252,13 +252,13 @@ function pctColor(pct) {
                                      background: pctColor(op.porcentaje_avance),
                                  }"></div>
                         </div>
-                        <p v-if="op.fecha_entrega" class="text-xs mt-1" style="color:#8BA3C1;">
+                        <p v-if="op.fecha_entrega" class="text-xs mt-1" style="color:var(--texto-3);">
                             📅 {{ op.fecha_entrega }}
                         </p>
                     </div>
                 </div>
 
-                <div v-else class="text-center py-8" style="color:#8BA3C1;">
+                <div v-else class="text-center py-8" style="color:var(--texto-3);">
                     <p class="text-3xl mb-2">📦</p>
                     <p class="text-sm">Sin órdenes activas</p>
                 </div>
@@ -272,12 +272,12 @@ function pctColor(pct) {
                     <div v-for="(p, idx) in pasosHoy.slice(0, 5)" :key="idx"
                          class="p-2 rounded-lg" style="background:#0D2E5A;">
                         <p class="text-xs font-medium truncate">{{ p.nombre }}</p>
-                        <p class="text-xs truncate" style="color:#8BA3C1;">
+                        <p class="text-xs truncate" style="color:var(--texto-3);">
                             {{ p.operarios.join(', ') }} · {{ p.completado_at }}
                         </p>
                     </div>
                 </div>
-                <div v-else class="text-center py-4" style="color:#8BA3C1;">
+                <div v-else class="text-center py-4" style="color:var(--texto-3);">
                     <p class="text-sm">Sin completados aún</p>
                 </div>
             </div>
@@ -286,7 +286,7 @@ function pctColor(pct) {
 
     <!-- FOOTER -->
     <div class="px-8 py-2 flex items-center justify-between border-t text-xs"
-         style="background:#0D2E5A; border-color:var(--marca); color:#8BA3C1;">
+         style="background:#0D2E5A; border-color:var(--marca); color:var(--texto-3);">
         <span>{{ $page.props.marca.nombre }} © {{ new Date().getFullYear() }}</span>
         <span>Sistema de Gestión Integral — Actualización cada 30s</span>
         <span style="color:#00B4D8;">{{ $page.props.marca.web }}</span>

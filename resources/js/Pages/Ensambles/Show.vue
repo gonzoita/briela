@@ -159,8 +159,8 @@ const variablesEntries = Object.entries(props.ensamble.variables ?? {})
                         <p class="text-lg font-semibold text-tinta-900">${{ formatCOP(ensamble.precio_mayorista) }}</p>
                     </div>
                     <div class="p-4 rounded-xl text-center" style="background:var(--pastel-azul); border:2px solid #93C5FD;">
-                        <p class="text-xs font-medium mb-1" style="color:#1D4ED8;">Distribuidor</p>
-                        <p class="text-lg font-semibold" style="color:#1D4ED8;">${{ formatCOP(ensamble.precio_distribuidor) }}</p>
+                        <p class="text-xs font-medium mb-1" style="color:var(--texto-azul);">Distribuidor</p>
+                        <p class="text-lg font-semibold" style="color:var(--texto-azul);">${{ formatCOP(ensamble.precio_distribuidor) }}</p>
                     </div>
                     <div class="p-4 rounded-xl text-center" style="background:var(--pastel-verde);">
                         <p class="text-xs text-tinta-300 mb-1">Cliente final</p>

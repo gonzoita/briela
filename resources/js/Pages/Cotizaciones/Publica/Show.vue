@@ -92,7 +92,7 @@ function calcularTotal(item) {
             <!-- Flash error -->
             <div v-if="errors.error"
                 class="rounded-xl px-4 py-3 text-sm font-medium flex items-center gap-3"
-                style="background:var(--pastel-rojo); color:#DC2626; border:1px solid #FECACA;">
+                style="background:var(--pastel-rojo); color:var(--texto-rojo); border:1px solid #FECACA;">
                 <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                 </svg>
@@ -270,8 +270,8 @@ function calcularTotal(item) {
                         : 'background:var(--pastel-ambar);border-color:#FDE68A;'">
                 <p class="text-sm font-semibold"
                     :style="estadoActual === 'aprobada' ? 'color:#15803D;'
-                        : estadoActual === 'rechazada' ? 'color:#DC2626;'
-                        : 'color:#92400E;'">
+                        : estadoActual === 'rechazada' ? 'color:var(--texto-rojo);'
+                        : 'color:var(--texto-ambar);'">
                     {{ estadoActual === 'aprobada' ? 'Esta cotización ha sido aprobada' :
                        estadoActual === 'rechazada' ? 'Esta cotización fue rechazada' :
                        'Esta cotización ha vencido' }}

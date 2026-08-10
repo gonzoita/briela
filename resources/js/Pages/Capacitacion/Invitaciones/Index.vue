@@ -163,7 +163,7 @@ function limpiarCliente() {
                     <input :value="urlInvitacion(inv)" readonly type="text"
                         @focus="$event.target.select()" @click="$event.target.select()"
                         class="w-full border border-linea rounded-lg px-2.5 py-1.5 text-xs text-tinta-400 bg-tinta-50 focus:outline-none focus:border-[var(--marca)] truncate" />
-                    <p v-if="copiaFallidaId === inv.id" class="text-xs" style="color:#B91C1C;">
+                    <p v-if="copiaFallidaId === inv.id" class="text-xs" style="color:var(--texto-rojo);">
                         No se pudo copiar automáticamente. Selecciona el texto de arriba y usa Ctrl+C.
                     </p>
                 </div>
@@ -216,7 +216,7 @@ function limpiarCliente() {
                         <div v-if="clienteSeleccionado"
                             class="mt-2 flex items-center gap-3 px-3 py-2 rounded-xl"
                             style="background:var(--pastel-azul); border:1px solid #BFDBFE;">
-                            <p class="text-sm font-medium flex-1" style="color:#1D4ED8;">
+                            <p class="text-sm font-medium flex-1" style="color:var(--texto-azul);">
                                 {{ clienteSeleccionado.nombre }}{{ clienteSeleccionado.apellido ? ' ' + clienteSeleccionado.apellido : '' }}
                             </p>
                             <button type="button" @click="limpiarCliente" class="text-blue-300 hover:text-blue-500">

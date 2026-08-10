@@ -1271,7 +1271,7 @@ onUnmounted(() => {
                     <button
                         @click="descartarPWA"
                         class="flex-1 py-2 text-sm font-medium rounded-xl hover:bg-tinta-50 transition-colors"
-                        style="color: #6B7280;"
+                        style="color: var(--texto-3);"
                     >
                         Ahora no
                     </button>

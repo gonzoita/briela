@@ -1710,10 +1710,10 @@ const badgesTipo = {
                                             @keyup.escape.stop="renombrandoSecId = null"
                                             @blur="confirmarRenombrar(sec)"
                                             @click.stop
-                                            class="w-full bg-superficie/20 text-white text-xs px-2 py-0.5 rounded border border-superficie/40 focus:outline-none font-semibold tracking-wide" />
+                                            class="w-full bg-white/20 text-white text-xs px-2 py-0.5 rounded border border-superficie/40 focus:outline-none font-semibold tracking-wide" />
                                         <div v-else class="flex items-center gap-2">
                                             <span class="text-xs font-semibold text-white uppercase tracking-wide truncate">{{ sec.nombre }}</span>
-                                            <span class="text-xs bg-superficie/20 text-white px-1.5 py-0.5 rounded-full font-medium leading-none shrink-0">{{ componentesDeSeccion(sec.id).length }}</span>
+                                            <span class="text-xs bg-white/20 text-white px-1.5 py-0.5 rounded-full font-medium leading-none shrink-0">{{ componentesDeSeccion(sec.id).length }}</span>
                                         </div>
                                     </div>
 

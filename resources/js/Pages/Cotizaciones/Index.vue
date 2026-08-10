@@ -128,11 +128,11 @@ const chartPoints = computed(() => {
                     </div>
                     <div class="bg-superficie rounded-2xl border border-linea shadow-sm px-4 py-3">
                         <p class="text-xs text-tinta-300 mb-1">Enviadas</p>
-                        <p class="text-2xl font-semibold" style="color:#1D4ED8;">{{ metricas?.enviadas ?? 0 }}</p>
+                        <p class="text-2xl font-semibold" style="color:var(--texto-azul);">{{ metricas?.enviadas ?? 0 }}</p>
                     </div>
                     <div class="bg-superficie rounded-2xl border border-linea shadow-sm px-4 py-3">
                         <p class="text-xs text-tinta-300 mb-1">Aprobadas</p>
-                        <p class="text-2xl font-semibold" style="color:#065F46;">{{ metricas?.aprobadas ?? 0 }}</p>
+                        <p class="text-2xl font-semibold" style="color:var(--texto-verde);">{{ metricas?.aprobadas ?? 0 }}</p>
                     </div>
                     <div class="bg-superficie rounded-2xl border border-linea shadow-sm px-4 py-3">
                         <p class="text-xs text-tinta-300 mb-1">Aprobado este mes</p>
@@ -145,10 +145,10 @@ const chartPoints = computed(() => {
                     class="mb-3 px-4 py-3 rounded-2xl"
                     style="background:var(--pastel-ambar); border:1px solid #F59E0B;">
                     <div class="flex items-center gap-3 mb-2">
-                        <svg class="w-5 h-5 shrink-0" style="color:#92400E;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
+                        <svg class="w-5 h-5 shrink-0" style="color:var(--texto-ambar);" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/>
                         </svg>
-                        <p class="text-sm font-medium" style="color:#92400E;">
+                        <p class="text-sm font-medium" style="color:var(--texto-ambar);">
                             {{ metricas.necesitan_seguimiento }} cotización(es) llevan más de 5 días en estado "Enviada" sin respuesta — requieren seguimiento:
                         </p>
                     </div>
@@ -156,7 +156,7 @@ const chartPoints = computed(() => {
                         <a v-for="c in metricas.cotizaciones_seguimiento" :key="c.id"
                             :href="`/cotizaciones/${c.id}`"
                             class="text-xs font-semibold px-2.5 py-1 rounded-full bg-superficie hover:underline"
-                            style="color:#92400E; border:1px solid #F59E0B;">
+                            style="color:var(--texto-ambar); border:1px solid #F59E0B;">
                             {{ c.numero }} · {{ c.dias }}d
                         </a>
                     </div>
@@ -266,7 +266,7 @@ const chartPoints = computed(() => {
                                         {{ cot.estado_badge?.label }}
                                     </span>
                                     <span v-if="cot.dias_sin_respuesta >= 5"
-                                        class="block mt-1 text-[10px] font-semibold" style="color:#B45309;"
+                                        class="block mt-1 text-[10px] font-semibold" style="color:var(--texto-ambar);"
                                         :title="`${cot.dias_sin_respuesta} días sin respuesta`">
                                         ⚠ {{ cot.dias_sin_respuesta }}d sin respuesta
                                     </span>
@@ -321,7 +321,7 @@ const chartPoints = computed(() => {
                             </span>
                         </div>
                         <p class="text-sm text-tinta-700 font-medium">{{ cot.cliente?.nombre ?? cot.nombre_contacto_override ?? '—' }}</p>
-                        <p v-if="cot.dias_sin_respuesta >= 5" class="text-[11px] font-semibold mt-1" style="color:#B45309;">
+                        <p v-if="cot.dias_sin_respuesta >= 5" class="text-[11px] font-semibold mt-1" style="color:var(--texto-ambar);">
                             ⚠ {{ cot.dias_sin_respuesta }} días sin respuesta
                         </p>
                         <div class="flex items-center justify-between mt-2">

@@ -280,7 +280,7 @@ async function limpiar() {
             >
                 <!-- Cabecera -->
                 <div class="flex items-center gap-3 px-4 py-3 rounded-t-2xl shrink-0" style="background:var(--marca);">
-                    <div class="w-8 h-8 rounded-full bg-superficie/20 flex items-center justify-center">
+                    <div class="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
                         <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                             <path stroke-linecap="round" stroke-linejoin="round"
                                 d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-6l-4 4v-4z" />

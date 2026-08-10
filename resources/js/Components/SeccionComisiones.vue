@@ -140,7 +140,7 @@ watch(descuentoMaxRealClienteFinal, (v) => emit('update:descuentoMaxClienteFinal
                     <button type="button" @click="sugerirComisiones"
                         :disabled="!descuentoMaxRealDistribuidor && !descuentoMaxRealClienteFinal"
                         class="text-xs px-2 py-0.5 rounded-lg border transition-colors disabled:opacity-40"
-                        style="border-color:#93C5FD;color:#1D4ED8;background:var(--pastel-azul);">
+                        style="border-color:#93C5FD;color:var(--texto-azul);background:var(--pastel-azul);">
                         ✦ Sugerir
                     </button>
                 </div>

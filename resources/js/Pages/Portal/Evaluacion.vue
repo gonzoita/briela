@@ -78,7 +78,7 @@ function reintentar() {
             <!-- Pendiente de revisión -->
             <div v-else-if="resultado?.estado === 'pendiente_revision'" class="bg-superficie rounded-2xl shadow-sm py-10 px-6 text-center">
                 <div class="w-16 h-16 rounded-full mx-auto mb-3 flex items-center justify-center" style="background:var(--pastel-ambar);">
-                    <svg class="w-8 h-8" style="color:#92400E;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
+                    <svg class="w-8 h-8" style="color:var(--texto-ambar);" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
                     </svg>
                 </div>

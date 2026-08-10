@@ -122,7 +122,7 @@ const descargarPNG = async () => {
 .etiqueta-cliente,
 .etiqueta-fecha {
     font-size: 10px;
-    color: #374151;
+    color: var(--texto-2);
     padding: 0 10px;
     line-height: 1.4;
 }
@@ -152,13 +152,13 @@ const descargarPNG = async () => {
 .etiqueta-tipo {
     font-size: 10px;
     font-weight: 600;
-    color: #374151;
+    color: var(--texto-2);
     margin-top: 4px;
 }
 
 .etiqueta-resumen {
     font-size: 9px;
-    color: #6B7280;
+    color: var(--texto-3);
     margin-top: 2px;
     line-height: 1.3;
 }
@@ -189,7 +189,7 @@ const descargarPNG = async () => {
 
 .btn-etiqueta-png {
     background-color: var(--superficie-2);
-    color: #374151;
+    color: var(--texto-2);
 }
 
 @media print {
