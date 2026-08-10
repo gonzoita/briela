@@ -29,7 +29,7 @@ const filas = computed(() => {
 <template>
     <div class="divide-y divide-gray-50">
         <template v-for="(fila, idx) in filas" :key="idx">
-            <div v-if="fila.tipo === 'encabezado'" class="px-4 py-1.5 text-xs font-semibold text-gray-400 uppercase tracking-wide bg-gray-50">
+            <div v-if="fila.tipo === 'encabezado'" class="px-4 py-1.5 text-xs font-semibold text-tinta-300 uppercase tracking-wide bg-tinta-50">
                 {{ fila.nombre }}
             </div>
             <button
@@ -40,9 +40,9 @@ const filas = computed(() => {
                 @click="emit('elegir', fila.producto)"
             >
                 <div class="min-w-0">
-                    <p class="text-sm text-gray-800 truncate">{{ fila.producto.nombre }}</p>
+                    <p class="text-sm text-tinta-900 truncate">{{ fila.producto.nombre }}</p>
                     <div class="flex items-center gap-2 mt-0.5">
-                        <span class="text-xs text-gray-400 font-mono truncate">{{ fila.producto.referencia }}</span>
+                        <span class="text-xs text-tinta-300 font-mono truncate">{{ fila.producto.referencia }}</span>
                         <span v-if="fila.producto.tipo === 'servicio'" class="text-xs px-1.5 py-0.5 rounded-full shrink-0" style="background:#ECFDF5;color:#065F46;">Servicio</span>
                     </div>
                 </div>
@@ -58,7 +58,7 @@ const filas = computed(() => {
                 </div>
             </button>
         </template>
-        <div v-if="!resultados.length" class="px-4 py-6 text-center text-sm text-gray-400">
+        <div v-if="!resultados.length" class="px-4 py-6 text-center text-sm text-tinta-300">
             Sin resultados.
         </div>
     </div>

@@ -14,7 +14,7 @@
                         <p class="text-white/60 text-xs mt-0.5">PDF, imágenes, documentos · Máx 20 MB</p>
                     </div>
                     <button @click="cerrar" class="w-8 h-8 flex items-center justify-center text-white/70 hover:text-white rounded-lg hover:bg-white/10 transition-colors">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24">
                             <path d="M6 18L18 6M6 6l12 12"/>
                         </svg>
                     </button>
@@ -25,7 +25,7 @@
                     <!-- Zona drag & drop -->
                     <div
                         class="border-2 border-dashed rounded-2xl p-8 text-center cursor-pointer transition-colors"
-                        :class="archivoSeleccionado ? 'border-[var(--marca)] bg-blue-50' : 'border-gray-200 hover:border-[var(--marca)] hover:bg-blue-50'"
+                        :class="archivoSeleccionado ? 'border-[var(--marca)] bg-blue-50' : 'border-linea hover:border-[var(--marca)] hover:bg-blue-50'"
                         @dragover.prevent
                         @drop.prevent="onDrop"
                         @click="$refs.inputArchivo.click()"
@@ -33,24 +33,24 @@
                         <input ref="inputArchivo" type="file" class="hidden" @change="onFileChange" />
 
                         <div v-if="!archivoSeleccionado">
-                            <svg class="w-10 h-10 text-gray-300 mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                            <svg class="w-10 h-10 text-tinta-200 mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/>
                             </svg>
-                            <p class="text-sm text-gray-600 font-medium">Arrastra aquí o haz clic para seleccionar</p>
-                            <p class="text-xs text-gray-400 mt-1">PDF, JPG, PNG, DOCX · Máx 20 MB</p>
+                            <p class="text-sm text-tinta-500 font-medium">Arrastra aquí o haz clic para seleccionar</p>
+                            <p class="text-xs text-tinta-300 mt-1">PDF, JPG, PNG, DOCX · Máx 20 MB</p>
                         </div>
 
                         <div v-else class="flex items-center gap-3">
                             <div class="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center shrink-0">
                                 <img v-if="previewUrl" :src="previewUrl" class="w-12 h-12 rounded-xl object-cover"/>
-                                <span v-else class="text-xs font-bold text-blue-600 uppercase">{{ extension }}</span>
+                                <span v-else class="text-xs font-semibold text-blue-600 uppercase">{{ extension }}</span>
                             </div>
                             <div class="flex-1 min-w-0 text-left">
-                                <p class="text-sm font-medium text-gray-800 truncate">{{ archivoSeleccionado.name }}</p>
-                                <p class="text-xs text-gray-400">{{ tamanoFormateado }}</p>
+                                <p class="text-sm font-medium text-tinta-900 truncate">{{ archivoSeleccionado.name }}</p>
+                                <p class="text-xs text-tinta-300">{{ tamanoFormateado }}</p>
                             </div>
-                            <button @click.stop="limpiar" class="text-gray-400 hover:text-red-500 transition-colors">
-                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <button @click.stop="limpiar" class="text-tinta-300 hover:text-red-500 transition-colors">
+                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                     <path d="M6 18L18 6M6 6l12 12"/>
                                 </svg>
                             </button>
@@ -59,8 +59,8 @@
 
                     <!-- Categoría -->
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1.5">Categoría</label>
-                        <select v-model="categoria" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm bg-white focus:outline-none focus:ring-2">
+                        <label class="block text-sm font-medium text-tinta-700 mb-1.5">Categoría</label>
+                        <select v-model="categoria" class="w-full border border-linea rounded-xl px-4 py-2.5 text-sm bg-white focus:outline-none focus:ring-2">
                             <option value="plano">Plano</option>
                             <option value="foto_calidad">Foto de calidad</option>
                             <option value="documento">Documento</option>
@@ -70,22 +70,22 @@
 
                     <!-- Descripción -->
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1.5">Descripción <span class="text-gray-400 font-normal">(opcional)</span></label>
+                        <label class="block text-sm font-medium text-tinta-700 mb-1.5">Descripción <span class="text-tinta-300 font-normal">(opcional)</span></label>
                         <input
                             v-model="descripcion"
                             type="text"
                             placeholder="Ej: Plano de fachada norte"
-                            class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm bg-white focus:outline-none focus:ring-2"
+                            class="w-full border border-linea rounded-xl px-4 py-2.5 text-sm bg-white focus:outline-none focus:ring-2"
                         />
                     </div>
 
                     <!-- Barra de progreso -->
                     <div v-if="subiendo" class="space-y-1">
-                        <div class="flex justify-between text-xs text-gray-500">
+                        <div class="flex justify-between text-xs text-tinta-400">
                             <span>Subiendo...</span>
                             <span>{{ progreso }}%</span>
                         </div>
-                        <div class="w-full bg-gray-100 rounded-full h-2">
+                        <div class="w-full bg-tinta-100 rounded-full h-2">
                             <div
                                 class="h-2 rounded-full transition-all duration-200 bg-[var(--marca)]"
                                 :style="{ width: progreso + '%' }"
@@ -99,8 +99,8 @@
                 </div>
 
                 <!-- Footer -->
-                <div class="border-t border-gray-100 px-5 py-4 flex items-center justify-between">
-                    <button @click="cerrar" class="text-sm font-medium text-gray-500 hover:text-gray-700 transition-colors">
+                <div class="border-t border-linea px-5 py-4 flex items-center justify-between">
+                    <button @click="cerrar" class="text-sm font-medium text-tinta-400 hover:text-tinta-700 transition-colors">
                         Cancelar
                     </button>
                     <button

@@ -97,61 +97,61 @@ function fmt(n) {
 
             <div class="flex items-center justify-between mb-4">
                 <div>
-                    <h1 class="text-xl font-bold text-gray-900">Recetas de corte</h1>
+                    <h1 class="text-xl font-semibold text-tinta-900">Recetas de corte</h1>
                     <a href="/inventario" class="text-sm text-blue-600 underline">Volver a inventario</a>
                 </div>
                 <button @click="abrirCrear"
                     class="inline-flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-medium text-white"
                     style="background:var(--marca)">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M12 4v16m8-8H4"/>
                     </svg>
                     Nueva receta
                 </button>
             </div>
 
-            <p class="text-sm text-gray-500 mb-4">
+            <p class="text-sm text-tinta-400 mb-4">
                 Cada receta convierte metros/unidades de un insumo (rollo, barra) en piezas de stock de una variante,
                 mediante corte en planta.
             </p>
 
             <div class="space-y-3">
                 <div v-for="receta in recetas" :key="receta.id"
-                    class="bg-white rounded-xl border border-gray-200 p-4">
+                    class="bg-white rounded-xl border border-linea p-4">
                     <div class="flex items-start justify-between gap-2">
                         <div class="min-w-0">
-                            <p class="font-semibold text-gray-900 truncate">
+                            <p class="font-semibold text-tinta-900 truncate">
                                 {{ receta.nombre || `${receta.insumo?.nombre} → ${receta.resultado_nombre_completo}` }}
                             </p>
-                            <p class="text-sm text-gray-500 mt-0.5">
+                            <p class="text-sm text-tinta-400 mt-0.5">
                                 {{ receta.cantidad_insumo }} {{ receta.insumo?.unidad_medida }}
-                                de <span class="font-medium text-gray-700">{{ receta.insumo?.nombre }}</span>
+                                de <span class="font-medium text-tinta-700">{{ receta.insumo?.nombre }}</span>
                                 → 1 {{ receta.resultado?.unidad_medida }}
-                                de <span class="font-medium text-gray-700">{{ receta.resultado_nombre_completo }}</span>
+                                de <span class="font-medium text-tinta-700">{{ receta.resultado_nombre_completo }}</span>
                             </p>
-                            <div class="flex gap-4 mt-2 text-xs text-gray-500">
+                            <div class="flex gap-4 mt-2 text-xs text-tinta-400">
                                 <span>Stock insumo: <strong>{{ fmt(receta.stock_insumo) }}</strong></span>
                                 <span>Stock resultado: <strong>{{ fmt(receta.stock_resultado) }}</strong></span>
                             </div>
                         </div>
                         <span v-if="!receta.activo"
-                            class="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-500 font-medium whitespace-nowrap">
+                            class="text-xs px-2 py-0.5 rounded-full bg-tinta-100 text-tinta-400 font-medium whitespace-nowrap">
                             Inactiva
                         </span>
                     </div>
 
-                    <div class="flex flex-wrap gap-3 mt-3 pt-3 border-t border-gray-100">
+                    <div class="flex flex-wrap gap-3 mt-3 pt-3 border-t border-linea">
                         <button @click="abrirConstruir(receta)"
                             class="text-sm font-semibold text-white px-3 py-1.5 rounded-lg"
                             style="background:var(--marca)">
                             Construir
                         </button>
-                        <button @click="abrirEditar(receta)" class="text-sm text-gray-600 font-medium">Editar</button>
+                        <button @click="abrirEditar(receta)" class="text-sm text-tinta-500 font-medium">Editar</button>
                         <button @click="eliminarReceta(receta)" class="text-sm text-red-600 font-medium">Eliminar</button>
                     </div>
                 </div>
 
-                <div v-if="!recetas.length" class="text-center py-10 text-gray-400 bg-white rounded-xl border border-gray-200">
+                <div v-if="!recetas.length" class="text-center py-10 text-tinta-300 bg-white rounded-xl border border-linea">
                     No hay recetas de corte registradas.
                 </div>
             </div>
@@ -162,41 +162,41 @@ function fmt(n) {
             <div v-if="modalReceta" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
                 <div class="absolute inset-0 bg-black/40" @click="cerrarModalReceta" />
                 <div class="relative bg-white w-full sm:max-w-md rounded-t-2xl sm:rounded-2xl p-5 max-h-[90vh] overflow-y-auto">
-                    <h2 class="text-lg font-bold text-gray-900 mb-4">
+                    <h2 class="text-lg font-semibold text-tinta-900 mb-4">
                         {{ editandoReceta ? 'Editar receta de corte' : 'Nueva receta de corte' }}
                     </h2>
                     <div class="space-y-3">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Nombre (opcional)</label>
+                            <label class="block text-sm font-medium text-tinta-700 mb-1">Nombre (opcional)</label>
                             <input v-model="form.nombre" type="text" placeholder="Ej: Perfil IGO 12 — 2m"
-                                class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" />
+                                class="w-full rounded-lg border border-tinta-200 px-3 py-2 text-sm" />
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Insumo (rollo/barra) *</label>
-                            <select v-model="form.producto_insumo_id" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm">
+                            <label class="block text-sm font-medium text-tinta-700 mb-1">Insumo (rollo/barra) *</label>
+                            <select v-model="form.producto_insumo_id" class="w-full rounded-lg border border-tinta-200 px-3 py-2 text-sm">
                                 <option value="">Selecciona...</option>
                                 <option v-for="i in insumos" :key="i.id" :value="i.id">{{ i.nombre }} ({{ i.unidad_medida }})</option>
                             </select>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Cantidad de insumo por unidad *</label>
+                            <label class="block text-sm font-medium text-tinta-700 mb-1">Cantidad de insumo por unidad *</label>
                             <input v-model="form.cantidad_insumo" type="number" min="0.001" step="0.001"
-                                class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" />
+                                class="w-full rounded-lg border border-tinta-200 px-3 py-2 text-sm" />
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Producto resultado (variante) *</label>
-                            <select v-model="form.producto_resultado_id" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm">
+                            <label class="block text-sm font-medium text-tinta-700 mb-1">Producto resultado (variante) *</label>
+                            <select v-model="form.producto_resultado_id" class="w-full rounded-lg border border-tinta-200 px-3 py-2 text-sm">
                                 <option value="">Selecciona...</option>
                                 <option v-for="r in resultados" :key="r.id" :value="r.id">{{ r.nombre_completo }} ({{ r.unidad_medida }})</option>
                             </select>
                         </div>
-                        <label class="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+                        <label class="flex items-center gap-2 text-sm text-tinta-700 cursor-pointer">
                             <input v-model="form.activo" type="checkbox" class="rounded" />
                             Activa
                         </label>
                     </div>
                     <div class="flex gap-3 mt-5">
-                        <button @click="cerrarModalReceta" class="flex-1 py-2.5 rounded-xl border border-gray-300 text-sm text-gray-700">Cancelar</button>
+                        <button @click="cerrarModalReceta" class="flex-1 py-2.5 rounded-xl border border-tinta-200 text-sm text-tinta-700">Cancelar</button>
                         <button @click="guardarReceta"
                             :disabled="guardando || !form.producto_insumo_id || !form.producto_resultado_id || !form.cantidad_insumo"
                             class="flex-1 py-2.5 rounded-xl text-sm font-semibold text-white disabled:opacity-50"
@@ -213,32 +213,32 @@ function fmt(n) {
             <div v-if="modalConstruir" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
                 <div class="absolute inset-0 bg-black/40" @click="cerrarModalConstruir" />
                 <div class="relative bg-white w-full sm:max-w-sm rounded-t-2xl sm:rounded-2xl p-5">
-                    <h2 class="text-lg font-bold text-gray-900 mb-1">Construir por corte</h2>
-                    <p class="text-sm text-gray-500 mb-4">{{ recetaConstruir?.resultado_nombre_completo }}</p>
+                    <h2 class="text-lg font-semibold text-tinta-900 mb-1">Construir por corte</h2>
+                    <p class="text-sm text-tinta-400 mb-4">{{ recetaConstruir?.resultado_nombre_completo }}</p>
                     <div class="space-y-3">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Bodega</label>
-                            <select v-model="formConstruir.bodega_id" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm">
+                            <label class="block text-sm font-medium text-tinta-700 mb-1">Bodega</label>
+                            <select v-model="formConstruir.bodega_id" class="w-full rounded-lg border border-tinta-200 px-3 py-2 text-sm">
                                 <option v-for="b in bodegas" :key="b.id" :value="b.id">{{ b.nombre }}</option>
                             </select>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Piezas a producir *</label>
+                            <label class="block text-sm font-medium text-tinta-700 mb-1">Piezas a producir *</label>
                             <input v-model="formConstruir.cantidad" type="number" min="1" step="1"
-                                class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" />
+                                class="w-full rounded-lg border border-tinta-200 px-3 py-2 text-sm" />
                         </div>
-                        <p class="text-xs text-gray-500">
+                        <p class="text-xs text-tinta-400">
                             Consumirá <strong>{{ insumoRequerido(recetaConstruir, formConstruir.cantidad) }} {{ recetaConstruir?.insumo?.unidad_medida }}</strong>
                             de {{ recetaConstruir?.insumo?.nombre }}.
                         </p>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Notas</label>
+                            <label class="block text-sm font-medium text-tinta-700 mb-1">Notas</label>
                             <input v-model="formConstruir.notas" type="text"
-                                class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" />
+                                class="w-full rounded-lg border border-tinta-200 px-3 py-2 text-sm" />
                         </div>
                     </div>
                     <div class="flex gap-3 mt-5">
-                        <button @click="cerrarModalConstruir" class="flex-1 py-2.5 rounded-xl border border-gray-300 text-sm text-gray-700">Cancelar</button>
+                        <button @click="cerrarModalConstruir" class="flex-1 py-2.5 rounded-xl border border-tinta-200 text-sm text-tinta-700">Cancelar</button>
                         <button @click="guardarConstruir" :disabled="guardando || !formConstruir.cantidad || !formConstruir.bodega_id"
                             class="flex-1 py-2.5 rounded-xl text-sm font-semibold text-white disabled:opacity-50"
                             style="background:var(--marca)">

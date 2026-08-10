@@ -142,7 +142,7 @@ function quitarImagen(cual) {
 }
 
 function ic(extra = '') {
-    return `w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${extra}`
+    return `w-full rounded-lg border border-tinta-200 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${extra}`
 }
 </script>
 
@@ -151,18 +151,18 @@ function ic(extra = '') {
         <div class="max-w-2xl mx-auto space-y-4 pb-8">
 
             <a href="/configuracion" @click.prevent="router.visit('/configuracion')"
-                class="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700">
-                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                class="inline-flex items-center gap-1.5 text-sm text-tinta-400 hover:text-tinta-700">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
                 </svg>
                 Configuración
             </a>
 
             <!-- ── Color ──────────────────────────────────────────────────── -->
-            <div class="bg-white rounded-xl border border-gray-200 p-4 space-y-4">
+            <div class="bg-white rounded-xl border border-linea p-4 space-y-4">
                 <div>
-                    <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Color de la marca</p>
-                    <p class="text-xs text-gray-500 mt-1">
+                    <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">Color de la marca</p>
+                    <p class="text-xs text-tinta-400 mt-1">
                         Eliges uno solo. El tono de hover, los fondos suaves y el color del texto
                         se calculan a partir de él, para que la combinación siempre funcione.
                     </p>
@@ -170,7 +170,7 @@ function ic(extra = '') {
 
                 <div class="flex items-center gap-3">
                     <input v-model="form.color" type="color"
-                        class="h-11 w-14 shrink-0 cursor-pointer rounded-lg border border-gray-300 bg-white p-1"/>
+                        class="h-11 w-14 shrink-0 cursor-pointer rounded-lg border border-tinta-200 bg-white p-1"/>
                     <input v-model="form.color" type="text" :class="ic('font-mono uppercase')" maxlength="7"/>
                     <button type="button" @click="restaurarColor"
                         class="shrink-0 text-xs text-blue-600 font-medium hover:underline">
@@ -182,37 +182,37 @@ function ic(extra = '') {
                 <!-- Paleta derivada -->
                 <div class="grid grid-cols-5 gap-2">
                     <div v-for="(valor, nombre) in paleta" :key="nombre" class="text-center">
-                        <div class="h-10 rounded-lg border border-gray-200" :style="{ backgroundColor: valor }"></div>
-                        <p class="text-[10px] text-gray-400 mt-1 truncate">{{ nombre.replace('marca-', '').replace('marca', 'base') }}</p>
+                        <div class="h-10 rounded-lg border border-linea" :style="{ backgroundColor: valor }"></div>
+                        <p class="text-[10px] text-tinta-300 mt-1 truncate">{{ nombre.replace('marca-', '').replace('marca', 'base') }}</p>
                     </div>
                 </div>
             </div>
 
             <!-- ── Vista previa ───────────────────────────────────────────── -->
-            <div class="bg-white rounded-xl border border-gray-200 p-4 space-y-3">
-                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Así se vería</p>
+            <div class="bg-white rounded-xl border border-linea p-4 space-y-3">
+                <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">Así se vería</p>
 
-                <div :style="estiloPrevia" class="rounded-xl border border-gray-200 overflow-hidden">
+                <div :style="estiloPrevia" class="rounded-xl border border-linea overflow-hidden">
                     <!-- Encabezado -->
                     <div class="flex items-center justify-between px-4 py-3"
                         style="background: var(--p); color: var(--p-texto);">
                         <span class="text-sm font-semibold">{{ marca.empresa }}</span>
-                        <span class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold"
+                        <span class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-semibold"
                             style="background: rgba(255,255,255,.25);">A</span>
                     </div>
 
-                    <div class="p-4 space-y-3 bg-gray-50">
+                    <div class="p-4 space-y-3 bg-tinta-50">
                         <!-- Tarjeta tipo dashboard -->
                         <div class="bg-white rounded-xl p-3 flex items-center gap-3">
                             <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
                                 style="background: var(--p-suave);">
-                                <svg class="w-5 h-5" style="color: var(--p)" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <svg class="w-5 h-5" style="color: var(--p)" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
                                 </svg>
                             </div>
                             <div>
-                                <p class="text-xl font-bold text-gray-900 leading-none">12</p>
-                                <p class="text-xs text-gray-500 mt-1">En producción</p>
+                                <p class="text-xl font-semibold text-tinta-900 leading-none">12</p>
+                                <p class="text-xs text-tinta-400 mt-1">En producción</p>
                             </div>
                         </div>
 
@@ -233,17 +233,17 @@ function ic(extra = '') {
                     </div>
                 </div>
 
-                <p class="text-xs text-gray-400">
+                <p class="text-xs text-tinta-300">
                     El color se aplica a toda la plataforma: encabezado, menú, botones, enlaces,
                     etiquetas y la barra de carga.
                 </p>
             </div>
 
             <!-- ── Título de la pestaña ───────────────────────────────────── -->
-            <form @submit.prevent="guardar" class="bg-white rounded-xl border border-gray-200 p-4 space-y-3">
+            <form @submit.prevent="guardar" class="bg-white rounded-xl border border-linea p-4 space-y-3">
                 <div>
-                    <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Título de la pestaña</p>
-                    <p class="text-xs text-gray-500 mt-1">
+                    <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">Título de la pestaña</p>
+                    <p class="text-xs text-tinta-400 mt-1">
                         Lo que se lee en la pestaña del navegador y en la vista previa de los
                         enlaces que compartes por WhatsApp.
                     </p>
@@ -252,29 +252,29 @@ function ic(extra = '') {
                 <input v-model="form.titulo" type="text" :class="ic()"/>
                 <p v-if="form.errors.titulo" class="text-red-500 text-xs">{{ form.errors.titulo }}</p>
 
-                <div class="text-xs text-gray-500 space-y-1">
+                <div class="text-xs text-tinta-400 space-y-1">
                     <p>
-                        <code class="bg-gray-100 rounded px-1 py-0.5">{pagina}</code> se reemplaza por
+                        <code class="bg-tinta-100 rounded px-1 py-0.5">{pagina}</code> se reemplaza por
                         la pantalla en la que estés.
-                        <code class="bg-gray-100 rounded px-1 py-0.5">{empresa}</code>, por
+                        <code class="bg-tinta-100 rounded px-1 py-0.5">{empresa}</code>, por
                         "{{ marca.empresa }}".
                     </p>
                 </div>
 
                 <!-- Cómo se vería la pestaña -->
-                <div class="rounded-lg border border-gray-200 bg-gray-50 p-3">
+                <div class="rounded-lg border border-linea bg-tinta-50 p-3">
                     <div class="inline-flex items-center gap-2 rounded-t-lg bg-white px-3 py-2 shadow-sm max-w-full">
                         <img v-if="faviconUrl" :src="faviconUrl" class="w-4 h-4 rounded shrink-0" alt=""/>
                         <span v-else class="w-4 h-4 rounded shrink-0" :style="{ backgroundColor: form.color }"></span>
-                        <span class="text-xs text-gray-700 truncate">{{ tituloEjemplo }}</span>
-                        <span class="text-gray-300 text-xs">✕</span>
+                        <span class="text-xs text-tinta-700 truncate">{{ tituloEjemplo }}</span>
+                        <span class="text-tinta-200 text-xs">✕</span>
                     </div>
                 </div>
 
                 <!-- ── Tipografía ─────────────────────────────────────────── -->
-                <div class="pt-4 border-t border-gray-200">
-                    <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Tipografía</p>
-                    <p class="text-xs text-gray-500 mt-1">
+                <div class="pt-4 border-t border-linea">
+                    <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">Tipografía</p>
+                    <p class="text-xs text-tinta-400 mt-1">
                         La familia que se usa en toda la interfaz y en los documentos. Ninguna
                         descarga archivos: son las que ya trae cada dispositivo, así que el
                         sistema no depende de servidores ajenos para verse bien.
@@ -287,14 +287,14 @@ function ic(extra = '') {
                             class="flex items-start gap-3 rounded-lg border p-3 cursor-pointer transition-colors"
                             :class="form.fuente === f.clave
                                 ? 'border-[var(--marca)] bg-[var(--marca-suave)]'
-                                : 'border-gray-200 hover:border-gray-300'"
+                                : 'border-linea hover:border-tinta-200'"
                         >
                             <input type="radio" v-model="form.fuente" :value="f.clave" class="mt-1 shrink-0"/>
                             <span class="min-w-0">
-                                <span class="block text-sm font-semibold text-gray-800">{{ f.nombre }}</span>
-                                <span class="block text-xs text-gray-500 mt-0.5">{{ f.nota }}</span>
+                                <span class="block text-sm font-semibold text-tinta-900">{{ f.nombre }}</span>
+                                <span class="block text-xs text-tinta-400 mt-0.5">{{ f.nota }}</span>
                                 <!-- Se dibuja con la pila real, así se ve tal como quedaría -->
-                                <span class="block mt-2 text-gray-800" :style="{ fontFamily: f.pila }">
+                                <span class="block mt-2 text-tinta-900" :style="{ fontFamily: f.pila }">
                                     Cotización 1042 · Cuarto frío 3×3 · $12.480.000
                                 </span>
                             </span>
@@ -319,24 +319,24 @@ function ic(extra = '') {
             </form>
 
             <!-- ── Favicon ────────────────────────────────────────────────── -->
-            <div class="bg-white rounded-xl border border-gray-200 p-4 space-y-3">
+            <div class="bg-white rounded-xl border border-linea p-4 space-y-3">
                 <div>
-                    <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Favicon</p>
-                    <p class="text-xs text-gray-500 mt-1">
+                    <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">Favicon</p>
+                    <p class="text-xs text-tinta-400 mt-1">
                         El ícono de la pestaña. Un PNG cuadrado de 512×512 se ve bien en todas
                         partes, incluido el ícono de la app instalada en el celular.
                     </p>
                 </div>
 
                 <div class="flex items-center gap-3">
-                    <div class="w-14 h-14 rounded-xl border border-gray-200 bg-gray-50 flex items-center justify-center shrink-0 overflow-hidden p-1">
+                    <div class="w-14 h-14 rounded-xl border border-linea bg-tinta-50 flex items-center justify-center shrink-0 overflow-hidden p-1">
                         <img v-if="faviconUrl" :src="faviconUrl" class="max-w-full max-h-full object-contain" alt="Favicon"/>
-                        <span v-else class="text-[10px] text-gray-400 text-center px-1">Por defecto</span>
+                        <span v-else class="text-[10px] text-tinta-300 text-center px-1">Por defecto</span>
                     </div>
 
                     <div class="flex-1 flex flex-wrap gap-2">
                         <button type="button" @click="abrirSelector('favicon')" :disabled="subiendo.favicon"
-                            class="rounded-lg border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50 disabled:opacity-50">
+                            class="rounded-lg border border-tinta-200 px-4 py-2 text-sm font-semibold text-tinta-700 hover:bg-tinta-50 disabled:opacity-50">
                             {{ subiendo.favicon ? 'Subiendo...' : 'Subir imagen' }}
                         </button>
                         <button v-if="faviconUrl" type="button" @click="quitarImagen('favicon')"
@@ -352,17 +352,17 @@ function ic(extra = '') {
 
                 <p v-if="errores.favicon" class="text-red-500 text-xs">{{ errores.favicon }}</p>
 
-                <p class="text-xs text-gray-400">
+                <p class="text-xs text-tinta-300">
                     El archivo se guarda con un nombre distinto en cada subida, así que el
                     navegador lo vuelve a bajar y no se queda con el anterior en caché.
                 </p>
             </div>
 
             <!-- ── Logo ───────────────────────────────────────────────────── -->
-            <div class="bg-white rounded-xl border border-gray-200 p-4 space-y-3">
+            <div class="bg-white rounded-xl border border-linea p-4 space-y-3">
                 <div>
-                    <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Logo</p>
-                    <p class="text-xs text-gray-500 mt-1">
+                    <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">Logo</p>
+                    <p class="text-xs text-tinta-400 mt-1">
                         Sale en el encabezado, en el menú lateral y en la vista previa de los
                         enlaces que compartes. Un PNG con fondo transparente es lo que mejor
                         queda. Máximo 2 MB.
@@ -373,14 +373,14 @@ function ic(extra = '') {
                 </div>
 
                 <div class="flex items-center gap-3">
-                    <div class="w-28 h-14 rounded-xl border border-gray-200 bg-gray-50 flex items-center justify-center shrink-0 overflow-hidden p-1">
+                    <div class="w-28 h-14 rounded-xl border border-linea bg-tinta-50 flex items-center justify-center shrink-0 overflow-hidden p-1">
                         <img v-if="logoUrl" :src="logoUrl" class="max-w-full max-h-full object-contain" alt="Logo"/>
-                        <span v-else class="text-[10px] text-gray-400 text-center px-1">Por defecto</span>
+                        <span v-else class="text-[10px] text-tinta-300 text-center px-1">Por defecto</span>
                     </div>
 
                     <div class="flex-1 flex flex-wrap gap-2">
                         <button type="button" @click="abrirSelector('logo')" :disabled="subiendo.logo"
-                            class="rounded-lg border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50 disabled:opacity-50">
+                            class="rounded-lg border border-tinta-200 px-4 py-2 text-sm font-semibold text-tinta-700 hover:bg-tinta-50 disabled:opacity-50">
                             {{ subiendo.logo ? 'Subiendo...' : 'Subir logo' }}
                         </button>
                         <button v-if="logoUrl" type="button" @click="quitarImagen('logo')"

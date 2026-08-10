@@ -606,7 +606,7 @@ onUnmounted(() => {
                     class="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl transition-colors hover:bg-white/10"
                 >
                     <div
-                        class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold shrink-0"
+                        class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold shrink-0"
                         style="background: rgba(255,255,255,0.2); color: white;"
                     >
                         {{ inicial }}
@@ -645,14 +645,14 @@ onUnmounted(() => {
 
                 <!-- Selector de sede activa -->
                 <div v-if="mostrarSelectorSede" class="flex items-center gap-2">
-                    <svg class="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
+                    <svg class="w-4 h-4 text-tinta-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                         <path stroke-linecap="round" stroke-linejoin="round"
                             d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                     </svg>
                     <select
                         :value="sedeActivaId"
                         @change="cambiarSede(Number($event.target.value))"
-                        class="rounded-lg border border-gray-200 px-2 py-1.5 text-sm text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        class="rounded-lg border border-linea px-2 py-1.5 text-sm text-tinta-700 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                     >
                         <option v-if="puedeTodasSedes" :value="0">Todas las sedes</option>
                         <option v-for="s in sedesDisponibles" :key="s.id" :value="s.id">{{ s.nombre }}</option>
@@ -662,7 +662,7 @@ onUnmounted(() => {
                 <!-- Botón QR -->
                 <button
                     @click="showQR = true"
-                    class="w-9 h-9 rounded-xl flex items-center justify-center text-gray-500 hover:bg-gray-100 transition-colors"
+                    class="w-9 h-9 rounded-xl flex items-center justify-center text-tinta-400 hover:bg-tinta-100 transition-colors"
                     title="Lector QR"
                 >
                     <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
@@ -673,7 +673,7 @@ onUnmounted(() => {
                 <!-- Botón cámara -->
                 <button
                     @click="abrirCamara"
-                    class="w-9 h-9 rounded-xl flex items-center justify-center text-gray-500 hover:bg-gray-100 transition-colors"
+                    class="w-9 h-9 rounded-xl flex items-center justify-center text-tinta-400 hover:bg-tinta-100 transition-colors"
                     title="Cámara"
                 >
                     <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
@@ -686,14 +686,14 @@ onUnmounted(() => {
                 <div class="relative">
                     <button
                         @click="menuNotif = !menuNotif; menuNotif && cargarNotificaciones()"
-                        class="relative w-9 h-9 rounded-xl flex items-center justify-center text-gray-500 hover:bg-gray-100 transition-colors"
+                        class="relative w-9 h-9 rounded-xl flex items-center justify-center text-tinta-400 hover:bg-tinta-100 transition-colors"
                         title="Notificaciones"
                     >
                         <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
                         </svg>
                         <span v-if="notifNoLeidas > 0"
-                            class="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full text-[10px] font-bold text-white flex items-center justify-center"
+                            class="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full text-[10px] font-semibold text-white flex items-center justify-center"
                             style="background:#EF4444;">
                             {{ notifNoLeidas > 9 ? '9+' : notifNoLeidas }}
                         </span>
@@ -703,24 +703,24 @@ onUnmounted(() => {
                     <div v-if="menuNotif"
                         class="absolute right-0 top-12 w-80 rounded-xl shadow-xl overflow-hidden z-50"
                         style="background:white; border:1px solid #E5E7EB;">
-                        <div class="flex items-center justify-between px-4 py-2.5 border-b border-gray-100">
-                            <span class="text-sm font-semibold text-gray-800">Notificaciones</span>
+                        <div class="flex items-center justify-between px-4 py-2.5 border-b border-linea">
+                            <span class="text-sm font-semibold text-tinta-900">Notificaciones</span>
                             <button v-if="notifNoLeidas > 0" @click="marcarTodasLeidas"
                                 class="text-xs text-blue-600 hover:underline">Marcar todas leídas</button>
                         </div>
                         <div class="max-h-96 overflow-y-auto">
-                            <div v-if="!notificaciones.length" class="px-4 py-8 text-center text-sm text-gray-400">
+                            <div v-if="!notificaciones.length" class="px-4 py-8 text-center text-sm text-tinta-300">
                                 No tienes notificaciones.
                             </div>
                             <button v-for="n in notificaciones" :key="n.id" @click="abrirNotif(n)"
-                                class="flex items-start gap-3 w-full px-4 py-3 text-left hover:bg-gray-50 border-b border-gray-50"
+                                class="flex items-start gap-3 w-full px-4 py-3 text-left hover:bg-tinta-50 border-b border-gray-50"
                                 :style="!n.leida ? 'background:#EFF6FF;' : ''">
                                 <span class="mt-0.5 w-2 h-2 rounded-full flex-shrink-0"
                                     :style="!n.leida ? 'background:var(--marca);' : 'background:transparent;'" />
                                 <span class="min-w-0 flex-1">
-                                    <span class="block text-sm font-medium text-gray-800">{{ n.titulo }}</span>
-                                    <span v-if="n.mensaje" class="block text-xs text-gray-500 mt-0.5">{{ n.mensaje }}</span>
-                                    <span class="block text-[11px] text-gray-400 mt-1">{{ n.hace }}</span>
+                                    <span class="block text-sm font-medium text-tinta-900">{{ n.titulo }}</span>
+                                    <span v-if="n.mensaje" class="block text-xs text-tinta-400 mt-0.5">{{ n.mensaje }}</span>
+                                    <span class="block text-[11px] text-tinta-300 mt-1">{{ n.hace }}</span>
                                 </span>
                             </button>
                         </div>
@@ -729,25 +729,25 @@ onUnmounted(() => {
                 </div>
 
                 <!-- Separador -->
-                <div class="w-px h-6 bg-gray-200" />
+                <div class="w-px h-6 bg-tinta-200" />
 
                 <!-- Avatar + menú usuario -->
                 <div class="relative">
                     <button
                         @click="menuUsuario = !menuUsuario"
-                        class="flex items-center gap-2.5 px-3 py-1.5 rounded-xl hover:bg-gray-100 transition-colors"
+                        class="flex items-center gap-2.5 px-3 py-1.5 rounded-xl hover:bg-tinta-100 transition-colors"
                     >
                         <div
-                            class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold"
+                            class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-semibold"
                             style="background-color: var(--marca); color: white;"
                         >
                             {{ inicial }}
                         </div>
                         <div class="text-left hidden lg:block">
-                            <p class="text-sm font-medium text-gray-800 leading-none">{{ user?.name }}</p>
-                            <p class="text-xs text-gray-400 leading-none mt-0.5">{{ rolLabel }}</p>
+                            <p class="text-sm font-medium text-tinta-900 leading-none">{{ user?.name }}</p>
+                            <p class="text-xs text-tinta-300 leading-none mt-0.5">{{ rolLabel }}</p>
                         </div>
-                        <svg class="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
+                        <svg class="w-4 h-4 text-tinta-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
                         </svg>
                     </button>
@@ -759,13 +759,13 @@ onUnmounted(() => {
                         style="background: white; border: 1px solid #E5E7EB;"
                     >
                         <button @click="irPerfil"
-                            class="flex items-center gap-2 w-full px-4 py-3 text-sm text-gray-700 hover:bg-gray-50">
-                            <svg class="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
+                            class="flex items-center gap-2 w-full px-4 py-3 text-sm text-tinta-700 hover:bg-tinta-50">
+                            <svg class="w-4 h-4 text-tinta-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                             </svg>
                             Ver perfil
                         </button>
-                        <div class="border-t border-gray-100" />
+                        <div class="border-t border-linea" />
                         <button @click="cerrarSesion"
                             class="flex items-center gap-2 w-full px-4 py-3 text-sm text-red-600 hover:bg-red-50">
                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
@@ -831,7 +831,7 @@ onUnmounted(() => {
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
                     </svg>
                     <span v-if="notifNoLeidas > 0"
-                        class="absolute -top-1 -right-1 min-w-[16px] h-[16px] px-1 rounded-full text-[9px] font-bold text-white flex items-center justify-center"
+                        class="absolute -top-1 -right-1 min-w-[16px] h-[16px] px-1 rounded-full text-[9px] font-semibold text-white flex items-center justify-center"
                         style="background:#EF4444;">
                         {{ notifNoLeidas > 9 ? '9+' : notifNoLeidas }}
                     </span>
@@ -858,24 +858,24 @@ onUnmounted(() => {
             <div v-if="menuNotif" class="fixed inset-0 z-[55] md:hidden" @click="menuNotif = false">
                 <div class="absolute top-14 left-2 right-2 rounded-xl shadow-xl overflow-hidden"
                     style="background:white; border:1px solid #E5E7EB;" @click.stop>
-                    <div class="flex items-center justify-between px-4 py-2.5 border-b border-gray-100">
-                        <span class="text-sm font-semibold text-gray-800">Notificaciones</span>
+                    <div class="flex items-center justify-between px-4 py-2.5 border-b border-linea">
+                        <span class="text-sm font-semibold text-tinta-900">Notificaciones</span>
                         <button v-if="notifNoLeidas > 0" @click="marcarTodasLeidas"
                             class="text-xs text-blue-600">Marcar leídas</button>
                     </div>
                     <div class="max-h-[70vh] overflow-y-auto">
-                        <div v-if="!notificaciones.length" class="px-4 py-8 text-center text-sm text-gray-400">
+                        <div v-if="!notificaciones.length" class="px-4 py-8 text-center text-sm text-tinta-300">
                             No tienes notificaciones.
                         </div>
                         <button v-for="n in notificaciones" :key="n.id" @click="abrirNotif(n)"
-                            class="flex items-start gap-3 w-full px-4 py-3 text-left hover:bg-gray-50 border-b border-gray-50"
+                            class="flex items-start gap-3 w-full px-4 py-3 text-left hover:bg-tinta-50 border-b border-gray-50"
                             :style="!n.leida ? 'background:#EFF6FF;' : ''">
                             <span class="mt-0.5 w-2 h-2 rounded-full flex-shrink-0"
                                 :style="!n.leida ? 'background:var(--marca);' : 'background:transparent;'" />
                             <span class="min-w-0 flex-1">
-                                <span class="block text-sm font-medium text-gray-800">{{ n.titulo }}</span>
-                                <span v-if="n.mensaje" class="block text-xs text-gray-500 mt-0.5">{{ n.mensaje }}</span>
-                                <span class="block text-[11px] text-gray-400 mt-1">{{ n.hace }}</span>
+                                <span class="block text-sm font-medium text-tinta-900">{{ n.titulo }}</span>
+                                <span v-if="n.mensaje" class="block text-xs text-tinta-400 mt-0.5">{{ n.mensaje }}</span>
+                                <span class="block text-[11px] text-tinta-300 mt-1">{{ n.hace }}</span>
                             </span>
                         </button>
                     </div>
@@ -1045,26 +1045,26 @@ onUnmounted(() => {
                 </div>
 
                 <!-- Perfil usuario -->
-                <div class="flex items-center gap-3 px-5 py-4 border-b border-gray-100">
+                <div class="flex items-center gap-3 px-5 py-4 border-b border-linea">
                     <div
-                        class="w-10 h-10 rounded-full flex items-center justify-center text-base font-bold shrink-0"
+                        class="w-10 h-10 rounded-full flex items-center justify-center text-base font-semibold shrink-0"
                         style="background-color: var(--marca); color: white;"
                     >
                         {{ inicial }}
                     </div>
                     <div class="min-w-0">
-                        <p class="text-sm font-semibold text-gray-900 truncate">{{ user?.name }}</p>
-                        <p class="text-xs text-gray-400 truncate">{{ rolLabel }}</p>
+                        <p class="text-sm font-semibold text-tinta-900 truncate">{{ user?.name }}</p>
+                        <p class="text-xs text-tinta-300 truncate">{{ rolLabel }}</p>
                     </div>
                 </div>
 
                 <!-- Selector de sede activa -->
-                <div v-if="mostrarSelectorSede" class="px-5 py-3 border-b border-gray-100">
-                    <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5">Sede</label>
+                <div v-if="mostrarSelectorSede" class="px-5 py-3 border-b border-linea">
+                    <label class="block text-xs font-semibold text-tinta-300 uppercase tracking-[0.12em] mb-1.5">Sede</label>
                     <select
                         :value="sedeActivaId"
                         @change="cambiarSede(Number($event.target.value))"
-                        class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        class="w-full rounded-lg border border-linea px-3 py-2 text-sm text-tinta-700 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                     >
                         <option v-if="puedeTodasSedes" :value="0">Todas las sedes</option>
                         <option v-for="s in sedesDisponibles" :key="s.id" :value="s.id">{{ s.nombre }}</option>
@@ -1073,12 +1073,12 @@ onUnmounted(() => {
 
                 <!-- Ítems de navegación -->
                 <nav class="flex-1 px-3 py-3">
-                    <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider px-3 mb-2">Navegación</p>
+                    <p class="text-xs font-semibold text-tinta-300 uppercase tracking-[0.12em] px-3 mb-2">Navegación</p>
                     <template v-for="item in navItems" :key="item.href ?? item.label">
                         <!-- Separador de sección -->
                         <p
                             v-if="item.divider"
-                            class="text-xs font-semibold text-gray-400 uppercase tracking-wider px-3 mt-4 mb-2"
+                            class="text-xs font-semibold text-tinta-300 uppercase tracking-[0.12em] px-3 mt-4 mb-2"
                         >
                             {{ item.label }}
                         </p>
@@ -1093,7 +1093,7 @@ onUnmounted(() => {
                                     : 'px-3 py-3 text-sm font-medium',
                                 isActive(item.href)
                                     ? 'text-white'
-                                    : 'text-gray-700 hover:bg-gray-100',
+                                    : 'text-tinta-700 hover:bg-tinta-100',
                             ]"
                             :style="isActive(item.href) ? 'background-color: var(--marca);' : ''"
                             @click.prevent="navegar(item.href)"
@@ -1225,12 +1225,12 @@ onUnmounted(() => {
                 </nav>
 
                 <!-- Acciones al pie del drawer -->
-                <div class="px-3 py-4 border-t border-gray-100 space-y-1 shrink-0">
+                <div class="px-3 py-4 border-t border-linea space-y-1 shrink-0">
                     <button
                         @click="irPerfil"
-                        class="flex items-center gap-3 w-full px-3 py-3 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
+                        class="flex items-center gap-3 w-full px-3 py-3 rounded-xl text-sm font-medium text-tinta-700 hover:bg-tinta-100 transition-colors"
                     >
-                        <svg class="w-5 h-5 text-gray-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
+                        <svg class="w-5 h-5 text-tinta-300 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                         </svg>
                         Ver perfil
@@ -1305,7 +1305,7 @@ onUnmounted(() => {
         <div v-if="modalDisciplinas" class="fixed inset-0 z-[70] flex items-center justify-center p-4"
             style="background:rgba(0,0,0,0.55);">
             <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden">
-                <div class="px-5 py-4 border-b border-gray-100">
+                <div class="px-5 py-4 border-b border-linea">
                     <div class="flex items-center gap-3">
                         <div class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center shrink-0">
                             <svg class="w-5 h-5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
@@ -1313,8 +1313,8 @@ onUnmounted(() => {
                             </svg>
                         </div>
                         <div>
-                            <h3 class="text-sm font-bold text-gray-900">Documentos pendientes de firma</h3>
-                            <p class="text-xs text-gray-500">{{ disciplinasPendientes.length }} documento(s) sin firmar</p>
+                            <h3 class="text-sm font-semibold text-tinta-900">Documentos pendientes de firma</h3>
+                            <p class="text-xs text-tinta-400">{{ disciplinasPendientes.length }} documento(s) sin firmar</p>
                         </div>
                     </div>
                 </div>
@@ -1322,11 +1322,11 @@ onUnmounted(() => {
                     <div v-for="d in disciplinasPendientes" :key="d.id"
                         class="bg-red-50 rounded-xl px-4 py-3 border border-red-100">
                         <p class="text-xs font-semibold text-red-700">{{ d.tipo_label }}</p>
-                        <p class="text-xs text-gray-600 mt-0.5">{{ d.descripcion }}</p>
-                        <p class="text-xs text-gray-400 mt-0.5">{{ d.fecha }}</p>
+                        <p class="text-xs text-tinta-500 mt-0.5">{{ d.descripcion }}</p>
+                        <p class="text-xs text-tinta-300 mt-0.5">{{ d.fecha }}</p>
                     </div>
                 </div>
-                <div class="px-5 py-4 border-t border-gray-100">
+                <div class="px-5 py-4 border-t border-linea">
                     <button @click="modalDisciplinas = false"
                         class="w-full py-2.5 rounded-xl text-white text-sm font-semibold"
                         style="background:var(--marca);">
@@ -1345,7 +1345,7 @@ onUnmounted(() => {
             v-if="mostrarPWA && !yaInstalada"
             class="fixed bottom-20 md:bottom-4 left-4 right-4 md:left-auto md:right-4 md:w-80 z-50"
         >
-            <div class="bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden">
+            <div class="bg-white rounded-2xl shadow-2xl border border-linea overflow-hidden">
                 <div class="px-4 py-3 flex items-center gap-3" style="background-color: var(--marca);">
                     <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style="background: rgba(255,255,255,0.2);">
                         <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
@@ -1369,7 +1369,7 @@ onUnmounted(() => {
                 <div class="px-4 py-3 flex gap-2">
                     <button
                         @click="descartarPWA"
-                        class="flex-1 py-2 text-sm font-medium rounded-xl hover:bg-gray-50 transition-colors"
+                        class="flex-1 py-2 text-sm font-medium rounded-xl hover:bg-tinta-50 transition-colors"
                         style="color: #6B7280;"
                     >
                         Ahora no

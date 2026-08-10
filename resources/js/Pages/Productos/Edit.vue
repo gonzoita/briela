@@ -316,7 +316,7 @@ watch(() => form.comision_max_distribuidor, () => {
 // ── Submit ────────────────────────────────────────────────────────────────────
 const ic = (field) => [
     'w-full border rounded-xl px-3 py-2 text-sm focus:outline-none transition-colors',
-    form.errors[field] ? 'border-red-400 bg-red-50' : 'border-gray-200 bg-white focus:border-blue-400',
+    form.errors[field] ? 'border-red-400 bg-red-50' : 'border-linea bg-white focus:border-blue-400',
 ]
 
 const submit = () => {
@@ -347,33 +347,33 @@ const badgeStyle = {
             <div v-if="p.es_padre" class="space-y-4">
                 <div class="flex items-center gap-2">
                     <span class="px-2.5 py-1 rounded-full text-xs font-semibold" style="background:#EDE9FE;color:#6D28D9;">Producto padre</span>
-                    <span class="font-mono text-xs text-gray-400">{{ p.referencia }}</span>
+                    <span class="font-mono text-xs text-tinta-300">{{ p.referencia }}</span>
                 </div>
 
                 <form @submit.prevent="submitPadre" class="space-y-4">
                     <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
-                        <div class="px-5 py-3 border-b border-gray-100">
-                            <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Información general (padre)</h3>
+                        <div class="px-5 py-3 border-b border-linea">
+                            <h3 class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">Información general (padre)</h3>
                         </div>
                         <div class="p-5 space-y-3">
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Nombre <span class="text-red-500">*</span></label>
+                                <label class="block text-sm font-medium text-tinta-700 mb-1">Nombre <span class="text-red-500">*</span></label>
                                 <input v-model="formPadre.nombre" type="text"
-                                    class="w-full border rounded-xl px-3 py-2 text-sm focus:outline-none bg-white focus:border-blue-400 border-gray-200" />
+                                    class="w-full border rounded-xl px-3 py-2 text-sm focus:outline-none bg-white focus:border-blue-400 border-linea" />
                                 <p v-if="formPadre.errors.nombre" class="mt-1 text-xs text-red-600">{{ formPadre.errors.nombre }}</p>
                             </div>
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Categoría</label>
-                                    <select v-model="formPadre.categoria_id" class="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none bg-white">
+                                    <label class="block text-sm font-medium text-tinta-700 mb-1">Categoría</label>
+                                    <select v-model="formPadre.categoria_id" class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none bg-white">
                                         <option value="">Sin categoría</option>
                                         <option v-for="c in props.categorias" :key="c.id" :value="String(c.id)">{{ c.nombre }}</option>
                                     </select>
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Atributo de variante</label>
+                                    <label class="block text-sm font-medium text-tinta-700 mb-1">Atributo de variante</label>
                                     <input v-model="formPadre.atributo_variante" type="text" placeholder="Ej: Longitud"
-                                        class="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none bg-white focus:border-blue-400" />
+                                        class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none bg-white focus:border-blue-400" />
                                 </div>
                             </div>
                         </div>
@@ -381,65 +381,65 @@ const badgeStyle = {
 
                     <!-- Variantes existentes -->
                     <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
-                        <div class="px-5 py-3 border-b border-gray-100">
-                            <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Variantes existentes</h3>
+                        <div class="px-5 py-3 border-b border-linea">
+                            <h3 class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">Variantes existentes</h3>
                         </div>
                         <div class="divide-y divide-gray-50">
                             <div v-for="v in (p.variantes ?? [])" :key="v.id"
                                 class="flex items-center justify-between px-5 py-3 cursor-pointer hover:bg-blue-50/40"
                                 @click="router.visit(`/productos/${v.id}/editar`)">
                                 <div>
-                                    <p class="text-sm text-gray-800">{{ v.nombre }}</p>
-                                    <p class="text-xs text-gray-400 font-mono">{{ v.referencia }}</p>
+                                    <p class="text-sm text-tinta-900">{{ v.nombre }}</p>
+                                    <p class="text-xs text-tinta-300 font-mono">{{ v.referencia }}</p>
                                 </div>
                                 <div class="flex items-center gap-2">
                                     <span class="text-xs font-medium px-2 py-0.5 rounded-full" style="background:#EDE9FE;color:#6D28D9;">{{ v.valor_variante }}</span>
                                     <span class="text-xs font-semibold text-green-600">{{ v.stock_total }}</span>
                                 </div>
                             </div>
-                            <p v-if="!p.variantes?.length" class="text-xs text-gray-400 text-center py-4">Sin variantes.</p>
+                            <p v-if="!p.variantes?.length" class="text-xs text-tinta-300 text-center py-4">Sin variantes.</p>
                         </div>
                     </div>
 
                     <!-- Agregar nuevas variantes -->
                     <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
-                        <div class="px-5 py-3 border-b border-gray-100 flex items-center justify-between">
-                            <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Agregar variantes</h3>
+                        <div class="px-5 py-3 border-b border-linea flex items-center justify-between">
+                            <h3 class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">Agregar variantes</h3>
                             <button type="button" @click="agregarVarianteNueva"
                                 class="text-xs text-white px-3 py-1.5 rounded-lg font-medium" style="background:var(--marca);">
                                 + Agregar variante
                             </button>
                         </div>
                         <div class="p-5 space-y-4">
-                            <p v-if="!variantesNuevas.length" class="text-center text-sm text-gray-400 py-2">
+                            <p v-if="!variantesNuevas.length" class="text-center text-sm text-tinta-300 py-2">
                                 Agrega nuevas variantes para este producto padre.
                             </p>
-                            <div v-for="(v, idx) in variantesNuevas" :key="idx" class="border border-gray-200 rounded-xl p-4 space-y-3" style="background:#F8F9FA;">
+                            <div v-for="(v, idx) in variantesNuevas" :key="idx" class="border border-linea rounded-xl p-4 space-y-3" style="background:#F8F9FA;">
                                 <div class="flex items-center justify-between">
-                                    <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Nueva variante {{ idx + 1 }}</p>
+                                    <p class="text-xs font-semibold text-tinta-400 uppercase tracking-wide">Nueva variante {{ idx + 1 }}</p>
                                     <button type="button" @click="quitarVarianteNueva(idx)" class="text-xs text-red-500 hover:underline">Quitar</button>
                                 </div>
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                     <div>
-                                        <label class="block text-xs font-medium text-gray-600 mb-1">
+                                        <label class="block text-xs font-medium text-tinta-500 mb-1">
                                             Valor ({{ formPadre.atributo_variante || 'Ej: Longitud' }}) <span class="text-red-500">*</span>
                                         </label>
                                         <input v-model="v.valor_variante" type="text" placeholder="Ej: 3m"
-                                            class="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none bg-white focus:border-blue-400" />
+                                            class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none bg-white focus:border-blue-400" />
                                     </div>
                                     <div>
-                                        <label class="block text-xs font-medium text-gray-600 mb-1">Referencia / SKU</label>
+                                        <label class="block text-xs font-medium text-tinta-500 mb-1">Referencia / SKU</label>
                                         <input v-model="v.referencia" type="text" placeholder="Auto-generada si se deja vacío"
-                                            class="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none bg-white focus:border-blue-400" />
+                                            class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none bg-white focus:border-blue-400" />
                                     </div>
                                 </div>
                                 <div v-if="props.bodegas?.length">
-                                    <p class="text-xs font-medium text-gray-600 mb-1.5">Stock inicial por bodega</p>
+                                    <p class="text-xs font-medium text-tinta-500 mb-1.5">Stock inicial por bodega</p>
                                     <div class="space-y-2">
                                         <div v-for="b in props.bodegas" :key="b.id" class="flex items-center gap-3">
-                                            <span class="text-xs text-gray-600 w-32 shrink-0">{{ b.nombre }}</span>
+                                            <span class="text-xs text-tinta-500 w-32 shrink-0">{{ b.nombre }}</span>
                                             <input v-model.number="v.stock_inicial[b.id]" type="number" min="0" step="0.001"
-                                                class="w-24 border border-gray-200 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:border-blue-400 bg-white" placeholder="0" />
+                                                class="w-24 border border-linea rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:border-blue-400 bg-white" placeholder="0" />
                                         </div>
                                     </div>
                                 </div>
@@ -455,7 +455,7 @@ const badgeStyle = {
                     </div>
 
                     <div class="flex gap-3 pb-4">
-                        <button type="button" @click="router.visit(`/productos/${p.id}`)" class="flex-1 py-3 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 bg-white">Cancelar</button>
+                        <button type="button" @click="router.visit(`/productos/${p.id}`)" class="flex-1 py-3 rounded-xl border border-linea text-sm font-medium text-tinta-500 bg-white">Cancelar</button>
                         <button type="submit" :disabled="formPadre.processing" class="flex-1 py-3 rounded-xl text-sm font-medium text-white shadow-sm disabled:opacity-60" style="background-color:var(--marca);">
                             {{ formPadre.processing ? 'Guardando...' : 'Guardar cambios' }}
                         </button>
@@ -477,7 +477,7 @@ const badgeStyle = {
                     <span class="px-2.5 py-1 rounded-full text-xs font-semibold" :style="badgeStyle[p.tipo]">
                         {{ p.tipo === 'producto' ? 'Producto' : 'Servicio' }}
                     </span>
-                    <span class="font-mono text-xs text-gray-400">{{ p.referencia }}</span>
+                    <span class="font-mono text-xs text-tinta-300">{{ p.referencia }}</span>
                     <span v-if="p.valor_variante" class="text-xs font-semibold px-2.5 py-1 rounded-full" style="background:#EDE9FE;color:#6D28D9;">
                         Variante de: {{ p.padre?.nombre }} — {{ p.valor_variante }}
                     </span>
@@ -485,20 +485,20 @@ const badgeStyle = {
 
                 <!-- ═══ Información General ════════════════════════════════ -->
                 <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
-                    <div class="px-5 py-3 border-b border-gray-100">
-                        <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Información general</h3>
+                    <div class="px-5 py-3 border-b border-linea">
+                        <h3 class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">Información general</h3>
                     </div>
                     <div class="p-5 space-y-3">
 
                         <!-- Nombre + Referencia -->
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Nombre <span class="text-red-500">*</span></label>
+                                <label class="block text-sm font-medium text-tinta-700 mb-1">Nombre <span class="text-red-500">*</span></label>
                                 <input v-model="form.nombre" type="text" :class="ic('nombre')" />
                                 <p v-if="form.errors.nombre" class="mt-1 text-xs text-red-600">{{ form.errors.nombre }}</p>
                             </div>
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Referencia <span class="text-red-500">*</span></label>
+                                <label class="block text-sm font-medium text-tinta-700 mb-1">Referencia <span class="text-red-500">*</span></label>
                                 <input v-model="form.referencia" type="text" :class="ic('referencia')" />
                                 <p v-if="form.errors.referencia" class="mt-1 text-xs text-red-600">{{ form.errors.referencia }}</p>
                             </div>
@@ -507,17 +507,17 @@ const badgeStyle = {
                         <!-- Categoría + Unidad -->
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Categoría</label>
+                                <label class="block text-sm font-medium text-tinta-700 mb-1">Categoría</label>
                                 <div class="flex gap-2">
-                                    <select v-model="form.categoria_id" class="flex-1 border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none bg-white">
+                                    <select v-model="form.categoria_id" class="flex-1 border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none bg-white">
                                         <option value="">Sin categoría</option>
                                         <option v-for="c in listaCats" :key="c.id" :value="String(c.id)">{{ c.nombre }}</option>
                                     </select>
-                                    <button type="button" @click="showModalCat = true" class="px-3 py-2 rounded-xl border border-gray-200 text-gray-500 hover:bg-gray-50 text-sm">+</button>
+                                    <button type="button" @click="showModalCat = true" class="px-3 py-2 rounded-xl border border-linea text-tinta-400 hover:bg-tinta-50 text-sm">+</button>
                                 </div>
                             </div>
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Unidad de medida</label>
+                                <label class="block text-sm font-medium text-tinta-700 mb-1">Unidad de medida</label>
                                 <select v-model="form.unidad_medida" :class="ic('unidad_medida')">
                                     <option v-for="u in unidadesPorTipo" :key="u" :value="u">{{ u }}</option>
                                 </select>
@@ -527,13 +527,13 @@ const badgeStyle = {
                         <!-- Descripción corta -->
                         <div>
                             <div class="flex items-center justify-between mb-1">
-                                <label class="block text-sm font-medium text-gray-700">Descripción corta</label>
+                                <label class="block text-sm font-medium text-tinta-700">Descripción corta</label>
                                 <div class="flex items-center gap-2">
                                     <button type="button" @click="generarDescripcion('corta')" :disabled="iaCargando"
                                         class="text-xs font-semibold text-[var(--marca)] hover:underline disabled:opacity-50">
                                         {{ iaCargando ? 'Redactando…' : 'Redactar con IA' }}
                                     </button>
-                                    <span class="text-xs" :class="(form.descripcion_corta||'').length > 900 ? 'text-amber-500 font-semibold' : 'text-gray-400'">
+                                    <span class="text-xs" :class="(form.descripcion_corta||'').length > 900 ? 'text-amber-500 font-semibold' : 'text-tinta-300'">
                                         {{ (form.descripcion_corta||'').length }}/1000
                                     </span>
                                 </div>
@@ -544,8 +544,8 @@ const badgeStyle = {
 
                         <div>
                             <div class="flex items-center justify-between mb-1">
-                                <label class="block text-sm font-medium text-gray-700">Descripción larga</label>
-                                <span class="text-xs" :class="(form.descripcion_larga||'').replace(/<[^>]*>/g, '').length > 9000 ? 'text-amber-500 font-semibold' : 'text-gray-400'">
+                                <label class="block text-sm font-medium text-tinta-700">Descripción larga</label>
+                                <span class="text-xs" :class="(form.descripcion_larga||'').replace(/<[^>]*>/g, '').length > 9000 ? 'text-amber-500 font-semibold' : 'text-tinta-300'">
                                     {{ (form.descripcion_larga||'').replace(/<[^>]*>/g, '').length }}/10000
                                 </span>
                             </div>
@@ -556,8 +556,8 @@ const badgeStyle = {
 
                 <!-- ═══ Imágenes ═══════════════════════════════════════════ -->
                 <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
-                    <div class="px-5 py-3 border-b border-gray-100">
-                        <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Imágenes</h3>
+                    <div class="px-5 py-3 border-b border-linea">
+                        <h3 class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">Imágenes</h3>
                     </div>
                     <div class="p-5">
                         <!-- Existentes -->
@@ -569,21 +569,21 @@ const badgeStyle = {
                                         <svg class="w-2.5 h-2.5 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
                                     </button>
                                     <button type="button" @click="eliminarImagenExistente(img.id)" class="w-5 h-5 rounded-full bg-red-500/80 flex items-center justify-center">
-                                        <svg class="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                                        <svg class="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
                                     </button>
                                 </div>
                             </div>
                         </div>
-                        <label class="block border-2 border-dashed border-gray-200 rounded-xl p-4 text-center cursor-pointer hover:border-gray-300 transition-colors mb-2">
-                            <p class="text-sm text-gray-400">+ Agregar más imágenes</p>
-                            <p class="text-xs text-gray-400 mt-0.5">Recomendado: <strong>1000 × 1000 px</strong> (cuadradas), máx. 5 MB. Se recortan al centro.</p>
+                        <label class="block border-2 border-dashed border-linea rounded-xl p-4 text-center cursor-pointer hover:border-tinta-200 transition-colors mb-2">
+                            <p class="text-sm text-tinta-300">+ Agregar más imágenes</p>
+                            <p class="text-xs text-tinta-300 mt-0.5">Recomendado: <strong>1000 × 1000 px</strong> (cuadradas), máx. 5 MB. Se recortan al centro.</p>
                             <input type="file" multiple accept="image/*" class="hidden" @change="onImagenes" />
                         </label>
                         <div v-if="nuevasPreviews.length" class="grid grid-cols-3 sm:grid-cols-5 gap-2">
                             <div v-for="(prev, i) in nuevasPreviews" :key="i" class="relative rounded-xl overflow-hidden border-2 border-dashed border-blue-300">
                                 <img :src="prev.url" class="w-full aspect-square object-cover" />
                                 <button type="button" @click="eliminarNueva(i)" class="absolute top-1 right-1 w-5 h-5 rounded-full bg-red-500/80 flex items-center justify-center">
-                                    <svg class="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                                    <svg class="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
                                 </button>
                             </div>
                         </div>
@@ -592,8 +592,8 @@ const badgeStyle = {
 
                 <!-- ═══ Clasificación ══════════════════════════════════════ -->
                 <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
-                    <div class="px-5 py-3 border-b border-gray-100">
-                        <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Clasificación</h3>
+                    <div class="px-5 py-3 border-b border-linea">
+                        <h3 class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">Clasificación</h3>
                     </div>
                     <div class="p-5 space-y-3">
                         <label class="flex items-center gap-3 cursor-pointer">
@@ -601,8 +601,8 @@ const badgeStyle = {
                                 <div class="absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform" :style="form.es_vendible ? 'transform:translateX(18px);' : 'transform:translateX(2px);'" />
                             </div>
                             <div>
-                                <p class="text-sm font-medium text-gray-800">Es vendible</p>
-                                <p class="text-xs text-gray-400">Aparece en catálogo y cotizaciones</p>
+                                <p class="text-sm font-medium text-tinta-900">Es vendible</p>
+                                <p class="text-xs text-tinta-300">Aparece en catálogo y cotizaciones</p>
                             </div>
                         </label>
                         <label class="flex items-center gap-3 cursor-pointer">
@@ -610,12 +610,12 @@ const badgeStyle = {
                                 <div class="absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform" :style="form.es_insumo ? 'transform:translateX(18px);' : 'transform:translateX(2px);'" />
                             </div>
                             <div>
-                                <p class="text-sm font-medium text-gray-800">Es insumo / material</p>
-                                <p class="text-xs text-gray-400">Se usa como componente en ensambles y controla stock en bodegas</p>
+                                <p class="text-sm font-medium text-tinta-900">Es insumo / material</p>
+                                <p class="text-xs text-tinta-300">Se usa como componente en ensambles y controla stock en bodegas</p>
                             </div>
                         </label>
-                        <div v-if="form.es_insumo" class="pt-2 border-t border-gray-100">
-                            <label class="block text-xs font-medium text-gray-600 mb-1">Proveedor</label>
+                        <div v-if="form.es_insumo" class="pt-2 border-t border-linea">
+                            <label class="block text-xs font-medium text-tinta-500 mb-1">Proveedor</label>
                             <select v-model="form.proveedor_id" :class="ic('proveedor_id')">
                                 <option value="">Sin proveedor</option>
                                 <option v-for="pv in props.proveedores" :key="pv.id" :value="String(pv.id)">{{ pv.nombre }}</option>
@@ -626,10 +626,10 @@ const badgeStyle = {
 
                 <!-- ═══ Inventario (solo producto) ═══════════════════════ -->
                 <div v-if="p.tipo === 'producto'" class="bg-white rounded-2xl shadow-sm overflow-hidden">
-                    <div class="px-5 py-3 border-b border-gray-100 flex items-center justify-between">
-                        <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Inventario</h3>
+                    <div class="px-5 py-3 border-b border-linea flex items-center justify-between">
+                        <h3 class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">Inventario</h3>
                         <label class="flex items-center gap-2 cursor-pointer">
-                            <span class="text-xs text-gray-500">Inventariable</span>
+                            <span class="text-xs text-tinta-400">Inventariable</span>
                             <div class="relative w-9 h-5 rounded-full transition-colors cursor-pointer" :style="form.inventariable ? 'background:var(--marca);' : 'background:#D1D5DB;'" @click="form.inventariable = !form.inventariable">
                                 <div class="absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform" :style="form.inventariable ? 'transform:translateX(18px);' : 'transform:translateX(2px);'" />
                             </div>
@@ -643,20 +643,20 @@ const badgeStyle = {
                         <!-- Stock actual por bodega (solo lectura) -->
                         <div v-if="stocksPorBodega.length">
                             <div class="flex items-center justify-between mb-1.5">
-                                <p class="text-xs font-medium text-gray-600">Stock actual por bodega</p>
+                                <p class="text-xs font-medium text-tinta-500">Stock actual por bodega</p>
                                 <a :href="`/productos/${p.id}`" class="text-xs text-blue-600 font-medium hover:underline">
                                     Ver detalle / Ajustar stock →
                                 </a>
                             </div>
-                            <div class="divide-y divide-gray-50 border border-gray-100 rounded-xl overflow-hidden">
+                            <div class="divide-y divide-gray-50 border border-linea rounded-xl overflow-hidden">
                                 <div v-for="s in stocksPorBodega" :key="s.bodega_id"
                                     class="flex items-center justify-between px-3 py-2">
-                                    <span class="text-xs text-gray-600">{{ s.bodega_nombre }}</span>
-                                    <span class="text-xs font-semibold text-gray-800">{{ s.cantidad }} {{ p.unidad_medida }}</span>
+                                    <span class="text-xs text-tinta-500">{{ s.bodega_nombre }}</span>
+                                    <span class="text-xs font-semibold text-tinta-900">{{ s.cantidad }} {{ p.unidad_medida }}</span>
                                 </div>
                             </div>
                         </div>
-                        <div v-else class="text-xs text-gray-400 text-center py-2">
+                        <div v-else class="text-xs text-tinta-300 text-center py-2">
                             Sin stock registrado.
                             <a :href="`/productos/${p.id}`" class="text-blue-600 font-medium hover:underline ml-1">Ajustar desde la vista de detalle →</a>
                         </div>
@@ -665,64 +665,64 @@ const badgeStyle = {
 
                 <!-- ═══ Lista de precios ═══════════════════════════════════ -->
                 <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
-                    <div class="px-5 py-3 border-b border-gray-100">
-                        <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Lista de precios</h3>
+                    <div class="px-5 py-3 border-b border-linea">
+                        <h3 class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">Lista de precios</h3>
                     </div>
                     <div class="p-5 space-y-4">
                         <!-- Costo base -->
                         <div>
-                            <label class="block text-xs font-medium text-gray-600 mb-1">Precio Costo</label>
+                            <label class="block text-xs font-medium text-tinta-500 mb-1">Precio Costo</label>
                             <div class="relative">
-                                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-gray-400">$</span>
+                                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-tinta-300">$</span>
                                 <input v-model.number="form.precio_costo" type="number" min="0" step="100"
-                                    class="w-full border border-gray-200 rounded-xl pl-7 pr-3 py-2 text-sm bg-white focus:outline-none focus:border-blue-400" />
+                                    class="w-full border border-linea rounded-xl pl-7 pr-3 py-2 text-sm bg-white focus:outline-none focus:border-blue-400" />
                             </div>
                         </div>
                         <!-- Mayorista -->
                         <div class="grid grid-cols-2 gap-3 items-end">
                             <div>
-                                <label class="block text-xs font-medium text-gray-600 mb-1">Margen Mayorista %</label>
+                                <label class="block text-xs font-medium text-tinta-500 mb-1">Margen Mayorista %</label>
                                 <input v-model.number="form.margen_mayorista" type="number" min="1" max="99" step="0.5"
-                                    class="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-400" />
+                                    class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-400" />
                             </div>
                             <div>
-                                <label class="block text-xs font-medium text-gray-600 mb-1">Precio Mayorista</label>
+                                <label class="block text-xs font-medium text-tinta-500 mb-1">Precio Mayorista</label>
                                 <div class="relative">
-                                    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-gray-400">$</span>
+                                    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-tinta-300">$</span>
                                     <input :value="formatCOP(form.precio_mayorista)" readonly
-                                        class="w-full border border-gray-100 rounded-xl pl-7 pr-3 py-2 text-sm bg-gray-50 font-semibold text-gray-700" />
+                                        class="w-full border border-linea rounded-xl pl-7 pr-3 py-2 text-sm bg-tinta-50 font-semibold text-tinta-700" />
                                 </div>
                             </div>
                         </div>
                         <!-- Distribuidor -->
                         <div class="grid grid-cols-2 gap-3 items-end">
                             <div>
-                                <label class="block text-xs font-medium text-gray-600 mb-1">Margen Distribuidor %</label>
+                                <label class="block text-xs font-medium text-tinta-500 mb-1">Margen Distribuidor %</label>
                                 <input v-model.number="form.margen_distribuidor" type="number" min="1" max="99" step="0.5"
-                                    class="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-400" />
+                                    class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-400" />
                             </div>
                             <div>
-                                <label class="block text-xs font-medium text-gray-600 mb-1">Precio Distribuidor</label>
+                                <label class="block text-xs font-medium text-tinta-500 mb-1">Precio Distribuidor</label>
                                 <div class="relative">
-                                    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-gray-400">$</span>
+                                    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-tinta-300">$</span>
                                     <input :value="formatCOP(form.precio_distribuidor)" readonly
-                                        class="w-full border border-gray-100 rounded-xl pl-7 pr-3 py-2 text-sm bg-gray-50 font-semibold text-gray-700" />
+                                        class="w-full border border-linea rounded-xl pl-7 pr-3 py-2 text-sm bg-tinta-50 font-semibold text-tinta-700" />
                                 </div>
                             </div>
                         </div>
                         <!-- Cliente Final -->
                         <div class="grid grid-cols-2 gap-3 items-end">
                             <div>
-                                <label class="block text-xs font-medium text-gray-600 mb-1">Margen Cliente Final %</label>
+                                <label class="block text-xs font-medium text-tinta-500 mb-1">Margen Cliente Final %</label>
                                 <input v-model.number="form.margen_cliente_final" type="number" min="1" max="99" step="0.5"
-                                    class="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-400" />
+                                    class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-400" />
                             </div>
                             <div>
-                                <label class="block text-xs font-medium text-gray-600 mb-1">Precio Cliente Final</label>
+                                <label class="block text-xs font-medium text-tinta-500 mb-1">Precio Cliente Final</label>
                                 <div class="relative">
-                                    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-gray-400">$</span>
+                                    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-tinta-300">$</span>
                                     <input :value="formatCOP(form.precio_cliente_final)" readonly
-                                        class="w-full border border-gray-100 rounded-xl pl-7 pr-3 py-2 text-sm bg-gray-50 font-semibold text-gray-700" />
+                                        class="w-full border border-linea rounded-xl pl-7 pr-3 py-2 text-sm bg-tinta-50 font-semibold text-tinta-700" />
                                 </div>
                             </div>
                         </div>
@@ -731,11 +731,11 @@ const badgeStyle = {
 
                 <!-- Comisión Vendedor por Canal -->
                 <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
-                    <div class="px-5 py-3 border-b border-gray-100 flex items-center justify-between">
-                        <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Comisión Vendedor por Canal</h3>
+                    <div class="px-5 py-3 border-b border-linea flex items-center justify-between">
+                        <h3 class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">Comisión Vendedor por Canal</h3>
                         <button type="button" @click="sugerirComisiones"
                             class="text-xs text-[var(--marca)] border border-[var(--marca)] rounded-lg px-3 py-1.5 hover:bg-blue-50 transition-colors flex items-center gap-1.5">
-                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
                             </svg>
                             ▷ Sugerir comisiones
@@ -746,7 +746,7 @@ const badgeStyle = {
                         <!-- Mayorista — sin comisión -->
                         <div class="bg-blue-50 border border-blue-100 rounded-lg p-3">
                             <div class="flex items-center gap-2">
-                                <span class="text-xs font-bold text-blue-700 uppercase">Mayorista</span>
+                                <span class="text-xs font-semibold text-blue-700 uppercase">Mayorista</span>
                                 <span class="bg-blue-100 text-blue-600 text-xs px-2 py-0.5 rounded-full">Sin comisión · Precio fijo</span>
                             </div>
                             <p class="text-xs text-blue-400 mt-1">El margen mayorista ({{ form.margen_mayorista }}%) es la utilidad mínima garantizada de la empresa. No hay comisión para el vendedor en este canal.</p>
@@ -755,24 +755,24 @@ const badgeStyle = {
                         <!-- Distribuidor -->
                         <div class="border border-indigo-100 rounded-lg p-3 space-y-3 bg-indigo-50/30">
                             <div class="flex items-center justify-between flex-wrap gap-1">
-                                <span class="text-xs font-bold text-indigo-700 uppercase">Distribuidor</span>
+                                <span class="text-xs font-semibold text-indigo-700 uppercase">Distribuidor</span>
                                 <span class="text-xs text-indigo-500">Base: {{ formatCOP(form.precio_distribuidor) }} · Mín: {{ formatCOP(form.precio_mayorista) }} · Desc. máx: {{ descuentoMaxRealDistribuidor }}%</span>
                             </div>
                             <div class="grid grid-cols-2 gap-3">
                                 <div>
-                                    <label class="text-xs text-gray-500 mb-1 block">Comisión mínima (%)</label>
+                                    <label class="text-xs text-tinta-400 mb-1 block">Comisión mínima (%)</label>
                                     <div class="flex items-center gap-2">
                                         <input type="number" step="0.1" min="0" v-model.number="form.comision_min_distribuidor" @input="validarComisiones"
-                                            class="w-24 border border-gray-300 rounded-lg px-2 py-1.5 text-sm focus:ring-2 focus:ring-indigo-300 focus:outline-none" />
-                                        <span class="text-xs text-gray-400">= {{ formatCOP(excedenteDistribuidor * form.comision_min_distribuidor / 100) }}</span>
+                                            class="w-24 border border-tinta-200 rounded-lg px-2 py-1.5 text-sm focus:ring-2 focus:ring-indigo-300 focus:outline-none" />
+                                        <span class="text-xs text-tinta-300">= {{ formatCOP(excedenteDistribuidor * form.comision_min_distribuidor / 100) }}</span>
                                     </div>
                                 </div>
                                 <div>
-                                    <label class="text-xs text-gray-500 mb-1 block">Comisión máxima (%)</label>
+                                    <label class="text-xs text-tinta-400 mb-1 block">Comisión máxima (%)</label>
                                     <div class="flex items-center gap-2">
                                         <input type="number" step="0.1" min="0" v-model.number="form.comision_max_distribuidor" @input="validarComisiones"
-                                            class="w-24 border border-gray-300 rounded-lg px-2 py-1.5 text-sm focus:ring-2 focus:ring-indigo-300 focus:outline-none" />
-                                        <span class="text-xs text-gray-400">= {{ formatCOP(excedenteDistribuidor * form.comision_max_distribuidor / 100) }}</span>
+                                            class="w-24 border border-tinta-200 rounded-lg px-2 py-1.5 text-sm focus:ring-2 focus:ring-indigo-300 focus:outline-none" />
+                                        <span class="text-xs text-tinta-300">= {{ formatCOP(excedenteDistribuidor * form.comision_max_distribuidor / 100) }}</span>
                                     </div>
                                 </div>
                             </div>
@@ -785,31 +785,31 @@ const badgeStyle = {
                         <div class="border border-green-100 rounded-lg p-3 space-y-3 bg-green-50/30">
                             <div class="flex items-center justify-between flex-wrap gap-1">
                                 <div class="flex items-center gap-2">
-                                    <span class="text-xs font-bold text-green-700 uppercase">Cliente Final</span>
+                                    <span class="text-xs font-semibold text-green-700 uppercase">Cliente Final</span>
                                     <span class="bg-green-100 text-green-600 text-xs px-2 py-0.5 rounded-full">⭐ Mayor incentivo</span>
                                 </div>
                                 <span class="text-xs text-green-500">Base: {{ formatCOP(form.precio_cliente_final) }} · Desc. máx: {{ descuentoMaxRealClienteFinal }}%</span>
                             </div>
                             <div class="grid grid-cols-2 gap-3">
                                 <div>
-                                    <label class="text-xs text-gray-500 mb-1 block">
+                                    <label class="text-xs text-tinta-400 mb-1 block">
                                         Comisión mínima (%)
                                         <span class="text-orange-500 ml-1">← mín = máx distribuidor ({{ form.comision_max_distribuidor }}%)</span>
                                     </label>
                                     <div class="flex items-center gap-2">
                                         <input type="number" step="0.1" :min="form.comision_max_distribuidor" v-model.number="form.comision_min_cliente_final" @input="validarComisiones"
                                             :class="['w-24 border rounded-lg px-2 py-1.5 text-sm focus:ring-2 focus:outline-none',
-                                                errorComisionClienteFinal ? 'border-red-400 focus:ring-red-300' : 'border-gray-300 focus:ring-green-300']" />
-                                        <span class="text-xs text-gray-400">= {{ formatCOP(excedenteClienteFinal * form.comision_min_cliente_final / 100) }}</span>
+                                                errorComisionClienteFinal ? 'border-red-400 focus:ring-red-300' : 'border-tinta-200 focus:ring-green-300']" />
+                                        <span class="text-xs text-tinta-300">= {{ formatCOP(excedenteClienteFinal * form.comision_min_cliente_final / 100) }}</span>
                                     </div>
                                 </div>
                                 <div>
-                                    <label class="text-xs text-gray-500 mb-1 block">Comisión máxima (%)</label>
+                                    <label class="text-xs text-tinta-400 mb-1 block">Comisión máxima (%)</label>
                                     <div class="flex items-center gap-2">
                                         <input type="number" step="0.1" :min="form.comision_min_cliente_final" v-model.number="form.comision_max_cliente_final" @input="validarComisiones"
                                             :class="['w-24 border rounded-lg px-2 py-1.5 text-sm focus:ring-2 focus:outline-none',
-                                                errorComisionClienteFinal ? 'border-red-400 focus:ring-red-300' : 'border-gray-300 focus:ring-green-300']" />
-                                        <span class="text-xs text-gray-400">= {{ formatCOP(excedenteClienteFinal * form.comision_max_cliente_final / 100) }}</span>
+                                                errorComisionClienteFinal ? 'border-red-400 focus:ring-red-300' : 'border-tinta-200 focus:ring-green-300']" />
+                                        <span class="text-xs text-tinta-300">= {{ formatCOP(excedenteClienteFinal * form.comision_max_cliente_final / 100) }}</span>
                                     </div>
                                 </div>
                             </div>
@@ -822,24 +822,24 @@ const badgeStyle = {
                         </div>
 
                         <!-- Comparativa -->
-                        <div v-if="form.comision_max_distribuidor > 0 && form.comision_max_cliente_final > 0" class="bg-gray-50 rounded-lg p-3">
-                            <p class="text-xs font-medium text-gray-600 mb-2">📊 Comparativa de incentivos por canal</p>
+                        <div v-if="form.comision_max_distribuidor > 0 && form.comision_max_cliente_final > 0" class="bg-tinta-50 rounded-lg p-3">
+                            <p class="text-xs font-medium text-tinta-500 mb-2">📊 Comparativa de incentivos por canal</p>
                             <div class="space-y-1.5">
                                 <div class="flex items-center gap-2">
-                                    <span class="text-xs text-gray-500 w-28">Mayorista:</span>
-                                    <div class="flex-1 bg-gray-200 rounded-full h-1.5"></div>
-                                    <span class="text-xs text-gray-400 w-20 text-right">Sin comisión</span>
+                                    <span class="text-xs text-tinta-400 w-28">Mayorista:</span>
+                                    <div class="flex-1 bg-tinta-200 rounded-full h-1.5"></div>
+                                    <span class="text-xs text-tinta-300 w-20 text-right">Sin comisión</span>
                                 </div>
                                 <div class="flex items-center gap-2">
                                     <span class="text-xs text-indigo-600 w-28">Distribuidor:</span>
-                                    <div class="flex-1 bg-gray-200 rounded-full h-1.5">
+                                    <div class="flex-1 bg-tinta-200 rounded-full h-1.5">
                                         <div class="bg-indigo-400 h-1.5 rounded-full" :style="`width: ${Math.min(form.comision_max_distribuidor * 5, 100)}%`"></div>
                                     </div>
                                     <span class="text-xs text-indigo-600 w-20 text-right font-medium">máx {{ form.comision_max_distribuidor }}%</span>
                                 </div>
                                 <div class="flex items-center gap-2">
                                     <span class="text-xs text-green-600 w-28">Cliente final:</span>
-                                    <div class="flex-1 bg-gray-200 rounded-full h-1.5">
+                                    <div class="flex-1 bg-tinta-200 rounded-full h-1.5">
                                         <div class="bg-green-500 h-1.5 rounded-full" :style="`width: ${Math.min(form.comision_max_cliente_final * 5, 100)}%`"></div>
                                     </div>
                                     <span class="text-xs text-green-600 w-20 text-right font-medium">máx {{ form.comision_max_cliente_final }}%</span>
@@ -866,7 +866,7 @@ const badgeStyle = {
 
                 <!-- ── Botones ─────────────────────────────────────────────── -->
                 <div class="flex gap-3 pb-4">
-                    <button type="button" @click="router.visit(`/productos/${p.id}`)" class="flex-1 py-3 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 bg-white">Cancelar</button>
+                    <button type="button" @click="router.visit(`/productos/${p.id}`)" class="flex-1 py-3 rounded-xl border border-linea text-sm font-medium text-tinta-500 bg-white">Cancelar</button>
                     <button type="submit" :disabled="form.processing" class="flex-1 py-3 rounded-xl text-sm font-medium text-white shadow-sm disabled:opacity-60" style="background-color:var(--marca);">
                         {{ form.processing ? 'Guardando...' : 'Guardar cambios' }}
                     </button>
@@ -881,24 +881,24 @@ const badgeStyle = {
              class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4"
              style="background:rgba(0,0,0,0.5);">
             <div class="bg-white rounded-2xl shadow-xl w-full max-w-sm p-5">
-                <h3 class="text-base font-semibold text-gray-900 mb-4">Nueva categoría</h3>
+                <h3 class="text-base font-semibold text-tinta-900 mb-4">Nueva categoría</h3>
                 <div class="space-y-4">
 
                     <!-- Nombre -->
                     <div>
-                        <label class="block text-xs font-semibold text-gray-500 mb-1">Nombre</label>
+                        <label class="block text-xs font-semibold text-tinta-400 mb-1">Nombre</label>
                         <input
                             type="text"
                             :value="nuevaCat.nombre"
                             @input="nuevaCat.nombre = $event.target.value"
                             placeholder="Ej: Puertas Refrigeradas"
-                            class="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+                            class="w-full border border-linea rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
                         />
                     </div>
 
                     <!-- Color -->
                     <div>
-                        <label class="block text-xs font-semibold text-gray-500 mb-2">Color</label>
+                        <label class="block text-xs font-semibold text-tinta-400 mb-2">Color</label>
                         <div class="flex flex-wrap gap-2 mb-3">
                             <button
                                 v-for="c in coloresPaleta"
@@ -913,7 +913,7 @@ const badgeStyle = {
                             />
                         </div>
                         <div class="flex items-center gap-2">
-                            <div class="w-8 h-8 rounded-lg border border-gray-200 shrink-0"
+                            <div class="w-8 h-8 rounded-lg border border-linea shrink-0"
                                  :style="'background-color:' + nuevaCat.color"></div>
                             <input
                                 type="text"
@@ -921,7 +921,7 @@ const badgeStyle = {
                                 @input="nuevaCat.color = $event.target.value"
                                 placeholder="#2563EB"
                                 maxlength="7"
-                                class="flex-1 border border-gray-200 rounded-lg px-3 py-1.5 text-sm font-mono focus:ring-2 focus:ring-blue-100 focus:border-blue-400"
+                                class="flex-1 border border-linea rounded-lg px-3 py-1.5 text-sm font-mono focus:ring-2 focus:ring-blue-100 focus:border-blue-400"
                             />
                         </div>
                     </div>
@@ -933,7 +933,7 @@ const badgeStyle = {
                     <button
                         type="button"
                         @click.stop="showModalCat = false; nuevaCat.nombre = ''; nuevaCat.color = colorMarca()"
-                        class="flex-1 py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 bg-white">
+                        class="flex-1 py-2.5 rounded-xl border border-linea text-sm font-medium text-tinta-500 bg-white">
                         Cancelar
                     </button>
                     <button

@@ -84,13 +84,13 @@ const hayAlertasMant = computed(() =>
 
 // ─── Badge estado OP ────────────────────────────────────────────────────────
 const badgeClass = (estado) => ({
-    borrador:      'bg-gray-100 text-gray-600',
+    borrador:      'bg-tinta-100 text-tinta-500',
     confirmada:    'bg-blue-100 text-blue-800',
     en_produccion: 'bg-yellow-100 text-yellow-800',
     calidad:       'bg-violet-100 text-violet-800',
     reproceso:     'bg-orange-100 text-orange-800',
     despachada:    'bg-green-100 text-green-800',
-}[estado] ?? 'bg-gray-100 text-gray-600')
+}[estado] ?? 'bg-tinta-100 text-tinta-500')
 </script>
 
 <template>
@@ -116,10 +116,10 @@ const badgeClass = (estado) => ({
 
             <!-- Saludo ──────────────────────────────────────────────────── -->
             <div class="mb-5">
-                <h1 class="text-xl font-bold text-gray-900">
+                <h1 class="text-xl font-semibold text-tinta-900">
                     {{ saludo }}<template v-if="primerNombre">, {{ primerNombre }}</template>
                 </h1>
-                <p class="text-xs text-gray-500 mt-0.5 first-letter:uppercase">
+                <p class="text-xs text-tinta-400 mt-0.5 first-letter:uppercase">
                     {{ fechaHoy }}<template v-if="contexto?.sede"> · {{ contexto.sede }}</template>
                 </p>
             </div>
@@ -232,7 +232,7 @@ const badgeClass = (estado) => ({
                             </svg>
                         </div>
                         <div>
-                            <p class="text-2xl font-bold text-red-700 leading-none">{{ metricas?.mant_vencidos }}</p>
+                            <p class="text-2xl font-semibold text-red-700 leading-none">{{ metricas?.mant_vencidos }}</p>
                             <p class="text-xs text-red-500 mt-1">Equipos vencidos</p>
                         </div>
                     </Link>
@@ -247,7 +247,7 @@ const badgeClass = (estado) => ({
                             </svg>
                         </div>
                         <div>
-                            <p class="text-2xl font-bold text-amber-700 leading-none">{{ metricas?.mant_proximos }}</p>
+                            <p class="text-2xl font-semibold text-amber-700 leading-none">{{ metricas?.mant_proximos }}</p>
                             <p class="text-xs text-amber-600 mt-1">Próximos 7 días</p>
                         </div>
                     </Link>
@@ -262,7 +262,7 @@ const badgeClass = (estado) => ({
                     class="flex items-center gap-2 shrink-0 px-5 py-3 rounded-xl text-white text-sm font-semibold active:opacity-80 transition-opacity"
                     style="background-color: var(--marca);"
                 >
-                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
                     </svg>
                     Nueva OP
@@ -294,7 +294,7 @@ const badgeClass = (estado) => ({
 
                 <Link
                     href="/seguimiento"
-                    class="flex items-center gap-2 shrink-0 px-5 py-3 rounded-xl text-sm font-semibold border-2 bg-white active:bg-gray-50 transition-colors"
+                    class="flex items-center gap-2 shrink-0 px-5 py-3 rounded-xl text-sm font-semibold border-2 bg-white active:bg-tinta-50 transition-colors"
                     style="border-color: #6B7280; color: #374151;"
                 >
                     <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
@@ -306,33 +306,33 @@ const badgeClass = (estado) => ({
 
             <!-- OPs recientes ───────────────────────────────────────────── -->
             <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
-                <div class="flex items-center justify-between px-4 py-3 border-b border-gray-100">
-                    <h2 class="font-semibold text-gray-800 text-sm">OPs recientes</h2>
+                <div class="flex items-center justify-between px-4 py-3 border-b border-linea">
+                    <h2 class="font-semibold text-tinta-900 text-sm">OPs recientes</h2>
                     <Link href="/produccion/ops" class="text-xs font-medium" style="color: var(--marca);">
                         Ver todas →
                     </Link>
                 </div>
 
                 <!-- Cards (mobile) -->
-                <div v-if="ops_recientes?.length" class="divide-y divide-gray-100 md:hidden">
+                <div v-if="ops_recientes?.length" class="divide-y divide-linea md:hidden">
                     <Link
                         v-for="op in ops_recientes"
                         :key="op.id"
                         :href="`/produccion/ops/${op.id}`"
-                        class="flex items-center gap-3 px-4 py-3 active:bg-gray-50 transition-colors no-underline"
+                        class="flex items-center gap-3 px-4 py-3 active:bg-tinta-50 transition-colors no-underline"
                     >
                         <div class="flex-1 min-w-0">
                             <div class="flex items-center gap-2 mb-0.5">
-                                <span class="font-mono text-sm font-bold" style="color: var(--marca);">{{ op.numero_op }}</span>
+                                <span class="font-mono text-sm font-semibold" style="color: var(--marca);">{{ op.numero_op }}</span>
                                 <span
                                     class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium"
                                     :class="badgeClass(op.estado)"
                                 >{{ op.estado_label }}</span>
                             </div>
-                            <p class="text-sm text-gray-700 truncate">{{ op.cliente }}</p>
-                            <p class="text-xs text-gray-400 mt-0.5">{{ op.created_at }}</p>
+                            <p class="text-sm text-tinta-700 truncate">{{ op.cliente }}</p>
+                            <p class="text-xs text-tinta-300 mt-0.5">{{ op.created_at }}</p>
                         </div>
-                        <svg class="w-4 h-4 text-gray-300 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
+                        <svg class="w-4 h-4 text-tinta-200 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
                         </svg>
                     </Link>
@@ -341,7 +341,7 @@ const badgeClass = (estado) => ({
                 <!-- Tabla (desktop) -->
                 <div v-if="ops_recientes?.length" class="hidden md:block overflow-x-auto">
                     <table class="w-full text-sm">
-                        <thead class="bg-gray-50 text-xs text-gray-500 uppercase tracking-wide">
+                        <thead class="bg-tinta-50 text-xs text-tinta-400 uppercase tracking-wide">
                             <tr>
                                 <th class="px-5 py-3 text-left">Número OP</th>
                                 <th class="px-5 py-3 text-left">Cliente</th>
@@ -349,28 +349,28 @@ const badgeClass = (estado) => ({
                                 <th class="px-5 py-3 text-left">Fecha</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-gray-100">
+                        <tbody class="divide-y divide-linea">
                             <tr
                                 v-for="op in ops_recientes"
                                 :key="op.id"
-                                class="hover:bg-gray-50 transition-colors cursor-pointer"
+                                class="hover:bg-tinta-50 transition-colors cursor-pointer"
                                 @click="router.visit(`/produccion/ops/${op.id}`)"
                             >
                                 <td class="px-5 py-3 font-mono font-semibold" style="color: var(--marca);">{{ op.numero_op }}</td>
-                                <td class="px-5 py-3 text-gray-700">{{ op.cliente }}</td>
+                                <td class="px-5 py-3 text-tinta-700">{{ op.cliente }}</td>
                                 <td class="px-5 py-3">
                                     <span
                                         class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
                                         :class="badgeClass(op.estado)"
                                     >{{ op.estado_label }}</span>
                                 </td>
-                                <td class="px-5 py-3 text-gray-500">{{ op.created_at }}</td>
+                                <td class="px-5 py-3 text-tinta-400">{{ op.created_at }}</td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
 
-                <div v-else class="px-5 py-10 text-center text-gray-400 text-sm">
+                <div v-else class="px-5 py-10 text-center text-tinta-300 text-sm">
                     No hay órdenes de producción aún.
                 </div>
             </div>

@@ -65,26 +65,26 @@ const años = Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i)
             <!-- Header -->
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                 <div>
-                    <h1 class="text-xl font-bold text-gray-900">Reportes CRM</h1>
-                    <p class="text-sm text-gray-500 mt-0.5">Análisis de leads y conversiones</p>
+                    <h1 class="text-xl font-semibold text-tinta-900">Reportes CRM</h1>
+                    <p class="text-sm text-tinta-400 mt-0.5">Análisis de leads y conversiones</p>
                 </div>
 
                 <!-- Filtros de período -->
                 <div class="flex flex-wrap gap-2 items-center">
                     <select v-model="periodo" @change="aplicarFiltros"
-                        class="border border-gray-300 rounded-lg px-3 py-1.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-200">
+                        class="border border-tinta-200 rounded-lg px-3 py-1.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-200">
                         <option value="mes">Mes</option>
                         <option value="trimestre">Trimestre</option>
                         <option value="año">Año</option>
                     </select>
 
                     <select v-model="año" @change="aplicarFiltros"
-                        class="border border-gray-300 rounded-lg px-3 py-1.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-200">
+                        class="border border-tinta-200 rounded-lg px-3 py-1.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-200">
                         <option v-for="a in años" :key="a" :value="a">{{ a }}</option>
                     </select>
 
                     <select v-if="periodo !== 'año'" v-model="mes" @change="aplicarFiltros"
-                        class="border border-gray-300 rounded-lg px-3 py-1.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-200">
+                        class="border border-tinta-200 rounded-lg px-3 py-1.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-200">
                         <option v-for="m in meses" :key="m.v" :value="m.v">{{ m.l }}</option>
                     </select>
                 </div>
@@ -92,34 +92,34 @@ const años = Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i)
 
             <!-- Tarjetas métricas -->
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                <div class="bg-white rounded-2xl border border-gray-100 shadow-sm px-4 py-4">
-                    <p class="text-xs text-gray-500 font-medium">Total período</p>
-                    <p class="text-3xl font-bold mt-1" style="color: var(--marca);">{{ totalPeriodo }}</p>
-                    <p class="text-xs text-gray-400 mt-1">leads creados</p>
+                <div class="bg-white rounded-2xl border border-linea shadow-sm px-4 py-4">
+                    <p class="text-xs text-tinta-400 font-medium">Total período</p>
+                    <p class="text-3xl font-semibold mt-1" style="color: var(--marca);">{{ totalPeriodo }}</p>
+                    <p class="text-xs text-tinta-300 mt-1">leads creados</p>
                 </div>
-                <div class="bg-white rounded-2xl border border-gray-100 shadow-sm px-4 py-4">
-                    <p class="text-xs text-gray-500 font-medium">Ganados</p>
-                    <p class="text-3xl font-bold mt-1 text-green-600">{{ ganadosPeriodo }}</p>
-                    <p class="text-xs text-gray-400 mt-1">leads cerrados</p>
+                <div class="bg-white rounded-2xl border border-linea shadow-sm px-4 py-4">
+                    <p class="text-xs text-tinta-400 font-medium">Ganados</p>
+                    <p class="text-3xl font-semibold mt-1 text-green-600">{{ ganadosPeriodo }}</p>
+                    <p class="text-xs text-tinta-300 mt-1">leads cerrados</p>
                 </div>
-                <div class="bg-white rounded-2xl border border-gray-100 shadow-sm px-4 py-4">
-                    <p class="text-xs text-gray-500 font-medium">Conversión</p>
-                    <p class="text-3xl font-bold mt-1"
+                <div class="bg-white rounded-2xl border border-linea shadow-sm px-4 py-4">
+                    <p class="text-xs text-tinta-400 font-medium">Conversión</p>
+                    <p class="text-3xl font-semibold mt-1"
                         :style="{ color: colorConversion(tasaConversion) }">
                         {{ tasaConversion }}%
                     </p>
-                    <p class="text-xs text-gray-400 mt-1">tasa global</p>
+                    <p class="text-xs text-tinta-300 mt-1">tasa global</p>
                 </div>
-                <div class="bg-white rounded-2xl border border-gray-100 shadow-sm px-4 py-4">
-                    <p class="text-xs text-gray-500 font-medium">Activos ahora</p>
-                    <p class="text-3xl font-bold mt-1 text-yellow-600">{{ activos }}</p>
-                    <p class="text-xs text-gray-400 mt-1">en pipeline</p>
+                <div class="bg-white rounded-2xl border border-linea shadow-sm px-4 py-4">
+                    <p class="text-xs text-tinta-400 font-medium">Activos ahora</p>
+                    <p class="text-3xl font-semibold mt-1 text-yellow-600">{{ activos }}</p>
+                    <p class="text-xs text-tinta-300 mt-1">en pipeline</p>
                 </div>
             </div>
 
             <!-- Gráfica leads por mes -->
-            <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
-                <h2 class="text-sm font-bold text-gray-700 mb-4">Leads últimos 6 meses</h2>
+            <div class="bg-white rounded-2xl border border-linea shadow-sm p-5">
+                <h2 class="text-sm font-semibold text-tinta-700 mb-4">Leads últimos 6 meses</h2>
                 <div v-if="porMes.length" class="overflow-x-auto">
                     <svg :width="Math.max(porMes.length * 80, 400)" height="180" class="block">
                         <g v-for="(m, i) in porMes" :key="i" :transform="`translate(${i * 80 + 20}, 0)`">
@@ -146,13 +146,13 @@ const años = Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i)
                         </g>
                     </svg>
                 </div>
-                <p v-else class="text-sm text-gray-400 text-center py-6">Sin datos en este período</p>
+                <p v-else class="text-sm text-tinta-300 text-center py-6">Sin datos en este período</p>
                 <!-- Leyenda -->
                 <div class="flex gap-4 mt-3">
-                    <div class="flex items-center gap-1.5 text-xs text-gray-500">
+                    <div class="flex items-center gap-1.5 text-xs text-tinta-400">
                         <span class="w-3 h-3 rounded bg-blue-200 inline-block"></span> Total
                     </div>
-                    <div class="flex items-center gap-1.5 text-xs text-gray-500">
+                    <div class="flex items-center gap-1.5 text-xs text-tinta-400">
                         <span class="w-3 h-3 rounded bg-green-500 inline-block"></span> Ganados
                     </div>
                 </div>
@@ -162,15 +162,15 @@ const años = Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i)
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
 
                 <!-- Leads por fuente -->
-                <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
-                    <h2 class="text-sm font-bold text-gray-700 mb-4">Leads por fuente</h2>
+                <div class="bg-white rounded-2xl border border-linea shadow-sm p-5">
+                    <h2 class="text-sm font-semibold text-tinta-700 mb-4">Leads por fuente</h2>
                     <div v-if="porFuente.length" class="space-y-3">
                         <div v-for="f in porFuente" :key="f.fuente">
                             <div class="flex items-center justify-between text-xs mb-1">
-                                <span class="text-gray-700 font-medium truncate max-w-[140px]">{{ f.fuente }}</span>
-                                <span class="text-gray-500 shrink-0 ml-2">{{ f.total }} ({{ pctFuente(f.total) }}%)</span>
+                                <span class="text-tinta-700 font-medium truncate max-w-[140px]">{{ f.fuente }}</span>
+                                <span class="text-tinta-400 shrink-0 ml-2">{{ f.total }} ({{ pctFuente(f.total) }}%)</span>
                             </div>
-                            <div class="h-2 bg-gray-100 rounded-full overflow-hidden">
+                            <div class="h-2 bg-tinta-100 rounded-full overflow-hidden">
                                 <div
                                     class="h-full rounded-full transition-all"
                                     style="background-color: var(--marca);"
@@ -179,22 +179,22 @@ const años = Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i)
                             </div>
                         </div>
                     </div>
-                    <p v-else class="text-sm text-gray-400 text-center py-6">Sin datos</p>
+                    <p v-else class="text-sm text-tinta-300 text-center py-6">Sin datos</p>
                 </div>
 
                 <!-- Embudo por etapa -->
-                <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
-                    <h2 class="text-sm font-bold text-gray-700 mb-4">Pipeline activo por etapa</h2>
+                <div class="bg-white rounded-2xl border border-linea shadow-sm p-5">
+                    <h2 class="text-sm font-semibold text-tinta-700 mb-4">Pipeline activo por etapa</h2>
                     <div v-if="porEtapa.length" class="space-y-3">
                         <div v-for="e in porEtapa" :key="e.id">
                             <div class="flex items-center justify-between text-xs mb-1">
                                 <div class="flex items-center gap-1.5 min-w-0">
                                     <span class="w-2 h-2 rounded-full shrink-0" :style="{ background: e.color }"></span>
-                                    <span class="text-gray-700 font-medium truncate max-w-[130px]">{{ e.nombre }}</span>
+                                    <span class="text-tinta-700 font-medium truncate max-w-[130px]">{{ e.nombre }}</span>
                                 </div>
-                                <span class="text-gray-500 shrink-0 ml-2 font-semibold">{{ e.leads_count }}</span>
+                                <span class="text-tinta-400 shrink-0 ml-2 font-semibold">{{ e.leads_count }}</span>
                             </div>
-                            <div class="h-2 bg-gray-100 rounded-full overflow-hidden">
+                            <div class="h-2 bg-tinta-100 rounded-full overflow-hidden">
                                 <div
                                     class="h-full rounded-full transition-all"
                                     :style="{ width: `${(e.leads_count / maxEtapa) * 100}%`, background: e.color }"
@@ -202,31 +202,31 @@ const años = Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i)
                             </div>
                         </div>
                     </div>
-                    <p v-else class="text-sm text-gray-400 text-center py-6">Sin etapas</p>
+                    <p v-else class="text-sm text-tinta-300 text-center py-6">Sin etapas</p>
                 </div>
             </div>
 
             <!-- Tabla por responsable -->
-            <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
-                <h2 class="text-sm font-bold text-gray-700 mb-4">Por responsable</h2>
+            <div class="bg-white rounded-2xl border border-linea shadow-sm p-5">
+                <h2 class="text-sm font-semibold text-tinta-700 mb-4">Por responsable</h2>
                 <div v-if="porResponsable.length" class="overflow-x-auto">
                     <table class="w-full text-sm">
                         <thead>
-                            <tr class="border-b border-gray-100">
-                                <th class="text-left text-xs font-semibold text-gray-500 pb-2">Responsable</th>
-                                <th class="text-center text-xs font-semibold text-gray-500 pb-2">Total</th>
-                                <th class="text-center text-xs font-semibold text-gray-500 pb-2">Ganados</th>
-                                <th class="text-left text-xs font-semibold text-gray-500 pb-2 pl-4">% Conversión</th>
+                            <tr class="border-b border-linea">
+                                <th class="text-left text-xs font-semibold text-tinta-400 pb-2">Responsable</th>
+                                <th class="text-center text-xs font-semibold text-tinta-400 pb-2">Total</th>
+                                <th class="text-center text-xs font-semibold text-tinta-400 pb-2">Ganados</th>
+                                <th class="text-left text-xs font-semibold text-tinta-400 pb-2 pl-4">% Conversión</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-50">
-                            <tr v-for="r in porResponsable" :key="r.responsable" class="hover:bg-gray-50">
-                                <td class="py-2.5 font-medium text-gray-800">{{ r.responsable }}</td>
-                                <td class="py-2.5 text-center text-gray-600">{{ r.total }}</td>
+                            <tr v-for="r in porResponsable" :key="r.responsable" class="hover:bg-tinta-50">
+                                <td class="py-2.5 font-medium text-tinta-900">{{ r.responsable }}</td>
+                                <td class="py-2.5 text-center text-tinta-500">{{ r.total }}</td>
                                 <td class="py-2.5 text-center text-green-600 font-semibold">{{ r.ganados }}</td>
                                 <td class="py-2.5 pl-4">
                                     <div class="flex items-center gap-2">
-                                        <div class="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden max-w-[80px]">
+                                        <div class="flex-1 h-2 bg-tinta-100 rounded-full overflow-hidden max-w-[80px]">
                                             <div
                                                 class="h-full rounded-full"
                                                 :style="{ width: `${r.conversion}%`, background: colorConversion(r.conversion) }"
@@ -242,7 +242,7 @@ const años = Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i)
                         </tbody>
                     </table>
                 </div>
-                <p v-else class="text-sm text-gray-400 text-center py-6">Sin datos en este período</p>
+                <p v-else class="text-sm text-tinta-300 text-center py-6">Sin datos en este período</p>
             </div>
 
         </div>

@@ -25,7 +25,7 @@ function isSelected(valor) {
 
 <template>
     <div>
-        <label class="block text-xs font-medium text-gray-700 mb-2">{{ label }}</label>
+        <label class="block text-xs font-medium text-tinta-700 mb-2">{{ label }}</label>
         <div class="flex flex-wrap gap-1.5">
             <button
                 v-for="op in opciones"
@@ -36,11 +36,11 @@ function isSelected(valor) {
                     'px-3 py-1 rounded-full text-sm border transition-all select-none',
                     isSelected(op.valor)
                         ? 'text-white border-transparent'
-                        : 'bg-white text-gray-600 border-gray-300 hover:border-gray-400',
+                        : 'bg-white text-tinta-500 border-tinta-200 hover:border-gray-400',
                 ]"
                 :style="isSelected(op.valor) ? `background:${op.color ?? 'var(--marca)'}; border-color:${op.color ?? 'var(--marca)'};` : ''"
             >{{ op.etiqueta }}</button>
-            <span v-if="opciones.length === 0" class="text-xs text-gray-400 italic">Sin opciones configuradas</span>
+            <span v-if="opciones.length === 0" class="text-xs text-tinta-300 italic">Sin opciones configuradas</span>
         </div>
     </div>
 </template>

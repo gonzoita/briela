@@ -54,7 +54,7 @@ const badgeEstado = (t) => {
     const e = estadoLabel(t)
     if (e === 'completado')  return 'bg-green-100 text-green-700'
     if (e === 'en_progreso') return 'bg-yellow-100 text-yellow-700'
-    return 'bg-gray-100 text-gray-600'
+    return 'bg-tinta-100 text-tinta-500'
 }
 
 const textoEstado = (t) => {
@@ -139,8 +139,8 @@ async function eliminarTrabajo(t) {
         <!-- ── Topbar ────────────────────────────────────────────────────────── -->
         <div class="flex items-center justify-between mb-4">
             <div>
-                <h2 class="text-lg font-bold text-gray-900">Trabajos de Producción</h2>
-                <p class="text-sm text-gray-500 mt-0.5">{{ paginacion.total ?? 0 }} trabajo(s) registrado(s)</p>
+                <h2 class="text-lg font-semibold text-tinta-900">Trabajos de Producción</h2>
+                <p class="text-sm text-tinta-400 mt-0.5">{{ paginacion.total ?? 0 }} trabajo(s) registrado(s)</p>
             </div>
         </div>
 
@@ -151,21 +151,21 @@ async function eliminarTrabajo(t) {
             <div class="grid grid-cols-3 gap-3">
                 <button @click="filtros.estado = filtros.estado === 'sin_iniciar' ? '' : 'sin_iniciar'"
                     class="bg-white rounded-2xl border shadow-sm px-4 py-4 text-center w-full transition-all hover:shadow-md"
-                    :class="filtros.estado === 'sin_iniciar' ? 'border-gray-400 ring-2 ring-gray-300' : 'border-gray-100'">
-                    <p class="text-2xl font-bold text-gray-500">{{ metricas.sin_iniciar ?? 0 }}</p>
-                    <p class="text-xs text-gray-400 mt-1">Sin iniciar</p>
+                    :class="filtros.estado === 'sin_iniciar' ? 'border-gray-400 ring-2 ring-gray-300' : 'border-linea'">
+                    <p class="text-2xl font-semibold text-tinta-400">{{ metricas.sin_iniciar ?? 0 }}</p>
+                    <p class="text-xs text-tinta-300 mt-1">Sin iniciar</p>
                 </button>
                 <button @click="filtros.estado = filtros.estado === 'en_progreso' ? '' : 'en_progreso'"
                     class="bg-white rounded-2xl border shadow-sm px-4 py-4 text-center w-full transition-all hover:shadow-md"
                     :class="filtros.estado === 'en_progreso' ? 'border-yellow-400 ring-2 ring-yellow-200' : 'border-yellow-100'">
-                    <p class="text-2xl font-bold text-yellow-600">{{ metricas.en_progreso ?? 0 }}</p>
-                    <p class="text-xs text-gray-400 mt-1">En progreso</p>
+                    <p class="text-2xl font-semibold text-yellow-600">{{ metricas.en_progreso ?? 0 }}</p>
+                    <p class="text-xs text-tinta-300 mt-1">En progreso</p>
                 </button>
                 <button @click="filtros.estado = filtros.estado === 'completado' ? '' : 'completado'"
                     class="bg-white rounded-2xl border shadow-sm px-4 py-4 text-center w-full transition-all hover:shadow-md"
                     :class="filtros.estado === 'completado' ? 'border-green-400 ring-2 ring-green-200' : 'border-green-100'">
-                    <p class="text-2xl font-bold text-green-600">{{ metricas.completados ?? 0 }}</p>
-                    <p class="text-xs text-gray-400 mt-1">Completados</p>
+                    <p class="text-2xl font-semibold text-green-600">{{ metricas.completados ?? 0 }}</p>
+                    <p class="text-xs text-tinta-300 mt-1">Completados</p>
                 </button>
             </div>
 
@@ -173,77 +173,77 @@ async function eliminarTrabajo(t) {
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 
                 <!-- Pasos -->
-                <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
-                    <h3 class="text-sm font-semibold text-gray-700 mb-3">Pasos de trabajo</h3>
+                <div class="bg-white rounded-2xl border border-linea shadow-sm p-5">
+                    <h3 class="text-sm font-semibold text-tinta-700 mb-3">Pasos de trabajo</h3>
                     <div class="flex items-center gap-4 mb-3">
                         <div class="text-center">
-                            <p class="text-2xl font-bold text-red-500">{{ metricas.pasos_pendientes ?? 0 }}</p>
-                            <p class="text-xs text-gray-400 mt-0.5">Pendientes</p>
+                            <p class="text-2xl font-semibold text-red-500">{{ metricas.pasos_pendientes ?? 0 }}</p>
+                            <p class="text-xs text-tinta-300 mt-0.5">Pendientes</p>
                         </div>
-                        <div class="flex-1 h-px bg-gray-100"></div>
+                        <div class="flex-1 h-px bg-tinta-100"></div>
                         <div class="text-center">
-                            <p class="text-2xl font-bold text-green-600">{{ metricas.pasos_completados ?? 0 }}</p>
-                            <p class="text-xs text-gray-400 mt-0.5">Completados</p>
+                            <p class="text-2xl font-semibold text-green-600">{{ metricas.pasos_completados ?? 0 }}</p>
+                            <p class="text-xs text-tinta-300 mt-0.5">Completados</p>
                         </div>
                     </div>
                     <div v-if="(metricas.pasos_pendientes ?? 0) + (metricas.pasos_completados ?? 0) > 0"
-                        class="h-2 rounded-full bg-gray-100 overflow-hidden">
+                        class="h-2 rounded-full bg-tinta-100 overflow-hidden">
                         <div class="h-full rounded-full bg-green-500 transition-all"
                             :style="`width:${Math.round((metricas.pasos_completados / ((metricas.pasos_pendientes ?? 0) + (metricas.pasos_completados ?? 0))) * 100)}%`">
                         </div>
                     </div>
-                    <p class="text-xs text-gray-400 mt-1.5 text-right">
+                    <p class="text-xs text-tinta-300 mt-1.5 text-right">
                         {{ metricas.pasos_completados ?? 0 }} de {{ (metricas.pasos_pendientes ?? 0) + (metricas.pasos_completados ?? 0) }} pasos totales
                     </p>
                 </div>
 
                 <!-- Top operarios -->
-                <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
-                    <h3 class="text-sm font-semibold text-gray-700 mb-3">Top operarios por tiempo</h3>
+                <div class="bg-white rounded-2xl border border-linea shadow-sm p-5">
+                    <h3 class="text-sm font-semibold text-tinta-700 mb-3">Top operarios por tiempo</h3>
                     <div v-if="metricas.top_operarios?.length" class="space-y-2">
                         <div v-for="(op, idx) in metricas.top_operarios" :key="idx"
                             class="flex items-center gap-3">
-                            <span class="w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold shrink-0"
+                            <span class="w-5 h-5 rounded-full flex items-center justify-center text-xs font-semibold shrink-0"
                                 :class="idx === 0 ? 'bg-yellow-100 text-yellow-700'
-                                    : idx === 1 ? 'bg-gray-100 text-gray-600'
+                                    : idx === 1 ? 'bg-tinta-100 text-tinta-500'
                                     : idx === 2 ? 'bg-orange-100 text-orange-600'
-                                    : 'bg-gray-50 text-gray-400'">
+                                    : 'bg-tinta-50 text-tinta-300'">
                                 {{ idx + 1 }}
                             </span>
                             <div class="flex-1 min-w-0">
-                                <p class="text-xs font-medium text-gray-800 truncate">{{ op.nombre }}</p>
-                                <p class="text-xs text-gray-400">{{ op.pasos }} paso(s)</p>
+                                <p class="text-xs font-medium text-tinta-900 truncate">{{ op.nombre }}</p>
+                                <p class="text-xs text-tinta-300">{{ op.pasos }} paso(s)</p>
                             </div>
                             <span class="text-xs font-semibold text-blue-700 shrink-0">
                                 {{ formatTiempo(op.total_minutos) }}
                             </span>
                         </div>
                     </div>
-                    <p v-else class="text-xs text-gray-400 italic py-2">Sin datos de tiempo aún.</p>
+                    <p v-else class="text-xs text-tinta-300 italic py-2">Sin datos de tiempo aún.</p>
                 </div>
 
             </div>
         </div>
 
         <!-- ── Filtros ───────────────────────────────────────────────────────── -->
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-4">
+        <div class="bg-white rounded-2xl shadow-sm border border-linea p-4 mb-4">
             <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
                 <!-- OP numero -->
                 <div>
-                    <label class="text-xs font-medium text-gray-500 mb-1 block">Buscar OP</label>
+                    <label class="text-xs font-medium text-tinta-400 mb-1 block">Buscar OP</label>
                     <input
                         v-model="filtros.op_numero"
                         type="text"
                         placeholder="OP-0001..."
-                        class="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--marca)]/30 focus:border-[var(--marca)]"
+                        class="w-full rounded-xl border border-linea px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--marca)]/30 focus:border-[var(--marca)]"
                     />
                 </div>
                 <!-- Template -->
                 <div>
-                    <label class="text-xs font-medium text-gray-500 mb-1 block">Template</label>
+                    <label class="text-xs font-medium text-tinta-400 mb-1 block">Template</label>
                     <select
                         v-model="filtros.template_id"
-                        class="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--marca)]/30 focus:border-[var(--marca)] bg-white"
+                        class="w-full rounded-xl border border-linea px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--marca)]/30 focus:border-[var(--marca)] bg-white"
                     >
                         <option value="">Todos</option>
                         <option v-for="t in templates" :key="t.id" :value="t.id">{{ t.nombre }}</option>
@@ -251,10 +251,10 @@ async function eliminarTrabajo(t) {
                 </div>
                 <!-- Operario -->
                 <div>
-                    <label class="text-xs font-medium text-gray-500 mb-1 block">Operario</label>
+                    <label class="text-xs font-medium text-tinta-400 mb-1 block">Operario</label>
                     <select
                         v-model="filtros.operario_id"
-                        class="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--marca)]/30 focus:border-[var(--marca)] bg-white"
+                        class="w-full rounded-xl border border-linea px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--marca)]/30 focus:border-[var(--marca)] bg-white"
                     >
                         <option value="">Todos</option>
                         <option v-for="o in operarios" :key="o.id" :value="o.id">{{ o.nombre }}</option>
@@ -262,10 +262,10 @@ async function eliminarTrabajo(t) {
                 </div>
                 <!-- Estado -->
                 <div>
-                    <label class="text-xs font-medium text-gray-500 mb-1 block">Estado</label>
+                    <label class="text-xs font-medium text-tinta-400 mb-1 block">Estado</label>
                     <select
                         v-model="filtros.estado"
-                        class="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--marca)]/30 focus:border-[var(--marca)] bg-white"
+                        class="w-full rounded-xl border border-linea px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--marca)]/30 focus:border-[var(--marca)] bg-white"
                     >
                         <option value="">Todos</option>
                         <option value="sin_iniciar">Sin iniciar</option>
@@ -275,13 +275,13 @@ async function eliminarTrabajo(t) {
                 </div>
                 <!-- Variable -->
                 <div>
-                    <label class="text-xs font-medium text-gray-500 mb-1 block">Variable</label>
+                    <label class="text-xs font-medium text-tinta-400 mb-1 block">Variable</label>
                     <input
                         v-model="filtros.variable"
                         type="text"
                         list="lista-variables"
                         placeholder="Ej: ancho_vano..."
-                        class="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--marca)]/30 focus:border-[var(--marca)]"
+                        class="w-full rounded-xl border border-linea px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--marca)]/30 focus:border-[var(--marca)]"
                     />
                     <datalist id="lista-variables">
                         <option v-for="v in variables_disponibles" :key="v" :value="v" />
@@ -289,10 +289,10 @@ async function eliminarTrabajo(t) {
                 </div>
                 <!-- Paso -->
                 <div>
-                    <label class="text-xs font-medium text-gray-500 mb-1 block">Paso de trabajo</label>
+                    <label class="text-xs font-medium text-tinta-400 mb-1 block">Paso de trabajo</label>
                     <select
                         v-model="filtros.paso"
-                        class="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--marca)]/30 focus:border-[var(--marca)] bg-white"
+                        class="w-full rounded-xl border border-linea px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--marca)]/30 focus:border-[var(--marca)] bg-white"
                     >
                         <option value="">Todos los pasos</option>
                         <option v-for="p in pasos_disponibles" :key="p" :value="p">{{ p }}</option>
@@ -302,27 +302,27 @@ async function eliminarTrabajo(t) {
         </div>
 
         <!-- ── Indicador cargando ────────────────────────────────────────────── -->
-        <div v-if="cargando" class="text-center py-8 text-gray-400 text-sm">Cargando...</div>
+        <div v-if="cargando" class="text-center py-8 text-tinta-300 text-sm">Cargando...</div>
 
         <template v-else>
 
-        <div class="hidden md:block bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="hidden md:block bg-white rounded-2xl shadow-sm border border-linea overflow-hidden">
             <table class="w-full text-sm">
                 <thead>
-                    <tr class="border-b border-gray-100">
-                        <th class="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">OP</th>
-                        <th class="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Ítem</th>
-                        <th class="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider w-40">Progreso</th>
-                        <th class="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Operarios</th>
-                        <th class="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Estado</th>
+                    <tr class="border-b border-linea">
+                        <th class="text-left px-5 py-3 text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">OP</th>
+                        <th class="text-left px-5 py-3 text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">Ítem</th>
+                        <th class="text-left px-5 py-3 text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] w-40">Progreso</th>
+                        <th class="text-left px-5 py-3 text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">Operarios</th>
+                        <th class="text-left px-5 py-3 text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">Estado</th>
                         <th class="px-5 py-3"></th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-50">
                     <tr v-if="lista.length === 0">
-                        <td colspan="6" class="text-center py-10 text-gray-400 text-sm">No hay trabajos registrados</td>
+                        <td colspan="6" class="text-center py-10 text-tinta-300 text-sm">No hay trabajos registrados</td>
                     </tr>
-                    <tr v-for="t in lista" :key="t.id" class="hover:bg-gray-50 transition-colors">
+                    <tr v-for="t in lista" :key="t.id" class="hover:bg-tinta-50 transition-colors">
                         <!-- OP -->
                         <td class="px-5 py-3">
                             <a
@@ -330,15 +330,15 @@ async function eliminarTrabajo(t) {
                                 class="font-semibold text-[var(--marca)] hover:underline"
                                 @click.prevent="router.visit(`/produccion/ops/${t.op_id}`)"
                             >{{ t.op_numero }}</a>
-                            <p class="text-xs text-gray-400 mt-0.5 truncate max-w-[120px]">{{ t.cliente_nombre }}</p>
+                            <p class="text-xs text-tinta-300 mt-0.5 truncate max-w-[120px]">{{ t.cliente_nombre }}</p>
                             <span v-if="t.op_item_codigo"
-                                class="inline-block mt-1 px-1.5 py-0.5 rounded bg-gray-100 text-gray-500 text-xs font-mono">
+                                class="inline-block mt-1 px-1.5 py-0.5 rounded bg-tinta-100 text-tinta-400 text-xs font-mono">
                                 {{ t.op_item_codigo }}
                             </span>
                         </td>
                         <!-- Ítem -->
                         <td class="px-5 py-3 max-w-[260px]">
-                            <span class="text-gray-700 text-xs line-clamp-2">{{ t.item_descripcion ?? '—' }}</span>
+                            <span class="text-tinta-700 text-xs line-clamp-2">{{ t.item_descripcion ?? '—' }}</span>
                             <div v-if="t.variables_etiquetadas?.length" class="flex flex-wrap gap-1.5 mt-2">
                                 <span
                                     v-for="v in t.variables_etiquetadas"
@@ -355,7 +355,7 @@ async function eliminarTrabajo(t) {
                             <div class="flex flex-wrap gap-1 mb-1">
                                 <template v-for="n in t.pasos_total" :key="n">
                                     <span class="w-4 h-4 rounded-full flex items-center justify-center"
-                                        :class="n <= t.pasos_completados ? 'bg-green-500' : 'bg-gray-200'">
+                                        :class="n <= t.pasos_completados ? 'bg-green-500' : 'bg-tinta-200'">
                                         <svg v-if="n <= t.pasos_completados"
                                             class="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 24 24"
                                             stroke="currentColor" stroke-width="3">
@@ -364,7 +364,7 @@ async function eliminarTrabajo(t) {
                                     </span>
                                 </template>
                             </div>
-                            <p class="text-xs text-gray-400">{{ t.pasos_completados }}/{{ t.pasos_total }} · {{ Math.round(t.porcentaje_avance) }}%</p>
+                            <p class="text-xs text-tinta-300">{{ t.pasos_completados }}/{{ t.pasos_total }} · {{ Math.round(t.porcentaje_avance) }}%</p>
                         </td>
                         <!-- Operarios -->
                         <td class="px-5 py-3">
@@ -374,9 +374,9 @@ async function eliminarTrabajo(t) {
                                     :key="op.id"
                                     class="inline-block bg-blue-50 text-[var(--marca)] rounded-lg px-2 py-0.5 text-xs font-medium"
                                 >{{ op.nombre?.split(' ')[0] }}</span>
-                                <span v-if="t.operarios.length > 3" class="text-xs text-gray-400">+{{ t.operarios.length - 3 }}</span>
+                                <span v-if="t.operarios.length > 3" class="text-xs text-tinta-300">+{{ t.operarios.length - 3 }}</span>
                             </div>
-                            <span v-else class="text-xs text-gray-400">Sin asignar</span>
+                            <span v-else class="text-xs text-tinta-300">Sin asignar</span>
                         </td>
                         <!-- Estado -->
                         <td class="px-5 py-3">
@@ -394,7 +394,7 @@ async function eliminarTrabajo(t) {
                                     @click.prevent="router.visit(`/trabajos/${t.id}`)"
                                 >
                                     Ver detalle
-                                    <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                    <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
                                     </svg>
                                 </a>
@@ -403,7 +403,7 @@ async function eliminarTrabajo(t) {
                                     @click.stop="eliminarTrabajo(t)"
                                     class="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-medium text-red-600 border border-red-200 hover:bg-red-50 transition-colors"
                                 >
-                                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                                     </svg>
                                     Eliminar
@@ -416,24 +416,24 @@ async function eliminarTrabajo(t) {
         </div>
 
         <div class="md:hidden space-y-3">
-            <div v-if="lista.length === 0" class="text-center py-10 text-gray-400 text-sm bg-white rounded-2xl">
+            <div v-if="lista.length === 0" class="text-center py-10 text-tinta-300 text-sm bg-white rounded-2xl">
                 No hay trabajos registrados
             </div>
             <div
                 v-for="t in lista"
                 :key="t.id"
-                class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4"
+                class="bg-white rounded-2xl shadow-sm border border-linea p-4"
             >
                 <!-- Header -->
                 <div class="flex items-center justify-between mb-2">
                     <div class="flex items-center gap-2 flex-wrap">
                         <a
                             :href="`/produccion/ops/${t.op_id}`"
-                            class="font-bold text-[var(--marca)]"
+                            class="font-semibold text-[var(--marca)]"
                             @click.prevent="router.visit(`/produccion/ops/${t.op_id}`)"
                         >{{ t.op_numero }}</a>
                         <span v-if="t.op_item_codigo"
-                            class="px-1.5 py-0.5 rounded bg-gray-100 text-gray-500 text-xs font-mono">
+                            class="px-1.5 py-0.5 rounded bg-tinta-100 text-tinta-400 text-xs font-mono">
                             {{ t.op_item_codigo }}
                         </span>
                     </div>
@@ -442,7 +442,7 @@ async function eliminarTrabajo(t) {
                     </span>
                 </div>
                 <!-- Descripción ítem -->
-                <p class="text-sm text-gray-600 mb-2 line-clamp-2">{{ t.item_descripcion ?? '—' }}</p>
+                <p class="text-sm text-tinta-500 mb-2 line-clamp-2">{{ t.item_descripcion ?? '—' }}</p>
                 <!-- Variables -->
                 <div v-if="t.variables_etiquetadas?.length" class="flex flex-wrap gap-1.5 mb-3">
                     <span
@@ -459,11 +459,11 @@ async function eliminarTrabajo(t) {
                     <div class="flex flex-wrap gap-1 my-2">
                         <template v-for="n in t.pasos_total" :key="n">
                             <span class="w-4 h-4 rounded-full"
-                                :class="n <= t.pasos_completados ? 'bg-green-500' : 'bg-gray-200'">
+                                :class="n <= t.pasos_completados ? 'bg-green-500' : 'bg-tinta-200'">
                             </span>
                         </template>
                     </div>
-                    <p class="text-xs text-gray-400 mb-2">{{ t.pasos_completados }}/{{ t.pasos_total }} pasos · {{ Math.round(t.porcentaje_avance) }}%</p>
+                    <p class="text-xs text-tinta-300 mb-2">{{ t.pasos_completados }}/{{ t.pasos_total }} pasos · {{ Math.round(t.porcentaje_avance) }}%</p>
                 </div>
                 <!-- Operarios -->
                 <div v-if="t.operarios?.length" class="flex flex-wrap gap-1 mb-3">
@@ -500,15 +500,15 @@ async function eliminarTrabajo(t) {
             <button
                 @click="irPagina(paginacion.current_page - 1)"
                 :disabled="paginacion.current_page <= 1"
-                class="px-3 py-1.5 rounded-xl border border-gray-200 text-sm font-medium disabled:opacity-40 hover:bg-gray-50 transition-colors"
+                class="px-3 py-1.5 rounded-xl border border-linea text-sm font-medium disabled:opacity-40 hover:bg-tinta-50 transition-colors"
             >‹ Anterior</button>
-            <span class="text-sm text-gray-600">
+            <span class="text-sm text-tinta-500">
                 Página {{ paginacion.current_page }} de {{ paginacion.last_page }}
             </span>
             <button
                 @click="irPagina(paginacion.current_page + 1)"
                 :disabled="paginacion.current_page >= paginacion.last_page"
-                class="px-3 py-1.5 rounded-xl border border-gray-200 text-sm font-medium disabled:opacity-40 hover:bg-gray-50 transition-colors"
+                class="px-3 py-1.5 rounded-xl border border-linea text-sm font-medium disabled:opacity-40 hover:bg-tinta-50 transition-colors"
             >Siguiente ›</button>
         </div>
 

@@ -140,17 +140,17 @@ function toggleLista(ordenada) {
 </script>
 
 <template>
-    <div class="border border-gray-200 rounded-lg overflow-hidden bg-white">
-        <div class="flex items-center gap-1 border-b border-gray-100 bg-gray-50 px-2 py-1">
+    <div class="border border-linea rounded-lg overflow-hidden bg-white">
+        <div class="flex items-center gap-1 border-b border-linea bg-tinta-50 px-2 py-1">
             <button type="button" @mousedown.prevent="cmd('bold')"
-                class="w-7 h-7 rounded text-sm font-bold text-gray-600 hover:bg-gray-200">B</button>
+                class="w-7 h-7 rounded text-sm font-semibold text-tinta-500 hover:bg-tinta-200">B</button>
             <button type="button" @mousedown.prevent="cmd('italic')"
-                class="w-7 h-7 rounded text-sm italic text-gray-600 hover:bg-gray-200">I</button>
-            <span class="w-px h-4 bg-gray-200 mx-1"></span>
+                class="w-7 h-7 rounded text-sm italic text-tinta-500 hover:bg-tinta-200">I</button>
+            <span class="w-px h-4 bg-tinta-200 mx-1"></span>
             <button type="button" @mousedown.prevent="toggleLista(false)"
-                class="w-7 h-7 rounded text-sm text-gray-600 hover:bg-gray-200">•</button>
+                class="w-7 h-7 rounded text-sm text-tinta-500 hover:bg-tinta-200">•</button>
             <button type="button" @mousedown.prevent="toggleLista(true)"
-                class="w-7 h-7 rounded text-xs text-gray-600 hover:bg-gray-200">1.</button>
+                class="w-7 h-7 rounded text-xs text-tinta-500 hover:bg-tinta-200">1.</button>
         </div>
         <div ref="el" contenteditable="true" @input="onInput" @mouseup="saveSelection" @keyup="saveSelection"
             class="rte-content w-full min-h-[70px] px-3 py-2 text-sm focus:outline-none"

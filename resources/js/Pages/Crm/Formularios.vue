@@ -217,15 +217,15 @@ const formularioEditando = computed(() => lista.value.find(f => f.id === editand
             <!-- Cabecera -->
             <div class="flex items-center justify-between mb-5">
                 <div>
-                    <h1 class="text-xl font-bold text-gray-900">Formularios CRM</h1>
-                    <p class="text-sm text-gray-500 mt-0.5">Crea formularios embebibles que generan leads en el pipeline</p>
+                    <h1 class="text-xl font-semibold text-tinta-900">Formularios CRM</h1>
+                    <p class="text-sm text-tinta-400 mt-0.5">Crea formularios embebibles que generan leads en el pipeline</p>
                 </div>
                 <button
                     @click="abrirNuevo"
                     class="flex items-center gap-2 px-4 py-2 rounded-xl text-white text-sm font-semibold"
                     style="background:var(--marca)"
                 >
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
                     </svg>
                     Nuevo formulario
@@ -233,53 +233,53 @@ const formularioEditando = computed(() => lista.value.find(f => f.id === editand
             </div>
 
             <!-- Lista vacía -->
-            <div v-if="!lista.length" class="bg-white rounded-2xl border border-gray-200 py-16 text-center">
-                <svg class="w-12 h-12 text-gray-300 mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+            <div v-if="!lista.length" class="bg-white rounded-2xl border border-linea py-16 text-center">
+                <svg class="w-12 h-12 text-tinta-200 mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                 </svg>
-                <p class="text-gray-500 text-sm">Sin formularios. Crea el primero.</p>
+                <p class="text-tinta-400 text-sm">Sin formularios. Crea el primero.</p>
             </div>
 
             <!-- Tabla de formularios -->
-            <div v-else class="bg-white rounded-2xl border border-gray-200 overflow-hidden">
+            <div v-else class="bg-white rounded-2xl border border-linea overflow-hidden">
                 <div class="divide-y divide-gray-50">
                     <div v-for="f in lista" :key="f.id" class="px-5 py-4">
                         <!-- Fila principal -->
                         <div class="flex items-start gap-4">
                             <div class="flex-1 min-w-0">
                                 <div class="flex items-center gap-2 flex-wrap">
-                                    <p class="text-sm font-semibold text-gray-800">{{ f.nombre }}</p>
+                                    <p class="text-sm font-semibold text-tinta-900">{{ f.nombre }}</p>
                                     <span class="text-xs px-2 py-0.5 rounded-full"
-                                        :class="f.activo ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'">
+                                        :class="f.activo ? 'bg-green-100 text-green-700' : 'bg-tinta-100 text-tinta-400'">
                                         {{ f.activo ? 'Activo' : 'Inactivo' }}
                                     </span>
                                     <span v-if="f.fuente" class="text-xs px-2 py-0.5 rounded-full bg-blue-50 text-blue-600">{{ f.fuente }}</span>
                                     <span v-if="f.captcha_activo" class="text-xs px-2 py-0.5 rounded-full bg-purple-50 text-purple-600">reCAPTCHA</span>
                                 </div>
-                                <p class="text-xs text-gray-400 mt-0.5">
+                                <p class="text-xs text-tinta-300 mt-0.5">
                                     Etapa: {{ f.etapa?.nombre ?? 'Primera etapa' }}
                                     <span v-if="f.asignacion_tipo && f.asignacion_tipo !== 'fijo'"> · {{ f.asignacion_tipo === 'round_robin' ? 'Round Robin' : 'Ponderado' }}</span>
                                     <span v-else-if="f.responsable"> · {{ f.responsable.name }}</span>
                                     · {{ f.campos?.length ?? 0 }} campos
                                 </p>
-                                <p class="text-xs text-gray-400 mt-0.5 font-mono">/f/{{ f.slug }}</p>
+                                <p class="text-xs text-tinta-300 mt-0.5 font-mono">/f/{{ f.slug }}</p>
                             </div>
                             <div class="flex items-center gap-2 shrink-0">
                                 <a :href="`/f/${f.slug}`" target="_blank"
-                                    class="px-3 py-1.5 rounded-xl border border-gray-200 text-xs text-gray-600 hover:bg-gray-50">Ver</a>
+                                    class="px-3 py-1.5 rounded-xl border border-linea text-xs text-tinta-500 hover:bg-tinta-50">Ver</a>
                                 <button @click="abrirEditar(f)"
-                                    class="px-3 py-1.5 rounded-xl border border-gray-200 text-xs text-blue-600 hover:bg-blue-50">Editar</button>
+                                    class="px-3 py-1.5 rounded-xl border border-linea text-xs text-blue-600 hover:bg-blue-50">Editar</button>
                                 <button @click="eliminar(f)" :disabled="eliminando === f.id"
-                                    class="px-3 py-1.5 rounded-xl border border-gray-200 text-xs text-red-500 hover:bg-red-50">Eliminar</button>
+                                    class="px-3 py-1.5 rounded-xl border border-linea text-xs text-red-500 hover:bg-red-50">Eliminar</button>
                             </div>
                         </div>
 
                         <!-- Snippet inline -->
                         <div class="mt-3 flex gap-2">
-                            <div class="flex-1 bg-gray-50 rounded-xl border border-gray-200 p-2 flex items-center gap-2 min-w-0">
-                                <p class="text-xs text-gray-500 font-mono flex-1 truncate">{{ snippetIframe(f).split('\n')[0] }}…</p>
+                            <div class="flex-1 bg-tinta-50 rounded-xl border border-linea p-2 flex items-center gap-2 min-w-0">
+                                <p class="text-xs text-tinta-400 font-mono flex-1 truncate">{{ snippetIframe(f).split('\n')[0] }}…</p>
                                 <button @click="copiarSnippet(f)"
-                                    class="shrink-0 text-xs px-2 py-1 rounded-lg border border-gray-300 text-gray-600 hover:bg-white">
+                                    class="shrink-0 text-xs px-2 py-1 rounded-lg border border-tinta-200 text-tinta-500 hover:bg-white">
                                     {{ copiado === `${f.id}-iframe` ? '✓ Copiado' : 'Copiar snippet' }}
                                 </button>
                             </div>
@@ -298,12 +298,12 @@ const formularioEditando = computed(() => lista.value.find(f => f.id === editand
                 <div class="relative bg-white w-full sm:max-w-2xl max-h-[95dvh] overflow-y-auto rounded-t-3xl sm:rounded-2xl shadow-2xl">
 
                     <!-- Header -->
-                    <div class="sticky top-0 bg-white z-10 flex items-center justify-between px-5 py-4 border-b border-gray-100">
-                        <h2 class="text-base font-bold text-gray-900">
+                    <div class="sticky top-0 bg-white z-10 flex items-center justify-between px-5 py-4 border-b border-linea">
+                        <h2 class="text-base font-semibold text-tinta-900">
                             {{ editando ? 'Editar formulario' : 'Nuevo formulario' }}
                         </h2>
-                        <button @click="cerrarModal" class="w-8 h-8 rounded-full hover:bg-gray-100 flex items-center justify-center">
-                            <svg class="w-5 h-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <button @click="cerrarModal" class="w-8 h-8 rounded-full hover:bg-tinta-100 flex items-center justify-center">
+                            <svg class="w-5 h-5 text-tinta-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
                             </svg>
                         </button>
@@ -313,26 +313,26 @@ const formularioEditando = computed(() => lista.value.find(f => f.id === editand
 
                         <!-- ── CONFIG GENERAL ───────────────────────────────── -->
                         <section>
-                            <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Configuración general</p>
+                            <p class="text-xs font-semibold text-tinta-300 uppercase tracking-[0.12em] mb-3">Configuración general</p>
                             <div class="space-y-3">
                                 <div>
-                                    <label class="block text-xs font-semibold text-gray-600 mb-1">Nombre interno *</label>
+                                    <label class="block text-xs font-semibold text-tinta-500 mb-1">Nombre interno *</label>
                                     <input v-model="form.nombre" type="text" placeholder="Ej: Formulario landing refrigeración"
-                                        class="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"/>
+                                        class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"/>
                                 </div>
                                 <div class="grid grid-cols-2 gap-3">
                                     <div>
-                                        <label class="block text-xs font-semibold text-gray-600 mb-1">Etapa destino</label>
+                                        <label class="block text-xs font-semibold text-tinta-500 mb-1">Etapa destino</label>
                                         <select v-model="form.etapa_id"
-                                            class="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:outline-none bg-white">
+                                            class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none bg-white">
                                             <option :value="null">Primera etapa</option>
                                             <option v-for="e in etapas" :key="e.id" :value="e.id">{{ e.nombre }}</option>
                                         </select>
                                     </div>
                                     <div>
-                                        <label class="block text-xs font-semibold text-gray-600 mb-1">Fuente</label>
+                                        <label class="block text-xs font-semibold text-tinta-500 mb-1">Fuente</label>
                                         <select v-model="form.fuente"
-                                            class="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:outline-none bg-white">
+                                            class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none bg-white">
                                             <option value="">Sin especificar</option>
                                             <option>Web</option>
                                             <option>Instagram</option>
@@ -344,14 +344,14 @@ const formularioEditando = computed(() => lista.value.find(f => f.id === editand
                                     </div>
                                 </div>
                                 <div>
-                                    <label class="block text-xs font-semibold text-gray-600 mb-1">Email notificación</label>
+                                    <label class="block text-xs font-semibold text-tinta-500 mb-1">Email notificación</label>
                                     <input v-model="form.email_notificacion" type="email" placeholder="notificaciones@empresa.com"
-                                        class="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"/>
+                                        class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"/>
                                 </div>
                                 <div v-if="editando">
                                     <label class="flex items-center gap-2 cursor-pointer">
                                         <input v-model="form.activo" type="checkbox" class="rounded"/>
-                                        <span class="text-sm text-gray-700">Formulario activo</span>
+                                        <span class="text-sm text-tinta-700">Formulario activo</span>
                                     </label>
                                 </div>
                             </div>
@@ -359,7 +359,7 @@ const formularioEditando = computed(() => lista.value.find(f => f.id === editand
 
                         <!-- ── ASIGNACIÓN DE RESPONSABLE ────────────────────── -->
                         <section>
-                            <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Asignación de responsable</p>
+                            <p class="text-xs font-semibold text-tinta-300 uppercase tracking-[0.12em] mb-3">Asignación de responsable</p>
                             <div class="space-y-3">
                                 <!-- Tipo de asignación -->
                                 <div class="flex gap-2">
@@ -368,7 +368,7 @@ const formularioEditando = computed(() => lista.value.find(f => f.id === editand
                                         class="flex-1 flex items-center gap-1.5 border rounded-xl px-3 py-2 cursor-pointer text-sm transition-colors"
                                         :class="form.asignacion_tipo === opt[0]
                                             ? 'border-blue-500 bg-blue-50 text-blue-700 font-semibold'
-                                            : 'border-gray-200 text-gray-600'">
+                                            : 'border-linea text-tinta-500'">
                                         <input type="radio" v-model="form.asignacion_tipo" :value="opt[0]" class="sr-only"/>
                                         {{ opt[1] }}
                                     </label>
@@ -376,9 +376,9 @@ const formularioEditando = computed(() => lista.value.find(f => f.id === editand
 
                                 <!-- Fijo: un responsable -->
                                 <div v-if="form.asignacion_tipo === 'fijo'">
-                                    <label class="block text-xs font-semibold text-gray-600 mb-1">Responsable</label>
+                                    <label class="block text-xs font-semibold text-tinta-500 mb-1">Responsable</label>
                                     <select v-model="form.responsable_id"
-                                        class="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:outline-none bg-white">
+                                        class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none bg-white">
                                         <option :value="null">Sin asignar</option>
                                         <option v-for="u in usuarios" :key="u.id" :value="u.id">{{ u.name }}</option>
                                     </select>
@@ -386,77 +386,77 @@ const formularioEditando = computed(() => lista.value.find(f => f.id === editand
 
                                 <!-- Round Robin: selección múltiple -->
                                 <div v-else-if="form.asignacion_tipo === 'round_robin'">
-                                    <label class="block text-xs font-semibold text-gray-600 mb-2">Usuarios en rotación</label>
+                                    <label class="block text-xs font-semibold text-tinta-500 mb-2">Usuarios en rotación</label>
                                     <div class="space-y-1.5 max-h-40 overflow-y-auto">
                                         <label v-for="u in usuarios" :key="u.id"
                                             class="flex items-center gap-2 px-3 py-2 rounded-xl border cursor-pointer transition-colors"
                                             :class="form.responsables_ids.includes(u.id)
                                                 ? 'border-blue-400 bg-blue-50'
-                                                : 'border-gray-200 hover:bg-gray-50'">
+                                                : 'border-linea hover:bg-tinta-50'">
                                             <input type="checkbox"
                                                 :checked="form.responsables_ids.includes(u.id)"
                                                 @change="toggleUsuario(u.id)"
                                                 class="rounded"/>
-                                            <span class="text-sm text-gray-700">{{ u.name }}</span>
+                                            <span class="text-sm text-tinta-700">{{ u.name }}</span>
                                         </label>
                                     </div>
-                                    <p class="text-xs text-gray-400 mt-1.5">Cada lead se asigna al siguiente usuario en turno.</p>
+                                    <p class="text-xs text-tinta-300 mt-1.5">Cada lead se asigna al siguiente usuario en turno.</p>
                                 </div>
 
                                 <!-- Ponderado: selección + pesos -->
                                 <div v-else-if="form.asignacion_tipo === 'ponderado'">
-                                    <label class="block text-xs font-semibold text-gray-600 mb-2">Usuarios y pesos</label>
+                                    <label class="block text-xs font-semibold text-tinta-500 mb-2">Usuarios y pesos</label>
                                     <div class="space-y-1.5 max-h-44 overflow-y-auto">
                                         <div v-for="u in usuarios" :key="u.id"
                                             class="flex items-center gap-2 px-3 py-2 rounded-xl border transition-colors"
                                             :class="form.responsables_ids.includes(u.id)
                                                 ? 'border-blue-400 bg-blue-50'
-                                                : 'border-gray-200'">
+                                                : 'border-linea'">
                                             <input type="checkbox"
                                                 :checked="form.responsables_ids.includes(u.id)"
                                                 @change="toggleUsuario(u.id)"
                                                 class="rounded cursor-pointer"/>
-                                            <span class="text-sm text-gray-700 flex-1">{{ u.name }}</span>
+                                            <span class="text-sm text-tinta-700 flex-1">{{ u.name }}</span>
                                             <div v-if="form.responsables_ids.includes(u.id)" class="flex items-center gap-1">
-                                                <span class="text-xs text-gray-500">Peso:</span>
+                                                <span class="text-xs text-tinta-400">Peso:</span>
                                                 <input
                                                     type="number" min="1" max="99"
                                                     :value="form.responsables_pesos[u.id] ?? 1"
                                                     @change="setPeso(u.id, $event.target.value)"
-                                                    class="w-14 rounded-lg border border-gray-300 px-2 py-1 text-xs text-center focus:outline-none"/>
+                                                    class="w-14 rounded-lg border border-tinta-200 px-2 py-1 text-xs text-center focus:outline-none"/>
                                             </div>
                                         </div>
                                     </div>
-                                    <p class="text-xs text-gray-400 mt-1.5">Mayor peso = más leads asignados proporcionalmente.</p>
+                                    <p class="text-xs text-tinta-300 mt-1.5">Mayor peso = más leads asignados proporcionalmente.</p>
                                 </div>
                             </div>
                         </section>
 
                         <!-- ── APARIENCIA ────────────────────────────────────── -->
                         <section>
-                            <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Apariencia</p>
+                            <p class="text-xs font-semibold text-tinta-300 uppercase tracking-[0.12em] mb-3">Apariencia</p>
                             <div class="space-y-3">
                                 <div>
-                                    <label class="block text-xs font-semibold text-gray-600 mb-1">Título del formulario</label>
+                                    <label class="block text-xs font-semibold text-tinta-500 mb-1">Título del formulario</label>
                                     <input v-model="form.titulo_formulario" type="text"
-                                        class="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"/>
+                                        class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"/>
                                 </div>
                                 <div>
-                                    <label class="block text-xs font-semibold text-gray-600 mb-1">Descripción / subtítulo</label>
+                                    <label class="block text-xs font-semibold text-tinta-500 mb-1">Descripción / subtítulo</label>
                                     <textarea v-model="form.descripcion_formulario" rows="2"
-                                        class="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 resize-none"></textarea>
+                                        class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 resize-none"></textarea>
                                 </div>
                                 <div>
-                                    <label class="block text-xs font-semibold text-gray-600 mb-1">Texto del botón</label>
+                                    <label class="block text-xs font-semibold text-tinta-500 mb-1">Texto del botón</label>
                                     <input v-model="form.texto_boton" type="text"
-                                        class="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"/>
+                                        class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"/>
                                 </div>
                             </div>
                         </section>
 
                         <!-- ── PÁGINA DE GRACIAS ─────────────────────────────── -->
                         <section>
-                            <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Página de gracias</p>
+                            <p class="text-xs font-semibold text-tinta-300 uppercase tracking-[0.12em] mb-3">Página de gracias</p>
                             <div class="space-y-3">
                                 <div class="flex gap-2">
                                     <label v-for="opt in [['mensaje','Mostrar mensaje'],['redirect','Redirigir']]"
@@ -464,20 +464,20 @@ const formularioEditando = computed(() => lista.value.find(f => f.id === editand
                                         class="flex-1 flex items-center gap-1.5 border rounded-xl px-3 py-2 cursor-pointer text-sm transition-colors"
                                         :class="form.gracias_tipo === opt[0]
                                             ? 'border-blue-500 bg-blue-50 text-blue-700 font-semibold'
-                                            : 'border-gray-200 text-gray-600'">
+                                            : 'border-linea text-tinta-500'">
                                         <input type="radio" v-model="form.gracias_tipo" :value="opt[0]" class="sr-only"/>
                                         {{ opt[1] }}
                                     </label>
                                 </div>
                                 <div v-if="form.gracias_tipo === 'mensaje'">
-                                    <label class="block text-xs font-semibold text-gray-600 mb-1">Mensaje de confirmación</label>
+                                    <label class="block text-xs font-semibold text-tinta-500 mb-1">Mensaje de confirmación</label>
                                     <input v-model="form.mensaje_exito" type="text" placeholder="¡Gracias! Nos pondremos en contacto pronto."
-                                        class="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"/>
+                                        class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"/>
                                 </div>
                                 <div v-else>
-                                    <label class="block text-xs font-semibold text-gray-600 mb-1">URL de destino</label>
+                                    <label class="block text-xs font-semibold text-tinta-500 mb-1">URL de destino</label>
                                     <input v-model="form.gracias_url" type="url" placeholder="https://tudominio.com/gracias"
-                                        class="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"/>
+                                        class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"/>
                                 </div>
                             </div>
                         </section>
@@ -485,10 +485,10 @@ const formularioEditando = computed(() => lista.value.find(f => f.id === editand
                         <!-- ── CAMPOS ────────────────────────────────────────── -->
                         <section>
                             <div class="flex items-center justify-between mb-3">
-                                <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Campos del formulario</p>
+                                <p class="text-xs font-semibold text-tinta-300 uppercase tracking-[0.12em]">Campos del formulario</p>
                                 <button @click="agregarCampo"
-                                    class="flex items-center gap-1 text-xs px-3 py-1.5 rounded-xl border border-gray-200 text-blue-600 hover:bg-blue-50">
-                                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                    class="flex items-center gap-1 text-xs px-3 py-1.5 rounded-xl border border-linea text-blue-600 hover:bg-blue-50">
+                                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
                                     </svg>
                                     Agregar campo
@@ -497,15 +497,15 @@ const formularioEditando = computed(() => lista.value.find(f => f.id === editand
 
                             <div class="space-y-2">
                                 <div v-for="(campo, idx) in form.campos" :key="idx"
-                                    class="bg-gray-50 rounded-xl border border-gray-200 p-3">
+                                    class="bg-tinta-50 rounded-xl border border-linea p-3">
                                     <div class="flex items-center gap-2 flex-wrap">
-                                        <span class="text-xs text-gray-400 font-mono w-4 text-center shrink-0">{{ idx + 1 }}</span>
+                                        <span class="text-xs text-tinta-300 font-mono w-4 text-center shrink-0">{{ idx + 1 }}</span>
                                         <input v-model="campo.etiqueta" type="text" placeholder="Etiqueta visible"
-                                            class="flex-1 min-w-0 rounded-lg border border-gray-300 px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"/>
+                                            class="flex-1 min-w-0 rounded-lg border border-tinta-200 px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"/>
                                         <input v-model="campo.nombre" type="text" placeholder="nombre_campo"
-                                            class="w-28 rounded-lg border border-gray-300 px-2 py-1.5 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-blue-400"/>
+                                            class="w-28 rounded-lg border border-tinta-200 px-2 py-1.5 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-blue-400"/>
                                         <select v-model="campo.tipo"
-                                            class="w-24 rounded-lg border border-gray-300 px-2 py-1.5 text-xs focus:outline-none bg-white">
+                                            class="w-24 rounded-lg border border-tinta-200 px-2 py-1.5 text-xs focus:outline-none bg-white">
                                             <option value="text">Texto</option>
                                             <option value="email">Email</option>
                                             <option value="tel">Teléfono</option>
@@ -515,24 +515,24 @@ const formularioEditando = computed(() => lista.value.find(f => f.id === editand
                                         </select>
                                         <label class="flex items-center gap-1 shrink-0">
                                             <input v-model="campo.requerido" type="checkbox" class="rounded"/>
-                                            <span class="text-xs text-gray-600">Req.</span>
+                                            <span class="text-xs text-tinta-500">Req.</span>
                                         </label>
                                         <div class="flex gap-0.5 shrink-0">
                                             <button @click="moverCampo(idx, -1)" :disabled="idx === 0"
-                                                class="p-1 rounded hover:bg-gray-200 disabled:opacity-30">
-                                                <svg class="w-3.5 h-3.5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                                class="p-1 rounded hover:bg-tinta-200 disabled:opacity-30">
+                                                <svg class="w-3.5 h-3.5 text-tinta-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
                                                     <path stroke-linecap="round" stroke-linejoin="round" d="M5 15l7-7 7 7"/>
                                                 </svg>
                                             </button>
                                             <button @click="moverCampo(idx, 1)" :disabled="idx === form.campos.length - 1"
-                                                class="p-1 rounded hover:bg-gray-200 disabled:opacity-30">
-                                                <svg class="w-3.5 h-3.5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                                class="p-1 rounded hover:bg-tinta-200 disabled:opacity-30">
+                                                <svg class="w-3.5 h-3.5 text-tinta-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
                                                     <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
                                                 </svg>
                                             </button>
                                             <button @click="eliminarCampo(idx)" :disabled="form.campos.length <= 1"
                                                 class="p-1 rounded hover:bg-red-100 text-red-400 disabled:opacity-30">
-                                                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
                                                     <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
                                                 </svg>
                                             </button>
@@ -544,23 +544,23 @@ const formularioEditando = computed(() => lista.value.find(f => f.id === editand
 
                         <!-- ── SEGURIDAD ─────────────────────────────────────── -->
                         <section>
-                            <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Seguridad</p>
+                            <p class="text-xs font-semibold text-tinta-300 uppercase tracking-[0.12em] mb-3">Seguridad</p>
                             <label class="flex items-start gap-3 cursor-pointer">
                                 <div class="relative shrink-0 mt-0.5">
                                     <input v-model="form.captcha_activo" type="checkbox" class="sr-only peer"/>
-                                    <div class="w-10 h-6 bg-gray-200 rounded-full peer-checked:bg-blue-600 transition-colors"></div>
+                                    <div class="w-10 h-6 bg-tinta-200 rounded-full peer-checked:bg-blue-600 transition-colors"></div>
                                     <div class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform peer-checked:translate-x-4"></div>
                                 </div>
                                 <div>
-                                    <p class="text-sm font-medium text-gray-700">Google reCAPTCHA v3</p>
-                                    <p class="text-xs text-gray-400 mt-0.5">Protege el formulario de bots. Requiere configurar las claves en Configuración → Seguridad.</p>
+                                    <p class="text-sm font-medium text-tinta-700">Google reCAPTCHA v3</p>
+                                    <p class="text-xs text-tinta-300 mt-0.5">Protege el formulario de bots. Requiere configurar las claves en Configuración → Seguridad.</p>
                                 </div>
                             </label>
                         </section>
 
                         <!-- ── SNIPPET (solo en edición) ─────────────────────── -->
                         <section v-if="editando">
-                            <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Snippet para embeber</p>
+                            <p class="text-xs font-semibold text-tinta-300 uppercase tracking-[0.12em] mb-3">Snippet para embeber</p>
                             <div class="relative">
                                 <pre class="bg-gray-900 text-green-300 text-xs p-4 rounded-xl overflow-x-auto whitespace-pre-wrap break-all">{{ snippetIframe(formularioEditando) }}</pre>
                                 <button
@@ -574,9 +574,9 @@ const formularioEditando = computed(() => lista.value.find(f => f.id === editand
                     </div>
 
                     <!-- Footer modal -->
-                    <div class="sticky bottom-0 bg-white border-t border-gray-100 px-5 py-4 flex gap-3">
+                    <div class="sticky bottom-0 bg-white border-t border-linea px-5 py-4 flex gap-3">
                         <button @click="cerrarModal"
-                            class="flex-1 py-3 rounded-xl border border-gray-200 text-sm text-gray-600 font-medium">
+                            class="flex-1 py-3 rounded-xl border border-linea text-sm text-tinta-500 font-medium">
                             Cancelar
                         </button>
                         <button @click="guardar"

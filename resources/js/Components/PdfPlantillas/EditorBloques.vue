@@ -15,8 +15,8 @@ const TIPOS = {
     texto:       { label: 'Texto',       icono: 'T',  color: 'bg-blue-100 text-blue-700' },
     titulo:      { label: 'Título',      icono: 'H',  color: 'bg-indigo-100 text-indigo-700' },
     imagen:      { label: 'Imagen',      icono: '🖼',  color: 'bg-green-100 text-green-700' },
-    separador:   { label: 'Separador',   icono: '─',  color: 'bg-gray-100 text-gray-600' },
-    spacer:      { label: 'Espacio',     icono: '□',  color: 'bg-gray-50 text-gray-400' },
+    separador:   { label: 'Separador',   icono: '─',  color: 'bg-tinta-100 text-tinta-500' },
+    spacer:      { label: 'Espacio',     icono: '□',  color: 'bg-tinta-50 text-tinta-300' },
     variable:    { label: 'Variable',    icono: '⚡',  color: 'bg-yellow-100 text-yellow-700' },
     columnas:    { label: 'Columnas',    icono: '▦',  color: 'bg-cyan-100 text-cyan-700' },
     tabla:       { label: 'Tabla',       icono: '⊞',  color: 'bg-purple-100 text-purple-700' },
@@ -241,7 +241,7 @@ function onColDragEnd() {
                 class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-white rounded-lg"
                 style="background-color: var(--marca);"
             >
-                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
                 </svg>
                 Agregar bloque
@@ -250,7 +250,7 @@ function onColDragEnd() {
             <!-- Dropdown tipos -->
             <div
                 v-if="mostrarMenuAgregar"
-                class="absolute top-full left-0 mt-1 z-30 bg-white border border-gray-200 rounded-xl shadow-xl p-3 grid grid-cols-4 gap-1.5"
+                class="absolute top-full left-0 mt-1 z-30 bg-white border border-linea rounded-xl shadow-xl p-3 grid grid-cols-4 gap-1.5"
                 style="min-width: 280px;"
                 @click.stop
             >
@@ -258,14 +258,14 @@ function onColDragEnd() {
                     v-for="(info, tipo) in TIPOS"
                     :key="tipo"
                     @click="agregarBloque(tipo)"
-                    class="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-gray-50 transition-colors text-center"
+                    class="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-tinta-50 transition-colors text-center"
                 >
                     <span class="text-base leading-none">{{ info.icono }}</span>
-                    <span class="text-xs text-gray-600 leading-tight">{{ info.label }}</span>
+                    <span class="text-xs text-tinta-500 leading-tight">{{ info.label }}</span>
                 </button>
             </div>
 
-            <span class="text-xs text-gray-400">
+            <span class="text-xs text-tinta-300">
                 {{ props.bloques.length }} bloque{{ props.bloques.length !== 1 ? 's' : '' }}
             </span>
         </div>
@@ -274,11 +274,11 @@ function onColDragEnd() {
         <div class="flex flex-col lg:flex-row gap-3" style="min-height: 380px;">
 
             <!-- Panel izquierdo: Lista de bloques -->
-            <div class="lg:w-60 shrink-0 bg-gray-50 rounded-xl border border-gray-200 flex flex-col overflow-hidden">
+            <div class="lg:w-60 shrink-0 bg-tinta-50 rounded-xl border border-linea flex flex-col overflow-hidden">
                 <div v-if="!props.bloques.length" class="flex-1 flex items-center justify-center p-6 text-center">
                     <div>
-                        <p class="text-xs text-gray-400 mb-1">Sin bloques</p>
-                        <p class="text-xs text-gray-300">Haz clic en "Agregar bloque"</p>
+                        <p class="text-xs text-tinta-300 mb-1">Sin bloques</p>
+                        <p class="text-xs text-tinta-200">Haz clic en "Agregar bloque"</p>
                     </div>
                 </div>
 
@@ -290,7 +290,7 @@ function onColDragEnd() {
                     @dragover="dragOver($event)"
                     @drop="dragDrop($event, idx)"
                     @click="bloqueSeleccionadoId = bloque.id; mostrarMenuAgregar = false"
-                    class="group flex items-center gap-2 px-2.5 py-2 cursor-pointer border-b border-gray-100 transition-colors select-none"
+                    class="group flex items-center gap-2 px-2.5 py-2 cursor-pointer border-b border-linea transition-colors select-none"
                     :class="[
                         bloqueSeleccionadoId === bloque.id
                             ? 'bg-blue-50 border-l-2 border-l-[var(--marca)]'
@@ -299,14 +299,14 @@ function onColDragEnd() {
                     ]"
                 >
                     <!-- Handle drag -->
-                    <span class="text-gray-300 text-xs cursor-grab">⋮⋮</span>
+                    <span class="text-tinta-200 text-xs cursor-grab">⋮⋮</span>
                     <!-- Icono tipo -->
                     <span
-                        class="w-5 h-5 rounded flex items-center justify-center text-xs shrink-0 font-bold"
-                        :class="TIPOS[bloque.tipo]?.color ?? 'bg-gray-100 text-gray-500'"
+                        class="w-5 h-5 rounded flex items-center justify-center text-xs shrink-0 font-semibold"
+                        :class="TIPOS[bloque.tipo]?.color ?? 'bg-tinta-100 text-tinta-400'"
                     >{{ TIPOS[bloque.tipo]?.icono ?? '?' }}</span>
                     <!-- Label -->
-                    <span class="flex-1 text-xs text-gray-700 truncate min-w-0">
+                    <span class="flex-1 text-xs text-tinta-700 truncate min-w-0">
                         {{ tipoLabel(bloque) }}
                     </span>
                     <!-- Controles -->
@@ -314,12 +314,12 @@ function onColDragEnd() {
                         <button
                             @click.stop="moverArriba(idx)"
                             :disabled="idx === 0"
-                            class="p-0.5 rounded hover:bg-gray-200 text-gray-400 disabled:opacity-20 text-xs"
+                            class="p-0.5 rounded hover:bg-tinta-200 text-tinta-300 disabled:opacity-20 text-xs"
                         >↑</button>
                         <button
                             @click.stop="moverAbajo(idx)"
                             :disabled="idx === props.bloques.length - 1"
-                            class="p-0.5 rounded hover:bg-gray-200 text-gray-400 disabled:opacity-20 text-xs"
+                            class="p-0.5 rounded hover:bg-tinta-200 text-tinta-300 disabled:opacity-20 text-xs"
                         >↓</button>
                         <button
                             @click.stop="eliminarBloque(bloque.id)"
@@ -330,7 +330,7 @@ function onColDragEnd() {
             </div>
 
             <!-- Panel derecho: Propiedades -->
-            <div class="flex-1 min-w-0 bg-white rounded-xl border border-gray-200 overflow-hidden flex flex-col">
+            <div class="flex-1 min-w-0 bg-white rounded-xl border border-linea overflow-hidden flex flex-col">
 
                 <!-- Sin selección -->
                 <div v-if="!bloqueSeleccionado" class="flex-1 flex items-center justify-center p-8 text-center">
@@ -338,7 +338,7 @@ function onColDragEnd() {
                         <svg class="w-10 h-10 text-gray-200 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"/>
                         </svg>
-                        <p class="text-sm text-gray-400">Selecciona un bloque<br/>para editar sus propiedades</p>
+                        <p class="text-sm text-tinta-300">Selecciona un bloque<br/>para editar sus propiedades</p>
                     </div>
                 </div>
 
@@ -346,11 +346,11 @@ function onColDragEnd() {
                 <div v-else class="flex-1 overflow-y-auto p-4">
 
                     <!-- Cabecera tipo -->
-                    <div class="flex items-center gap-2 mb-4 pb-3 border-b border-gray-100">
-                        <span class="w-7 h-7 rounded-lg flex items-center justify-center text-sm font-bold" :class="TIPOS[bloqueSeleccionado.tipo]?.color">
+                    <div class="flex items-center gap-2 mb-4 pb-3 border-b border-linea">
+                        <span class="w-7 h-7 rounded-lg flex items-center justify-center text-sm font-semibold" :class="TIPOS[bloqueSeleccionado.tipo]?.color">
                             {{ TIPOS[bloqueSeleccionado.tipo]?.icono }}
                         </span>
-                        <span class="text-sm font-semibold text-gray-800">{{ TIPOS[bloqueSeleccionado.tipo]?.label }}</span>
+                        <span class="text-sm font-semibold text-tinta-900">{{ TIPOS[bloqueSeleccionado.tipo]?.label }}</span>
                     </div>
 
                     <!-- ══ TEXTO ══════════════════════════════════════════════ -->
@@ -404,20 +404,20 @@ function onColDragEnd() {
                                     <button v-for="a in ['left','center','right','justify']" :key="a"
                                         @click="actualizarProp(bloqueSeleccionado.id, 'alineacion', a)"
                                         class="flex-1 py-1.5 text-xs rounded-lg border transition-colors"
-                                        :class="bloqueSeleccionado.props.alineacion === a ? 'bg-[var(--marca)] text-white border-[var(--marca)]' : 'border-gray-200 text-gray-600 hover:bg-gray-50'">
+                                        :class="bloqueSeleccionado.props.alineacion === a ? 'bg-[var(--marca)] text-white border-[var(--marca)]' : 'border-linea text-tinta-500 hover:bg-tinta-50'">
                                         {{ a === 'left' ? '⬅' : a === 'center' ? '↔' : a === 'right' ? '➡' : '⟺' }}
                                     </button>
                                 </div>
                             </div>
                             <div class="flex gap-3">
                                 <button @click="actualizarProp(bloqueSeleccionado.id, 'negrita', !bloqueSeleccionado.props.negrita)"
-                                    class="flex-1 py-1.5 text-xs rounded-lg border transition-colors font-bold"
-                                    :class="bloqueSeleccionado.props.negrita ? 'bg-[var(--marca)] text-white border-[var(--marca)]' : 'border-gray-200 text-gray-600'">
+                                    class="flex-1 py-1.5 text-xs rounded-lg border transition-colors font-semibold"
+                                    :class="bloqueSeleccionado.props.negrita ? 'bg-[var(--marca)] text-white border-[var(--marca)]' : 'border-linea text-tinta-500'">
                                     N
                                 </button>
                                 <button @click="actualizarProp(bloqueSeleccionado.id, 'italica', !bloqueSeleccionado.props.italica)"
                                     class="flex-1 py-1.5 text-xs rounded-lg border transition-colors italic"
-                                    :class="bloqueSeleccionado.props.italica ? 'bg-[var(--marca)] text-white border-[var(--marca)]' : 'border-gray-200 text-gray-600'">
+                                    :class="bloqueSeleccionado.props.italica ? 'bg-[var(--marca)] text-white border-[var(--marca)]' : 'border-linea text-tinta-500'">
                                     I
                                 </button>
                             </div>
@@ -477,7 +477,7 @@ function onColDragEnd() {
                                     <button v-for="a in ['left','center','right']" :key="a"
                                         @click="actualizarProp(bloqueSeleccionado.id, 'alineacion', a)"
                                         class="flex-1 py-1.5 text-xs rounded-lg border transition-colors"
-                                        :class="bloqueSeleccionado.props.alineacion === a ? 'bg-[var(--marca)] text-white border-[var(--marca)]' : 'border-gray-200 text-gray-600 hover:bg-gray-50'">
+                                        :class="bloqueSeleccionado.props.alineacion === a ? 'bg-[var(--marca)] text-white border-[var(--marca)]' : 'border-linea text-tinta-500 hover:bg-tinta-50'">
                                         {{ a === 'left' ? '⬅' : a === 'center' ? '↔' : '➡' }}
                                     </button>
                                 </div>
@@ -501,11 +501,11 @@ function onColDragEnd() {
                                 <input type="file" accept="image/*" class="hidden" ref="tablaFileInput"
                                     @change="subirImagen($event, bloqueSeleccionado.id)" />
                                 <button @click="$refs.tablaFileInput.click()"
-                                    class="px-3 py-1.5 text-xs rounded-lg border border-dashed border-gray-300 text-gray-600 hover:bg-gray-50 w-full transition-colors">
+                                    class="px-3 py-1.5 text-xs rounded-lg border border-dashed border-tinta-200 text-tinta-500 hover:bg-tinta-50 w-full transition-colors">
                                     Seleccionar archivo
                                 </button>
                             </div>
-                            <div v-if="bloqueSeleccionado.props.src" class="rounded-lg border border-gray-100 p-2 text-center bg-gray-50">
+                            <div v-if="bloqueSeleccionado.props.src" class="rounded-lg border border-linea p-2 text-center bg-tinta-50">
                                 <img :src="bloqueSeleccionado.props.src" class="h-16 object-contain mx-auto" @error="() => {}" />
                             </div>
                             <div class="grid grid-cols-2 gap-3">
@@ -590,8 +590,8 @@ function onColDragEnd() {
                                 </div>
                             </div>
                             <button @click="actualizarProp(bloqueSeleccionado.id, 'negrita', !bloqueSeleccionado.props.negrita)"
-                                class="w-full py-1.5 text-xs rounded-lg border transition-colors font-bold"
-                                :class="bloqueSeleccionado.props.negrita ? 'bg-[var(--marca)] text-white border-[var(--marca)]' : 'border-gray-200 text-gray-600'">
+                                class="w-full py-1.5 text-xs rounded-lg border transition-colors font-semibold"
+                                :class="bloqueSeleccionado.props.negrita ? 'bg-[var(--marca)] text-white border-[var(--marca)]' : 'border-linea text-tinta-500'">
                                 Negrita
                             </button>
                         </div>
@@ -606,14 +606,14 @@ function onColDragEnd() {
                                     <button v-for="n in [2, 3]" :key="n"
                                         @click="cambiarNumColumnas(bloqueSeleccionado, n)"
                                         class="flex-1 py-2 text-xs rounded-lg border font-medium transition-colors"
-                                        :class="bloqueSeleccionado.props.columnas === n ? 'bg-[var(--marca)] text-white border-[var(--marca)]' : 'border-gray-200 text-gray-600 hover:bg-gray-50'">
+                                        :class="bloqueSeleccionado.props.columnas === n ? 'bg-[var(--marca)] text-white border-[var(--marca)]' : 'border-linea text-tinta-500 hover:bg-tinta-50'">
                                         {{ n }} columnas
                                     </button>
                                 </div>
                             </div>
                             <div v-for="(col, colIdx) in bloqueSeleccionado.props.contenido_columnas" :key="colIdx">
                                 <label class="prop-label">Columna {{ colIdx + 1 }}</label>
-                                <div class="border border-gray-200 rounded-xl p-2 bg-gray-50">
+                                <div class="border border-linea rounded-xl p-2 bg-tinta-50">
                                     <EditorBloques
                                         :bloques="col.bloques"
                                         :variables="variables"
@@ -642,19 +642,19 @@ function onColDragEnd() {
                                     dragColIdx === idx ? 'opacity-30' : '',
                                     dragOverColIdx === idx && dragColIdx !== idx
                                         ? 'border-[var(--marca)] border-2'
-                                        : 'border-gray-200'
+                                        : 'border-linea'
                                 ]"
                             >
-                                <span class="cursor-grab text-gray-300 select-none shrink-0" style="touch-action:none;">⠿⠿</span>
-                                <span class="text-xs text-gray-400 w-4 shrink-0">{{ idx + 1 }}</span>
+                                <span class="cursor-grab text-tinta-200 select-none shrink-0" style="touch-action:none;">⠿⠿</span>
+                                <span class="text-xs text-tinta-300 w-4 shrink-0">{{ idx + 1 }}</span>
                                 <input type="text"
                                     :value="col.etiqueta"
                                     @input="editarColTabla(bloqueSeleccionado, idx, 'etiqueta', $event.target.value)"
                                     placeholder="Etiqueta"
-                                    class="flex-1 border border-gray-200 rounded px-2 py-1 text-xs" />
+                                    class="flex-1 border border-linea rounded px-2 py-1 text-xs" />
                                 <select :value="col.variable"
                                     @change="editarColTabla(bloqueSeleccionado, idx, 'variable', $event.target.value)"
-                                    class="flex-1 border border-gray-200 rounded px-2 py-1 text-xs">
+                                    class="flex-1 border border-linea rounded px-2 py-1 text-xs">
                                     <option value="">— Variable —</option>
                                     <option v-for="v in variablesPlanas" :key="v" :value="v.replace(/[{}]/g, '')">{{ v }}</option>
                                     <option value="index">#</option>
@@ -669,18 +669,18 @@ function onColDragEnd() {
                                     @input="editarColTabla(bloqueSeleccionado, idx, 'ancho', $event.target.value ? +$event.target.value : null)"
                                     placeholder="px"
                                     min="20" max="500"
-                                    class="w-14 border border-gray-200 rounded px-1 py-1 text-xs shrink-0"
+                                    class="w-14 border border-linea rounded px-1 py-1 text-xs shrink-0"
                                     title="Ancho en px (vacío = auto)" />
                                 <button @click="eliminarColTabla(bloqueSeleccionado, idx)"
                                     class="text-red-400 hover:text-red-600 shrink-0">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none"
-                                        viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
                                     </svg>
                                 </button>
                             </div>
                             <button @click="agregarColTabla(bloqueSeleccionado)"
-                                class="w-full py-1.5 text-xs rounded-lg border border-dashed border-gray-300 text-gray-500 hover:bg-gray-50 transition-colors">
+                                class="w-full py-1.5 text-xs rounded-lg border border-dashed border-tinta-200 text-tinta-400 hover:bg-tinta-50 transition-colors">
                                 + Agregar columna
                             </button>
                         </div>
@@ -693,7 +693,7 @@ function onColDragEnd() {
                             <div
                                 v-for="(fila, idx) in bloqueSeleccionado.props.filas"
                                 :key="idx"
-                                class="flex items-center gap-2 bg-gray-50 rounded-lg p-2"
+                                class="flex items-center gap-2 bg-tinta-50 rounded-lg p-2"
                             >
                                 <input type="text"
                                     :value="fila.etiqueta"
@@ -709,13 +709,13 @@ function onColDragEnd() {
                                 <button
                                     @click="editarFilaTotales(bloqueSeleccionado, idx, 'destacado', !fila.destacado)"
                                     class="shrink-0 w-6 h-6 rounded flex items-center justify-center text-xs border transition-colors"
-                                    :class="fila.destacado ? 'bg-[var(--marca)] text-white border-[var(--marca)]' : 'border-gray-200 text-gray-400'"
+                                    :class="fila.destacado ? 'bg-[var(--marca)] text-white border-[var(--marca)]' : 'border-linea text-tinta-300'"
                                     title="Destacado">★</button>
                                 <button @click="eliminarFilaTotales(bloqueSeleccionado, idx)"
                                     class="text-red-400 hover:text-red-600 text-sm shrink-0">×</button>
                             </div>
                             <button @click="agregarFilaTotales(bloqueSeleccionado)"
-                                class="w-full py-1.5 text-xs rounded-lg border border-dashed border-gray-300 text-gray-500 hover:bg-gray-50 transition-colors">
+                                class="w-full py-1.5 text-xs rounded-lg border border-dashed border-tinta-200 text-tinta-400 hover:bg-tinta-50 transition-colors">
                                 + Agregar fila
                             </button>
                         </div>
@@ -749,7 +749,7 @@ function onColDragEnd() {
                                     class="prop-input"
                                     placeholder="Ej: Escanear para seguimiento" />
                             </div>
-                            <p class="text-xs text-gray-400">El QR usa la variable <code class="bg-gray-100 px-1 rounded">&#123;&#123;!op.qr_imagen&#125;&#125;</code> automáticamente.</p>
+                            <p class="text-xs text-tinta-300">El QR usa la variable <code class="bg-tinta-100 px-1 rounded">&#123;&#123;!op.qr_imagen&#125;&#125;</code> automáticamente.</p>
                         </div>
                     </template>
 
@@ -828,22 +828,22 @@ function onColDragEnd() {
 
 <style scoped>
 .prop-label {
-    @apply text-xs font-semibold text-gray-500 block mb-1 uppercase tracking-wide;
+    @apply text-xs font-semibold text-tinta-400 block mb-1 uppercase tracking-wide;
 }
 .prop-input {
-    @apply w-full text-xs border border-gray-200 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-[var(--marca)] bg-white;
+    @apply w-full text-xs border border-linea rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-[var(--marca)] bg-white;
 }
 .prop-textarea {
-    @apply w-full text-xs border border-gray-200 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-[var(--marca)] bg-white resize-none;
+    @apply w-full text-xs border border-linea rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-[var(--marca)] bg-white resize-none;
 }
 .prop-select {
-    @apply w-full text-xs border border-gray-200 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-[var(--marca)] bg-white;
+    @apply w-full text-xs border border-linea rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-[var(--marca)] bg-white;
 }
 .prop-color {
-    @apply w-full h-8 rounded-lg border border-gray-200 cursor-pointer p-0.5 bg-white;
+    @apply w-full h-8 rounded-lg border border-linea cursor-pointer p-0.5 bg-white;
 }
 .var-dropdown {
-    @apply absolute top-5 left-0 z-30 bg-white border border-gray-200 rounded-xl shadow-lg py-1 max-h-48 overflow-y-auto;
+    @apply absolute top-5 left-0 z-30 bg-white border border-linea rounded-xl shadow-lg py-1 max-h-48 overflow-y-auto;
     min-width: 220px;
 }
 .var-item {

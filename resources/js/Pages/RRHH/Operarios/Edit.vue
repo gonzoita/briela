@@ -113,12 +113,12 @@ async function subirArchivo(event, tipo) {
             <div class="flex items-center gap-3 mb-5">
                 <a :href="`/rrhh/operarios/${operario.id}`"
                     @click.prevent="router.visit(`/rrhh/operarios/${operario.id}`)"
-                    class="text-gray-400 hover:text-gray-700">
+                    class="text-tinta-300 hover:text-tinta-700">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M15 19l-7-7 7-7"/>
                     </svg>
                 </a>
-                <h1 class="text-xl font-bold text-gray-900">Editar Colaborador</h1>
+                <h1 class="text-xl font-semibold text-tinta-900">Editar Colaborador</h1>
             </div>
 
             <div v-if="hasChanges" class="mb-3 inline-flex items-center gap-1.5 text-xs font-medium text-amber-700 bg-amber-50 border border-amber-200 rounded-xl px-3 py-1.5">
@@ -127,95 +127,95 @@ async function subirArchivo(event, tipo) {
             </div>
 
             <!-- Tabs de sección -->
-            <div class="flex gap-1 bg-gray-100 p-1 rounded-2xl mb-4 overflow-x-auto">
+            <div class="flex gap-1 bg-tinta-100 p-1 rounded-2xl mb-4 overflow-x-auto">
                 <button v-for="s in SECCIONES" :key="s.key"
                     type="button"
                     @click="seccion = s.key"
                     class="flex-1 min-w-[64px] py-2 px-2 rounded-xl text-xs font-semibold transition-colors whitespace-nowrap"
-                    :class="seccion === s.key ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'">
+                    :class="seccion === s.key ? 'bg-white text-tinta-900 shadow-sm' : 'text-tinta-400 hover:text-tinta-700'">
                     {{ s.label }}
                 </button>
             </div>
 
             <!-- ─── SECCIÓN PERSONAL ─── -->
-            <div v-show="seccion === 'personal'" class="bg-white rounded-2xl border border-gray-200 p-5 space-y-4">
+            <div v-show="seccion === 'personal'" class="bg-white rounded-2xl border border-linea p-5 space-y-4">
                 <div>
-                    <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Nombre *</label>
+                    <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1.5">Nombre *</label>
                     <input v-model="form.nombre" type="text"
-                        class="w-full rounded-xl border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2" />
+                        class="w-full rounded-xl border border-tinta-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2" />
                     <p v-if="errors.nombre" class="text-xs text-red-500 mt-1">{{ errors.nombre }}</p>
                 </div>
 
                 <div v-if="tipos_colaborador?.length">
-                    <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Tipo de colaborador</label>
+                    <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1.5">Tipo de colaborador</label>
                     <select v-model="form.tipo_colaborador_id"
-                        class="w-full rounded-xl border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2">
+                        class="w-full rounded-xl border border-tinta-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2">
                         <option value="">Sin tipo</option>
                         <option v-for="t in tipos_colaborador" :key="t.id" :value="t.id">{{ t.nombre }}</option>
                     </select>
                 </div>
 
                 <div>
-                    <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Cargo</label>
+                    <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1.5">Cargo</label>
                     <input v-model="form.cargo" type="text"
-                        class="w-full rounded-xl border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2" />
+                        class="w-full rounded-xl border border-tinta-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2" />
                 </div>
 
                 <div>
-                    <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Documento *</label>
+                    <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1.5">Documento *</label>
                     <input v-model="form.documento" type="text"
-                        class="w-full rounded-xl border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2" />
+                        class="w-full rounded-xl border border-tinta-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2" />
                     <p v-if="errors.documento" class="text-xs text-red-500 mt-1">{{ errors.documento }}</p>
                 </div>
 
                 <div>
-                    <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Teléfono</label>
+                    <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1.5">Teléfono</label>
                     <input v-model="form.telefono" type="text"
-                        class="w-full rounded-xl border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2" />
+                        class="w-full rounded-xl border border-tinta-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2" />
                 </div>
 
                 <div>
-                    <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Email</label>
+                    <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1.5">Email</label>
                     <input v-model="form.email" type="email"
-                        class="w-full rounded-xl border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2" />
+                        class="w-full rounded-xl border border-tinta-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2" />
                     <p v-if="errors.email" class="text-xs text-red-500 mt-1">{{ errors.email }}</p>
                 </div>
 
                 <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Fecha nacimiento</label>
+                        <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1.5">Fecha nacimiento</label>
                         <input v-model="form.fecha_nacimiento" type="date"
-                            class="w-full rounded-xl border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2" />
+                            class="w-full rounded-xl border border-tinta-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2" />
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Fecha ingreso</label>
+                        <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1.5">Fecha ingreso</label>
                         <input v-model="form.fecha_ingreso" type="date"
-                            class="w-full rounded-xl border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2" />
+                            class="w-full rounded-xl border border-tinta-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2" />
                     </div>
                 </div>
 
                 <div>
-                    <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Especialidad</label>
+                    <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1.5">Especialidad</label>
                     <input v-model="form.especialidad" type="text"
-                        class="w-full rounded-xl border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2" />
+                        class="w-full rounded-xl border border-tinta-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2" />
                 </div>
 
                 <div>
-                    <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Ciudad</label>
+                    <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1.5">Ciudad</label>
                     <input v-model="form.ciudad" type="text"
-                        class="w-full rounded-xl border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2" />
+                        class="w-full rounded-xl border border-tinta-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2" />
                 </div>
 
                 <div>
-                    <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Dirección</label>
+                    <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1.5">Dirección</label>
                     <input v-model="form.direccion" type="text"
-                        class="w-full rounded-xl border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2" />
+                        class="w-full rounded-xl border border-tinta-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2" />
                 </div>
 
                 <div>
-                    <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Estado *</label>
+                    <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1.5">Estado *</label>
                     <select v-model="form.estado"
-                        class="w-full rounded-xl border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2">
+                        class="w-full rounded-xl border border-tinta-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2">
                         <option value="activo">Activo</option>
                         <option value="inactivo">Inactivo</option>
                     </select>
@@ -223,29 +223,29 @@ async function subirArchivo(event, tipo) {
             </div>
 
             <!-- ─── SECCIÓN SEGURIDAD SOCIAL ─── -->
-            <div v-show="seccion === 'seguridad'" class="bg-white rounded-2xl border border-gray-200 p-5 space-y-4">
-                <div class="border-b border-gray-100 pb-4">
-                    <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">EPS</p>
+            <div v-show="seccion === 'seguridad'" class="bg-white rounded-2xl border border-linea p-5 space-y-4">
+                <div class="border-b border-linea pb-4">
+                    <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-3">EPS</p>
                     <div class="space-y-3">
                         <div>
-                            <label class="block text-xs font-medium text-gray-500 mb-1.5">Nombre EPS</label>
+                            <label class="block text-xs font-medium text-tinta-400 mb-1.5">Nombre EPS</label>
                             <input v-model="form.nombre_eps" type="text"
-                                class="w-full rounded-xl border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2" />
+                                class="w-full rounded-xl border border-tinta-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2" />
                         </div>
                         <div>
-                            <label class="block text-xs font-medium text-gray-500 mb-1.5">Número / Código</label>
+                            <label class="block text-xs font-medium text-tinta-400 mb-1.5">Número / Código</label>
                             <input v-model="form.numero_eps" type="text"
-                                class="w-full rounded-xl border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2" />
+                                class="w-full rounded-xl border border-tinta-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2" />
                         </div>
                         <!-- Archivo EPS -->
-                        <div class="flex items-center gap-3 p-3 rounded-lg border border-gray-200">
+                        <div class="flex items-center gap-3 p-3 rounded-lg border border-linea">
                             <div class="flex-1">
-                                <p class="text-sm font-medium text-gray-700">Documento EPS</p>
+                                <p class="text-sm font-medium text-tinta-700">Documento EPS</p>
                                 <p v-if="archivos.archivo_eps" class="text-xs text-green-600 mt-0.5">
                                     Cargado
                                     <a :href="`/storage/${archivos.archivo_eps}`" target="_blank" class="underline ml-1">Ver</a>
                                 </p>
-                                <p v-else class="text-xs text-gray-400 mt-0.5">Sin archivo</p>
+                                <p v-else class="text-xs text-tinta-300 mt-0.5">Sin archivo</p>
                             </div>
                             <label class="cursor-pointer px-3 py-1.5 rounded-lg text-xs font-medium text-white" style="background:var(--marca)">
                                 {{ archivos.archivo_eps ? 'Reemplazar' : 'Cargar' }}
@@ -256,27 +256,27 @@ async function subirArchivo(event, tipo) {
                 </div>
 
                 <div>
-                    <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Pensión</p>
+                    <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-3">Pensión</p>
                     <div class="space-y-3">
                         <div>
-                            <label class="block text-xs font-medium text-gray-500 mb-1.5">Nombre fondo de pensión</label>
+                            <label class="block text-xs font-medium text-tinta-400 mb-1.5">Nombre fondo de pensión</label>
                             <input v-model="form.nombre_pension" type="text"
-                                class="w-full rounded-xl border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2" />
+                                class="w-full rounded-xl border border-tinta-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2" />
                         </div>
                         <div>
-                            <label class="block text-xs font-medium text-gray-500 mb-1.5">Número / Código</label>
+                            <label class="block text-xs font-medium text-tinta-400 mb-1.5">Número / Código</label>
                             <input v-model="form.numero_pension" type="text"
-                                class="w-full rounded-xl border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2" />
+                                class="w-full rounded-xl border border-tinta-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2" />
                         </div>
                         <!-- Archivo pensión -->
-                        <div class="flex items-center gap-3 p-3 rounded-lg border border-gray-200">
+                        <div class="flex items-center gap-3 p-3 rounded-lg border border-linea">
                             <div class="flex-1">
-                                <p class="text-sm font-medium text-gray-700">Documento pensión</p>
+                                <p class="text-sm font-medium text-tinta-700">Documento pensión</p>
                                 <p v-if="archivos.archivo_pension" class="text-xs text-green-600 mt-0.5">
                                     Cargado
                                     <a :href="`/storage/${archivos.archivo_pension}`" target="_blank" class="underline ml-1">Ver</a>
                                 </p>
-                                <p v-else class="text-xs text-gray-400 mt-0.5">Sin archivo</p>
+                                <p v-else class="text-xs text-tinta-300 mt-0.5">Sin archivo</p>
                             </div>
                             <label class="cursor-pointer px-3 py-1.5 rounded-lg text-xs font-medium text-white" style="background:var(--marca)">
                                 {{ archivos.archivo_pension ? 'Reemplazar' : 'Cargar' }}
@@ -288,17 +288,17 @@ async function subirArchivo(event, tipo) {
             </div>
 
             <!-- ─── SECCIÓN BANCARIA ─── -->
-            <div v-show="seccion === 'bancario'" class="bg-white rounded-2xl border border-gray-200 p-5 space-y-4">
+            <div v-show="seccion === 'bancario'" class="bg-white rounded-2xl border border-linea p-5 space-y-4">
                 <div>
-                    <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Banco</label>
+                    <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1.5">Banco</label>
                     <input v-model="form.banco" type="text"
-                        class="w-full rounded-xl border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2" />
+                        class="w-full rounded-xl border border-tinta-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2" />
                 </div>
 
                 <div>
-                    <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Tipo de cuenta</label>
+                    <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1.5">Tipo de cuenta</label>
                     <select v-model="form.tipo_cuenta"
-                        class="w-full rounded-xl border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2">
+                        class="w-full rounded-xl border border-tinta-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2">
                         <option value="">Sin especificar</option>
                         <option value="ahorros">Ahorros</option>
                         <option value="corriente">Corriente</option>
@@ -306,20 +306,20 @@ async function subirArchivo(event, tipo) {
                 </div>
 
                 <div>
-                    <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Número de cuenta</label>
+                    <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1.5">Número de cuenta</label>
                     <input v-model="form.numero_cuenta_bancaria" type="text"
-                        class="w-full rounded-xl border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2" />
+                        class="w-full rounded-xl border border-tinta-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2" />
                 </div>
 
                 <!-- Certificación bancaria -->
-                <div class="flex items-center gap-3 p-3 rounded-lg border border-gray-200">
+                <div class="flex items-center gap-3 p-3 rounded-lg border border-linea">
                     <div class="flex-1">
-                        <p class="text-sm font-medium text-gray-700">Certificación bancaria</p>
+                        <p class="text-sm font-medium text-tinta-700">Certificación bancaria</p>
                         <p v-if="archivos.archivo_certificacion_bancaria" class="text-xs text-green-600 mt-0.5">
                             Cargado
                             <a :href="`/storage/${archivos.archivo_certificacion_bancaria}`" target="_blank" class="underline ml-1">Ver</a>
                         </p>
-                        <p v-else class="text-xs text-gray-400 mt-0.5">Sin archivo</p>
+                        <p v-else class="text-xs text-tinta-300 mt-0.5">Sin archivo</p>
                     </div>
                     <label class="cursor-pointer px-3 py-1.5 rounded-lg text-xs font-medium text-white" style="background:var(--marca)">
                         {{ archivos.archivo_certificacion_bancaria ? 'Reemplazar' : 'Cargar' }}
@@ -329,18 +329,18 @@ async function subirArchivo(event, tipo) {
             </div>
 
             <!-- ─── SECCIÓN DOCUMENTOS ─── -->
-            <div v-show="seccion === 'documentos'" class="bg-white rounded-2xl border border-gray-200 p-5 space-y-3">
-                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Documentos del colaborador</p>
+            <div v-show="seccion === 'documentos'" class="bg-white rounded-2xl border border-linea p-5 space-y-3">
+                <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-2">Documentos del colaborador</p>
 
                 <div v-for="doc in ARCHIVOS" :key="doc.tipo"
-                    class="flex items-center gap-3 p-3 rounded-lg border border-gray-200">
+                    class="flex items-center gap-3 p-3 rounded-lg border border-linea">
                     <div class="flex-1">
-                        <p class="text-sm font-medium text-gray-700">{{ doc.label }}</p>
+                        <p class="text-sm font-medium text-tinta-700">{{ doc.label }}</p>
                         <p v-if="archivos[doc.campo]" class="text-xs text-green-600 mt-0.5">
                             Cargado
                             <a :href="`/storage/${archivos[doc.campo]}`" target="_blank" class="underline ml-1">Ver</a>
                         </p>
-                        <p v-else class="text-xs text-gray-400 mt-0.5">Sin archivo</p>
+                        <p v-else class="text-xs text-tinta-300 mt-0.5">Sin archivo</p>
                     </div>
                     <label class="cursor-pointer px-3 py-1.5 rounded-lg text-xs font-medium text-white" style="background:var(--marca)">
                         <span v-if="subiendo[doc.tipo]">Subiendo…</span>
@@ -350,11 +350,11 @@ async function subirArchivo(event, tipo) {
                 </div>
 
                 <!-- Otros documentos -->
-                <div class="border-t border-gray-100 pt-3">
-                    <p class="text-xs font-medium text-gray-500 mb-2">Otros documentos</p>
+                <div class="border-t border-linea pt-3">
+                    <p class="text-xs font-medium text-tinta-400 mb-2">Otros documentos</p>
                     <div v-if="archivos.archivo_otros?.length" class="space-y-2 mb-2">
                         <div v-for="(doc, i) in archivos.archivo_otros" :key="i"
-                            class="flex items-center gap-2 text-xs text-gray-600">
+                            class="flex items-center gap-2 text-xs text-tinta-500">
                             <span class="truncate flex-1">{{ doc.nombre }}</span>
                             <a :href="`/storage/${doc.path}`" target="_blank"
                                 class="underline text-blue-600 shrink-0">Ver</a>
@@ -369,20 +369,20 @@ async function subirArchivo(event, tipo) {
             </div>
 
             <!-- ─── SECCIÓN ACCESO ─── -->
-            <div v-show="seccion === 'acceso'" class="bg-white rounded-2xl border border-gray-200 p-5 space-y-4">
-                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Acceso al sistema</p>
+            <div v-show="seccion === 'acceso'" class="bg-white rounded-2xl border border-linea p-5 space-y-4">
+                <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">Acceso al sistema</p>
 
                 <div class="flex gap-2">
                     <button type="button"
                         @click="form.crear_usuario = false; form.usuario_email = ''; form.usuario_password = ''; form.usuario_name = ''"
                         class="flex-1 py-2 rounded-xl text-xs font-medium border transition-colors"
-                        :class="!form.crear_usuario ? 'bg-blue-50 border-blue-400 text-blue-700' : 'border-gray-200 text-gray-500 hover:bg-gray-50'">
+                        :class="!form.crear_usuario ? 'bg-blue-50 border-blue-400 text-blue-700' : 'border-linea text-tinta-400 hover:bg-tinta-50'">
                         Vincular usuario existente
                     </button>
                     <button type="button"
                         @click="form.crear_usuario = true; form.user_id = ''; form.usuario_name = form.nombre"
                         class="flex-1 py-2 rounded-xl text-xs font-medium border transition-colors"
-                        :class="form.crear_usuario ? 'bg-green-50 border-green-400 text-green-700' : 'border-gray-200 text-gray-500 hover:bg-gray-50'">
+                        :class="form.crear_usuario ? 'bg-green-50 border-green-400 text-green-700' : 'border-linea text-tinta-400 hover:bg-tinta-50'">
                         Crear usuario nuevo
                     </button>
                 </div>
@@ -400,35 +400,35 @@ async function subirArchivo(event, tipo) {
                         </button>
                     </div>
                     <div v-else>
-                        <label class="block text-xs font-medium text-gray-500 mb-1.5">
-                            Usuario existente <span class="text-gray-400 font-normal">(opcional)</span>
+                        <label class="block text-xs font-medium text-tinta-400 mb-1.5">
+                            Usuario existente <span class="text-tinta-300 font-normal">(opcional)</span>
                         </label>
                         <select v-model="form.user_id"
-                            class="w-full rounded-xl border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2">
+                            class="w-full rounded-xl border border-tinta-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2">
                             <option value="">Sin acceso al sistema</option>
                             <option v-for="u in usuarios_operario" :key="u.id" :value="u.id">{{ u.name }}</option>
                         </select>
-                        <p class="text-xs text-gray-400 mt-1">Solo usuarios con rol "operario" aparecen aquí.</p>
+                        <p class="text-xs text-tinta-300 mt-1">Solo usuarios con rol "operario" aparecen aquí.</p>
                     </div>
                 </div>
 
                 <div v-if="form.crear_usuario" class="space-y-3">
                     <div>
-                        <label class="block text-xs font-medium text-gray-500 mb-1.5">Nombre de usuario *</label>
+                        <label class="block text-xs font-medium text-tinta-400 mb-1.5">Nombre de usuario *</label>
                         <input v-model="form.usuario_name" type="text" placeholder="Nombre completo"
-                            class="w-full rounded-xl border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2" />
+                            class="w-full rounded-xl border border-tinta-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2" />
                         <p v-if="errors.usuario_name" class="text-xs text-red-500 mt-1">{{ errors.usuario_name }}</p>
                     </div>
                     <div>
-                        <label class="block text-xs font-medium text-gray-500 mb-1.5">Correo electrónico *</label>
+                        <label class="block text-xs font-medium text-tinta-400 mb-1.5">Correo electrónico *</label>
                         <input v-model="form.usuario_email" type="email" placeholder="colaborador@empresa.com"
-                            class="w-full rounded-xl border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2" />
+                            class="w-full rounded-xl border border-tinta-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2" />
                         <p v-if="errors.usuario_email" class="text-xs text-red-500 mt-1">{{ errors.usuario_email }}</p>
                     </div>
                     <div>
-                        <label class="block text-xs font-medium text-gray-500 mb-1.5">Contraseña *</label>
+                        <label class="block text-xs font-medium text-tinta-400 mb-1.5">Contraseña *</label>
                         <input v-model="form.usuario_password" type="password" placeholder="Mínimo 8 caracteres"
-                            class="w-full rounded-xl border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2" />
+                            class="w-full rounded-xl border border-tinta-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2" />
                         <p v-if="errors.usuario_password" class="text-xs text-red-500 mt-1">{{ errors.usuario_password }}</p>
                     </div>
                     <div class="bg-blue-50 rounded-xl px-3 py-2 text-xs text-blue-700">
@@ -440,7 +440,7 @@ async function subirArchivo(event, tipo) {
 
             <div class="flex gap-3 mt-5">
                 <button type="button" @click="router.visit(`/rrhh/operarios/${operario.id}`)"
-                    class="flex-1 py-3 rounded-xl border border-gray-200 text-sm text-gray-600 font-medium">
+                    class="flex-1 py-3 rounded-xl border border-linea text-sm text-tinta-500 font-medium">
                     Cancelar
                 </button>
                 <button type="button" @click="submit"

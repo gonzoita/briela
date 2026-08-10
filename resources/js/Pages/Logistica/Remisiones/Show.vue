@@ -127,13 +127,13 @@ function eliminar() {
             <!-- Cabecera -->
             <div class="flex items-start justify-between mb-5 gap-3 flex-wrap">
                 <div class="flex items-center gap-3">
-                    <a href="/logistica/remisiones" class="text-gray-400 hover:text-gray-700">
+                    <a href="/logistica/remisiones" class="text-tinta-300 hover:text-tinta-700">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M15 19l-7-7 7-7"/>
                         </svg>
                     </a>
                     <div>
-                        <h1 class="text-xl font-bold text-gray-900 font-mono">{{ remision.numero }}</h1>
+                        <h1 class="text-xl font-semibold text-tinta-900 font-mono">{{ remision.numero }}</h1>
                         <div class="flex gap-2 mt-1">
                             <span class="text-xs px-2.5 py-0.5 rounded-full font-semibold"
                                 :style="`background:${remision.estado_bg};color:${remision.estado_text};`">
@@ -153,7 +153,7 @@ function eliminar() {
                 <div class="flex items-center gap-2 flex-wrap">
                     <template v-if="remision.estado === 'borrador'">
                         <a :href="`/logistica/remisiones/${remision.id}/editar`"
-                            class="px-3 py-1.5 rounded-xl border border-gray-300 text-xs font-medium text-gray-700 hover:bg-gray-50">
+                            class="px-3 py-1.5 rounded-xl border border-tinta-200 text-xs font-medium text-tinta-700 hover:bg-tinta-50">
                             Editar
                         </a>
                         <button @click="abrirModalEstado('confirmada')"
@@ -198,42 +198,42 @@ function eliminar() {
 
             <!-- Sección Cliente / OP -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
-                <div class="bg-white rounded-2xl border border-gray-200 p-5">
-                    <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Cliente</p>
-                    <p class="text-base font-bold text-gray-900">{{ remision.cliente?.nombre ?? '—' }}</p>
+                <div class="bg-white rounded-2xl border border-linea p-5">
+                    <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-3">Cliente</p>
+                    <p class="text-base font-semibold text-tinta-900">{{ remision.cliente?.nombre ?? '—' }}</p>
                 </div>
-                <div v-if="remision.op" class="bg-white rounded-2xl border border-gray-200 p-5">
-                    <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Orden de Producción</p>
+                <div v-if="remision.op" class="bg-white rounded-2xl border border-linea p-5">
+                    <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-3">Orden de Producción</p>
                     <a :href="`/produccion/ops/${remision.op.id}`"
-                        class="text-base font-bold text-blue-600 hover:underline font-mono">
+                        class="text-base font-semibold text-blue-600 hover:underline font-mono">
                         {{ remision.op.numero }}
                     </a>
                 </div>
             </div>
 
             <!-- Ítems -->
-            <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden mb-5">
-                <div class="px-5 py-3 border-b border-gray-100">
-                    <h2 class="text-sm font-semibold text-gray-700">Ítems remisionados</h2>
+            <div class="bg-white rounded-2xl border border-linea overflow-hidden mb-5">
+                <div class="px-5 py-3 border-b border-linea">
+                    <h2 class="text-sm font-semibold text-tinta-700">Ítems remisionados</h2>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-sm">
                         <thead>
-                            <tr class="bg-gray-50 border-b border-gray-100">
-                                <th class="text-left px-4 py-2.5 text-xs font-semibold text-gray-500 uppercase">Descripción</th>
-                                <th class="text-center px-3 py-2.5 text-xs font-semibold text-gray-500 uppercase w-20">Cant.</th>
-                                <th class="text-left px-3 py-2.5 text-xs font-semibold text-gray-500 uppercase w-20">Unidad</th>
-                                <th class="text-left px-3 py-2.5 text-xs font-semibold text-gray-500 uppercase">N° Serie</th>
-                                <th class="text-left px-3 py-2.5 text-xs font-semibold text-gray-500 uppercase">Notas</th>
+                            <tr class="bg-tinta-50 border-b border-linea">
+                                <th class="text-left px-4 py-2.5 text-xs font-semibold text-tinta-400 uppercase">Descripción</th>
+                                <th class="text-center px-3 py-2.5 text-xs font-semibold text-tinta-400 uppercase w-20">Cant.</th>
+                                <th class="text-left px-3 py-2.5 text-xs font-semibold text-tinta-400 uppercase w-20">Unidad</th>
+                                <th class="text-left px-3 py-2.5 text-xs font-semibold text-tinta-400 uppercase">N° Serie</th>
+                                <th class="text-left px-3 py-2.5 text-xs font-semibold text-tinta-400 uppercase">Notas</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-50">
                             <tr v-for="item in remision.items" :key="item.id">
-                                <td class="px-4 py-3 text-sm text-gray-800">{{ item.descripcion }}</td>
+                                <td class="px-4 py-3 text-sm text-tinta-900">{{ item.descripcion }}</td>
                                 <td class="px-3 py-3 text-center text-sm font-medium">{{ item.cantidad }}</td>
-                                <td class="px-3 py-3 text-sm text-gray-500">{{ item.unidad ?? '—' }}</td>
-                                <td class="px-3 py-3 font-mono text-xs text-gray-500">{{ item.numero_serie ?? '—' }}</td>
-                                <td class="px-3 py-3 text-xs text-gray-400 italic">{{ item.notas ?? '—' }}</td>
+                                <td class="px-3 py-3 text-sm text-tinta-400">{{ item.unidad ?? '—' }}</td>
+                                <td class="px-3 py-3 font-mono text-xs text-tinta-400">{{ item.numero_serie ?? '—' }}</td>
+                                <td class="px-3 py-3 text-xs text-tinta-300 italic">{{ item.notas ?? '—' }}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -242,38 +242,38 @@ function eliminar() {
 
             <!-- Despacho (desde confirmada) -->
             <div v-if="['confirmada','en_camino','entregada'].includes(remision.estado)"
-                class="bg-white rounded-2xl border border-gray-200 p-5 mb-5">
-                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Despacho</p>
+                class="bg-white rounded-2xl border border-linea p-5 mb-5">
+                <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-3">Despacho</p>
                 <div class="grid grid-cols-2 gap-4 text-sm">
                     <div>
-                        <span class="text-gray-400 text-xs">Transportista</span>
-                        <p class="font-medium text-gray-800 mt-0.5">{{ remision.transportista ?? '—' }}</p>
+                        <span class="text-tinta-300 text-xs">Transportista</span>
+                        <p class="font-medium text-tinta-900 mt-0.5">{{ remision.transportista ?? '—' }}</p>
                     </div>
                     <div>
-                        <span class="text-gray-400 text-xs">Celular</span>
-                        <p class="font-medium text-gray-800 mt-0.5">{{ remision.celular_transportista ?? '—' }}</p>
+                        <span class="text-tinta-300 text-xs">Celular</span>
+                        <p class="font-medium text-tinta-900 mt-0.5">{{ remision.celular_transportista ?? '—' }}</p>
                     </div>
                     <div>
-                        <span class="text-gray-400 text-xs">Placa</span>
-                        <p class="font-medium text-gray-800 mt-0.5">{{ remision.placa ?? '—' }}</p>
+                        <span class="text-tinta-300 text-xs">Placa</span>
+                        <p class="font-medium text-tinta-900 mt-0.5">{{ remision.placa ?? '—' }}</p>
                     </div>
                     <div>
-                        <span class="text-gray-400 text-xs">Costo flete</span>
-                        <p class="font-medium text-gray-800 mt-0.5">
+                        <span class="text-tinta-300 text-xs">Costo flete</span>
+                        <p class="font-medium text-tinta-900 mt-0.5">
                             {{ remision.costo_flete ? '$ ' + parseFloat(remision.costo_flete).toLocaleString('es-CO') : '—' }}
                         </p>
                     </div>
                     <div>
-                        <span class="text-gray-400 text-xs">Fecha salida</span>
-                        <p class="font-medium text-gray-800 mt-0.5">{{ formatFecha(remision.fecha_salida) }}</p>
+                        <span class="text-tinta-300 text-xs">Fecha salida</span>
+                        <p class="font-medium text-tinta-900 mt-0.5">{{ formatFecha(remision.fecha_salida) }}</p>
                     </div>
                     <div>
-                        <span class="text-gray-400 text-xs">Fecha entrega</span>
-                        <p class="font-medium text-gray-800 mt-0.5">{{ formatFecha(remision.fecha_entrega) }}</p>
+                        <span class="text-tinta-300 text-xs">Fecha entrega</span>
+                        <p class="font-medium text-tinta-900 mt-0.5">{{ formatFecha(remision.fecha_entrega) }}</p>
                     </div>
                     <div v-if="remision.nombre_receptor" class="col-span-2">
-                        <span class="text-gray-400 text-xs">Recibido por</span>
-                        <p class="font-medium text-gray-800 mt-0.5">{{ remision.nombre_receptor }}</p>
+                        <span class="text-tinta-300 text-xs">Recibido por</span>
+                        <p class="font-medium text-tinta-900 mt-0.5">{{ remision.nombre_receptor }}</p>
                     </div>
                 </div>
             </div>
@@ -283,18 +283,18 @@ function eliminar() {
                 class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
 
                 <!-- Firma despacho -->
-                <div class="bg-white rounded-2xl border border-gray-200 p-5">
-                    <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Firma Despachado por</p>
+                <div class="bg-white rounded-2xl border border-linea p-5">
+                    <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-3">Firma Despachado por</p>
                     <div v-if="remision.firma_despacho" class="mb-3">
                         <img :src="remision.firma_despacho" alt="Firma despacho"
-                            class="w-full h-24 object-contain border border-gray-100 rounded-lg bg-gray-50"/>
+                            class="w-full h-24 object-contain border border-linea rounded-lg bg-tinta-50"/>
                         <p class="text-xs text-green-600 mt-1">✓ Firma guardada</p>
                     </div>
                     <canvas ref="canvasDespachoRef" width="280" height="100"
-                        class="w-full border-2 border-dashed border-gray-200 rounded-xl cursor-crosshair bg-gray-50 touch-none"/>
+                        class="w-full border-2 border-dashed border-linea rounded-xl cursor-crosshair bg-tinta-50 touch-none"/>
                     <div class="flex gap-2 mt-2">
                         <button @click="limpiarCanvas('despacho')" type="button"
-                            class="flex-1 py-1.5 rounded-lg border border-gray-200 text-xs text-gray-600 hover:bg-gray-50">
+                            class="flex-1 py-1.5 rounded-lg border border-linea text-xs text-tinta-500 hover:bg-tinta-50">
                             Limpiar
                         </button>
                         <button @click="guardarFirma('despacho')" type="button"
@@ -307,18 +307,18 @@ function eliminar() {
                 </div>
 
                 <!-- Firma recibido -->
-                <div class="bg-white rounded-2xl border border-gray-200 p-5">
-                    <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Firma Recibido por</p>
+                <div class="bg-white rounded-2xl border border-linea p-5">
+                    <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-3">Firma Recibido por</p>
                     <div v-if="remision.firma_recibido" class="mb-3">
                         <img :src="remision.firma_recibido" alt="Firma recibido"
-                            class="w-full h-24 object-contain border border-gray-100 rounded-lg bg-gray-50"/>
+                            class="w-full h-24 object-contain border border-linea rounded-lg bg-tinta-50"/>
                         <p class="text-xs text-green-600 mt-1">✓ Firma guardada</p>
                     </div>
                     <canvas ref="canvasRecibidoRef" width="280" height="100"
-                        class="w-full border-2 border-dashed border-gray-200 rounded-xl cursor-crosshair bg-gray-50 touch-none"/>
+                        class="w-full border-2 border-dashed border-linea rounded-xl cursor-crosshair bg-tinta-50 touch-none"/>
                     <div class="flex gap-2 mt-2">
                         <button @click="limpiarCanvas('recibido')" type="button"
-                            class="flex-1 py-1.5 rounded-lg border border-gray-200 text-xs text-gray-600 hover:bg-gray-50">
+                            class="flex-1 py-1.5 rounded-lg border border-linea text-xs text-tinta-500 hover:bg-tinta-50">
                             Limpiar
                         </button>
                         <button @click="guardarFirma('recibido')" type="button"
@@ -332,7 +332,7 @@ function eliminar() {
             </div>
 
             <!-- Footer info -->
-            <div class="text-xs text-gray-400 text-right mb-10">
+            <div class="text-xs text-tinta-300 text-right mb-10">
                 Creado por {{ remision.creado_por }} ·
                 {{ formatFecha(remision.created_at) }}
             </div>
@@ -344,7 +344,7 @@ function eliminar() {
             <div v-if="modalEstado" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4"
                 style="background:rgba(0,0,0,0.4);">
                 <div class="bg-white rounded-2xl w-full max-w-sm p-6 space-y-4 shadow-xl">
-                    <h3 class="text-base font-bold text-gray-900">
+                    <h3 class="text-base font-semibold text-tinta-900">
                         {{
                             nuevoEstado === 'confirmada' ? 'Confirmar remisión' :
                             nuevoEstado === 'en_camino'  ? 'Marcar en camino' :
@@ -356,19 +356,19 @@ function eliminar() {
                     <!-- Datos de transporte al marcar en camino -->
                     <template v-if="nuevoEstado === 'en_camino'">
                         <input v-model="datosTransporte.transportista" type="text" placeholder="Nombre transportista"
-                            class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none"/>
+                            class="w-full border border-linea rounded-xl px-4 py-2.5 text-sm focus:outline-none"/>
                         <input v-model="datosTransporte.celular_transportista" type="text" placeholder="Celular"
-                            class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none"/>
+                            class="w-full border border-linea rounded-xl px-4 py-2.5 text-sm focus:outline-none"/>
                         <input v-model="datosTransporte.placa" type="text" placeholder="Placa del vehículo"
-                            class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none"/>
+                            class="w-full border border-linea rounded-xl px-4 py-2.5 text-sm focus:outline-none"/>
                         <input v-model.number="datosTransporte.costo_flete" type="number" placeholder="Costo del flete (opcional)"
-                            class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none"/>
+                            class="w-full border border-linea rounded-xl px-4 py-2.5 text-sm focus:outline-none"/>
                     </template>
 
                     <!-- Datos de entrega -->
                     <template v-if="nuevoEstado === 'entregada'">
                         <input v-model="datosEntrega.nombre_receptor" type="text" placeholder="Nombre de quien recibe"
-                            class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none"/>
+                            class="w-full border border-linea rounded-xl px-4 py-2.5 text-sm focus:outline-none"/>
                     </template>
 
                     <p v-if="nuevoEstado === 'anulada'" class="text-sm text-red-600">
@@ -377,7 +377,7 @@ function eliminar() {
 
                     <div class="flex gap-3">
                         <button @click="modalEstado = false" type="button"
-                            class="flex-1 py-2.5 rounded-xl border border-gray-200 text-sm text-gray-700">
+                            class="flex-1 py-2.5 rounded-xl border border-linea text-sm text-tinta-700">
                             Cancelar
                         </button>
                         <button @click="confirmarEstado" type="button" :disabled="enviandoEstado"

@@ -121,12 +121,12 @@ function guardar() {
                 <template v-for="(label, i) in pasos" :key="i">
                     <div class="flex flex-col items-center">
                         <div
-                            class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-colors"
+                            class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-colors"
                             :class="i + 1 === paso
                                 ? 'text-white'
                                 : i + 1 < paso
                                     ? 'bg-green-500 text-white'
-                                    : 'bg-gray-200 text-gray-400'"
+                                    : 'bg-tinta-200 text-tinta-300'"
                             :style="i + 1 === paso ? 'background-color:var(--marca)' : ''"
                         >
                             <svg v-if="i + 1 < paso" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
@@ -135,21 +135,21 @@ function guardar() {
                             <span v-else>{{ i + 1 }}</span>
                         </div>
                         <span class="text-xs mt-1 font-medium hidden sm:block"
-                            :class="i + 1 === paso ? 'text-gray-900' : 'text-gray-400'">
+                            :class="i + 1 === paso ? 'text-tinta-900' : 'text-tinta-300'">
                             {{ label }}
                         </span>
                     </div>
                     <div v-if="i < pasos.length - 1"
                         class="flex-1 h-0.5 mx-1 mb-4"
-                        :class="i + 1 < paso ? 'bg-green-400' : 'bg-gray-200'"
+                        :class="i + 1 < paso ? 'bg-green-400' : 'bg-tinta-200'"
                     />
                 </template>
             </div>
 
             <!-- ─── PASO 1: Fuente ─────────────────────────────────────────── -->
             <div v-if="paso === 1">
-                <h2 class="text-lg font-bold text-gray-900 mb-1">Selecciona la fuente de datos</h2>
-                <p class="text-sm text-gray-500 mb-5">¿Sobre qué datos quieres generar el informe?</p>
+                <h2 class="text-lg font-semibold text-tinta-900 mb-1">Selecciona la fuente de datos</h2>
+                <p class="text-sm text-tinta-400 mb-5">¿Sobre qué datos quieres generar el informe?</p>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <button
@@ -157,36 +157,36 @@ function guardar() {
                         :key="f.key"
                         @click="seleccionarFuente(f.key)"
                         class="flex items-start gap-4 p-4 rounded-2xl border-2 text-left transition-all"
-                        :class="fuente === f.key ? f.colorActivo + ' border-2' : 'border-gray-200 bg-white hover:border-gray-300'"
+                        :class="fuente === f.key ? f.colorActivo + ' border-2' : 'border-linea bg-white hover:border-tinta-200'"
                     >
                         <!-- Ícono -->
                         <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
                             :style="fuente === f.key ? 'background-color:var(--marca)' : 'background:#F3F4F6'">
                             <!-- clipboard -->
-                            <svg v-if="f.icon === 'clipboard'" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"
+                            <svg v-if="f.icon === 'clipboard'" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6"
                                 :style="fuente === f.key ? 'color:white' : 'color:#6B7280'">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
                             </svg>
                             <!-- workers -->
-                            <svg v-if="f.icon === 'workers'" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"
+                            <svg v-if="f.icon === 'workers'" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6"
                                 :style="fuente === f.key ? 'color:white' : 'color:#6B7280'">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
                             </svg>
                             <!-- cotizacion -->
-                            <svg v-if="f.icon === 'cotizacion'" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"
+                            <svg v-if="f.icon === 'cotizacion'" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6"
                                 :style="fuente === f.key ? 'color:white' : 'color:#6B7280'">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                             </svg>
                             <!-- trabajos -->
-                            <svg v-if="f.icon === 'trabajos'" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"
+                            <svg v-if="f.icon === 'trabajos'" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6"
                                 :style="fuente === f.key ? 'color:white' : 'color:#6B7280'">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4"/>
                             </svg>
                         </div>
                         <div class="min-w-0">
-                            <p class="text-sm font-semibold text-gray-900">{{ f.label }}</p>
-                            <p class="text-xs text-gray-500 mt-0.5">{{ f.desc }}</p>
+                            <p class="text-sm font-semibold text-tinta-900">{{ f.label }}</p>
+                            <p class="text-xs text-tinta-400 mt-0.5">{{ f.desc }}</p>
                         </div>
                     </button>
                 </div>
@@ -205,8 +205,8 @@ function guardar() {
 
             <!-- ─── PASO 2: Campos ─────────────────────────────────────────── -->
             <div v-if="paso === 2">
-                <h2 class="text-lg font-bold text-gray-900 mb-1">Selecciona los campos</h2>
-                <p class="text-sm text-gray-500 mb-5">Elige al menos un campo para mostrar en el informe.</p>
+                <h2 class="text-lg font-semibold text-tinta-900 mb-1">Selecciona los campos</h2>
+                <p class="text-sm text-tinta-400 mb-5">Elige al menos un campo para mostrar en el informe.</p>
 
                 <div class="space-y-2">
                     <label
@@ -215,7 +215,7 @@ function guardar() {
                         class="flex items-center gap-3 p-3.5 rounded-xl border cursor-pointer transition-colors"
                         :class="camposSelec.includes(campo.key)
                             ? 'border-blue-300 bg-blue-50'
-                            : 'border-gray-200 bg-white hover:border-gray-300'"
+                            : 'border-linea bg-white hover:border-tinta-200'"
                     >
                         <input
                             type="checkbox"
@@ -225,14 +225,14 @@ function guardar() {
                             class="w-4 h-4 rounded"
                             :style="camposSelec.includes(campo.key) ? 'accent-color:var(--marca)' : ''"
                         />
-                        <span class="text-sm font-medium text-gray-800">{{ campo.label }}</span>
+                        <span class="text-sm font-medium text-tinta-900">{{ campo.label }}</span>
                     </label>
                 </div>
 
                 <p v-if="!camposSelec.length" class="text-xs text-red-500 mt-2">Selecciona al menos un campo.</p>
 
                 <div class="flex items-center justify-between mt-6">
-                    <button @click="anteriorPaso" class="px-5 py-2.5 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-100">
+                    <button @click="anteriorPaso" class="px-5 py-2.5 rounded-xl text-sm font-medium text-tinta-500 hover:bg-tinta-100">
                         Atrás
                     </button>
                     <button
@@ -248,12 +248,12 @@ function guardar() {
 
             <!-- ─── PASO 3: Filtros ────────────────────────────────────────── -->
             <div v-if="paso === 3">
-                <h2 class="text-lg font-bold text-gray-900 mb-1">Configura los filtros</h2>
-                <p class="text-sm text-gray-500 mb-5">Todos los filtros son opcionales.</p>
+                <h2 class="text-lg font-semibold text-tinta-900 mb-1">Configura los filtros</h2>
+                <p class="text-sm text-tinta-400 mb-5">Todos los filtros son opcionales.</p>
 
                 <div v-if="filtrosDisponibles.length" class="space-y-4">
                     <div v-for="filtro in filtrosDisponibles" :key="filtro.key">
-                        <label class="block text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wide">
+                        <label class="block text-xs font-semibold text-tinta-500 mb-1.5 uppercase tracking-wide">
                             {{ filtro.label }}
                         </label>
 
@@ -261,7 +261,7 @@ function guardar() {
                         <select
                             v-if="filtro.tipo === 'select'"
                             v-model="filtrosValor[filtro.key]"
-                            class="w-full rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-800 focus:outline-none focus:border-blue-400"
+                            class="w-full rounded-xl border border-linea bg-white px-3 py-2.5 text-sm text-tinta-900 focus:outline-none focus:border-blue-400"
                         >
                             <option value="">— Todos —</option>
                             <template v-if="Array.isArray(filtro.opciones)">
@@ -277,7 +277,7 @@ function guardar() {
                             v-else-if="filtro.tipo === 'date'"
                             type="date"
                             v-model="filtrosValor[filtro.key]"
-                            class="w-full rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-800 focus:outline-none focus:border-blue-400"
+                            class="w-full rounded-xl border border-linea bg-white px-3 py-2.5 text-sm text-tinta-900 focus:outline-none focus:border-blue-400"
                         />
 
                         <!-- Text -->
@@ -286,15 +286,15 @@ function guardar() {
                             type="text"
                             v-model="filtrosValor[filtro.key]"
                             :placeholder="'Filtrar por ' + filtro.label.toLowerCase()"
-                            class="w-full rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-800 focus:outline-none focus:border-blue-400"
+                            class="w-full rounded-xl border border-linea bg-white px-3 py-2.5 text-sm text-tinta-900 focus:outline-none focus:border-blue-400"
                         />
                     </div>
                 </div>
 
-                <p v-else class="text-sm text-gray-400 py-4">No hay filtros disponibles para esta fuente.</p>
+                <p v-else class="text-sm text-tinta-300 py-4">No hay filtros disponibles para esta fuente.</p>
 
                 <div class="flex items-center justify-between mt-6">
-                    <button @click="anteriorPaso" class="px-5 py-2.5 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-100">
+                    <button @click="anteriorPaso" class="px-5 py-2.5 rounded-xl text-sm font-medium text-tinta-500 hover:bg-tinta-100">
                         Atrás
                     </button>
                     <button
@@ -309,40 +309,40 @@ function guardar() {
 
             <!-- ─── PASO 4: Visualización ──────────────────────────────────── -->
             <div v-if="paso === 4">
-                <h2 class="text-lg font-bold text-gray-900 mb-1">Visualización y nombre</h2>
-                <p class="text-sm text-gray-500 mb-5">Define cómo se mostrará el informe.</p>
+                <h2 class="text-lg font-semibold text-tinta-900 mb-1">Visualización y nombre</h2>
+                <p class="text-sm text-tinta-400 mb-5">Define cómo se mostrará el informe.</p>
 
                 <div class="space-y-4">
                     <!-- Nombre -->
                     <div>
-                        <label class="block text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wide">
+                        <label class="block text-xs font-semibold text-tinta-500 mb-1.5 uppercase tracking-wide">
                             Nombre del informe *
                         </label>
                         <input
                             v-model="nombre"
                             type="text"
                             placeholder="Ej: OPs en producción — Junio 2026"
-                            class="w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm text-gray-800 focus:outline-none focus:border-blue-400"
+                            class="w-full rounded-xl border border-linea px-3 py-2.5 text-sm text-tinta-900 focus:outline-none focus:border-blue-400"
                             :class="!nombre && 'border-red-300'"
                         />
                     </div>
 
                     <!-- Descripción -->
                     <div>
-                        <label class="block text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wide">
+                        <label class="block text-xs font-semibold text-tinta-500 mb-1.5 uppercase tracking-wide">
                             Descripción (opcional)
                         </label>
                         <textarea
                             v-model="descripcion"
                             rows="2"
                             placeholder="Breve descripción del propósito del informe"
-                            class="w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm text-gray-800 focus:outline-none focus:border-blue-400 resize-none"
+                            class="w-full rounded-xl border border-linea px-3 py-2.5 text-sm text-tinta-900 focus:outline-none focus:border-blue-400 resize-none"
                         />
                     </div>
 
                     <!-- Tipo gráfica -->
                     <div>
-                        <label class="block text-xs font-semibold text-gray-600 mb-2 uppercase tracking-wide">
+                        <label class="block text-xs font-semibold text-tinta-500 mb-2 uppercase tracking-wide">
                             Tipo de gráfica
                         </label>
                         <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
@@ -358,7 +358,7 @@ function guardar() {
                                 class="py-2.5 px-3 rounded-xl border text-xs font-semibold transition-colors text-center"
                                 :class="tipoGrafica === op.key
                                     ? 'text-white border-transparent'
-                                    : 'text-gray-600 border-gray-200 hover:border-gray-300'"
+                                    : 'text-tinta-500 border-linea hover:border-tinta-200'"
                                 :style="tipoGrafica === op.key ? 'background-color:var(--marca)' : ''"
                             >
                                 {{ op.label }}
@@ -367,10 +367,10 @@ function guardar() {
                     </div>
 
                     <!-- Toggle público -->
-                    <div class="flex items-center justify-between py-3 px-4 rounded-xl bg-gray-50 border border-gray-100">
+                    <div class="flex items-center justify-between py-3 px-4 rounded-xl bg-tinta-50 border border-linea">
                         <div>
-                            <p class="text-sm font-semibold text-gray-800">Visible para todos</p>
-                            <p class="text-xs text-gray-400">Cualquier usuario podrá ver este informe</p>
+                            <p class="text-sm font-semibold text-tinta-900">Visible para todos</p>
+                            <p class="text-xs text-tinta-300">Cualquier usuario podrá ver este informe</p>
                         </div>
                         <button
                             @click="publico = !publico"
@@ -386,7 +386,7 @@ function guardar() {
                 </div>
 
                 <div class="flex items-center justify-between mt-6">
-                    <button @click="anteriorPaso" class="px-5 py-2.5 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-100">
+                    <button @click="anteriorPaso" class="px-5 py-2.5 rounded-xl text-sm font-medium text-tinta-500 hover:bg-tinta-100">
                         Atrás
                     </button>
                     <button

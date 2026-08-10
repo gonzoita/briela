@@ -48,28 +48,28 @@ async function calificar() {
         <div class="max-w-2xl mx-auto">
 
             <div class="flex items-center gap-3 mb-5">
-                <button @click="router.visit('/capacitacion/revision-evaluaciones')" class="w-9 h-9 rounded-xl flex items-center justify-center text-gray-500 hover:bg-gray-100 transition-colors shrink-0">
-                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <button @click="router.visit('/capacitacion/revision-evaluaciones')" class="w-9 h-9 rounded-xl flex items-center justify-center text-tinta-400 hover:bg-tinta-100 transition-colors shrink-0">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
                     </svg>
                 </button>
                 <div class="flex-1 min-w-0">
-                    <h1 class="text-lg font-bold text-gray-900 truncate">{{ intento.estudiante }}</h1>
-                    <p class="text-xs text-gray-400">{{ intento.curso }} · Intento #{{ intento.numero_intento }}</p>
+                    <h1 class="text-lg font-semibold text-tinta-900 truncate">{{ intento.estudiante }}</h1>
+                    <p class="text-xs text-tinta-300">{{ intento.curso }} · Intento #{{ intento.numero_intento }}</p>
                 </div>
             </div>
 
             <div class="space-y-3 mb-4">
                 <div v-for="(pregunta, idx) in preguntas" :key="pregunta.id" class="bg-white rounded-2xl shadow-sm p-4">
-                    <p class="text-xs text-gray-400 mb-1">Pregunta {{ idx + 1 }}</p>
-                    <p class="text-sm font-semibold text-gray-900 mb-3">{{ pregunta.enunciado }}</p>
+                    <p class="text-xs text-tinta-300 mb-1">Pregunta {{ idx + 1 }}</p>
+                    <p class="text-sm font-semibold text-tinta-900 mb-3">{{ pregunta.enunciado }}</p>
 
                     <template v-if="pregunta.tipo === 'opcion_multiple'">
                         <div v-for="o in pregunta.opciones" :key="o.id"
                             class="text-sm px-3 py-2 rounded-xl mb-1"
                             :class="o.id === pregunta.opcion_id
                                 ? (pregunta.es_correcta ? 'bg-green-50 text-green-800 font-semibold' : 'bg-red-50 text-red-800 font-semibold')
-                                : 'text-gray-500'">
+                                : 'text-tinta-400'">
                             {{ o.id === pregunta.opcion_id ? '→ ' : '' }}{{ o.texto }}
                         </div>
                         <p class="text-xs mt-1" :class="pregunta.es_correcta ? 'text-green-600' : 'text-red-600'">
@@ -78,8 +78,8 @@ async function calificar() {
                     </template>
 
                     <template v-else>
-                        <div class="bg-gray-50 rounded-xl p-3 text-sm text-gray-700 mb-3 whitespace-pre-wrap">{{ pregunta.texto_respuesta || '(sin respuesta)' }}</div>
-                        <label class="flex items-center gap-2 text-sm text-gray-700">
+                        <div class="bg-tinta-50 rounded-xl p-3 text-sm text-tinta-700 mb-3 whitespace-pre-wrap">{{ pregunta.texto_respuesta || '(sin respuesta)' }}</div>
+                        <label class="flex items-center gap-2 text-sm text-tinta-700">
                             <input type="checkbox" v-model="notas[pregunta.id]" class="rounded" />
                             Marcar como correcta
                         </label>

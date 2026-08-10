@@ -54,7 +54,7 @@ async function probar() {
 }
 
 function ic(extra = '') {
-    return `w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${extra}`
+    return `w-full rounded-lg border border-tinta-200 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${extra}`
 }
 </script>
 
@@ -64,16 +64,16 @@ function ic(extra = '') {
 
             <!-- Volver -->
             <a href="/configuracion" @click.prevent="router.visit('/configuracion')"
-                class="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700">
-                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                class="inline-flex items-center gap-1.5 text-sm text-tinta-400 hover:text-tinta-700">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
                 </svg>
                 Configuración
             </a>
 
             <!-- Lo que siempre funciona -->
-            <div class="bg-white rounded-xl border border-gray-200 p-4">
-                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
+            <div class="bg-white rounded-xl border border-linea p-4">
+                <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-3">
                     Siempre activo
                 </p>
                 <div class="space-y-3 text-sm">
@@ -84,8 +84,8 @@ function ic(extra = '') {
                             </svg>
                         </span>
                         <div>
-                            <p class="font-medium text-gray-800">Dígito de verificación del NIT</p>
-                            <p class="text-xs text-gray-500">
+                            <p class="font-medium text-tinta-900">Dígito de verificación del NIT</p>
+                            <p class="text-xs text-tinta-400">
                                 Se calcula solo y avisa si está mal escrito. Es matemática, no depende
                                 de internet.
                             </p>
@@ -98,27 +98,27 @@ function ic(extra = '') {
                             </svg>
                         </span>
                         <div>
-                            <p class="font-medium text-gray-800">Aviso de clientes duplicados</p>
-                            <p class="text-xs text-gray-500">
+                            <p class="font-medium text-tinta-900">Aviso de clientes duplicados</p>
+                            <p class="text-xs text-tinta-400">
                                 Busca el número en todas las sedes antes de dejarte crear el cliente.
                             </p>
                         </div>
                     </div>
                 </div>
-                <p class="mt-3 text-xs text-gray-400 border-t border-gray-100 pt-3">
+                <p class="mt-3 text-xs text-tinta-300 border-t border-linea pt-3">
                     Estas dos no se pueden apagar porque no dependen de nada externo y no tienen
                     forma de fallar.
                 </p>
             </div>
 
             <!-- RUES -->
-            <form @submit.prevent="guardar" class="bg-white rounded-xl border border-gray-200 p-4 space-y-4">
+            <form @submit.prevent="guardar" class="bg-white rounded-xl border border-linea p-4 space-y-4">
                 <div class="flex items-start justify-between gap-3">
                     <div>
-                        <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                        <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">
                             Consulta al registro mercantil
                         </p>
-                        <p class="text-xs text-gray-500 mt-1">
+                        <p class="text-xs text-tinta-400 mt-1">
                             Trae la razón social, la cámara de comercio y el estado de la matrícula
                             a partir del NIT. Usa los datos abiertos que publica Confecámaras en
                             datos.gov.co: son oficiales, gratuitos y no piden credenciales.
@@ -134,10 +134,10 @@ function ic(extra = '') {
 
                 <div v-if="form.activo" class="space-y-3 pt-1">
                     <div>
-                        <label class="block text-xs font-medium text-gray-700 mb-1">Dirección del servicio</label>
+                        <label class="block text-xs font-medium text-tinta-700 mb-1">Dirección del servicio</label>
                         <input v-model="form.url" type="text" :class="ic('font-mono text-xs')"/>
                         <div class="flex items-center justify-between mt-1">
-                            <p class="text-xs text-gray-400">
+                            <p class="text-xs text-tinta-300">
                                 Cámbiala solo si el RUES deja de responder.
                             </p>
                             <button type="button" @click="restaurarUrl"
@@ -149,12 +149,12 @@ function ic(extra = '') {
                     </div>
 
                     <div>
-                        <label class="block text-xs font-medium text-gray-700 mb-1">
+                        <label class="block text-xs font-medium text-tinta-700 mb-1">
                             Token de datos.gov.co (opcional)
                         </label>
                         <input v-model="form.token" type="text" :class="ic('font-mono text-xs')"
                             placeholder="Déjalo vacío: solo hace falta si consultas muchísimo"/>
-                        <p class="text-xs text-gray-400 mt-1">
+                        <p class="text-xs text-tinta-300 mt-1">
                             Sin token también funciona. Solo sube el límite de consultas por hora,
                             y se saca gratis en evergreen.data.socrata.com.
                         </p>
@@ -162,18 +162,18 @@ function ic(extra = '') {
                     </div>
 
                     <div>
-                        <label class="block text-xs font-medium text-gray-700 mb-1">
+                        <label class="block text-xs font-medium text-tinta-700 mb-1">
                             Tiempo máximo de espera (segundos)
                         </label>
                         <input v-model.number="form.timeout" type="number" min="2" max="30" :class="ic('w-24')"/>
-                        <p class="text-xs text-gray-400 mt-1">
+                        <p class="text-xs text-tinta-300 mt-1">
                             Pasado este tiempo se deja de esperar y el formulario sigue normal.
                         </p>
                         <p v-if="form.errors.timeout" class="text-red-500 text-xs mt-1">{{ form.errors.timeout }}</p>
                     </div>
                 </div>
 
-                <p v-else class="text-xs text-gray-500 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2">
+                <p v-else class="text-xs text-tinta-400 bg-tinta-50 border border-linea rounded-lg px-3 py-2">
                     Apagado. El dígito de verificación y el aviso de duplicados siguen funcionando.
                 </p>
 
@@ -184,10 +184,10 @@ function ic(extra = '') {
             </form>
 
             <!-- Probar -->
-            <div v-if="form.activo" class="bg-white rounded-xl border border-gray-200 p-4 space-y-3">
+            <div v-if="form.activo" class="bg-white rounded-xl border border-linea p-4 space-y-3">
                 <div>
-                    <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Probar</p>
-                    <p class="text-xs text-gray-500 mt-1">
+                    <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">Probar</p>
+                    <p class="text-xs text-tinta-400 mt-1">
                         Consulta un NIT de verdad, sin usar la caché, para ver si el servicio responde.
                     </p>
                 </div>
@@ -195,7 +195,7 @@ function ic(extra = '') {
                 <div class="flex gap-2">
                     <input v-model="nitPrueba" type="text" :class="ic('flex-1')" placeholder="NIT sin DV"/>
                     <button type="button" @click="probar" :disabled="probando"
-                        class="shrink-0 rounded-lg border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50 disabled:opacity-50">
+                        class="shrink-0 rounded-lg border border-tinta-200 px-4 py-2 text-sm font-semibold text-tinta-700 hover:bg-tinta-50 disabled:opacity-50">
                         {{ probando ? 'Probando...' : 'Probar' }}
                     </button>
                 </div>
@@ -222,16 +222,16 @@ function ic(extra = '') {
                     </p>
                 </div>
 
-                <p class="text-xs text-gray-400">
+                <p class="text-xs text-tinta-300">
                     Escribe un NIT que ya conozcas. Si la prueba con uno válido falla, el problema
                     es del servicio y no del número.
                 </p>
             </div>
 
             <!-- Lo que el RUES nunca va a traer -->
-            <div class="rounded-xl border border-gray-200 bg-gray-50 p-4">
-                <p class="text-xs font-semibold text-gray-600 mb-2">Ten en cuenta</p>
-                <ul class="text-xs text-gray-500 space-y-1.5 list-disc pl-4">
+            <div class="rounded-xl border border-linea bg-tinta-50 p-4">
+                <p class="text-xs font-semibold text-tinta-500 mb-2">Ten en cuenta</p>
+                <ul class="text-xs text-tinta-400 space-y-1.5 list-disc pl-4">
                     <li>El registro <strong>no publica correo, teléfono ni dirección</strong>. Eso siempre se escribe a mano.</li>
                     <li>Tampoco publica la ciudad, sino la <strong>cámara de comercio</strong>, cuya jurisdicción cubre varios municipios. Por eso no llenamos la ciudad automáticamente.</li>
                     <li>Las <strong>cédulas de personas naturales</strong> no se consultan: están protegidas por la Ley 1581 de Habeas Data y no hay fuente pública.</li>

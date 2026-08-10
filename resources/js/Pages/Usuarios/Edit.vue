@@ -47,7 +47,7 @@ const submit = () => {
     <AppLayout title="Editar usuario">
         <div class="max-w-xl">
             <div class="bg-white rounded-xl shadow-sm p-6">
-                <h2 class="font-semibold text-gray-800 mb-4">Editar usuario</h2>
+                <h2 class="font-semibold text-tinta-900 mb-4">Editar usuario</h2>
 
                 <div v-if="hasChanges" class="mb-4 inline-flex items-center gap-1.5 text-xs font-medium text-amber-700 bg-amber-50 border border-amber-200 rounded-xl px-3 py-1.5">
                     <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
@@ -58,91 +58,91 @@ const submit = () => {
 
                     <!-- Nombre -->
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Nombre completo</label>
+                        <label class="block text-sm font-medium text-tinta-700 mb-1">Nombre completo</label>
                         <input
                             v-model="form.name"
                             type="text"
                             required
                             class="w-full px-3 py-2.5 border rounded-lg text-sm focus:outline-none focus:ring-2"
-                            :class="form.errors.name ? 'border-red-400 focus:ring-red-200' : 'border-gray-300 focus:ring-blue-200'"
+                            :class="form.errors.name ? 'border-red-400 focus:ring-red-200' : 'border-tinta-200 focus:ring-blue-200'"
                         />
                         <p v-if="form.errors.name" class="mt-1 text-xs text-red-600">{{ form.errors.name }}</p>
                     </div>
 
                     <!-- Email -->
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Correo electrónico</label>
+                        <label class="block text-sm font-medium text-tinta-700 mb-1">Correo electrónico</label>
                         <input
                             v-model="form.email"
                             type="email"
                             required
                             class="w-full px-3 py-2.5 border rounded-lg text-sm focus:outline-none focus:ring-2"
-                            :class="form.errors.email ? 'border-red-400 focus:ring-red-200' : 'border-gray-300 focus:ring-blue-200'"
+                            :class="form.errors.email ? 'border-red-400 focus:ring-red-200' : 'border-tinta-200 focus:ring-blue-200'"
                         />
                         <p v-if="form.errors.email" class="mt-1 text-xs text-red-600">{{ form.errors.email }}</p>
                     </div>
 
                     <!-- Teléfono -->
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Teléfono</label>
+                        <label class="block text-sm font-medium text-tinta-700 mb-1">Teléfono</label>
                         <input
                             v-model="form.telefono"
                             type="tel"
                             placeholder="Ej: 3001234567"
                             class="w-full px-3 py-2.5 border rounded-lg text-sm focus:outline-none focus:ring-2"
-                            :class="form.errors.telefono ? 'border-red-400 focus:ring-red-200' : 'border-gray-300 focus:ring-blue-200'"
+                            :class="form.errors.telefono ? 'border-red-400 focus:ring-red-200' : 'border-tinta-200 focus:ring-blue-200'"
                         />
                         <p v-if="form.errors.telefono" class="mt-1 text-xs text-red-600">{{ form.errors.telefono }}</p>
                     </div>
 
                     <!-- Password (opcional en edición) -->
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                        <label class="block text-sm font-medium text-tinta-700 mb-1">
                             Nueva contraseña
-                            <span class="text-gray-400 font-normal">(dejar en blanco para no cambiar)</span>
+                            <span class="text-tinta-300 font-normal">(dejar en blanco para no cambiar)</span>
                         </label>
                         <input
                             v-model="form.password"
                             type="password"
                             class="w-full px-3 py-2.5 border rounded-lg text-sm focus:outline-none focus:ring-2"
-                            :class="form.errors.password ? 'border-red-400 focus:ring-red-200' : 'border-gray-300 focus:ring-blue-200'"
+                            :class="form.errors.password ? 'border-red-400 focus:ring-red-200' : 'border-tinta-200 focus:ring-blue-200'"
                         />
                         <p v-if="form.errors.password" class="mt-1 text-xs text-red-600">{{ form.errors.password }}</p>
                     </div>
 
                     <!-- Confirmación password -->
                     <div v-if="form.password">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Confirmar contraseña</label>
+                        <label class="block text-sm font-medium text-tinta-700 mb-1">Confirmar contraseña</label>
                         <input
                             v-model="form.password_confirmation"
                             type="password"
-                            class="w-full px-3 py-2.5 border rounded-lg text-sm focus:outline-none focus:ring-2 border-gray-300 focus:ring-blue-200"
+                            class="w-full px-3 py-2.5 border rounded-lg text-sm focus:outline-none focus:ring-2 border-tinta-200 focus:ring-blue-200"
                         />
                     </div>
 
                     <!-- Rol -->
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Rol</label>
+                        <label class="block text-sm font-medium text-tinta-700 mb-1">Rol</label>
                         <select
                             v-model="form.rol_id"
                             class="w-full px-3 py-2.5 border rounded-lg text-sm focus:outline-none focus:ring-2"
-                            :class="form.errors.rol_id ? 'border-red-400 focus:ring-red-200' : 'border-gray-300 focus:ring-blue-200'"
+                            :class="form.errors.rol_id ? 'border-red-400 focus:ring-red-200' : 'border-tinta-200 focus:ring-blue-200'"
                         >
                             <option v-for="r in roles" :key="r.id" :value="r.id">{{ r.nombre }}</option>
                         </select>
                         <p v-if="form.errors.rol_id" class="mt-1 text-xs text-red-600">{{ form.errors.rol_id }}</p>
-                        <p class="mt-1 text-xs text-gray-400">
+                        <p class="mt-1 text-xs text-tinta-300">
                             Los roles se crean en Configuración → Roles y permisos.
                         </p>
                     </div>
 
                     <!-- Sede principal -->
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Sede principal</label>
+                        <label class="block text-sm font-medium text-tinta-700 mb-1">Sede principal</label>
                         <select
                             v-model="form.sede_id"
                             class="w-full px-3 py-2.5 border rounded-lg text-sm focus:outline-none focus:ring-2"
-                            :class="form.errors.sede_id ? 'border-red-400 focus:ring-red-200' : 'border-gray-300 focus:ring-blue-200'"
+                            :class="form.errors.sede_id ? 'border-red-400 focus:ring-red-200' : 'border-tinta-200 focus:ring-blue-200'"
                         >
                             <option v-for="s in sedes" :key="s.id" :value="s.id">{{ s.nombre }} ({{ s.codigo }})</option>
                         </select>
@@ -151,15 +151,15 @@ const submit = () => {
 
                     <!-- Sedes adicionales -->
                     <div v-if="!todasLasSedes">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Sedes a las que accede</label>
-                        <div class="rounded-lg border border-gray-200 p-3 space-y-1.5">
+                        <label class="block text-sm font-medium text-tinta-700 mb-1">Sedes a las que accede</label>
+                        <div class="rounded-lg border border-linea p-3 space-y-1.5">
                             <label v-for="s in sedes" :key="s.id" class="flex items-center gap-2 cursor-pointer">
                                 <input type="checkbox" class="rounded"
                                     :checked="form.sedes.includes(s.id)" @change="alternar('sedes', s.id)" />
-                                <span class="text-sm text-gray-700">{{ s.nombre }}</span>
+                                <span class="text-sm text-tinta-700">{{ s.nombre }}</span>
                             </label>
                         </div>
-                        <p class="mt-1 text-xs text-gray-400">Si no marcas ninguna, queda con su sede principal.</p>
+                        <p class="mt-1 text-xs text-tinta-300">Si no marcas ninguna, queda con su sede principal.</p>
                     </div>
                     <div v-else class="rounded-lg bg-blue-50 border border-blue-200 p-3">
                         <p class="text-xs text-blue-800">
@@ -172,18 +172,18 @@ const submit = () => {
 
                     <!-- Almacenes -->
                     <div v-if="bodegas.length">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Almacenes permitidos</label>
-                        <div class="rounded-lg border border-gray-200 p-3 space-y-1.5 max-h-48 overflow-y-auto">
+                        <label class="block text-sm font-medium text-tinta-700 mb-1">Almacenes permitidos</label>
+                        <div class="rounded-lg border border-linea p-3 space-y-1.5 max-h-48 overflow-y-auto">
                             <label v-for="b in bodegas" :key="b.id" class="flex items-center gap-2 cursor-pointer">
                                 <input type="checkbox" class="rounded"
                                     :checked="form.bodegas.includes(b.id)" @change="alternar('bodegas', b.id)" />
-                                <span class="text-sm text-gray-700">
+                                <span class="text-sm text-tinta-700">
                                     {{ b.nombre }}
-                                    <span v-if="b.sede" class="text-gray-400">· {{ b.sede.nombre }}</span>
+                                    <span v-if="b.sede" class="text-tinta-300">· {{ b.sede.nombre }}</span>
                                 </span>
                             </label>
                         </div>
-                        <p class="mt-1 text-xs text-gray-400">Sin marcar ninguno, accede a los de sus sedes.</p>
+                        <p class="mt-1 text-xs text-tinta-300">Sin marcar ninguno, accede a los de sus sedes.</p>
                     </div>
 
                     <!-- Activo -->
@@ -199,7 +199,7 @@ const submit = () => {
                                 :class="form.activo ? 'translate-x-6' : 'translate-x-1'"
                             />
                         </button>
-                        <label class="text-sm text-gray-700">{{ form.activo ? 'Usuario activo' : 'Usuario inactivo' }}</label>
+                        <label class="text-sm text-tinta-700">{{ form.activo ? 'Usuario activo' : 'Usuario inactivo' }}</label>
                     </div>
 
                     <!-- Botones -->
@@ -214,7 +214,7 @@ const submit = () => {
                         </button>
                         <a
                             href="/usuarios"
-                            class="px-5 py-2.5 rounded-lg text-sm font-medium border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors"
+                            class="px-5 py-2.5 rounded-lg text-sm font-medium border border-tinta-200 text-tinta-700 hover:bg-tinta-50 transition-colors"
                         >
                             Cancelar
                         </a>

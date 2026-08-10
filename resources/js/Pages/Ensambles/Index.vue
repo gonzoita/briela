@@ -51,17 +51,17 @@ function inicial(nombre) {
             <!-- Cabecera -->
             <div class="flex items-center justify-between mb-5 flex-wrap gap-3">
                 <div>
-                    <h1 class="text-xl font-bold text-gray-900">Ensambles</h1>
-                    <p class="text-sm text-gray-500 mt-0.5">Instancias configuradas desde plantillas de ensamble</p>
+                    <h1 class="text-xl font-semibold text-tinta-900">Ensambles</h1>
+                    <p class="text-sm text-tinta-400 mt-0.5">Instancias configuradas desde plantillas de ensamble</p>
                 </div>
                 <div class="flex items-center gap-2">
                     <!-- Toggle lista/grid -->
-                    <div class="flex items-center rounded-xl border border-gray-200 bg-white overflow-hidden shadow-sm">
+                    <div class="flex items-center rounded-xl border border-linea bg-white overflow-hidden shadow-sm">
                         <button @click="viewMode = 'list'"
                             class="w-9 h-9 flex items-center justify-center transition-colors"
                             :style="viewMode === 'list' ? 'background:var(--marca);color:white;' : 'color:#9CA3AF;'"
                             title="Vista lista">
-                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 10h16M4 14h16M4 18h16"/>
                             </svg>
                         </button>
@@ -69,7 +69,7 @@ function inicial(nombre) {
                             class="w-9 h-9 flex items-center justify-center transition-colors"
                             :style="viewMode === 'grid' ? 'background:var(--marca);color:white;' : 'color:#9CA3AF;'"
                             title="Vista grid">
-                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M4 5a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1V5zm10 0a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM4 15a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1v-4zm10 0a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"/>
                             </svg>
                         </button>
@@ -78,7 +78,7 @@ function inicial(nombre) {
                         class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white"
                         style="background:var(--marca);"
                         @click.prevent="router.visit('/ensambles/crear')">
-                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
                         </svg>
                         Nuevo ensamble
@@ -93,18 +93,18 @@ function inicial(nombre) {
                     @input="aplicarFiltros"
                     type="text"
                     placeholder="Buscar por nombre..."
-                    class="flex-1 min-w-48 border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-400"
+                    class="flex-1 min-w-48 border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-400"
                 />
                 <select v-model="plantillaId" @change="aplicarFiltros"
-                    class="border border-gray-200 rounded-xl px-3 py-2 text-sm text-gray-700 focus:outline-none">
+                    class="border border-linea rounded-xl px-3 py-2 text-sm text-tinta-700 focus:outline-none">
                     <option value="">Todas las plantillas</option>
                     <option v-for="p in plantillas" :key="p.id" :value="p.id">{{ p.nombre }}</option>
                 </select>
             </div>
 
             <!-- Vacío -->
-            <div v-if="ensambles.data?.length === 0" class="bg-white rounded-2xl shadow-sm py-16 text-center text-gray-400">
-                <svg class="w-12 h-12 mx-auto mb-3 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
+            <div v-if="ensambles.data?.length === 0" class="bg-white rounded-2xl shadow-sm py-16 text-center text-tinta-300">
+                <svg class="w-12 h-12 mx-auto mb-3 text-tinta-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
                 </svg>
                 <p class="text-sm">Sin ensambles. <a href="/ensambles/crear" class="text-blue-600 hover:underline" @click.prevent="router.visit('/ensambles/crear')">Crea el primero</a>.</p>
@@ -118,45 +118,45 @@ function inicial(nombre) {
                         @click="router.visit(`/ensambles/${e.id}`)">
                         <div class="w-10 h-10 rounded-xl overflow-hidden shrink-0 shadow-sm">
                             <img v-if="e.imagen_principal" :src="urlImagen(e.imagen_principal)" :alt="e.nombre" class="w-full h-full object-cover"/>
-                            <div v-else class="w-full h-full flex items-center justify-center text-white text-sm font-bold"
+                            <div v-else class="w-full h-full flex items-center justify-center text-white text-sm font-semibold"
                                 :style="`background:${e.categoria_color ?? 'var(--marca)'};`">
                                 {{ inicial(e.nombre) }}
                             </div>
                         </div>
                         <div class="flex-1 min-w-0">
-                            <p class="text-sm font-semibold text-gray-900 truncate">{{ e.nombre }}</p>
+                            <p class="text-sm font-semibold text-tinta-900 truncate">{{ e.nombre }}</p>
                             <div class="flex items-center gap-2 mt-0.5 flex-wrap">
-                                <span class="text-xs text-gray-400 truncate">{{ e.plantilla_nombre }}</span>
+                                <span class="text-xs text-tinta-300 truncate">{{ e.plantilla_nombre }}</span>
                                 <span v-if="e.categoria_nombre" class="inline-block px-1.5 py-0.5 rounded-full text-xs font-semibold text-white leading-none"
                                     :style="`background:${e.categoria_color ?? '#64748B'};`">{{ e.categoria_nombre }}</span>
                             </div>
                         </div>
                         <div class="hidden sm:flex flex-col items-end shrink-0">
-                            <p class="text-sm font-bold text-gray-900">${{ formatCOP(e.precio_distribuidor) }}</p>
-                            <p class="text-xs text-gray-400">Distribuidor</p>
+                            <p class="text-sm font-semibold text-tinta-900">${{ formatCOP(e.precio_distribuidor) }}</p>
+                            <p class="text-xs text-tinta-300">Distribuidor</p>
                         </div>
                         <div class="flex items-center gap-1 shrink-0" @click.stop>
                             <button @click="router.visit(`/ensambles/${e.id}/editar`)"
-                                class="w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 transition-colors">
-                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                class="w-8 h-8 rounded-lg flex items-center justify-center text-tinta-300 hover:text-indigo-600 hover:bg-indigo-50 transition-colors">
+                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
                                 </svg>
                             </button>
                             <button @click="eliminar(e.id)"
-                                class="w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors">
-                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                class="w-8 h-8 rounded-lg flex items-center justify-center text-tinta-300 hover:text-red-600 hover:bg-red-50 transition-colors">
+                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                                 </svg>
                             </button>
                         </div>
                     </li>
                 </ul>
-                <div v-if="ensambles.last_page > 1" class="px-5 py-4 border-t border-gray-100 flex items-center justify-between">
-                    <p class="text-xs text-gray-500">{{ ensambles.total }} ensambles</p>
+                <div v-if="ensambles.last_page > 1" class="px-5 py-4 border-t border-linea flex items-center justify-between">
+                    <p class="text-xs text-tinta-400">{{ ensambles.total }} ensambles</p>
                     <div class="flex gap-1">
                         <button v-for="page in ensambles.last_page" :key="page"
                             @click="router.get('/ensambles', { ...filters, page })"
-                            :class="['w-8 h-8 rounded-lg text-xs font-medium transition-colors', page === ensambles.current_page ? 'text-white' : 'text-gray-600 hover:bg-gray-100']"
+                            :class="['w-8 h-8 rounded-lg text-xs font-medium transition-colors', page === ensambles.current_page ? 'text-white' : 'text-tinta-500 hover:bg-tinta-100']"
                             :style="page === ensambles.current_page ? 'background:var(--marca);' : ''">
                             {{ page }}
                         </button>
@@ -171,17 +171,17 @@ function inicial(nombre) {
                     @click="router.visit(`/ensambles/${e.id}`)">
                     <div class="aspect-square overflow-hidden" style="background:#F1F5F9;">
                         <img v-if="e.imagen_principal" :src="urlImagen(e.imagen_principal)" :alt="e.nombre" class="w-full h-full object-cover"/>
-                        <div v-else class="w-full h-full flex items-center justify-center text-white text-3xl font-bold"
+                        <div v-else class="w-full h-full flex items-center justify-center text-white text-3xl font-semibold"
                             :style="`background:${e.categoria_color ?? 'var(--marca)'};`">
                             {{ inicial(e.nombre) }}
                         </div>
                     </div>
                     <div class="p-3">
-                        <p class="text-sm font-semibold text-gray-900 line-clamp-2 mb-1">{{ e.nombre }}</p>
-                        <p class="text-xs text-gray-400 mb-2">{{ e.plantilla_nombre }}</p>
+                        <p class="text-sm font-semibold text-tinta-900 line-clamp-2 mb-1">{{ e.nombre }}</p>
+                        <p class="text-xs text-tinta-300 mb-2">{{ e.plantilla_nombre }}</p>
                         <span v-if="e.categoria_nombre" class="inline-block px-2 py-0.5 rounded-full text-xs font-semibold text-white mb-2"
                             :style="`background:${e.categoria_color ?? '#64748B'};`">{{ e.categoria_nombre }}</span>
-                        <p class="text-sm font-bold" style="color:var(--marca);">${{ formatCOP(e.precio_distribuidor) }}</p>
+                        <p class="text-sm font-semibold" style="color:var(--marca);">${{ formatCOP(e.precio_distribuidor) }}</p>
                     </div>
                 </div>
             </div>

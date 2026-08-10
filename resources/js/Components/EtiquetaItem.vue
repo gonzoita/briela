@@ -2,7 +2,7 @@
     <!-- Botón impresora -->
     <button
         @click="mostrar = true"
-        class="w-7 h-7 flex items-center justify-center rounded-lg border border-gray-200 text-gray-400 hover:text-[var(--marca)] hover:border-[var(--marca)] hover:bg-blue-50 transition-colors"
+        class="w-7 h-7 flex items-center justify-center rounded-lg border border-linea text-tinta-300 hover:text-[var(--marca)] hover:border-[var(--marca)] hover:bg-blue-50 transition-colors"
         title="Ver etiqueta e imprimir"
     >
         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
@@ -30,7 +30,7 @@
                             @click="imprimir"
                             class="px-3 py-1.5 bg-white text-[var(--marca)] rounded-lg text-sm font-semibold hover:bg-blue-50 flex items-center gap-1.5"
                         >
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2m-6 0v4H9v-4h6z"/>
                             </svg>
                             Imprimir
@@ -39,7 +39,7 @@
                             @click="mostrar = false"
                             class="text-white/70 hover:text-white p-1 rounded-lg hover:bg-white/10"
                         >
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
                             </svg>
                         </button>
@@ -47,7 +47,7 @@
                 </div>
 
                 <!-- Vista previa etiqueta -->
-                <div class="p-6 flex justify-center bg-gray-50">
+                <div class="p-6 flex justify-center bg-tinta-50">
                     <div
                         id="etiqueta-imprimir"
                         class="bg-white border-2 border-gray-800 rounded-lg overflow-hidden"
@@ -96,7 +96,7 @@
                 </div>
 
                 <div class="px-6 pb-4 text-center">
-                    <p class="text-xs text-gray-400">Tamaño de impresión: 10cm × 5cm</p>
+                    <p class="text-xs text-tinta-300">Tamaño de impresión: 10cm × 5cm</p>
                 </div>
 
             </div>

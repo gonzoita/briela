@@ -44,31 +44,31 @@ const semaforoClass = {
 
       <!-- Cabecera -->
       <div class="flex items-center gap-3 mb-5">
-        <a href="/financiero/cartera" class="text-gray-400 hover:text-gray-700">
+        <a href="/financiero/cartera" class="text-tinta-300 hover:text-tinta-700">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
           </svg>
         </a>
-        <h1 class="text-xl font-bold text-gray-900">Cartera</h1>
+        <h1 class="text-xl font-semibold text-tinta-900">Cartera</h1>
       </div>
 
       <!-- Resumen -->
       <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
-        <div class="bg-white rounded-2xl border border-gray-200 p-4 text-center">
-          <div class="text-xs text-gray-500 mb-1">Total en cartera</div>
-          <div class="font-bold text-gray-800">${{ fmt(totalCartera) }}</div>
+        <div class="bg-white rounded-2xl border border-linea p-4 text-center">
+          <div class="text-xs text-tinta-400 mb-1">Total en cartera</div>
+          <div class="font-semibold text-tinta-900">${{ fmt(totalCartera) }}</div>
         </div>
         <div class="bg-red-50 rounded-2xl border border-red-100 p-4 text-center">
-          <div class="text-xs text-gray-500 mb-1">Vencido</div>
-          <div class="font-bold text-red-700">${{ fmt(totalVencido) }}</div>
+          <div class="text-xs text-tinta-400 mb-1">Vencido</div>
+          <div class="font-semibold text-red-700">${{ fmt(totalVencido) }}</div>
         </div>
-        <div class="bg-white rounded-2xl border border-gray-200 p-4 text-center">
-          <div class="text-xs text-gray-500 mb-1">Vencidas</div>
-          <div class="font-bold text-red-600 text-lg">{{ countRojo }}</div>
+        <div class="bg-white rounded-2xl border border-linea p-4 text-center">
+          <div class="text-xs text-tinta-400 mb-1">Vencidas</div>
+          <div class="font-semibold text-red-600 text-lg">{{ countRojo }}</div>
         </div>
-        <div class="bg-white rounded-2xl border border-gray-200 p-4 text-center">
-          <div class="text-xs text-gray-500 mb-1">Por vencer</div>
-          <div class="font-bold text-yellow-600 text-lg">{{ countAmarillo }}</div>
+        <div class="bg-white rounded-2xl border border-linea p-4 text-center">
+          <div class="text-xs text-tinta-400 mb-1">Por vencer</div>
+          <div class="font-semibold text-yellow-600 text-lg">{{ countAmarillo }}</div>
         </div>
       </div>
 
@@ -83,7 +83,7 @@ const semaforoClass = {
           class="px-4 py-1.5 rounded-full text-sm font-medium border transition-colors"
           :class="filtro === tab.key
             ? 'border-[var(--marca)] text-[var(--marca)] bg-blue-50'
-            : 'border-gray-200 text-gray-500 hover:bg-gray-50'">
+            : 'border-linea text-tinta-400 hover:bg-tinta-50'">
           {{ tab.label }}
           <span v-if="tab.key === 'vencidas' && countRojo" class="ml-1 bg-red-100 text-red-600 text-xs px-1.5 rounded-full">{{ countRojo }}</span>
           <span v-if="tab.key === 'por_vencer' && countAmarillo" class="ml-1 bg-yellow-100 text-yellow-600 text-xs px-1.5 rounded-full">{{ countAmarillo }}</span>
@@ -91,44 +91,44 @@ const semaforoClass = {
       </div>
 
       <!-- Tabla desktop -->
-      <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden">
-        <div v-if="!cuotasFiltradas.length" class="p-10 text-center text-sm text-gray-400">
+      <div class="bg-white rounded-2xl border border-linea overflow-hidden">
+        <div v-if="!cuotasFiltradas.length" class="p-10 text-center text-sm text-tinta-300">
           No hay cuotas pendientes
         </div>
 
         <div v-else class="hidden md:block overflow-x-auto">
           <table class="w-full text-sm">
             <thead>
-              <tr class="bg-gray-50 border-b border-gray-100">
+              <tr class="bg-tinta-50 border-b border-linea">
                 <th class="w-8 px-4 py-2.5"></th>
-                <th class="text-left px-4 py-2.5 text-xs font-semibold text-gray-500 uppercase">Cliente</th>
-                <th class="text-left px-3 py-2.5 text-xs font-semibold text-gray-500 uppercase">OP</th>
-                <th class="text-left px-3 py-2.5 text-xs font-semibold text-gray-500 uppercase">Cuota</th>
-                <th class="text-right px-3 py-2.5 text-xs font-semibold text-gray-500 uppercase">Valor</th>
-                <th class="text-right px-3 py-2.5 text-xs font-semibold text-gray-500 uppercase">Saldo</th>
-                <th class="text-left px-3 py-2.5 text-xs font-semibold text-gray-500 uppercase">Vencimiento</th>
-                <th class="w-20 px-3 py-2.5 text-xs font-semibold text-gray-500 uppercase">Estado</th>
+                <th class="text-left px-4 py-2.5 text-xs font-semibold text-tinta-400 uppercase">Cliente</th>
+                <th class="text-left px-3 py-2.5 text-xs font-semibold text-tinta-400 uppercase">OP</th>
+                <th class="text-left px-3 py-2.5 text-xs font-semibold text-tinta-400 uppercase">Cuota</th>
+                <th class="text-right px-3 py-2.5 text-xs font-semibold text-tinta-400 uppercase">Valor</th>
+                <th class="text-right px-3 py-2.5 text-xs font-semibold text-tinta-400 uppercase">Saldo</th>
+                <th class="text-left px-3 py-2.5 text-xs font-semibold text-tinta-400 uppercase">Vencimiento</th>
+                <th class="w-20 px-3 py-2.5 text-xs font-semibold text-tinta-400 uppercase">Estado</th>
                 <th class="w-20"></th>
               </tr>
             </thead>
             <tbody class="divide-y divide-gray-50">
-              <tr v-for="c in cuotasFiltradas" :key="c.id" class="hover:bg-gray-50 transition-colors">
+              <tr v-for="c in cuotasFiltradas" :key="c.id" class="hover:bg-tinta-50 transition-colors">
                 <td class="px-4 py-3">
                   <span class="w-2.5 h-2.5 rounded-full inline-block" :class="semaforoClass[c.semaforo]"></span>
                 </td>
-                <td class="px-4 py-3 font-medium text-gray-800">{{ c.cliente }}</td>
+                <td class="px-4 py-3 font-medium text-tinta-900">{{ c.cliente }}</td>
                 <td class="px-3 py-3">
-                  <span class="font-mono text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded">{{ c.op_numero }}</span>
+                  <span class="font-mono text-xs bg-tinta-100 text-tinta-500 px-2 py-0.5 rounded">{{ c.op_numero }}</span>
                 </td>
-                <td class="px-3 py-3 text-gray-600">{{ c.concepto }}</td>
-                <td class="px-3 py-3 text-right text-gray-700">${{ fmt(c.valor) }}</td>
-                <td class="px-3 py-3 text-right font-semibold" :class="c.semaforo === 'rojo' ? 'text-red-600' : 'text-gray-800'">${{ fmt(c.saldo) }}</td>
-                <td class="px-3 py-3 text-gray-500 text-xs">{{ fmtFecha(c.fecha_vencimiento) }}</td>
+                <td class="px-3 py-3 text-tinta-500">{{ c.concepto }}</td>
+                <td class="px-3 py-3 text-right text-tinta-700">${{ fmt(c.valor) }}</td>
+                <td class="px-3 py-3 text-right font-semibold" :class="c.semaforo === 'rojo' ? 'text-red-600' : 'text-tinta-900'">${{ fmt(c.saldo) }}</td>
+                <td class="px-3 py-3 text-tinta-400 text-xs">{{ fmtFecha(c.fecha_vencimiento) }}</td>
                 <td class="px-3 py-3">
                   <span class="text-xs px-2 py-0.5 rounded-full font-medium"
                     :class="{
                       'bg-orange-50 text-orange-600': c.estado === 'parcial',
-                      'bg-gray-100 text-gray-500': c.estado === 'pendiente',
+                      'bg-tinta-100 text-tinta-400': c.estado === 'pendiente',
                     }">
                     {{ c.estado === 'parcial' ? 'Parcial' : 'Pendiente' }}
                   </span>
@@ -141,10 +141,10 @@ const semaforoClass = {
                 </td>
               </tr>
             </tbody>
-            <tfoot class="bg-gray-50 border-t border-gray-200">
+            <tfoot class="bg-tinta-50 border-t border-linea">
               <tr>
-                <td colspan="5" class="px-4 py-2.5 text-xs font-semibold text-gray-600 text-right">Total saldo:</td>
-                <td class="px-3 py-2.5 text-right font-bold text-gray-900">${{ fmt(cuotasFiltradas.reduce((s, c) => s + c.saldo, 0)) }}</td>
+                <td colspan="5" class="px-4 py-2.5 text-xs font-semibold text-tinta-500 text-right">Total saldo:</td>
+                <td class="px-3 py-2.5 text-right font-semibold text-tinta-900">${{ fmt(cuotasFiltradas.reduce((s, c) => s + c.saldo, 0)) }}</td>
                 <td colspan="3"></td>
               </tr>
             </tfoot>
@@ -152,23 +152,23 @@ const semaforoClass = {
         </div>
 
         <!-- Cards mobile -->
-        <div class="md:hidden divide-y divide-gray-100">
+        <div class="md:hidden divide-y divide-linea">
           <div v-for="c in cuotasFiltradas" :key="c.id" class="p-4">
             <div class="flex items-start gap-2.5">
               <span class="w-2.5 h-2.5 rounded-full mt-1.5 flex-shrink-0" :class="semaforoClass[c.semaforo]"></span>
               <div class="flex-1 min-w-0">
                 <div class="flex items-center justify-between gap-2">
-                  <p class="font-medium text-gray-800 text-sm truncate">{{ c.cliente }}</p>
-                  <span class="font-mono text-xs bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded flex-shrink-0">{{ c.op_numero }}</span>
+                  <p class="font-medium text-tinta-900 text-sm truncate">{{ c.cliente }}</p>
+                  <span class="font-mono text-xs bg-tinta-100 text-tinta-500 px-1.5 py-0.5 rounded flex-shrink-0">{{ c.op_numero }}</span>
                 </div>
-                <p class="text-xs text-gray-500 mt-0.5">{{ c.concepto }}</p>
+                <p class="text-xs text-tinta-400 mt-0.5">{{ c.concepto }}</p>
                 <div class="flex items-center justify-between mt-2">
                   <div>
-                    <p class="text-xs text-gray-400">Vence: {{ fmtFecha(c.fecha_vencimiento) }}</p>
+                    <p class="text-xs text-tinta-300">Vence: {{ fmtFecha(c.fecha_vencimiento) }}</p>
                   </div>
                   <div class="text-right">
-                    <p class="text-sm font-bold" :class="c.semaforo === 'rojo' ? 'text-red-600' : 'text-gray-800'">${{ fmt(c.saldo) }}</p>
-                    <p class="text-xs text-gray-400">de ${{ fmt(c.valor) }}</p>
+                    <p class="text-sm font-semibold" :class="c.semaforo === 'rojo' ? 'text-red-600' : 'text-tinta-900'">${{ fmt(c.saldo) }}</p>
+                    <p class="text-xs text-tinta-300">de ${{ fmt(c.valor) }}</p>
                   </div>
                 </div>
                 <div class="mt-2">

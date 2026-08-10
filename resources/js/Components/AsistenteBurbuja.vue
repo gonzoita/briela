@@ -275,13 +275,13 @@ async function limpiar() {
             <div
                 class="absolute bg-white shadow-2xl flex flex-col
                        inset-x-0 bottom-0 rounded-t-2xl
-                       sm:inset-auto sm:right-5 sm:bottom-5 sm:w-96 sm:rounded-2xl sm:border sm:border-gray-200"
+                       sm:inset-auto sm:right-5 sm:bottom-5 sm:w-96 sm:rounded-2xl sm:border sm:border-linea"
                 style="height: 78vh; max-height: 620px;"
             >
                 <!-- Cabecera -->
                 <div class="flex items-center gap-3 px-4 py-3 rounded-t-2xl shrink-0" style="background:var(--marca);">
                     <div class="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
-                        <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                             <path stroke-linecap="round" stroke-linejoin="round"
                                 d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-6l-4 4v-4z" />
                         </svg>
@@ -296,7 +296,7 @@ async function limpiar() {
                         :style="ajustesAbiertos ? 'background:rgba(255,255,255,0.3);' : ''"
                         title="Ajustes de voz">
                         <svg class="w-4 h-4" :class="ajustesAbiertos ? 'text-white' : 'text-blue-200'"
-                            fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                             <path stroke-linecap="round" stroke-linejoin="round"
                                 d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                             <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -306,20 +306,20 @@ async function limpiar() {
                         class="text-blue-200 hover:text-white text-xs px-2 py-1">Limpiar</button>
                     <button @click="abierto = false"
                         class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:rgba(255,255,255,0.15);">
-                        <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                         </svg>
                     </button>
                 </div>
 
                 <!-- Preferencia personal de escucha -->
-                <div v-if="ajustesAbiertos" class="px-4 py-3 border-b border-gray-100 bg-white shrink-0 space-y-2">
+                <div v-if="ajustesAbiertos" class="px-4 py-3 border-b border-linea bg-white shrink-0 space-y-2">
                     <label class="flex items-center gap-2 cursor-pointer">
                         <input v-model="prefs.leerAuto" type="checkbox" class="rounded"
                             @change="!prefs.leerAuto && detenerVoz()" />
-                        <span class="text-sm text-gray-700">Que me lea las respuestas en voz alta</span>
+                        <span class="text-sm text-tinta-700">Que me lea las respuestas en voz alta</span>
                     </label>
-                    <p class="text-xs text-gray-400">
+                    <p class="text-xs text-tinta-300">
                         Es tu preferencia: no afecta a los demás. La voz de {{ nombre }} se define en
                         Configuración → Perfil de marca y asistente.
                     </p>
@@ -328,13 +328,13 @@ async function limpiar() {
                 <!-- Conversación -->
                 <div ref="scroller" class="flex-1 overflow-y-auto p-3 space-y-2.5" style="background:#F8F9FA;">
                     <div v-if="!mensajes.length" class="py-6 text-center">
-                        <p class="text-sm font-medium text-gray-700">Hola, soy {{ nombre }}</p>
-                        <p class="text-xs text-gray-400 mt-1 mb-3 px-4">
+                        <p class="text-sm font-medium text-tinta-700">Hola, soy {{ nombre }}</p>
+                        <p class="text-xs text-tinta-300 mt-1 mb-3 px-4">
                             Pregúntame por la operación o por la marca. Solo veo lo que tus permisos y tu sede permiten.
                         </p>
                         <div class="flex flex-col gap-1.5 px-4">
                             <button v-for="s in sugerencias" :key="s" @click="enviar(s)"
-                                class="text-xs px-3 py-2 rounded-xl border border-gray-200 bg-white text-gray-600 hover:border-blue-300 text-left">
+                                class="text-xs px-3 py-2 rounded-xl border border-linea bg-white text-tinta-500 hover:border-blue-300 text-left">
                                 {{ s }}
                             </button>
                         </div>
@@ -345,7 +345,7 @@ async function limpiar() {
                         <div class="max-w-[85%] rounded-2xl px-3 py-2 text-sm whitespace-pre-wrap"
                             :class="m.rol === 'usuario'
                                 ? 'text-white rounded-br-sm'
-                                : 'bg-white border border-gray-200 text-gray-800 rounded-bl-sm'"
+                                : 'bg-white border border-linea text-tinta-900 rounded-bl-sm'"
                             :style="m.rol === 'usuario' ? 'background:var(--marca);' : ''">
                             <!-- Las respuestas vienen en Markdown; se convierten a HTML
                                  seguro (el texto se escapa antes de dar formato). -->
@@ -358,14 +358,14 @@ async function limpiar() {
                                 class="inline-block w-1.5 h-4 align-middle ml-0.5 animate-pulse"
                                 style="background: var(--marca);"></span>
 
-                            <span v-if="m.consulta && !m.escribiendo" class="block mt-1.5 text-[11px] text-gray-400">
+                            <span v-if="m.consulta && !m.escribiendo" class="block mt-1.5 text-[11px] text-tinta-300">
                                 Datos de: {{ m.consulta.replace(/_/g, ' ') }}
                             </span>
 
                             <!-- Desglose del tiempo. Solo si la respuesta se
                                  demoró: cuando va rápido nadie quiere verlo. -->
                             <span v-if="m.tiempos && m.tiempos.total > 4000"
-                                class="block mt-1 text-[11px] text-gray-400"
+                                class="block mt-1 text-[11px] text-tinta-300"
                                 :title="`Decidir qué consultar: ${m.tiempos.decision} ms · Consultar la base: ${m.tiempos.consultas} ms · Redactar: ${m.tiempos.redaccion} ms`">
                                 {{ (m.tiempos.total / 1000).toFixed(1) }} s
                                 <span class="opacity-70">
@@ -376,7 +376,7 @@ async function limpiar() {
 
                             <button v-if="m.rol === 'asistente' && soportaVoz && !m.escribiendo"
                                 @click="hablando ? detenerVoz() : hablar(m.contenido)"
-                                class="mt-1.5 text-[11px] text-gray-400 hover:text-gray-600">
+                                class="mt-1.5 text-[11px] text-tinta-300 hover:text-tinta-500">
                                 {{ hablando ? 'Detener' : 'Escuchar' }}
                             </button>
                         </div>
@@ -385,8 +385,8 @@ async function limpiar() {
                     <!-- Solo mientras no haya empezado a escribir: una vez sale
                          texto, el aviso sobra y estorba. -->
                     <div v-if="cargando && !mensajes.some(m => m.escribiendo)" class="flex justify-start">
-                        <div class="bg-white border border-gray-200 rounded-2xl rounded-bl-sm px-3 py-2">
-                            <span class="text-sm text-gray-400">{{ nombre }} está escribiendo…</span>
+                        <div class="bg-white border border-linea rounded-2xl rounded-bl-sm px-3 py-2">
+                            <span class="text-sm text-tinta-300">{{ nombre }} está escribiendo…</span>
                         </div>
                     </div>
 
@@ -394,7 +394,7 @@ async function limpiar() {
                 </div>
 
                 <!-- Entrada -->
-                <div class="p-3 border-t border-gray-100 shrink-0 bg-white rounded-b-2xl">
+                <div class="p-3 border-t border-linea shrink-0 bg-white rounded-b-2xl">
                     <p v-if="dictando" class="text-xs text-center mb-2" style="color:var(--marca);">
                         Escuchando… habla y se envía sola al terminar.
                     </p>
@@ -404,15 +404,15 @@ async function limpiar() {
                         <textarea v-model="entrada" rows="1" maxlength="2000"
                             placeholder="Escribe tu pregunta…"
                             @keydown.enter.exact.prevent="enviar()"
-                            class="flex-1 rounded-xl border border-gray-300 px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                            class="flex-1 rounded-xl border border-tinta-200 px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
 
                         <!-- Dictado por voz -->
                         <button v-if="soportaDictado" @click="alternarMicrofono" :disabled="cargando"
                             class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border disabled:opacity-40"
-                            :class="dictando ? 'border-transparent text-white' : 'border-gray-300 text-gray-500'"
+                            :class="dictando ? 'border-transparent text-white' : 'border-tinta-200 text-tinta-400'"
                             :style="dictando ? 'background:#EF4444;' : ''"
                             :title="dictando ? 'Detener' : 'Dictar'">
-                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                 <path stroke-linecap="round" stroke-linejoin="round"
                                     d="M19 11a7 7 0 01-14 0m7 7v4m0-4a3 3 0 01-3-3V6a3 3 0 016 0v9a3 3 0 01-3 3z" />
                             </svg>
@@ -421,7 +421,7 @@ async function limpiar() {
                         <button @click="enviar()" :disabled="cargando || !entrada.trim()"
                             class="w-10 h-10 rounded-xl flex items-center justify-center text-white shrink-0 disabled:opacity-40"
                             style="background:var(--marca);">
-                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
                             </svg>
                         </button>

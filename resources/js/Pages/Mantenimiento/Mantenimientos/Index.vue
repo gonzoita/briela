@@ -35,7 +35,7 @@ const tipoBadge = {
     predictivo: 'bg-purple-100 text-purple-700',
 }
 const estadoBadge = {
-    programado:  'bg-gray-100 text-gray-600',
+    programado:  'bg-tinta-100 text-tinta-500',
     en_proceso:  'bg-blue-100 text-blue-700',
     completado:  'bg-green-100 text-green-700',
     cancelado:   'bg-red-100 text-red-500',
@@ -55,7 +55,7 @@ function eliminar(m) {
         <div class="max-w-4xl mx-auto">
 
             <div class="flex items-center justify-between mb-5">
-                <h1 class="text-xl font-bold text-gray-900">Mantenimientos</h1>
+                <h1 class="text-xl font-semibold text-tinta-900">Mantenimientos</h1>
                 <a href="/mantenimiento/mantenimientos/crear"
                     @click.prevent="router.visit('/mantenimiento/mantenimientos/crear')"
                     class="px-4 py-2 rounded-xl text-white text-sm font-semibold"
@@ -67,16 +67,16 @@ function eliminar(m) {
             <!-- Filtros -->
             <div class="flex flex-wrap gap-2 mb-4">
                 <input v-model="search" @input="buscar" type="text" placeholder="Buscar equipo..."
-                    class="flex-1 min-w-40 rounded-xl border border-gray-200 px-3 py-2 text-sm focus:outline-none" />
+                    class="flex-1 min-w-40 rounded-xl border border-linea px-3 py-2 text-sm focus:outline-none" />
                 <select v-model="tipo" @change="aplicarFiltros"
-                    class="rounded-xl border border-gray-200 px-3 py-2 text-sm focus:outline-none">
+                    class="rounded-xl border border-linea px-3 py-2 text-sm focus:outline-none">
                     <option value="">Todos los tipos</option>
                     <option value="preventivo">Preventivo</option>
                     <option value="correctivo">Correctivo</option>
                     <option value="predictivo">Predictivo</option>
                 </select>
                 <select v-model="estado" @change="aplicarFiltros"
-                    class="rounded-xl border border-gray-200 px-3 py-2 text-sm focus:outline-none">
+                    class="rounded-xl border border-linea px-3 py-2 text-sm focus:outline-none">
                     <option value="">Todos los estados</option>
                     <option value="programado">Programado</option>
                     <option value="en_proceso">En proceso</option>
@@ -84,34 +84,34 @@ function eliminar(m) {
                     <option value="cancelado">Cancelado</option>
                 </select>
                 <select v-model="equipo" @change="aplicarFiltros"
-                    class="rounded-xl border border-gray-200 px-3 py-2 text-sm focus:outline-none">
+                    class="rounded-xl border border-linea px-3 py-2 text-sm focus:outline-none">
                     <option value="">Todos los equipos</option>
                     <option v-for="e in equipos" :key="e.id" :value="e.id">{{ e.nombre }}</option>
                 </select>
             </div>
 
-            <div v-if="!mantenimientos.length" class="bg-white rounded-2xl border border-gray-200 py-12 text-center text-sm text-gray-400">
+            <div v-if="!mantenimientos.length" class="bg-white rounded-2xl border border-linea py-12 text-center text-sm text-tinta-300">
                 Sin mantenimientos registrados.
             </div>
 
-            <div v-else class="bg-white rounded-2xl border border-gray-200 overflow-hidden">
+            <div v-else class="bg-white rounded-2xl border border-linea overflow-hidden">
                 <div class="divide-y divide-gray-50">
                     <div v-for="m in mantenimientos" :key="m.id"
-                        class="flex items-center px-4 py-4 gap-3 hover:bg-gray-50 cursor-pointer"
+                        class="flex items-center px-4 py-4 gap-3 hover:bg-tinta-50 cursor-pointer"
                         @click="router.visit(`/mantenimiento/mantenimientos/${m.id}`)">
                         <div class="flex-1 min-w-0">
                             <div class="flex items-center gap-2 flex-wrap mb-1">
-                                <span class="text-sm font-semibold text-gray-900">{{ m.equipo?.nombre }}</span>
+                                <span class="text-sm font-semibold text-tinta-900">{{ m.equipo?.nombre }}</span>
                                 <span class="text-xs px-1.5 py-0.5 rounded-full font-medium"
-                                    :class="tipoBadge[m.tipo] ?? 'bg-gray-100 text-gray-600'">
+                                    :class="tipoBadge[m.tipo] ?? 'bg-tinta-100 text-tinta-500'">
                                     {{ m.tipo }}
                                 </span>
                                 <span class="text-xs px-1.5 py-0.5 rounded-full font-medium"
-                                    :class="estadoBadge[m.estado] ?? 'bg-gray-100 text-gray-600'">
+                                    :class="estadoBadge[m.estado] ?? 'bg-tinta-100 text-tinta-500'">
                                     {{ m.estado }}
                                 </span>
                             </div>
-                            <p class="text-xs text-gray-400">
+                            <p class="text-xs text-tinta-300">
                                 {{ m.fecha_programada }}
                                 <span v-if="m.ejecutor_nombre"> · {{ m.ejecutor_nombre }}</span>
                                 <span v-if="m.costo_total > 0"> · ${{ fmt(m.costo_total) }}</span>
@@ -119,7 +119,7 @@ function eliminar(m) {
                         </div>
                         <div class="flex gap-1 shrink-0">
                             <button @click.stop="router.visit(`/mantenimiento/mantenimientos/${m.id}/editar`)"
-                                class="px-2.5 py-1.5 rounded-lg border border-gray-200 text-xs text-gray-600 hover:bg-gray-100">
+                                class="px-2.5 py-1.5 rounded-lg border border-linea text-xs text-tinta-500 hover:bg-tinta-100">
                                 Editar
                             </button>
                             <button @click.stop="eliminar(m)"

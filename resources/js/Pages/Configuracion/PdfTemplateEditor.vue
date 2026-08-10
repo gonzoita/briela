@@ -143,14 +143,14 @@ async function copiarVariable(variable) {
     <AppLayout :title="`Editar Plantilla — ${label}`">
         <div class="max-w-7xl mx-auto">
             <!-- Breadcrumb -->
-            <div class="flex items-center gap-2 text-sm text-gray-500 mb-4">
-                <button @click="router.visit('/configuracion/pdf-templates')" class="hover:text-gray-700 transition-colors">
+            <div class="flex items-center gap-2 text-sm text-tinta-400 mb-4">
+                <button @click="router.visit('/configuracion/pdf-templates')" class="hover:text-tinta-700 transition-colors">
                     Plantillas PDF
                 </button>
-                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
                 </svg>
-                <span class="text-gray-900 font-medium">{{ label }}</span>
+                <span class="text-tinta-900 font-medium">{{ label }}</span>
             </div>
 
             <!-- Layout dos paneles -->
@@ -158,23 +158,23 @@ async function copiarVariable(variable) {
 
                 <!-- ── Panel izquierdo (controles) ──────────────────────────── -->
                 <div class="w-full lg:w-[420px] shrink-0 flex flex-col gap-0">
-                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 flex flex-col" style="min-height:600px;">
+                    <div class="bg-white rounded-2xl shadow-sm border border-linea flex flex-col" style="min-height:600px;">
 
                         <!-- Nombre del template -->
-                        <div class="px-5 pt-5 pb-3 border-b border-gray-100">
-                            <label class="block text-xs font-medium text-gray-600 mb-1">Nombre de la plantilla</label>
+                        <div class="px-5 pt-5 pb-3 border-b border-linea">
+                            <label class="block text-xs font-medium text-tinta-500 mb-1">Nombre de la plantilla</label>
                             <input
                                 v-model="form.nombre"
                                 @input="marcarCambio"
                                 type="text"
-                                class="w-full text-sm border border-gray-200 rounded-xl px-3 py-2 focus:outline-none focus:ring-2"
+                                class="w-full text-sm border border-linea rounded-xl px-3 py-2 focus:outline-none focus:ring-2"
                                 style="--tw-ring-color: var(--marca);"
                                 placeholder="Ej: Plantilla corporativa azul"
                             />
                         </div>
 
                         <!-- Tabs -->
-                        <div class="flex border-b border-gray-100 overflow-x-auto">
+                        <div class="flex border-b border-linea overflow-x-auto">
                             <button
                                 v-for="tab in tabs"
                                 :key="tab.key"
@@ -182,7 +182,7 @@ async function copiarVariable(variable) {
                                 class="px-4 py-3 text-xs font-medium whitespace-nowrap border-b-2 transition-colors shrink-0"
                                 :class="tabActivo === tab.key
                                     ? 'border-[var(--marca)] text-[var(--marca)]'
-                                    : 'border-transparent text-gray-500 hover:text-gray-700'"
+                                    : 'border-transparent text-tinta-400 hover:text-tinta-700'"
                             >
                                 {{ tab.label }}
                             </button>
@@ -195,20 +195,20 @@ async function copiarVariable(variable) {
                             <template v-if="tabActivo === 'general'">
                                 <!-- Color primario -->
                                 <div>
-                                    <label class="block text-xs font-medium text-gray-600 mb-1.5">Color primario</label>
+                                    <label class="block text-xs font-medium text-tinta-500 mb-1.5">Color primario</label>
                                     <div class="flex items-center gap-2">
                                         <input
                                             v-model="form.color_primario"
                                             @input="marcarCambio"
                                             type="color"
-                                            class="w-10 h-10 rounded-lg border border-gray-200 cursor-pointer p-0.5"
+                                            class="w-10 h-10 rounded-lg border border-linea cursor-pointer p-0.5"
                                         />
                                         <input
                                             v-model="form.color_primario"
                                             @input="marcarCambio"
                                             type="text"
                                             maxlength="7"
-                                            class="flex-1 text-sm border border-gray-200 rounded-xl px-3 py-2 font-mono focus:outline-none focus:ring-2"
+                                            class="flex-1 text-sm border border-linea rounded-xl px-3 py-2 font-mono focus:outline-none focus:ring-2"
                                             style="--tw-ring-color: var(--marca);"
                                             placeholder="#2563EB"
                                         />
@@ -216,20 +216,20 @@ async function copiarVariable(variable) {
                                 </div>
                                 <!-- Color secundario -->
                                 <div>
-                                    <label class="block text-xs font-medium text-gray-600 mb-1.5">Color secundario (fondos, badges)</label>
+                                    <label class="block text-xs font-medium text-tinta-500 mb-1.5">Color secundario (fondos, badges)</label>
                                     <div class="flex items-center gap-2">
                                         <input
                                             v-model="form.color_secundario"
                                             @input="marcarCambio"
                                             type="color"
-                                            class="w-10 h-10 rounded-lg border border-gray-200 cursor-pointer p-0.5"
+                                            class="w-10 h-10 rounded-lg border border-linea cursor-pointer p-0.5"
                                         />
                                         <input
                                             v-model="form.color_secundario"
                                             @input="marcarCambio"
                                             type="text"
                                             maxlength="7"
-                                            class="flex-1 text-sm border border-gray-200 rounded-xl px-3 py-2 font-mono focus:outline-none focus:ring-2"
+                                            class="flex-1 text-sm border border-linea rounded-xl px-3 py-2 font-mono focus:outline-none focus:ring-2"
                                             style="--tw-ring-color: var(--marca);"
                                             placeholder="#F8FAFC"
                                         />
@@ -237,20 +237,20 @@ async function copiarVariable(variable) {
                                 </div>
                                 <!-- Color texto -->
                                 <div>
-                                    <label class="block text-xs font-medium text-gray-600 mb-1.5">Color de texto</label>
+                                    <label class="block text-xs font-medium text-tinta-500 mb-1.5">Color de texto</label>
                                     <div class="flex items-center gap-2">
                                         <input
                                             v-model="form.color_texto"
                                             @input="marcarCambio"
                                             type="color"
-                                            class="w-10 h-10 rounded-lg border border-gray-200 cursor-pointer p-0.5"
+                                            class="w-10 h-10 rounded-lg border border-linea cursor-pointer p-0.5"
                                         />
                                         <input
                                             v-model="form.color_texto"
                                             @input="marcarCambio"
                                             type="text"
                                             maxlength="7"
-                                            class="flex-1 text-sm border border-gray-200 rounded-xl px-3 py-2 font-mono focus:outline-none focus:ring-2"
+                                            class="flex-1 text-sm border border-linea rounded-xl px-3 py-2 font-mono focus:outline-none focus:ring-2"
                                             style="--tw-ring-color: var(--marca);"
                                             placeholder="#1A1A1A"
                                         />
@@ -258,11 +258,11 @@ async function copiarVariable(variable) {
                                 </div>
                                 <!-- Fuente -->
                                 <div>
-                                    <label class="block text-xs font-medium text-gray-600 mb-1.5">Fuente</label>
+                                    <label class="block text-xs font-medium text-tinta-500 mb-1.5">Fuente</label>
                                     <select
                                         v-model="form.fuente"
                                         @change="marcarCambio"
-                                        class="w-full text-sm border border-gray-200 rounded-xl px-3 py-2 focus:outline-none"
+                                        class="w-full text-sm border border-linea rounded-xl px-3 py-2 focus:outline-none"
                                     >
                                         <option value="Arial">Arial</option>
                                         <option value="Helvetica">Helvetica</option>
@@ -273,8 +273,8 @@ async function copiarVariable(variable) {
                                 </div>
                                 <!-- Tamaño fuente -->
                                 <div>
-                                    <label class="block text-xs font-medium text-gray-600 mb-1.5">
-                                        Tamaño de fuente: <span class="font-bold text-gray-900">{{ form.tamanio_fuente }}px</span>
+                                    <label class="block text-xs font-medium text-tinta-500 mb-1.5">
+                                        Tamaño de fuente: <span class="font-semibold text-tinta-900">{{ form.tamanio_fuente }}px</span>
                                     </label>
                                     <input
                                         v-model.number="form.tamanio_fuente"
@@ -285,14 +285,14 @@ async function copiarVariable(variable) {
                                         step="1"
                                         class="w-full"
                                     />
-                                    <div class="flex justify-between text-xs text-gray-400 mt-1">
+                                    <div class="flex justify-between text-xs text-tinta-300 mt-1">
                                         <span>8px (pequeño)</span>
                                         <span>16px (grande)</span>
                                     </div>
                                 </div>
 
                                 <!-- Muestra de paleta -->
-                                <div class="rounded-xl overflow-hidden border border-gray-100">
+                                <div class="rounded-xl overflow-hidden border border-linea">
                                     <div class="px-4 py-3 text-white text-sm font-semibold" :style="{ backgroundColor: form.color_primario }">
                                         Encabezado de ejemplo
                                     </div>
@@ -307,8 +307,8 @@ async function copiarVariable(variable) {
                                 <!-- Mostrar logo -->
                                 <div class="flex items-center justify-between">
                                     <div>
-                                        <p class="text-sm font-medium text-gray-700">Mostrar logo</p>
-                                        <p class="text-xs text-gray-400">Incluir el logo de la empresa en el encabezado</p>
+                                        <p class="text-sm font-medium text-tinta-700">Mostrar logo</p>
+                                        <p class="text-xs text-tinta-300">Incluir el logo de la empresa en el encabezado</p>
                                     </div>
                                     <button
                                         @click="form.mostrar_logo = !form.mostrar_logo; marcarCambio()"
@@ -324,26 +324,26 @@ async function copiarVariable(variable) {
 
                                 <!-- Upload logo -->
                                 <div v-if="form.mostrar_logo">
-                                    <label class="block text-xs font-medium text-gray-600 mb-1.5">Logo de la empresa</label>
-                                    <div v-if="logoPreview" class="mb-3 p-3 border border-gray-200 rounded-xl flex items-center justify-between">
+                                    <label class="block text-xs font-medium text-tinta-500 mb-1.5">Logo de la empresa</label>
+                                    <div v-if="logoPreview" class="mb-3 p-3 border border-linea rounded-xl flex items-center justify-between">
                                         <img :src="logoPreview" alt="Logo" class="h-10 w-auto object-contain" />
                                         <button
                                             @click="logoPreview = null; marcarCambio()"
                                             class="text-xs text-red-500 hover:text-red-700"
                                         >Quitar</button>
                                     </div>
-                                    <label class="flex items-center justify-center gap-2 w-full py-3 border-2 border-dashed border-gray-200 rounded-xl cursor-pointer hover:bg-gray-50 transition-colors">
-                                        <svg class="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <label class="flex items-center justify-center gap-2 w-full py-3 border-2 border-dashed border-linea rounded-xl cursor-pointer hover:bg-tinta-50 transition-colors">
+                                        <svg class="w-5 h-5 text-tinta-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
                                         </svg>
-                                        <span class="text-sm text-gray-500">{{ subiendoLogo ? 'Subiendo...' : 'Subir logo (PNG, JPG, SVG)' }}</span>
+                                        <span class="text-sm text-tinta-400">{{ subiendoLogo ? 'Subiendo...' : 'Subir logo (PNG, JPG, SVG)' }}</span>
                                         <input type="file" accept="image/png,image/jpg,image/jpeg,image/svg+xml" class="hidden" @change="subirLogo" :disabled="subiendoLogo" />
                                     </label>
                                 </div>
 
                                 <!-- Posición logo -->
                                 <div v-if="form.mostrar_logo">
-                                    <label class="block text-xs font-medium text-gray-600 mb-1.5">Posición del logo</label>
+                                    <label class="block text-xs font-medium text-tinta-500 mb-1.5">Posición del logo</label>
                                     <div class="flex gap-2">
                                         <button
                                             v-for="pos in ['izquierda', 'centro', 'derecha']"
@@ -352,7 +352,7 @@ async function copiarVariable(variable) {
                                             class="flex-1 py-2 text-xs rounded-xl border font-medium transition-colors capitalize"
                                             :class="form.logo_posicion === pos
                                                 ? 'border-[var(--marca)] bg-[var(--marca)] text-white'
-                                                : 'border-gray-200 text-gray-600 hover:bg-gray-50'"
+                                                : 'border-linea text-tinta-500 hover:bg-tinta-50'"
                                         >
                                             {{ pos }}
                                         </button>
@@ -361,8 +361,8 @@ async function copiarVariable(variable) {
 
                                 <!-- Ancho logo -->
                                 <div v-if="form.mostrar_logo">
-                                    <label class="block text-xs font-medium text-gray-600 mb-1.5">
-                                        Ancho del logo: <span class="font-bold text-gray-900">{{ form.logo_ancho }}px</span>
+                                    <label class="block text-xs font-medium text-tinta-500 mb-1.5">
+                                        Ancho del logo: <span class="font-semibold text-tinta-900">{{ form.logo_ancho }}px</span>
                                     </label>
                                     <input
                                         v-model.number="form.logo_ancho"
@@ -375,13 +375,13 @@ async function copiarVariable(variable) {
                                     />
                                 </div>
 
-                                <hr class="border-gray-100" />
+                                <hr class="border-linea" />
 
                                 <!-- Mostrar encabezado -->
                                 <div class="flex items-center justify-between">
                                     <div>
-                                        <p class="text-sm font-medium text-gray-700">Mostrar encabezado</p>
-                                        <p class="text-xs text-gray-400">Franja de color con datos de la empresa</p>
+                                        <p class="text-sm font-medium text-tinta-700">Mostrar encabezado</p>
+                                        <p class="text-xs text-tinta-300">Franja de color con datos de la empresa</p>
                                     </div>
                                     <button
                                         @click="form.mostrar_encabezado = !form.mostrar_encabezado; marcarCambio()"
@@ -397,22 +397,22 @@ async function copiarVariable(variable) {
 
                                 <template v-if="form.mostrar_encabezado">
                                     <div>
-                                        <label class="block text-xs font-medium text-gray-600 mb-1.5">Título del encabezado</label>
+                                        <label class="block text-xs font-medium text-tinta-500 mb-1.5">Título del encabezado</label>
                                         <input
                                             v-model="form.encabezado_titulo"
                                             @input="marcarCambio"
                                             type="text"
-                                            class="w-full text-sm border border-gray-200 rounded-xl px-3 py-2 focus:outline-none"
+                                            class="w-full text-sm border border-linea rounded-xl px-3 py-2 focus:outline-none"
                                             placeholder="Ej: Mi Empresa SAS"
                                         />
                                     </div>
                                     <div>
-                                        <label class="block text-xs font-medium text-gray-600 mb-1.5">Subtítulo del encabezado</label>
+                                        <label class="block text-xs font-medium text-tinta-500 mb-1.5">Subtítulo del encabezado</label>
                                         <textarea
                                             v-model="form.encabezado_subtitulo"
                                             @input="marcarCambio"
                                             rows="2"
-                                            class="w-full text-sm border border-gray-200 rounded-xl px-3 py-2 focus:outline-none resize-none"
+                                            class="w-full text-sm border border-linea rounded-xl px-3 py-2 focus:outline-none resize-none"
                                             placeholder="Ej: Cuartos Fríos y Puertas Refrigeradas"
                                         />
                                     </div>
@@ -420,8 +420,8 @@ async function copiarVariable(variable) {
                                     <!-- HTML personalizado encabezado -->
                                     <div class="flex items-center justify-between">
                                         <div>
-                                            <p class="text-sm font-medium text-gray-700">HTML personalizado</p>
-                                            <p class="text-xs text-gray-400">Reemplaza el encabezado con HTML libre</p>
+                                            <p class="text-sm font-medium text-tinta-700">HTML personalizado</p>
+                                            <p class="text-xs text-tinta-300">Reemplaza el encabezado con HTML libre</p>
                                         </div>
                                         <button
                                             @click="usarEncabezadoHtml = !usarEncabezadoHtml; marcarCambio()"
@@ -439,7 +439,7 @@ async function copiarVariable(variable) {
                                             v-model="form.encabezado_html"
                                             @input="marcarCambio"
                                             rows="5"
-                                            class="w-full text-xs border border-gray-200 rounded-xl px-3 py-2 focus:outline-none font-mono resize-none bg-gray-50"
+                                            class="w-full text-xs border border-linea rounded-xl px-3 py-2 focus:outline-none font-mono resize-none bg-tinta-50"
                                             placeholder="<div style='...'> HTML del encabezado </div>"
                                         />
                                     </div>
@@ -451,8 +451,8 @@ async function copiarVariable(variable) {
                                 <!-- Mostrar pie -->
                                 <div class="flex items-center justify-between">
                                     <div>
-                                        <p class="text-sm font-medium text-gray-700">Mostrar pie de página</p>
-                                        <p class="text-xs text-gray-400">Banda inferior con datos de contacto</p>
+                                        <p class="text-sm font-medium text-tinta-700">Mostrar pie de página</p>
+                                        <p class="text-xs text-tinta-300">Banda inferior con datos de contacto</p>
                                     </div>
                                     <button
                                         @click="form.mostrar_pie = !form.mostrar_pie; marcarCambio()"
@@ -468,22 +468,22 @@ async function copiarVariable(variable) {
 
                                 <template v-if="form.mostrar_pie">
                                     <div>
-                                        <label class="block text-xs font-medium text-gray-600 mb-1.5">Texto del pie</label>
+                                        <label class="block text-xs font-medium text-tinta-500 mb-1.5">Texto del pie</label>
                                         <input
                                             v-model="form.pie_texto"
                                             @input="marcarCambio"
                                             type="text"
-                                            class="w-full text-sm border border-gray-200 rounded-xl px-3 py-2 focus:outline-none"
+                                            class="w-full text-sm border border-linea rounded-xl px-3 py-2 focus:outline-none"
                                             placeholder="Ej: Mi Empresa SAS — Calle 0 # 0-0, Bogotá"
                                         />
-                                        <p class="text-xs text-gray-400 mt-1">Se muestra a la izquierda del pie.</p>
+                                        <p class="text-xs text-tinta-300 mt-1">Se muestra a la izquierda del pie.</p>
                                     </div>
 
                                     <!-- HTML personalizado pie -->
                                     <div class="flex items-center justify-between">
                                         <div>
-                                            <p class="text-sm font-medium text-gray-700">Pie HTML personalizado</p>
-                                            <p class="text-xs text-gray-400">Reemplaza el pie con HTML libre</p>
+                                            <p class="text-sm font-medium text-tinta-700">Pie HTML personalizado</p>
+                                            <p class="text-xs text-tinta-300">Reemplaza el pie con HTML libre</p>
                                         </div>
                                         <button
                                             @click="usarPieHtml = !usarPieHtml; marcarCambio()"
@@ -501,7 +501,7 @@ async function copiarVariable(variable) {
                                             v-model="form.pie_html"
                                             @input="marcarCambio"
                                             rows="5"
-                                            class="w-full text-xs border border-gray-200 rounded-xl px-3 py-2 focus:outline-none font-mono resize-none bg-gray-50"
+                                            class="w-full text-xs border border-linea rounded-xl px-3 py-2 focus:outline-none font-mono resize-none bg-tinta-50"
                                             placeholder="<div style='...'> HTML del pie </div>"
                                         />
                                     </div>
@@ -510,7 +510,7 @@ async function copiarVariable(variable) {
 
                             <!-- TAB: Secciones -->
                             <template v-if="tabActivo === 'secciones'">
-                                <p class="text-xs text-gray-500">
+                                <p class="text-xs text-tinta-400">
                                     Las secciones desactivadas no aparecerán en el PDF generado.
                                 </p>
                                 <div class="space-y-2">
@@ -520,10 +520,10 @@ async function copiarVariable(variable) {
                                         class="flex items-center justify-between py-2.5 px-3 rounded-xl border transition-colors cursor-pointer"
                                         :class="seccionActiva(sec)
                                             ? 'border-[var(--marca)] bg-blue-50'
-                                            : 'border-gray-200 bg-gray-50'"
+                                            : 'border-linea bg-tinta-50'"
                                         @click="toggleSeccion(sec)"
                                     >
-                                        <span class="text-sm font-medium capitalize" :class="seccionActiva(sec) ? 'text-[var(--marca)]' : 'text-gray-500'">
+                                        <span class="text-sm font-medium capitalize" :class="seccionActiva(sec) ? 'text-[var(--marca)]' : 'text-tinta-400'">
                                             {{ sec.replace(/_/g, ' ') }}
                                         </span>
                                         <div
@@ -540,22 +540,22 @@ async function copiarVariable(variable) {
 
                             <!-- TAB: Variables -->
                             <template v-if="tabActivo === 'variables'">
-                                <p class="text-xs text-gray-500">
+                                <p class="text-xs text-tinta-400">
                                     Copia estas variables y pégalas en los campos de HTML personalizado del encabezado o pie de página.
                                 </p>
                                 <div class="space-y-2">
                                     <div
                                         v-for="variable in variables"
                                         :key="variable"
-                                        class="flex items-center justify-between py-2 px-3 rounded-xl bg-gray-50 border border-gray-100"
+                                        class="flex items-center justify-between py-2 px-3 rounded-xl bg-tinta-50 border border-linea"
                                     >
-                                        <code class="text-xs text-gray-700 font-mono">{{ variable }}</code>
+                                        <code class="text-xs text-tinta-700 font-mono">{{ variable }}</code>
                                         <button
                                             @click="copiarVariable(variable)"
                                             class="text-xs px-2 py-1 rounded-lg transition-colors"
                                             :class="copiadoVar === variable
                                                 ? 'bg-green-100 text-green-700'
-                                                : 'bg-gray-200 text-gray-600 hover:bg-gray-300'"
+                                                : 'bg-tinta-200 text-tinta-500 hover:bg-gray-300'"
                                         >
                                             {{ copiadoVar === variable ? 'Copiado' : 'Copiar' }}
                                         </button>
@@ -565,9 +565,9 @@ async function copiarVariable(variable) {
                         </div>
 
                         <!-- Botón guardar (fijo en el fondo) -->
-                        <div class="px-5 py-4 border-t border-gray-100 shrink-0">
+                        <div class="px-5 py-4 border-t border-linea shrink-0">
                             <div class="flex items-center justify-between mb-3">
-                                <span class="text-xs" :class="guardado ? 'text-green-600' : sinGuardar ? 'text-amber-600' : 'text-gray-400'">
+                                <span class="text-xs" :class="guardado ? 'text-green-600' : sinGuardar ? 'text-amber-600' : 'text-tinta-300'">
                                     {{ guardado ? '✓ Guardado' : sinGuardar ? '● Cambios sin guardar' : 'Sin cambios' }}
                                 </span>
                                 <a
@@ -593,14 +593,14 @@ async function copiarVariable(variable) {
                 <!-- ── Panel derecho (preview) ──────────────────────────────── -->
                 <div class="flex-1 flex flex-col gap-3">
                     <!-- Barra de acciones del preview -->
-                    <div class="flex items-center justify-between bg-white rounded-2xl shadow-sm border border-gray-100 px-4 py-3">
-                        <span class="text-sm font-medium text-gray-700">Vista previa del PDF</span>
+                    <div class="flex items-center justify-between bg-white rounded-2xl shadow-sm border border-linea px-4 py-3">
+                        <span class="text-sm font-medium text-tinta-700">Vista previa del PDF</span>
                         <div class="flex items-center gap-2">
                             <button
                                 @click="actualizarPreview"
-                                class="flex items-center gap-1.5 px-3 py-1.5 text-xs text-gray-600 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors"
+                                class="flex items-center gap-1.5 px-3 py-1.5 text-xs text-tinta-500 border border-linea rounded-xl hover:bg-tinta-50 transition-colors"
                             >
-                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
                                 </svg>
                                 Actualizar
@@ -611,7 +611,7 @@ async function copiarVariable(variable) {
                                 class="flex items-center gap-1.5 px-3 py-1.5 text-xs text-white rounded-xl transition-colors"
                                 style="background-color: var(--marca);"
                             >
-                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
                                 </svg>
                                 Descargar
@@ -620,7 +620,7 @@ async function copiarVariable(variable) {
                     </div>
 
                     <!-- iframe -->
-                    <div class="flex-1 bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden" style="min-height: 500px;">
+                    <div class="flex-1 bg-white rounded-2xl shadow-sm border border-linea overflow-hidden" style="min-height: 500px;">
                         <iframe
                             :key="previewKey"
                             :src="previewUrl"
@@ -630,7 +630,7 @@ async function copiarVariable(variable) {
                         />
                     </div>
 
-                    <p class="text-xs text-gray-400 text-center">
+                    <p class="text-xs text-tinta-300 text-center">
                         Haz clic en "Actualizar" después de guardar para refrescar la vista previa.
                     </p>
                 </div>

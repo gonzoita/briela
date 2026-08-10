@@ -166,36 +166,36 @@ function eliminar(id) {
             <div class="flex items-center gap-3 mb-5">
                 <button
                     @click="router.visit('/configuracion')"
-                    class="p-2 rounded-xl hover:bg-gray-100 transition-colors text-gray-500"
+                    class="p-2 rounded-xl hover:bg-tinta-100 transition-colors text-tinta-400"
                     title="Volver"
                 >
-                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
                     </svg>
                 </button>
-                <h1 class="text-xl font-bold text-gray-900">Números de WhatsApp</h1>
+                <h1 class="text-xl font-semibold text-tinta-900">Números de WhatsApp</h1>
             </div>
 
             <!-- Conexión con Meta -->
-            <div class="bg-white rounded-2xl border border-gray-200 p-5 mb-4">
+            <div class="bg-white rounded-2xl border border-linea p-5 mb-4">
                 <div class="flex items-center gap-2 flex-wrap mb-1">
-                    <h2 class="text-sm font-semibold text-gray-700">Conexión con WhatsApp</h2>
+                    <h2 class="text-sm font-semibold text-tinta-700">Conexión con WhatsApp</h2>
                     <span v-if="conexion.lista"
                         class="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-green-100 text-green-700 leading-none">Conectado</span>
                     <span v-else
                         class="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-700 leading-none">Sin conectar</span>
                 </div>
-                <p class="text-xs text-gray-400 mb-3">
+                <p class="text-xs text-tinta-300 mb-3">
                     Sin esta conexión los números de abajo no pueden enviar ni recibir mensajes.
                 </p>
 
                 <div v-if="conexion.lista" class="flex flex-wrap gap-2">
                     <button type="button" @click="probarConexion" :disabled="ocupado === 'probar'"
-                        class="px-3 py-2 rounded-xl border border-gray-200 text-xs font-semibold text-gray-700 hover:bg-gray-50 disabled:opacity-50">
+                        class="px-3 py-2 rounded-xl border border-linea text-xs font-semibold text-tinta-700 hover:bg-tinta-50 disabled:opacity-50">
                         {{ ocupado === 'probar' ? 'Probando...' : 'Probar conexión' }}
                     </button>
                     <button type="button" @click="guiaAbierta = !guiaAbierta"
-                        class="px-3 py-2 rounded-xl border border-gray-200 text-xs font-semibold text-gray-700 hover:bg-gray-50">
+                        class="px-3 py-2 rounded-xl border border-linea text-xs font-semibold text-tinta-700 hover:bg-tinta-50">
                         Cambiar credenciales
                     </button>
                     <button type="button" @click="desconectar" :disabled="ocupado === 'desconectar'"
@@ -205,15 +205,15 @@ function eliminar(id) {
                 </div>
 
                 <button v-else type="button" @click="guiaAbierta = !guiaAbierta"
-                    class="flex items-center gap-2 text-xs font-semibold text-gray-600 hover:text-gray-800">
+                    class="flex items-center gap-2 text-xs font-semibold text-tinta-500 hover:text-tinta-900">
                     <svg class="w-3.5 h-3.5 transition-transform" :class="guiaAbierta ? 'rotate-90' : ''"
-                        fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                        fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
                     </svg>
                     ¿Primera vez? Cómo conectar WhatsApp
                 </button>
 
-                <div v-if="guiaAbierta" class="mt-3 text-xs text-gray-600 leading-relaxed">
+                <div v-if="guiaAbierta" class="mt-3 text-xs text-tinta-500 leading-relaxed">
                     <div class="mb-3 rounded-lg bg-amber-50 border border-amber-100 p-2.5 text-amber-800">
                         <p class="font-semibold mb-1">Antes de empezar, asegúrate de:</p>
                         <ul class="list-disc list-inside space-y-0.5">
@@ -233,9 +233,9 @@ function eliminar(id) {
 
                     <p class="mb-1">2. Esta es la <strong>URL de devolución de llamada</strong> del webhook:</p>
                     <div class="flex items-center gap-2 mb-3">
-                        <code class="flex-1 min-w-0 truncate bg-gray-50 border border-gray-200 rounded-lg px-2 py-1.5 text-[11px] text-gray-700">{{ conexion.url_webhook }}</code>
+                        <code class="flex-1 min-w-0 truncate bg-tinta-50 border border-linea rounded-lg px-2 py-1.5 text-[11px] text-tinta-700">{{ conexion.url_webhook }}</code>
                         <button type="button" @click="copiar(conexion.url_webhook, 'webhook')"
-                            class="shrink-0 px-2.5 py-1.5 rounded-lg border border-gray-200 text-[11px] font-semibold text-gray-600 hover:bg-gray-50">
+                            class="shrink-0 px-2.5 py-1.5 rounded-lg border border-linea text-[11px] font-semibold text-tinta-500 hover:bg-tinta-50">
                             {{ copiado === 'webhook' ? 'Copiada' : 'Copiar' }}
                         </button>
                     </div>
@@ -243,19 +243,19 @@ function eliminar(id) {
                     <p class="mb-1.5">3. Pega acá lo que te dio Meta:</p>
                     <div class="space-y-2">
                         <input v-model="cred.id" type="text" placeholder="Identificador del número de teléfono (Phone Number ID)"
-                            class="w-full bg-white border border-gray-200 rounded-lg px-2.5 py-2 text-[12px] focus:outline-none focus:border-blue-400" />
+                            class="w-full bg-white border border-linea rounded-lg px-2.5 py-2 text-[12px] focus:outline-none focus:border-blue-400" />
                         <input v-model="cred.secret" type="password"
                             :placeholder="conexion.tiene_secreto ? 'Token de acceso (ya hay uno guardado — deja vacío para conservarlo)' : 'Token de acceso permanente'"
-                            class="w-full bg-white border border-gray-200 rounded-lg px-2.5 py-2 text-[12px] focus:outline-none focus:border-blue-400" />
+                            class="w-full bg-white border border-linea rounded-lg px-2.5 py-2 text-[12px] focus:outline-none focus:border-blue-400" />
                         <input v-model="cred.redirect" type="text" placeholder="Token de verificación del webhook (lo inventas tú)"
-                            class="w-full bg-white border border-gray-200 rounded-lg px-2.5 py-2 text-[12px] focus:outline-none focus:border-blue-400" />
+                            class="w-full bg-white border border-linea rounded-lg px-2.5 py-2 text-[12px] focus:outline-none focus:border-blue-400" />
                         <button type="button" @click="guardarCredenciales" :disabled="ocupado === 'guardar'"
                             class="w-full py-2 rounded-lg text-[12px] font-semibold text-white disabled:opacity-50"
                             style="background:var(--marca);">
                             {{ ocupado === 'guardar' ? 'Guardando...' : 'Guardar conexión' }}
                         </button>
                     </div>
-                    <p class="mt-1.5 text-gray-400">
+                    <p class="mt-1.5 text-tinta-300">
                         El token se guarda cifrado y no se vuelve a mostrar. El de verificación es una
                         contraseña que inventas y que debe quedar igual acá y en Meta.
                     </p>
@@ -263,22 +263,22 @@ function eliminar(id) {
             </div>
 
             <!-- Automatización -->
-            <div class="bg-white rounded-2xl border border-gray-200 p-5 mb-4">
+            <div class="bg-white rounded-2xl border border-linea p-5 mb-4">
                 <button @click="autoAbierta = !autoAbierta" class="w-full flex items-center justify-between text-left">
                     <div>
                         <div class="flex items-center gap-2 flex-wrap">
-                            <h2 class="text-sm font-semibold text-gray-700">Automatización</h2>
+                            <h2 class="text-sm font-semibold text-tinta-700">Automatización</h2>
                             <span v-if="auto.activo"
                                 class="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-green-100 text-green-700 leading-none">Activa</span>
                             <span v-else
-                                class="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-500 leading-none">Apagada</span>
+                                class="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-tinta-100 text-tinta-400 leading-none">Apagada</span>
                         </div>
-                        <p class="text-xs text-gray-400 mt-0.5">
+                        <p class="text-xs text-tinta-300 mt-0.5">
                             Qué pasa cuando alguien escribe: avisar, responder solo y crear el lead en el CRM.
                         </p>
                     </div>
-                    <svg class="w-4 h-4 text-gray-400 shrink-0 transition-transform" :class="autoAbierta ? 'rotate-90' : ''"
-                        fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                    <svg class="w-4 h-4 text-tinta-300 shrink-0 transition-transform" :class="autoAbierta ? 'rotate-90' : ''"
+                        fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
                     </svg>
                 </button>
@@ -286,39 +286,39 @@ function eliminar(id) {
                 <div v-if="autoAbierta" class="mt-4 space-y-4 text-xs">
                     <label class="flex items-start gap-2 cursor-pointer">
                         <input type="checkbox" v-model="auto.activo" class="mt-0.5 rounded" />
-                        <span><strong class="text-gray-700">Activar la automatización.</strong>
-                            <span class="text-gray-400">Si está apagada, nada de lo de abajo ocurre.</span></span>
+                        <span><strong class="text-tinta-700">Activar la automatización.</strong>
+                            <span class="text-tinta-300">Si está apagada, nada de lo de abajo ocurre.</span></span>
                     </label>
 
-                    <div class="border-t border-gray-100 pt-3 space-y-3">
+                    <div class="border-t border-linea pt-3 space-y-3">
                         <label class="flex items-start gap-2 cursor-pointer">
                             <input type="checkbox" v-model="auto.avisar" class="mt-0.5 rounded" />
-                            <span><strong class="text-gray-700">Avisar por la campanita</strong>
-                                <span class="text-gray-400">cuando escriba alguien por primera vez.</span></span>
+                            <span><strong class="text-tinta-700">Avisar por la campanita</strong>
+                                <span class="text-tinta-300">cuando escriba alguien por primera vez.</span></span>
                         </label>
 
                         <label class="flex items-start gap-2 cursor-pointer">
                             <input type="checkbox" v-model="auto.responder" class="mt-0.5 rounded" />
-                            <span><strong class="text-gray-700">Responder automáticamente.</strong></span>
+                            <span><strong class="text-tinta-700">Responder automáticamente.</strong></span>
                         </label>
 
                         <div v-if="auto.responder" class="pl-6 space-y-3">
                             <!-- Agente de IA -->
-                            <div class="rounded-lg border border-gray-200 p-3 space-y-2">
+                            <div class="rounded-lg border border-linea p-3 space-y-2">
                                 <label class="flex items-start gap-2 cursor-pointer">
                                     <input type="checkbox" v-model="agenteForm.activo" class="mt-0.5 rounded" />
-                                    <span><strong class="text-gray-700">Que responda el agente de IA.</strong>
-                                        <span class="text-gray-400">Entiende la pregunta en vez de comparar palabras.
+                                    <span><strong class="text-tinta-700">Que responda el agente de IA.</strong>
+                                        <span class="text-tinta-300">Entiende la pregunta en vez de comparar palabras.
                                         Si no logra responder, se usan los mensajes fijos de abajo.</span></span>
                                 </label>
 
                                 <template v-if="agenteForm.activo">
                                     <input v-model="agenteForm.nombre" type="text" placeholder="Cómo se presenta (ej. Ofe)"
-                                        class="w-full border border-gray-200 rounded-lg px-2 py-1.5 text-[12px] focus:outline-none focus:border-blue-400" />
+                                        class="w-full border border-linea rounded-lg px-2 py-1.5 text-[12px] focus:outline-none focus:border-blue-400" />
                                     <textarea v-model="agenteForm.indicaciones" rows="4"
                                         placeholder="Indicaciones propias del negocio. Ej: «Somos fabricantes, no vendemos al detal. Si preguntan por instalación, aclara que sí la hacemos en todo el país.»"
-                                        class="w-full border border-gray-200 rounded-lg px-2 py-1.5 text-[12px] focus:outline-none focus:border-blue-400"></textarea>
-                                    <p class="text-gray-400">
+                                        class="w-full border border-linea rounded-lg px-2 py-1.5 text-[12px] focus:outline-none focus:border-blue-400"></textarea>
+                                    <p class="text-tinta-300">
                                         El agente solo conoce <strong>quién es la empresa, cómo contactarla y qué
                                         vende</strong>. No tiene acceso a datos de ningún cliente, y tiene prohibido
                                         dar precios de productos a la medida o prometer plazos.
@@ -326,68 +326,68 @@ function eliminar(id) {
                                 </template>
 
                                 <button type="button" @click="guardarAgente" :disabled="ocupado === 'agente'"
-                                    class="px-2.5 py-1.5 rounded-lg border border-gray-200 text-[11px] font-semibold text-gray-600 hover:bg-gray-50 disabled:opacity-50">
+                                    class="px-2.5 py-1.5 rounded-lg border border-linea text-[11px] font-semibold text-tinta-500 hover:bg-tinta-50 disabled:opacity-50">
                                     {{ ocupado === 'agente' ? 'Guardando...' : 'Guardar agente' }}
                                 </button>
                             </div>
 
-                            <p class="text-gray-400">
-                                <strong class="text-gray-600">Mensajes fijos.</strong>
+                            <p class="text-tinta-300">
+                                <strong class="text-tinta-500">Mensajes fijos.</strong>
                                 Sin palabra clave, el mensaje es de <strong>bienvenida</strong> y sale solo en el primer
                                 contacto. Con palabra clave, sale cada vez que el mensaje la contenga.
                                 Solo se envía la primera que coincida.
                             </p>
                             <div v-for="(r, i) in auto.respuestas" :key="i" class="flex gap-2 items-start">
                                 <input v-model="r.palabra_clave" type="text" placeholder="palabra clave (opcional)"
-                                    class="w-36 shrink-0 border border-gray-200 rounded-lg px-2 py-1.5 text-[12px] focus:outline-none focus:border-blue-400" />
+                                    class="w-36 shrink-0 border border-linea rounded-lg px-2 py-1.5 text-[12px] focus:outline-none focus:border-blue-400" />
                                 <textarea v-model="r.mensaje" rows="2" placeholder="Mensaje que se envía"
-                                    class="flex-1 border border-gray-200 rounded-lg px-2 py-1.5 text-[12px] focus:outline-none focus:border-blue-400"></textarea>
+                                    class="flex-1 border border-linea rounded-lg px-2 py-1.5 text-[12px] focus:outline-none focus:border-blue-400"></textarea>
                                 <button type="button" @click="quitarRespuesta(i)"
                                     class="shrink-0 w-7 h-7 rounded-lg text-red-500 hover:bg-red-50 leading-none">✕</button>
                             </div>
                             <button type="button" @click="agregarRespuesta"
-                                class="px-2.5 py-1.5 rounded-lg border border-gray-200 text-[11px] font-semibold text-gray-600 hover:bg-gray-50">
+                                class="px-2.5 py-1.5 rounded-lg border border-linea text-[11px] font-semibold text-tinta-500 hover:bg-tinta-50">
                                 + Agregar respuesta
                             </button>
                         </div>
                     </div>
 
-                    <div class="border-t border-gray-100 pt-3 space-y-3">
+                    <div class="border-t border-linea pt-3 space-y-3">
                         <label class="flex items-start gap-2 cursor-pointer">
                             <input type="checkbox" v-model="auto.crear_lead" class="mt-0.5 rounded" />
-                            <span><strong class="text-gray-700">Crear el lead en el CRM.</strong>
-                                <span class="text-gray-400">Solo si el número no es de un cliente registrado
+                            <span><strong class="text-tinta-700">Crear el lead en el CRM.</strong>
+                                <span class="text-tinta-300">Solo si el número no es de un cliente registrado
                                 ni tiene ya un lead abierto, para no llenar el CRM de repetidos.</span></span>
                         </label>
 
                         <div v-if="auto.crear_lead" class="pl-6 space-y-2">
                             <div>
-                                <label class="block text-gray-500 mb-1">Etapa donde entra</label>
+                                <label class="block text-tinta-400 mb-1">Etapa donde entra</label>
                                 <select v-model="auto.lead_etapa_id"
-                                    class="w-full border border-gray-200 rounded-lg px-2 py-1.5 text-[12px] focus:outline-none">
+                                    class="w-full border border-linea rounded-lg px-2 py-1.5 text-[12px] focus:outline-none">
                                     <option value="">La primera etapa del pipeline</option>
                                     <option v-for="e in etapas" :key="e.id" :value="e.id">{{ e.nombre }}</option>
                                 </select>
                             </div>
                             <div>
-                                <label class="block text-gray-500 mb-1">Cómo se reparte</label>
+                                <label class="block text-tinta-400 mb-1">Cómo se reparte</label>
                                 <select v-model="auto.asignacion"
-                                    class="w-full border border-gray-200 rounded-lg px-2 py-1.5 text-[12px] focus:outline-none">
+                                    class="w-full border border-linea rounded-lg px-2 py-1.5 text-[12px] focus:outline-none">
                                     <option value="fijo">Siempre al primero de la lista</option>
                                     <option value="round_robin">Rotando entre los seleccionados</option>
                                 </select>
                             </div>
                             <div>
-                                <label class="block text-gray-500 mb-1">Quiénes reciben</label>
+                                <label class="block text-tinta-400 mb-1">Quiénes reciben</label>
                                 <div class="flex flex-wrap gap-1.5">
                                     <label v-for="u in usuarios" :key="u.id"
                                         class="inline-flex items-center gap-1 px-2 py-1 rounded-lg border cursor-pointer text-[11px]"
-                                        :class="auto.responsables.includes(u.id) ? 'border-blue-300 bg-blue-50 text-blue-700' : 'border-gray-200 text-gray-600'">
+                                        :class="auto.responsables.includes(u.id) ? 'border-blue-300 bg-blue-50 text-blue-700' : 'border-linea text-tinta-500'">
                                         <input type="checkbox" :value="u.id" v-model="auto.responsables" class="hidden" />
                                         {{ u.name }}
                                     </label>
                                 </div>
-                                <p class="text-gray-400 mt-1">Si no eliges a nadie, el lead se crea sin responsable y el aviso va a los administradores.</p>
+                                <p class="text-tinta-300 mt-1">Si no eliges a nadie, el lead se crea sin responsable y el aviso va a los administradores.</p>
                             </div>
                         </div>
                     </div>
@@ -401,13 +401,13 @@ function eliminar(id) {
             </div>
 
             <!-- Lista -->
-            <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden mb-4">
-                <div class="px-5 py-3 border-b border-gray-100">
-                    <h2 class="text-sm font-semibold text-gray-700">Números registrados</h2>
-                    <p class="text-xs text-gray-400 mt-0.5">Cada asesor conserva su app y su historial (modo Coexistencia).</p>
+            <div class="bg-white rounded-2xl border border-linea overflow-hidden mb-4">
+                <div class="px-5 py-3 border-b border-linea">
+                    <h2 class="text-sm font-semibold text-tinta-700">Números registrados</h2>
+                    <p class="text-xs text-tinta-300 mt-0.5">Cada asesor conserva su app y su historial (modo Coexistencia).</p>
                 </div>
 
-                <div v-if="!numeros.length" class="py-10 text-center text-sm text-gray-400">
+                <div v-if="!numeros.length" class="py-10 text-center text-sm text-tinta-300">
                     Sin números configurados.
                 </div>
 
@@ -419,10 +419,10 @@ function eliminar(id) {
                     >
                         <!-- Icono WhatsApp -->
                         <div class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
-                            :class="n.activo ? 'bg-blue-50' : 'bg-gray-100'"
+                            :class="n.activo ? 'bg-blue-50' : 'bg-tinta-100'"
                         >
-                            <svg class="w-4 h-4" :class="n.activo ? 'text-[var(--marca)]' : 'text-gray-400'"
-                                fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <svg class="w-4 h-4" :class="n.activo ? 'text-[var(--marca)]' : 'text-tinta-300'"
+                                fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                 <path stroke-linecap="round" stroke-linejoin="round"
                                     d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-6l-4 4v-4z" />
                             </svg>
@@ -430,8 +430,8 @@ function eliminar(id) {
 
                         <!-- Info -->
                         <div class="flex-1 min-w-0">
-                            <p class="text-sm font-medium text-gray-800 truncate">{{ n.nombre }}</p>
-                            <p class="text-xs text-gray-400 truncate">
+                            <p class="text-sm font-medium text-tinta-900 truncate">{{ n.nombre }}</p>
+                            <p class="text-xs text-tinta-300 truncate">
                                 {{ n.numero_telefono }}
                                 <span v-if="n.usuario"> · {{ n.usuario.name }}</span>
                             </p>
@@ -440,7 +440,7 @@ function eliminar(id) {
                         <!-- Badge rol -->
                         <span
                             class="text-xs px-2 py-0.5 rounded-full shrink-0"
-                            :class="n.rol === 'central' ? 'bg-[var(--marca)] text-white font-semibold' : 'bg-gray-100 text-gray-600'"
+                            :class="n.rol === 'central' ? 'bg-[var(--marca)] text-white font-semibold' : 'bg-tinta-100 text-tinta-500'"
                         >
                             {{ rolLabel[n.rol] ?? n.rol }}
                         </span>
@@ -448,7 +448,7 @@ function eliminar(id) {
                         <!-- Badge activo -->
                         <span
                             class="text-xs px-2 py-0.5 rounded-full shrink-0"
-                            :class="n.activo ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'"
+                            :class="n.activo ? 'bg-green-100 text-green-700' : 'bg-tinta-100 text-tinta-400'"
                         >
                             {{ n.activo ? 'Activo' : 'Inactivo' }}
                         </span>
@@ -460,59 +460,59 @@ function eliminar(id) {
             </div>
 
             <!-- Formulario crear / editar -->
-            <div class="bg-white rounded-2xl border border-gray-200 p-5">
-                <h3 class="text-sm font-semibold text-gray-700 mb-4">
+            <div class="bg-white rounded-2xl border border-linea p-5">
+                <h3 class="text-sm font-semibold text-tinta-700 mb-4">
                     {{ editando ? 'Editar número' : 'Nuevo número' }}
                 </h3>
 
                 <div class="space-y-3">
                     <!-- Nombre -->
                     <div>
-                        <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">
+                        <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1.5">
                             Nombre *
                         </label>
                         <input
                             v-model="form.nombre"
                             type="text"
                             placeholder="Ej: Renier Dominguez"
-                            class="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                         />
                     </div>
 
                     <!-- Número de teléfono -->
                     <div>
-                        <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">
+                        <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1.5">
                             Número de teléfono *
                         </label>
                         <input
                             v-model="form.numero_telefono"
                             type="text"
                             placeholder="+573001234567"
-                            class="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                         />
                     </div>
 
                     <!-- Phone Number ID -->
                     <div>
-                        <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">
+                        <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1.5">
                             Phone Number ID (Meta) *
                         </label>
                         <input
                             v-model="form.phone_number_id"
                             type="text"
                             placeholder="ID asignado por Meta"
-                            class="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                         />
                     </div>
 
                     <!-- Rol -->
                     <div>
-                        <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">
+                        <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1.5">
                             Rol *
                         </label>
                         <select
                             v-model="form.rol"
-                            class="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                            class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
                         >
                             <option value="asesor">Asesor</option>
                             <option value="central">Central</option>
@@ -521,12 +521,12 @@ function eliminar(id) {
 
                     <!-- Usuario asociado -->
                     <div>
-                        <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">
+                        <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1.5">
                             Usuario asociado
                         </label>
                         <select
                             v-model="form.usuario_id"
-                            class="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                            class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
                         >
                             <option value="">Sin asignar</option>
                             <option v-for="u in usuarios" :key="u.id" :value="u.id">{{ u.name }}</option>
@@ -536,7 +536,7 @@ function eliminar(id) {
                     <!-- Activo -->
                     <label class="flex items-center gap-2 cursor-pointer">
                         <input v-model="form.activo" type="checkbox" class="rounded" />
-                        <span class="text-sm text-gray-700">Activo</span>
+                        <span class="text-sm text-tinta-700">Activo</span>
                     </label>
 
                     <!-- Botones -->
@@ -544,7 +544,7 @@ function eliminar(id) {
                         <button
                             v-if="editando"
                             @click="cancelar"
-                            class="flex-1 py-2.5 rounded-xl border border-gray-200 text-sm text-gray-600"
+                            class="flex-1 py-2.5 rounded-xl border border-linea text-sm text-tinta-500"
                         >
                             Cancelar
                         </button>

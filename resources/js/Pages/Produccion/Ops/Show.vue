@@ -302,13 +302,13 @@ function marcarTerminado(item) {
             <!-- Cabecera -->
             <div class="flex items-center justify-between mb-5">
                 <div class="flex items-center gap-3">
-                    <a href="/produccion/ops" class="text-gray-400 hover:text-gray-700">
+                    <a href="/produccion/ops" class="text-tinta-300 hover:text-tinta-700">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M15 19l-7-7 7-7"/>
                         </svg>
                     </a>
                     <div>
-                        <h1 class="text-xl font-bold text-gray-900">{{ op.numero }}</h1>
+                        <h1 class="text-xl font-semibold text-tinta-900">{{ op.numero }}</h1>
                         <span v-if="op.cotizacion_id" class="text-xs text-blue-500 font-medium">Desde cotización</span>
                     </div>
                 </div>
@@ -318,14 +318,14 @@ function marcarTerminado(item) {
                         {{ badgeLabel(op.estado) }}
                     </span>
                     <a v-if="op.token_publico" :href="`/op/${op.token_publico}`" target="_blank"
-                        class="px-3 py-1.5 rounded-xl border border-gray-300 text-xs font-medium text-gray-700 hover:bg-gray-50 flex items-center gap-1.5">
-                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        class="px-3 py-1.5 rounded-xl border border-tinta-200 text-xs font-medium text-tinta-700 hover:bg-tinta-50 flex items-center gap-1.5">
+                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/>
                         </svg>
                         QR
                     </a>
                     <button @click="modalEstado = true"
-                        class="px-3 py-1.5 rounded-xl border border-gray-300 text-xs font-medium text-gray-700 hover:bg-gray-50">
+                        class="px-3 py-1.5 rounded-xl border border-tinta-200 text-xs font-medium text-tinta-700 hover:bg-tinta-50">
                         Estado
                     </button>
                     <BtnPdf
@@ -337,18 +337,18 @@ function marcarTerminado(item) {
                         :href="`/logistica/remisiones/crear?op_id=${op.id}`"
                         class="px-3 py-1.5 rounded-xl text-xs font-semibold text-white flex items-center gap-1"
                         style="background:var(--marca);">
-                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M9 17H3V5h12v12H9zm0 0h6m-6 0a2 2 0 104 0m6 0a2 2 0 104 0M15 5h4l2 4v8h-6V5z"/>
                         </svg>
                         Remisión
                     </a>
                     <span v-else-if="op.items?.some(i => !i.remisionado)"
-                        class="px-3 py-1.5 rounded-xl text-xs font-medium text-gray-400 border border-gray-200 flex items-center gap-1 cursor-not-allowed"
+                        class="px-3 py-1.5 rounded-xl text-xs font-medium text-tinta-300 border border-linea flex items-center gap-1 cursor-not-allowed"
                         title="Falta aprobar control de calidad">
                         Remisión (falta calidad)
                     </span>
                     <a :href="`/produccion/ops/${op.id}/editar`"
-                        class="px-3 py-1.5 rounded-xl border border-gray-300 text-xs font-medium text-gray-700 hover:bg-gray-50">
+                        class="px-3 py-1.5 rounded-xl border border-tinta-200 text-xs font-medium text-tinta-700 hover:bg-tinta-50">
                         Editar
                     </a>
                 </div>
@@ -358,7 +358,7 @@ function marcarTerminado(item) {
             <div v-if="op.insumos_faltantes?.length" class="mb-5 rounded-2xl p-4"
                 style="background:#FEF3C7; border:1px solid #F59E0B;">
                 <div class="flex items-start gap-2">
-                    <svg class="w-5 h-5 flex-shrink-0 mt-0.5" style="color:#92400E;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <svg class="w-5 h-5 flex-shrink-0 mt-0.5" style="color:#92400E;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
                     </svg>
                     <div class="flex-1">
@@ -379,17 +379,17 @@ function marcarTerminado(item) {
             </div>
 
             <!-- Barra de progreso global -->
-            <div class="mb-5 bg-white rounded-2xl border border-gray-200 p-4">
+            <div class="mb-5 bg-white rounded-2xl border border-linea p-4">
                 <div class="flex items-center justify-between mb-2">
-                    <span class="text-sm font-semibold text-gray-700">Progreso general de la OP</span>
-                    <span class="text-lg font-bold text-blue-700">{{ parseFloat(op.porcentaje_avance ?? 0).toFixed(1) }}%</span>
+                    <span class="text-sm font-semibold text-tinta-700">Progreso general de la OP</span>
+                    <span class="text-lg font-semibold text-blue-700">{{ parseFloat(op.porcentaje_avance ?? 0).toFixed(1) }}%</span>
                 </div>
-                <div class="h-3 rounded-full bg-gray-100 overflow-hidden">
+                <div class="h-3 rounded-full bg-tinta-100 overflow-hidden">
                     <div class="h-full rounded-full transition-all duration-500"
                         :style="`width:${Math.min(parseFloat(op.porcentaje_avance ?? 0), 100)}%; background:var(--marca);`">
                     </div>
                 </div>
-                <div class="flex justify-between text-xs text-gray-400 mt-1.5">
+                <div class="flex justify-between text-xs text-tinta-300 mt-1.5">
                     <span>{{ op.items?.filter(i => i.estado_item === 'terminado').length ?? 0 }} ítems terminados</span>
                     <span>{{ op.items?.length ?? 0 }} ítems totales</span>
                 </div>
@@ -397,26 +397,26 @@ function marcarTerminado(item) {
 
             <!-- Info cards -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
-                <div class="bg-white rounded-2xl border border-gray-200 p-5">
-                    <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Cliente</p>
-                    <p class="text-base font-bold text-gray-900">{{ op.cliente_nombre ?? '—' }}</p>
+                <div class="bg-white rounded-2xl border border-linea p-5">
+                    <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-3">Cliente</p>
+                    <p class="text-base font-semibold text-tinta-900">{{ op.cliente_nombre ?? '—' }}</p>
                     <p v-if="op.cotizacion" class="text-xs text-blue-500 mt-1">
                         Cotización: {{ op.cotizacion.numero }}
                     </p>
                 </div>
-                <div class="bg-white rounded-2xl border border-gray-200 p-5">
-                    <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Detalles</p>
+                <div class="bg-white rounded-2xl border border-linea p-5">
+                    <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-3">Detalles</p>
                     <div class="space-y-1.5 text-sm">
                         <div class="flex justify-between">
-                            <span class="text-gray-500">Responsable</span>
+                            <span class="text-tinta-400">Responsable</span>
                             <span class="font-medium">{{ op.responsable_nombre ?? '—' }}</span>
                         </div>
                         <div class="flex justify-between">
-                            <span class="text-gray-500">Fecha creación</span>
+                            <span class="text-tinta-400">Fecha creación</span>
                             <span>{{ formatFecha(op.fecha_creacion) }}</span>
                         </div>
                         <div v-if="op.fecha_entrega_estimada" class="flex justify-between">
-                            <span class="text-gray-500">Entrega estimada</span>
+                            <span class="text-tinta-400">Entrega estimada</span>
                             <span class="text-amber-600 font-medium">{{ formatFecha(op.fecha_entrega_estimada) }}</span>
                         </div>
                     </div>
@@ -424,41 +424,41 @@ function marcarTerminado(item) {
             </div>
 
             <!-- Ítems -->
-            <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden mb-5">
-                <div class="px-5 py-3 border-b border-gray-100 flex items-center justify-between">
-                    <h2 class="text-sm font-semibold text-gray-700">Ítems</h2>
-                    <span class="text-xs text-gray-400">{{ op.items?.length ?? 0 }} artículos</span>
+            <div class="bg-white rounded-2xl border border-linea overflow-hidden mb-5">
+                <div class="px-5 py-3 border-b border-linea flex items-center justify-between">
+                    <h2 class="text-sm font-semibold text-tinta-700">Ítems</h2>
+                    <span class="text-xs text-tinta-300">{{ op.items?.length ?? 0 }} artículos</span>
                 </div>
 
                 <div v-if="!op.items?.length" class="px-5 py-10 text-center">
-                    <p class="text-sm text-gray-400">No hay ítems en esta orden.</p>
+                    <p class="text-sm text-tinta-300">No hay ítems en esta orden.</p>
                 </div>
 
                 <!-- Desktop table -->
                 <div v-else class="hidden md:block overflow-x-auto">
                     <table class="w-full text-sm">
                         <thead>
-                            <tr class="bg-gray-50 border-b border-gray-100">
-                                <th class="text-left px-4 py-2.5 text-xs font-semibold text-gray-500 uppercase w-28">Código</th>
-                                <th class="text-left px-4 py-2.5 text-xs font-semibold text-gray-500 uppercase">Descripción</th>
-                                <th class="text-center px-3 py-2.5 text-xs font-semibold text-gray-500 uppercase w-20">Cant.</th>
-                                <th class="text-left px-3 py-2.5 text-xs font-semibold text-gray-500 uppercase w-40">Serie</th>
-                                <th class="text-center px-3 py-2.5 text-xs font-semibold text-gray-500 uppercase w-28">Avance</th>
-                                <th class="text-center px-3 py-2.5 text-xs font-semibold text-gray-500 uppercase w-28">Estado</th>
+                            <tr class="bg-tinta-50 border-b border-linea">
+                                <th class="text-left px-4 py-2.5 text-xs font-semibold text-tinta-400 uppercase w-28">Código</th>
+                                <th class="text-left px-4 py-2.5 text-xs font-semibold text-tinta-400 uppercase">Descripción</th>
+                                <th class="text-center px-3 py-2.5 text-xs font-semibold text-tinta-400 uppercase w-20">Cant.</th>
+                                <th class="text-left px-3 py-2.5 text-xs font-semibold text-tinta-400 uppercase w-40">Serie</th>
+                                <th class="text-center px-3 py-2.5 text-xs font-semibold text-tinta-400 uppercase w-28">Avance</th>
+                                <th class="text-center px-3 py-2.5 text-xs font-semibold text-tinta-400 uppercase w-28">Estado</th>
                                 <th class="w-8"></th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-50">
                             <template v-for="(item, idx) in op.items" :key="item.id">
-                                <tr class="hover:bg-gray-50 cursor-pointer transition-colors" @click="toggleItem(item.id)">
+                                <tr class="hover:bg-tinta-50 cursor-pointer transition-colors" @click="toggleItem(item.id)">
                                     <td class="px-4 py-3">
-                                        <span class="font-mono text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded">
+                                        <span class="font-mono text-xs text-tinta-400 bg-tinta-100 px-2 py-0.5 rounded">
                                             {{ item.codigo_item ?? (idx + 1) }}
                                         </span>
                                     </td>
                                     <td class="px-4 py-3">
                                         <div class="flex items-center gap-2">
-                                            <span class="font-medium text-gray-800">{{ item.descripcion }}</span>
+                                            <span class="font-medium text-tinta-900">{{ item.descripcion }}</span>
                                             <span class="text-xs px-1.5 py-0.5 rounded-full"
                                                 :style="item.tipo === 'ensamble' ? 'background:#EDE9FE;color:#5B21B6;'
                                                     : item.tipo === 'servicio' ? 'background:#FEF9C3;color:#713F12;'
@@ -466,7 +466,7 @@ function marcarTerminado(item) {
                                                 {{ item.tipo }}
                                             </span>
                                         </div>
-                                        <p v-if="item.descripcion_larga_texto" class="text-xs text-gray-400 italic mt-0.5 max-w-xs">
+                                        <p v-if="item.descripcion_larga_texto" class="text-xs text-tinta-300 italic mt-0.5 max-w-xs">
                                             <span>{{ descExpandido[item.id]
                                                 ? item.descripcion_larga_texto
                                                 : item.descripcion_larga_texto.slice(0, 120) + (item.descripcion_larga_texto.length > 120 ? '…' : '') }}</span>
@@ -477,20 +477,20 @@ function marcarTerminado(item) {
                                             </button>
                                         </p>
                                     </td>
-                                    <td class="px-3 py-3 text-center text-gray-700 font-medium">
+                                    <td class="px-3 py-3 text-center text-tinta-700 font-medium">
                                         {{ parseFloat(item.cantidad) }}
                                     </td>
                                     <td class="px-3 py-3">
                                         <span v-if="item.numero_serie"
-                                            class="font-mono text-xs text-gray-600 bg-gray-100 px-2 py-0.5 rounded">
+                                            class="font-mono text-xs text-tinta-500 bg-tinta-100 px-2 py-0.5 rounded">
                                             {{ item.numero_serie }}
                                         </span>
-                                        <span v-else class="text-gray-300">—</span>
+                                        <span v-else class="text-tinta-200">—</span>
                                     </td>
                                     <td class="px-3 py-3 text-center">
                                         <div v-if="item.trabajos?.length">
                                             <div class="flex items-center gap-1.5 justify-center">
-                                                <div class="w-14 bg-gray-200 rounded-full h-1.5">
+                                                <div class="w-14 bg-tinta-200 rounded-full h-1.5">
                                                     <div class="h-1.5 rounded-full transition-all"
                                                         :style="`width:${Math.min(item.trabajos.reduce((s,t) => s + t.porcentaje_avance, 0) / item.trabajos.length, 100)}%; background:var(--marca);`">
                                                     </div>
@@ -500,7 +500,7 @@ function marcarTerminado(item) {
                                                 </span>
                                             </div>
                                         </div>
-                                        <span v-else class="text-xs text-gray-300">—</span>
+                                        <span v-else class="text-xs text-tinta-200">—</span>
                                     </td>
                                     <td class="px-3 py-3 text-center">
                                         <div class="flex flex-col items-center gap-1">
@@ -530,20 +530,20 @@ function marcarTerminado(item) {
                                         </div>
                                     </td>
                                     <td class="px-3 py-3 text-center">
-                                        <svg class="w-4 h-4 mx-auto text-gray-300 transition-transform"
+                                        <svg class="w-4 h-4 mx-auto text-tinta-200 transition-transform"
                                             :class="itemExpandido === item.id ? 'rotate-90' : ''"
-                                            fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                            fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
                                         </svg>
                                     </td>
                                 </tr>
-                                <tr v-if="itemExpandido === item.id" class="bg-gray-50">
+                                <tr v-if="itemExpandido === item.id" class="bg-tinta-50">
                                     <td colspan="7" class="px-6 pb-4 pt-2">
                                         <div class="space-y-4">
 
                                             <!-- Variables con imágenes de plantilla -->
                                             <div v-if="item.variables_instancia && Object.keys(item.variables_instancia).length">
-                                                <p class="text-xs font-semibold text-amber-600 uppercase tracking-wider mb-2">Variables</p>
+                                                <p class="text-xs font-semibold text-amber-600 uppercase tracking-[0.12em] mb-2">Variables</p>
                                                 <div v-if="item.campos_plantilla?.some(c => c.imagen_referencia)"
                                                     class="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-3">
                                                     <div v-for="campo in item.campos_plantilla.filter(c => c.imagen_referencia)"
@@ -571,38 +571,38 @@ function marcarTerminado(item) {
 
                                             <!-- Imágenes de instancia inline -->
                                             <div v-if="item.imagenes_instancia?.length">
-                                                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Imágenes</p>
+                                                <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-2">Imágenes</p>
                                                 <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
                                                     <div v-for="(img, imgIdx) in item.imagenes_instancia" :key="imgIdx"
-                                                        class="rounded-xl overflow-hidden border border-gray-200 bg-gray-50">
+                                                        class="rounded-xl overflow-hidden border border-linea bg-tinta-50">
                                                         <a :href="'/storage/' + img.ruta" target="_blank" rel="noopener">
                                                             <img :src="'/storage/' + img.ruta"
                                                                 class="w-full h-28 object-contain bg-white hover:opacity-90 transition-opacity" />
                                                         </a>
-                                                        <p v-if="img.titulo" class="text-xs text-gray-500 px-2 py-1.5 truncate">{{ img.titulo }}</p>
+                                                        <p v-if="img.titulo" class="text-xs text-tinta-400 px-2 py-1.5 truncate">{{ img.titulo }}</p>
                                                     </div>
                                                 </div>
                                             </div>
 
                                             <div v-if="item.notas_item">
-                                                <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Notas</p>
-                                                <p class="text-sm text-gray-600 whitespace-pre-line">{{ item.notas_item }}</p>
+                                                <p class="text-xs font-semibold text-tinta-300 uppercase tracking-[0.12em] mb-1">Notas</p>
+                                                <p class="text-sm text-tinta-500 whitespace-pre-line">{{ item.notas_item }}</p>
                                             </div>
 
                                             <!-- Lista de componentes editable -->
                                             <div v-if="item.componentes?.length">
-                                                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
+                                                <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-2">
                                                     Componentes
                                                 </p>
-                                                <div class="rounded-xl border border-gray-100 overflow-hidden">
+                                                <div class="rounded-xl border border-linea overflow-hidden">
                                                     <table class="w-full text-xs">
                                                         <thead>
-                                                            <tr class="bg-gray-50 border-b border-gray-100">
-                                                                <th class="text-left px-3 py-2 font-semibold text-gray-500">Componente</th>
-                                                                <th class="text-left px-3 py-2 font-semibold text-gray-500">Ref.</th>
-                                                                <th class="text-center px-3 py-2 font-semibold text-gray-500">Cant.</th>
-                                                                <th class="text-left px-3 py-2 font-semibold text-gray-500">Und.</th>
-                                                                <th class="text-left px-3 py-2 font-semibold text-gray-500">Obs.</th>
+                                                            <tr class="bg-tinta-50 border-b border-linea">
+                                                                <th class="text-left px-3 py-2 font-semibold text-tinta-400">Componente</th>
+                                                                <th class="text-left px-3 py-2 font-semibold text-tinta-400">Ref.</th>
+                                                                <th class="text-center px-3 py-2 font-semibold text-tinta-400">Cant.</th>
+                                                                <th class="text-left px-3 py-2 font-semibold text-tinta-400">Und.</th>
+                                                                <th class="text-left px-3 py-2 font-semibold text-tinta-400">Obs.</th>
                                                                 <th class="w-8"></th>
                                                             </tr>
                                                         </thead>
@@ -611,14 +611,14 @@ function marcarTerminado(item) {
                                                             <template v-if="item.tiene_secciones">
                                                                 <template v-for="(padres, seccionNombre) in componentesPorSeccion(item.componentes)" :key="seccionNombre">
                                                                     <tr>
-                                                                        <td colspan="6" class="px-3 py-1.5 text-xs font-bold text-white uppercase tracking-wider" style="background:var(--marca);">
+                                                                        <td colspan="6" class="px-3 py-1.5 text-xs font-semibold text-white uppercase tracking-[0.12em]" style="background:var(--marca);">
                                                                             {{ seccionNombre }}
                                                                         </td>
                                                                     </tr>
                                                                     <template v-for="padre in padres" :key="padre.id">
-                                                                        <tr class="hover:bg-gray-50">
-                                                                            <td class="px-3 py-2 text-gray-700 font-bold">{{ padre.nombre }}</td>
-                                                                            <td class="px-3 py-2 text-gray-400 font-mono">{{ padre.referencia ?? '—' }}</td>
+                                                                        <tr class="hover:bg-tinta-50">
+                                                                            <td class="px-3 py-2 text-tinta-700 font-semibold">{{ padre.nombre }}</td>
+                                                                            <td class="px-3 py-2 text-tinta-300 font-mono">{{ padre.referencia ?? '—' }}</td>
                                                                             <td class="px-3 py-2 text-center">
                                                                                 <input v-if="editandoCantidad[padre.id] !== undefined"
                                                                                     v-model.number="editandoCantidad[padre.id]"
@@ -627,50 +627,50 @@ function marcarTerminado(item) {
                                                                                     @keyup.escape="cancelarEditCantidad(padre)"
                                                                                     class="w-20 rounded-lg border border-blue-400 px-2 py-1 text-center text-xs focus:outline-none focus:ring-2 focus:ring-blue-300"
                                                                                     @click.stop />
-                                                                                <span v-else class="font-semibold text-gray-800">
+                                                                                <span v-else class="font-semibold text-tinta-900">
                                                                                     {{ parseFloat(padre.cantidad).toFixed(3).replace(/\.?0+$/, '') }}
                                                                                 </span>
                                                                             </td>
-                                                                            <td class="px-3 py-2 text-gray-400">{{ padre.unidad }}</td>
+                                                                            <td class="px-3 py-2 text-tinta-300">{{ padre.unidad }}</td>
                                                                             <td class="px-3 py-2">
                                                                                 <input :value="padre.observacion ?? ''"
                                                                                     @blur="guardarObservacion(item, padre, $event.target.value)"
                                                                                     type="text" placeholder="—"
-                                                                                    class="w-full min-w-[100px] rounded-lg border border-gray-100 px-2 py-1 text-xs text-gray-600 focus:outline-none focus:border-blue-300 focus:ring-1 bg-transparent hover:bg-white"
+                                                                                    class="w-full min-w-[100px] rounded-lg border border-linea px-2 py-1 text-xs text-tinta-500 focus:outline-none focus:border-blue-300 focus:ring-1 bg-transparent hover:bg-white"
                                                                                     @click.stop />
                                                                             </td>
                                                                             <td class="px-3 py-2">
                                                                                 <div v-if="editandoCantidad[padre.id] !== undefined" class="flex gap-1">
                                                                                     <button @click.stop="guardarCantidad(item, padre)"
                                                                                         class="text-green-600 hover:text-green-800">
-                                                                                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                                                                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
                                                                                             <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
                                                                                         </svg>
                                                                                     </button>
                                                                                     <button @click.stop="cancelarEditCantidad(padre)"
-                                                                                        class="text-gray-400 hover:text-gray-600">
-                                                                                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                                                        class="text-tinta-300 hover:text-tinta-500">
+                                                                                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                                                                             <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
                                                                                         </svg>
                                                                                     </button>
                                                                                 </div>
                                                                                 <button v-else @click.stop="iniciarEditCantidad(padre)"
-                                                                                    class="text-gray-300 hover:text-blue-500 transition-colors">
-                                                                                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                                                    class="text-tinta-200 hover:text-blue-500 transition-colors">
+                                                                                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                                                                         <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                                                                                     </svg>
                                                                                 </button>
                                                                             </td>
                                                                         </tr>
-                                                                        <tr v-for="hijo in padre.hijos" :key="hijo.id" class="bg-gray-50/50">
-                                                                            <td class="pl-6 pr-3 py-1.5 text-gray-500">
-                                                                                <span class="text-gray-400 mr-1">↳</span>{{ hijo.nombre }}
+                                                                        <tr v-for="hijo in padre.hijos" :key="hijo.id" class="bg-tinta-50/50">
+                                                                            <td class="pl-6 pr-3 py-1.5 text-tinta-400">
+                                                                                <span class="text-tinta-300 mr-1">↳</span>{{ hijo.nombre }}
                                                                             </td>
-                                                                            <td class="px-3 py-1.5 text-gray-300">—</td>
-                                                                            <td class="px-3 py-1.5 text-center text-gray-600 font-medium">
+                                                                            <td class="px-3 py-1.5 text-tinta-200">—</td>
+                                                                            <td class="px-3 py-1.5 text-center text-tinta-500 font-medium">
                                                                                 {{ parseFloat(hijo.cantidad).toFixed(3).replace(/\.?0+$/, '') }}
                                                                             </td>
-                                                                            <td class="px-3 py-1.5 text-gray-400">{{ hijo.unidad }}</td>
+                                                                            <td class="px-3 py-1.5 text-tinta-300">{{ hijo.unidad }}</td>
                                                                             <td class="px-3 py-1.5"></td>
                                                                             <td class="px-3 py-1.5"></td>
                                                                         </tr>
@@ -681,22 +681,22 @@ function marcarTerminado(item) {
                                                             <template v-else>
                                                                 <template v-for="comp in componentesConJerarquia(item.componentes)" :key="comp.id">
                                                                     <!-- Fila hijo -->
-                                                                    <tr v-if="comp.parent_componente_id" class="bg-gray-50/50">
-                                                                        <td class="pl-6 pr-3 py-1.5 text-gray-500">
-                                                                            <span class="text-gray-400 mr-1">↳</span>{{ comp.nombre }}
+                                                                    <tr v-if="comp.parent_componente_id" class="bg-tinta-50/50">
+                                                                        <td class="pl-6 pr-3 py-1.5 text-tinta-400">
+                                                                            <span class="text-tinta-300 mr-1">↳</span>{{ comp.nombre }}
                                                                         </td>
-                                                                        <td class="px-3 py-1.5 text-gray-300">—</td>
-                                                                        <td class="px-3 py-1.5 text-center text-gray-600 font-medium">
+                                                                        <td class="px-3 py-1.5 text-tinta-200">—</td>
+                                                                        <td class="px-3 py-1.5 text-center text-tinta-500 font-medium">
                                                                             {{ parseFloat(comp.cantidad).toFixed(3).replace(/\.?0+$/, '') }}
                                                                         </td>
-                                                                        <td class="px-3 py-1.5 text-gray-400">{{ comp.unidad }}</td>
+                                                                        <td class="px-3 py-1.5 text-tinta-300">{{ comp.unidad }}</td>
                                                                         <td class="px-3 py-1.5"></td>
                                                                         <td class="px-3 py-1.5"></td>
                                                                     </tr>
                                                                     <!-- Fila padre / componente normal -->
-                                                                    <tr v-else class="hover:bg-gray-50">
-                                                                        <td class="px-3 py-2 text-gray-700 font-medium">{{ comp.nombre }}</td>
-                                                                        <td class="px-3 py-2 text-gray-400 font-mono">{{ comp.referencia ?? '—' }}</td>
+                                                                    <tr v-else class="hover:bg-tinta-50">
+                                                                        <td class="px-3 py-2 text-tinta-700 font-medium">{{ comp.nombre }}</td>
+                                                                        <td class="px-3 py-2 text-tinta-300 font-mono">{{ comp.referencia ?? '—' }}</td>
                                                                         <td class="px-3 py-2 text-center">
                                                                             <input v-if="editandoCantidad[comp.id] !== undefined"
                                                                                 v-model.number="editandoCantidad[comp.id]"
@@ -705,36 +705,36 @@ function marcarTerminado(item) {
                                                                                 @keyup.escape="cancelarEditCantidad(comp)"
                                                                                 class="w-20 rounded-lg border border-blue-400 px-2 py-1 text-center text-xs focus:outline-none focus:ring-2 focus:ring-blue-300"
                                                                                 @click.stop />
-                                                                            <span v-else class="font-semibold text-gray-800">
+                                                                            <span v-else class="font-semibold text-tinta-900">
                                                                                 {{ parseFloat(comp.cantidad).toFixed(3).replace(/\.?0+$/, '') }}
                                                                             </span>
                                                                         </td>
-                                                                        <td class="px-3 py-2 text-gray-400">{{ comp.unidad }}</td>
+                                                                        <td class="px-3 py-2 text-tinta-300">{{ comp.unidad }}</td>
                                                                         <td class="px-3 py-2">
                                                                             <input :value="comp.observacion ?? ''"
                                                                                 @blur="guardarObservacion(item, comp, $event.target.value)"
                                                                                 type="text" placeholder="—"
-                                                                                class="w-full min-w-[100px] rounded-lg border border-gray-100 px-2 py-1 text-xs text-gray-600 focus:outline-none focus:border-blue-300 focus:ring-1 bg-transparent hover:bg-white"
+                                                                                class="w-full min-w-[100px] rounded-lg border border-linea px-2 py-1 text-xs text-tinta-500 focus:outline-none focus:border-blue-300 focus:ring-1 bg-transparent hover:bg-white"
                                                                                 @click.stop />
                                                                         </td>
                                                                         <td class="px-3 py-2">
                                                                             <div v-if="editandoCantidad[comp.id] !== undefined" class="flex gap-1">
                                                                                 <button @click.stop="guardarCantidad(item, comp)"
                                                                                     class="text-green-600 hover:text-green-800">
-                                                                                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                                                                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
                                                                                         <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
                                                                                     </svg>
                                                                                 </button>
                                                                                 <button @click.stop="cancelarEditCantidad(comp)"
-                                                                                    class="text-gray-400 hover:text-gray-600">
-                                                                                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                                                    class="text-tinta-300 hover:text-tinta-500">
+                                                                                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                                                                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
                                                                                     </svg>
                                                                                 </button>
                                                                             </div>
                                                                             <button v-else @click.stop="iniciarEditCantidad(comp)"
-                                                                                class="text-gray-300 hover:text-blue-500 transition-colors">
-                                                                                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                                                class="text-tinta-200 hover:text-blue-500 transition-colors">
+                                                                                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                                                                     <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                                                                                 </svg>
                                                                             </button>
@@ -749,7 +749,7 @@ function marcarTerminado(item) {
 
                                             <!-- Estado de trabajos por unidad -->
                                             <div v-if="item.trabajos?.length">
-                                                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Estado por unidad</p>
+                                                <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-2">Estado por unidad</p>
                                                 <div class="flex flex-wrap gap-2">
                                                     <div v-for="t in item.trabajos" :key="t.id"
                                                         class="flex items-center gap-1.5 text-xs px-2 py-1 rounded-lg border"
@@ -774,7 +774,7 @@ function marcarTerminado(item) {
                                                 <a :href="`/produccion/ops/${op.id}/etiqueta/${item.id}`" target="_blank"
                                                     @click.stop
                                                     class="text-xs px-2 py-1 rounded-lg border border-amber-300 text-amber-700 hover:bg-amber-50 font-medium flex items-center gap-1">
-                                                    <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                    <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                                         <path stroke-linecap="round" stroke-linejoin="round" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A2 2 0 013 12V7a2 2 0 012-2z"/>
                                                     </svg>
                                                     Etiqueta
@@ -782,7 +782,7 @@ function marcarTerminado(item) {
                                                 <button v-if="puedeGestionar && item.estado_item !== 'terminado'"
                                                     @click.stop="marcarTerminado(item)"
                                                     class="text-xs px-2 py-1 rounded-lg border border-green-300 text-green-700 hover:bg-green-50 font-medium flex items-center gap-1">
-                                                    <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                                    <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
                                                         <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
                                                     </svg>
                                                     Marcar Terminado
@@ -803,7 +803,7 @@ function marcarTerminado(item) {
                                                 <a :href="`/produccion/ops/${op.id}/items/${item.id}/trabajos/pdf`" target="_blank"
                                                     @click.stop
                                                     class="text-xs px-2 py-1 rounded-lg border border-red-200 text-red-600 hover:bg-red-50 font-medium flex items-center gap-1">
-                                                    <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                    <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                                         <path stroke-linecap="round" stroke-linejoin="round" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
                                                     </svg>
                                                     Todos ({{ item.trabajos.length }})
@@ -815,12 +815,12 @@ function marcarTerminado(item) {
                                                 </button>
                                             </div>
                                             <div v-if="item.tipo === 'ensamble' && (item.trabajos?.length ?? 0) < Math.floor(parseFloat(item.cantidad)) && puedeGestionar">
-                                                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
+                                                <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-2">
                                                     Template de trabajo
                                                 </p>
                                                 <div class="flex gap-2">
                                                     <select v-model="templatePorItem[item.id]" @click.stop
-                                                        class="flex-1 rounded-xl border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2">
+                                                        class="flex-1 rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-2">
                                                         <option value="">Seleccionar template...</option>
                                                         <option v-for="t in templates" :key="t.id" :value="t.id">
                                                             {{ t.nombre }} ({{ t.pasos_count }} pasos)
@@ -833,7 +833,7 @@ function marcarTerminado(item) {
                                                         Iniciar
                                                     </button>
                                                 </div>
-                                                <p class="text-xs text-gray-400 mt-1">
+                                                <p class="text-xs text-tinta-300 mt-1">
                                                     Trabajo {{ (item.trabajos?.length ?? 0) + 1 }} de {{ Math.floor(parseFloat(item.cantidad)) }}
                                                 </p>
                                             </div>
@@ -849,14 +849,14 @@ function marcarTerminado(item) {
                 <!-- Mobile cards -->
                 <div class="md:hidden divide-y divide-gray-50">
                     <div v-for="(item, idx) in op.items" :key="item.id">
-                        <div class="px-4 py-3 flex items-start gap-3 cursor-pointer hover:bg-gray-50 transition-colors"
+                        <div class="px-4 py-3 flex items-start gap-3 cursor-pointer hover:bg-tinta-50 transition-colors"
                             @click="toggleItem(item.id)">
-                            <span class="shrink-0 mt-0.5 font-mono text-xs text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded">
+                            <span class="shrink-0 mt-0.5 font-mono text-xs text-tinta-400 bg-tinta-100 px-1.5 py-0.5 rounded">
                                 {{ item.codigo_item ?? (idx + 1) }}
                             </span>
                             <div class="flex-1 min-w-0">
                                 <div class="flex items-center gap-2 mb-0.5 flex-wrap">
-                                    <span class="text-sm font-medium text-gray-800">{{ item.descripcion }}</span>
+                                    <span class="text-sm font-medium text-tinta-900">{{ item.descripcion }}</span>
                                     <span class="text-xs px-1.5 py-0.5 rounded-full"
                                         :style="item.tipo === 'ensamble' ? 'background:#EDE9FE;color:#5B21B6;'
                                             : item.tipo === 'servicio' ? 'background:#FEF9C3;color:#713F12;'
@@ -864,7 +864,7 @@ function marcarTerminado(item) {
                                         {{ item.tipo }}
                                     </span>
                                 </div>
-                                <p v-if="item.descripcion_larga_texto" class="text-xs text-gray-400 italic mt-0.5">
+                                <p v-if="item.descripcion_larga_texto" class="text-xs text-tinta-300 italic mt-0.5">
                                     <span>{{ descExpandido[item.id]
                                         ? item.descripcion_larga_texto
                                         : item.descripcion_larga_texto.slice(0, 100) + (item.descripcion_larga_texto.length > 100 ? '…' : '') }}</span>
@@ -874,11 +874,11 @@ function marcarTerminado(item) {
                                         {{ descExpandido[item.id] ? 'ver menos' : 'ver más' }}
                                     </button>
                                 </p>
-                                <div class="flex items-center gap-3 mt-1 text-xs text-gray-500 flex-wrap">
-                                    <span>Cant: <strong class="text-gray-700">{{ parseFloat(item.cantidad) }}</strong></span>
+                                <div class="flex items-center gap-3 mt-1 text-xs text-tinta-400 flex-wrap">
+                                    <span>Cant: <strong class="text-tinta-700">{{ parseFloat(item.cantidad) }}</strong></span>
                                     <template v-if="item.trabajos?.length">
                                         <div class="flex items-center gap-1">
-                                            <div class="w-12 bg-gray-200 rounded-full h-1.5">
+                                            <div class="w-12 bg-tinta-200 rounded-full h-1.5">
                                                 <div class="h-1.5 rounded-full transition-all"
                                                     :style="`width:${Math.min(item.trabajos.reduce((s,t) => s + t.porcentaje_avance, 0) / item.trabajos.length, 100)}%; background:var(--marca);`">
                                                 </div>
@@ -886,7 +886,7 @@ function marcarTerminado(item) {
                                             <span class="font-semibold text-blue-700">{{ Math.round(item.trabajos.reduce((s,t) => s + t.porcentaje_avance, 0) / item.trabajos.length) }}%</span>
                                         </div>
                                     </template>
-                                    <span v-if="item.numero_serie" class="font-mono bg-gray-100 px-1.5 py-0.5 rounded text-gray-600">
+                                    <span v-if="item.numero_serie" class="font-mono bg-tinta-100 px-1.5 py-0.5 rounded text-tinta-500">
                                         {{ item.numero_serie }}
                                     </span>
                                 </div>
@@ -919,11 +919,11 @@ function marcarTerminado(item) {
                         </div>
 
                         <!-- Mobile expanded -->
-                        <div v-if="itemExpandido === item.id" class="px-4 pb-4 bg-gray-50 border-t border-gray-100 space-y-4">
+                        <div v-if="itemExpandido === item.id" class="px-4 pb-4 bg-tinta-50 border-t border-linea space-y-4">
 
                             <!-- Variables con imágenes de plantilla -->
                             <div v-if="item.variables_instancia && Object.keys(item.variables_instancia).length" class="pt-3">
-                                <p class="text-xs font-semibold text-amber-600 uppercase tracking-wider mb-2">Variables</p>
+                                <p class="text-xs font-semibold text-amber-600 uppercase tracking-[0.12em] mb-2">Variables</p>
                                 <div v-if="item.campos_plantilla?.some(c => c.imagen_referencia)"
                                     class="grid grid-cols-2 gap-2 mb-3">
                                     <div v-for="campo in item.campos_plantilla.filter(c => c.imagen_referencia)"
@@ -951,38 +951,38 @@ function marcarTerminado(item) {
 
                             <!-- Imágenes de instancia inline -->
                             <div v-if="item.imagenes_instancia?.length">
-                                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Imágenes</p>
+                                <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-2">Imágenes</p>
                                 <div class="grid grid-cols-2 gap-2">
                                     <div v-for="(img, imgIdx) in item.imagenes_instancia" :key="imgIdx"
-                                        class="rounded-xl overflow-hidden border border-gray-200 bg-gray-50">
+                                        class="rounded-xl overflow-hidden border border-linea bg-tinta-50">
                                         <a :href="'/storage/' + img.ruta" target="_blank" rel="noopener">
                                             <img :src="'/storage/' + img.ruta"
                                                 class="w-full h-28 object-contain bg-white hover:opacity-90 transition-opacity" />
                                         </a>
-                                        <p v-if="img.titulo" class="text-xs text-gray-500 px-2 py-1.5 truncate">{{ img.titulo }}</p>
+                                        <p v-if="img.titulo" class="text-xs text-tinta-400 px-2 py-1.5 truncate">{{ img.titulo }}</p>
                                     </div>
                                 </div>
                             </div>
 
                             <div v-if="item.notas_item">
-                                <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Notas</p>
-                                <p class="text-sm text-gray-600 whitespace-pre-line">{{ item.notas_item }}</p>
+                                <p class="text-xs font-semibold text-tinta-300 uppercase tracking-[0.12em] mb-1">Notas</p>
+                                <p class="text-sm text-tinta-500 whitespace-pre-line">{{ item.notas_item }}</p>
                             </div>
 
                             <!-- Lista de componentes editable -->
                             <div v-if="item.componentes?.length">
-                                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
+                                <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-2">
                                     Componentes
                                 </p>
-                                <div class="rounded-xl border border-gray-100 overflow-hidden overflow-x-auto">
+                                <div class="rounded-xl border border-linea overflow-hidden overflow-x-auto">
                                     <table class="w-full text-xs">
                                         <thead>
-                                            <tr class="bg-gray-50 border-b border-gray-100">
-                                                <th class="text-left px-3 py-2 font-semibold text-gray-500">Componente</th>
-                                                <th class="text-left px-3 py-2 font-semibold text-gray-500">Ref.</th>
-                                                <th class="text-center px-3 py-2 font-semibold text-gray-500">Cant.</th>
-                                                <th class="text-left px-3 py-2 font-semibold text-gray-500">Und.</th>
-                                                <th class="text-left px-3 py-2 font-semibold text-gray-500">Obs.</th>
+                                            <tr class="bg-tinta-50 border-b border-linea">
+                                                <th class="text-left px-3 py-2 font-semibold text-tinta-400">Componente</th>
+                                                <th class="text-left px-3 py-2 font-semibold text-tinta-400">Ref.</th>
+                                                <th class="text-center px-3 py-2 font-semibold text-tinta-400">Cant.</th>
+                                                <th class="text-left px-3 py-2 font-semibold text-tinta-400">Und.</th>
+                                                <th class="text-left px-3 py-2 font-semibold text-tinta-400">Obs.</th>
                                                 <th class="w-8"></th>
                                             </tr>
                                         </thead>
@@ -991,14 +991,14 @@ function marcarTerminado(item) {
                                             <template v-if="item.tiene_secciones">
                                                 <template v-for="(padres, seccionNombre) in componentesPorSeccion(item.componentes)" :key="seccionNombre">
                                                     <tr>
-                                                        <td colspan="6" class="px-3 py-1.5 text-xs font-bold text-white uppercase tracking-wider" style="background:var(--marca);">
+                                                        <td colspan="6" class="px-3 py-1.5 text-xs font-semibold text-white uppercase tracking-[0.12em]" style="background:var(--marca);">
                                                             {{ seccionNombre }}
                                                         </td>
                                                     </tr>
                                                     <template v-for="padre in padres" :key="padre.id">
-                                                        <tr class="hover:bg-gray-50">
-                                                            <td class="px-3 py-2 text-gray-700 font-bold">{{ padre.nombre }}</td>
-                                                            <td class="px-3 py-2 text-gray-400 font-mono">{{ padre.referencia ?? '—' }}</td>
+                                                        <tr class="hover:bg-tinta-50">
+                                                            <td class="px-3 py-2 text-tinta-700 font-semibold">{{ padre.nombre }}</td>
+                                                            <td class="px-3 py-2 text-tinta-300 font-mono">{{ padre.referencia ?? '—' }}</td>
                                                             <td class="px-3 py-2 text-center">
                                                                 <input v-if="editandoCantidad[padre.id] !== undefined"
                                                                     v-model.number="editandoCantidad[padre.id]"
@@ -1007,50 +1007,50 @@ function marcarTerminado(item) {
                                                                     @keyup.escape="cancelarEditCantidad(padre)"
                                                                     class="w-20 rounded-lg border border-blue-400 px-2 py-1 text-center text-xs focus:outline-none focus:ring-2 focus:ring-blue-300"
                                                                     @click.stop />
-                                                                <span v-else class="font-semibold text-gray-800">
+                                                                <span v-else class="font-semibold text-tinta-900">
                                                                     {{ parseFloat(padre.cantidad).toFixed(3).replace(/\.?0+$/, '') }}
                                                                 </span>
                                                             </td>
-                                                            <td class="px-3 py-2 text-gray-400">{{ padre.unidad }}</td>
+                                                            <td class="px-3 py-2 text-tinta-300">{{ padre.unidad }}</td>
                                                             <td class="px-3 py-2">
                                                                 <input :value="padre.observacion ?? ''"
                                                                     @blur="guardarObservacion(item, padre, $event.target.value)"
                                                                     type="text" placeholder="—"
-                                                                    class="w-full min-w-[80px] rounded-lg border border-gray-100 px-2 py-1 text-xs text-gray-600 focus:outline-none focus:border-blue-300 focus:ring-1 bg-transparent hover:bg-white"
+                                                                    class="w-full min-w-[80px] rounded-lg border border-linea px-2 py-1 text-xs text-tinta-500 focus:outline-none focus:border-blue-300 focus:ring-1 bg-transparent hover:bg-white"
                                                                     @click.stop />
                                                             </td>
                                                             <td class="px-3 py-2">
                                                                 <div v-if="editandoCantidad[padre.id] !== undefined" class="flex gap-1">
                                                                     <button @click.stop="guardarCantidad(item, padre)"
                                                                         class="text-green-600 hover:text-green-800">
-                                                                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                                                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
                                                                             <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
                                                                         </svg>
                                                                     </button>
                                                                     <button @click.stop="cancelarEditCantidad(padre)"
-                                                                        class="text-gray-400 hover:text-gray-600">
-                                                                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                                        class="text-tinta-300 hover:text-tinta-500">
+                                                                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                                                             <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
                                                                         </svg>
                                                                     </button>
                                                                 </div>
                                                                 <button v-else @click.stop="iniciarEditCantidad(padre)"
-                                                                    class="text-gray-300 hover:text-blue-500 transition-colors">
-                                                                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                                    class="text-tinta-200 hover:text-blue-500 transition-colors">
+                                                                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                                                         <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                                                                     </svg>
                                                                 </button>
                                                             </td>
                                                         </tr>
-                                                        <tr v-for="hijo in padre.hijos" :key="hijo.id" class="bg-gray-50/50">
-                                                            <td class="pl-6 pr-3 py-1.5 text-gray-500">
-                                                                <span class="text-gray-400 mr-1">↳</span>{{ hijo.nombre }}
+                                                        <tr v-for="hijo in padre.hijos" :key="hijo.id" class="bg-tinta-50/50">
+                                                            <td class="pl-6 pr-3 py-1.5 text-tinta-400">
+                                                                <span class="text-tinta-300 mr-1">↳</span>{{ hijo.nombre }}
                                                             </td>
-                                                            <td class="px-3 py-1.5 text-gray-300">—</td>
-                                                            <td class="px-3 py-1.5 text-center text-gray-600 font-medium">
+                                                            <td class="px-3 py-1.5 text-tinta-200">—</td>
+                                                            <td class="px-3 py-1.5 text-center text-tinta-500 font-medium">
                                                                 {{ parseFloat(hijo.cantidad).toFixed(3).replace(/\.?0+$/, '') }}
                                                             </td>
-                                                            <td class="px-3 py-1.5 text-gray-400">{{ hijo.unidad }}</td>
+                                                            <td class="px-3 py-1.5 text-tinta-300">{{ hijo.unidad }}</td>
                                                             <td class="px-3 py-1.5"></td>
                                                             <td class="px-3 py-1.5"></td>
                                                         </tr>
@@ -1061,22 +1061,22 @@ function marcarTerminado(item) {
                                             <template v-else>
                                                 <template v-for="comp in componentesConJerarquia(item.componentes)" :key="comp.id">
                                                     <!-- Fila hijo -->
-                                                    <tr v-if="comp.parent_componente_id" class="bg-gray-50/50">
-                                                        <td class="pl-6 pr-3 py-1.5 text-gray-500">
-                                                            <span class="text-gray-400 mr-1">↳</span>{{ comp.nombre }}
+                                                    <tr v-if="comp.parent_componente_id" class="bg-tinta-50/50">
+                                                        <td class="pl-6 pr-3 py-1.5 text-tinta-400">
+                                                            <span class="text-tinta-300 mr-1">↳</span>{{ comp.nombre }}
                                                         </td>
-                                                        <td class="px-3 py-1.5 text-gray-300">—</td>
-                                                        <td class="px-3 py-1.5 text-center text-gray-600 font-medium">
+                                                        <td class="px-3 py-1.5 text-tinta-200">—</td>
+                                                        <td class="px-3 py-1.5 text-center text-tinta-500 font-medium">
                                                             {{ parseFloat(comp.cantidad).toFixed(3).replace(/\.?0+$/, '') }}
                                                         </td>
-                                                        <td class="px-3 py-1.5 text-gray-400">{{ comp.unidad }}</td>
+                                                        <td class="px-3 py-1.5 text-tinta-300">{{ comp.unidad }}</td>
                                                         <td class="px-3 py-1.5"></td>
                                                         <td class="px-3 py-1.5"></td>
                                                     </tr>
                                                     <!-- Fila padre / componente normal -->
-                                                    <tr v-else class="hover:bg-gray-50">
-                                                        <td class="px-3 py-2 text-gray-700 font-medium">{{ comp.nombre }}</td>
-                                                        <td class="px-3 py-2 text-gray-400 font-mono">{{ comp.referencia ?? '—' }}</td>
+                                                    <tr v-else class="hover:bg-tinta-50">
+                                                        <td class="px-3 py-2 text-tinta-700 font-medium">{{ comp.nombre }}</td>
+                                                        <td class="px-3 py-2 text-tinta-300 font-mono">{{ comp.referencia ?? '—' }}</td>
                                                         <td class="px-3 py-2 text-center">
                                                             <input v-if="editandoCantidad[comp.id] !== undefined"
                                                                 v-model.number="editandoCantidad[comp.id]"
@@ -1085,36 +1085,36 @@ function marcarTerminado(item) {
                                                                 @keyup.escape="cancelarEditCantidad(comp)"
                                                                 class="w-20 rounded-lg border border-blue-400 px-2 py-1 text-center text-xs focus:outline-none focus:ring-2 focus:ring-blue-300"
                                                                 @click.stop />
-                                                            <span v-else class="font-semibold text-gray-800">
+                                                            <span v-else class="font-semibold text-tinta-900">
                                                                 {{ parseFloat(comp.cantidad).toFixed(3).replace(/\.?0+$/, '') }}
                                                             </span>
                                                         </td>
-                                                        <td class="px-3 py-2 text-gray-400">{{ comp.unidad }}</td>
+                                                        <td class="px-3 py-2 text-tinta-300">{{ comp.unidad }}</td>
                                                         <td class="px-3 py-2">
                                                             <input :value="comp.observacion ?? ''"
                                                                 @blur="guardarObservacion(item, comp, $event.target.value)"
                                                                 type="text" placeholder="—"
-                                                                class="w-full min-w-[80px] rounded-lg border border-gray-100 px-2 py-1 text-xs text-gray-600 focus:outline-none focus:border-blue-300 focus:ring-1 bg-transparent hover:bg-white"
+                                                                class="w-full min-w-[80px] rounded-lg border border-linea px-2 py-1 text-xs text-tinta-500 focus:outline-none focus:border-blue-300 focus:ring-1 bg-transparent hover:bg-white"
                                                                 @click.stop />
                                                         </td>
                                                         <td class="px-3 py-2">
                                                             <div v-if="editandoCantidad[comp.id] !== undefined" class="flex gap-1">
                                                                 <button @click.stop="guardarCantidad(item, comp)"
                                                                     class="text-green-600 hover:text-green-800">
-                                                                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                                                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
                                                                         <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
                                                                     </svg>
                                                                 </button>
                                                                 <button @click.stop="cancelarEditCantidad(comp)"
-                                                                    class="text-gray-400 hover:text-gray-600">
-                                                                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                                    class="text-tinta-300 hover:text-tinta-500">
+                                                                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                                                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
                                                                     </svg>
                                                                 </button>
                                                             </div>
                                                             <button v-else @click.stop="iniciarEditCantidad(comp)"
-                                                                class="text-gray-300 hover:text-blue-500 transition-colors">
-                                                                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                                class="text-tinta-200 hover:text-blue-500 transition-colors">
+                                                                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                                                     <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                                                                 </svg>
                                                             </button>
@@ -1129,7 +1129,7 @@ function marcarTerminado(item) {
 
                             <!-- Estado de trabajos por unidad (mobile) -->
                             <div v-if="item.trabajos?.length">
-                                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Estado por unidad</p>
+                                <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-2">Estado por unidad</p>
                                 <div class="flex flex-wrap gap-2">
                                     <div v-for="t in item.trabajos" :key="t.id"
                                         class="flex items-center gap-1.5 text-xs px-2 py-1 rounded-lg border"
@@ -1154,7 +1154,7 @@ function marcarTerminado(item) {
                                 <a :href="`/produccion/ops/${op.id}/etiqueta/${item.id}`" target="_blank"
                                     @click.stop
                                     class="text-xs px-2 py-1 rounded-lg border border-amber-300 text-amber-700 hover:bg-amber-50 font-medium flex items-center gap-1">
-                                    <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A2 2 0 013 12V7a2 2 0 012-2z"/>
                                     </svg>
                                     Etiqueta
@@ -1162,7 +1162,7 @@ function marcarTerminado(item) {
                                 <button v-if="puedeGestionar && item.estado_item !== 'terminado'"
                                     @click.stop="marcarTerminado(item)"
                                     class="text-xs px-2 py-1 rounded-lg border border-green-300 text-green-700 hover:bg-green-50 font-medium flex items-center gap-1">
-                                    <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                    <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
                                     </svg>
                                     Marcar Terminado
@@ -1183,7 +1183,7 @@ function marcarTerminado(item) {
                                 <a :href="`/produccion/ops/${op.id}/items/${item.id}/trabajos/pdf`" target="_blank"
                                     @click.stop
                                     class="text-xs px-2 py-1 rounded-lg border border-red-200 text-red-600 hover:bg-red-50 font-medium flex items-center gap-1">
-                                    <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
                                     </svg>
                                     Todos ({{ item.trabajos.length }})
@@ -1195,12 +1195,12 @@ function marcarTerminado(item) {
                                 </button>
                             </div>
                             <div v-if="item.tipo === 'ensamble' && (item.trabajos?.length ?? 0) < Math.floor(parseFloat(item.cantidad)) && puedeGestionar">
-                                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
+                                <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-2">
                                     Template de trabajo
                                 </p>
                                 <div class="flex gap-2">
                                     <select v-model="templatePorItem[item.id]" @click.stop
-                                        class="flex-1 rounded-xl border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2">
+                                        class="flex-1 rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-2">
                                         <option value="">Seleccionar template...</option>
                                         <option v-for="t in templates" :key="t.id" :value="t.id">
                                             {{ t.nombre }} ({{ t.pasos_count }} pasos)
@@ -1213,7 +1213,7 @@ function marcarTerminado(item) {
                                         Iniciar
                                     </button>
                                 </div>
-                                <p class="text-xs text-gray-400 mt-1">
+                                <p class="text-xs text-tinta-300 mt-1">
                                     Trabajo {{ (item.trabajos?.length ?? 0) + 1 }} de {{ Math.floor(parseFloat(item.cantidad)) }}
                                 </p>
                             </div>
@@ -1224,23 +1224,23 @@ function marcarTerminado(item) {
             </div>
 
             <!-- Condiciones / notas -->
-            <div v-if="op.condiciones" class="bg-white rounded-2xl border border-gray-200 p-5 mb-4">
-                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Condiciones</p>
-                <p class="text-sm text-gray-600 whitespace-pre-line">{{ op.condiciones }}</p>
+            <div v-if="op.condiciones" class="bg-white rounded-2xl border border-linea p-5 mb-4">
+                <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-2">Condiciones</p>
+                <p class="text-sm text-tinta-500 whitespace-pre-line">{{ op.condiciones }}</p>
             </div>
-            <div v-if="op.notas_internas" class="bg-white rounded-2xl border border-gray-200 p-5 mb-4">
-                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Notas internas</p>
-                <p class="text-sm text-gray-600 whitespace-pre-line">{{ op.notas_internas }}</p>
+            <div v-if="op.notas_internas" class="bg-white rounded-2xl border border-linea p-5 mb-4">
+                <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-2">Notas internas</p>
+                <p class="text-sm text-tinta-500 whitespace-pre-line">{{ op.notas_internas }}</p>
             </div>
 
             <!-- Control de calidad -->
             <div v-if="['calidad', 'reproceso', 'despachada'].includes(op.estado) && (op.observaciones_calidad || op.motivo_rechazo || op.fotos_calidad?.length || op.estado === 'calidad')"
-                class="bg-white rounded-2xl border border-gray-200 p-5 mb-4">
+                class="bg-white rounded-2xl border border-linea p-5 mb-4">
                 <div class="flex items-center gap-2 mb-3">
-                    <svg class="w-4 h-4 text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <svg class="w-4 h-4 text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                     </svg>
-                    <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Control de calidad</p>
+                    <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">Control de calidad</p>
                 </div>
 
                 <div v-if="op.motivo_rechazo" class="mb-3 px-3 py-2 rounded-xl text-xs" style="background:#FFF7ED; color:#9A3412;">
@@ -1248,7 +1248,7 @@ function marcarTerminado(item) {
                 </div>
 
                 <div v-if="op.calidad_aprobada_at" class="mb-3 px-3 py-2 rounded-xl text-xs flex items-center gap-2" style="background:#ECFDF5; color:#065F46;">
-                    <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                     </svg>
                     Calidad aprobada — ya se puede generar la remisión y despachar.
@@ -1257,7 +1257,7 @@ function marcarTerminado(item) {
                 <!-- Fotos de evidencia -->
                 <div class="flex flex-wrap gap-2 mb-3">
                     <a v-for="f in op.fotos_calidad" :key="f.id" :href="f.url" target="_blank"
-                        class="w-16 h-16 rounded-lg overflow-hidden border border-gray-200 bg-gray-50 shrink-0">
+                        class="w-16 h-16 rounded-lg overflow-hidden border border-linea bg-tinta-50 shrink-0">
                         <img :src="f.url" :alt="f.nombre" class="w-full h-full object-cover"/>
                     </a>
                 </div>
@@ -1267,33 +1267,33 @@ function marcarTerminado(item) {
                      un único input, así que aquí se fuerza cada opción por
                      separado y siempre queda clara. -->
                 <div v-if="op.estado === 'calidad' && !op.calidad_aprobada_at && puedeGestionar" class="flex gap-2 mb-3">
-                    <label class="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl border-2 border-dashed border-gray-200 text-gray-500 hover:border-gray-300 hover:text-gray-600 cursor-pointer text-xs font-medium">
-                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <label class="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl border-2 border-dashed border-linea text-tinta-400 hover:border-tinta-200 hover:text-tinta-500 cursor-pointer text-xs font-medium">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 17a4 4 0 100-8 4 4 0 000 8z"/>
                         </svg>
                         Tomar foto
                         <input type="file" accept="image/*" capture="environment" class="hidden" @change="subirFotoCalidad"/>
                     </label>
-                    <label class="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl border-2 border-dashed border-gray-200 text-gray-500 hover:border-gray-300 hover:text-gray-600 cursor-pointer text-xs font-medium">
-                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <label class="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl border-2 border-dashed border-linea text-tinta-400 hover:border-tinta-200 hover:text-tinta-500 cursor-pointer text-xs font-medium">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14M14 8h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                         </svg>
                         Subir foto
                         <input type="file" accept="image/*" multiple class="hidden" @change="subirFotoCalidad"/>
                     </label>
                     <div v-if="subiendoFoto" class="flex items-center px-2">
-                        <div class="w-4 h-4 border-2 border-gray-300 border-t-transparent rounded-full animate-spin"></div>
+                        <div class="w-4 h-4 border-2 border-tinta-200 border-t-transparent rounded-full animate-spin"></div>
                     </div>
                 </div>
 
                 <template v-if="op.estado === 'calidad' && !op.calidad_aprobada_at && puedeGestionar">
-                    <label class="block text-xs font-medium text-gray-600 mb-1.5">Observaciones (medidas, acabado, hermeticidad...)</label>
+                    <label class="block text-xs font-medium text-tinta-500 mb-1.5">Observaciones (medidas, acabado, hermeticidad...)</label>
                     <textarea v-model="obsCalidad" rows="2" placeholder="Qué se revisó y en qué estado quedó..."
-                        class="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm mb-3 focus:ring-2 focus:outline-none"></textarea>
+                        class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm mb-3 focus:ring-2 focus:outline-none"></textarea>
 
                     <div v-if="mostrarRechazo" class="mb-3">
-                        <label class="block text-xs font-medium text-gray-600 mb-1.5">Motivo del rechazo *</label>
+                        <label class="block text-xs font-medium text-tinta-500 mb-1.5">Motivo del rechazo *</label>
                         <textarea v-model="motivoRechazo" rows="2" placeholder="Qué falló y qué hay que corregir..."
                             class="w-full rounded-xl border border-orange-300 px-3 py-2 text-sm focus:outline-none"></textarea>
                     </div>
@@ -1311,7 +1311,7 @@ function marcarTerminado(item) {
                         </button>
                     </div>
                 </template>
-                <p v-else-if="op.observaciones_calidad" class="text-sm text-gray-600 whitespace-pre-line">{{ op.observaciones_calidad }}</p>
+                <p v-else-if="op.observaciones_calidad" class="text-sm text-tinta-500 whitespace-pre-line">{{ op.observaciones_calidad }}</p>
             </div>
 
             <!-- Módulo Financiero -->
@@ -1351,20 +1351,20 @@ function marcarTerminado(item) {
             <div v-if="modalEstado" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4"
                 style="background:rgba(0,0,0,0.5);">
                 <div class="bg-white rounded-2xl shadow-xl w-full max-w-sm p-5">
-                    <h3 class="text-base font-semibold text-gray-900 mb-4">Cambiar estado</h3>
+                    <h3 class="text-base font-semibold text-tinta-900 mb-4">Cambiar estado</h3>
                     <select v-model="nuevoEstado"
-                        class="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm mb-2 focus:ring-2 focus:outline-none">
+                        class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm mb-2 focus:ring-2 focus:outline-none">
                         <option v-for="e in ESTADOS" :key="e.value" :value="e.value"
                             :disabled="e.value === 'despachada' && !op.calidad_aprobada_at">
                             {{ e.label }}{{ e.value === 'despachada' && !op.calidad_aprobada_at ? ' (falta calidad)' : '' }}
                         </option>
                     </select>
-                    <p v-if="!op.calidad_aprobada_at" class="text-xs text-gray-400 mb-3">
+                    <p v-if="!op.calidad_aprobada_at" class="text-xs text-tinta-300 mb-3">
                         "Despachada" no está disponible hasta aprobar control de calidad. Normalmente esto lo hace solo la remisión.
                     </p>
                     <div class="flex gap-3">
                         <button @click="modalEstado = false"
-                            class="flex-1 py-2.5 rounded-xl border border-gray-200 text-sm text-gray-600">
+                            class="flex-1 py-2.5 rounded-xl border border-linea text-sm text-tinta-500">
                             Cancelar
                         </button>
                         <button @click="cambiarEstado"

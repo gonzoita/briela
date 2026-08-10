@@ -390,42 +390,42 @@ function submit() {
 
             <!-- Encabezado -->
             <div class="flex items-center gap-3 mb-5">
-                <a href="/produccion/ops" class="text-gray-400 hover:text-gray-700">
+                <a href="/produccion/ops" class="text-tinta-300 hover:text-tinta-700">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M15 19l-7-7 7-7"/>
                     </svg>
                 </a>
-                <h1 class="text-lg font-bold text-gray-900">
+                <h1 class="text-lg font-semibold text-tinta-900">
                     {{ esEdicion ? `Editar ${op?.numero}` : 'Nueva Orden de Producción' }}
                 </h1>
             </div>
 
             <!-- ── General ──────────────────────────────────────────────────── -->
-            <div class="bg-white rounded-2xl border border-gray-200 p-5 mb-4 space-y-4">
-                <h2 class="text-sm font-semibold text-gray-700">Datos generales</h2>
+            <div class="bg-white rounded-2xl border border-linea p-5 mb-4 space-y-4">
+                <h2 class="text-sm font-semibold text-tinta-700">Datos generales</h2>
 
                 <!-- Cliente -->
                 <div class="relative">
-                    <label class="block text-xs font-medium text-gray-500 mb-1">Cliente</label>
+                    <label class="block text-xs font-medium text-tinta-400 mb-1">Cliente</label>
                     <div class="relative">
                         <input v-model="clienteBuscar" type="text"
                             placeholder="Buscar por nombre o NIT..."
-                            class="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-400"
+                            class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-400"
                             @input="debounceCliente" @focus="buscarClientes" autocomplete="off"/>
                         <button v-if="form.cliente_id" @click="limpiarCliente"
-                            class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
-                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            class="absolute right-3 top-1/2 -translate-y-1/2 text-tinta-300 hover:text-tinta-500">
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
                             </svg>
                         </button>
                     </div>
                     <div v-if="clienteAbierto && clienteResultados.length"
-                        class="absolute z-20 mt-1 w-full bg-white border border-gray-200 rounded-xl shadow-lg overflow-hidden">
+                        class="absolute z-20 mt-1 w-full bg-white border border-linea rounded-xl shadow-lg overflow-hidden">
                         <button v-for="c in clienteResultados" :key="c.id"
                             @click="seleccionarCliente(c)"
                             class="w-full text-left px-4 py-2.5 text-sm hover:bg-blue-50 border-b border-gray-50 last:border-0">
-                            <span class="font-medium text-gray-800">{{ c.nombre }} {{ c.apellido }}</span>
-                            <span v-if="c.numero_identificacion" class="ml-2 text-xs text-gray-400">{{ c.numero_identificacion }}</span>
+                            <span class="font-medium text-tinta-900">{{ c.nombre }} {{ c.apellido }}</span>
+                            <span v-if="c.numero_identificacion" class="ml-2 text-xs text-tinta-300">{{ c.numero_identificacion }}</span>
                         </button>
                     </div>
                 </div>
@@ -433,9 +433,9 @@ function submit() {
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <!-- Responsable -->
                     <div>
-                        <label class="block text-xs font-medium text-gray-500 mb-1">Responsable <span class="text-red-500">*</span></label>
+                        <label class="block text-xs font-medium text-tinta-400 mb-1">Responsable <span class="text-red-500">*</span></label>
                         <select v-model="form.responsable_id"
-                            class="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-400">
+                            class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-400">
                             <option value="">Seleccionar...</option>
                             <option v-for="r in responsables" :key="r.id" :value="r.id">{{ r.name }}</option>
                         </select>
@@ -444,49 +444,49 @@ function submit() {
 
                     <!-- Estado -->
                     <div>
-                        <label class="block text-xs font-medium text-gray-500 mb-1">Estado</label>
+                        <label class="block text-xs font-medium text-tinta-400 mb-1">Estado</label>
                         <select v-model="form.estado"
-                            class="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-400">
+                            class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-400">
                             <option v-for="e in ESTADOS_OP" :key="e.value" :value="e.value">{{ e.label }}</option>
                         </select>
                     </div>
 
                     <!-- Fecha creación -->
                     <div>
-                        <label class="block text-xs font-medium text-gray-500 mb-1">Fecha creación <span class="text-red-500">*</span></label>
+                        <label class="block text-xs font-medium text-tinta-400 mb-1">Fecha creación <span class="text-red-500">*</span></label>
                         <input v-model="form.fecha_creacion" type="date"
-                            class="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-400"/>
+                            class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-400"/>
                     </div>
 
                     <!-- Entrega estimada -->
                     <div>
-                        <label class="block text-xs font-medium text-gray-500 mb-1">Entrega estimada</label>
+                        <label class="block text-xs font-medium text-tinta-400 mb-1">Entrega estimada</label>
                         <input v-model="form.fecha_entrega_estimada" type="date"
-                            class="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-400"/>
+                            class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-400"/>
                     </div>
 
                     <!-- Anticipo -->
                     <div class="md:col-span-2">
-                        <label class="block text-xs font-medium text-gray-500 mb-1">Anticipo (COP)</label>
+                        <label class="block text-xs font-medium text-tinta-400 mb-1">Anticipo (COP)</label>
                         <input v-model="form.anticipo" type="number" min="0" step="1000"
-                            class="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-400"
+                            class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-400"
                             placeholder="0"/>
                     </div>
                 </div>
             </div>
 
             <!-- ── Ítems ────────────────────────────────────────────────────── -->
-            <div class="bg-white rounded-2xl border border-gray-200 p-5 mb-4">
+            <div class="bg-white rounded-2xl border border-linea p-5 mb-4">
                 <div class="flex items-center justify-between mb-4">
-                    <h2 class="text-sm font-semibold text-gray-700">Ítems de la orden</h2>
-                    <span v-if="items.length" class="text-xs text-gray-400">{{ items.length }} ítem{{ items.length !== 1 ? 's' : '' }}</span>
+                    <h2 class="text-sm font-semibold text-tinta-700">Ítems de la orden</h2>
+                    <span v-if="items.length" class="text-xs text-tinta-300">{{ items.length }} ítem{{ items.length !== 1 ? 's' : '' }}</span>
                 </div>
 
                 <!-- Lista de ítems inline -->
                 <div v-if="items.length" class="space-y-3 mb-4">
                     <div v-for="(item, idx) in items" :key="item._key"
                         class="rounded-xl border transition-colors"
-                        :class="dragOverIdx === idx && draggingIdx !== idx ? 'border-blue-400 bg-blue-50' : 'border-gray-200'"
+                        :class="dragOverIdx === idx && draggingIdx !== idx ? 'border-blue-400 bg-blue-50' : 'border-linea'"
                         :draggable="true"
                         @dragstart="onDragStart(idx)"
                         @dragover="onDragOver($event, idx)"
@@ -496,7 +496,7 @@ function submit() {
                         <!-- Barra superior -->
                         <div class="flex items-center gap-2 px-3 pt-2.5 pb-0">
                             <!-- Grip desktop -->
-                            <div class="hidden sm:flex cursor-grab text-gray-300 hover:text-gray-400 shrink-0">
+                            <div class="hidden sm:flex cursor-grab text-tinta-200 hover:text-tinta-300 shrink-0">
                                 <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                                     <circle cx="9" cy="5" r="1.5"/><circle cx="15" cy="5" r="1.5"/>
                                     <circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/>
@@ -511,14 +511,14 @@ function submit() {
                             <!-- ↑↓ mobile -->
                             <div class="flex sm:hidden gap-0.5 shrink-0">
                                 <button type="button" @click="moverItem(idx,-1)" :disabled="idx===0"
-                                    class="w-7 h-7 rounded-lg flex items-center justify-center text-gray-400 hover:text-gray-700 hover:bg-gray-100 disabled:opacity-30 text-sm font-bold">↑</button>
+                                    class="w-7 h-7 rounded-lg flex items-center justify-center text-tinta-300 hover:text-tinta-700 hover:bg-tinta-100 disabled:opacity-30 text-sm font-semibold">↑</button>
                                 <button type="button" @click="moverItem(idx,1)" :disabled="idx===items.length-1"
-                                    class="w-7 h-7 rounded-lg flex items-center justify-center text-gray-400 hover:text-gray-700 hover:bg-gray-100 disabled:opacity-30 text-sm font-bold">↓</button>
+                                    class="w-7 h-7 rounded-lg flex items-center justify-center text-tinta-300 hover:text-tinta-700 hover:bg-tinta-100 disabled:opacity-30 text-sm font-semibold">↓</button>
                             </div>
                             <!-- Eliminar -->
                             <button type="button" @click="eliminarItem(idx)"
-                                class="w-7 h-7 rounded-lg flex items-center justify-center text-gray-400 hover:text-red-600 hover:bg-red-50 shrink-0">
-                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                class="w-7 h-7 rounded-lg flex items-center justify-center text-tinta-300 hover:text-red-600 hover:bg-red-50 shrink-0">
+                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                                 </svg>
                             </button>
@@ -528,18 +528,18 @@ function submit() {
                         <div class="px-3 pt-2 pb-3">
                             <textarea v-model="item.descripcion" rows="2"
                                 placeholder="Descripción del ítem..."
-                                class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:outline-none resize-none mb-1"/>
+                                class="w-full rounded-lg border border-tinta-200 px-3 py-2 text-sm focus:ring-2 focus:outline-none resize-none mb-1"/>
                             <div class="mb-2">
-                                <div class="w-full rounded-lg border border-gray-200 px-3 py-2 text-xs text-gray-600 bg-gray-50 max-h-28 overflow-y-auto leading-relaxed"
-                                    v-html="item.descripcion_larga || '<span class=\'text-gray-300\'>Sin descripción técnica</span>'">
+                                <div class="w-full rounded-lg border border-linea px-3 py-2 text-xs text-tinta-500 bg-tinta-50 max-h-28 overflow-y-auto leading-relaxed"
+                                    v-html="item.descripcion_larga || '<span class=\'text-tinta-200\'>Sin descripción técnica</span>'">
                                 </div>
                             </div>
 
                             <!-- Cantidad -->
                             <div class="flex items-center gap-3">
-                                <label class="text-xs text-gray-500 whitespace-nowrap">Cantidad</label>
+                                <label class="text-xs text-tinta-400 whitespace-nowrap">Cantidad</label>
                                 <input v-model.number="item.cantidad" type="number" step="0.001" min="0.001"
-                                    class="w-28 rounded-lg border border-gray-300 px-2 py-1.5 text-sm text-right focus:outline-none"/>
+                                    class="w-28 rounded-lg border border-tinta-200 px-2 py-1.5 text-sm text-right focus:outline-none"/>
                             </div>
 
                             <!-- Variables instancia -->
@@ -552,32 +552,32 @@ function submit() {
 
                             <!-- Acordeón datos producción -->
                             <button type="button" @click="item._expandido = !item._expandido"
-                                class="mt-3 w-full flex items-center justify-between px-4 py-3 min-h-[44px] text-sm font-medium text-gray-700 bg-gray-50 rounded-lg active:bg-gray-100 transition-colors touch-manipulation">
+                                class="mt-3 w-full flex items-center justify-between px-4 py-3 min-h-[44px] text-sm font-medium text-tinta-700 bg-tinta-50 rounded-lg active:bg-tinta-100 transition-colors touch-manipulation">
                                 <div class="flex items-center gap-2">
                                     <span>Datos de producción</span>
                                     <span v-if="item.numero_serie || item.notas_item"
                                         class="w-2 h-2 rounded-full bg-blue-400 shrink-0"/>
                                 </div>
-                                <svg class="w-4 h-4 text-gray-400 transition-transform duration-200 shrink-0"
+                                <svg class="w-4 h-4 text-tinta-300 transition-transform duration-200 shrink-0"
                                     :class="item._expandido ? 'rotate-180' : ''"
-                                    fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
                                 </svg>
                             </button>
 
                             <div v-show="item._expandido" class="mt-2 space-y-3 px-1">
                                 <div>
-                                    <label class="block text-xs font-semibold text-gray-500 mb-1">Número de serie</label>
-                                    <div class="w-full rounded-lg border border-gray-100 bg-gray-50 px-3 py-2.5 text-sm text-gray-500 italic">
+                                    <label class="block text-xs font-semibold text-tinta-400 mb-1">Número de serie</label>
+                                    <div class="w-full rounded-lg border border-linea bg-tinta-50 px-3 py-2.5 text-sm text-tinta-400 italic">
                                         {{ item.numero_serie || 'Se asigna automáticamente al iniciar trabajo' }}
                                     </div>
                                 </div>
                                 <div>
-                                    <label class="block text-xs font-semibold text-gray-500 mb-1">Estado</label>
-                                    <div class="w-full rounded-lg border border-gray-100 bg-gray-50 px-3 py-2.5 text-sm">
+                                    <label class="block text-xs font-semibold text-tinta-400 mb-1">Estado</label>
+                                    <div class="w-full rounded-lg border border-linea bg-tinta-50 px-3 py-2.5 text-sm">
                                         <span class="px-2 py-0.5 rounded-full text-xs font-medium"
                                             :class="{
-                                                'bg-gray-100 text-gray-600': item.estado_item === 'pendiente',
+                                                'bg-tinta-100 text-tinta-500': item.estado_item === 'pendiente',
                                                 'bg-blue-100 text-blue-700': item.estado_item === 'en_proceso',
                                                 'bg-green-100 text-green-700': item.estado_item === 'terminado',
                                             }">
@@ -588,9 +588,9 @@ function submit() {
                                     </div>
                                 </div>
                                 <div>
-                                    <label class="block text-xs font-semibold text-gray-500 mb-1">Notas del ítem</label>
+                                    <label class="block text-xs font-semibold text-tinta-400 mb-1">Notas del ítem</label>
                                     <textarea v-model="item.notas_item" rows="2"
-                                        class="w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm resize-none focus:ring-2 focus:ring-[var(--marca)]/30 focus:border-[var(--marca)] focus:outline-none"
+                                        class="w-full rounded-lg border border-linea px-3 py-2.5 text-sm resize-none focus:ring-2 focus:ring-[var(--marca)]/30 focus:border-[var(--marca)] focus:outline-none"
                                         placeholder="Observaciones de producción..."/>
                                 </div>
                             </div>
@@ -598,14 +598,14 @@ function submit() {
                     </div>
                 </div>
 
-                <p v-else class="text-sm text-gray-400 text-center py-8 border border-dashed border-gray-200 rounded-xl mb-4">
+                <p v-else class="text-sm text-tinta-300 text-center py-8 border border-dashed border-linea rounded-xl mb-4">
                     Sin ítems. Agrega productos, servicios o ensambles.
                 </p>
 
                 <!-- Botón agregar -->
                 <button type="button" @click="abrirModal"
-                    class="w-full py-2.5 rounded-xl border-2 border-dashed border-gray-300 text-sm font-medium text-gray-500 hover:border-blue-400 hover:text-blue-600 hover:bg-blue-50 transition-colors flex items-center justify-center gap-2">
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                    class="w-full py-2.5 rounded-xl border-2 border-dashed border-tinta-200 text-sm font-medium text-tinta-400 hover:border-blue-400 hover:text-blue-600 hover:bg-blue-50 transition-colors flex items-center justify-center gap-2">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
                     </svg>
                     Agregar ítem
@@ -613,62 +613,62 @@ function submit() {
             </div>
 
             <!-- ── Panel componentes requeridos ─────────────────────────────── -->
-            <div v-if="panelComponentes.length" class="bg-white rounded-2xl border border-gray-200 overflow-hidden mb-4">
-                <h2 class="text-sm font-semibold text-gray-700 px-5 py-3 border-b border-gray-100">Componentes requeridos</h2>
+            <div v-if="panelComponentes.length" class="bg-white rounded-2xl border border-linea overflow-hidden mb-4">
+                <h2 class="text-sm font-semibold text-tinta-700 px-5 py-3 border-b border-linea">Componentes requeridos</h2>
                 <div class="divide-y divide-gray-50">
                     <div v-for="grupo in panelComponentes" :key="grupo.nombre" class="px-5 py-4">
-                        <p class="text-xs font-semibold text-gray-600 mb-2">
+                        <p class="text-xs font-semibold text-tinta-500 mb-2">
                             {{ grupo.nombre }}
-                            <span class="font-normal text-gray-400 ml-1">× {{ grupo.cantidad_item }}</span>
+                            <span class="font-normal text-tinta-300 ml-1">× {{ grupo.cantidad_item }}</span>
                         </p>
-                        <div class="rounded-xl border border-gray-100 overflow-hidden overflow-x-auto">
+                        <div class="rounded-xl border border-linea overflow-hidden overflow-x-auto">
                             <table class="w-full text-xs">
                                 <thead>
-                                    <tr class="bg-gray-50 border-b border-gray-100">
-                                        <th class="text-left px-3 py-2 font-semibold text-gray-500">Componente</th>
-                                        <th class="text-left px-3 py-2 font-semibold text-gray-500">Ref.</th>
-                                        <th class="text-center px-3 py-2 font-semibold text-gray-500">Cant.</th>
-                                        <th class="text-left px-3 py-2 font-semibold text-gray-500">Und.</th>
-                                        <th v-if="esEdicion" class="text-left px-3 py-2 font-semibold text-gray-500">Obs.</th>
+                                    <tr class="bg-tinta-50 border-b border-linea">
+                                        <th class="text-left px-3 py-2 font-semibold text-tinta-400">Componente</th>
+                                        <th class="text-left px-3 py-2 font-semibold text-tinta-400">Ref.</th>
+                                        <th class="text-center px-3 py-2 font-semibold text-tinta-400">Cant.</th>
+                                        <th class="text-left px-3 py-2 font-semibold text-tinta-400">Und.</th>
+                                        <th v-if="esEdicion" class="text-left px-3 py-2 font-semibold text-tinta-400">Obs.</th>
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-gray-50">
                                     <template v-for="comp in componentesConJerarquia(grupo.componentes)" :key="comp.id ?? comp.nombre">
                                         <!-- Fila hijo -->
-                                        <tr v-if="comp.parent_componente_id" class="bg-gray-50/50">
-                                            <td class="pl-8 pr-3 py-1.5 text-gray-500 text-sm">
-                                                <span class="text-gray-400 mr-1">↳</span>{{ comp.nombre }}
+                                        <tr v-if="comp.parent_componente_id" class="bg-tinta-50/50">
+                                            <td class="pl-8 pr-3 py-1.5 text-tinta-400 text-sm">
+                                                <span class="text-tinta-300 mr-1">↳</span>{{ comp.nombre }}
                                             </td>
-                                            <td class="px-3 py-1.5 text-gray-400 font-mono text-sm">—</td>
-                                            <td class="px-3 py-1.5 text-center text-sm text-gray-500">
+                                            <td class="px-3 py-1.5 text-tinta-300 font-mono text-sm">—</td>
+                                            <td class="px-3 py-1.5 text-center text-sm text-tinta-400">
                                                 {{ parseFloat(comp.cantidad).toFixed(3).replace(/\.?0+$/, '') }}
                                             </td>
-                                            <td class="px-3 py-1.5 text-sm text-gray-500">{{ comp.unidad }}</td>
+                                            <td class="px-3 py-1.5 text-sm text-tinta-400">{{ comp.unidad }}</td>
                                             <td v-if="esEdicion" class="px-3 py-1.5"></td>
                                         </tr>
                                         <!-- Fila padre / componente normal -->
-                                        <tr v-else class="hover:bg-gray-50">
-                                            <td class="px-3 py-2 text-gray-700 font-medium">{{ comp.nombre }}</td>
-                                            <td class="px-3 py-2 text-gray-400 font-mono">{{ comp.referencia ?? '—' }}</td>
+                                        <tr v-else class="hover:bg-tinta-50">
+                                            <td class="px-3 py-2 text-tinta-700 font-medium">{{ comp.nombre }}</td>
+                                            <td class="px-3 py-2 text-tinta-300 font-mono">{{ comp.referencia ?? '—' }}</td>
                                             <td class="px-3 py-2 text-center">
                                                 <template v-if="esEdicion && comp.id">
                                                     <input
                                                         :value="parseFloat(comp.cantidad).toFixed(3).replace(/\.?0+$/, '')"
                                                         @blur="guardarCompEdicion(grupo.item_id, comp, 'cantidad', parseFloat($event.target.value))"
                                                         type="number" step="0.001" min="0"
-                                                        class="w-20 rounded-lg border border-gray-200 px-2 py-1 text-center text-xs focus:outline-none focus:border-blue-300 focus:ring-1" />
+                                                        class="w-20 rounded-lg border border-linea px-2 py-1 text-center text-xs focus:outline-none focus:border-blue-300 focus:ring-1" />
                                                 </template>
-                                                <span v-else class="font-semibold text-gray-800">
+                                                <span v-else class="font-semibold text-tinta-900">
                                                     {{ parseFloat(comp.cantidad).toFixed(3).replace(/\.?0+$/, '') }}
                                                 </span>
                                             </td>
-                                            <td class="px-3 py-2 text-gray-400">{{ comp.unidad }}</td>
+                                            <td class="px-3 py-2 text-tinta-300">{{ comp.unidad }}</td>
                                             <td v-if="esEdicion" class="px-3 py-2">
                                                 <input
                                                     :value="comp.observacion ?? ''"
                                                     @blur="guardarCompEdicion(grupo.item_id, comp, 'observacion', $event.target.value)"
                                                     type="text" placeholder="—"
-                                                    class="w-full min-w-[80px] rounded-lg border border-gray-100 px-2 py-1 text-xs text-gray-600 focus:outline-none focus:border-blue-300 focus:ring-1 bg-transparent hover:bg-white" />
+                                                    class="w-full min-w-[80px] rounded-lg border border-linea px-2 py-1 text-xs text-tinta-500 focus:outline-none focus:border-blue-300 focus:ring-1 bg-transparent hover:bg-white" />
                                             </td>
                                         </tr>
                                     </template>
@@ -680,18 +680,18 @@ function submit() {
             </div>
 
             <!-- ── Notas ────────────────────────────────────────────────────── -->
-            <div class="bg-white rounded-2xl border border-gray-200 p-5 mb-4 space-y-4">
-                <h2 class="text-sm font-semibold text-gray-700">Notas</h2>
+            <div class="bg-white rounded-2xl border border-linea p-5 mb-4 space-y-4">
+                <h2 class="text-sm font-semibold text-tinta-700">Notas</h2>
                 <div>
-                    <label class="block text-xs font-medium text-gray-500 mb-1">Condiciones</label>
+                    <label class="block text-xs font-medium text-tinta-400 mb-1">Condiciones</label>
                     <textarea v-model="form.condiciones" rows="3"
-                        class="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-400 resize-none"
+                        class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-400 resize-none"
                         placeholder="Condiciones de entrega, garantías, etc."/>
                 </div>
                 <div>
-                    <label class="block text-xs font-medium text-gray-500 mb-1">Notas internas</label>
+                    <label class="block text-xs font-medium text-tinta-400 mb-1">Notas internas</label>
                     <textarea v-model="form.notas_internas" rows="3"
-                        class="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-400 resize-none"
+                        class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-400 resize-none"
                         placeholder="Notas visibles solo para el equipo..."/>
                 </div>
             </div>
@@ -704,7 +704,7 @@ function submit() {
             <!-- Botones -->
             <div class="flex gap-3 pb-6">
                 <a href="/produccion/ops"
-                    class="flex-1 py-3 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 text-center hover:bg-gray-50">
+                    class="flex-1 py-3 rounded-xl border border-linea text-sm font-medium text-tinta-500 text-center hover:bg-tinta-50">
                     Cancelar
                 </a>
                 <button @click="submit" :disabled="procesando"
@@ -722,24 +722,24 @@ function submit() {
                 <div class="relative w-full sm:max-w-lg bg-white rounded-t-3xl sm:rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
 
                     <!-- Header modal -->
-                    <div class="flex items-center justify-between px-5 pt-4 pb-3 border-b border-gray-100 shrink-0">
+                    <div class="flex items-center justify-between px-5 pt-4 pb-3 border-b border-linea shrink-0">
                         <div class="flex items-center gap-3">
                             <button v-if="modalPanel !== 'opciones'" type="button"
                                 @click="modalPanel = modalPanel === 'ensamble_instancia' ? 'ensamble' : 'opciones'"
-                                class="text-gray-400 hover:text-gray-600">
-                                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                class="text-tinta-300 hover:text-tinta-500">
+                                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
                                 </svg>
                             </button>
-                            <h3 class="text-sm font-semibold text-gray-800">
+                            <h3 class="text-sm font-semibold text-tinta-900">
                                 <span v-if="modalPanel === 'opciones'">Agregar ítem</span>
                                 <span v-else-if="modalPanel === 'producto'">Buscar producto / servicio</span>
                                 <span v-else-if="modalPanel === 'ensamble'">Buscar ensamble</span>
                                 <span v-else-if="modalPanel === 'ensamble_instancia'">Configurar ensamble</span>
                             </h3>
                         </div>
-                        <button type="button" @click="cerrarModal" class="text-gray-400 hover:text-gray-600">
-                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <button type="button" @click="cerrarModal" class="text-tinta-300 hover:text-tinta-500">
+                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
                             </svg>
                         </button>
@@ -748,32 +748,32 @@ function submit() {
                     <!-- Opciones -->
                     <div v-if="modalPanel === 'opciones'" class="p-5 space-y-3">
                         <button type="button" @click="modalPanel = 'producto'"
-                            class="w-full flex items-center gap-4 p-4 rounded-2xl border-2 border-gray-200 hover:border-blue-400 hover:bg-blue-50 transition-colors text-left group">
+                            class="w-full flex items-center gap-4 p-4 rounded-2xl border-2 border-linea hover:border-blue-400 hover:bg-blue-50 transition-colors text-left group">
                             <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style="background:#EFF6FF;">
-                                <svg class="w-5 h-5" style="color:var(--marca);" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <svg class="w-5 h-5" style="color:var(--marca);" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7l8 4"/>
                                 </svg>
                             </div>
                             <div>
-                                <p class="text-sm font-semibold text-gray-800">Desde productos / servicios</p>
-                                <p class="text-xs text-gray-500 mt-0.5">Busca en el catálogo</p>
+                                <p class="text-sm font-semibold text-tinta-900">Desde productos / servicios</p>
+                                <p class="text-xs text-tinta-400 mt-0.5">Busca en el catálogo</p>
                             </div>
-                            <svg class="w-4 h-4 text-gray-400 ml-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <svg class="w-4 h-4 text-tinta-300 ml-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
                             </svg>
                         </button>
                         <button type="button" @click="modalPanel = 'ensamble'"
-                            class="w-full flex items-center gap-4 p-4 rounded-2xl border-2 border-gray-200 hover:border-purple-400 hover:bg-purple-50 transition-colors text-left">
+                            class="w-full flex items-center gap-4 p-4 rounded-2xl border-2 border-linea hover:border-purple-400 hover:bg-purple-50 transition-colors text-left">
                             <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style="background:#EDE9FE;">
-                                <svg class="w-5 h-5" style="color:#5B21B6;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <svg class="w-5 h-5" style="color:#5B21B6;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
                                 </svg>
                             </div>
                             <div>
-                                <p class="text-sm font-semibold text-gray-800">Desde ensamble</p>
-                                <p class="text-xs text-gray-500 mt-0.5">Agrega un ensamble con sus componentes</p>
+                                <p class="text-sm font-semibold text-tinta-900">Desde ensamble</p>
+                                <p class="text-xs text-tinta-400 mt-0.5">Agrega un ensamble con sus componentes</p>
                             </div>
-                            <svg class="w-4 h-4 text-gray-400 ml-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <svg class="w-4 h-4 text-tinta-300 ml-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
                             </svg>
                         </button>
@@ -784,11 +784,11 @@ function submit() {
                         <div class="px-5 py-3 shrink-0">
                             <input :value="productoQuery" @input="buscarProducto($event.target.value)"
                                 type="text" placeholder="Nombre o referencia..." autofocus
-                                class="w-full rounded-xl border border-gray-300 px-3 py-2.5 text-sm focus:ring-2 focus:border-blue-400 focus:outline-none"/>
+                                class="w-full rounded-xl border border-tinta-200 px-3 py-2.5 text-sm focus:ring-2 focus:border-blue-400 focus:outline-none"/>
                         </div>
                         <div class="overflow-y-auto flex-1">
-                            <p v-if="!productoQuery" class="text-sm text-gray-400 text-center py-8">Escribe para buscar...</p>
-                            <p v-else-if="productoResultados.length === 0 && productoQuery.length >= 2" class="text-sm text-gray-400 text-center py-8">Sin resultados</p>
+                            <p v-if="!productoQuery" class="text-sm text-tinta-300 text-center py-8">Escribe para buscar...</p>
+                            <p v-else-if="productoResultados.length === 0 && productoQuery.length >= 2" class="text-sm text-tinta-300 text-center py-8">Sin resultados</p>
                             <ResultadosBuscadorProducto :resultados="productoResultados" @elegir="agregarDesdeProducto" />
                         </div>
                     </div>
@@ -798,17 +798,17 @@ function submit() {
                         <div class="px-5 py-3 shrink-0">
                             <input :value="ensambleQuery" @input="buscarEnsamble($event.target.value)"
                                 type="text" placeholder="Nombre del ensamble..." autofocus
-                                class="w-full rounded-xl border border-gray-300 px-3 py-2.5 text-sm focus:ring-2 focus:border-purple-400 focus:outline-none"/>
+                                class="w-full rounded-xl border border-tinta-200 px-3 py-2.5 text-sm focus:ring-2 focus:border-purple-400 focus:outline-none"/>
                         </div>
                         <div class="overflow-y-auto flex-1">
-                            <p v-if="!ensambleQuery" class="text-sm text-gray-400 text-center py-8">Escribe para buscar...</p>
-                            <p v-else-if="ensambleResultados.length === 0 && ensambleQuery.length >= 2" class="text-sm text-gray-400 text-center py-8">Sin resultados</p>
+                            <p v-if="!ensambleQuery" class="text-sm text-tinta-300 text-center py-8">Escribe para buscar...</p>
+                            <p v-else-if="ensambleResultados.length === 0 && ensambleQuery.length >= 2" class="text-sm text-tinta-300 text-center py-8">Sin resultados</p>
                             <div v-for="e in ensambleResultados" :key="e.id" class="border-b border-gray-50 last:border-0">
-                                <div class="flex items-center justify-between px-5 py-3 hover:bg-gray-50 cursor-pointer"
+                                <div class="flex items-center justify-between px-5 py-3 hover:bg-tinta-50 cursor-pointer"
                                     @click="seleccionarEnsamble(e)">
                                     <div class="min-w-0 flex-1">
-                                        <p class="text-sm font-medium text-gray-800 truncate">{{ e.nombre }}</p>
-                                        <p class="text-xs text-gray-400 mt-0.5">{{ e.plantilla_nombre }}</p>
+                                        <p class="text-sm font-medium text-tinta-900 truncate">{{ e.nombre }}</p>
+                                        <p class="text-xs text-tinta-300 mt-0.5">{{ e.plantilla_nombre }}</p>
                                     </div>
                                     <!-- Agregar directo si ya está expandido -->
                                     <div v-if="ensambleExpandido?.id === e.id" class="shrink-0 ml-3">
@@ -818,7 +818,7 @@ function submit() {
                                             Agregar
                                         </button>
                                     </div>
-                                    <svg v-else class="w-4 h-4 text-gray-300 shrink-0 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <svg v-else class="w-4 h-4 text-tinta-200 shrink-0 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
                                     </svg>
                                 </div>
@@ -828,33 +828,33 @@ function submit() {
 
                     <!-- Configurador variable_instancia -->
                     <div v-else-if="modalPanel === 'ensamble_instancia'" class="flex flex-col overflow-hidden">
-                        <div class="px-5 py-3 border-b border-gray-100 shrink-0">
-                            <p class="text-sm font-semibold text-gray-800">{{ ensambleInstancia?.nombre }}</p>
-                            <p class="text-xs text-gray-400 mt-0.5">Completa los datos específicos de esta unidad</p>
+                        <div class="px-5 py-3 border-b border-linea shrink-0">
+                            <p class="text-sm font-semibold text-tinta-900">{{ ensambleInstancia?.nombre }}</p>
+                            <p class="text-xs text-tinta-300 mt-0.5">Completa los datos específicos de esta unidad</p>
                         </div>
                         <div class="overflow-y-auto flex-1 px-5 py-4 space-y-3">
                             <div v-for="c in camposInstancia" :key="c.nombre">
-                                <label class="block text-xs font-medium text-gray-700 mb-1">
+                                <label class="block text-xs font-medium text-tinta-700 mb-1">
                                     {{ c.etiqueta || c.nombre }}
-                                    <span v-if="c.ayuda" class="font-normal text-gray-400"> — {{ c.ayuda }}</span>
+                                    <span v-if="c.ayuda" class="font-normal text-tinta-300"> — {{ c.ayuda }}</span>
                                 </label>
                                 <select v-if="c.subtipo_variable === 'selector'" v-model="valoresInstancia[c.nombre]"
-                                    class="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none">
+                                    class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none">
                                     <option v-for="op in (c.opciones_selector ?? [])" :key="op.valor" :value="op.valor">{{ op.etiqueta }}</option>
                                 </select>
                                 <input v-else-if="c.subtipo_variable === 'numero'" v-model.number="valoresInstancia[c.nombre]"
                                     type="number" step="1"
-                                    class="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none"/>
+                                    class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none"/>
                                 <input v-else-if="c.subtipo_variable === 'decimal'" v-model.number="valoresInstancia[c.nombre]"
                                     type="number" step="0.01"
-                                    class="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none"/>
+                                    class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none"/>
                                 <input v-else v-model="valoresInstancia[c.nombre]" type="text"
-                                    class="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none"/>
+                                    class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none"/>
                             </div>
                         </div>
-                        <div class="px-5 py-4 border-t border-gray-100 flex gap-3 shrink-0">
+                        <div class="px-5 py-4 border-t border-linea flex gap-3 shrink-0">
                             <button type="button" @click="modalPanel = 'ensamble'"
-                                class="flex-1 py-2.5 rounded-xl border border-gray-200 text-sm text-gray-600">
+                                class="flex-1 py-2.5 rounded-xl border border-linea text-sm text-tinta-500">
                                 Volver
                             </button>
                             <button type="button" @click="confirmarInstancia"
@@ -867,7 +867,7 @@ function submit() {
 
                     <!-- Handle móvil -->
                     <div class="sm:hidden flex justify-center py-3 shrink-0">
-                        <div class="w-10 h-1 bg-gray-200 rounded-full"/>
+                        <div class="w-10 h-1 bg-tinta-200 rounded-full"/>
                     </div>
                 </div>
             </div>

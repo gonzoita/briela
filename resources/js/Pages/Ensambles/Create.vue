@@ -380,45 +380,45 @@ onMounted(() => {
 
             <!-- ── 1. Plantilla y nombre ────────────────────────────────────── -->
             <div class="bg-white rounded-2xl shadow-sm p-5 mb-4">
-                <h2 class="text-sm font-bold text-gray-700 uppercase tracking-wider mb-4">1. Plantilla y nombre</h2>
+                <h2 class="text-sm font-semibold text-tinta-700 uppercase tracking-[0.12em] mb-4">1. Plantilla y nombre</h2>
 
                 <div class="space-y-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1.5">Plantilla <span class="text-red-500">*</span></label>
+                        <label class="block text-sm font-medium text-tinta-700 mb-1.5">Plantilla <span class="text-red-500">*</span></label>
                         <select v-model="plantillaId" :disabled="esEdicion"
-                            class="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-blue-400 disabled:bg-gray-50">
+                            class="w-full border border-linea rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-blue-400 disabled:bg-tinta-50">
                             <option value="">— Seleccionar plantilla —</option>
                             <option v-for="p in plantillas" :key="p.id" :value="p.id">{{ p.nombre }}</option>
                         </select>
                     </div>
 
                     <div v-if="plantillaSeleccionada">
-                        <label class="block text-sm font-medium text-gray-700 mb-1.5">Nombre del ensamble <span class="text-red-500">*</span></label>
+                        <label class="block text-sm font-medium text-tinta-700 mb-1.5">Nombre del ensamble <span class="text-red-500">*</span></label>
                         <input v-model="nombre" type="text"
-                            class="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-blue-400"
+                            class="w-full border border-linea rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-blue-400"
                             placeholder="Nombre descriptivo..."
                             @input="onNombreInput" />
-                        <p class="text-xs text-gray-400 mt-1">Se genera automáticamente desde las variables.</p>
+                        <p class="text-xs text-tinta-300 mt-1">Se genera automáticamente desde las variables.</p>
                     </div>
                 </div>
             </div>
 
             <!-- ── 2. Información de catálogo ─────────────────────────────────── -->
             <div class="bg-white rounded-2xl shadow-sm p-5 mb-4">
-                <h2 class="text-sm font-bold text-gray-700 uppercase tracking-wider mb-4">2. Información de catálogo</h2>
+                <h2 class="text-sm font-semibold text-tinta-700 uppercase tracking-[0.12em] mb-4">2. Información de catálogo</h2>
 
                 <!-- Categoría + activo -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1.5">Categoría</label>
+                        <label class="block text-sm font-medium text-tinta-700 mb-1.5">Categoría</label>
                         <div class="flex gap-2">
                             <select v-model="categoriaId"
-                                class="flex-1 border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-400">
+                                class="flex-1 border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-400">
                                 <option value="">— Sin categoría —</option>
                                 <option v-for="c in listaCats" :key="c.id" :value="c.id">{{ c.nombre }}</option>
                             </select>
                             <button @click="showModalCat = true" type="button"
-                                class="px-3 py-2 rounded-xl border border-gray-200 text-xs text-gray-600 hover:bg-gray-50 shrink-0">
+                                class="px-3 py-2 rounded-xl border border-linea text-xs text-tinta-500 hover:bg-tinta-50 shrink-0">
                                 + Nueva
                             </button>
                         </div>
@@ -428,14 +428,14 @@ onMounted(() => {
                 <!-- Descripción corta -->
                 <div class="mb-4">
                     <div class="flex items-center justify-between mb-1">
-                        <label class="text-sm font-medium text-gray-700">Descripción corta</label>
-                        <span class="text-xs" :class="(descripcionCorta ?? '').length > 900 ? 'text-amber-500 font-semibold' : 'text-gray-400'">
+                        <label class="text-sm font-medium text-tinta-700">Descripción corta</label>
+                        <span class="text-xs" :class="(descripcionCorta ?? '').length > 900 ? 'text-amber-500 font-semibold' : 'text-tinta-300'">
                             {{ (descripcionCorta ?? '').length }}/1000
                         </span>
                     </div>
                     <textarea v-model="descripcionCorta" rows="2" maxlength="1000"
                         class="w-full border rounded-xl px-3 py-2 text-sm focus:outline-none resize-none"
-                        :class="page.props.errors?.descripcion_corta ? 'border-red-400 focus:border-red-400' : 'border-gray-200 focus:border-blue-400'"
+                        :class="page.props.errors?.descripcion_corta ? 'border-red-400 focus:border-red-400' : 'border-linea focus:border-blue-400'"
                         placeholder="Descripción breve para el catálogo..." />
                     <p v-if="page.props.errors?.descripcion_corta" class="mt-1 text-xs text-red-600">
                         {{ page.props.errors.descripcion_corta }}
@@ -445,8 +445,8 @@ onMounted(() => {
                 <!-- Descripción larga -->
                 <div class="mb-4">
                     <div class="flex items-center justify-between mb-1.5">
-                        <label class="text-sm font-medium text-gray-700">Descripción larga</label>
-                        <span class="text-xs" :class="(descripcionLarga ?? '').replace(/<[^>]*>/g, '').length > 9000 ? 'text-amber-500 font-semibold' : 'text-gray-400'">
+                        <label class="text-sm font-medium text-tinta-700">Descripción larga</label>
+                        <span class="text-xs" :class="(descripcionLarga ?? '').replace(/<[^>]*>/g, '').length > 9000 ? 'text-amber-500 font-semibold' : 'text-tinta-300'">
                             {{ (descripcionLarga ?? '').replace(/<[^>]*>/g, '').length }}/10000
                         </span>
                     </div>
@@ -455,16 +455,16 @@ onMounted(() => {
 
                 <!-- Imágenes (solo en edición) -->
                 <template v-if="esEdicion">
-                    <div class="border-t border-gray-100 pt-4">
-                        <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Imágenes</p>
+                    <div class="border-t border-linea pt-4">
+                        <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-3">Imágenes</p>
 
                         <!-- Imagen principal -->
                         <div class="mb-4">
-                            <label class="block text-xs font-medium text-gray-600 mb-2">Imagen principal</label>
+                            <label class="block text-xs font-medium text-tinta-500 mb-2">Imagen principal</label>
                             <div class="flex items-start gap-4">
-                                <div class="relative w-24 h-24 rounded-xl overflow-hidden border border-gray-200 bg-gray-50 flex items-center justify-center shrink-0">
+                                <div class="relative w-24 h-24 rounded-xl overflow-hidden border border-linea bg-tinta-50 flex items-center justify-center shrink-0">
                                     <img v-if="imagenPrincipalUrl" :src="imagenPrincipalUrl" class="w-full h-full object-cover" />
-                                    <svg v-else class="w-8 h-8 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                                    <svg v-else class="w-8 h-8 text-tinta-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                                     </svg>
                                     <button v-if="imagenPrincipalUrl" @click="quitarImagenPrincipal"
@@ -473,12 +473,12 @@ onMounted(() => {
                                 <div>
                                     <label class="cursor-pointer">
                                         <input type="file" accept="image/*" class="hidden" :disabled="imgSubiendo" @change="subirImagenPrincipal" />
-                                        <span class="inline-block px-3 py-2 rounded-xl border border-gray-200 text-xs text-gray-600 hover:bg-gray-50 cursor-pointer">
+                                        <span class="inline-block px-3 py-2 rounded-xl border border-linea text-xs text-tinta-500 hover:bg-tinta-50 cursor-pointer">
                                             {{ imgSubiendo ? 'Subiendo...' : (imagenPrincipalUrl ? 'Cambiar imagen' : 'Subir imagen') }}
                                         </span>
                                     </label>
-                                    <p class="text-xs text-gray-400 mt-1">JPG, PNG, WebP · máx 5 MB</p>
-                                    <p class="text-xs text-gray-400">
+                                    <p class="text-xs text-tinta-300 mt-1">JPG, PNG, WebP · máx 5 MB</p>
+                                    <p class="text-xs text-tinta-300">
                                         Recomendado: <strong>1000 × 1000 px</strong> (cuadrada). Se muestra
                                         recortada al centro en los listados y en el catálogo.
                                     </p>
@@ -488,18 +488,18 @@ onMounted(() => {
 
                         <!-- Imágenes secundarias -->
                         <div>
-                            <label class="block text-xs font-medium text-gray-600 mb-1">Imágenes secundarias</label>
-                            <p class="text-xs text-gray-400 mb-2">Mismo formato: <strong>1000 × 1000 px</strong> (cuadradas), máx 5 MB.</p>
+                            <label class="block text-xs font-medium text-tinta-500 mb-1">Imágenes secundarias</label>
+                            <p class="text-xs text-tinta-300 mb-2">Mismo formato: <strong>1000 × 1000 px</strong> (cuadradas), máx 5 MB.</p>
                             <div class="flex flex-wrap gap-2">
                                 <div v-for="ruta in imagenesSecundarias" :key="ruta"
-                                    class="relative w-20 h-20 rounded-xl overflow-hidden border border-gray-200 bg-gray-50">
+                                    class="relative w-20 h-20 rounded-xl overflow-hidden border border-linea bg-tinta-50">
                                     <img :src="urlImagen(ruta)" class="w-full h-full object-cover" />
                                     <button @click="quitarImagenSecundaria(ruta)"
                                         class="absolute top-0.5 right-0.5 w-4 h-4 bg-red-500 text-white rounded-full text-xs flex items-center justify-center leading-none">✕</button>
                                 </div>
-                                <label class="w-20 h-20 rounded-xl border-2 border-dashed border-gray-200 flex items-center justify-center cursor-pointer hover:border-blue-300 text-gray-300 hover:text-blue-400 transition-colors">
+                                <label class="w-20 h-20 rounded-xl border-2 border-dashed border-linea flex items-center justify-center cursor-pointer hover:border-blue-300 text-tinta-200 hover:text-blue-400 transition-colors">
                                     <input type="file" accept="image/*" class="hidden" @change="subirImagenSecundaria" />
-                                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
                                     </svg>
                                 </label>
@@ -507,39 +507,39 @@ onMounted(() => {
                         </div>
                     </div>
                 </template>
-                <div v-else class="border-t border-gray-100 pt-3">
-                    <p class="text-xs text-gray-400">Las imágenes se pueden agregar después de guardar el ensamble.</p>
+                <div v-else class="border-t border-linea pt-3">
+                    <p class="text-xs text-tinta-300">Las imágenes se pueden agregar después de guardar el ensamble.</p>
                 </div>
             </div>
 
             <!-- ── 3. Configuración ────────────────────────────────────────── -->
             <div v-if="plantillaSeleccionada" class="bg-white rounded-2xl shadow-sm p-5 mb-4">
-                <h2 class="text-sm font-bold text-gray-700 uppercase tracking-wider mb-4">3. Configuración</h2>
+                <h2 class="text-sm font-semibold text-tinta-700 uppercase tracking-[0.12em] mb-4">3. Configuración</h2>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <template v-for="campo in (plantillaSeleccionada.campos ?? []).filter(c => c.tipo_campo !== 'calculado')" :key="campo.id">
                         <!-- variable_instancia: renderizar con CampoInstancia según subtipo_variable -->
                         <div v-if="campo.tipo_campo === 'variable_instancia'">
-                            <label class="block text-sm font-medium text-gray-700 mb-1.5">
+                            <label class="block text-sm font-medium text-tinta-700 mb-1.5">
                                 {{ campo.etiqueta || campo.nombre }}
                             </label>
                             <CampoInstancia :campo="campo" v-model="variables[campo.nombre]" />
                         </div>
                         <!-- entrada: renderizar según tipo -->
                         <div v-else :class="campo.tipo === 'checkbox' || campo.tipo === 'boolean' ? 'flex items-center gap-3' : ''">
-                            <label :class="['text-sm font-medium text-gray-700', campo.tipo !== 'checkbox' && campo.tipo !== 'boolean' ? 'block mb-1.5' : '']">
+                            <label :class="['text-sm font-medium text-tinta-700', campo.tipo !== 'checkbox' && campo.tipo !== 'boolean' ? 'block mb-1.5' : '']">
                                 {{ campo.etiqueta }}
                                 <span v-if="campo.requerido && campo.tipo !== 'checkbox'" class="text-red-500">*</span>
                             </label>
                             <select v-if="campo.tipo === 'select'" v-model="variables[campo.nombre]"
-                                class="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-400">
+                                class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-400">
                                 <option v-for="op in campo.opciones ?? []" :key="op.valor" :value="op.valor">{{ op.etiqueta }}</option>
                             </select>
                             <input v-else-if="campo.tipo === 'decimal' || campo.tipo === 'numero'"
                                 v-model.number="variables[campo.nombre]"
                                 type="number" step="0.01"
                                 :placeholder="campo.placeholder"
-                                class="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-400" />
+                                class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-400" />
                             <input v-else-if="campo.tipo === 'boolean' || campo.tipo === 'checkbox'"
                                 v-model="variables[campo.nombre]"
                                 type="checkbox"
@@ -548,9 +548,9 @@ onMounted(() => {
                                 v-model="variables[campo.nombre]"
                                 type="text"
                                 :placeholder="campo.placeholder"
-                                class="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-400" />
+                                class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-400" />
                             <p v-if="campo.ayuda && campo.tipo !== 'checkbox' && campo.tipo !== 'boolean'"
-                                class="text-xs text-gray-400 mt-1">{{ campo.ayuda }}</p>
+                                class="text-xs text-tinta-300 mt-1">{{ campo.ayuda }}</p>
                         </div>
                     </template>
                 </div>
@@ -570,12 +570,12 @@ onMounted(() => {
 
             <!-- ── 4. Desglose calculado ───────────────────────────────────── -->
             <div v-if="calculado" class="bg-white rounded-2xl shadow-sm p-5 mb-4">
-                <h2 class="text-sm font-bold text-gray-700 uppercase tracking-wider mb-4">4. Desglose calculado</h2>
+                <h2 class="text-sm font-semibold text-tinta-700 uppercase tracking-[0.12em] mb-4">4. Desglose calculado</h2>
 
                 <div class="overflow-x-auto">
                     <table class="w-full text-sm">
                         <thead>
-                            <tr class="text-left text-xs text-gray-400 border-b border-gray-100">
+                            <tr class="text-left text-xs text-tinta-300 border-b border-linea">
                                 <th class="pb-2 font-medium">Componente</th>
                                 <th class="pb-2 font-medium text-right">Cant.</th>
                                 <th class="pb-2 font-medium text-right">Unidad</th>
@@ -584,25 +584,25 @@ onMounted(() => {
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-50">
-                            <tr v-for="(c, i) in componentes" :key="i" class="hover:bg-gray-50">
-                                <td class="py-2 font-medium text-gray-700">{{ c.nombre }}</td>
-                                <td class="py-2 text-right font-mono text-gray-600">{{ c.cantidad }}</td>
-                                <td class="py-2 text-right text-gray-500">{{ c.unidad }}</td>
-                                <td class="py-2 text-right text-gray-500">${{ formatCOP(c.precio_unit) }}</td>
-                                <td class="py-2 text-right font-semibold text-gray-800">${{ formatCOP(c.subtotal) }}</td>
+                            <tr v-for="(c, i) in componentes" :key="i" class="hover:bg-tinta-50">
+                                <td class="py-2 font-medium text-tinta-700">{{ c.nombre }}</td>
+                                <td class="py-2 text-right font-mono text-tinta-500">{{ c.cantidad }}</td>
+                                <td class="py-2 text-right text-tinta-400">{{ c.unidad }}</td>
+                                <td class="py-2 text-right text-tinta-400">${{ formatCOP(c.precio_unit) }}</td>
+                                <td class="py-2 text-right font-semibold text-tinta-900">${{ formatCOP(c.subtotal) }}</td>
                             </tr>
                         </tbody>
                         <tfoot>
-                            <tr class="border-t-2 border-gray-200">
-                                <td colspan="4" class="pt-3 text-xs font-bold text-gray-600 uppercase">Precio costo total</td>
-                                <td class="pt-3 text-right font-bold text-gray-900">${{ formatCOP(totalCosto) }}</td>
+                            <tr class="border-t-2 border-linea">
+                                <td colspan="4" class="pt-3 text-xs font-semibold text-tinta-500 uppercase">Precio costo total</td>
+                                <td class="pt-3 text-right font-semibold text-tinta-900">${{ formatCOP(totalCosto) }}</td>
                             </tr>
                         </tfoot>
                     </table>
                 </div>
 
                 <!-- Precios por canal con márgenes de la plantilla -->
-                <div class="mt-4 pt-4 border-t border-gray-100 grid grid-cols-3 gap-3">
+                <div class="mt-4 pt-4 border-t border-linea grid grid-cols-3 gap-3">
                     <div class="text-center p-3 rounded-xl transition-all"
                         :style="margenesActuales.por_defecto === 'mayorista'
                             ? 'background:#EFF6FF; border:2px solid #93C5FD;'
@@ -611,7 +611,7 @@ onMounted(() => {
                            :style="margenesActuales.por_defecto === 'mayorista' ? 'color:#1D4ED8; font-weight:500;' : 'color:#6B7280;'">
                             Mayorista ({{ margenesActuales.mayorista }}%)
                         </p>
-                        <p class="text-base font-bold"
+                        <p class="text-base font-semibold"
                            :style="margenesActuales.por_defecto === 'mayorista' ? 'color:#1D4ED8;' : 'color:#1F2937;'">
                             ${{ formatCOP(precioMayor) }}
                         </p>
@@ -624,7 +624,7 @@ onMounted(() => {
                            :style="margenesActuales.por_defecto === 'distribuidor' || !['mayorista','cliente_final'].includes(margenesActuales.por_defecto) ? 'color:#1D4ED8; font-weight:500;' : 'color:#6B7280;'">
                             Distribuidor ({{ margenesActuales.distribuidor }}%)
                         </p>
-                        <p class="text-base font-bold"
+                        <p class="text-base font-semibold"
                            :style="margenesActuales.por_defecto === 'distribuidor' || !['mayorista','cliente_final'].includes(margenesActuales.por_defecto) ? 'color:#1D4ED8;' : 'color:#1F2937;'">
                             ${{ formatCOP(precioDist) }}
                         </p>
@@ -637,7 +637,7 @@ onMounted(() => {
                            :style="margenesActuales.por_defecto === 'cliente_final' ? 'color:#1D4ED8; font-weight:500;' : 'color:#6B7280;'">
                             Cliente final ({{ margenesActuales.cliente_final }}%)
                         </p>
-                        <p class="text-base font-bold"
+                        <p class="text-base font-semibold"
                            :style="margenesActuales.por_defecto === 'cliente_final' ? 'color:#1D4ED8;' : 'color:#1F2937;'">
                             ${{ formatCOP(precioFinal) }}
                         </p>
@@ -647,11 +647,11 @@ onMounted(() => {
 
             <!-- Comisión Vendedor por Canal (solo cuando está calculado) -->
             <div v-if="calculado" class="bg-white rounded-2xl shadow-sm overflow-hidden">
-                <div class="px-5 py-3 border-b border-gray-100 flex items-center justify-between">
-                    <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Comisión Vendedor por Canal</h3>
+                <div class="px-5 py-3 border-b border-linea flex items-center justify-between">
+                    <h3 class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">Comisión Vendedor por Canal</h3>
                     <button type="button" @click="sugerirComisionesEnsamble"
                         class="text-xs text-[var(--marca)] border border-[var(--marca)] rounded-lg px-3 py-1.5 hover:bg-blue-50 transition-colors flex items-center gap-1.5">
-                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
                         </svg>
                         ▷ Sugerir comisiones
@@ -662,7 +662,7 @@ onMounted(() => {
                     <!-- Mayorista — sin comisión -->
                     <div class="bg-blue-50 border border-blue-100 rounded-lg p-3">
                         <div class="flex items-center gap-2">
-                            <span class="text-xs font-bold text-blue-700 uppercase">Mayorista</span>
+                            <span class="text-xs font-semibold text-blue-700 uppercase">Mayorista</span>
                             <span class="bg-blue-100 text-blue-600 text-xs px-2 py-0.5 rounded-full">Sin comisión · Precio fijo</span>
                         </div>
                         <p class="text-xs text-blue-400 mt-1">El precio mayorista (${{ formatCOP(precioMayor) }}) es la utilidad mínima garantizada de la empresa. No hay comisión para el vendedor en este canal.</p>
@@ -671,24 +671,24 @@ onMounted(() => {
                     <!-- Distribuidor -->
                     <div class="border border-indigo-100 rounded-lg p-3 space-y-3 bg-indigo-50/30">
                         <div class="flex items-center justify-between flex-wrap gap-1">
-                            <span class="text-xs font-bold text-indigo-700 uppercase">Distribuidor</span>
+                            <span class="text-xs font-semibold text-indigo-700 uppercase">Distribuidor</span>
                             <span class="text-xs text-indigo-500">Base: {{ formatCOP(precioDist) }} · Mín: {{ formatCOP(precioMayor) }} · Desc. máx: {{ descuentoMaxRealDistribuidor }}%</span>
                         </div>
                         <div class="grid grid-cols-2 gap-3">
                             <div>
-                                <label class="text-xs text-gray-500 mb-1 block">Comisión mínima (%)</label>
+                                <label class="text-xs text-tinta-400 mb-1 block">Comisión mínima (%)</label>
                                 <div class="flex items-center gap-2">
                                     <input type="number" step="0.1" min="0" v-model.number="comisionMinDistribuidor" @input="validarComisiones"
-                                        class="w-24 border border-gray-300 rounded-lg px-2 py-1.5 text-sm focus:ring-2 focus:ring-indigo-300 focus:outline-none" />
-                                    <span class="text-xs text-gray-400">= {{ formatCOP(excedenteDistribuidor * comisionMinDistribuidor / 100) }}</span>
+                                        class="w-24 border border-tinta-200 rounded-lg px-2 py-1.5 text-sm focus:ring-2 focus:ring-indigo-300 focus:outline-none" />
+                                    <span class="text-xs text-tinta-300">= {{ formatCOP(excedenteDistribuidor * comisionMinDistribuidor / 100) }}</span>
                                 </div>
                             </div>
                             <div>
-                                <label class="text-xs text-gray-500 mb-1 block">Comisión máxima (%)</label>
+                                <label class="text-xs text-tinta-400 mb-1 block">Comisión máxima (%)</label>
                                 <div class="flex items-center gap-2">
                                     <input type="number" step="0.1" min="0" v-model.number="comisionMaxDistribuidor" @input="validarComisiones"
-                                        class="w-24 border border-gray-300 rounded-lg px-2 py-1.5 text-sm focus:ring-2 focus:ring-indigo-300 focus:outline-none" />
-                                    <span class="text-xs text-gray-400">= {{ formatCOP(excedenteDistribuidor * comisionMaxDistribuidor / 100) }}</span>
+                                        class="w-24 border border-tinta-200 rounded-lg px-2 py-1.5 text-sm focus:ring-2 focus:ring-indigo-300 focus:outline-none" />
+                                    <span class="text-xs text-tinta-300">= {{ formatCOP(excedenteDistribuidor * comisionMaxDistribuidor / 100) }}</span>
                                 </div>
                             </div>
                         </div>
@@ -701,31 +701,31 @@ onMounted(() => {
                     <div class="border border-green-100 rounded-lg p-3 space-y-3 bg-green-50/30">
                         <div class="flex items-center justify-between flex-wrap gap-1">
                             <div class="flex items-center gap-2">
-                                <span class="text-xs font-bold text-green-700 uppercase">Cliente Final</span>
+                                <span class="text-xs font-semibold text-green-700 uppercase">Cliente Final</span>
                                 <span class="bg-green-100 text-green-600 text-xs px-2 py-0.5 rounded-full">⭐ Mayor incentivo</span>
                             </div>
                             <span class="text-xs text-green-500">Base: {{ formatCOP(precioFinal) }} · Desc. máx: {{ descuentoMaxRealClienteFinal }}%</span>
                         </div>
                         <div class="grid grid-cols-2 gap-3">
                             <div>
-                                <label class="text-xs text-gray-500 mb-1 block">
+                                <label class="text-xs text-tinta-400 mb-1 block">
                                     Comisión mínima (%)
                                     <span class="text-orange-500 ml-1">← mín = máx distribuidor ({{ comisionMaxDistribuidor }}%)</span>
                                 </label>
                                 <div class="flex items-center gap-2">
                                     <input type="number" step="0.1" :min="comisionMaxDistribuidor" v-model.number="comisionMinClienteFinal" @input="validarComisiones"
                                         :class="['w-24 border rounded-lg px-2 py-1.5 text-sm focus:ring-2 focus:outline-none',
-                                            errorComisionClienteFinal ? 'border-red-400 focus:ring-red-300' : 'border-gray-300 focus:ring-green-300']" />
-                                    <span class="text-xs text-gray-400">= {{ formatCOP(excedenteClienteFinal * comisionMinClienteFinal / 100) }}</span>
+                                            errorComisionClienteFinal ? 'border-red-400 focus:ring-red-300' : 'border-tinta-200 focus:ring-green-300']" />
+                                    <span class="text-xs text-tinta-300">= {{ formatCOP(excedenteClienteFinal * comisionMinClienteFinal / 100) }}</span>
                                 </div>
                             </div>
                             <div>
-                                <label class="text-xs text-gray-500 mb-1 block">Comisión máxima (%)</label>
+                                <label class="text-xs text-tinta-400 mb-1 block">Comisión máxima (%)</label>
                                 <div class="flex items-center gap-2">
                                     <input type="number" step="0.1" :min="comisionMinClienteFinal" v-model.number="comisionMaxClienteFinal" @input="validarComisiones"
                                         :class="['w-24 border rounded-lg px-2 py-1.5 text-sm focus:ring-2 focus:outline-none',
-                                            errorComisionClienteFinal ? 'border-red-400 focus:ring-red-300' : 'border-gray-300 focus:ring-green-300']" />
-                                    <span class="text-xs text-gray-400">= {{ formatCOP(excedenteClienteFinal * comisionMaxClienteFinal / 100) }}</span>
+                                            errorComisionClienteFinal ? 'border-red-400 focus:ring-red-300' : 'border-tinta-200 focus:ring-green-300']" />
+                                    <span class="text-xs text-tinta-300">= {{ formatCOP(excedenteClienteFinal * comisionMaxClienteFinal / 100) }}</span>
                                 </div>
                             </div>
                         </div>
@@ -738,24 +738,24 @@ onMounted(() => {
                     </div>
 
                     <!-- Comparativa -->
-                    <div v-if="comisionMaxDistribuidor > 0 && comisionMaxClienteFinal > 0" class="bg-gray-50 rounded-lg p-3">
-                        <p class="text-xs font-medium text-gray-600 mb-2">📊 Comparativa de incentivos por canal</p>
+                    <div v-if="comisionMaxDistribuidor > 0 && comisionMaxClienteFinal > 0" class="bg-tinta-50 rounded-lg p-3">
+                        <p class="text-xs font-medium text-tinta-500 mb-2">📊 Comparativa de incentivos por canal</p>
                         <div class="space-y-1.5">
                             <div class="flex items-center gap-2">
-                                <span class="text-xs text-gray-500 w-28">Mayorista:</span>
-                                <div class="flex-1 bg-gray-200 rounded-full h-1.5"></div>
-                                <span class="text-xs text-gray-400 w-20 text-right">Sin comisión</span>
+                                <span class="text-xs text-tinta-400 w-28">Mayorista:</span>
+                                <div class="flex-1 bg-tinta-200 rounded-full h-1.5"></div>
+                                <span class="text-xs text-tinta-300 w-20 text-right">Sin comisión</span>
                             </div>
                             <div class="flex items-center gap-2">
                                 <span class="text-xs text-indigo-600 w-28">Distribuidor:</span>
-                                <div class="flex-1 bg-gray-200 rounded-full h-1.5">
+                                <div class="flex-1 bg-tinta-200 rounded-full h-1.5">
                                     <div class="bg-indigo-400 h-1.5 rounded-full" :style="`width: ${Math.min(comisionMaxDistribuidor * 5, 100)}%`"></div>
                                 </div>
                                 <span class="text-xs text-indigo-600 w-20 text-right font-medium">máx {{ comisionMaxDistribuidor }}%</span>
                             </div>
                             <div class="flex items-center gap-2">
                                 <span class="text-xs text-green-600 w-28">Cliente final:</span>
-                                <div class="flex-1 bg-gray-200 rounded-full h-1.5">
+                                <div class="flex-1 bg-tinta-200 rounded-full h-1.5">
                                     <div class="bg-green-500 h-1.5 rounded-full" :style="`width: ${Math.min(comisionMaxClienteFinal * 5, 100)}%`"></div>
                                 </div>
                                 <span class="text-xs text-green-600 w-20 text-right font-medium">máx {{ comisionMaxClienteFinal }}%</span>
@@ -769,7 +769,7 @@ onMounted(() => {
             <!-- Botones -->
             <div class="flex gap-3">
                 <button @click="router.visit('/ensambles')"
-                    class="flex-1 py-3 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors">
+                    class="flex-1 py-3 rounded-xl border border-linea text-sm font-medium text-tinta-500 hover:bg-tinta-50 transition-colors">
                     Cancelar
                 </button>
                 <button @click="guardar" :disabled="guardando || !calculado"
@@ -785,22 +785,22 @@ onMounted(() => {
         <Teleport to="body">
             <div v-if="showModalCat" class="fixed inset-0 z-50 flex items-center justify-center p-4" style="background:rgba(0,0,0,0.5);">
                 <div class="bg-white rounded-2xl shadow-xl w-full max-w-sm p-5">
-                    <h3 class="text-sm font-bold text-gray-900 mb-4">Nueva categoría</h3>
+                    <h3 class="text-sm font-semibold text-tinta-900 mb-4">Nueva categoría</h3>
                     <div class="space-y-3">
                         <div>
-                            <label class="block text-xs font-medium text-gray-600 mb-1">Nombre *</label>
+                            <label class="block text-xs font-medium text-tinta-500 mb-1">Nombre *</label>
                             <input v-model="nuevaCat.nombre" type="text" @keyup.enter="crearCategoria"
-                                class="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-400"
+                                class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-400"
                                 placeholder="Nombre de la categoría" />
                         </div>
                         <div>
-                            <label class="block text-xs font-medium text-gray-600 mb-1">Color</label>
+                            <label class="block text-xs font-medium text-tinta-500 mb-1">Color</label>
                             <input v-model="nuevaCat.color" type="color"
-                                class="w-12 h-8 rounded-lg border border-gray-200 cursor-pointer p-0.5" />
+                                class="w-12 h-8 rounded-lg border border-linea cursor-pointer p-0.5" />
                         </div>
                     </div>
                     <div class="flex gap-3 mt-4">
-                        <button @click="showModalCat = false" class="flex-1 py-2.5 rounded-xl border border-gray-200 text-sm text-gray-600">Cancelar</button>
+                        <button @click="showModalCat = false" class="flex-1 py-2.5 rounded-xl border border-linea text-sm text-tinta-500">Cancelar</button>
                         <button @click="crearCategoria" :disabled="guardandoCat || !nuevaCat.nombre"
                             class="flex-1 py-2.5 rounded-xl text-white text-sm font-semibold disabled:opacity-60"
                             style="background:var(--marca);">

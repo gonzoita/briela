@@ -86,23 +86,23 @@ function revocarToken() {
 
             <div class="flex items-center gap-3 mb-5">
                 <button @click="router.visit('/configuracion')"
-                    class="p-2 rounded-xl hover:bg-gray-100 transition-colors text-gray-500" title="Volver">
-                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    class="p-2 rounded-xl hover:bg-tinta-100 transition-colors text-tinta-400" title="Volver">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
                     </svg>
                 </button>
-                <h1 class="text-xl font-bold text-gray-900">Integración con WordPress</h1>
+                <h1 class="text-xl font-semibold text-tinta-900">Integración con WordPress</h1>
             </div>
 
-            <p class="text-sm text-gray-500 mb-5">
+            <p class="text-sm text-tinta-400 mb-5">
                 Conecta el sitio de WordPress del cliente con este ERP a través del plugin
                 <strong>Briela Connect</strong>: leads del sitio con su canal de origen, directo al CRM.
             </p>
 
             <!-- Estado + token -->
-            <div class="bg-white rounded-2xl border border-gray-200 p-5 mb-4">
+            <div class="bg-white rounded-2xl border border-linea p-5 mb-4">
                 <div class="flex items-center justify-between mb-3">
-                    <h2 class="text-sm font-semibold text-gray-700">Estado de la conexión</h2>
+                    <h2 class="text-sm font-semibold text-tinta-700">Estado de la conexión</h2>
                     <span class="text-xs px-2 py-0.5 rounded-full"
                         :class="configurado ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'">
                         {{ configurado ? 'Token activo' : 'Sin configurar' }}
@@ -111,21 +111,21 @@ function revocarToken() {
 
                 <div class="space-y-3">
                     <div>
-                        <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">
+                        <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1.5">
                             URL del sitio Briela (para pegar en el plugin)
                         </label>
                         <div class="flex gap-2">
                             <input :value="url_base" readonly
-                                class="flex-1 min-w-0 px-3 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm text-gray-700" />
+                                class="flex-1 min-w-0 px-3 py-2.5 rounded-xl border border-linea bg-tinta-50 text-sm text-tinta-700" />
                             <button @click="copiar(url_base, 'url')"
-                                class="px-3 rounded-xl border border-gray-200 text-xs font-semibold text-gray-600 hover:bg-gray-50 shrink-0">
+                                class="px-3 rounded-xl border border-linea text-xs font-semibold text-tinta-500 hover:bg-tinta-50 shrink-0">
                                 {{ copiado === 'url' ? 'Copiada' : 'Copiar' }}
                             </button>
                         </div>
                     </div>
 
                     <div>
-                        <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">
+                        <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1.5">
                             Token de integración (para pegar en el plugin)
                         </label>
 
@@ -133,9 +133,9 @@ function revocarToken() {
                         <div v-if="tokenCompleto" class="space-y-2">
                             <div class="flex gap-2">
                                 <input :value="tokenCompleto" readonly
-                                    class="flex-1 min-w-0 px-3 py-2.5 rounded-xl border border-amber-300 bg-amber-50 text-sm font-mono text-gray-800" />
+                                    class="flex-1 min-w-0 px-3 py-2.5 rounded-xl border border-amber-300 bg-amber-50 text-sm font-mono text-tinta-900" />
                                 <button @click="copiar(tokenCompleto, 'token')"
-                                    class="px-3 rounded-xl border border-gray-200 text-xs font-semibold text-gray-600 hover:bg-gray-50 shrink-0">
+                                    class="px-3 rounded-xl border border-linea text-xs font-semibold text-tinta-500 hover:bg-tinta-50 shrink-0">
                                     {{ copiado === 'token' ? 'Copiado' : 'Copiar' }}
                                 </button>
                             </div>
@@ -146,11 +146,11 @@ function revocarToken() {
 
                         <!-- Ya configurado antes, solo se ve el final -->
                         <div v-else-if="tokenParcial"
-                            class="px-3 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm font-mono text-gray-500">
+                            class="px-3 py-2.5 rounded-xl border border-linea bg-tinta-50 text-sm font-mono text-tinta-400">
                             {{ tokenParcial }}
                         </div>
 
-                        <p v-else class="text-xs text-gray-400">Todavía no se ha generado un token.</p>
+                        <p v-else class="text-xs text-tinta-300">Todavía no se ha generado un token.</p>
                     </div>
 
                     <p v-if="error" class="text-xs text-red-600">{{ error }}</p>
@@ -162,7 +162,7 @@ function revocarToken() {
                             {{ generando ? 'Generando…' : (configurado ? 'Generar token nuevo' : 'Generar token') }}
                         </button>
                         <button v-if="configurado" @click="revocarToken"
-                            class="px-4 py-2.5 rounded-xl border border-gray-200 text-sm text-gray-600 hover:bg-gray-50">
+                            class="px-4 py-2.5 rounded-xl border border-linea text-sm text-tinta-500 hover:bg-tinta-50">
                             Revocar
                         </button>
                     </div>
@@ -170,9 +170,9 @@ function revocarToken() {
             </div>
 
             <!-- Instrucciones -->
-            <div class="bg-white rounded-2xl border border-gray-200 p-5">
-                <h2 class="text-sm font-semibold text-gray-700 mb-3">Cómo conectar el plugin</h2>
-                <ol class="space-y-2.5 text-sm text-gray-600 list-decimal list-inside">
+            <div class="bg-white rounded-2xl border border-linea p-5">
+                <h2 class="text-sm font-semibold text-tinta-700 mb-3">Cómo conectar el plugin</h2>
+                <ol class="space-y-2.5 text-sm text-tinta-500 list-decimal list-inside">
                     <li>Instala y activa <strong>Briela Connect</strong> en el WordPress del cliente.</li>
                     <li>Entra a <strong>Ajustes → Briela Connect</strong> dentro de WordPress.</li>
                     <li>Pega la URL y el token generados arriba, y guarda.</li>

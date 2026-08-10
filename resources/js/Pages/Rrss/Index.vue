@@ -16,7 +16,7 @@ function aplicarFiltro() {
 }
 
 const estados = {
-    borrador:   { label: 'Borrador',   bg: 'bg-gray-100',   text: 'text-gray-600'  },
+    borrador:   { label: 'Borrador',   bg: 'bg-tinta-100',   text: 'text-tinta-500'  },
     programada: { label: 'Programada', bg: 'bg-blue-100',   text: 'text-blue-700'  },
     publicando: { label: 'Publicando', bg: 'bg-yellow-100', text: 'text-yellow-700'},
     publicada:  { label: 'Publicada',  bg: 'bg-green-100',  text: 'text-green-700' },
@@ -32,7 +32,7 @@ const redIcono = {
 }
 
 function estadoBadge(e) {
-    return estados[e] ?? { label: e, bg: 'bg-gray-100', text: 'text-gray-700' }
+    return estados[e] ?? { label: e, bg: 'bg-tinta-100', text: 'text-tinta-700' }
 }
 
 function eliminar(p) {
@@ -52,12 +52,12 @@ function publicarAhora(p) {
 
             <!-- Cabecera -->
             <div class="flex items-center justify-between mb-4">
-                <h1 class="text-xl font-bold text-gray-900">Redes Sociales</h1>
+                <h1 class="text-xl font-semibold text-tinta-900">Redes Sociales</h1>
                 <a href="/rrss/crear" @click.prevent="router.visit('/rrss/crear')"
                     class="inline-flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-medium text-white"
                     style="background:var(--marca)">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M12 4v16m8-8H4"/>
                     </svg>
                     Nueva publicación
                 </a>
@@ -74,38 +74,38 @@ function publicarAhora(p) {
             <!-- Acceso a cuentas -->
             <div v-else class="flex justify-end mb-3">
                 <a href="/rrss/cuentas" @click.prevent="router.visit('/rrss/cuentas')"
-                    class="text-xs text-gray-500 hover:text-gray-700 underline">Gestionar cuentas conectadas</a>
+                    class="text-xs text-tinta-400 hover:text-tinta-700 underline">Gestionar cuentas conectadas</a>
             </div>
 
             <!-- Filtro -->
-            <div class="bg-white rounded-xl border border-gray-200 p-3 mb-4">
+            <div class="bg-white rounded-xl border border-linea p-3 mb-4">
                 <select v-model="estado" @change="aplicarFiltro"
-                    class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm bg-white">
+                    class="w-full rounded-lg border border-tinta-200 px-3 py-2 text-sm bg-white">
                     <option value="">Todos los estados</option>
                     <option v-for="(v, k) in estados" :key="k" :value="k">{{ v.label }}</option>
                 </select>
             </div>
 
             <!-- Lista -->
-            <div v-if="!publicaciones.data.length" class="py-12 text-center text-sm text-gray-400">
+            <div v-if="!publicaciones.data.length" class="py-12 text-center text-sm text-tinta-300">
                 Sin publicaciones todavía.
             </div>
 
             <div class="space-y-2">
-                <div v-for="p in publicaciones.data" :key="p.id" class="bg-white rounded-xl border border-gray-200 p-4">
+                <div v-for="p in publicaciones.data" :key="p.id" class="bg-white rounded-xl border border-linea p-4">
                     <div class="flex items-start justify-between gap-2">
                         <div class="min-w-0 flex-1">
                             <div class="flex items-center gap-2 mb-1 flex-wrap">
                                 <span :class="['text-xs px-2 py-0.5 rounded-full font-medium', estadoBadge(p.estado).bg, estadoBadge(p.estado).text]">
                                     {{ estadoBadge(p.estado).label }}
                                 </span>
-                                <span class="text-xs text-gray-400">{{ p.fecha_programada }}</span>
+                                <span class="text-xs text-tinta-300">{{ p.fecha_programada }}</span>
                             </div>
-                            <p class="text-sm text-gray-800 line-clamp-2">{{ p.contenido }}</p>
+                            <p class="text-sm text-tinta-900 line-clamp-2">{{ p.contenido }}</p>
                             <div class="flex items-center gap-1.5 mt-2 flex-wrap">
                                 <span v-for="c in p.cuentas" :key="c.id"
                                     class="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full"
-                                    :class="c.estado === 'publicada' ? 'bg-green-50 text-green-700' : c.estado === 'fallida' ? 'bg-red-50 text-red-700' : 'bg-gray-50 text-gray-500'"
+                                    :class="c.estado === 'publicada' ? 'bg-green-50 text-green-700' : c.estado === 'fallida' ? 'bg-red-50 text-red-700' : 'bg-tinta-50 text-tinta-400'"
                                     :title="c.error || ''">
                                     {{ redIcono[c.red] ?? '' }} {{ c.nombre }}
                                 </span>
@@ -134,7 +134,7 @@ function publicarAhora(p) {
                     :disabled="!link.url"
                     @click="link.url && router.visit(link.url, { preserveScroll: true })"
                     class="px-3 py-1.5 rounded-lg text-xs"
-                    :class="link.active ? 'bg-[var(--marca)] text-white' : 'bg-white border border-gray-200 text-gray-600 disabled:opacity-40'"
+                    :class="link.active ? 'bg-[var(--marca)] text-white' : 'bg-white border border-linea text-tinta-500 disabled:opacity-40'"
                 />
             </div>
 

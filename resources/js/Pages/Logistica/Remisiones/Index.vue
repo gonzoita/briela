@@ -73,11 +73,11 @@ function eliminar(id) {
 
             <!-- Header -->
             <div class="flex items-center justify-between mb-5">
-                <h1 class="text-xl font-bold text-gray-900">Remisiones</h1>
+                <h1 class="text-xl font-semibold text-tinta-900">Remisiones</h1>
                 <a href="/logistica/remisiones/crear"
                     class="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold text-white"
                     style="background:var(--marca);">
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
                     </svg>
                     Nueva Remisión
@@ -92,14 +92,14 @@ function eliminar(id) {
                         @click="filtrar(tab.value)"
                         class="flex-shrink-0 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors"
                         :class="estadoActivo === tab.value
-                            ? 'text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'"
+                            ? 'text-white' : 'bg-tinta-100 text-tinta-500 hover:bg-tinta-200'"
                         :style="estadoActivo === tab.value ? 'background:var(--marca);' : ''">
                         {{ tab.label }}
                     </button>
                 </div>
                 <!-- Tipo -->
                 <select @change="filtrarTipo" :value="tipoFiltro"
-                    class="px-3 py-1.5 rounded-xl border border-gray-200 text-sm text-gray-700 bg-white">
+                    class="px-3 py-1.5 rounded-xl border border-linea text-sm text-tinta-700 bg-white">
                     <option value="">Todos los tipos</option>
                     <option value="op">Desde OP</option>
                     <option value="manual">Manual</option>
@@ -107,28 +107,28 @@ function eliminar(id) {
             </div>
 
             <!-- Tabla desktop -->
-            <div class="hidden md:block bg-white rounded-2xl border border-gray-200 overflow-hidden">
+            <div class="hidden md:block bg-white rounded-2xl border border-linea overflow-hidden">
                 <table class="w-full text-sm">
                     <thead>
-                        <tr class="bg-gray-50 border-b border-gray-100">
-                            <th class="text-left px-4 py-2.5 text-xs font-semibold text-gray-500 uppercase">Número</th>
-                            <th class="text-left px-4 py-2.5 text-xs font-semibold text-gray-500 uppercase">Tipo</th>
-                            <th class="text-left px-4 py-2.5 text-xs font-semibold text-gray-500 uppercase">Cliente / OP</th>
-                            <th class="text-center px-3 py-2.5 text-xs font-semibold text-gray-500 uppercase">Ítems</th>
-                            <th class="text-left px-4 py-2.5 text-xs font-semibold text-gray-500 uppercase">Estado</th>
-                            <th class="text-left px-4 py-2.5 text-xs font-semibold text-gray-500 uppercase">Fecha</th>
+                        <tr class="bg-tinta-50 border-b border-linea">
+                            <th class="text-left px-4 py-2.5 text-xs font-semibold text-tinta-400 uppercase">Número</th>
+                            <th class="text-left px-4 py-2.5 text-xs font-semibold text-tinta-400 uppercase">Tipo</th>
+                            <th class="text-left px-4 py-2.5 text-xs font-semibold text-tinta-400 uppercase">Cliente / OP</th>
+                            <th class="text-center px-3 py-2.5 text-xs font-semibold text-tinta-400 uppercase">Ítems</th>
+                            <th class="text-left px-4 py-2.5 text-xs font-semibold text-tinta-400 uppercase">Estado</th>
+                            <th class="text-left px-4 py-2.5 text-xs font-semibold text-tinta-400 uppercase">Fecha</th>
                             <th class="w-24"></th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-50">
                         <tr v-if="!remisiones.data.length">
-                            <td colspan="7" class="px-4 py-12 text-center text-sm text-gray-400">
+                            <td colspan="7" class="px-4 py-12 text-center text-sm text-tinta-300">
                                 No hay remisiones con los filtros seleccionados.
                             </td>
                         </tr>
                         <tr v-for="rem in remisiones.data" :key="rem.id"
-                            class="hover:bg-gray-50 transition-colors">
-                            <td class="px-4 py-3 font-mono text-xs font-semibold text-gray-800">
+                            class="hover:bg-tinta-50 transition-colors">
+                            <td class="px-4 py-3 font-mono text-xs font-semibold text-tinta-900">
                                 {{ rem.numero }}
                             </td>
                             <td class="px-4 py-3">
@@ -139,11 +139,11 @@ function eliminar(id) {
                                     {{ rem.tipo === 'op' ? 'OP' : 'Manual' }}
                                 </span>
                             </td>
-                            <td class="px-4 py-3 text-sm text-gray-700">
+                            <td class="px-4 py-3 text-sm text-tinta-700">
                                 <div>{{ rem.cliente?.nombre ?? '—' }}</div>
                                 <div v-if="rem.op" class="text-xs text-blue-500">{{ rem.op.numero }}</div>
                             </td>
-                            <td class="px-3 py-3 text-center text-sm font-medium text-gray-700">
+                            <td class="px-3 py-3 text-center text-sm font-medium text-tinta-700">
                                 {{ rem.items?.length ?? 0 }}
                             </td>
                             <td class="px-4 py-3">
@@ -152,7 +152,7 @@ function eliminar(id) {
                                     {{ badge(rem.estado).label }}
                                 </span>
                             </td>
-                            <td class="px-4 py-3 text-sm text-gray-500">
+                            <td class="px-4 py-3 text-sm text-tinta-400">
                                 {{ formatFecha(rem.fecha_remision ?? rem.created_at) }}
                             </td>
                             <td class="px-4 py-3">
@@ -160,7 +160,7 @@ function eliminar(id) {
                                     <a :href="`/logistica/remisiones/${rem.id}`"
                                         class="text-xs text-blue-600 hover:underline">Ver</a>
                                     <a v-if="rem.estado === 'borrador'" :href="`/logistica/remisiones/${rem.id}/editar`"
-                                        class="text-xs text-gray-600 hover:underline">Editar</a>
+                                        class="text-xs text-tinta-500 hover:underline">Editar</a>
                                     <button v-if="!['anulada','entregada'].includes(rem.estado)"
                                         @click="anular(rem.id)"
                                         class="text-xs text-red-500 hover:underline">Anular</button>
@@ -173,29 +173,29 @@ function eliminar(id) {
 
             <!-- Cards mobile -->
             <div class="md:hidden space-y-3">
-                <div v-if="!remisiones.data.length" class="text-center py-12 text-sm text-gray-400">
+                <div v-if="!remisiones.data.length" class="text-center py-12 text-sm text-tinta-300">
                     No hay remisiones.
                 </div>
                 <div v-for="rem in remisiones.data" :key="rem.id"
-                    class="bg-white rounded-2xl border border-gray-200 p-4">
+                    class="bg-white rounded-2xl border border-linea p-4">
                     <div class="flex items-center justify-between mb-2">
-                        <span class="font-mono text-sm font-bold text-gray-800">{{ rem.numero }}</span>
+                        <span class="font-mono text-sm font-semibold text-tinta-900">{{ rem.numero }}</span>
                         <span class="text-xs px-2.5 py-1 rounded-full font-semibold"
                             :style="`background:${badge(rem.estado).bg};color:${badge(rem.estado).text};`">
                             {{ badge(rem.estado).label }}
                         </span>
                     </div>
-                    <p class="text-sm text-gray-700 mb-1">{{ rem.cliente?.nombre ?? '—' }}</p>
+                    <p class="text-sm text-tinta-700 mb-1">{{ rem.cliente?.nombre ?? '—' }}</p>
                     <p v-if="rem.op" class="text-xs text-blue-500 mb-2">{{ rem.op.numero }}</p>
-                    <div class="flex items-center justify-between text-xs text-gray-400">
+                    <div class="flex items-center justify-between text-xs text-tinta-300">
                         <span>{{ rem.items?.length ?? 0 }} ítems · {{ rem.tipo === 'op' ? 'OP' : 'Manual' }}</span>
                         <span>{{ formatFecha(rem.fecha_remision ?? rem.created_at) }}</span>
                     </div>
-                    <div class="flex gap-3 mt-3 pt-3 border-t border-gray-100">
+                    <div class="flex gap-3 mt-3 pt-3 border-t border-linea">
                         <a :href="`/logistica/remisiones/${rem.id}`"
                             class="text-xs font-medium text-blue-600">Ver detalle →</a>
                         <a v-if="rem.estado === 'borrador'" :href="`/logistica/remisiones/${rem.id}/editar`"
-                            class="text-xs font-medium text-gray-600">Editar</a>
+                            class="text-xs font-medium text-tinta-500">Editar</a>
                         <button v-if="!['anulada','entregada'].includes(rem.estado)"
                             @click="anular(rem.id)"
                             class="text-xs font-medium text-red-500 ml-auto">Anular</button>
@@ -206,14 +206,14 @@ function eliminar(id) {
             <!-- Paginación -->
             <div v-if="remisiones.last_page > 1" class="flex justify-center gap-2 mt-6">
                 <a v-if="remisiones.prev_page_url" :href="remisiones.prev_page_url"
-                    class="px-3 py-1.5 rounded-lg border border-gray-200 text-sm text-gray-700 hover:bg-gray-50">
+                    class="px-3 py-1.5 rounded-lg border border-linea text-sm text-tinta-700 hover:bg-tinta-50">
                     ← Anterior
                 </a>
-                <span class="px-3 py-1.5 text-sm text-gray-500">
+                <span class="px-3 py-1.5 text-sm text-tinta-400">
                     {{ remisiones.current_page }} / {{ remisiones.last_page }}
                 </span>
                 <a v-if="remisiones.next_page_url" :href="remisiones.next_page_url"
-                    class="px-3 py-1.5 rounded-lg border border-gray-200 text-sm text-gray-700 hover:bg-gray-50">
+                    class="px-3 py-1.5 rounded-lg border border-linea text-sm text-tinta-700 hover:bg-tinta-50">
                     Siguiente →
                 </a>
             </div>

@@ -122,24 +122,24 @@ function reactivar(c) {
         <div class="max-w-2xl mx-auto px-4 py-4">
 
             <div class="flex items-center gap-3 mb-5">
-                <button @click="router.visit('/rrss')" class="p-2 rounded-xl hover:bg-gray-100 text-gray-500">
-                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <button @click="router.visit('/rrss')" class="p-2 rounded-xl hover:bg-tinta-100 text-tinta-400">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
                     </svg>
                 </button>
-                <h1 class="text-xl font-bold text-gray-900">Cuentas conectadas</h1>
+                <h1 class="text-xl font-semibold text-tinta-900">Cuentas conectadas</h1>
             </div>
 
             <!-- Conectar nuevas -->
-            <div class="bg-white rounded-2xl border border-gray-200 p-5 mb-4">
-                <h2 class="text-sm font-semibold text-gray-700 mb-3">Conectar una cuenta</h2>
+            <div class="bg-white rounded-2xl border border-linea p-5 mb-4">
+                <h2 class="text-sm font-semibold text-tinta-700 mb-3">Conectar una cuenta</h2>
                 <div class="space-y-2">
                     <button v-for="r in redes" :key="r.key" @click="conectar(r.key)"
-                        class="w-full flex items-center gap-3 p-3 rounded-xl border border-gray-200 hover:bg-gray-50 text-left">
+                        class="w-full flex items-center gap-3 p-3 rounded-xl border border-linea hover:bg-tinta-50 text-left">
                         <span class="text-xl">{{ r.icon }}</span>
                         <div class="min-w-0 flex-1">
                             <div class="flex items-center gap-2 flex-wrap">
-                                <p class="text-sm font-medium text-gray-800">{{ r.label }}</p>
+                                <p class="text-sm font-medium text-tinta-900">{{ r.label }}</p>
                                 <span v-if="estado(r.key).lista"
                                     class="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-green-100 text-green-700 leading-none">
                                     Listo para conectar
@@ -149,31 +149,31 @@ function reactivar(c) {
                                     Falta configurar
                                 </span>
                             </div>
-                            <p class="text-xs text-gray-400 mt-0.5">{{ r.descripcion }}</p>
+                            <p class="text-xs text-tinta-300 mt-0.5">{{ r.descripcion }}</p>
                         </div>
                     </button>
                 </div>
 
                 <!-- Guía de configuración inicial (se hace una sola vez) -->
-                <div class="mt-4 pt-4 border-t border-gray-100">
+                <div class="mt-4 pt-4 border-t border-linea">
                     <button @click="guiaAbierta = !guiaAbierta"
-                        class="flex items-center gap-2 text-xs font-semibold text-gray-600 hover:text-gray-800">
+                        class="flex items-center gap-2 text-xs font-semibold text-tinta-500 hover:text-tinta-900">
                         <svg class="w-3.5 h-3.5 transition-transform" :class="guiaAbierta ? 'rotate-90' : ''"
-                            fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                            fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
                         </svg>
                         ¿Primera vez? Cómo dejar lista una red
                     </button>
 
-                    <div v-if="guiaAbierta" class="mt-3 space-y-4 text-xs text-gray-600 leading-relaxed">
+                    <div v-if="guiaAbierta" class="mt-3 space-y-4 text-xs text-tinta-500 leading-relaxed">
                         <p>
                             Las redes no permiten publicar desde otro sistema con solo usuario y
                             contraseña: exigen registrar una aplicación una única vez. Después de
                             ese trámite, conectar una cuenta es solo iniciar sesión y autorizar.
                         </p>
 
-                        <div v-for="r in redes" :key="r.key" class="rounded-xl bg-gray-50 p-3">
-                            <p class="font-semibold text-gray-700 mb-1">{{ r.icon }} {{ r.label }}</p>
+                        <div v-for="r in redes" :key="r.key" class="rounded-xl bg-tinta-50 p-3">
+                            <p class="font-semibold text-tinta-700 mb-1">{{ r.icon }} {{ r.label }}</p>
 
                             <p v-if="estado(r.key).lista" class="text-green-700">
                                 Ya tiene sus credenciales cargadas. Solo falta oprimir el botón de arriba.
@@ -213,28 +213,28 @@ function reactivar(c) {
 
                                 <p class="mb-1">2. Cuando te pida la <strong>URL de retorno</strong>, es esta:</p>
                                 <div class="flex items-center gap-2 mb-3">
-                                    <code class="flex-1 min-w-0 truncate bg-white border border-gray-200 rounded-lg px-2 py-1.5 text-[11px] text-gray-700">{{ estado(r.key).url_retorno }}</code>
+                                    <code class="flex-1 min-w-0 truncate bg-white border border-linea rounded-lg px-2 py-1.5 text-[11px] text-tinta-700">{{ estado(r.key).url_retorno }}</code>
                                     <button type="button" @click="copiar(estado(r.key).url_retorno, r.key)"
-                                        class="shrink-0 px-2.5 py-1.5 rounded-lg border border-gray-200 bg-white text-[11px] font-semibold text-gray-600 hover:bg-gray-50">
+                                        class="shrink-0 px-2.5 py-1.5 rounded-lg border border-linea bg-white text-[11px] font-semibold text-tinta-500 hover:bg-tinta-50">
                                         {{ copiado === r.key ? 'Copiada' : 'Copiar' }}
                                     </button>
                                 </div>
-                                <p class="mb-1.5 text-gray-400">Tiene que quedar idéntica, carácter por carácter.</p>
+                                <p class="mb-1.5 text-tinta-300">Tiene que quedar idéntica, carácter por carácter.</p>
 
                                 <p class="mb-1.5">3. Copia de la red sus credenciales y pégalas acá:</p>
                                 <div class="space-y-2">
                                     <input v-model="form[r.key].id" type="text" placeholder="Identificador de la aplicación (App ID)"
-                                        class="w-full bg-white border border-gray-200 rounded-lg px-2.5 py-2 text-[12px] focus:outline-none focus:border-blue-400" />
+                                        class="w-full bg-white border border-linea rounded-lg px-2.5 py-2 text-[12px] focus:outline-none focus:border-blue-400" />
                                     <input v-model="form[r.key].secret" type="password"
                                         :placeholder="estado(r.key).tiene_secreto ? 'Clave secreta (ya hay una guardada — deja vacío para conservarla)' : 'Clave secreta (App Secret)'"
-                                        class="w-full bg-white border border-gray-200 rounded-lg px-2.5 py-2 text-[12px] focus:outline-none focus:border-blue-400" />
+                                        class="w-full bg-white border border-linea rounded-lg px-2.5 py-2 text-[12px] focus:outline-none focus:border-blue-400" />
                                     <button type="button" @click="guardarCredenciales(r.key)" :disabled="guardando === r.key"
                                         class="w-full py-2 rounded-lg text-[12px] font-semibold text-white disabled:opacity-50"
                                         style="background:var(--marca);">
                                         {{ guardando === r.key ? 'Guardando...' : 'Guardar credenciales' }}
                                     </button>
                                 </div>
-                                <p class="mt-1.5 text-gray-400">
+                                <p class="mt-1.5 text-tinta-300">
                                     La clave secreta se guarda cifrada y no se vuelve a mostrar.
                                 </p>
                             </template>
@@ -244,20 +244,20 @@ function reactivar(c) {
             </div>
 
             <!-- Lista de conectadas -->
-            <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden">
-                <div class="px-5 py-3 border-b border-gray-100">
-                    <h2 class="text-sm font-semibold text-gray-700">Cuentas</h2>
+            <div class="bg-white rounded-2xl border border-linea overflow-hidden">
+                <div class="px-5 py-3 border-b border-linea">
+                    <h2 class="text-sm font-semibold text-tinta-700">Cuentas</h2>
                 </div>
 
-                <div v-if="!cuentas.length" class="py-10 text-center text-sm text-gray-400">
+                <div v-if="!cuentas.length" class="py-10 text-center text-sm text-tinta-300">
                     Sin cuentas conectadas todavía.
                 </div>
 
                 <div class="divide-y divide-gray-50">
                     <div v-for="c in cuentas" :key="c.id" class="flex items-center gap-3 px-4 py-3">
                         <div class="flex-1 min-w-0">
-                            <p class="text-sm font-medium text-gray-800 truncate">{{ c.nombre_cuenta }}</p>
-                            <p class="text-xs text-gray-400 truncate">
+                            <p class="text-sm font-medium text-tinta-900 truncate">{{ c.nombre_cuenta }}</p>
+                            <p class="text-xs text-tinta-300 truncate">
                                 {{ redLabel[c.red] ?? c.red }}
                                 <span v-if="c.ultima_publicacion_en"> · última pub.: {{ new Date(c.ultima_publicacion_en).toLocaleDateString('es-CO') }}</span>
                             </p>
@@ -266,7 +266,7 @@ function reactivar(c) {
                             </p>
                         </div>
                         <span class="text-xs px-2 py-0.5 rounded-full shrink-0"
-                            :class="c.activa ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'">
+                            :class="c.activa ? 'bg-green-100 text-green-700' : 'bg-tinta-100 text-tinta-400'">
                             {{ c.activa ? 'Activa' : 'Inactiva' }}
                         </span>
                         <button v-if="c.activa" @click="desconectar(c)" class="text-xs text-red-500 hover:underline shrink-0">Desconectar</button>

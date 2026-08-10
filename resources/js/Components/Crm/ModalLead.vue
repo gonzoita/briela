@@ -73,10 +73,10 @@ async function guardar() {
         >
             <div class="bg-white w-full sm:max-w-lg rounded-t-2xl sm:rounded-2xl shadow-2xl flex flex-col max-h-[90vh]">
                 <!-- Header -->
-                <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100 shrink-0">
-                    <h2 class="text-base font-bold text-gray-900">Nueva oportunidad</h2>
-                    <button @click="emit('cerrar')" class="w-8 h-8 flex items-center justify-center rounded-xl hover:bg-gray-100 transition-colors">
-                        <svg class="w-5 h-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <div class="flex items-center justify-between px-5 py-4 border-b border-linea shrink-0">
+                    <h2 class="text-base font-semibold text-tinta-900">Nueva oportunidad</h2>
+                    <button @click="emit('cerrar')" class="w-8 h-8 flex items-center justify-center rounded-xl hover:bg-tinta-100 transition-colors">
+                        <svg class="w-5 h-5 text-tinta-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
                         </svg>
                     </button>
@@ -87,12 +87,12 @@ async function guardar() {
 
                     <!-- Título -->
                     <div>
-                        <label class="block text-xs font-semibold text-gray-600 mb-1">Título <span class="text-red-500">*</span></label>
+                        <label class="block text-xs font-semibold text-tinta-500 mb-1">Título <span class="text-red-500">*</span></label>
                         <input
                             v-model="form.titulo"
                             type="text"
                             placeholder="Ej: Cuarto frío 20m² Empresa X"
-                            class="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            class="w-full border border-linea rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                             :class="{ 'border-red-400': errores.titulo }"
                         />
                         <p v-if="errores.titulo" class="text-xs text-red-500 mt-1">{{ errores.titulo }}</p>
@@ -100,9 +100,9 @@ async function guardar() {
 
                     <!-- Etapa -->
                     <div>
-                        <label class="block text-xs font-semibold text-gray-600 mb-1">Etapa</label>
+                        <label class="block text-xs font-semibold text-tinta-500 mb-1">Etapa</label>
                         <select v-model="form.etapa_id"
-                            class="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                            class="w-full border border-linea rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
                             <option v-for="e in etapas" :key="e.id" :value="e.id">{{ e.nombre }}</option>
                         </select>
                     </div>
@@ -110,36 +110,36 @@ async function guardar() {
                     <!-- Fila: nombre + empresa -->
                     <div class="grid grid-cols-2 gap-3">
                         <div>
-                            <label class="block text-xs font-semibold text-gray-600 mb-1">Nombre contacto</label>
+                            <label class="block text-xs font-semibold text-tinta-500 mb-1">Nombre contacto</label>
                             <input v-model="form.nombre_contacto" type="text"
-                                class="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"/>
+                                class="w-full border border-linea rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"/>
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold text-gray-600 mb-1">Empresa</label>
+                            <label class="block text-xs font-semibold text-tinta-500 mb-1">Empresa</label>
                             <input v-model="form.empresa_contacto" type="text"
-                                class="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"/>
+                                class="w-full border border-linea rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"/>
                         </div>
                     </div>
 
                     <!-- Fila: email + teléfono -->
                     <div class="grid grid-cols-2 gap-3">
                         <div>
-                            <label class="block text-xs font-semibold text-gray-600 mb-1">Email</label>
+                            <label class="block text-xs font-semibold text-tinta-500 mb-1">Email</label>
                             <input v-model="form.email_contacto" type="email"
-                                class="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"/>
+                                class="w-full border border-linea rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"/>
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold text-gray-600 mb-1">Teléfono</label>
+                            <label class="block text-xs font-semibold text-tinta-500 mb-1">Teléfono</label>
                             <input v-model="form.telefono_contacto" type="tel"
-                                class="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"/>
+                                class="w-full border border-linea rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"/>
                         </div>
                     </div>
 
                     <!-- Fuente -->
                     <div>
-                        <label class="block text-xs font-semibold text-gray-600 mb-1">Fuente</label>
+                        <label class="block text-xs font-semibold text-tinta-500 mb-1">Fuente</label>
                         <select v-model="form.fuente"
-                            class="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                            class="w-full border border-linea rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
                             <option value="">Sin especificar</option>
                             <option v-for="f in fuentes" :key="f" :value="f">{{ f }}</option>
                         </select>
@@ -147,9 +147,9 @@ async function guardar() {
 
                     <!-- Responsable -->
                     <div>
-                        <label class="block text-xs font-semibold text-gray-600 mb-1">Responsable</label>
+                        <label class="block text-xs font-semibold text-tinta-500 mb-1">Responsable</label>
                         <select v-model="form.responsable_id"
-                            class="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                            class="w-full border border-linea rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
                             <option :value="null">Sin asignar</option>
                             <option v-for="u in usuarios" :key="u.id" :value="u.id">{{ u.name }}</option>
                         </select>
@@ -157,9 +157,9 @@ async function guardar() {
 
                     <!-- Cliente existente -->
                     <div>
-                        <label class="block text-xs font-semibold text-gray-600 mb-1">Cliente existente (opcional)</label>
+                        <label class="block text-xs font-semibold text-tinta-500 mb-1">Cliente existente (opcional)</label>
                         <select v-model="form.cliente_id"
-                            class="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                            class="w-full border border-linea rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
                             <option :value="null">Ninguno</option>
                             <option v-for="c in clientes" :key="c.id" :value="c.id">{{ c.nombre }}</option>
                         </select>
@@ -167,17 +167,17 @@ async function guardar() {
 
                     <!-- Descripción -->
                     <div>
-                        <label class="block text-xs font-semibold text-gray-600 mb-1">Descripción</label>
+                        <label class="block text-xs font-semibold text-tinta-500 mb-1">Descripción</label>
                         <textarea v-model="form.descripcion" rows="3"
-                            class="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                            class="w-full border border-linea rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
                             placeholder="Detalles del proyecto, necesidades, etc."></textarea>
                     </div>
                 </div>
 
                 <!-- Footer -->
-                <div class="px-5 py-4 border-t border-gray-100 flex gap-3 shrink-0">
+                <div class="px-5 py-4 border-t border-linea flex gap-3 shrink-0">
                     <button @click="emit('cerrar')"
-                        class="flex-1 py-2.5 rounded-xl text-sm font-semibold text-gray-600 border border-gray-200 hover:bg-gray-50 transition-colors">
+                        class="flex-1 py-2.5 rounded-xl text-sm font-semibold text-tinta-500 border border-linea hover:bg-tinta-50 transition-colors">
                         Cancelar
                     </button>
                     <button @click="guardar" :disabled="guardando"

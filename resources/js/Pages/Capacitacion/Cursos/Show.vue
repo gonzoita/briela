@@ -356,15 +356,15 @@ async function eliminarPregunta(pregunta, target = evaluacion) {
         <div class="max-w-2xl mx-auto">
 
             <div class="flex items-center gap-3 mb-5">
-                <button @click="router.visit('/capacitacion/cursos')" class="w-9 h-9 rounded-xl flex items-center justify-center text-gray-500 hover:bg-gray-100 transition-colors shrink-0">
-                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <button @click="router.visit('/capacitacion/cursos')" class="w-9 h-9 rounded-xl flex items-center justify-center text-tinta-400 hover:bg-tinta-100 transition-colors shrink-0">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
                     </svg>
                 </button>
-                <h1 class="text-xl font-bold text-gray-900 truncate flex-1">{{ curso.titulo }}</h1>
+                <h1 class="text-xl font-semibold text-tinta-900 truncate flex-1">{{ curso.titulo }}</h1>
                 <button @click="router.visit(`/capacitacion/cursos/${curso.id}/editar`)"
-                    class="w-9 h-9 rounded-xl flex items-center justify-center text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 transition-colors shrink-0">
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    class="w-9 h-9 rounded-xl flex items-center justify-center text-tinta-300 hover:text-indigo-600 hover:bg-indigo-50 transition-colors shrink-0">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
                     </svg>
                 </button>
@@ -376,7 +376,7 @@ async function eliminarPregunta(pregunta, target = evaluacion) {
                     <img :src="curso.imagen_portada" :alt="curso.titulo" class="w-full h-full object-cover"/>
                 </div>
                 <div class="p-4">
-                    <p v-if="curso.descripcion" class="text-sm text-gray-600 mb-3">{{ curso.descripcion }}</p>
+                    <p v-if="curso.descripcion" class="text-sm text-tinta-500 mb-3">{{ curso.descripcion }}</p>
                     <div class="flex items-center gap-1.5 flex-wrap">
                         <span v-if="curso.categoria" class="inline-block px-2 py-0.5 rounded-full text-xs font-semibold text-white" style="background:#64748B;">{{ curso.categoria }}</span>
                         <span class="inline-block px-2 py-0.5 rounded-full text-xs font-semibold text-white" style="background:var(--marca);">{{ publicoLabel(curso.publico_objetivo) }}</span>
@@ -388,47 +388,47 @@ async function eliminarPregunta(pregunta, target = evaluacion) {
 
             <!-- Módulos -->
             <div class="flex items-center justify-between mb-3">
-                <h2 class="text-sm font-semibold text-gray-500 uppercase tracking-wider">Módulos</h2>
+                <h2 class="text-sm font-semibold text-tinta-400 uppercase tracking-[0.12em]">Módulos</h2>
             </div>
 
             <div class="space-y-3 mb-4">
                 <div v-for="(modulo, mIdx) in curso.modulos" :key="modulo.id" class="bg-white rounded-2xl shadow-sm overflow-hidden">
                     <div class="flex items-center gap-2 px-4 py-3 cursor-pointer" @click="toggleExpandido(modulo.id)">
-                        <svg class="w-4 h-4 text-gray-400 shrink-0 transition-transform" :class="{ 'rotate-90': expandidos.has(modulo.id) }" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <svg class="w-4 h-4 text-tinta-300 shrink-0 transition-transform" :class="{ 'rotate-90': expandidos.has(modulo.id) }" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
                         </svg>
-                        <p class="text-sm font-semibold text-gray-900 flex-1 truncate">{{ modulo.nombre }}</p>
-                        <span class="text-xs text-gray-400 shrink-0">{{ modulo.lecciones.length }} lección{{ modulo.lecciones.length === 1 ? '' : 'es' }}</span>
+                        <p class="text-sm font-semibold text-tinta-900 flex-1 truncate">{{ modulo.nombre }}</p>
+                        <span class="text-xs text-tinta-300 shrink-0">{{ modulo.lecciones.length }} lección{{ modulo.lecciones.length === 1 ? '' : 'es' }}</span>
                         <div class="flex items-center gap-0.5 shrink-0" @click.stop>
-                            <button @click="moverModulo(modulo, -1)" :disabled="mIdx === 0" class="w-6 h-6 rounded-md flex items-center justify-center text-gray-400 hover:bg-gray-100 disabled:opacity-30">
-                                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 15l7-7 7 7"/></svg>
+                            <button @click="moverModulo(modulo, -1)" :disabled="mIdx === 0" class="w-6 h-6 rounded-md flex items-center justify-center text-tinta-300 hover:bg-tinta-100 disabled:opacity-30">
+                                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M5 15l7-7 7 7"/></svg>
                             </button>
-                            <button @click="moverModulo(modulo, 1)" :disabled="mIdx === curso.modulos.length - 1" class="w-6 h-6 rounded-md flex items-center justify-center text-gray-400 hover:bg-gray-100 disabled:opacity-30">
-                                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                            <button @click="moverModulo(modulo, 1)" :disabled="mIdx === curso.modulos.length - 1" class="w-6 h-6 rounded-md flex items-center justify-center text-tinta-300 hover:bg-tinta-100 disabled:opacity-30">
+                                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
                             </button>
-                            <button @click="eliminarModulo(modulo)" class="w-6 h-6 rounded-md flex items-center justify-center text-gray-400 hover:text-red-600 hover:bg-red-50">
-                                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                            <button @click="eliminarModulo(modulo)" class="w-6 h-6 rounded-md flex items-center justify-center text-tinta-300 hover:text-red-600 hover:bg-red-50">
+                                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                             </button>
                         </div>
                     </div>
 
-                    <div v-if="expandidos.has(modulo.id)" class="border-t border-gray-100">
+                    <div v-if="expandidos.has(modulo.id)" class="border-t border-linea">
                         <ul class="divide-y divide-gray-50">
-                            <li v-for="(leccion, lIdx) in modulo.lecciones" :key="leccion.id" class="flex items-center gap-2 px-4 py-2.5 hover:bg-gray-50/60">
-                                <span class="text-xs text-gray-400 w-4 shrink-0">{{ lIdx + 1 }}</span>
+                            <li v-for="(leccion, lIdx) in modulo.lecciones" :key="leccion.id" class="flex items-center gap-2 px-4 py-2.5 hover:bg-tinta-50/60">
+                                <span class="text-xs text-tinta-300 w-4 shrink-0">{{ lIdx + 1 }}</span>
                                 <div class="flex-1 min-w-0 cursor-pointer" @click="abrirEditarLeccion(modulo, leccion)">
-                                    <p class="text-sm text-gray-800 truncate">{{ leccion.nombre }}</p>
-                                    <p class="text-xs text-gray-400">{{ tipoLabel(leccion.tipo) }}<span v-if="leccion.duracion_minutos"> · {{ leccion.duracion_minutos }} min</span></p>
+                                    <p class="text-sm text-tinta-900 truncate">{{ leccion.nombre }}</p>
+                                    <p class="text-xs text-tinta-300">{{ tipoLabel(leccion.tipo) }}<span v-if="leccion.duracion_minutos"> · {{ leccion.duracion_minutos }} min</span></p>
                                 </div>
                                 <div class="flex items-center gap-0.5 shrink-0">
-                                    <button @click="moverLeccion(modulo, leccion, -1)" :disabled="lIdx === 0" class="w-6 h-6 rounded-md flex items-center justify-center text-gray-400 hover:bg-gray-100 disabled:opacity-30">
-                                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 15l7-7 7 7"/></svg>
+                                    <button @click="moverLeccion(modulo, leccion, -1)" :disabled="lIdx === 0" class="w-6 h-6 rounded-md flex items-center justify-center text-tinta-300 hover:bg-tinta-100 disabled:opacity-30">
+                                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M5 15l7-7 7 7"/></svg>
                                     </button>
-                                    <button @click="moverLeccion(modulo, leccion, 1)" :disabled="lIdx === modulo.lecciones.length - 1" class="w-6 h-6 rounded-md flex items-center justify-center text-gray-400 hover:bg-gray-100 disabled:opacity-30">
-                                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                                    <button @click="moverLeccion(modulo, leccion, 1)" :disabled="lIdx === modulo.lecciones.length - 1" class="w-6 h-6 rounded-md flex items-center justify-center text-tinta-300 hover:bg-tinta-100 disabled:opacity-30">
+                                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
                                     </button>
-                                    <button @click="eliminarLeccion(modulo, leccion)" class="w-6 h-6 rounded-md flex items-center justify-center text-gray-400 hover:text-red-600 hover:bg-red-50">
-                                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                    <button @click="eliminarLeccion(modulo, leccion)" class="w-6 h-6 rounded-md flex items-center justify-center text-tinta-300 hover:text-red-600 hover:bg-red-50">
+                                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                                     </button>
                                 </div>
                             </li>
@@ -438,9 +438,9 @@ async function eliminarPregunta(pregunta, target = evaluacion) {
                         </button>
 
                         <!-- Evaluación de módulo (candado de avance, opcional) -->
-                        <div class="border-t border-gray-100 p-4 space-y-3" style="background:#FAFAFA;">
+                        <div class="border-t border-linea p-4 space-y-3" style="background:#FAFAFA;">
                             <div class="flex items-center justify-between">
-                                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Evaluación del módulo (opcional)</p>
+                                <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">Evaluación del módulo (opcional)</p>
                                 <button v-if="modulo.evalCfg.id" @click="router.visit('/capacitacion/revision-evaluaciones')" class="text-xs font-semibold" style="color:var(--marca);">
                                     Cola de revisión
                                 </button>
@@ -448,22 +448,22 @@ async function eliminarPregunta(pregunta, target = evaluacion) {
 
                             <div class="grid grid-cols-2 gap-3">
                                 <div class="col-span-2">
-                                    <label class="block text-xs font-medium text-gray-700 mb-1">Nombre</label>
+                                    <label class="block text-xs font-medium text-tinta-700 mb-1">Nombre</label>
                                     <input v-model="modulo.evalCfg.nombre" type="text"
-                                        class="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm bg-white focus:outline-none focus:border-blue-400" />
+                                        class="w-full border border-linea rounded-xl px-3 py-2 text-sm bg-white focus:outline-none focus:border-blue-400" />
                                 </div>
                                 <div>
-                                    <label class="block text-xs font-medium text-gray-700 mb-1">Nota mínima (%)</label>
+                                    <label class="block text-xs font-medium text-tinta-700 mb-1">Nota mínima (%)</label>
                                     <input v-model="modulo.evalCfg.nota_minima_aprobacion" type="number" min="0" max="100"
-                                        class="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm bg-white focus:outline-none focus:border-blue-400" />
+                                        class="w-full border border-linea rounded-xl px-3 py-2 text-sm bg-white focus:outline-none focus:border-blue-400" />
                                 </div>
                                 <div>
-                                    <label class="block text-xs font-medium text-gray-700 mb-1">Intentos permitidos</label>
+                                    <label class="block text-xs font-medium text-tinta-700 mb-1">Intentos permitidos</label>
                                     <input v-model="modulo.evalCfg.intentos_permitidos" type="number" min="1" placeholder="Ilimitados"
-                                        class="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm bg-white focus:outline-none focus:border-blue-400" />
+                                        class="w-full border border-linea rounded-xl px-3 py-2 text-sm bg-white focus:outline-none focus:border-blue-400" />
                                 </div>
                             </div>
-                            <label class="flex items-center gap-2 text-xs text-gray-700">
+                            <label class="flex items-center gap-2 text-xs text-tinta-700">
                                 <input v-model="modulo.evalCfg.requiere_revision_manual" type="checkbox" class="rounded" />
                                 Requiere revisión manual (tiene preguntas abiertas)
                             </label>
@@ -474,27 +474,27 @@ async function eliminarPregunta(pregunta, target = evaluacion) {
                             </button>
 
                             <div v-if="modulo.evalCfg.id" class="space-y-2">
-                                <div v-for="(pregunta, idx) in modulo.evalCfg.preguntas" :key="pregunta.id" class="bg-white rounded-xl border border-gray-100 p-3">
+                                <div v-for="(pregunta, idx) in modulo.evalCfg.preguntas" :key="pregunta.id" class="bg-white rounded-xl border border-linea p-3">
                                     <div class="flex items-start gap-2">
-                                        <span class="text-xs text-gray-400 w-4 shrink-0 mt-0.5">{{ idx + 1 }}</span>
+                                        <span class="text-xs text-tinta-300 w-4 shrink-0 mt-0.5">{{ idx + 1 }}</span>
                                         <div class="flex-1 min-w-0 cursor-pointer" @click="abrirEditarPregunta(pregunta, modulo.evalCfg)">
-                                            <p class="text-sm text-gray-800">{{ pregunta.enunciado }}</p>
-                                            <p class="text-xs text-gray-400 mt-1">
+                                            <p class="text-sm text-tinta-900">{{ pregunta.enunciado }}</p>
+                                            <p class="text-xs text-tinta-300 mt-1">
                                                 {{ pregunta.tipo === 'opcion_multiple' ? 'Opción múltiple' : 'Respuesta abierta (revisión manual)' }}
                                             </p>
                                             <ul v-if="pregunta.tipo === 'opcion_multiple'" class="mt-2 space-y-0.5">
-                                                <li v-for="o in pregunta.opciones" :key="o.id" class="text-xs" :class="o.es_correcta ? 'text-green-700 font-semibold' : 'text-gray-500'">
+                                                <li v-for="o in pregunta.opciones" :key="o.id" class="text-xs" :class="o.es_correcta ? 'text-green-700 font-semibold' : 'text-tinta-400'">
                                                     {{ o.es_correcta ? '✓' : '·' }} {{ o.texto }}
                                                 </li>
                                             </ul>
                                         </div>
-                                        <button @click.stop="eliminarPregunta(pregunta, modulo.evalCfg)" class="w-6 h-6 rounded-md flex items-center justify-center text-gray-400 hover:text-red-600 hover:bg-red-50 shrink-0">
-                                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                        <button @click.stop="eliminarPregunta(pregunta, modulo.evalCfg)" class="w-6 h-6 rounded-md flex items-center justify-center text-tinta-300 hover:text-red-600 hover:bg-red-50 shrink-0">
+                                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                                         </button>
                                     </div>
                                 </div>
 
-                                <button @click="abrirNuevaPregunta(modulo.evalCfg)" class="w-full py-2 rounded-xl text-xs font-semibold text-center bg-white border border-gray-100 hover:bg-blue-50/60 transition-colors" style="color:var(--marca);">
+                                <button @click="abrirNuevaPregunta(modulo.evalCfg)" class="w-full py-2 rounded-xl text-xs font-semibold text-center bg-white border border-linea hover:bg-blue-50/60 transition-colors" style="color:var(--marca);">
                                     + Pregunta
                                 </button>
                             </div>
@@ -507,7 +507,7 @@ async function eliminarPregunta(pregunta, target = evaluacion) {
             <div class="bg-white rounded-2xl shadow-sm p-4">
                 <div class="flex gap-2">
                     <input v-model="nuevoModuloNombre" @keyup.enter="crearModulo" type="text" placeholder="Nombre del nuevo módulo..."
-                        class="flex-1 border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-400" />
+                        class="flex-1 border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-400" />
                     <button @click="crearModulo" :disabled="creandoModulo"
                         class="px-4 py-2 rounded-xl text-sm font-semibold text-white shrink-0 disabled:opacity-50" style="background:var(--marca);">
                         + Módulo
@@ -518,7 +518,7 @@ async function eliminarPregunta(pregunta, target = evaluacion) {
 
             <!-- Evaluación -->
             <div class="flex items-center justify-between mb-3 mt-6">
-                <h2 class="text-sm font-semibold text-gray-500 uppercase tracking-wider">Evaluación</h2>
+                <h2 class="text-sm font-semibold text-tinta-400 uppercase tracking-[0.12em]">Evaluación</h2>
                 <button v-if="evaluacion.id" @click="router.visit('/capacitacion/revision-evaluaciones')" class="text-xs font-semibold" style="color:var(--marca);">
                     Cola de revisión
                 </button>
@@ -527,22 +527,22 @@ async function eliminarPregunta(pregunta, target = evaluacion) {
             <div class="bg-white rounded-2xl shadow-sm p-4 mb-4 space-y-3">
                 <div class="grid grid-cols-2 gap-3">
                     <div class="col-span-2">
-                        <label class="block text-xs font-medium text-gray-700 mb-1">Nombre</label>
+                        <label class="block text-xs font-medium text-tinta-700 mb-1">Nombre</label>
                         <input v-model="evaluacion.nombre" type="text"
-                            class="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-400" />
+                            class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-400" />
                     </div>
                     <div>
-                        <label class="block text-xs font-medium text-gray-700 mb-1">Nota mínima (%)</label>
+                        <label class="block text-xs font-medium text-tinta-700 mb-1">Nota mínima (%)</label>
                         <input v-model="evaluacion.nota_minima_aprobacion" type="number" min="0" max="100"
-                            class="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-400" />
+                            class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-400" />
                     </div>
                     <div>
-                        <label class="block text-xs font-medium text-gray-700 mb-1">Intentos permitidos</label>
+                        <label class="block text-xs font-medium text-tinta-700 mb-1">Intentos permitidos</label>
                         <input v-model="evaluacion.intentos_permitidos" type="number" min="1" placeholder="Ilimitados"
-                            class="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-400" />
+                            class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-400" />
                     </div>
                 </div>
-                <label class="flex items-center gap-2 text-xs text-gray-700">
+                <label class="flex items-center gap-2 text-xs text-tinta-700">
                     <input v-model="evaluacion.requiere_revision_manual" type="checkbox" class="rounded" />
                     Requiere revisión manual (tiene preguntas abiertas)
                 </label>
@@ -556,20 +556,20 @@ async function eliminarPregunta(pregunta, target = evaluacion) {
             <div v-if="evaluacion.id" class="space-y-2 mb-4">
                 <div v-for="(pregunta, idx) in evaluacion.preguntas" :key="pregunta.id" class="bg-white rounded-2xl shadow-sm p-4">
                     <div class="flex items-start gap-2">
-                        <span class="text-xs text-gray-400 w-4 shrink-0 mt-0.5">{{ idx + 1 }}</span>
+                        <span class="text-xs text-tinta-300 w-4 shrink-0 mt-0.5">{{ idx + 1 }}</span>
                         <div class="flex-1 min-w-0 cursor-pointer" @click="abrirEditarPregunta(pregunta)">
-                            <p class="text-sm text-gray-800">{{ pregunta.enunciado }}</p>
-                            <p class="text-xs text-gray-400 mt-1">
+                            <p class="text-sm text-tinta-900">{{ pregunta.enunciado }}</p>
+                            <p class="text-xs text-tinta-300 mt-1">
                                 {{ pregunta.tipo === 'opcion_multiple' ? 'Opción múltiple' : 'Respuesta abierta (revisión manual)' }}
                             </p>
                             <ul v-if="pregunta.tipo === 'opcion_multiple'" class="mt-2 space-y-0.5">
-                                <li v-for="o in pregunta.opciones" :key="o.id" class="text-xs" :class="o.es_correcta ? 'text-green-700 font-semibold' : 'text-gray-500'">
+                                <li v-for="o in pregunta.opciones" :key="o.id" class="text-xs" :class="o.es_correcta ? 'text-green-700 font-semibold' : 'text-tinta-400'">
                                     {{ o.es_correcta ? '✓' : '·' }} {{ o.texto }}
                                 </li>
                             </ul>
                         </div>
-                        <button @click.stop="eliminarPregunta(pregunta)" class="w-6 h-6 rounded-md flex items-center justify-center text-gray-400 hover:text-red-600 hover:bg-red-50 shrink-0">
-                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                        <button @click.stop="eliminarPregunta(pregunta)" class="w-6 h-6 rounded-md flex items-center justify-center text-tinta-300 hover:text-red-600 hover:bg-red-50 shrink-0">
+                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                         </button>
                     </div>
                 </div>
@@ -578,7 +578,7 @@ async function eliminarPregunta(pregunta, target = evaluacion) {
                     + Pregunta
                 </button>
             </div>
-            <p v-else class="text-xs text-gray-400 mb-4">Guarda la configuración de la evaluación para poder agregar preguntas.</p>
+            <p v-else class="text-xs text-tinta-300 mb-4">Guarda la configuración de la evaluación para poder agregar preguntas.</p>
 
         </div>
 
@@ -586,20 +586,20 @@ async function eliminarPregunta(pregunta, target = evaluacion) {
         <div v-if="modal.abierto" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
             <div class="absolute inset-0 bg-black/40" @click="cerrarModal"></div>
             <div class="relative bg-white w-full sm:max-w-md sm:rounded-2xl rounded-t-2xl shadow-xl max-h-[90vh] overflow-y-auto">
-                <div class="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
-                    <h3 class="text-sm font-semibold text-gray-900">{{ modal.editando ? 'Editar lección' : 'Nueva lección' }}</h3>
-                    <button @click="cerrarModal" class="w-7 h-7 rounded-lg flex items-center justify-center text-gray-400 hover:bg-gray-100">✕</button>
+                <div class="px-5 py-4 border-b border-linea flex items-center justify-between">
+                    <h3 class="text-sm font-semibold text-tinta-900">{{ modal.editando ? 'Editar lección' : 'Nueva lección' }}</h3>
+                    <button @click="cerrarModal" class="w-7 h-7 rounded-lg flex items-center justify-center text-tinta-300 hover:bg-tinta-100">✕</button>
                 </div>
                 <div class="p-5 space-y-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
+                        <label class="block text-sm font-medium text-tinta-700 mb-1">Nombre</label>
                         <input v-model="modal.form.nombre" type="text" maxlength="150"
-                            class="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-400" />
+                            class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-400" />
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Tipo de contenido</label>
-                        <select v-model="modal.form.tipo" class="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-400">
+                        <label class="block text-sm font-medium text-tinta-700 mb-1">Tipo de contenido</label>
+                        <select v-model="modal.form.tipo" class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-400">
                             <option value="video_drive">Video (Google Drive)</option>
                             <option value="video_externo">Video externo (Loom/YouTube)</option>
                             <option value="texto">Texto</option>
@@ -608,43 +608,43 @@ async function eliminarPregunta(pregunta, target = evaluacion) {
                     </div>
 
                     <div v-if="modal.form.tipo === 'video_drive'">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">URL de Google Drive</label>
+                        <label class="block text-sm font-medium text-tinta-700 mb-1">URL de Google Drive</label>
                         <input v-model="modal.form.contenido_url" type="url" placeholder="https://drive.google.com/..."
-                            class="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-400" />
+                            class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-400" />
                     </div>
 
                     <div v-else-if="modal.form.tipo === 'video_externo'">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">URL del video (Loom/YouTube)</label>
+                        <label class="block text-sm font-medium text-tinta-700 mb-1">URL del video (Loom/YouTube)</label>
                         <input v-model="modal.form.contenido_url" type="url" placeholder="https://youtube.com/..."
-                            class="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-400" />
+                            class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-400" />
                     </div>
 
                     <div v-else-if="modal.form.tipo === 'texto'">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Contenido</label>
+                        <label class="block text-sm font-medium text-tinta-700 mb-1">Contenido</label>
                         <EditorTexto v-model="modal.form.contenido_texto" placeholder="Contenido de la lección..." :maxLength="10000" />
                     </div>
 
                     <div v-else-if="modal.form.tipo === 'pdf'">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Archivo PDF</label>
+                        <label class="block text-sm font-medium text-tinta-700 mb-1">Archivo PDF</label>
                         <label class="cursor-pointer block">
                             <input type="file" accept="application/pdf" class="hidden" @change="onArchivoPdf" />
-                            <span class="inline-block px-3 py-2 rounded-xl border border-gray-200 text-xs text-gray-600 hover:bg-gray-50">
+                            <span class="inline-block px-3 py-2 rounded-xl border border-linea text-xs text-tinta-500 hover:bg-tinta-50">
                                 {{ modal.form.archivo_pdf ? modal.form.archivo_pdf.name : (modal.form.archivo_pdf_nombre ? 'Cambiar PDF' : 'Subir PDF') }}
                             </span>
                         </label>
-                        <p v-if="modal.form.archivo_pdf_nombre && !modal.form.archivo_pdf" class="text-xs text-gray-400 mt-1">PDF actual ya cargado.</p>
+                        <p v-if="modal.form.archivo_pdf_nombre && !modal.form.archivo_pdf" class="text-xs text-tinta-300 mt-1">PDF actual ya cargado.</p>
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Duración (minutos, opcional)</label>
+                        <label class="block text-sm font-medium text-tinta-700 mb-1">Duración (minutos, opcional)</label>
                         <input v-model="modal.form.duracion_minutos" type="number" min="0"
-                            class="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-400" />
+                            class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-400" />
                     </div>
 
                     <p v-if="modal.error" class="text-xs text-red-500">{{ modal.error }}</p>
                 </div>
-                <div class="px-5 py-4 border-t border-gray-100 flex gap-2">
-                    <button @click="cerrarModal" class="flex-1 py-2.5 rounded-xl text-sm font-semibold text-gray-600 border border-gray-200 hover:bg-gray-50">Cancelar</button>
+                <div class="px-5 py-4 border-t border-linea flex gap-2">
+                    <button @click="cerrarModal" class="flex-1 py-2.5 rounded-xl text-sm font-semibold text-tinta-500 border border-linea hover:bg-tinta-50">Cancelar</button>
                     <button @click="guardarLeccion" :disabled="modal.guardando"
                         class="flex-1 py-2.5 rounded-xl text-sm font-semibold text-white disabled:opacity-50" style="background:var(--marca);">
                         {{ modal.guardando ? 'Guardando...' : 'Guardar' }}
@@ -657,40 +657,40 @@ async function eliminarPregunta(pregunta, target = evaluacion) {
         <div v-if="modalPregunta.abierto" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
             <div class="absolute inset-0 bg-black/40" @click="cerrarModalPregunta"></div>
             <div class="relative bg-white w-full sm:max-w-md sm:rounded-2xl rounded-t-2xl shadow-xl max-h-[90vh] overflow-y-auto">
-                <div class="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
-                    <h3 class="text-sm font-semibold text-gray-900">{{ modalPregunta.editando ? 'Editar pregunta' : 'Nueva pregunta' }}</h3>
-                    <button @click="cerrarModalPregunta" class="w-7 h-7 rounded-lg flex items-center justify-center text-gray-400 hover:bg-gray-100">✕</button>
+                <div class="px-5 py-4 border-b border-linea flex items-center justify-between">
+                    <h3 class="text-sm font-semibold text-tinta-900">{{ modalPregunta.editando ? 'Editar pregunta' : 'Nueva pregunta' }}</h3>
+                    <button @click="cerrarModalPregunta" class="w-7 h-7 rounded-lg flex items-center justify-center text-tinta-300 hover:bg-tinta-100">✕</button>
                 </div>
                 <div class="p-5 space-y-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Enunciado</label>
+                        <label class="block text-sm font-medium text-tinta-700 mb-1">Enunciado</label>
                         <textarea v-model="modalPregunta.form.enunciado" rows="2"
-                            class="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-400"></textarea>
+                            class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-400"></textarea>
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Tipo</label>
-                        <select v-model="modalPregunta.form.tipo" class="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-400">
+                        <label class="block text-sm font-medium text-tinta-700 mb-1">Tipo</label>
+                        <select v-model="modalPregunta.form.tipo" class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-400">
                             <option value="opcion_multiple">Opción múltiple</option>
                             <option value="abierta">Respuesta abierta (revisión manual)</option>
                         </select>
                     </div>
 
                     <div v-if="modalPregunta.form.tipo === 'opcion_multiple'" class="space-y-2">
-                        <label class="block text-sm font-medium text-gray-700">Opciones (marca la correcta)</label>
+                        <label class="block text-sm font-medium text-tinta-700">Opciones (marca la correcta)</label>
                         <div v-for="(o, idx) in modalPregunta.form.opciones" :key="idx" class="flex items-center gap-2">
                             <input type="radio" name="opcion-correcta" :checked="o.es_correcta" @change="marcarCorrecta(idx)" />
                             <input v-model="o.texto" type="text" placeholder="Texto de la opción"
-                                class="flex-1 border border-gray-200 rounded-xl px-3 py-1.5 text-sm focus:outline-none focus:border-blue-400" />
-                            <button v-if="modalPregunta.form.opciones.length > 2" @click="quitarOpcion(idx)" class="text-gray-400 hover:text-red-600 text-xs shrink-0">✕</button>
+                                class="flex-1 border border-linea rounded-xl px-3 py-1.5 text-sm focus:outline-none focus:border-blue-400" />
+                            <button v-if="modalPregunta.form.opciones.length > 2" @click="quitarOpcion(idx)" class="text-tinta-300 hover:text-red-600 text-xs shrink-0">✕</button>
                         </div>
                         <button @click="agregarOpcion" class="text-xs font-semibold" style="color:var(--marca);">+ Opción</button>
                     </div>
 
                     <p v-if="modalPregunta.error" class="text-xs text-red-500">{{ modalPregunta.error }}</p>
                 </div>
-                <div class="px-5 py-4 border-t border-gray-100 flex gap-2">
-                    <button @click="cerrarModalPregunta" class="flex-1 py-2.5 rounded-xl text-sm font-semibold text-gray-600 border border-gray-200 hover:bg-gray-50">Cancelar</button>
+                <div class="px-5 py-4 border-t border-linea flex gap-2">
+                    <button @click="cerrarModalPregunta" class="flex-1 py-2.5 rounded-xl text-sm font-semibold text-tinta-500 border border-linea hover:bg-tinta-50">Cancelar</button>
                     <button @click="guardarPregunta" :disabled="modalPregunta.guardando"
                         class="flex-1 py-2.5 rounded-xl text-sm font-semibold text-white disabled:opacity-50" style="background:var(--marca);">
                         {{ modalPregunta.guardando ? 'Guardando...' : 'Guardar' }}

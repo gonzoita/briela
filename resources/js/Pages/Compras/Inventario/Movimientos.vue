@@ -91,28 +91,28 @@ const hayFiltros = computed(() =>
             <!-- Cabecera -->
             <div class="flex items-center justify-between mb-4">
                 <div>
-                    <h1 class="text-xl font-bold text-gray-900">Movimientos de Inventario</h1>
-                    <p class="text-sm text-gray-500">
+                    <h1 class="text-xl font-semibold text-tinta-900">Movimientos de Inventario</h1>
+                    <p class="text-sm text-tinta-400">
                         <a href="/inventario" class="text-blue-600 hover:underline">Stock &amp; Materiales</a>
                         <span class="mx-1">·</span>
                         <a href="/inventario/dashboard" class="text-blue-600 hover:underline">Dashboard</a>
                     </p>
                 </div>
                 <button disabled
-                    class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium bg-gray-100 text-gray-400 cursor-not-allowed">
+                    class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium bg-tinta-100 text-tinta-300 cursor-not-allowed">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                     </svg>
                     Exportar (próximamente)
                 </button>
             </div>
 
             <!-- Filtros -->
-            <div class="bg-white rounded-xl border border-gray-200 p-4 mb-4">
+            <div class="bg-white rounded-xl border border-linea p-4 mb-4">
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                     <div>
-                        <label class="block text-xs font-medium text-gray-600 mb-1">Producto</label>
-                        <select v-model="producto_id" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm">
+                        <label class="block text-xs font-medium text-tinta-500 mb-1">Producto</label>
+                        <select v-model="producto_id" class="w-full rounded-lg border border-tinta-200 px-3 py-2 text-sm">
                             <option value="">Todos los productos</option>
                             <option v-for="prod in productos" :key="prod.id" :value="prod.id">
                                 {{ prod.referencia }} — {{ prod.nombre }}
@@ -120,26 +120,26 @@ const hayFiltros = computed(() =>
                         </select>
                     </div>
                     <div>
-                        <label class="block text-xs font-medium text-gray-600 mb-1">Bodega</label>
-                        <select v-model="bodega_id" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm">
+                        <label class="block text-xs font-medium text-tinta-500 mb-1">Bodega</label>
+                        <select v-model="bodega_id" class="w-full rounded-lg border border-tinta-200 px-3 py-2 text-sm">
                             <option value="">Todas las bodegas</option>
                             <option v-for="b in bodegas" :key="b.id" :value="b.id">{{ b.nombre }}</option>
                         </select>
                     </div>
                     <div>
-                        <label class="block text-xs font-medium text-gray-600 mb-1">Tipo</label>
-                        <select v-model="tipo" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm">
+                        <label class="block text-xs font-medium text-tinta-500 mb-1">Tipo</label>
+                        <select v-model="tipo" class="w-full rounded-lg border border-tinta-200 px-3 py-2 text-sm">
                             <option value="">Todos los tipos</option>
                             <option v-for="t in tiposMovimiento" :key="t.value" :value="t.value">{{ t.label }}</option>
                         </select>
                     </div>
                     <div>
-                        <label class="block text-xs font-medium text-gray-600 mb-1">Desde</label>
-                        <input v-model="fecha_desde" type="date" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" />
+                        <label class="block text-xs font-medium text-tinta-500 mb-1">Desde</label>
+                        <input v-model="fecha_desde" type="date" class="w-full rounded-lg border border-tinta-200 px-3 py-2 text-sm" />
                     </div>
                     <div>
-                        <label class="block text-xs font-medium text-gray-600 mb-1">Hasta</label>
-                        <input v-model="fecha_hasta" type="date" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" />
+                        <label class="block text-xs font-medium text-tinta-500 mb-1">Hasta</label>
+                        <input v-model="fecha_hasta" type="date" class="w-full rounded-lg border border-tinta-200 px-3 py-2 text-sm" />
                     </div>
                     <div class="flex items-end gap-2">
                         <button @click="aplicarFiltros"
@@ -148,7 +148,7 @@ const hayFiltros = computed(() =>
                             Filtrar
                         </button>
                         <button v-if="hayFiltros" @click="limpiarFiltros"
-                            class="px-3 py-2 rounded-lg text-sm text-gray-600 border border-gray-200 hover:bg-gray-50">
+                            class="px-3 py-2 rounded-lg text-sm text-tinta-500 border border-linea hover:bg-tinta-50">
                             Limpiar
                         </button>
                     </div>
@@ -156,25 +156,25 @@ const hayFiltros = computed(() =>
             </div>
 
             <!-- Tabla -->
-            <div class="bg-white rounded-xl border border-gray-200 overflow-x-auto">
+            <div class="bg-white rounded-xl border border-linea overflow-x-auto">
                 <table class="w-full text-xs min-w-[700px]">
-                    <thead class="bg-gray-50 border-b border-gray-200">
+                    <thead class="bg-tinta-50 border-b border-linea">
                         <tr>
-                            <th class="text-left px-4 py-3 font-semibold text-gray-600">Fecha</th>
-                            <th class="text-left px-4 py-3 font-semibold text-gray-600">Producto</th>
-                            <th class="text-left px-3 py-3 font-semibold text-gray-600">Tipo</th>
-                            <th class="text-right px-3 py-3 font-semibold text-gray-600">Cantidad</th>
-                            <th class="text-left px-3 py-3 font-semibold text-gray-600">Bodega</th>
-                            <th class="text-left px-3 py-3 font-semibold text-gray-600">Usuario</th>
-                            <th class="text-left px-3 py-3 font-semibold text-gray-600">Notas</th>
+                            <th class="text-left px-4 py-3 font-semibold text-tinta-500">Fecha</th>
+                            <th class="text-left px-4 py-3 font-semibold text-tinta-500">Producto</th>
+                            <th class="text-left px-3 py-3 font-semibold text-tinta-500">Tipo</th>
+                            <th class="text-right px-3 py-3 font-semibold text-tinta-500">Cantidad</th>
+                            <th class="text-left px-3 py-3 font-semibold text-tinta-500">Bodega</th>
+                            <th class="text-left px-3 py-3 font-semibold text-tinta-500">Usuario</th>
+                            <th class="text-left px-3 py-3 font-semibold text-tinta-500">Notas</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-gray-100">
-                        <tr v-for="mv in movimientos.data" :key="mv.id" class="hover:bg-gray-50 transition-colors">
-                            <td class="px-4 py-3 text-gray-400 whitespace-nowrap">{{ fmtFecha(mv.created_at) }}</td>
+                    <tbody class="divide-y divide-linea">
+                        <tr v-for="mv in movimientos.data" :key="mv.id" class="hover:bg-tinta-50 transition-colors">
+                            <td class="px-4 py-3 text-tinta-300 whitespace-nowrap">{{ fmtFecha(mv.created_at) }}</td>
                             <td class="px-4 py-3">
-                                <p class="font-medium text-gray-800">{{ mv.producto?.nombre ?? '—' }}</p>
-                                <p class="text-gray-400 font-mono">{{ mv.producto?.referencia }}</p>
+                                <p class="font-medium text-tinta-900">{{ mv.producto?.nombre ?? '—' }}</p>
+                                <p class="text-tinta-300 font-mono">{{ mv.producto?.referencia }}</p>
                             </td>
                             <td class="px-3 py-3">
                                 <span class="px-2 py-0.5 rounded-full text-white text-[11px] font-semibold whitespace-nowrap"
@@ -185,19 +185,19 @@ const hayFiltros = computed(() =>
                             <td class="px-3 py-3 text-right font-semibold"
                                 :style="`color:${tipoColor(mv.tipo)};`">
                                 {{ ['entrada','devolucion','creacion_producto'].includes(mv.tipo) ? '+' : '-' }}{{ fmt(mv.cantidad) }}
-                                <span class="text-gray-400 font-normal ml-0.5">{{ mv.producto?.unidad_medida }}</span>
+                                <span class="text-tinta-300 font-normal ml-0.5">{{ mv.producto?.unidad_medida }}</span>
                             </td>
-                            <td class="px-3 py-3 text-gray-600">
+                            <td class="px-3 py-3 text-tinta-500">
                                 <template v-if="mv.tipo === 'transferencia'">
                                     {{ mv.bodega?.nombre ?? '—' }} → {{ mv.bodega_destino?.nombre ?? '—' }}
                                 </template>
                                 <template v-else>{{ mv.bodega?.nombre ?? '—' }}</template>
                             </td>
-                            <td class="px-3 py-3 text-gray-500">{{ mv.usuario?.name ?? '—' }}</td>
-                            <td class="px-3 py-3 text-gray-400 truncate max-w-[180px]">{{ mv.notas ?? '—' }}</td>
+                            <td class="px-3 py-3 text-tinta-400">{{ mv.usuario?.name ?? '—' }}</td>
+                            <td class="px-3 py-3 text-tinta-300 truncate max-w-[180px]">{{ mv.notas ?? '—' }}</td>
                         </tr>
                         <tr v-if="!movimientos.data?.length">
-                            <td colspan="7" class="px-4 py-10 text-center text-gray-400">
+                            <td colspan="7" class="px-4 py-10 text-center text-tinta-300">
                                 No hay movimientos con los filtros seleccionados.
                             </td>
                         </tr>
@@ -206,7 +206,7 @@ const hayFiltros = computed(() =>
             </div>
 
             <!-- Contador -->
-            <p class="text-xs text-gray-400 mt-2 text-right">
+            <p class="text-xs text-tinta-300 mt-2 text-right">
                 {{ movimientos.total }} movimiento{{ movimientos.total === 1 ? '' : 's' }} en total
             </p>
 
@@ -215,10 +215,10 @@ const hayFiltros = computed(() =>
                 <template v-for="link in movimientos.links" :key="link.label">
                     <button v-if="link.url"
                         @click="router.visit(link.url, { preserveState: true })"
-                        :class="['px-3 py-1.5 rounded-lg text-sm', link.active ? 'text-white font-semibold' : 'bg-white border border-gray-200 text-gray-700']"
+                        :class="['px-3 py-1.5 rounded-lg text-sm', link.active ? 'text-white font-semibold' : 'bg-white border border-linea text-tinta-700']"
                         :style="link.active ? 'background:var(--marca)' : ''"
                         v-html="link.label" />
-                    <span v-else class="px-3 py-1.5 text-sm text-gray-300" v-html="link.label" />
+                    <span v-else class="px-3 py-1.5 text-sm text-tinta-200" v-html="link.label" />
                 </template>
             </div>
 

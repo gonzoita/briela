@@ -162,10 +162,14 @@ class Marca
     public static function tokens(): array
     {
         return [
-            'radio-sm'  => '8px',
-            'radio'     => '12px',
-            'radio-lg'  => '16px',
-            'radio-xl'  => '22px',
+            // Los radios quedan cerca de los valores de Tailwind, apenas más
+            // generosos. Subirlos de golpe hincha la interfaz entera: hay más de
+            // mil elementos que ya usan rounded-xl, y con 22px se ven como
+            // burbujas en vez de tarjetas.
+            'radio-sm'  => '6px',
+            'radio'     => '8px',
+            'radio-lg'  => '12px',
+            'radio-xl'  => '14px',
             'sombra-sm' => '0 1px 2px rgba(16,24,40,.04), 0 1px 3px rgba(16,24,40,.06)',
             'sombra'    => '0 1px 3px rgba(16,24,40,.04), 0 8px 24px -8px rgba(16,24,40,.10)',
             'sombra-lg' => '0 2px 6px rgba(16,24,40,.04), 0 24px 48px -12px rgba(16,24,40,.14)',

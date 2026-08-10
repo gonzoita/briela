@@ -31,24 +31,24 @@ const inicial = (t) => (t ?? '?').charAt(0).toUpperCase()
         <div class="space-y-8">
 
             <div>
-                <h1 class="text-xl font-bold text-gray-900">Hola{{ nombreEstudiante ? ', ' + nombreEstudiante : '' }} 👋</h1>
-                <p class="text-sm text-gray-500 mt-0.5">Continúa tu formación</p>
+                <h1 class="text-xl font-semibold text-tinta-900">Hola{{ nombreEstudiante ? ', ' + nombreEstudiante : '' }} 👋</h1>
+                <p class="text-sm text-tinta-400 mt-0.5">Continúa tu formación</p>
             </div>
 
             <!-- Pendientes obligatorios -->
             <section v-if="pendientesObligatorios.length > 0">
-                <h2 class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">Pendientes</h2>
+                <h2 class="text-sm font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-3">Pendientes</h2>
                 <div class="space-y-3">
                     <div v-for="insc in pendientesObligatorios" :key="insc.id"
                         class="bg-white rounded-2xl shadow-sm p-4 flex items-center gap-3 cursor-pointer active:scale-[0.99] transition-transform"
                         @click="irACurso(insc.curso.id)">
-                        <div class="w-11 h-11 rounded-xl flex items-center justify-center text-white font-bold shrink-0 overflow-hidden" style="background:#B91C1C;">
+                        <div class="w-11 h-11 rounded-xl flex items-center justify-center text-white font-semibold shrink-0 overflow-hidden" style="background:#B91C1C;">
                             <img v-if="insc.curso.imagen_portada" :src="insc.curso.imagen_portada" class="w-full h-full object-cover" />
                             <span v-else>{{ inicial(insc.curso.titulo) }}</span>
                         </div>
                         <div class="flex-1 min-w-0">
-                            <p class="text-sm font-semibold text-gray-900 truncate">{{ insc.curso.titulo }}</p>
-                            <p class="text-xs text-gray-400 mt-0.5">
+                            <p class="text-sm font-semibold text-tinta-900 truncate">{{ insc.curso.titulo }}</p>
+                            <p class="text-xs text-tinta-300 mt-0.5">
                                 {{ insc.estado === 'en_progreso' ? `En progreso · ${insc.porcentaje}%` : 'Sin iniciar' }}
                             </p>
                         </div>
@@ -62,22 +62,22 @@ const inicial = (t) => (t ?? '?').charAt(0).toUpperCase()
 
             <!-- En progreso -->
             <section v-if="enProgreso.length > 0">
-                <h2 class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">En progreso</h2>
+                <h2 class="text-sm font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-3">En progreso</h2>
                 <div class="space-y-3">
                     <div v-for="insc in enProgreso" :key="insc.id"
                         class="bg-white rounded-2xl shadow-sm p-4 cursor-pointer active:scale-[0.99] transition-transform"
                         @click="irACurso(insc.curso.id)">
                         <div class="flex items-center gap-3 mb-2">
-                            <div class="w-11 h-11 rounded-xl flex items-center justify-center text-white font-bold shrink-0 overflow-hidden" style="background:var(--marca);">
+                            <div class="w-11 h-11 rounded-xl flex items-center justify-center text-white font-semibold shrink-0 overflow-hidden" style="background:var(--marca);">
                                 <img v-if="insc.curso.imagen_portada" :src="insc.curso.imagen_portada" class="w-full h-full object-cover" />
                                 <span v-else>{{ inicial(insc.curso.titulo) }}</span>
                             </div>
                             <div class="flex-1 min-w-0">
-                                <p class="text-sm font-semibold text-gray-900 truncate">{{ insc.curso.titulo }}</p>
-                                <p class="text-xs text-gray-400">{{ insc.porcentaje }}% completado</p>
+                                <p class="text-sm font-semibold text-tinta-900 truncate">{{ insc.curso.titulo }}</p>
+                                <p class="text-xs text-tinta-300">{{ insc.porcentaje }}% completado</p>
                             </div>
                         </div>
-                        <div class="h-2 rounded-full bg-gray-100 overflow-hidden">
+                        <div class="h-2 rounded-full bg-tinta-100 overflow-hidden">
                             <div class="h-full rounded-full transition-all" :style="`width:${insc.porcentaje}%;background:var(--marca);`"></div>
                         </div>
                     </div>
@@ -86,19 +86,19 @@ const inicial = (t) => (t ?? '?').charAt(0).toUpperCase()
 
             <!-- Catálogo disponible -->
             <section v-if="catalogo.length > 0">
-                <h2 class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">Catálogo disponible</h2>
+                <h2 class="text-sm font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-3">Catálogo disponible</h2>
                 <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
                     <div v-for="curso in catalogo" :key="curso.id"
                         class="bg-white rounded-2xl shadow-sm overflow-hidden">
                         <div class="aspect-video overflow-hidden" style="background:#F1F5F9;">
                             <img v-if="curso.imagen_portada" :src="curso.imagen_portada" :alt="curso.titulo" class="w-full h-full object-cover"/>
-                            <div v-else class="w-full h-full flex items-center justify-center text-white text-2xl font-bold" style="background:var(--marca);">
+                            <div v-else class="w-full h-full flex items-center justify-center text-white text-2xl font-semibold" style="background:var(--marca);">
                                 {{ inicial(curso.titulo) }}
                             </div>
                         </div>
                         <div class="p-3">
-                            <p class="text-sm font-semibold text-gray-900 line-clamp-2 mb-1">{{ curso.titulo }}</p>
-                            <p v-if="curso.categoria" class="text-xs text-gray-400 mb-3">{{ curso.categoria }}</p>
+                            <p class="text-sm font-semibold text-tinta-900 line-clamp-2 mb-1">{{ curso.titulo }}</p>
+                            <p v-if="curso.categoria" class="text-xs text-tinta-300 mb-3">{{ curso.categoria }}</p>
                             <button @click="irACurso(curso.id)"
                                 class="w-full py-2 rounded-xl text-xs font-semibold text-white" style="background:var(--marca);">
                                 Inscribirme
@@ -110,16 +110,16 @@ const inicial = (t) => (t ?? '?').charAt(0).toUpperCase()
 
             <!-- Completados -->
             <section v-if="completados.length > 0">
-                <h2 class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">Completados</h2>
+                <h2 class="text-sm font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-3">Completados</h2>
                 <div class="space-y-2">
                     <div v-for="insc in completados" :key="insc.id"
                         class="bg-white rounded-2xl shadow-sm p-4 flex items-center gap-3">
                         <div class="w-9 h-9 rounded-full flex items-center justify-center shrink-0 cursor-pointer" style="background:#D1FAE5;" @click="irACurso(insc.curso.id)">
-                            <svg class="w-5 h-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                            <svg class="w-5 h-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
                             </svg>
                         </div>
-                        <p class="text-sm font-semibold text-gray-900 flex-1 truncate cursor-pointer" @click="irACurso(insc.curso.id)">{{ insc.curso.titulo }}</p>
+                        <p class="text-sm font-semibold text-tinta-900 flex-1 truncate cursor-pointer" @click="irACurso(insc.curso.id)">{{ insc.curso.titulo }}</p>
                         <a v-if="insc.tieneCertificado" :href="`${rutaBase}/${insc.curso.id}/certificado`" @click.stop
                             class="text-xs font-semibold px-3 py-1.5 rounded-lg text-white shrink-0" style="background:var(--marca);">
                             Certificado
@@ -130,7 +130,7 @@ const inicial = (t) => (t ?? '?').charAt(0).toUpperCase()
 
             <!-- Vacío total -->
             <div v-if="!pendientesObligatorios.length && !enProgreso.length && !catalogo.length && !completados.length"
-                class="bg-white rounded-2xl shadow-sm py-16 text-center text-gray-400">
+                class="bg-white rounded-2xl shadow-sm py-16 text-center text-tinta-300">
                 <p class="text-sm">No hay cursos disponibles por ahora.</p>
             </div>
 

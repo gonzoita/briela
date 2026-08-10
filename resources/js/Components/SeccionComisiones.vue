@@ -80,30 +80,30 @@ watch(descuentoMaxRealClienteFinal, (v) => emit('update:descuentoMaxClienteFinal
 
 <template>
     <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
-        <div class="px-5 py-3 border-b border-gray-100">
-            <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Comisiones y descuentos</h3>
+        <div class="px-5 py-3 border-b border-linea">
+            <h3 class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">Comisiones y descuentos</h3>
         </div>
         <div class="p-5 space-y-4">
 
             <!-- Resumen de 4 precios -->
             <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
-                <div class="bg-gray-50 rounded-lg p-3 text-center">
-                    <p class="text-xs text-gray-400 mb-1">Costo</p>
-                    <p class="font-bold text-gray-700">${{ formatCOP(precioCosto) }}</p>
+                <div class="bg-tinta-50 rounded-lg p-3 text-center">
+                    <p class="text-xs text-tinta-300 mb-1">Costo</p>
+                    <p class="font-semibold text-tinta-700">${{ formatCOP(precioCosto) }}</p>
                 </div>
                 <div class="bg-blue-50 rounded-lg p-3 text-center">
                     <p class="text-xs text-blue-400 mb-1">Mayorista</p>
-                    <p class="font-bold text-blue-700">${{ formatCOP(precioMayorista) }}</p>
+                    <p class="font-semibold text-blue-700">${{ formatCOP(precioMayorista) }}</p>
                     <p class="text-xs text-blue-300 mt-0.5">Precio fijo · sin descuento</p>
                 </div>
                 <div class="bg-indigo-50 rounded-lg p-3 text-center">
                     <p class="text-xs text-indigo-400 mb-1">Distribuidor</p>
-                    <p class="font-bold text-indigo-700">${{ formatCOP(precioDistribuidor) }}</p>
+                    <p class="font-semibold text-indigo-700">${{ formatCOP(precioDistribuidor) }}</p>
                     <p class="text-xs text-indigo-300 mt-0.5">Mín: ${{ formatCOP(precioMinDistribuidor) }}</p>
                 </div>
                 <div class="bg-green-50 rounded-lg p-3 text-center">
                     <p class="text-xs text-green-400 mb-1">Cliente final</p>
-                    <p class="font-bold text-green-700">${{ formatCOP(precioClienteFinal) }}</p>
+                    <p class="font-semibold text-green-700">${{ formatCOP(precioClienteFinal) }}</p>
                     <p class="text-xs text-green-300 mt-0.5">Mín: ${{ formatCOP(precioMinClienteFinal) }}</p>
                 </div>
             </div>
@@ -119,24 +119,24 @@ watch(descuentoMaxRealClienteFinal, (v) => emit('update:descuentoMaxClienteFinal
             </div>
 
             <!-- Canal DISTRIBUIDOR -->
-            <div class="border border-gray-200 rounded-lg p-3 space-y-3">
-                <p class="text-xs font-semibold text-gray-700 uppercase">Distribuidor</p>
+            <div class="border border-linea rounded-lg p-3 space-y-3">
+                <p class="text-xs font-semibold text-tinta-700 uppercase">Distribuidor</p>
                 <div class="grid grid-cols-3 gap-3 text-xs text-center">
-                    <div class="bg-gray-50 rounded p-2">
-                        <p class="text-gray-400">Precio base</p>
-                        <p class="font-bold">${{ formatCOP(precioDistribuidor) }}</p>
+                    <div class="bg-tinta-50 rounded p-2">
+                        <p class="text-tinta-300">Precio base</p>
+                        <p class="font-semibold">${{ formatCOP(precioDistribuidor) }}</p>
                     </div>
                     <div class="bg-red-50 rounded p-2">
                         <p class="text-red-400">Precio mínimo</p>
-                        <p class="font-bold text-red-600">${{ formatCOP(precioMinDistribuidor) }}</p>
+                        <p class="font-semibold text-red-600">${{ formatCOP(precioMinDistribuidor) }}</p>
                     </div>
                     <div class="bg-green-50 rounded p-2">
                         <p class="text-green-400">Descuento máx real</p>
-                        <p class="font-bold text-green-600">{{ descuentoMaxRealDistribuidor }}%</p>
+                        <p class="font-semibold text-green-600">{{ descuentoMaxRealDistribuidor }}%</p>
                     </div>
                 </div>
                 <div class="flex items-center justify-between mb-1">
-                    <span class="text-xs text-gray-500">Comisión vendedor</span>
+                    <span class="text-xs text-tinta-400">Comisión vendedor</span>
                     <button type="button" @click="sugerirComisiones"
                         :disabled="!descuentoMaxRealDistribuidor && !descuentoMaxRealClienteFinal"
                         class="text-xs px-2 py-0.5 rounded-lg border transition-colors disabled:opacity-40"
@@ -146,44 +146,44 @@ watch(descuentoMaxRealClienteFinal, (v) => emit('update:descuentoMaxClienteFinal
                 </div>
                 <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-xs text-gray-500 mb-1">Mínima (%)</label>
+                        <label class="block text-xs text-tinta-400 mb-1">Mínima (%)</label>
                         <input :value="comisionMin"
                             @input="emit('update:comisionMin', parseFloat($event.target.value) || 0)"
                             type="number" step="0.1" min="0"
-                            class="w-full border border-gray-300 rounded px-2 py-1.5 text-sm focus:outline-none focus:border-blue-400" />
+                            class="w-full border border-tinta-200 rounded px-2 py-1.5 text-sm focus:outline-none focus:border-blue-400" />
                     </div>
                     <div>
-                        <label class="block text-xs text-gray-500 mb-1">Máxima (%)</label>
+                        <label class="block text-xs text-tinta-400 mb-1">Máxima (%)</label>
                         <input :value="comisionMax"
                             @input="emit('update:comisionMax', parseFloat($event.target.value) || 0)"
                             type="number" step="0.1" min="0"
-                            class="w-full border border-gray-300 rounded px-2 py-1.5 text-sm focus:outline-none focus:border-blue-400" />
+                            class="w-full border border-tinta-200 rounded px-2 py-1.5 text-sm focus:outline-none focus:border-blue-400" />
                     </div>
                 </div>
-                <p :class="['text-xs', validacionDistribuidor.ok === true ? 'text-green-600' : validacionDistribuidor.ok === false ? 'text-red-600' : 'text-gray-400']">
+                <p :class="['text-xs', validacionDistribuidor.ok === true ? 'text-green-600' : validacionDistribuidor.ok === false ? 'text-red-600' : 'text-tinta-300']">
                     {{ validacionDistribuidor.ok === true ? '✅' : validacionDistribuidor.ok === false ? '❌' : 'ℹ️' }}
                     {{ validacionDistribuidor.mensaje }}
                 </p>
             </div>
 
             <!-- Canal CLIENTE FINAL -->
-            <div class="border border-gray-200 rounded-lg p-3 space-y-3">
-                <p class="text-xs font-semibold text-gray-700 uppercase">Cliente Final</p>
+            <div class="border border-linea rounded-lg p-3 space-y-3">
+                <p class="text-xs font-semibold text-tinta-700 uppercase">Cliente Final</p>
                 <div class="grid grid-cols-3 gap-3 text-xs text-center">
-                    <div class="bg-gray-50 rounded p-2">
-                        <p class="text-gray-400">Precio base</p>
-                        <p class="font-bold">${{ formatCOP(precioClienteFinal) }}</p>
+                    <div class="bg-tinta-50 rounded p-2">
+                        <p class="text-tinta-300">Precio base</p>
+                        <p class="font-semibold">${{ formatCOP(precioClienteFinal) }}</p>
                     </div>
                     <div class="bg-red-50 rounded p-2">
                         <p class="text-red-400">Precio mínimo</p>
-                        <p class="font-bold text-red-600">${{ formatCOP(precioMinClienteFinal) }}</p>
+                        <p class="font-semibold text-red-600">${{ formatCOP(precioMinClienteFinal) }}</p>
                     </div>
                     <div class="bg-green-50 rounded p-2">
                         <p class="text-green-400">Descuento máx real</p>
-                        <p class="font-bold text-green-600">{{ descuentoMaxRealClienteFinal }}%</p>
+                        <p class="font-semibold text-green-600">{{ descuentoMaxRealClienteFinal }}%</p>
                     </div>
                 </div>
-                <p :class="['text-xs', validacionClienteFinal.ok === true ? 'text-green-600' : validacionClienteFinal.ok === false ? 'text-red-600' : 'text-gray-400']">
+                <p :class="['text-xs', validacionClienteFinal.ok === true ? 'text-green-600' : validacionClienteFinal.ok === false ? 'text-red-600' : 'text-tinta-300']">
                     {{ validacionClienteFinal.ok === true ? '✅' : validacionClienteFinal.ok === false ? '❌' : 'ℹ️' }}
                     {{ validacionClienteFinal.mensaje }}
                 </p>

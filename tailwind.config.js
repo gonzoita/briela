@@ -54,9 +54,11 @@ export default {
             borderRadius: {
                 sm:   'var(--radio-sm)',
                 DEFAULT: 'var(--radio)',
+                md:   'var(--radio-sm)',
                 lg:   'var(--radio-lg)',
                 xl:   'var(--radio-xl)',
-                '2xl': '28px',
+                '2xl': '18px',
+                '3xl': '24px',
             },
 
             boxShadow: {

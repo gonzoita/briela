@@ -164,15 +164,15 @@ function getCookie(name) {
             <!-- Header -->
             <div class="flex items-center justify-between mb-3">
                 <div>
-                    <h1 class="text-xl font-bold text-gray-900">Pipeline CRM</h1>
-                    <p class="text-sm text-gray-500">{{ etapas.reduce((s, e) => s + e.leads.length, 0) }} oportunidades visibles</p>
+                    <h1 class="text-xl font-semibold text-tinta-900">Pipeline CRM</h1>
+                    <p class="text-sm text-tinta-400">{{ etapas.reduce((s, e) => s + e.leads.length, 0) }} oportunidades visibles</p>
                 </div>
                 <button
                     @click="abrirModalLead(null)"
                     class="flex items-center gap-2 px-4 py-2 rounded-xl text-white text-sm font-semibold shadow-sm transition-opacity hover:opacity-90"
                     style="background-color: var(--marca);"
                 >
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
                     </svg>
                     Nueva
@@ -180,26 +180,26 @@ function getCookie(name) {
             </div>
 
             <!-- Métricas rápidas -->
-            <div class="flex gap-4 -mx-4 px-4 py-2 bg-white border-b border-gray-100 shrink-0">
+            <div class="flex gap-4 -mx-4 px-4 py-2 bg-white border-b border-linea shrink-0">
                 <div class="flex items-center gap-1.5 text-sm">
                     <span class="w-2 h-2 rounded-full bg-blue-500"></span>
-                    <span class="text-gray-500">Activos:</span>
-                    <span class="font-bold text-gray-800">{{ metricasRef.activos ?? 0 }}</span>
+                    <span class="text-tinta-400">Activos:</span>
+                    <span class="font-semibold text-tinta-900">{{ metricasRef.activos ?? 0 }}</span>
                 </div>
                 <div class="flex items-center gap-1.5 text-sm">
                     <span class="w-2 h-2 rounded-full bg-green-500"></span>
-                    <span class="text-gray-500">Ganados:</span>
-                    <span class="font-bold text-green-700">{{ metricasRef.ganados ?? 0 }}</span>
+                    <span class="text-tinta-400">Ganados:</span>
+                    <span class="font-semibold text-green-700">{{ metricasRef.ganados ?? 0 }}</span>
                 </div>
                 <div class="flex items-center gap-1.5 text-sm">
                     <span class="w-2 h-2 rounded-full bg-red-400"></span>
-                    <span class="text-gray-500">Perdidos:</span>
-                    <span class="font-bold text-red-700">{{ metricasRef.perdidos ?? 0 }}</span>
+                    <span class="text-tinta-400">Perdidos:</span>
+                    <span class="font-semibold text-red-700">{{ metricasRef.perdidos ?? 0 }}</span>
                 </div>
             </div>
 
             <!-- Barra de filtros -->
-            <div class="flex flex-wrap gap-2 -mx-4 px-4 py-2.5 bg-white border-b border-gray-200 mb-3 shrink-0">
+            <div class="flex flex-wrap gap-2 -mx-4 px-4 py-2.5 bg-white border-b border-linea mb-3 shrink-0">
                 <!-- Búsqueda -->
                 <div class="relative">
                     <input
@@ -207,11 +207,11 @@ function getCookie(name) {
                         type="text"
                         placeholder="Buscar lead..."
                         @input="debounceSearch"
-                        class="border border-gray-300 rounded-lg pl-8 pr-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 w-48"
+                        class="border border-tinta-200 rounded-lg pl-8 pr-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 w-48"
                     />
                     <svg xmlns="http://www.w3.org/2000/svg"
-                        class="w-4 h-4 text-gray-400 absolute left-2 top-1/2 -translate-y-1/2"
-                        fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        class="w-4 h-4 text-tinta-300 absolute left-2 top-1/2 -translate-y-1/2"
+                        fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                     </svg>
                 </div>
@@ -221,14 +221,14 @@ function getCookie(name) {
                     v-model="filtroMes"
                     type="month"
                     @change="aplicarFiltros"
-                    class="border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
+                    class="border border-tinta-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
                 />
 
                 <!-- Estado -->
                 <select
                     v-model="filtroEstado"
                     @change="aplicarFiltros"
-                    class="border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 bg-white"
+                    class="border border-tinta-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 bg-white"
                 >
                     <option value="activo">Activos</option>
                     <option value="ganado">Ganados</option>
@@ -240,7 +240,7 @@ function getCookie(name) {
                 <select
                     v-model="filtroResponsable"
                     @change="aplicarFiltros"
-                    class="border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 bg-white"
+                    class="border border-tinta-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 bg-white"
                 >
                     <option value="">Todos los responsables</option>
                     <option v-for="u in props.usuarios" :key="u.id" :value="String(u.id)">{{ u.name }}</option>
@@ -250,7 +250,7 @@ function getCookie(name) {
                 <select
                     v-model="filtroFuente"
                     @change="aplicarFiltros"
-                    class="border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 bg-white"
+                    class="border border-tinta-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 bg-white"
                 >
                     <option value="">Todas las fuentes</option>
                     <option v-for="f in props.fuentes" :key="f" :value="f">{{ f }}</option>
@@ -262,7 +262,7 @@ function getCookie(name) {
                     @click="limpiarFiltros"
                     class="flex items-center gap-1 text-sm text-red-500 border border-red-200 rounded-lg px-3 py-1.5 hover:bg-red-50 transition-colors"
                 >
-                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
                     </svg>
                     Limpiar
@@ -288,17 +288,17 @@ function getCookie(name) {
                         >
                             <div class="flex items-center gap-2 min-w-0">
                                 <span class="w-2.5 h-2.5 rounded-full shrink-0" :style="{ background: etapa.color }"></span>
-                                <span class="text-sm font-semibold text-gray-700 truncate">{{ etapa.nombre }}</span>
-                                <span class="text-xs bg-gray-200 text-gray-600 rounded-full px-1.5 py-0.5 shrink-0 font-medium">
+                                <span class="text-sm font-semibold text-tinta-700 truncate">{{ etapa.nombre }}</span>
+                                <span class="text-xs bg-tinta-200 text-tinta-500 rounded-full px-1.5 py-0.5 shrink-0 font-medium">
                                     {{ etapa.leads.length }}
                                 </span>
                             </div>
                             <button
                                 @click="abrirModalLead(etapa.id)"
-                                class="text-gray-400 hover:text-gray-700 transition-colors shrink-0 ml-1"
+                                class="text-tinta-300 hover:text-tinta-700 transition-colors shrink-0 ml-1"
                                 title="Agregar lead"
                             >
-                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
                                 </svg>
                             </button>
@@ -312,7 +312,7 @@ function getCookie(name) {
                                 draggable="true"
                                 @dragstart="onDragStart($event, lead, etapa.id)"
                                 @click="abrirDetalleLead(lead.id)"
-                                class="bg-white rounded-xl border border-gray-200 p-3 cursor-pointer hover:shadow-md transition-shadow select-none"
+                                class="bg-white rounded-xl border border-linea p-3 cursor-pointer hover:shadow-md transition-shadow select-none"
                             >
                                 <!-- Badge estado ganado/perdido -->
                                 <div
@@ -324,14 +324,14 @@ function getCookie(name) {
                                 </div>
 
                                 <!-- Título -->
-                                <p class="text-sm font-semibold text-gray-800 mb-1 line-clamp-2 leading-snug">
+                                <p class="text-sm font-semibold text-tinta-900 mb-1 line-clamp-2 leading-snug">
                                     {{ lead.titulo }}
                                 </p>
 
                                 <!-- Empresa/Contacto -->
                                 <div v-if="lead.empresa_contacto || lead.nombre_contacto"
-                                    class="flex items-center gap-1 text-xs text-gray-500 mb-2">
-                                    <svg class="w-3 h-3 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    class="flex items-center gap-1 text-xs text-tinta-400 mb-2">
+                                    <svg class="w-3 h-3 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
                                     </svg>
                                     <span class="truncate">{{ lead.empresa_contacto ?? lead.nombre_contacto }}</span>
@@ -348,14 +348,14 @@ function getCookie(name) {
                                     <div class="flex items-center gap-1.5 shrink-0">
                                         <span v-if="lead.tareas_vencidas > 0"
                                             class="flex items-center gap-0.5 text-xs text-red-600 font-semibold">
-                                            <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                            <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
                                             </svg>
                                             {{ lead.tareas_vencidas }}
                                         </span>
                                         <span v-else-if="lead.tareas_pendientes > 0"
                                             class="flex items-center gap-0.5 text-xs text-yellow-600">
-                                            <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                            <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
                                             </svg>
                                             {{ lead.tareas_pendientes }}
@@ -365,9 +365,9 @@ function getCookie(name) {
 
                                 <!-- Responsable -->
                                 <div v-if="lead.responsable"
-                                    class="mt-2 flex items-center gap-1.5 text-xs text-gray-400">
+                                    class="mt-2 flex items-center gap-1.5 text-xs text-tinta-300">
                                     <div
-                                        class="w-5 h-5 rounded-full flex items-center justify-center text-white font-bold shrink-0"
+                                        class="w-5 h-5 rounded-full flex items-center justify-center text-white font-semibold shrink-0"
                                         style="background-color: var(--marca); font-size: 10px;"
                                     >
                                         {{ lead.responsable[0].toUpperCase() }}
@@ -379,7 +379,7 @@ function getCookie(name) {
                             <!-- Zona drop vacía -->
                             <div
                                 v-if="etapa.leads.length === 0"
-                                class="flex items-center justify-center rounded-xl border-2 border-dashed border-gray-200 text-xs text-gray-400 py-6"
+                                class="flex items-center justify-center rounded-xl border-2 border-dashed border-linea text-xs text-tinta-300 py-6"
                             >
                                 Arrastra aquí
                             </div>

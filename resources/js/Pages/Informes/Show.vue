@@ -138,7 +138,7 @@ const lineaPuntos = computed(() => {
         <div class="max-w-5xl mx-auto space-y-6">
 
             <!-- Cabecera -->
-            <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
+            <div class="bg-white rounded-2xl border border-linea shadow-sm p-5">
                 <div class="flex flex-wrap items-start justify-between gap-4">
                     <div>
                         <div class="flex items-center gap-2 mb-1">
@@ -146,12 +146,12 @@ const lineaPuntos = computed(() => {
                                 {{ fuenteLabel[informe.fuente] ?? informe.fuente }}
                             </span>
                             <span v-if="informe.publico"
-                                class="text-xs font-semibold px-2.5 py-1 rounded-full bg-gray-100 text-gray-500">
+                                class="text-xs font-semibold px-2.5 py-1 rounded-full bg-tinta-100 text-tinta-400">
                                 Público
                             </span>
                         </div>
-                        <h1 class="text-lg font-bold text-gray-900">{{ informe.nombre }}</h1>
-                        <p v-if="informe.descripcion" class="text-sm text-gray-500 mt-0.5">{{ informe.descripcion }}</p>
+                        <h1 class="text-lg font-semibold text-tinta-900">{{ informe.nombre }}</h1>
+                        <p v-if="informe.descripcion" class="text-sm text-tinta-400 mt-0.5">{{ informe.descripcion }}</p>
                     </div>
 
                     <!-- Acciones -->
@@ -166,22 +166,22 @@ const lineaPuntos = computed(() => {
                                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
                                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/>
                             </svg>
-                            <svg v-else class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <svg v-else class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                             </svg>
                             {{ cargando ? 'Ejecutando...' : 'Ejecutar' }}
                         </button>
                         <a :href="`/informes/${informe.id}/csv`"
-                            class="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold border border-gray-200 text-gray-700 hover:bg-gray-50 transition-colors">
-                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            class="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold border border-linea text-tinta-700 hover:bg-tinta-50 transition-colors">
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
                             </svg>
                             CSV
                         </a>
                         <a :href="`/informes/${informe.id}/pdf`"
-                            class="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold border border-gray-200 text-gray-700 hover:bg-gray-50 transition-colors">
-                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            class="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold border border-linea text-tinta-700 hover:bg-tinta-50 transition-colors">
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
                             </svg>
                             PDF
@@ -201,13 +201,13 @@ const lineaPuntos = computed(() => {
                     <circle class="opacity-20" cx="12" cy="12" r="10" stroke="var(--marca)" stroke-width="4"/>
                     <path class="opacity-80" fill="var(--marca)" d="M4 12a8 8 0 018-8v8H4z"/>
                 </svg>
-                <p class="text-sm text-gray-400">Ejecutando informe...</p>
+                <p class="text-sm text-tinta-300">Ejecutando informe...</p>
             </div>
 
             <!-- Gráfica SVG -->
             <div v-if="ejecutado && graficaData && informe.tipo_grafica !== 'ninguna'"
-                class="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
-                <h2 class="text-sm font-bold text-gray-700 mb-4">Gráfica — {{ informe.tipo_grafica }}</h2>
+                class="bg-white rounded-2xl border border-linea shadow-sm p-5">
+                <h2 class="text-sm font-semibold text-tinta-700 mb-4">Gráfica — {{ informe.tipo_grafica }}</h2>
 
                 <!-- Barras -->
                 <div v-if="informe.tipo_grafica === 'barras'" class="overflow-x-auto">
@@ -247,7 +247,7 @@ const lineaPuntos = computed(() => {
                             :points="lineaPuntos"
                             fill="none"
                             stroke="var(--marca)"
-                            stroke-width="2.5"
+                            stroke-width="1.8"
                             stroke-linejoin="round"
                         />
                         <g v-for="(val, i) in graficaData.valores" :key="i">
@@ -277,32 +277,32 @@ const lineaPuntos = computed(() => {
                     <div class="flex flex-col gap-2 py-2">
                         <div v-for="(s, i) in tortaSlices" :key="i" class="flex items-center gap-2 text-xs">
                             <span class="w-3 h-3 rounded-sm shrink-0" :style="`background:${s.color}`"/>
-                            <span class="text-gray-700">{{ s.label }}</span>
-                            <span class="font-semibold text-gray-900 ml-1">{{ s.pct }}%</span>
+                            <span class="text-tinta-700">{{ s.label }}</span>
+                            <span class="font-semibold text-tinta-900 ml-1">{{ s.pct }}%</span>
                         </div>
                     </div>
                 </div>
             </div>
 
             <!-- Tabla de resultados -->
-            <div v-if="ejecutado" class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-                <div class="px-5 py-3 border-b border-gray-100 flex items-center justify-between">
-                    <h2 class="text-sm font-bold text-gray-700">Resultados</h2>
-                    <span class="text-xs text-gray-400 font-medium">{{ datos.length }} registro(s)</span>
+            <div v-if="ejecutado" class="bg-white rounded-2xl border border-linea shadow-sm overflow-hidden">
+                <div class="px-5 py-3 border-b border-linea flex items-center justify-between">
+                    <h2 class="text-sm font-semibold text-tinta-700">Resultados</h2>
+                    <span class="text-xs text-tinta-300 font-medium">{{ datos.length }} registro(s)</span>
                 </div>
 
-                <div v-if="!datos.length" class="px-5 py-12 text-center text-sm text-gray-400">
+                <div v-if="!datos.length" class="px-5 py-12 text-center text-sm text-tinta-300">
                     No se encontraron resultados con los filtros configurados.
                 </div>
 
                 <div v-else class="overflow-x-auto">
                     <table class="w-full text-sm">
                         <thead>
-                            <tr class="bg-gray-50 border-b border-gray-100">
+                            <tr class="bg-tinta-50 border-b border-linea">
                                 <th
                                     v-for="campo in informe.campos"
                                     :key="campo"
-                                    class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide whitespace-nowrap"
+                                    class="px-4 py-3 text-left text-xs font-semibold text-tinta-400 uppercase tracking-wide whitespace-nowrap"
                                 >
                                     {{ etiquetas_campos[campo] ?? campo }}
                                 </th>
@@ -312,12 +312,12 @@ const lineaPuntos = computed(() => {
                             <tr
                                 v-for="(fila, i) in datos"
                                 :key="i"
-                                class="hover:bg-gray-50 transition-colors"
+                                class="hover:bg-tinta-50 transition-colors"
                             >
                                 <td
                                     v-for="campo in informe.campos"
                                     :key="campo"
-                                    class="px-4 py-3 text-gray-800 whitespace-nowrap"
+                                    class="px-4 py-3 text-tinta-900 whitespace-nowrap"
                                 >
                                     {{ fila[campo] ?? '—' }}
                                 </td>
@@ -325,7 +325,7 @@ const lineaPuntos = computed(() => {
                         </tbody>
                         <!-- Fila de totales / promedios -->
                         <tfoot v-if="hayTotales">
-                            <tr class="border-t-2 border-gray-200 bg-gray-50 font-semibold">
+                            <tr class="border-t-2 border-linea bg-tinta-50 font-semibold">
                                 <td
                                     v-for="(campo, idx) in informe.campos"
                                     :key="campo"
@@ -333,12 +333,12 @@ const lineaPuntos = computed(() => {
                                     :style="idx === 0 ? 'color:var(--marca)' : ''"
                                 >
                                     <template v-if="totales[campo]">
-                                        <span class="text-[10px] uppercase tracking-wide text-gray-400 mr-1">
+                                        <span class="text-[10px] uppercase tracking-wide text-tinta-300 mr-1">
                                             {{ totales[campo].tipo === 'promedio' ? 'Prom.' : 'Total' }}
                                         </span>
                                         <span style="color:var(--marca)">{{ totales[campo].texto }}</span>
                                     </template>
-                                    <span v-else-if="idx === 0" class="text-gray-500">Totales</span>
+                                    <span v-else-if="idx === 0" class="text-tinta-400">Totales</span>
                                 </td>
                             </tr>
                         </tfoot>

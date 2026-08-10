@@ -56,12 +56,12 @@ function iniciales(c) {
 
             <!-- Cabecera -->
             <div class="flex items-center justify-between mb-4">
-                <h1 class="text-xl font-bold text-gray-900">Clientes</h1>
+                <h1 class="text-xl font-semibold text-tinta-900">Clientes</h1>
                 <div class="flex items-center gap-2">
                     <a href="/clientes/importar"
-                       class="inline-flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-medium text-gray-700 border border-gray-300 bg-white hover:bg-gray-50">
+                       class="inline-flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-medium text-tinta-700 border border-tinta-200 bg-white hover:bg-tinta-50">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6"
                                 d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
                         </svg>
                         Importar
@@ -70,7 +70,7 @@ function iniciales(c) {
                        class="inline-flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-medium text-white"
                        style="background:var(--marca)">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M12 4v16m8-8H4"/>
                         </svg>
                         Nuevo
                     </a>
@@ -78,38 +78,38 @@ function iniciales(c) {
             </div>
 
             <!-- Filtros -->
-            <div class="bg-white rounded-xl border border-gray-200 p-3 mb-4 space-y-2">
+            <div class="bg-white rounded-xl border border-linea p-3 mb-4 space-y-2">
                 <div class="flex flex-col sm:flex-row gap-2">
                     <input
                         v-model="buscar"
                         type="text"
                         placeholder="Buscar por nombre, ID, email..."
-                        class="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                        class="flex-1 rounded-lg border border-tinta-200 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
                         @keyup.enter="aplicarFiltros"
                     />
-                    <select v-model="tipo" class="rounded-lg border border-gray-300 px-3 py-2 text-sm" @change="aplicarFiltros">
+                    <select v-model="tipo" class="rounded-lg border border-tinta-200 px-3 py-2 text-sm" @change="aplicarFiltros">
                         <option value="">Todos los tipos</option>
                         <option value="persona">Persona</option>
                         <option value="empresa">Empresa</option>
                     </select>
                     <button @click="aplicarFiltros" class="px-3 py-2 rounded-lg text-sm font-medium text-white" style="background:var(--marca)">Buscar</button>
-                    <button v-if="hayFiltros()" @click="limpiar" class="px-3 py-2 rounded-lg text-sm font-medium text-gray-600 bg-gray-100 hover:bg-gray-200">Limpiar</button>
+                    <button v-if="hayFiltros()" @click="limpiar" class="px-3 py-2 rounded-lg text-sm font-medium text-tinta-500 bg-tinta-100 hover:bg-tinta-200">Limpiar</button>
                 </div>
                 <!-- Filtros segmentación -->
                 <div class="flex flex-wrap gap-2">
-                    <select v-model="industria" class="rounded-lg border border-gray-200 px-2 py-1.5 text-xs text-gray-600 focus:outline-none" @change="aplicarFiltros">
+                    <select v-model="industria" class="rounded-lg border border-linea px-2 py-1.5 text-xs text-tinta-500 focus:outline-none" @change="aplicarFiltros">
                         <option value="">Industria: Todas</option>
                         <option v-for="op in (segmentacion_opciones.industria ?? [])" :key="op.valor" :value="op.valor">
                             {{ op.etiqueta }}
                         </option>
                     </select>
-                    <select v-model="fuente_contacto" class="rounded-lg border border-gray-200 px-2 py-1.5 text-xs text-gray-600 focus:outline-none" @change="aplicarFiltros">
+                    <select v-model="fuente_contacto" class="rounded-lg border border-linea px-2 py-1.5 text-xs text-tinta-500 focus:outline-none" @change="aplicarFiltros">
                         <option value="">Fuente: Todas</option>
                         <option v-for="op in (segmentacion_opciones.fuente_contacto ?? [])" :key="op.valor" :value="op.valor">
                             {{ op.etiqueta }}
                         </option>
                     </select>
-                    <select v-model="proceso_seguimiento" class="rounded-lg border border-gray-200 px-2 py-1.5 text-xs text-gray-600 focus:outline-none" @change="aplicarFiltros">
+                    <select v-model="proceso_seguimiento" class="rounded-lg border border-linea px-2 py-1.5 text-xs text-tinta-500 focus:outline-none" @change="aplicarFiltros">
                         <option value="">Proceso: Todos</option>
                         <option v-for="op in (segmentacion_opciones.proceso_seguimiento ?? [])" :key="op.valor" :value="op.valor">
                             {{ op.etiqueta }}
@@ -119,7 +119,7 @@ function iniciales(c) {
             </div>
 
             <!-- Lista -->
-            <div v-if="clientes.data.length === 0" class="text-center py-16 text-gray-400">
+            <div v-if="clientes.data.length === 0" class="text-center py-16 text-tinta-300">
                 <svg class="w-12 h-12 mx-auto mb-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                           d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
@@ -133,10 +133,10 @@ function iniciales(c) {
                     v-for="c in clientes.data"
                     :key="c.id"
                     :href="`/clientes/${c.id}`"
-                    class="flex items-center gap-3 bg-white rounded-xl border border-gray-200 px-4 py-3 hover:border-blue-300 hover:shadow-sm transition-all"
+                    class="flex items-center gap-3 bg-white rounded-xl border border-linea px-4 py-3 hover:border-blue-300 hover:shadow-sm transition-all"
                 >
                     <!-- Avatar -->
-                    <div class="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold text-white flex-shrink-0"
+                    <div class="w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold text-white flex-shrink-0"
                          style="background:var(--marca)">
                         {{ iniciales(c) }}
                     </div>
@@ -144,14 +144,14 @@ function iniciales(c) {
                     <!-- Info -->
                     <div class="flex-1 min-w-0">
                         <div class="flex items-center gap-2 flex-wrap">
-                            <span class="font-medium text-gray-900 text-sm truncate">
+                            <span class="font-medium text-tinta-900 text-sm truncate">
                                 {{ c.nombre }}{{ c.apellido ? ' ' + c.apellido : '' }}
                             </span>
                             <span :class="['text-xs px-2 py-0.5 rounded-full font-medium', tipoColor(c.tipo)]">
                                 {{ tipoLabel(c.tipo) }}
                             </span>
                         </div>
-                        <div class="flex items-center gap-3 mt-0.5 text-xs text-gray-500 flex-wrap">
+                        <div class="flex items-center gap-3 mt-0.5 text-xs text-tinta-400 flex-wrap">
                             <span v-if="c.numero_identificacion">{{ c.tipo_identificacion }}: {{ c.numero_identificacion }}<template v-if="c.digito_verificacion">-{{ c.digito_verificacion }}</template></span>
                             <span v-if="c.email">{{ c.email }}</span>
                             <span v-if="c.celular">{{ c.celular }}</span>
@@ -160,8 +160,8 @@ function iniciales(c) {
                     </div>
 
                     <!-- Flecha -->
-                    <svg class="w-4 h-4 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                    <svg class="w-4 h-4 text-tinta-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M9 5l7 7-7 7"/>
                     </svg>
                 </a>
             </div>
@@ -169,14 +169,14 @@ function iniciales(c) {
             <!-- Paginación -->
             <div v-if="clientes.last_page > 1" class="flex items-center justify-center gap-2 mt-6">
                 <a v-if="clientes.prev_page_url" :href="clientes.prev_page_url"
-                   class="px-3 py-1.5 rounded-lg border border-gray-300 text-sm text-gray-600 hover:bg-gray-50">
+                   class="px-3 py-1.5 rounded-lg border border-tinta-200 text-sm text-tinta-500 hover:bg-tinta-50">
                     ← Anterior
                 </a>
-                <span class="text-sm text-gray-500">
+                <span class="text-sm text-tinta-400">
                     Página {{ clientes.current_page }} de {{ clientes.last_page }}
                 </span>
                 <a v-if="clientes.next_page_url" :href="clientes.next_page_url"
-                   class="px-3 py-1.5 rounded-lg border border-gray-300 text-sm text-gray-600 hover:bg-gray-50">
+                   class="px-3 py-1.5 rounded-lg border border-tinta-200 text-sm text-tinta-500 hover:bg-tinta-50">
                     Siguiente →
                 </a>
             </div>

@@ -23,7 +23,7 @@ const opcionesParseadas = computed(() => {
             v-if="campo.subtipo_variable === 'selector'"
             :value="modelValue"
             @change="$emit('update:modelValue', $event.target.value)"
-            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--marca)] bg-white"
+            class="w-full border border-tinta-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--marca)] bg-white"
         >
             <option value="" disabled>Seleccionar...</option>
             <option v-for="op in opcionesParseadas" :key="op.valor" :value="op.valor">
@@ -35,22 +35,22 @@ const opcionesParseadas = computed(() => {
             type="text"
             :value="modelValue"
             @input="$emit('update:modelValue', $event.target.value)"
-            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--marca)]"
+            class="w-full border border-tinta-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--marca)]"
         />
         <input
             v-else-if="campo.subtipo_variable === 'decimal'"
             type="number" step="0.01"
             :value="modelValue"
             @input="$emit('update:modelValue', parseFloat($event.target.value) || 0)"
-            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--marca)]"
+            class="w-full border border-tinta-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--marca)]"
         />
         <input
             v-else
             type="number" step="1"
             :value="modelValue"
             @input="$emit('update:modelValue', parseFloat($event.target.value) || 0)"
-            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--marca)]"
+            class="w-full border border-tinta-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--marca)]"
         />
-        <p v-if="campo.ayuda" class="text-xs text-gray-400 mt-1">{{ campo.ayuda }}</p>
+        <p v-if="campo.ayuda" class="text-xs text-tinta-300 mt-1">{{ campo.ayuda }}</p>
     </div>
 </template>

@@ -176,9 +176,9 @@ async function enviar(texto = null) {
 
             <!-- Barra de la conversación -->
             <div v-if="mensajes.length" class="flex items-center justify-between mb-2">
-                <p class="text-xs text-gray-400">Conversación guardada</p>
+                <p class="text-xs text-tinta-300">Conversación guardada</p>
                 <button type="button" @click="limpiar"
-                    class="text-xs font-medium text-gray-500 hover:text-red-600">
+                    class="text-xs font-medium text-tinta-400 hover:text-red-600">
                     Borrar conversación
                 </button>
             </div>
@@ -189,19 +189,19 @@ async function enviar(texto = null) {
                 <div v-if="!mensajes.length" class="text-center py-8">
                     <div class="w-14 h-14 rounded-2xl mx-auto flex items-center justify-center mb-3"
                         style="background:var(--marca);">
-                        <svg class="w-7 h-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <svg class="w-7 h-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                             <path stroke-linecap="round" stroke-linejoin="round"
                                 d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-6l-4 4v-4z" />
                         </svg>
                     </div>
-                    <p class="text-sm font-semibold text-gray-800">Hola, soy {{ nombre }}</p>
-                    <p class="text-xs text-gray-400 mt-1 mb-4 px-6">
+                    <p class="text-sm font-semibold text-tinta-900">Hola, soy {{ nombre }}</p>
+                    <p class="text-xs text-tinta-300 mt-1 mb-4 px-6">
                         Respondo sobre la marca y consulto los datos del sistema —ventas, producción,
                         inventario, cartera— dentro de tu sede activa y de lo que tus permisos te dejan ver.
                     </p>
                     <div class="flex flex-wrap gap-2 justify-center px-4">
                         <button v-for="s in sugerencias" :key="s" @click="enviar(s)"
-                            class="text-xs px-3 py-1.5 rounded-full border border-gray-200 text-gray-600 hover:bg-gray-50">
+                            class="text-xs px-3 py-1.5 rounded-full border border-linea text-tinta-500 hover:bg-tinta-50">
                             {{ s }}
                         </button>
                     </div>
@@ -213,14 +213,14 @@ async function enviar(texto = null) {
                     <div class="max-w-[85%] rounded-2xl px-4 py-2.5 text-sm whitespace-pre-wrap"
                         :class="m.rol === 'usuario'
                             ? 'text-white rounded-br-sm'
-                            : 'bg-white border border-gray-200 text-gray-800 rounded-bl-sm'"
+                            : 'bg-white border border-linea text-tinta-900 rounded-bl-sm'"
                         :style="m.rol === 'usuario' ? 'background:var(--marca);' : ''">
                         <span v-if="m.rol === 'asistente'" v-html="formatearMensaje(m.contenido)" />
                         <span v-else class="whitespace-pre-wrap">{{ m.contenido }}</span>
 
                         <!-- De dónde salieron las cifras, para poder verificarlas -->
                         <span v-if="m.tiempos && m.tiempos.total > 4000"
-                            class="block mt-2 text-[11px] text-gray-400">
+                            class="block mt-2 text-[11px] text-tinta-300">
                             {{ (m.tiempos.total / 1000).toFixed(1) }} s
                             <span class="opacity-70">
                                 (decidir {{ (m.tiempos.decision / 1000).toFixed(1) }} s ·
@@ -229,21 +229,21 @@ async function enviar(texto = null) {
                             </span>
                         </span>
 
-                        <span v-if="m.consulta" class="block mt-2 text-[11px] text-gray-400">
+                        <span v-if="m.consulta" class="block mt-2 text-[11px] text-tinta-300">
                             Datos de: {{ m.consulta.replace(/_/g, ' ') }}
                         </span>
 
                         <button v-if="m.rol === 'asistente' && soportaVoz"
                             @click="hablando ? detenerVoz() : hablar(m.contenido)"
-                            class="mt-2 text-[11px] text-gray-400 hover:text-gray-600">
+                            class="mt-2 text-[11px] text-tinta-300 hover:text-tinta-500">
                             {{ hablando ? 'Detener' : 'Escuchar' }}
                         </button>
                     </div>
                 </div>
 
                 <div v-if="cargando" class="flex justify-start">
-                    <div class="bg-white border border-gray-200 rounded-2xl rounded-bl-sm px-4 py-2.5">
-                        <span class="text-sm text-gray-400">{{ nombre }} está escribiendo…</span>
+                    <div class="bg-white border border-linea rounded-2xl rounded-bl-sm px-4 py-2.5">
+                        <span class="text-sm text-tinta-300">{{ nombre }} está escribiendo…</span>
                     </div>
                 </div>
 
@@ -251,7 +251,7 @@ async function enviar(texto = null) {
             </div>
 
             <!-- Entrada -->
-            <div class="pt-2 border-t border-gray-100">
+            <div class="pt-2 border-t border-linea">
                 <div class="flex items-center justify-between mb-2">
                     <p v-if="dictando" class="text-xs" style="color:var(--marca);">
                         Escuchando… habla y se envía sola al terminar.
@@ -262,7 +262,7 @@ async function enviar(texto = null) {
                     <label v-if="soportaVoz" class="flex items-center gap-1.5 cursor-pointer shrink-0">
                         <input v-model="prefs.leerAuto" type="checkbox" class="rounded"
                             @change="!prefs.leerAuto && detenerVoz()" />
-                        <span class="text-xs text-gray-500">Leer respuestas en voz alta</span>
+                        <span class="text-xs text-tinta-400">Leer respuestas en voz alta</span>
                     </label>
                 </div>
 
@@ -270,14 +270,14 @@ async function enviar(texto = null) {
                     <textarea v-model="entrada" rows="1" maxlength="2000"
                         placeholder="Escribe tu pregunta…"
                         @keydown.enter.exact.prevent="enviar()"
-                        class="flex-1 rounded-xl border border-gray-300 px-3 py-2.5 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                        class="flex-1 rounded-xl border border-tinta-200 px-3 py-2.5 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
 
                     <button v-if="soportaDictado" @click="alternarMicrofono" :disabled="cargando"
                         class="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 border disabled:opacity-40"
-                        :class="dictando ? 'border-transparent text-white' : 'border-gray-300 text-gray-500'"
+                        :class="dictando ? 'border-transparent text-white' : 'border-tinta-200 text-tinta-400'"
                         :style="dictando ? 'background:#EF4444;' : ''"
                         :title="dictando ? 'Detener' : 'Dictar'">
-                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                             <path stroke-linecap="round" stroke-linejoin="round"
                                 d="M19 11a7 7 0 01-14 0m7 7v4m0-4a3 3 0 01-3-3V6a3 3 0 016 0v9a3 3 0 01-3 3z" />
                         </svg>
@@ -286,7 +286,7 @@ async function enviar(texto = null) {
                     <button @click="enviar()" :disabled="cargando || !entrada.trim()"
                         class="w-11 h-11 rounded-xl flex items-center justify-center text-white shrink-0 disabled:opacity-40"
                         style="background:var(--marca);">
-                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
                         </svg>
                     </button>

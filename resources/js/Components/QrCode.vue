@@ -56,7 +56,7 @@ const imprimir = () => {
 <template>
     <div class="flex flex-col items-center gap-2">
         <canvas ref="canvasRef" />
-        <p v-if="label" class="text-xs text-gray-500 text-center">{{ label }}</p>
+        <p v-if="label" class="text-xs text-tinta-400 text-center">{{ label }}</p>
         <div class="flex gap-2">
             <button
                 @click="descargar"

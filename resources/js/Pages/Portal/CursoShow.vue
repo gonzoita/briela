@@ -92,10 +92,10 @@ const tipoLabel = (v) => ({ video_drive: 'Video', video_externo: 'Video', texto:
             <!-- Barra de progreso del curso -->
             <div class="bg-white rounded-2xl shadow-sm p-4">
                 <div class="flex items-center justify-between mb-2">
-                    <p class="text-sm font-semibold text-gray-900 truncate">{{ curso.titulo }}</p>
+                    <p class="text-sm font-semibold text-tinta-900 truncate">{{ curso.titulo }}</p>
                     <span class="text-xs font-semibold shrink-0" style="color:var(--marca);">{{ porcentajeActual }}%</span>
                 </div>
-                <div class="h-2 rounded-full bg-gray-100 overflow-hidden">
+                <div class="h-2 rounded-full bg-tinta-100 overflow-hidden">
                     <div class="h-full rounded-full transition-all" :style="`width:${porcentajeActual}%;background:var(--marca);`"></div>
                 </div>
 
@@ -115,13 +115,13 @@ const tipoLabel = (v) => ({ video_drive: 'Video', video_externo: 'Video', texto:
                 <div class="md:col-span-1 order-2 md:order-1 space-y-3">
                     <div v-for="modulo in curso.modulos" :key="modulo.id" class="bg-white rounded-2xl shadow-sm overflow-hidden" :class="{ 'opacity-60': modulo.bloqueado }">
                         <div class="flex items-center gap-2 px-4 py-2.5 border-b border-gray-50">
-                            <svg v-if="modulo.bloqueado" class="w-3.5 h-3.5 text-gray-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <svg v-if="modulo.bloqueado" class="w-3.5 h-3.5 text-tinta-300 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
                             </svg>
-                            <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider flex-1 truncate">{{ modulo.nombre }}</p>
+                            <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] flex-1 truncate">{{ modulo.nombre }}</p>
                         </div>
 
-                        <p v-if="modulo.bloqueado" class="px-4 py-2.5 text-xs text-gray-400">
+                        <p v-if="modulo.bloqueado" class="px-4 py-2.5 text-xs text-tinta-300">
                             Aprueba la evaluación del módulo anterior para desbloquear.
                         </p>
 
@@ -130,7 +130,7 @@ const tipoLabel = (v) => ({ video_drive: 'Video', video_externo: 'Video', texto:
                                 <li v-for="leccion in modulo.lecciones" :key="leccion.id">
                                     <button @click="seleccionarLeccion(leccion, modulo)"
                                         class="w-full flex items-center gap-2.5 px-4 py-2.5 text-left transition-colors"
-                                        :class="leccionActual?.id === leccion.id ? 'bg-blue-50' : 'hover:bg-gray-50'">
+                                        :class="leccionActual?.id === leccion.id ? 'bg-blue-50' : 'hover:bg-tinta-50'">
                                         <div class="w-5 h-5 rounded-full flex items-center justify-center shrink-0"
                                             :style="completadas[leccion.id] ? 'background:#D1FAE5;' : 'background:#F3F4F6;'">
                                             <svg v-if="completadas[leccion.id]" class="w-3 h-3 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
@@ -138,8 +138,8 @@ const tipoLabel = (v) => ({ video_drive: 'Video', video_externo: 'Video', texto:
                                             </svg>
                                         </div>
                                         <div class="min-w-0 flex-1">
-                                            <p class="text-xs font-medium truncate" :class="leccionActual?.id === leccion.id ? 'text-blue-900' : 'text-gray-700'">{{ leccion.nombre }}</p>
-                                            <p class="text-[11px] text-gray-400">{{ tipoLabel(leccion.tipo) }}<span v-if="leccion.duracion_minutos"> · {{ leccion.duracion_minutos }} min</span></p>
+                                            <p class="text-xs font-medium truncate" :class="leccionActual?.id === leccion.id ? 'text-blue-900' : 'text-tinta-700'">{{ leccion.nombre }}</p>
+                                            <p class="text-[11px] text-tinta-300">{{ tipoLabel(leccion.tipo) }}<span v-if="leccion.duracion_minutos"> · {{ leccion.duracion_minutos }} min</span></p>
                                         </div>
                                     </button>
                                 </li>
@@ -162,14 +162,14 @@ const tipoLabel = (v) => ({ video_drive: 'Video', video_externo: 'Video', texto:
                             <iframe :src="embedUrl(leccionActual)" class="w-full h-full" frameborder="0" allow="autoplay; fullscreen" allowfullscreen></iframe>
                         </div>
 
-                        <div v-else-if="leccionActual.tipo === 'pdf'" class="aspect-[3/4] md:aspect-video bg-gray-100">
+                        <div v-else-if="leccionActual.tipo === 'pdf'" class="aspect-[3/4] md:aspect-video bg-tinta-100">
                             <iframe :src="embedUrl(leccionActual)" class="w-full h-full" frameborder="0"></iframe>
                         </div>
 
                         <div v-else-if="leccionActual.tipo === 'texto'" class="p-5 prose prose-sm max-w-none" v-html="leccionActual.contenido"></div>
 
-                        <div class="p-4 border-t border-gray-100">
-                            <p class="text-sm font-semibold text-gray-900 mb-3">{{ leccionActual.nombre }}</p>
+                        <div class="p-4 border-t border-linea">
+                            <p class="text-sm font-semibold text-tinta-900 mb-3">{{ leccionActual.nombre }}</p>
                             <div class="flex gap-2">
                                 <button v-if="!completadas[leccionActual.id]" @click="marcarCompletada" :disabled="marcando"
                                     class="flex-1 py-2.5 rounded-xl text-sm font-semibold text-white disabled:opacity-50" style="background:var(--marca);">
@@ -180,14 +180,14 @@ const tipoLabel = (v) => ({ video_drive: 'Video', video_externo: 'Video', texto:
                                 </button>
                                 <button v-if="leccionesDisponibles.findIndex(l => l.id === leccionActual.id) < leccionesDisponibles.length - 1"
                                     @click="siguienteLeccion"
-                                    class="px-4 py-2.5 rounded-xl text-sm font-semibold text-gray-600 border border-gray-200 hover:bg-gray-50">
+                                    class="px-4 py-2.5 rounded-xl text-sm font-semibold text-tinta-500 border border-linea hover:bg-tinta-50">
                                     Siguiente
                                 </button>
                             </div>
                         </div>
                     </div>
 
-                    <div v-else class="bg-white rounded-2xl shadow-sm py-16 text-center text-gray-400">
+                    <div v-else class="bg-white rounded-2xl shadow-sm py-16 text-center text-tinta-300">
                         <p class="text-sm">Este curso aún no tiene lecciones.</p>
                     </div>
                 </div>

@@ -58,12 +58,12 @@ function submit() {
             <div class="flex items-center gap-3 mb-5">
                 <a :href="`/mantenimiento/mantenimientos/${mantenimiento.id}`"
                     @click.prevent="router.visit(`/mantenimiento/mantenimientos/${mantenimiento.id}`)"
-                    class="text-gray-400 hover:text-gray-700">
+                    class="text-tinta-300 hover:text-tinta-700">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M15 19l-7-7 7-7"/>
                     </svg>
                 </a>
-                <h1 class="text-xl font-bold text-gray-900">Editar Mantenimiento</h1>
+                <h1 class="text-xl font-semibold text-tinta-900">Editar Mantenimiento</h1>
             </div>
 
             <div v-if="hasChanges" class="mb-3 inline-flex items-center gap-1.5 text-xs font-medium text-amber-700 bg-amber-50 border border-amber-200 rounded-xl px-3 py-1.5">
@@ -71,11 +71,11 @@ function submit() {
                 Cambios sin guardar
             </div>
 
-            <div class="bg-white rounded-2xl border border-gray-200 p-5 mb-4 space-y-4">
+            <div class="bg-white rounded-2xl border border-linea p-5 mb-4 space-y-4">
                 <div>
-                    <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Equipo *</label>
+                    <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1.5">Equipo *</label>
                     <select v-model="form.equipo_id"
-                        class="w-full rounded-xl border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2">
+                        class="w-full rounded-xl border border-tinta-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2">
                         <option v-for="e in equipos" :key="e.id" :value="e.id">
                             {{ e.nombre }} {{ e.ubicacion ? `(${e.ubicacion})` : '' }}
                         </option>
@@ -83,18 +83,18 @@ function submit() {
                 </div>
                 <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Tipo *</label>
+                        <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1.5">Tipo *</label>
                         <select v-model="form.tipo"
-                            class="w-full rounded-xl border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2">
+                            class="w-full rounded-xl border border-tinta-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2">
                             <option value="preventivo">Preventivo</option>
                             <option value="correctivo">Correctivo</option>
                             <option value="predictivo">Predictivo</option>
                         </select>
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Estado</label>
+                        <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1.5">Estado</label>
                         <select v-model="form.estado"
-                            class="w-full rounded-xl border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2">
+                            class="w-full rounded-xl border border-tinta-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2">
                             <option value="programado">Programado</option>
                             <option value="en_proceso">En proceso</option>
                             <option value="completado">Completado</option>
@@ -102,93 +102,93 @@ function submit() {
                         </select>
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Fecha programada *</label>
+                        <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1.5">Fecha programada *</label>
                         <input v-model="form.fecha_programada" type="date"
-                            class="w-full rounded-xl border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2" />
+                            class="w-full rounded-xl border border-tinta-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2" />
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Tiempo (h)</label>
+                        <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1.5">Tiempo (h)</label>
                         <input v-model.number="form.tiempo_horas" type="number" min="0"
-                            class="w-full rounded-xl border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2" />
+                            class="w-full rounded-xl border border-tinta-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2" />
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Fecha inicio</label>
+                        <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1.5">Fecha inicio</label>
                         <input v-model="form.fecha_inicio" type="date"
-                            class="w-full rounded-xl border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2" />
+                            class="w-full rounded-xl border border-tinta-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2" />
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Fecha fin</label>
+                        <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1.5">Fecha fin</label>
                         <input v-model="form.fecha_fin" type="date"
-                            class="w-full rounded-xl border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2" />
+                            class="w-full rounded-xl border border-tinta-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2" />
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Ejecutor</label>
+                        <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1.5">Ejecutor</label>
                         <select v-model="form.ejecutor_tipo"
-                            class="w-full rounded-xl border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2">
+                            class="w-full rounded-xl border border-tinta-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2">
                             <option value="interno">Interno</option>
                             <option value="externo">Externo</option>
                         </select>
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Nombre ejecutor</label>
+                        <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1.5">Nombre ejecutor</label>
                         <input v-model="form.ejecutor_nombre" type="text"
-                            class="w-full rounded-xl border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2" />
+                            class="w-full rounded-xl border border-tinta-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2" />
                     </div>
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Descripción</label>
+                    <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1.5">Descripción</label>
                     <textarea v-model="form.descripcion" rows="2"
-                        class="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 resize-none"></textarea>
+                        class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 resize-none"></textarea>
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Hallazgos</label>
+                    <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1.5">Hallazgos</label>
                     <textarea v-model="form.hallazgos" rows="2"
-                        class="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 resize-none"></textarea>
+                        class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 resize-none"></textarea>
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Acciones</label>
+                    <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1.5">Acciones</label>
                     <textarea v-model="form.acciones" rows="2"
-                        class="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 resize-none"></textarea>
+                        class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 resize-none"></textarea>
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Mano de obra ($)</label>
+                    <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1.5">Mano de obra ($)</label>
                     <input v-model.number="form.costo_mano_obra" type="number" min="0"
-                        class="w-full rounded-xl border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2" />
+                        class="w-full rounded-xl border border-tinta-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2" />
                 </div>
             </div>
 
             <!-- Repuestos -->
-            <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden mb-4">
-                <div class="px-5 py-3 border-b border-gray-100 flex items-center justify-between">
+            <div class="bg-white rounded-2xl border border-linea overflow-hidden mb-4">
+                <div class="px-5 py-3 border-b border-linea flex items-center justify-between">
                     <div>
-                        <h2 class="text-sm font-semibold text-gray-700">Repuestos</h2>
-                        <p class="text-xs text-gray-400 mt-0.5">Subtotal: ${{ fmt(costoRepuestos) }}</p>
+                        <h2 class="text-sm font-semibold text-tinta-700">Repuestos</h2>
+                        <p class="text-xs text-tinta-300 mt-0.5">Subtotal: ${{ fmt(costoRepuestos) }}</p>
                     </div>
                     <button @click="agregarRepuesto"
-                        class="px-3 py-1.5 rounded-xl border border-gray-300 text-xs font-medium hover:bg-gray-50">
+                        class="px-3 py-1.5 rounded-xl border border-tinta-200 text-xs font-medium hover:bg-tinta-50">
                         + Repuesto
                     </button>
                 </div>
-                <div v-if="!form.repuestos.length" class="py-5 text-center text-xs text-gray-400">Sin repuestos.</div>
+                <div v-if="!form.repuestos.length" class="py-5 text-center text-xs text-tinta-300">Sin repuestos.</div>
                 <div class="divide-y divide-gray-50">
                     <div v-for="(r, idx) in form.repuestos" :key="idx" class="p-4 space-y-2">
                         <div class="flex justify-between items-center">
-                            <span class="text-xs font-bold text-gray-400">Ítem {{ idx + 1 }}</span>
+                            <span class="text-xs font-semibold text-tinta-300">Ítem {{ idx + 1 }}</span>
                             <button @click="quitarRepuesto(idx)" class="w-6 h-6 rounded-lg flex items-center justify-center text-red-400 hover:bg-red-50">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
                                 </svg>
                             </button>
                         </div>
                         <input v-model="r.nombre" placeholder="Nombre *" type="text"
-                            class="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2" />
+                            class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-2" />
                         <div class="grid grid-cols-3 gap-2">
                             <input v-model.number="r.cantidad" type="number" min="0" placeholder="Cant."
-                                class="rounded-xl border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2" />
+                                class="rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-2" />
                             <input v-model="r.unidad" placeholder="Und" type="text"
-                                class="rounded-xl border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2" />
+                                class="rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-2" />
                             <input v-model.number="r.precio_unitario" type="number" min="0" placeholder="$/u"
-                                class="rounded-xl border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2" />
+                                class="rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-2" />
                         </div>
                     </div>
                 </div>
@@ -196,7 +196,7 @@ function submit() {
 
             <!-- Total -->
             <div class="bg-blue-50 rounded-2xl border border-blue-200 p-4 mb-4">
-                <div class="flex justify-between font-bold">
+                <div class="flex justify-between font-semibold">
                     <span>Total estimado</span>
                     <span style="color:var(--marca);">${{ fmt(costoTotal) }}</span>
                 </div>
@@ -204,7 +204,7 @@ function submit() {
 
             <div class="flex gap-3">
                 <button type="button" @click="router.visit(`/mantenimiento/mantenimientos/${mantenimiento.id}`)"
-                    class="flex-1 py-3 rounded-xl border border-gray-200 text-sm text-gray-600 font-medium">
+                    class="flex-1 py-3 rounded-xl border border-linea text-sm text-tinta-500 font-medium">
                     Cancelar
                 </button>
                 <button type="button" @click="submit"

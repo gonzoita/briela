@@ -25,8 +25,8 @@ const colorIcono    = (key) => ICONOS_MODULO[key] ?? { bg: '#E5E7EB', color: '#3
         <div class="max-w-4xl mx-auto space-y-6">
             <!-- Cabecera -->
             <div>
-                <h2 class="text-xl font-bold text-gray-900">Plantillas PDF</h2>
-                <p class="text-sm text-gray-500 mt-1">
+                <h2 class="text-xl font-semibold text-tinta-900">Plantillas PDF</h2>
+                <p class="text-sm text-tinta-400 mt-1">
                     Personaliza el diseño de los documentos PDF del sistema sin tocar código.
                 </p>
             </div>
@@ -36,7 +36,7 @@ const colorIcono    = (key) => ICONOS_MODULO[key] ?? { bg: '#E5E7EB', color: '#3
                 <div
                     v-for="modulo in modulos"
                     :key="modulo.key"
-                    class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex flex-col gap-4"
+                    class="bg-white rounded-2xl shadow-sm border border-linea p-5 flex flex-col gap-4"
                 >
                     <!-- Ícono + color -->
                     <div class="flex items-start justify-between">
@@ -44,7 +44,7 @@ const colorIcono    = (key) => ICONOS_MODULO[key] ?? { bg: '#E5E7EB', color: '#3
                             class="w-11 h-11 rounded-xl flex items-center justify-center shrink-0"
                             :style="{ backgroundColor: colorIcono(modulo.key).bg }"
                         >
-                            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"
+                            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6"
                                 :style="{ color: colorIcono(modulo.key).color }">
                                 <path stroke-linecap="round" stroke-linejoin="round"
                                     d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
@@ -56,27 +56,27 @@ const colorIcono    = (key) => ICONOS_MODULO[key] ?? { bg: '#E5E7EB', color: '#3
                                 class="w-5 h-5 rounded-full border-2 border-white shadow"
                                 :style="{ backgroundColor: colorPrimario(modulo) }"
                             />
-                            <span class="text-xs text-gray-400 font-mono">{{ colorPrimario(modulo) }}</span>
+                            <span class="text-xs text-tinta-300 font-mono">{{ colorPrimario(modulo) }}</span>
                         </div>
                     </div>
 
                     <!-- Nombre y secciones -->
                     <div class="flex-1">
-                        <h3 class="font-semibold text-gray-900 text-sm">{{ modulo.label }}</h3>
-                        <p class="text-xs text-gray-400 mt-0.5">
+                        <h3 class="font-semibold text-tinta-900 text-sm">{{ modulo.label }}</h3>
+                        <p class="text-xs text-tinta-300 mt-0.5">
                             {{ modulo.template?.nombre ?? 'Sin configurar' }}
                         </p>
                         <div class="flex flex-wrap gap-1 mt-2">
                             <span
                                 v-for="sec in modulo.secciones.slice(0, 3)"
                                 :key="sec"
-                                class="text-xs px-1.5 py-0.5 rounded bg-gray-100 text-gray-500"
+                                class="text-xs px-1.5 py-0.5 rounded bg-tinta-100 text-tinta-400"
                             >
                                 {{ sec }}
                             </span>
                             <span
                                 v-if="modulo.secciones.length > 3"
-                                class="text-xs px-1.5 py-0.5 rounded bg-gray-100 text-gray-400"
+                                class="text-xs px-1.5 py-0.5 rounded bg-tinta-100 text-tinta-300"
                             >
                                 +{{ modulo.secciones.length - 3 }}
                             </span>

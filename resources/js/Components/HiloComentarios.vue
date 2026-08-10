@@ -98,18 +98,18 @@ onMounted(cargar)
 </script>
 
 <template>
-    <div :class="embebido ? '' : 'bg-white rounded-2xl border border-gray-200 overflow-hidden'">
-        <div v-if="!embebido" class="px-5 py-3 border-b border-gray-100 flex items-center gap-2 flex-wrap">
-            <h2 class="text-sm font-semibold text-gray-700">Hilo interno</h2>
+    <div :class="embebido ? '' : 'bg-white rounded-2xl border border-linea overflow-hidden'">
+        <div v-if="!embebido" class="px-5 py-3 border-b border-linea flex items-center gap-2 flex-wrap">
+            <h2 class="text-sm font-semibold text-tinta-700">Hilo interno</h2>
             <span v-if="abiertos" class="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-700 leading-none">
                 {{ abiertos }} sin resolver
             </span>
-            <span class="text-xs text-gray-400 ml-auto">Solo lo ve el equipo, nunca el cliente.</span>
+            <span class="text-xs text-tinta-300 ml-auto">Solo lo ve el equipo, nunca el cliente.</span>
         </div>
 
         <div :class="embebido ? 'space-y-4' : 'px-5 py-4 space-y-4'">
-            <p v-if="cargando" class="text-xs text-gray-400">Cargando...</p>
-            <p v-else-if="!comentarios.length" class="text-xs text-gray-400">
+            <p v-if="cargando" class="text-xs text-tinta-300">Cargando...</p>
+            <p v-else-if="!comentarios.length" class="text-xs text-tinta-300">
                 Todavía no hay nada. Escribe abajo para dejar el primer mensaje.
             </p>
 
@@ -117,21 +117,21 @@ onMounted(cargar)
             <div v-for="c in comentarios" :key="c.id"
                 class="rounded-xl border p-3"
                 :class="c.tipo !== 'comentario' && c.estado === 'pendiente'
-                    ? 'border-amber-200 bg-amber-50/40' : 'border-gray-100'">
+                    ? 'border-amber-200 bg-amber-50/40' : 'border-linea'">
                 <div class="flex items-center gap-2 flex-wrap mb-1">
-                    <span class="text-xs font-semibold text-gray-700">{{ c.autor?.name }}</span>
+                    <span class="text-xs font-semibold text-tinta-700">{{ c.autor?.name }}</span>
                     <span v-if="c.tipo !== 'comentario'"
                         class="text-[10px] font-semibold px-1.5 py-0.5 rounded-full leading-none"
                         :class="c.estado === 'pendiente' ? 'bg-amber-100 text-amber-700'
-                              : c.estado === 'resuelta' ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-600'">
+                              : c.estado === 'resuelta' ? 'bg-green-100 text-green-700' : 'bg-tinta-200 text-tinta-500'">
                         {{ etiqueta[c.tipo] }}<template v-if="c.estado !== 'pendiente'"> · {{ c.estado }}</template>
                     </span>
-                    <span v-if="c.asignado" class="text-[11px] text-gray-500">para {{ c.asignado.name }}</span>
-                    <span v-if="c.fecha_limite" class="text-[11px] text-gray-500">· antes del {{ c.fecha_limite }}</span>
-                    <span class="text-[11px] text-gray-400 ml-auto">{{ fecha(c.created_at) }}</span>
+                    <span v-if="c.asignado" class="text-[11px] text-tinta-400">para {{ c.asignado.name }}</span>
+                    <span v-if="c.fecha_limite" class="text-[11px] text-tinta-400">· antes del {{ c.fecha_limite }}</span>
+                    <span class="text-[11px] text-tinta-300 ml-auto">{{ fecha(c.created_at) }}</span>
                 </div>
 
-                <p class="text-sm text-gray-700 whitespace-pre-line">{{ c.contenido }}</p>
+                <p class="text-sm text-tinta-700 whitespace-pre-line">{{ c.contenido }}</p>
 
                 <div class="flex items-center gap-2 mt-2 flex-wrap">
                     <template v-if="c.tipo !== 'comentario' && c.estado === 'pendiente'">
@@ -140,25 +140,25 @@ onMounted(cargar)
                             Marcar resuelta
                         </button>
                         <button @click="resolver(c, 'rechazada')"
-                            class="px-2 py-1 rounded-lg text-[11px] font-semibold text-gray-600 border border-gray-200 hover:bg-gray-50">
+                            class="px-2 py-1 rounded-lg text-[11px] font-semibold text-tinta-500 border border-linea hover:bg-tinta-50">
                             Rechazar
                         </button>
                     </template>
-                    <span v-else-if="c.resuelto_por" class="text-[11px] text-gray-400">
+                    <span v-else-if="c.resuelto_por" class="text-[11px] text-tinta-300">
                         Cerrada por {{ c.resuelto_por.name }}
                     </span>
                 </div>
             </div>
 
             <!-- Nuevo mensaje -->
-            <div class="border-t border-gray-100 pt-4 space-y-2">
+            <div class="border-t border-linea pt-4 space-y-2">
                 <textarea v-model="nuevo.contenido" rows="3"
                     placeholder="Escribe aquí. Menciona a alguien con @ y le llega el aviso."
-                    class="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-400"></textarea>
+                    class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-400"></textarea>
 
                 <div class="flex flex-wrap gap-2 items-center">
                     <select v-model="nuevo.tipo"
-                        class="border border-gray-200 rounded-lg px-2 py-1.5 text-xs focus:outline-none">
+                        class="border border-linea rounded-lg px-2 py-1.5 text-xs focus:outline-none">
                         <option value="comentario">Comentario</option>
                         <option value="solicitud">Solicitud</option>
                         <option value="tarea">Tarea</option>
@@ -166,12 +166,12 @@ onMounted(cargar)
 
                     <template v-if="nuevo.tipo !== 'comentario'">
                         <select v-model="nuevo.asignado_a"
-                            class="border border-gray-200 rounded-lg px-2 py-1.5 text-xs focus:outline-none">
+                            class="border border-linea rounded-lg px-2 py-1.5 text-xs focus:outline-none">
                             <option value="">¿Para quién?</option>
                             <option v-for="u in usuarios" :key="u.id" :value="u.id">{{ u.name }}</option>
                         </select>
                         <input v-model="nuevo.fecha_limite" type="date"
-                            class="border border-gray-200 rounded-lg px-2 py-1.5 text-xs focus:outline-none" />
+                            class="border border-linea rounded-lg px-2 py-1.5 text-xs focus:outline-none" />
                     </template>
 
                     <button @click="enviar" :disabled="enviando || !nuevo.contenido.trim()"

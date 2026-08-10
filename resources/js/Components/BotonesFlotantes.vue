@@ -35,25 +35,25 @@ function elegir(cual) {
         <Transition name="opciones">
             <div v-if="abierto" class="flex flex-col items-end gap-2">
                 <button @click="elegir('chat')"
-                    class="opcion flex items-center gap-2 pl-3 pr-1.5 py-1.5 rounded-full shadow-lg bg-white border border-gray-200">
-                    <span class="text-xs font-semibold text-gray-700">Chat del equipo</span>
+                    class="opcion flex items-center gap-2 pl-3 pr-1.5 py-1.5 rounded-full shadow-lg bg-white border border-linea">
+                    <span class="text-xs font-semibold text-tinta-700">Chat del equipo</span>
                     <span class="w-8 h-8 rounded-full flex items-center justify-center relative" style="background:#0F766E;">
-                        <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                             <path stroke-linecap="round" stroke-linejoin="round"
                                 d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.99 1.99 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z" />
                         </svg>
                         <span v-if="sinLeer"
-                            class="absolute -top-1 -right-1 min-w-[16px] h-4 px-1 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center">
+                            class="absolute -top-1 -right-1 min-w-[16px] h-4 px-1 rounded-full bg-red-500 text-white text-[10px] font-semibold flex items-center justify-center">
                             {{ sinLeer > 9 ? '9+' : sinLeer }}
                         </span>
                     </span>
                 </button>
 
                 <button @click="elegir('ia')"
-                    class="opcion flex items-center gap-2 pl-3 pr-1.5 py-1.5 rounded-full shadow-lg bg-white border border-gray-200">
-                    <span class="text-xs font-semibold text-gray-700">Asistente</span>
+                    class="opcion flex items-center gap-2 pl-3 pr-1.5 py-1.5 rounded-full shadow-lg bg-white border border-linea">
+                    <span class="text-xs font-semibold text-tinta-700">Asistente</span>
                     <span class="w-8 h-8 rounded-full flex items-center justify-center" style="background:var(--marca);">
-                        <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                             <path stroke-linecap="round" stroke-linejoin="round"
                                 d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
                         </svg>
@@ -67,16 +67,16 @@ function elegir(cual) {
             class="principal flex items-center justify-center rounded-full shadow-lg relative"
             :style="`background:${abierto ? '#475569' : 'var(--marca)'};`"
             :title="abierto ? 'Cerrar' : 'Asistente y chat'">
-            <svg v-if="!abierto" class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <svg v-if="!abierto" class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                 <path stroke-linecap="round" stroke-linejoin="round"
                     d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.86 9.86 0 01-4-.8L3 20l1.4-3.5A7.94 7.94 0 013 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
             </svg>
-            <svg v-else class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <svg v-else class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
             </svg>
 
             <span v-if="sinLeer && !abierto"
-                class="globito absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center">
+                class="globito absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-red-500 text-white text-[10px] font-semibold flex items-center justify-center">
                 {{ sinLeer > 9 ? '9+' : sinLeer }}
             </span>
         </button>

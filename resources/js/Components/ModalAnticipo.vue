@@ -3,52 +3,52 @@
     <div class="bg-white w-full max-w-md rounded-t-2xl sm:rounded-2xl p-5">
 
       <div class="flex items-center gap-3 mb-4">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-yellow-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-yellow-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
           <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
         </svg>
-        <h4 class="font-bold text-gray-800 text-base">Registrar anticipo para confirmar</h4>
+        <h4 class="font-semibold text-tinta-900 text-base">Registrar anticipo para confirmar</h4>
       </div>
 
-      <p class="text-sm text-gray-500 mb-4">
+      <p class="text-sm text-tinta-400 mb-4">
         Este cliente requiere anticipo. Define la cuota y registra el pago antes de confirmar la OP.
       </p>
 
       <div class="space-y-3">
         <div>
-          <label class="text-xs text-gray-500 block mb-1">Concepto de la cuota</label>
+          <label class="text-xs text-tinta-400 block mb-1">Concepto de la cuota</label>
           <input v-model="form.concepto" placeholder="ej: Anticipo 50%"
-            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300"/>
+            class="w-full border border-tinta-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300"/>
         </div>
         <div class="grid grid-cols-2 gap-2">
           <div>
-            <label class="text-xs text-gray-500 block mb-1">Valor cuota</label>
+            <label class="text-xs text-tinta-400 block mb-1">Valor cuota</label>
             <input v-model="form.valor_cuota" type="number" placeholder="0"
-              class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none"/>
+              class="w-full border border-tinta-200 rounded-lg px-3 py-2 text-sm focus:outline-none"/>
           </div>
           <div>
-            <label class="text-xs text-gray-500 block mb-1">Valor pagado</label>
+            <label class="text-xs text-tinta-400 block mb-1">Valor pagado</label>
             <input v-model="form.valor_pago" type="number" placeholder="0"
-              class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none"/>
+              class="w-full border border-tinta-200 rounded-lg px-3 py-2 text-sm focus:outline-none"/>
           </div>
         </div>
         <div>
-          <label class="text-xs text-gray-500 block mb-1">Medio de pago</label>
+          <label class="text-xs text-tinta-400 block mb-1">Medio de pago</label>
           <select v-model="form.medio_pago"
-            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none">
+            class="w-full border border-tinta-200 rounded-lg px-3 py-2 text-sm focus:outline-none">
             <option value="efectivo">Efectivo</option>
             <option value="transferencia">Transferencia</option>
             <option value="cheque">Cheque</option>
           </select>
         </div>
         <div>
-          <label class="text-xs text-gray-500 block mb-1">Fecha de pago</label>
+          <label class="text-xs text-tinta-400 block mb-1">Fecha de pago</label>
           <input v-model="form.fecha_pago" type="date"
-            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none"/>
+            class="w-full border border-tinta-200 rounded-lg px-3 py-2 text-sm focus:outline-none"/>
         </div>
         <div>
-          <label class="text-xs text-gray-500 block mb-1">Referencia (opcional)</label>
+          <label class="text-xs text-tinta-400 block mb-1">Referencia (opcional)</label>
           <input v-model="form.referencia" placeholder="Nº cheque / transferencia"
-            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none"/>
+            class="w-full border border-tinta-200 rounded-lg px-3 py-2 text-sm focus:outline-none"/>
         </div>
       </div>
 
@@ -61,7 +61,7 @@
           class="flex-1 bg-[var(--marca)] text-white py-2.5 rounded-lg font-medium text-sm disabled:opacity-60">
           {{ guardando ? 'Guardando...' : 'Registrar y confirmar OP' }}
         </button>
-        <button @click="$emit('cancelar')" class="px-4 text-gray-500 text-sm">
+        <button @click="$emit('cancelar')" class="px-4 text-tinta-400 text-sm">
           Cancelar
         </button>
       </div>

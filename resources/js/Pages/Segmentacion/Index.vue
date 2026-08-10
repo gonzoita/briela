@@ -118,12 +118,12 @@ function toggleAbierto(key) {
         <div class="max-w-3xl mx-auto px-4 py-4">
 
             <div class="flex items-center gap-3 mb-4">
-                <a href="/clientes" class="text-gray-400 hover:text-gray-600">
+                <a href="/clientes" class="text-tinta-300 hover:text-tinta-500">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M15 19l-7-7 7-7"/>
                     </svg>
                 </a>
-                <h1 class="text-xl font-bold text-gray-900">Listas de segmentación</h1>
+                <h1 class="text-xl font-semibold text-tinta-900">Listas de segmentación</h1>
             </div>
 
             <!-- Toast -->
@@ -132,27 +132,27 @@ function toggleAbierto(key) {
                 {{ mensaje }}
             </div>
 
-            <div v-if="cargando" class="py-12 text-center text-gray-400 text-sm">Cargando opciones...</div>
+            <div v-if="cargando" class="py-12 text-center text-tinta-300 text-sm">Cargando opciones...</div>
 
             <div v-else class="space-y-3">
-                <div v-for="tipo in TIPOS" :key="tipo.key" class="bg-white rounded-xl border border-gray-200 overflow-hidden">
+                <div v-for="tipo in TIPOS" :key="tipo.key" class="bg-white rounded-xl border border-linea overflow-hidden">
 
                     <!-- Cabecera acordeón -->
                     <button type="button" @click="toggleAbierto(tipo.key)"
-                        class="w-full flex items-center justify-between px-4 py-3 text-left hover:bg-gray-50 transition-colors">
-                        <span class="text-sm font-semibold text-gray-800">{{ tipo.label }}</span>
+                        class="w-full flex items-center justify-between px-4 py-3 text-left hover:bg-tinta-50 transition-colors">
+                        <span class="text-sm font-semibold text-tinta-900">{{ tipo.label }}</span>
                         <div class="flex items-center gap-3">
-                            <span class="text-xs text-gray-400">{{ (opciones[tipo.key] ?? []).length }} opciones</span>
-                            <svg class="w-4 h-4 text-gray-400 transition-transform"
+                            <span class="text-xs text-tinta-300">{{ (opciones[tipo.key] ?? []).length }} opciones</span>
+                            <svg class="w-4 h-4 text-tinta-300 transition-transform"
                                 :class="abiertos[tipo.key] ? 'rotate-180' : ''"
                                 fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M19 9l-7 7-7-7"/>
                             </svg>
                         </div>
                     </button>
 
                     <!-- Contenido acordeón -->
-                    <div v-if="abiertos[tipo.key]" class="border-t border-gray-100 p-4">
+                    <div v-if="abiertos[tipo.key]" class="border-t border-linea p-4">
 
                         <!-- Lista de opciones -->
                         <div class="space-y-1.5 mb-3">
@@ -161,10 +161,10 @@ function toggleAbierto(key) {
                                 <div v-if="editando.id === op.id"
                                     class="flex items-center gap-2 p-2 rounded-lg border-2" style="border-color:var(--marca); background:#F0F7FF;">
                                     <input v-model="editando.etiqueta" type="text"
-                                        class="flex-1 text-sm border border-gray-300 rounded-lg px-2 py-1 focus:outline-none focus:border-blue-400"
+                                        class="flex-1 text-sm border border-tinta-200 rounded-lg px-2 py-1 focus:outline-none focus:border-blue-400"
                                         @keyup.enter="guardarEdicion" @keyup.escape="cancelarEdicion" />
                                     <div class="flex items-center gap-1.5 shrink-0">
-                                        <div class="w-5 h-5 rounded-full border border-gray-300 cursor-pointer"
+                                        <div class="w-5 h-5 rounded-full border border-tinta-200 cursor-pointer"
                                             :style="`background:${editando.color ?? 'var(--marca)'};`"
                                             :title="editando.color"/>
                                         <input v-model="editando.color" type="color"
@@ -173,20 +173,20 @@ function toggleAbierto(key) {
                                     <button type="button" @click="guardarEdicion"
                                         class="text-xs px-2 py-1 rounded-lg text-white" style="background:var(--marca);">✓</button>
                                     <button type="button" @click="cancelarEdicion"
-                                        class="text-xs px-2 py-1 rounded-lg border border-gray-300 text-gray-500">✕</button>
+                                        class="text-xs px-2 py-1 rounded-lg border border-tinta-200 text-tinta-400">✕</button>
                                 </div>
 
                                 <!-- Modo visualización -->
-                                <div v-else class="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-gray-50 group">
+                                <div v-else class="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-tinta-50 group">
                                     <div class="w-3 h-3 rounded-full shrink-0"
                                         :style="`background:${op.color ?? '#9CA3AF'};`"/>
-                                    <span class="text-sm text-gray-700 flex-1">{{ op.etiqueta }}</span>
+                                    <span class="text-sm text-tinta-700 flex-1">{{ op.etiqueta }}</span>
                                     <span v-if="op.atada_a_precios"
                                         class="text-[10px] px-1.5 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200 shrink-0"
                                         title="El cotizador usa esta opción para decidir el precio y la comisión. No se puede eliminar.">
                                         define precio
                                     </span>
-                                    <span class="text-xs text-gray-400 font-mono hidden sm:block">{{ op.valor }}</span>
+                                    <span class="text-xs text-tinta-300 font-mono hidden sm:block">{{ op.valor }}</span>
                                     <div class="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
                                         <button type="button" @click="iniciarEdicion(op)"
                                             class="text-xs px-2 py-1 rounded text-blue-600 hover:bg-blue-50">Editar</button>
@@ -196,7 +196,7 @@ function toggleAbierto(key) {
                                 </div>
                             </div>
 
-                            <p v-if="!(opciones[tipo.key] ?? []).length" class="text-sm text-gray-400 text-center py-3">
+                            <p v-if="!(opciones[tipo.key] ?? []).length" class="text-sm text-tinta-300 text-center py-3">
                                 Sin opciones configuradas.
                             </p>
                         </div>
@@ -205,7 +205,7 @@ function toggleAbierto(key) {
                         <div v-if="formNuevo[tipo.key]"
                             class="flex items-center gap-2 p-2 rounded-lg border-2 border-dashed" style="border-color:var(--marca); background:#F0F7FF;">
                             <input v-model="formNuevo[tipo.key].etiqueta" type="text" placeholder="Etiqueta..."
-                                class="flex-1 text-sm border border-gray-300 rounded-lg px-2 py-1 focus:outline-none focus:border-blue-400"
+                                class="flex-1 text-sm border border-tinta-200 rounded-lg px-2 py-1 focus:outline-none focus:border-blue-400"
                                 @keyup.enter="guardarNuevo(tipo.key)" @keyup.escape="cancelarNuevo(tipo.key)"
                                 autofocus />
                             <input v-model="formNuevo[tipo.key].color" type="color"
@@ -213,11 +213,11 @@ function toggleAbierto(key) {
                             <button type="button" @click="guardarNuevo(tipo.key)"
                                 class="text-xs px-3 py-1.5 rounded-lg text-white shrink-0" style="background:var(--marca);">Agregar</button>
                             <button type="button" @click="cancelarNuevo(tipo.key)"
-                                class="text-xs px-2 py-1 rounded-lg border border-gray-300 text-gray-500 shrink-0">✕</button>
+                                class="text-xs px-2 py-1 rounded-lg border border-tinta-200 text-tinta-400 shrink-0">✕</button>
                         </div>
 
                         <button v-else type="button" @click="iniciarNuevo(tipo.key)"
-                            class="w-full mt-1 text-sm py-2 rounded-lg border border-dashed border-gray-300 text-gray-400 hover:border-blue-400 hover:text-blue-600 transition-colors">
+                            class="w-full mt-1 text-sm py-2 rounded-lg border border-dashed border-tinta-200 text-tinta-300 hover:border-blue-400 hover:text-blue-600 transition-colors">
                             + Agregar opción
                         </button>
                     </div>

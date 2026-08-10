@@ -87,14 +87,14 @@ const compartir = () => {
             />
             <div class="flex items-start justify-between">
                 <div>
-                    <p class="text-2xl font-bold" style="color: var(--marca);">{{ op.numero_op }}</p>
-                    <p class="text-gray-600 text-sm mt-0.5">{{ op.cliente }}</p>
+                    <p class="text-2xl font-semibold" style="color: var(--marca);">{{ op.numero_op }}</p>
+                    <p class="text-tinta-500 text-sm mt-0.5">{{ op.cliente }}</p>
                 </div>
                 <button
                     @click="compartir"
-                    class="w-10 h-10 rounded-full flex items-center justify-center border border-gray-200"
+                    class="w-10 h-10 rounded-full flex items-center justify-center border border-linea"
                 >
-                    <svg class="w-5 h-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <svg class="w-5 h-5 text-tinta-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
                     </svg>
                 </button>
@@ -104,9 +104,9 @@ const compartir = () => {
         <div class="px-4 mt-6 space-y-4">
             <!-- Ítem específico (si se buscó por serie) -->
             <div v-if="item" class="rounded-2xl shadow-sm p-5" style="background: white;">
-                <p class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-3">Ítem</p>
+                <p class="text-xs font-medium text-tinta-400 uppercase tracking-[0.12em] mb-3">Ítem</p>
                 <div class="flex items-center justify-between mb-2">
-                    <span class="font-mono font-bold text-base" style="color: var(--marca);">{{ item.numero_serie }}</span>
+                    <span class="font-mono font-semibold text-base" style="color: var(--marca);">{{ item.numero_serie }}</span>
                     <span
                         class="text-xs font-semibold px-2.5 py-1 rounded-full"
                         :style="{ background: estadoSerieBadge(item.estado_serie).bg, color: estadoSerieBadge(item.estado_serie).text }"
@@ -114,10 +114,10 @@ const compartir = () => {
                         {{ item.estado_serie_label }}
                     </span>
                 </div>
-                <p class="text-sm text-gray-600">{{ item.tipo_label }}</p>
-                <p class="text-sm text-gray-500 mt-1">{{ item.resumen }}</p>
+                <p class="text-sm text-tinta-500">{{ item.tipo_label }}</p>
+                <p class="text-sm text-tinta-400 mt-1">{{ item.resumen }}</p>
 
-                <div class="mt-4 pt-4 border-t border-gray-100 flex justify-center">
+                <div class="mt-4 pt-4 border-t border-linea flex justify-center">
                     <QrCode
                         :value="`/seguimiento/${item.numero_serie}`"
                         :size="160"
@@ -128,7 +128,7 @@ const compartir = () => {
 
             <!-- Timeline de estados -->
             <div class="rounded-2xl shadow-sm p-5" style="background: white;">
-                <p class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-4">Estado del pedido</p>
+                <p class="text-xs font-medium text-tinta-400 uppercase tracking-[0.12em] mb-4">Estado del pedido</p>
 
                 <div class="space-y-0">
                     <div
@@ -150,7 +150,7 @@ const compartir = () => {
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
                                 </svg>
                                 <!-- Spinning / activo -->
-                                <svg v-else-if="paso.activo" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <svg v-else-if="paso.activo" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                     <circle cx="12" cy="12" r="3" fill="currentColor" />
                                 </svg>
                                 <!-- Pendiente -->
@@ -173,7 +173,7 @@ const compartir = () => {
                             >
                                 {{ paso.label }}
                             </p>
-                            <p v-if="paso.fecha" class="text-xs text-gray-400 mt-0.5">{{ paso.fecha }}</p>
+                            <p v-if="paso.fecha" class="text-xs text-tinta-300 mt-0.5">{{ paso.fecha }}</p>
                             <p v-if="paso.extra" class="text-xs mt-0.5" style="color: var(--marca);">{{ paso.extra }}</p>
                         </div>
                     </div>
@@ -192,7 +192,7 @@ const compartir = () => {
 
         <!-- Footer -->
         <footer class="px-6 mt-8 text-center">
-            <p class="text-xs text-gray-400">{{ $page.props.marca.nombre }}{{ $page.props.marca.email ? " · " + $page.props.marca.email : "" }}</p>
+            <p class="text-xs text-tinta-300">{{ $page.props.marca.nombre }}{{ $page.props.marca.email ? " · " + $page.props.marca.email : "" }}</p>
         </footer>
     </div>
 </template>

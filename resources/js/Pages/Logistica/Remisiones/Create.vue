@@ -185,33 +185,33 @@ watch(() => form.tipo, () => {
 
             <!-- Cabecera -->
             <div class="flex items-center gap-3 mb-6">
-                <a href="/logistica/remisiones" class="text-gray-400 hover:text-gray-700">
+                <a href="/logistica/remisiones" class="text-tinta-300 hover:text-tinta-700">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M15 19l-7-7 7-7"/>
                     </svg>
                 </a>
-                <h1 class="text-xl font-bold text-gray-900">Nueva Remisión</h1>
+                <h1 class="text-xl font-semibold text-tinta-900">Nueva Remisión</h1>
             </div>
 
             <!-- Indicador de pasos -->
             <div class="flex items-center gap-3 mb-6">
                 <div v-for="n in [1,2]" :key="n" class="flex items-center gap-2">
-                    <div class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-colors"
+                    <div class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-semibold transition-colors"
                         :style="paso >= n ? 'background:var(--marca);color:white;' : 'background:#E5E7EB;color:#6B7280;'">
                         {{ n }}
                     </div>
-                    <span class="text-xs text-gray-500">{{ n === 1 ? 'Origen e ítems' : 'Datos de remisión' }}</span>
-                    <div v-if="n < 2" class="w-8 h-px bg-gray-200"></div>
+                    <span class="text-xs text-tinta-400">{{ n === 1 ? 'Origen e ítems' : 'Datos de remisión' }}</span>
+                    <div v-if="n < 2" class="w-8 h-px bg-tinta-200"></div>
                 </div>
             </div>
 
             <!-- ═══ PASO 1 — Origen ═══ -->
-            <div v-if="paso === 1" class="bg-white rounded-2xl border border-gray-200 p-5 space-y-5">
+            <div v-if="paso === 1" class="bg-white rounded-2xl border border-linea p-5 space-y-5">
 
                 <!-- Toggle tipo -->
                 <div>
-                    <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Tipo de remisión</p>
-                    <div class="flex rounded-xl border border-gray-200 overflow-hidden">
+                    <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-2">Tipo de remisión</p>
+                    <div class="flex rounded-xl border border-linea overflow-hidden">
                         <button @click="form.tipo = 'op'"
                             class="flex-1 py-2.5 text-sm font-medium transition-colors"
                             :style="form.tipo === 'op' ? 'background:var(--marca);color:white;' : 'background:white;color:#374151;'">
@@ -228,28 +228,28 @@ watch(() => form.tipo, () => {
                 <!-- ── Desde OP ── -->
                 <template v-if="form.tipo === 'op'">
                     <div>
-                        <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">
+                        <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1.5">
                             Buscar OP
                         </label>
                         <div class="relative">
                             <input v-model="busquedaOp" @input="buscarOp" type="text"
                                 placeholder="Escribe el número de OP o nombre del cliente…"
-                                class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2"
+                                class="w-full border border-linea rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2"
                                 style="--tw-ring-color:var(--marca);"/>
                             <div v-if="buscandoOp" class="absolute right-3 top-2.5">
-                                <svg class="w-4 h-4 animate-spin text-gray-400" fill="none" viewBox="0 0 24 24">
+                                <svg class="w-4 h-4 animate-spin text-tinta-300" fill="none" viewBox="0 0 24 24">
                                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
                                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/>
                                 </svg>
                             </div>
                             <!-- Dropdown resultados -->
                             <div v-if="resultadosOp.length"
-                                class="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-xl shadow-lg overflow-hidden">
+                                class="absolute z-10 w-full mt-1 bg-white border border-linea rounded-xl shadow-lg overflow-hidden">
                                 <button v-for="op in resultadosOp" :key="op.id"
                                     @click="seleccionarOp(op)"
-                                    class="w-full text-left px-4 py-2.5 hover:bg-gray-50 transition-colors border-b border-gray-50 last:border-0">
-                                    <span class="font-mono text-xs font-bold text-gray-800">{{ op.numero }}</span>
-                                    <span class="text-xs text-gray-500 ml-2">{{ op.cliente_nombre }}</span>
+                                    class="w-full text-left px-4 py-2.5 hover:bg-tinta-50 transition-colors border-b border-gray-50 last:border-0">
+                                    <span class="font-mono text-xs font-semibold text-tinta-900">{{ op.numero }}</span>
+                                    <span class="text-xs text-tinta-400 ml-2">{{ op.cliente_nombre }}</span>
                                     <span class="text-xs text-blue-500 ml-2">{{ op.items_count }} ítems disponibles</span>
                                 </button>
                             </div>
@@ -266,23 +266,23 @@ watch(() => form.tipo, () => {
                             </p>
                         </div>
 
-                        <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
+                        <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-2">
                             Ítems disponibles — selecciona los que incluir
                         </p>
                         <div class="flex items-center gap-2 bg-amber-50 border border-amber-200 rounded-xl px-3 py-2 mb-3">
-                            <svg class="w-4 h-4 text-amber-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <svg class="w-4 h-4 text-amber-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                             </svg>
                             <p class="text-xs text-amber-700">Solo se remisionan <strong>unidades con avance 100%</strong> que no hayan sido remisionadas antes.</p>
                         </div>
 
-                        <div v-if="!opCargada.items?.length" class="text-sm text-gray-400 py-4 text-center">
+                        <div v-if="!opCargada.items?.length" class="text-sm text-tinta-300 py-4 text-center">
                             No hay unidades completadas disponibles para remisionar.
                         </div>
 
                         <div v-else class="space-y-2">
                             <!-- Seleccionar todos -->
-                            <label class="flex items-center gap-2 text-xs text-gray-500 cursor-pointer mb-3">
+                            <label class="flex items-center gap-2 text-xs text-tinta-400 cursor-pointer mb-3">
                                 <input type="checkbox"
                                     :checked="opCargada.items.every(i => itemsSeleccionados[i.id])"
                                     @change="e => opCargada.items.forEach(i => {
@@ -293,27 +293,27 @@ watch(() => form.tipo, () => {
                                 Seleccionar todos
                             </label>
                             <label v-for="item in opCargada.items" :key="item.id"
-                                class="flex items-start gap-3 p-3 rounded-xl border border-gray-100 cursor-pointer hover:bg-gray-50 transition-colors"
+                                class="flex items-start gap-3 p-3 rounded-xl border border-linea cursor-pointer hover:bg-tinta-50 transition-colors"
                                 :class="itemsSeleccionados[item.id] ? 'border-blue-200 bg-blue-50' : ''">
                                 <input type="checkbox" v-model="itemsSeleccionados[item.id]"
                                     @change="initCantidad(item)"
                                     class="mt-0.5 rounded" style="accent-color:var(--marca);"/>
                                 <div class="flex-1 min-w-0">
-                                    <p class="text-sm font-medium text-gray-800">{{ item.descripcion }}</p>
-                                    <div class="flex flex-wrap gap-3 mt-1 text-xs text-gray-500">
-                                        <span>Total: <strong class="text-gray-700">{{ item.total }}</strong></span>
+                                    <p class="text-sm font-medium text-tinta-900">{{ item.descripcion }}</p>
+                                    <div class="flex flex-wrap gap-3 mt-1 text-xs text-tinta-400">
+                                        <span>Total: <strong class="text-tinta-700">{{ item.total }}</strong></span>
                                         <span class="text-green-600">Completadas: <strong>{{ item.unidades_completadas }}</strong></span>
                                         <span v-if="item.unidades_remisionadas > 0" class="text-amber-600">
                                             Ya remisionadas: <strong>{{ item.unidades_remisionadas }}</strong>
                                         </span>
-                                        <span class="font-semibold" :class="item.unidades_disponibles > 0 ? 'text-blue-600' : 'text-gray-400'">
+                                        <span class="font-semibold" :class="item.unidades_disponibles > 0 ? 'text-blue-600' : 'text-tinta-300'">
                                             Disponibles: {{ item.unidades_disponibles }}
                                         </span>
-                                        <span v-if="item.numero_serie" class="font-mono text-gray-400">{{ item.numero_serie }}</span>
+                                        <span v-if="item.numero_serie" class="font-mono text-tinta-300">{{ item.numero_serie }}</span>
                                     </div>
                                     <!-- Input unidades si está seleccionado -->
                                     <div v-if="itemsSeleccionados[item.id]" class="mt-2" @click.stop @mousedown.stop>
-                                        <label class="text-xs text-gray-500">Unidades a remisionar (máx. {{ item.unidades_disponibles }}):</label>
+                                        <label class="text-xs text-tinta-400">Unidades a remisionar (máx. {{ item.unidades_disponibles }}):</label>
                                         <input type="number" step="1" min="1" :max="item.unidades_disponibles"
                                             v-model.number="cantidadesARemisionar[item.id]"
                                             class="mt-1 w-full border border-blue-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none"
@@ -329,11 +329,11 @@ watch(() => form.tipo, () => {
                 <!-- ── Manual ── -->
                 <template v-else>
                     <div>
-                        <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">
+                        <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1.5">
                             Cliente
                         </label>
                         <select v-model="form.cliente_id"
-                            class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none">
+                            class="w-full border border-linea rounded-xl px-4 py-2.5 text-sm focus:outline-none">
                             <option :value="null">Sin cliente</option>
                             <option v-for="c in clientes" :key="c.id" :value="c.id">{{ c.nombre }}</option>
                         </select>
@@ -341,29 +341,29 @@ watch(() => form.tipo, () => {
 
                     <div>
                         <div class="flex items-center justify-between mb-2">
-                            <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Ítems</p>
+                            <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">Ítems</p>
                             <button @click="agregarItemManual" type="button"
                                 class="text-xs font-medium text-blue-600 hover:underline">+ Agregar ítem</button>
                         </div>
 
                         <div v-for="(item, idx) in itemsManual" :key="idx"
-                            class="mb-3 p-3 rounded-xl border border-gray-100 bg-gray-50">
+                            class="mb-3 p-3 rounded-xl border border-linea bg-tinta-50">
                             <div class="grid grid-cols-1 gap-2">
                                 <input v-model="item.descripcion" type="text" placeholder="Descripción del producto"
-                                    class="border border-gray-200 rounded-lg px-3 py-2 text-sm w-full focus:outline-none"/>
+                                    class="border border-linea rounded-lg px-3 py-2 text-sm w-full focus:outline-none"/>
                                 <div class="flex gap-2">
                                     <input v-model.number="item.cantidad" type="number" step="0.001" min="0.001"
                                         placeholder="Cantidad"
-                                        class="border border-gray-200 rounded-lg px-3 py-2 text-sm w-28 focus:outline-none"/>
+                                        class="border border-linea rounded-lg px-3 py-2 text-sm w-28 focus:outline-none"/>
                                     <input v-model="item.unidad" type="text" placeholder="Unidad (und, m, kg…)"
-                                        class="border border-gray-200 rounded-lg px-3 py-2 text-sm flex-1 focus:outline-none"/>
+                                        class="border border-linea rounded-lg px-3 py-2 text-sm flex-1 focus:outline-none"/>
                                 </div>
                                 <div class="flex gap-2 items-center">
                                     <input v-model="item.notas" type="text" placeholder="Notas (opcional)"
-                                        class="border border-gray-200 rounded-lg px-3 py-2 text-sm flex-1 focus:outline-none"/>
+                                        class="border border-linea rounded-lg px-3 py-2 text-sm flex-1 focus:outline-none"/>
                                     <button v-if="itemsManual.length > 1" @click="quitarItemManual(idx)" type="button"
                                         class="text-red-400 hover:text-red-600">
-                                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
                                         </svg>
                                     </button>
@@ -382,39 +382,39 @@ watch(() => form.tipo, () => {
             </div>
 
             <!-- ═══ PASO 2 — Datos de remisión ═══ -->
-            <div v-if="paso === 2" class="bg-white rounded-2xl border border-gray-200 p-5 space-y-4">
+            <div v-if="paso === 2" class="bg-white rounded-2xl border border-linea p-5 space-y-4">
                 <button @click="paso = 1" type="button" class="text-xs text-blue-600 hover:underline">← Volver</button>
 
                 <div>
-                    <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">
+                    <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1.5">
                         Fecha de remisión
                     </label>
                     <input v-model="form.fecha_remision" type="date"
-                        class="border border-gray-200 rounded-xl px-4 py-2.5 text-sm w-full focus:outline-none"/>
+                        class="border border-linea rounded-xl px-4 py-2.5 text-sm w-full focus:outline-none"/>
                 </div>
 
                 <div>
-                    <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">
+                    <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1.5">
                         Notas internas
                     </label>
                     <textarea v-model="form.notas" rows="3"
                         placeholder="Instrucciones especiales, referencias adicionales…"
-                        class="border border-gray-200 rounded-xl px-4 py-2.5 text-sm w-full focus:outline-none resize-none"/>
+                        class="border border-linea rounded-xl px-4 py-2.5 text-sm w-full focus:outline-none resize-none"/>
                 </div>
 
                 <!-- Resumen de ítems -->
-                <div class="bg-gray-50 rounded-xl p-3">
-                    <p class="text-xs font-semibold text-gray-500 mb-2">Resumen de ítems</p>
+                <div class="bg-tinta-50 rounded-xl p-3">
+                    <p class="text-xs font-semibold text-tinta-400 mb-2">Resumen de ítems</p>
                     <div v-if="form.tipo === 'op' && opCargada">
                         <div v-for="item in opCargada.items?.filter(i => itemsSeleccionados[i.id])" :key="item.id"
-                            class="flex justify-between text-xs text-gray-600 py-0.5">
+                            class="flex justify-between text-xs text-tinta-500 py-0.5">
                             <span>{{ item.descripcion }}</span>
                             <span class="font-medium">{{ cantidadesARemisionar[item.id] ?? disponibleItem(item) }} unid.</span>
                         </div>
                     </div>
                     <div v-else>
                         <div v-for="item in itemsManual.filter(i => i.descripcion.trim())" :key="item.descripcion"
-                            class="flex justify-between text-xs text-gray-600 py-0.5">
+                            class="flex justify-between text-xs text-tinta-500 py-0.5">
                             <span>{{ item.descripcion }}</span>
                             <span class="font-medium">x{{ item.cantidad }} {{ item.unidad }}</span>
                         </div>

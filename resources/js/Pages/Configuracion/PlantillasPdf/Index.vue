@@ -127,9 +127,9 @@ function irACrear() {
             <!-- Cabecera -->
             <div class="flex items-center justify-between">
                 <div>
-                    <h2 class="text-xl font-bold text-gray-900">Plantillas PDF</h2>
-                    <p class="text-sm text-gray-500 mt-0.5">
-                        Editor HTML libre con variables dinámicas <code class="text-xs bg-gray-100 px-1 rounded">{{ varEjemplo }}</code>
+                    <h2 class="text-xl font-semibold text-tinta-900">Plantillas PDF</h2>
+                    <p class="text-sm text-tinta-400 mt-0.5">
+                        Editor HTML libre con variables dinámicas <code class="text-xs bg-tinta-100 px-1 rounded">{{ varEjemplo }}</code>
                     </p>
                 </div>
                 <button
@@ -137,7 +137,7 @@ function irACrear() {
                     class="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white shadow-sm transition-opacity hover:opacity-90"
                     style="background-color: var(--marca);"
                 >
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
                     </svg>
                     Nueva plantilla
@@ -153,18 +153,18 @@ function irACrear() {
                     class="shrink-0 px-3 py-1.5 rounded-full text-xs font-medium transition-colors whitespace-nowrap border"
                     :class="moduloActivo === m.key
                         ? 'bg-[var(--marca)] text-white border-[var(--marca)]'
-                        : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'"
+                        : 'bg-white text-tinta-500 border-linea hover:bg-tinta-50'"
                 >
                     {{ m.label }}
                 </button>
             </div>
 
             <!-- Sin resultados -->
-            <div v-if="plantillasFiltradas.length === 0" class="text-center py-16 bg-white rounded-2xl border border-gray-100 shadow-sm">
-                <svg class="w-12 h-12 mx-auto text-gray-300 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+            <div v-if="plantillasFiltradas.length === 0" class="text-center py-16 bg-white rounded-2xl border border-linea shadow-sm">
+                <svg class="w-12 h-12 mx-auto text-tinta-200 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
                 </svg>
-                <p class="text-gray-500 text-sm">Sin plantillas para este módulo</p>
+                <p class="text-tinta-400 text-sm">Sin plantillas para este módulo</p>
                 <button
                     @click="modalNueva = true"
                     class="mt-3 text-sm font-medium underline"
@@ -179,35 +179,35 @@ function irACrear() {
                 <!-- Encabezado de sección -->
                 <div class="flex items-center gap-3">
                     <span
-                        class="text-xs font-bold uppercase tracking-widest px-2.5 py-1 rounded-lg"
+                        class="text-xs font-semibold uppercase tracking-widest px-2.5 py-1 rounded-lg"
                         style="background-color: var(--marca); color: white;"
                     >
                         {{ seccion.grupo }}
                     </span>
-                    <div class="flex-1 h-px bg-gray-100"></div>
+                    <div class="flex-1 h-px bg-tinta-100"></div>
                 </div>
 
                 <!-- Módulos dentro de la sección -->
                 <div v-for="mod in seccion.modulos" :key="mod.key" class="space-y-2 pl-0 sm:pl-2">
                     <!-- Encabezado de módulo -->
                     <div class="flex items-center gap-2">
-                        <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                        <span class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">
                             {{ mod.label }}
                         </span>
-                        <span class="text-xs text-gray-300">{{ mod.items.length }} plantilla{{ mod.items.length !== 1 ? 's' : '' }}</span>
+                        <span class="text-xs text-tinta-200">{{ mod.items.length }} plantilla{{ mod.items.length !== 1 ? 's' : '' }}</span>
                     </div>
 
                     <!-- Tarjetas de plantillas -->
                     <div
                         v-for="p in mod.items"
                         :key="p.id"
-                        class="bg-white rounded-xl border border-gray-100 shadow-sm px-4 py-3"
+                        class="bg-white rounded-xl border border-linea shadow-sm px-4 py-3"
                     >
                         <div class="flex items-start justify-between gap-3">
                             <!-- Info -->
                             <div class="flex-1 min-w-0">
                                 <div class="flex items-center gap-2 flex-wrap">
-                                    <span class="font-semibold text-sm text-gray-900 truncate">{{ p.nombre }}</span>
+                                    <span class="font-semibold text-sm text-tinta-900 truncate">{{ p.nombre }}</span>
                                     <span
                                         v-if="p.es_default"
                                         class="shrink-0 text-xs px-2 py-0.5 rounded-full font-medium text-white"
@@ -217,15 +217,15 @@ function irACrear() {
                                     </span>
                                     <span
                                         v-if="!p.activa"
-                                        class="shrink-0 text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-500"
+                                        class="shrink-0 text-xs px-2 py-0.5 rounded-full bg-tinta-100 text-tinta-400"
                                     >
                                         Inactiva
                                     </span>
                                 </div>
                                 <div class="flex items-center gap-3 mt-0.5">
-                                    <span class="text-xs text-gray-400">{{ p.papel?.toUpperCase() }}</span>
-                                    <span class="text-xs text-gray-400 capitalize">{{ p.orientacion }}</span>
-                                    <span v-if="p.descripcion" class="text-xs text-gray-400 truncate max-w-xs">{{ p.descripcion }}</span>
+                                    <span class="text-xs text-tinta-300">{{ p.papel?.toUpperCase() }}</span>
+                                    <span class="text-xs text-tinta-300 capitalize">{{ p.orientacion }}</span>
+                                    <span v-if="p.descripcion" class="text-xs text-tinta-300 truncate max-w-xs">{{ p.descripcion }}</span>
                                 </div>
                             </div>
 
@@ -233,14 +233,14 @@ function irACrear() {
                             <div class="hidden sm:flex items-center gap-1.5 shrink-0">
                                 <button
                                     @click="router.visit(`/configuracion/plantillas-pdf/${p.id}/editar`)"
-                                    class="px-3 py-1.5 text-xs font-medium rounded-lg border border-gray-200 text-gray-700 hover:bg-gray-50 transition-colors"
+                                    class="px-3 py-1.5 text-xs font-medium rounded-lg border border-linea text-tinta-700 hover:bg-tinta-50 transition-colors"
                                 >
                                     Editar
                                 </button>
                                 <button
                                     @click="duplicar(p)"
                                     :disabled="procesando === `dup-${p.id}`"
-                                    class="px-3 py-1.5 text-xs font-medium rounded-lg border border-gray-200 text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50"
+                                    class="px-3 py-1.5 text-xs font-medium rounded-lg border border-linea text-tinta-700 hover:bg-tinta-50 transition-colors disabled:opacity-50"
                                 >
                                     Duplicar
                                 </button>
@@ -248,7 +248,7 @@ function irACrear() {
                                     v-if="!p.es_default"
                                     @click="marcarDefault(p)"
                                     :disabled="procesando === `default-${p.id}`"
-                                    class="px-3 py-1.5 text-xs font-medium rounded-lg border border-gray-200 text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50"
+                                    class="px-3 py-1.5 text-xs font-medium rounded-lg border border-linea text-tinta-700 hover:bg-tinta-50 transition-colors disabled:opacity-50"
                                 >
                                     Marcar default
                                 </button>
@@ -258,7 +258,7 @@ function irACrear() {
                                     class="px-3 py-1.5 text-xs font-medium rounded-lg border transition-colors disabled:opacity-50"
                                     :class="confirmando === p.id
                                         ? 'border-red-300 bg-red-50 text-red-700'
-                                        : 'border-gray-200 text-gray-500 hover:border-red-200 hover:text-red-600'"
+                                        : 'border-linea text-tinta-400 hover:border-red-200 hover:text-red-600'"
                                 >
                                     {{ confirmando === p.id ? '¿Confirmar?' : 'Eliminar' }}
                                 </button>
@@ -277,7 +277,7 @@ function irACrear() {
                             <button
                                 @click="duplicar(p)"
                                 :disabled="procesando === `dup-${p.id}`"
-                                class="flex-1 py-1.5 text-xs font-medium rounded-lg border border-gray-200 text-gray-700 disabled:opacity-50"
+                                class="flex-1 py-1.5 text-xs font-medium rounded-lg border border-linea text-tinta-700 disabled:opacity-50"
                             >
                                 Duplicar
                             </button>
@@ -285,7 +285,7 @@ function irACrear() {
                                 v-if="!p.es_default"
                                 @click="marcarDefault(p)"
                                 :disabled="procesando === `default-${p.id}`"
-                                class="flex-1 py-1.5 text-xs font-medium rounded-lg border border-gray-200 text-gray-700 disabled:opacity-50"
+                                class="flex-1 py-1.5 text-xs font-medium rounded-lg border border-linea text-tinta-700 disabled:opacity-50"
                             >
                                 Default
                             </button>
@@ -293,7 +293,7 @@ function irACrear() {
                                 @click="eliminar(p)"
                                 :disabled="procesando === `del-${p.id}`"
                                 class="py-1.5 px-3 text-xs font-medium rounded-lg border disabled:opacity-50"
-                                :class="confirmando === p.id ? 'border-red-300 bg-red-50 text-red-700' : 'border-gray-200 text-gray-500'"
+                                :class="confirmando === p.id ? 'border-red-300 bg-red-50 text-red-700' : 'border-linea text-tinta-400'"
                             >
                                 {{ confirmando === p.id ? '¿Sí?' : 'X' }}
                             </button>
@@ -310,12 +310,12 @@ function irACrear() {
                 style="background: rgba(0,0,0,0.5);"
                 @click.self="modalNueva = false">
                 <div class="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6 space-y-4">
-                    <h3 class="font-bold text-gray-900">Nueva plantilla PDF</h3>
+                    <h3 class="font-semibold text-tinta-900">Nueva plantilla PDF</h3>
                     <div>
-                        <label class="block text-sm text-gray-600 mb-1">Módulo</label>
+                        <label class="block text-sm text-tinta-500 mb-1">Módulo</label>
                         <select
                             id="select-modulo-nueva"
-                            class="w-full text-sm border border-gray-200 rounded-xl px-3 py-2.5"
+                            class="w-full text-sm border border-linea rounded-xl px-3 py-2.5"
                         >
                             <option
                                 v-for="(label, key) in props.modulos"
@@ -327,7 +327,7 @@ function irACrear() {
                     <div class="flex gap-3">
                         <button
                             @click="modalNueva = false"
-                            class="flex-1 py-2.5 text-sm font-medium rounded-xl border border-gray-200 text-gray-700"
+                            class="flex-1 py-2.5 text-sm font-medium rounded-xl border border-linea text-tinta-700"
                         >Cancelar</button>
                         <button
                             @click="irACrear"

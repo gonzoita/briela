@@ -161,12 +161,12 @@ function submit() {
             <!-- Título -->
             <div class="flex items-center gap-3 mb-4">
                 <a href="/produccion/templates" @click.prevent="router.visit('/produccion/templates')"
-                    class="text-gray-400 hover:text-gray-700">
+                    class="text-tinta-300 hover:text-tinta-700">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M15 19l-7-7 7-7"/>
                     </svg>
                 </a>
-                <h1 class="text-xl font-bold text-gray-900">Editar Template</h1>
+                <h1 class="text-xl font-semibold text-tinta-900">Editar Template</h1>
             </div>
 
             <div v-if="hasChanges"
@@ -179,43 +179,43 @@ function submit() {
             <div class="sm:hidden">
 
                 <!-- Header sticky -->
-                <div class="sticky top-14 z-10 bg-white rounded-xl border border-gray-200 p-4 mb-4 shadow-sm space-y-4">
+                <div class="sticky top-14 z-10 bg-white rounded-xl border border-linea p-4 mb-4 shadow-sm space-y-4">
                     <div>
-                        <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Nombre *</label>
+                        <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1.5">Nombre *</label>
                         <input v-model="form.nombre" type="text"
-                            class="w-full rounded-xl border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2" />
+                            class="w-full rounded-xl border border-tinta-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2" />
                         <p v-if="errors.nombre" class="text-xs text-red-500 mt-1">{{ errors.nombre }}</p>
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Plantilla de Ensamble</label>
+                        <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1.5">Plantilla de Ensamble</label>
                         <select v-model="form.plantilla_ensamble_id"
-                            class="w-full rounded-xl border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2">
+                            class="w-full rounded-xl border border-tinta-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2">
                             <option :value="null">Sin plantilla asociada</option>
                             <option v-for="p in plantillas" :key="p.id" :value="p.id">{{ p.nombre }}</option>
                         </select>
                     </div>
                     <label class="flex items-center gap-2 cursor-pointer">
                         <input v-model="form.activo" type="checkbox" class="rounded" />
-                        <span class="text-sm text-gray-700">Activo</span>
+                        <span class="text-sm text-tinta-700">Activo</span>
                     </label>
                 </div>
 
                 <!-- Todos los pasos expandidos -->
-                <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden mb-4">
-                    <div class="px-5 py-3 border-b border-gray-100 flex items-center justify-between">
+                <div class="bg-white rounded-2xl border border-linea overflow-hidden mb-4">
+                    <div class="px-5 py-3 border-b border-linea flex items-center justify-between">
                         <div>
-                            <h2 class="text-sm font-semibold text-gray-700">Pasos</h2>
-                            <p class="text-xs mt-0.5 text-gray-400">
+                            <h2 class="text-sm font-semibold text-tinta-700">Pasos</h2>
+                            <p class="text-xs mt-0.5 text-tinta-300">
                                 {{ form.pasos.length }} paso{{ form.pasos.length !== 1 ? 's' : '' }} — pesos por dificultad
                             </p>
                         </div>
                         <button @click="agregarPaso" type="button"
-                            class="px-3 py-1.5 rounded-xl border border-gray-300 text-xs font-medium text-gray-700 hover:bg-gray-50">
+                            class="px-3 py-1.5 rounded-xl border border-tinta-200 text-xs font-medium text-tinta-700 hover:bg-tinta-50">
                             + Paso
                         </button>
                     </div>
                     <p v-if="errors.pasos" class="text-xs text-red-500 px-5 pt-3">{{ errors.pasos }}</p>
-                    <div v-if="!form.pasos.length" class="py-8 text-center text-sm text-gray-400">
+                    <div v-if="!form.pasos.length" class="py-8 text-center text-sm text-tinta-300">
                         Sin pasos. Agrega al menos uno.
                     </div>
                     <div class="divide-y divide-gray-50">
@@ -223,7 +223,7 @@ function submit() {
                             :class="['p-4 space-y-3', paso.es_paso_final ? 'border-l-4 border-purple-400 bg-purple-50/20' : '']">
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center gap-2">
-                                    <span class="text-xs font-bold text-gray-400">Paso {{ idx + 1 }}</span>
+                                    <span class="text-xs font-semibold text-tinta-300">Paso {{ idx + 1 }}</span>
                                     <span v-if="paso.es_paso_final" class="text-xs font-semibold text-purple-600">★ Final</span>
                                     <span v-else class="text-xs font-medium" :class="colorDificultad[paso.nivel_dificultad]">
                                         {{ labelDificultad[paso.nivel_dificultad] }}
@@ -231,33 +231,33 @@ function submit() {
                                 </div>
                                 <div class="flex items-center gap-1">
                                     <button @click="subirPaso(idx)" :disabled="idx === 0" type="button"
-                                        class="w-7 h-7 rounded-lg flex items-center justify-center text-gray-400 hover:bg-gray-100 disabled:opacity-30">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 15l7-7 7 7"/></svg>
+                                        class="w-7 h-7 rounded-lg flex items-center justify-center text-tinta-300 hover:bg-tinta-100 disabled:opacity-30">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 15l7-7 7 7"/></svg>
                                     </button>
                                     <button @click="bajarPaso(idx)" :disabled="idx === form.pasos.length - 1" type="button"
-                                        class="w-7 h-7 rounded-lg flex items-center justify-center text-gray-400 hover:bg-gray-100 disabled:opacity-30">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                                        class="w-7 h-7 rounded-lg flex items-center justify-center text-tinta-300 hover:bg-tinta-100 disabled:opacity-30">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
                                     </button>
                                     <button @click="quitarPaso(idx)" type="button"
                                         class="w-7 h-7 rounded-lg flex items-center justify-center text-red-400 hover:bg-red-50">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
                                     </button>
                                 </div>
                             </div>
                             <div>
-                                <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Nombre *</label>
+                                <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1">Nombre *</label>
                                 <input v-model="paso.nombre" type="text"
-                                    class="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2" />
+                                    class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-2" />
                             </div>
                             <div>
-                                <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
-                                    Descripción <span class="text-gray-400 font-normal">(usa {variable})</span>
+                                <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1">
+                                    Descripción <span class="text-tinta-300 font-normal">(usa {variable})</span>
                                 </label>
                                 <textarea v-model="paso.descripcion" rows="2"
-                                    class="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 resize-none" />
+                                    class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 resize-none" />
                             </div>
                             <div>
-                                <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Dificultad</label>
+                                <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1">Dificultad</label>
                                 <div class="flex items-center gap-3">
                                     <div class="flex items-center gap-0.5">
                                         <button v-for="s in 5" :key="s" type="button"
@@ -265,7 +265,7 @@ function submit() {
                                             class="text-2xl leading-none transition-colors"
                                             :class="s <= paso.nivel_dificultad ? 'text-yellow-400' : 'text-gray-200'">★</button>
                                     </div>
-                                    <span class="text-xs text-gray-400 font-mono">Peso: {{ parseFloat(paso.peso_porcentaje || 0).toFixed(1) }}%</span>
+                                    <span class="text-xs text-tinta-300 font-mono">Peso: {{ parseFloat(paso.peso_porcentaje || 0).toFixed(1) }}%</span>
                                 </div>
                             </div>
                             <!-- Paso final -->
@@ -273,18 +273,18 @@ function submit() {
                                 <input type="checkbox" v-model="paso.es_paso_final"
                                     @change="marcarPasoFinal(idx)" class="rounded accent-purple-600" />
                                 <span class="text-xs font-semibold text-purple-700">Paso final</span>
-                                <span class="text-xs text-gray-400">(cierra el trabajo)</span>
+                                <span class="text-xs text-tinta-300">(cierra el trabajo)</span>
                             </label>
                             <!-- Dependencias -->
                             <div v-if="form.pasos.length > 1">
-                                <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
+                                <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1">
                                     Requiere completar primero:
                                 </label>
                                 <div class="space-y-1">
                                     <template v-for="(otroPaso, oIdx) in form.pasos" :key="oIdx">
                                         <label v-if="oIdx !== idx" class="flex items-center gap-2 cursor-pointer">
                                             <input type="checkbox" :value="oIdx" v-model="paso.depende_de" class="rounded" />
-                                            <span class="text-xs text-gray-600">Paso {{ oIdx + 1 }}: {{ otroPaso.nombre || 'Sin nombre' }}</span>
+                                            <span class="text-xs text-tinta-500">Paso {{ oIdx + 1 }}: {{ otroPaso.nombre || 'Sin nombre' }}</span>
                                         </label>
                                     </template>
                                 </div>
@@ -305,7 +305,7 @@ function submit() {
                 <!-- Botones mobile -->
                 <div class="flex gap-3">
                     <button type="button" @click="router.visit('/produccion/templates')"
-                        class="flex-1 py-3 rounded-xl border border-gray-200 text-sm text-gray-600 font-medium">
+                        class="flex-1 py-3 rounded-xl border border-linea text-sm text-tinta-500 font-medium">
                         Cancelar
                     </button>
                     <button type="button" @click="submit"
@@ -324,40 +324,40 @@ function submit() {
                 <div class="sticky top-14 space-y-3">
 
                     <!-- Header: nombre, plantilla, activo -->
-                    <div class="bg-white rounded-xl border border-gray-200 p-4 space-y-4">
+                    <div class="bg-white rounded-xl border border-linea p-4 space-y-4">
                         <div>
-                            <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Nombre *</label>
+                            <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1.5">Nombre *</label>
                             <input v-model="form.nombre" type="text"
-                                class="w-full rounded-xl border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2" />
+                                class="w-full rounded-xl border border-tinta-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2" />
                             <p v-if="errors.nombre" class="text-xs text-red-500 mt-1">{{ errors.nombre }}</p>
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Plantilla de Ensamble</label>
+                            <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1.5">Plantilla de Ensamble</label>
                             <select v-model="form.plantilla_ensamble_id"
-                                class="w-full rounded-xl border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2">
+                                class="w-full rounded-xl border border-tinta-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2">
                                 <option :value="null">Sin plantilla asociada</option>
                                 <option v-for="p in plantillas" :key="p.id" :value="p.id">{{ p.nombre }}</option>
                             </select>
                         </div>
                         <label class="flex items-center gap-2 cursor-pointer">
                             <input v-model="form.activo" type="checkbox" class="rounded" />
-                            <span class="text-sm text-gray-700">Activo</span>
+                            <span class="text-sm text-tinta-700">Activo</span>
                         </label>
                     </div>
 
                     <!-- Lista resumida de pasos -->
-                    <div class="bg-white rounded-xl border border-gray-200 p-3">
-                        <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider px-2 mb-2">Pasos</p>
-                        <div v-if="!form.pasos.length" class="text-xs text-gray-400 text-center py-3">Sin pasos aún</div>
+                    <div class="bg-white rounded-xl border border-linea p-3">
+                        <p class="text-xs font-semibold text-tinta-300 uppercase tracking-[0.12em] px-2 mb-2">Pasos</p>
+                        <div v-if="!form.pasos.length" class="text-xs text-tinta-300 text-center py-3">Sin pasos aún</div>
                         <div v-for="(paso, idx) in form.pasos" :key="idx"
                             @click="pasoActivo = idx"
                             :class="['flex items-center gap-2 px-2 py-1.5 rounded-lg cursor-pointer transition-colors',
-                                pasoActivo === idx ? 'bg-blue-50 text-blue-700' : 'hover:bg-gray-50 text-gray-700']">
-                            <span class="font-mono text-xs w-5 shrink-0 text-gray-400">{{ idx + 1 }}</span>
+                                pasoActivo === idx ? 'bg-blue-50 text-blue-700' : 'hover:bg-tinta-50 text-tinta-700']">
+                            <span class="font-mono text-xs w-5 shrink-0 text-tinta-300">{{ idx + 1 }}</span>
                             <span class="flex-1 truncate text-sm">{{ paso.nombre || 'Sin nombre' }}</span>
-                            <span v-if="paso.es_paso_final" class="shrink-0 text-purple-500 text-xs font-bold">★</span>
-                            <span v-else-if="paso.depende_de?.length" class="shrink-0 text-gray-400 text-xs">→{{ paso.depende_de.length }}</span>
-                            <span class="text-xs font-mono shrink-0" :class="pasoActivo === idx ? 'text-blue-500' : 'text-gray-400'">
+                            <span v-if="paso.es_paso_final" class="shrink-0 text-purple-500 text-xs font-semibold">★</span>
+                            <span v-else-if="paso.depende_de?.length" class="shrink-0 text-tinta-300 text-xs">→{{ paso.depende_de.length }}</span>
+                            <span class="text-xs font-mono shrink-0" :class="pasoActivo === idx ? 'text-blue-500' : 'text-tinta-300'">
                                 {{ parseFloat(paso.peso_porcentaje || 0).toFixed(0) }}%
                             </span>
                         </div>
@@ -371,7 +371,7 @@ function submit() {
                     <!-- Botones desktop -->
                     <div class="flex gap-2">
                         <button type="button" @click="router.visit('/produccion/templates')"
-                            class="flex-1 py-2.5 rounded-xl border border-gray-200 text-sm text-gray-600 font-medium hover:bg-gray-50">
+                            class="flex-1 py-2.5 rounded-xl border border-linea text-sm text-tinta-500 font-medium hover:bg-tinta-50">
                             Cancelar
                         </button>
                         <button type="button" @click="submit"
@@ -386,17 +386,17 @@ function submit() {
                 <!-- Panel derecho: detalle del paso activo -->
                 <div>
                     <div v-if="form.pasos.length === 0"
-                        class="bg-white rounded-xl border-2 border-dashed border-gray-200 p-10 text-center text-sm text-gray-400">
+                        class="bg-white rounded-xl border-2 border-dashed border-linea p-10 text-center text-sm text-tinta-300">
                         Agrega un paso para comenzar
                     </div>
 
                     <div v-else-if="form.pasos[pasoActivo]"
                         :class="['bg-white rounded-xl border p-5 space-y-4',
-                            form.pasos[pasoActivo].es_paso_final ? 'border-purple-300' : 'border-gray-200']">
+                            form.pasos[pasoActivo].es_paso_final ? 'border-purple-300' : 'border-linea']">
                         <!-- Encabezado paso activo -->
                         <div class="flex items-center justify-between">
                             <div class="flex items-center gap-2">
-                                <span class="text-sm font-bold text-gray-500">Paso {{ pasoActivo + 1 }}</span>
+                                <span class="text-sm font-semibold text-tinta-400">Paso {{ pasoActivo + 1 }}</span>
                                 <span v-if="form.pasos[pasoActivo].es_paso_final" class="text-xs font-semibold text-purple-600">★ Final</span>
                                 <span v-else class="text-xs font-medium" :class="colorDificultad[form.pasos[pasoActivo].nivel_dificultad]">
                                     {{ labelDificultad[form.pasos[pasoActivo].nivel_dificultad] }}
@@ -406,38 +406,38 @@ function submit() {
                                 <button type="button"
                                     @click="subirPaso(pasoActivo); pasoActivo = Math.max(0, pasoActivo - 1)"
                                     :disabled="pasoActivo === 0"
-                                    class="w-7 h-7 rounded-lg flex items-center justify-center text-gray-400 hover:bg-gray-100 disabled:opacity-30">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 15l7-7 7 7"/></svg>
+                                    class="w-7 h-7 rounded-lg flex items-center justify-center text-tinta-300 hover:bg-tinta-100 disabled:opacity-30">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 15l7-7 7 7"/></svg>
                                 </button>
                                 <button type="button"
                                     @click="bajarPaso(pasoActivo); pasoActivo = Math.min(form.pasos.length - 1, pasoActivo + 1)"
                                     :disabled="pasoActivo === form.pasos.length - 1"
-                                    class="w-7 h-7 rounded-lg flex items-center justify-center text-gray-400 hover:bg-gray-100 disabled:opacity-30">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                                    class="w-7 h-7 rounded-lg flex items-center justify-center text-tinta-300 hover:bg-tinta-100 disabled:opacity-30">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
                                 </button>
                                 <button type="button" @click="quitarPaso(pasoActivo)"
                                     class="w-7 h-7 rounded-lg flex items-center justify-center text-red-400 hover:bg-red-50">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
                                 </button>
                             </div>
                         </div>
 
                         <div>
-                            <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Nombre *</label>
+                            <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1.5">Nombre *</label>
                             <input v-model="form.pasos[pasoActivo].nombre" type="text"
-                                class="w-full rounded-xl border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2" />
+                                class="w-full rounded-xl border border-tinta-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2" />
                         </div>
 
                         <div>
-                            <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">
-                                Descripción <span class="text-gray-400 font-normal">(usa {variable})</span>
+                            <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1.5">
+                                Descripción <span class="text-tinta-300 font-normal">(usa {variable})</span>
                             </label>
                             <textarea v-model="form.pasos[pasoActivo].descripcion" rows="4"
-                                class="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 resize-none" />
+                                class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 resize-none" />
                         </div>
 
                         <div>
-                            <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Dificultad</label>
+                            <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1.5">Dificultad</label>
                             <div class="flex items-center gap-4">
                                 <div class="flex items-center gap-0.5">
                                     <button v-for="s in 5" :key="s" type="button"
@@ -445,7 +445,7 @@ function submit() {
                                         class="text-2xl leading-none transition-colors"
                                         :class="s <= form.pasos[pasoActivo].nivel_dificultad ? 'text-yellow-400' : 'text-gray-200'">★</button>
                                 </div>
-                                <span class="text-xs text-gray-400 font-mono">
+                                <span class="text-xs text-tinta-300 font-mono">
                                     Peso: {{ parseFloat(form.pasos[pasoActivo].peso_porcentaje || 0).toFixed(1) }}%
                                 </span>
                             </div>
@@ -456,12 +456,12 @@ function submit() {
                             <input type="checkbox" v-model="form.pasos[pasoActivo].es_paso_final"
                                 @change="marcarPasoFinal(pasoActivo)" class="rounded accent-purple-600" />
                             <span class="text-sm font-semibold text-purple-700">Paso final</span>
-                            <span class="text-xs text-gray-400">(cierra el trabajo al completarse)</span>
+                            <span class="text-xs text-tinta-300">(cierra el trabajo al completarse)</span>
                         </label>
 
                         <!-- Dependencias -->
                         <div v-if="form.pasos.length > 1">
-                            <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">
+                            <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1.5">
                                 Requiere completar primero:
                             </label>
                             <div class="space-y-1.5">
@@ -469,7 +469,7 @@ function submit() {
                                     <label v-if="oIdx !== pasoActivo" class="flex items-center gap-2 cursor-pointer">
                                         <input type="checkbox" :value="oIdx"
                                             v-model="form.pasos[pasoActivo].depende_de" class="rounded" />
-                                        <span class="text-sm text-gray-600">Paso {{ oIdx + 1 }}: {{ otroPaso.nombre || 'Sin nombre' }}</span>
+                                        <span class="text-sm text-tinta-500">Paso {{ oIdx + 1 }}: {{ otroPaso.nombre || 'Sin nombre' }}</span>
                                     </label>
                                 </template>
                             </div>

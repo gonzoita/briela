@@ -231,7 +231,7 @@ const variablesDisponibles = computed(() => {
 })
 
 const badgesTipo = {
-    texto: 'bg-gray-100 text-gray-600',
+    texto: 'bg-tinta-100 text-tinta-500',
     numero: 'bg-blue-100 text-blue-700',
     decimal: 'bg-indigo-100 text-indigo-700',
     select: 'bg-purple-100 text-purple-700',
@@ -251,10 +251,10 @@ const badgesTipo = {
             </div>
 
             <!-- ── TABS MOBILE ── -->
-            <div class="flex md:hidden mb-4 rounded-xl overflow-hidden border border-gray-200">
+            <div class="flex md:hidden mb-4 rounded-xl overflow-hidden border border-linea">
                 <button v-for="tab in [['plantillas','Plantillas'],['campos','Campos'],['componentes','Componentes']]" :key="tab[0]"
                     @click="tabMobile = tab[0]"
-                    :class="['flex-1 py-2.5 text-xs font-semibold transition-colors', tabMobile === tab[0] ? 'text-white' : 'text-gray-600 bg-white hover:bg-gray-50']"
+                    :class="['flex-1 py-2.5 text-xs font-semibold transition-colors', tabMobile === tab[0] ? 'text-white' : 'text-tinta-500 bg-white hover:bg-tinta-50']"
                     :style="tabMobile === tab[0] ? 'background:var(--marca);' : ''">
                     {{ tab[1] }}
                 </button>
@@ -266,26 +266,26 @@ const badgesTipo = {
                 <!-- ══ COL 1: Lista de plantillas ══════════════════════════════════ -->
                 <aside :class="['md:block md:w-60 shrink-0', tabMobile !== 'plantillas' ? 'hidden' : 'block w-full']">
                     <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
-                        <div class="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
-                            <h2 class="text-xs font-bold text-gray-500 uppercase tracking-wider">Plantillas</h2>
+                        <div class="px-4 py-3 border-b border-linea flex items-center justify-between">
+                            <h2 class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">Plantillas</h2>
                             <button @click="modalNuevaPlantilla = true"
-                                class="w-6 h-6 rounded-lg flex items-center justify-center text-white text-base font-bold"
+                                class="w-6 h-6 rounded-lg flex items-center justify-center text-white text-base font-semibold"
                                 style="background:var(--marca);" title="Nueva plantilla">+</button>
                         </div>
                         <ul class="divide-y divide-gray-50">
                             <li v-for="p in plantillas" :key="p.id"
                                 @click="seleccionar(p)"
-                                :class="['flex items-center justify-between px-4 py-3 cursor-pointer transition-colors group', plantillaActual?.id === p.id ? 'bg-blue-50' : 'hover:bg-gray-50']">
+                                :class="['flex items-center justify-between px-4 py-3 cursor-pointer transition-colors group', plantillaActual?.id === p.id ? 'bg-blue-50' : 'hover:bg-tinta-50']">
                                 <div class="min-w-0">
-                                    <p :class="['text-sm font-medium truncate', plantillaActual?.id === p.id ? 'text-blue-700' : 'text-gray-800']">{{ p.nombre }}</p>
-                                    <p class="text-xs text-gray-400">{{ p.campos?.length ?? 0 }} campos · {{ p.componentes?.length ?? 0 }} comp.</p>
+                                    <p :class="['text-sm font-medium truncate', plantillaActual?.id === p.id ? 'text-blue-700' : 'text-tinta-900']">{{ p.nombre }}</p>
+                                    <p class="text-xs text-tinta-300">{{ p.campos?.length ?? 0 }} campos · {{ p.componentes?.length ?? 0 }} comp.</p>
                                 </div>
                                 <button @click.stop="eliminarPlantilla(p)"
                                     class="opacity-0 group-hover:opacity-100 w-6 h-6 rounded-lg flex items-center justify-center text-red-400 hover:bg-red-50 transition-opacity">
-                                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                                 </button>
                             </li>
-                            <li v-if="!plantillas.length" class="px-4 py-6 text-center text-sm text-gray-400">
+                            <li v-if="!plantillas.length" class="px-4 py-6 text-center text-sm text-tinta-300">
                                 Sin plantillas. Crea una con el botón +.
                             </li>
                         </ul>
@@ -293,9 +293,9 @@ const badgesTipo = {
                 </aside>
 
                 <!-- ══ SIN PLANTILLA ════════════════════════════════════════════════ -->
-                <div v-if="!plantillaActual" class="hidden md:flex flex-1 items-center justify-center py-24 text-gray-400">
+                <div v-if="!plantillaActual" class="hidden md:flex flex-1 items-center justify-center py-24 text-tinta-300">
                     <div class="text-center">
-                        <svg class="w-12 h-12 mx-auto mb-3 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
+                        <svg class="w-12 h-12 mx-auto mb-3 text-tinta-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
                         </svg>
                         <p class="text-sm">Selecciona o crea una plantilla</p>
@@ -308,17 +308,17 @@ const badgesTipo = {
                     <section :class="['flex-1 min-w-0', tabMobile !== 'campos' ? 'hidden md:block' : 'block']">
                         <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
                             <!-- Header editable del nombre -->
-                            <div class="px-5 py-3 border-b border-gray-100 space-y-2">
+                            <div class="px-5 py-3 border-b border-linea space-y-2">
                                 <input v-model="plantillaActual.nombre"
                                     @blur="guardarNombrePlantilla"
-                                    class="w-full text-base font-bold text-gray-900 border-0 outline-none bg-transparent focus:ring-1 focus:ring-blue-300 rounded px-1"
+                                    class="w-full text-base font-semibold text-tinta-900 border-0 outline-none bg-transparent focus:ring-1 focus:ring-blue-300 rounded px-1"
                                     placeholder="Nombre de la plantilla" />
                                 <div class="flex items-center gap-2">
-                                    <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Campos de entrada</h3>
-                                    <span class="text-xs text-gray-300">·</span>
+                                    <h3 class="text-xs font-semibold text-tinta-300 uppercase tracking-[0.12em]">Campos de entrada</h3>
+                                    <span class="text-xs text-tinta-200">·</span>
                                     <button @click="abrirProbar"
                                         class="text-xs font-medium text-blue-600 hover:text-blue-800 flex items-center gap-1">
-                                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6"><path stroke-linecap="round" stroke-linejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                                         Probar plantilla
                                     </button>
                                 </div>
@@ -330,28 +330,28 @@ const badgesTipo = {
                                     class="px-4 py-3 flex items-start gap-3 group">
                                     <div class="flex-1 min-w-0">
                                         <div class="flex items-center gap-2 flex-wrap">
-                                            <span :class="['text-xs px-2 py-0.5 rounded-full font-medium', badgesTipo[c.tipo] ?? 'bg-gray-100 text-gray-500']">{{ c.tipo }}</span>
-                                            <span class="text-sm font-semibold text-gray-800 truncate">{{ c.etiqueta }}</span>
+                                            <span :class="['text-xs px-2 py-0.5 rounded-full font-medium', badgesTipo[c.tipo] ?? 'bg-tinta-100 text-tinta-400']">{{ c.tipo }}</span>
+                                            <span class="text-sm font-semibold text-tinta-900 truncate">{{ c.etiqueta }}</span>
                                         </div>
-                                        <p class="text-xs text-gray-400 mt-0.5 font-mono">{{ c.nombre }}{{ c.valor_defecto ? ` = ${c.valor_defecto}` : '' }}</p>
-                                        <p v-if="c.opciones?.length" class="text-xs text-gray-400">{{ c.opciones.map(o => o.etiqueta).join(' · ') }}</p>
+                                        <p class="text-xs text-tinta-300 mt-0.5 font-mono">{{ c.nombre }}{{ c.valor_defecto ? ` = ${c.valor_defecto}` : '' }}</p>
+                                        <p v-if="c.opciones?.length" class="text-xs text-tinta-300">{{ c.opciones.map(o => o.etiqueta).join(' · ') }}</p>
                                     </div>
                                     <div class="flex gap-1 opacity-0 group-hover:opacity-100 shrink-0">
-                                        <button @click="abrirEditarCampo(c)" class="p-1 rounded-lg text-gray-400 hover:text-blue-600 hover:bg-blue-50">
-                                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+                                        <button @click="abrirEditarCampo(c)" class="p-1 rounded-lg text-tinta-300 hover:text-blue-600 hover:bg-blue-50">
+                                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
                                         </button>
-                                        <button @click="eliminarCampo(c)" class="p-1 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50">
-                                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                        <button @click="eliminarCampo(c)" class="p-1 rounded-lg text-tinta-300 hover:text-red-600 hover:bg-red-50">
+                                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                                         </button>
                                     </div>
                                 </li>
-                                <li v-if="!plantillaActual.campos.length" class="px-4 py-6 text-center text-sm text-gray-400">Sin campos. Agrega el primero.</li>
+                                <li v-if="!plantillaActual.campos.length" class="px-4 py-6 text-center text-sm text-tinta-300">Sin campos. Agrega el primero.</li>
                             </ul>
 
                             <!-- Botón agregar -->
-                            <div v-if="editandoCampo === null" class="px-4 py-3 border-t border-gray-100">
+                            <div v-if="editandoCampo === null" class="px-4 py-3 border-t border-linea">
                                 <button @click="abrirNuevoCampo"
-                                    class="w-full py-2 rounded-xl border-2 border-dashed border-gray-200 text-sm text-gray-500 hover:border-blue-300 hover:text-blue-600 transition-colors">
+                                    class="w-full py-2 rounded-xl border-2 border-dashed border-linea text-sm text-tinta-400 hover:border-blue-300 hover:text-blue-600 transition-colors">
                                     + Agregar campo
                                 </button>
                             </div>
@@ -363,48 +363,48 @@ const badgesTipo = {
                                 <div class="flex flex-wrap gap-2">
                                     <button v-for="t in TIPOS_CAMPO" :key="t.value" type="button"
                                         @click="campoBorrador.tipo = t.value"
-                                        :class="['px-2.5 py-1 rounded-lg text-xs font-medium border transition-colors', campoBorrador.tipo === t.value ? 'border-blue-500 bg-blue-600 text-white' : 'border-gray-200 text-gray-600 hover:bg-gray-50']">
+                                        :class="['px-2.5 py-1 rounded-lg text-xs font-medium border transition-colors', campoBorrador.tipo === t.value ? 'border-blue-500 bg-blue-600 text-white' : 'border-linea text-tinta-500 hover:bg-tinta-50']">
                                         {{ t.label }}
                                     </button>
                                 </div>
 
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
                                     <div>
-                                        <label class="block text-xs font-medium text-gray-600 mb-1">Etiqueta visible <span class="text-red-400">*</span></label>
-                                        <input v-model="campoBorrador.etiqueta" type="text" class="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:border-blue-400" placeholder="Ej: Ancho del vano (m)" />
+                                        <label class="block text-xs font-medium text-tinta-500 mb-1">Etiqueta visible <span class="text-red-400">*</span></label>
+                                        <input v-model="campoBorrador.etiqueta" type="text" class="w-full border border-linea rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:border-blue-400" placeholder="Ej: Ancho del vano (m)" />
                                     </div>
                                     <div>
-                                        <label class="block text-xs font-medium text-gray-600 mb-1">Nombre interno</label>
-                                        <input v-model="campoBorrador.nombre" type="text" class="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-sm font-mono focus:outline-none focus:border-blue-400" placeholder="ancho_vano" />
+                                        <label class="block text-xs font-medium text-tinta-500 mb-1">Nombre interno</label>
+                                        <input v-model="campoBorrador.nombre" type="text" class="w-full border border-linea rounded-lg px-3 py-1.5 text-sm font-mono focus:outline-none focus:border-blue-400" placeholder="ancho_vano" />
                                     </div>
                                 </div>
 
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
                                     <div>
-                                        <label class="block text-xs font-medium text-gray-600 mb-1">Valor por defecto</label>
-                                        <input v-model="campoBorrador.valor_defecto" type="text" class="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:border-blue-400" placeholder="Ej: 1.0" />
+                                        <label class="block text-xs font-medium text-tinta-500 mb-1">Valor por defecto</label>
+                                        <input v-model="campoBorrador.valor_defecto" type="text" class="w-full border border-linea rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:border-blue-400" placeholder="Ej: 1.0" />
                                     </div>
                                     <div class="flex items-center gap-2 pt-4">
                                         <input v-model="campoBorrador.requerido" type="checkbox" id="req-campo" class="rounded" />
-                                        <label for="req-campo" class="text-xs text-gray-600">Requerido</label>
+                                        <label for="req-campo" class="text-xs text-tinta-500">Requerido</label>
                                     </div>
                                 </div>
 
                                 <!-- Opciones para tipo select -->
                                 <div v-if="campoBorrador.tipo === 'select'" class="space-y-2">
-                                    <p class="text-xs font-medium text-gray-600">Opciones del selector:</p>
+                                    <p class="text-xs font-medium text-tinta-500">Opciones del selector:</p>
                                     <div v-for="(op, i) in campoBorrador.opciones" :key="i" class="flex gap-2 items-center">
-                                        <input v-model="op.valor"    type="text" placeholder="valor"   class="flex-1 border border-gray-200 rounded-lg px-2 py-1 text-xs font-mono focus:outline-none" />
-                                        <input v-model="op.etiqueta" type="text" placeholder="etiqueta" class="flex-1 border border-gray-200 rounded-lg px-2 py-1 text-xs focus:outline-none" />
+                                        <input v-model="op.valor"    type="text" placeholder="valor"   class="flex-1 border border-linea rounded-lg px-2 py-1 text-xs font-mono focus:outline-none" />
+                                        <input v-model="op.etiqueta" type="text" placeholder="etiqueta" class="flex-1 border border-linea rounded-lg px-2 py-1 text-xs focus:outline-none" />
                                         <button @click="quitarOpcion(i)" class="text-red-400 hover:text-red-600">
-                                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
                                         </button>
                                     </div>
                                     <button @click="agregarOpcion" class="text-xs text-blue-600 hover:text-blue-800 font-medium">+ Agregar opción</button>
                                 </div>
 
                                 <div class="flex gap-2">
-                                    <button @click="cancelarCampo" class="flex-1 py-2 rounded-xl border border-gray-200 text-xs text-gray-600 hover:bg-gray-50">Cancelar</button>
+                                    <button @click="cancelarCampo" class="flex-1 py-2 rounded-xl border border-linea text-xs text-tinta-500 hover:bg-tinta-50">Cancelar</button>
                                     <button @click="guardarCampo" :disabled="guardando" class="flex-1 py-2 rounded-xl text-xs text-white font-semibold disabled:opacity-60" style="background:var(--marca);">
                                         {{ guardando ? '...' : 'Guardar campo' }}
                                     </button>
@@ -416,9 +416,9 @@ const badgesTipo = {
                     <!-- ══ COL 3: Componentes y fórmulas ═══════════════════════════ -->
                     <section :class="['flex-1 min-w-0', tabMobile !== 'componentes' ? 'hidden md:block' : 'block']">
                         <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
-                            <div class="px-5 py-3 border-b border-gray-100">
-                                <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Componentes y fórmulas</h3>
-                                <p class="text-xs text-gray-400 mt-0.5">Variables: <span class="font-mono text-blue-600">{{ variablesDisponibles.join(', ') }}</span></p>
+                            <div class="px-5 py-3 border-b border-linea">
+                                <h3 class="text-xs font-semibold text-tinta-300 uppercase tracking-[0.12em]">Componentes y fórmulas</h3>
+                                <p class="text-xs text-tinta-300 mt-0.5">Variables: <span class="font-mono text-blue-600">{{ variablesDisponibles.join(', ') }}</span></p>
                             </div>
 
                             <!-- Lista de componentes -->
@@ -426,27 +426,27 @@ const badgesTipo = {
                                 <li v-for="c in plantillaActual.componentes" :key="c.id"
                                     :class="['px-4 py-3 flex items-start gap-3 group', !c.activo ? 'opacity-50' : '']">
                                     <div class="flex-1 min-w-0">
-                                        <p class="text-sm font-semibold text-gray-800 truncate">{{ c.etiqueta || c.producto?.nombre || '(sin nombre)' }}</p>
+                                        <p class="text-sm font-semibold text-tinta-900 truncate">{{ c.etiqueta || c.producto?.nombre || '(sin nombre)' }}</p>
                                         <p class="text-xs font-mono text-indigo-600 mt-0.5 break-all">{{ c.formula }}</p>
                                         <p v-if="c.condicion" class="text-xs text-amber-600 mt-0.5 break-all font-mono">if {{ c.condicion }}</p>
-                                        <span class="text-xs text-gray-400">{{ c.unidad }}</span>
+                                        <span class="text-xs text-tinta-300">{{ c.unidad }}</span>
                                     </div>
                                     <div class="flex gap-1 opacity-0 group-hover:opacity-100 shrink-0">
-                                        <button @click="abrirEditarComponente(c)" class="p-1 rounded-lg text-gray-400 hover:text-blue-600 hover:bg-blue-50">
-                                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+                                        <button @click="abrirEditarComponente(c)" class="p-1 rounded-lg text-tinta-300 hover:text-blue-600 hover:bg-blue-50">
+                                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
                                         </button>
-                                        <button @click="eliminarComponente(c)" class="p-1 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50">
-                                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                        <button @click="eliminarComponente(c)" class="p-1 rounded-lg text-tinta-300 hover:text-red-600 hover:bg-red-50">
+                                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                                         </button>
                                     </div>
                                 </li>
-                                <li v-if="!plantillaActual.componentes.length" class="px-4 py-6 text-center text-sm text-gray-400">Sin componentes. Agrega el primero.</li>
+                                <li v-if="!plantillaActual.componentes.length" class="px-4 py-6 text-center text-sm text-tinta-300">Sin componentes. Agrega el primero.</li>
                             </ul>
 
                             <!-- Botón agregar -->
-                            <div v-if="editandoComponente === null" class="px-4 py-3 border-t border-gray-100">
+                            <div v-if="editandoComponente === null" class="px-4 py-3 border-t border-linea">
                                 <button @click="abrirNuevoComponente"
-                                    class="w-full py-2 rounded-xl border-2 border-dashed border-gray-200 text-sm text-gray-500 hover:border-blue-300 hover:text-blue-600 transition-colors">
+                                    class="w-full py-2 rounded-xl border-2 border-dashed border-linea text-sm text-tinta-400 hover:border-blue-300 hover:text-blue-600 transition-colors">
                                     + Agregar componente
                                 </button>
                             </div>
@@ -457,55 +457,55 @@ const badgesTipo = {
 
                                 <!-- Buscador de producto -->
                                 <div class="relative">
-                                    <label class="block text-xs font-medium text-gray-600 mb-1">Producto/Insumo vinculado</label>
+                                    <label class="block text-xs font-medium text-tinta-500 mb-1">Producto/Insumo vinculado</label>
                                     <input v-model="busqProducto" type="text"
-                                        class="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:border-blue-400"
+                                        class="w-full border border-linea rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:border-blue-400"
                                         placeholder="Buscar producto..." />
                                     <ul v-if="resBusqProd.length"
-                                        class="absolute z-20 left-0 right-0 bg-white border border-gray-200 rounded-xl mt-1 shadow-lg overflow-hidden max-h-40 overflow-y-auto">
+                                        class="absolute z-20 left-0 right-0 bg-white border border-linea rounded-xl mt-1 shadow-lg overflow-hidden max-h-40 overflow-y-auto">
                                         <li v-for="p in resBusqProd" :key="p.id"
                                             @click="elegirProducto(p)"
-                                            class="px-3 py-2 text-sm cursor-pointer hover:bg-gray-50">
+                                            class="px-3 py-2 text-sm cursor-pointer hover:bg-tinta-50">
                                             <span class="font-medium">{{ p.nombre }}</span>
-                                            <span class="text-gray-400 text-xs ml-2">{{ p.referencia }}</span>
+                                            <span class="text-tinta-300 text-xs ml-2">{{ p.referencia }}</span>
                                         </li>
                                     </ul>
                                 </div>
 
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
                                     <div>
-                                        <label class="block text-xs font-medium text-gray-600 mb-1">Etiqueta visible</label>
-                                        <input v-model="compBorrador.etiqueta" type="text" class="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none" placeholder="Ej: Perfil perimetral 70mm" />
+                                        <label class="block text-xs font-medium text-tinta-500 mb-1">Etiqueta visible</label>
+                                        <input v-model="compBorrador.etiqueta" type="text" class="w-full border border-linea rounded-lg px-3 py-1.5 text-sm focus:outline-none" placeholder="Ej: Perfil perimetral 70mm" />
                                     </div>
                                     <div>
-                                        <label class="block text-xs font-medium text-gray-600 mb-1">Unidad</label>
-                                        <input v-model="compBorrador.unidad" type="text" class="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none font-mono" placeholder="ML, UN, M2..." />
+                                        <label class="block text-xs font-medium text-tinta-500 mb-1">Unidad</label>
+                                        <input v-model="compBorrador.unidad" type="text" class="w-full border border-linea rounded-lg px-3 py-1.5 text-sm focus:outline-none font-mono" placeholder="ML, UN, M2..." />
                                     </div>
                                 </div>
 
                                 <div>
-                                    <label class="block text-xs font-medium text-gray-600 mb-1">Fórmula <span class="text-red-400">*</span></label>
+                                    <label class="block text-xs font-medium text-tinta-500 mb-1">Fórmula <span class="text-red-400">*</span></label>
                                     <input v-model="compBorrador.formula" type="text"
-                                        class="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-sm font-mono focus:outline-none focus:border-indigo-400"
+                                        class="w-full border border-linea rounded-lg px-3 py-1.5 text-sm font-mono focus:outline-none focus:border-indigo-400"
                                         placeholder="Ej: 2 * alto_vano + 2 * ancho_vano + 0.664" />
-                                    <p class="text-xs text-gray-400 mt-0.5">Variables: {{ variablesDisponibles.join(', ') }}</p>
+                                    <p class="text-xs text-tinta-300 mt-0.5">Variables: {{ variablesDisponibles.join(', ') }}</p>
                                 </div>
 
                                 <div>
-                                    <label class="block text-xs font-medium text-gray-600 mb-1">Condición (opcional)</label>
+                                    <label class="block text-xs font-medium text-tinta-500 mb-1">Condición (opcional)</label>
                                     <input v-model="compBorrador.condicion" type="text"
-                                        class="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-sm font-mono focus:outline-none focus:border-amber-400"
+                                        class="w-full border border-linea rounded-lg px-3 py-1.5 text-sm font-mono focus:outline-none focus:border-amber-400"
                                         placeholder='Ej: temperatura == "BAJA" and tipo_puerta == "BATIENTE_SIMPLE"' />
-                                    <p class="text-xs text-gray-400 mt-0.5">Si la condición es falsa, el componente no se incluye.</p>
+                                    <p class="text-xs text-tinta-300 mt-0.5">Si la condición es falsa, el componente no se incluye.</p>
                                 </div>
 
                                 <div class="flex items-center gap-2">
                                     <input v-model="compBorrador.activo" type="checkbox" id="comp-activo" class="rounded" />
-                                    <label for="comp-activo" class="text-xs text-gray-600">Activo</label>
+                                    <label for="comp-activo" class="text-xs text-tinta-500">Activo</label>
                                 </div>
 
                                 <div class="flex gap-2">
-                                    <button @click="cancelarComponente" class="flex-1 py-2 rounded-xl border border-gray-200 text-xs text-gray-600 hover:bg-gray-50">Cancelar</button>
+                                    <button @click="cancelarComponente" class="flex-1 py-2 rounded-xl border border-linea text-xs text-tinta-500 hover:bg-tinta-50">Cancelar</button>
                                     <button @click="guardarComponente" :disabled="guardando || !compBorrador.formula" class="flex-1 py-2 rounded-xl text-xs text-white font-semibold disabled:opacity-60" style="background:var(--marca);">
                                         {{ guardando ? '...' : 'Guardar componente' }}
                                     </button>
@@ -522,19 +522,19 @@ const badgesTipo = {
         <Teleport to="body">
             <div v-if="modalNuevaPlantilla" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4" style="background:rgba(0,0,0,0.5);">
                 <div class="bg-white rounded-2xl shadow-xl w-full max-w-sm p-5">
-                    <h3 class="text-base font-bold text-gray-900 mb-4">Nueva plantilla de ensamble</h3>
+                    <h3 class="text-base font-semibold text-tinta-900 mb-4">Nueva plantilla de ensamble</h3>
                     <div class="space-y-3">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Nombre <span class="text-red-500">*</span></label>
-                            <input v-model="nuevaPlantilla.nombre" type="text" class="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none" placeholder="Ej: Puerta Frigorífica" @keyup.enter="crearPlantilla" />
+                            <label class="block text-sm font-medium text-tinta-700 mb-1">Nombre <span class="text-red-500">*</span></label>
+                            <input v-model="nuevaPlantilla.nombre" type="text" class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none" placeholder="Ej: Puerta Frigorífica" @keyup.enter="crearPlantilla" />
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
-                            <textarea v-model="nuevaPlantilla.descripcion" rows="2" class="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none resize-none" placeholder="Descripción opcional..." />
+                            <label class="block text-sm font-medium text-tinta-700 mb-1">Descripción</label>
+                            <textarea v-model="nuevaPlantilla.descripcion" rows="2" class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none resize-none" placeholder="Descripción opcional..." />
                         </div>
                     </div>
                     <div class="flex gap-3 mt-4">
-                        <button @click="modalNuevaPlantilla = false" class="flex-1 py-2.5 rounded-xl border border-gray-200 text-sm text-gray-600">Cancelar</button>
+                        <button @click="modalNuevaPlantilla = false" class="flex-1 py-2.5 rounded-xl border border-linea text-sm text-tinta-500">Cancelar</button>
                         <button @click="crearPlantilla" :disabled="guardando || !nuevaPlantilla.nombre" class="flex-1 py-2.5 rounded-xl text-white text-sm font-semibold disabled:opacity-60" style="background:var(--marca);">
                             {{ guardando ? 'Creando...' : 'Crear' }}
                         </button>
@@ -548,29 +548,29 @@ const badgesTipo = {
             <div v-if="modalProbar" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 overflow-y-auto" style="background:rgba(0,0,0,0.5);">
                 <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg p-5 my-4">
                     <div class="flex items-center justify-between mb-4">
-                        <h3 class="text-base font-bold text-gray-900">Probar: {{ plantillaActual?.nombre }}</h3>
-                        <button @click="modalProbar = false" class="text-gray-400 hover:text-gray-600">
-                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                        <h3 class="text-base font-semibold text-tinta-900">Probar: {{ plantillaActual?.nombre }}</h3>
+                        <button @click="modalProbar = false" class="text-tinta-300 hover:text-tinta-500">
+                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
                         </button>
                     </div>
 
                     <div class="space-y-3 mb-4">
                         <template v-for="campo in plantillaActual?.campos" :key="campo.id">
                             <div>
-                                <label class="block text-xs font-medium text-gray-700 mb-1">{{ campo.etiqueta }}</label>
+                                <label class="block text-xs font-medium text-tinta-700 mb-1">{{ campo.etiqueta }}</label>
                                 <select v-if="campo.tipo === 'select'" v-model="probarValores[campo.nombre]"
-                                    class="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none">
+                                    class="w-full border border-linea rounded-lg px-3 py-1.5 text-sm focus:outline-none">
                                     <option v-for="op in campo.opciones" :key="op.valor" :value="op.valor">{{ op.etiqueta }}</option>
                                 </select>
                                 <input v-else-if="campo.tipo === 'decimal' || campo.tipo === 'numero'"
                                     v-model.number="probarValores[campo.nombre]" type="number" step="0.01"
-                                    class="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none" />
+                                    class="w-full border border-linea rounded-lg px-3 py-1.5 text-sm focus:outline-none" />
                                 <div v-else-if="campo.tipo === 'boolean' || campo.tipo === 'checkbox'" class="flex items-center gap-2">
                                     <input v-model="probarValores[campo.nombre]" type="checkbox" class="rounded" />
-                                    <span class="text-xs text-gray-500">{{ probarValores[campo.nombre] ? 'Sí' : 'No' }}</span>
+                                    <span class="text-xs text-tinta-400">{{ probarValores[campo.nombre] ? 'Sí' : 'No' }}</span>
                                 </div>
                                 <input v-else v-model="probarValores[campo.nombre]" type="text"
-                                    class="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none" />
+                                    class="w-full border border-linea rounded-lg px-3 py-1.5 text-sm focus:outline-none" />
                             </div>
                         </template>
                     </div>
@@ -580,26 +580,26 @@ const badgesTipo = {
                     </button>
 
                     <!-- Resultado -->
-                    <div v-if="probarResultado" class="border-t border-gray-100 pt-4">
-                        <p class="text-xs font-semibold text-gray-500 uppercase mb-2">Resultado</p>
+                    <div v-if="probarResultado" class="border-t border-linea pt-4">
+                        <p class="text-xs font-semibold text-tinta-400 uppercase mb-2">Resultado</p>
                         <table class="w-full text-xs">
-                            <thead><tr class="text-left text-gray-400">
+                            <thead><tr class="text-left text-tinta-300">
                                 <th class="pb-1">Componente</th><th class="pb-1 text-right">Cant.</th><th class="pb-1 text-right">Precio Unit.</th><th class="pb-1 text-right">Subtotal</th>
                             </tr></thead>
                             <tbody class="divide-y divide-gray-50">
-                                <tr v-for="(c, i) in probarResultado.componentes" :key="i" class="hover:bg-gray-50">
-                                    <td class="py-1.5 font-medium text-gray-700">{{ c.nombre }} <span class="text-gray-400 font-normal">{{ c.unidad }}</span></td>
-                                    <td class="py-1.5 text-right font-mono text-gray-600">{{ c.cantidad }}</td>
-                                    <td class="py-1.5 text-right text-gray-500">${{ formatCOP(c.precio_unit) }}</td>
-                                    <td class="py-1.5 text-right font-semibold text-gray-800">${{ formatCOP(c.subtotal) }}</td>
+                                <tr v-for="(c, i) in probarResultado.componentes" :key="i" class="hover:bg-tinta-50">
+                                    <td class="py-1.5 font-medium text-tinta-700">{{ c.nombre }} <span class="text-tinta-300 font-normal">{{ c.unidad }}</span></td>
+                                    <td class="py-1.5 text-right font-mono text-tinta-500">{{ c.cantidad }}</td>
+                                    <td class="py-1.5 text-right text-tinta-400">${{ formatCOP(c.precio_unit) }}</td>
+                                    <td class="py-1.5 text-right font-semibold text-tinta-900">${{ formatCOP(c.subtotal) }}</td>
                                 </tr>
                             </tbody>
-                            <tfoot><tr class="border-t border-gray-200">
-                                <td colspan="3" class="pt-2 text-xs font-bold text-gray-700 uppercase">Costo total</td>
-                                <td class="pt-2 text-right font-bold text-blue-700">${{ formatCOP(probarResultado.total_costo) }}</td>
+                            <tfoot><tr class="border-t border-linea">
+                                <td colspan="3" class="pt-2 text-xs font-semibold text-tinta-700 uppercase">Costo total</td>
+                                <td class="pt-2 text-right font-semibold text-blue-700">${{ formatCOP(probarResultado.total_costo) }}</td>
                             </tr></tfoot>
                         </table>
-                        <p v-if="!probarResultado.componentes?.length" class="text-sm text-gray-400 text-center py-4">Sin componentes para estos valores.</p>
+                        <p v-if="!probarResultado.componentes?.length" class="text-sm text-tinta-300 text-center py-4">Sin componentes para estos valores.</p>
                     </div>
                 </div>
             </div>

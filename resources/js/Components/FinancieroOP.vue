@@ -1,7 +1,7 @@
 <template>
-  <div class="bg-white rounded-xl border border-gray-200 p-4 mt-4">
-    <h3 class="text-base font-bold text-[var(--marca)] mb-4 flex items-center gap-2">
-      <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+  <div class="bg-white rounded-xl border border-linea p-4 mt-4">
+    <h3 class="text-base font-semibold text-[var(--marca)] mb-4 flex items-center gap-2">
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
         <path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
       </svg>
       Módulo Financiero
@@ -9,27 +9,27 @@
 
     <!-- Resumen -->
     <div class="grid grid-cols-3 gap-3 mb-5">
-      <div class="bg-gray-50 rounded-lg p-3 text-center">
-        <div class="text-xs text-gray-500 mb-1">Total OP</div>
-        <div class="font-bold text-gray-800 text-sm">${{ fmt(totalOp) }}</div>
+      <div class="bg-tinta-50 rounded-lg p-3 text-center">
+        <div class="text-xs text-tinta-400 mb-1">Total OP</div>
+        <div class="font-semibold text-tinta-900 text-sm">${{ fmt(totalOp) }}</div>
       </div>
       <div class="bg-green-50 rounded-lg p-3 text-center">
-        <div class="text-xs text-gray-500 mb-1">Pagado</div>
-        <div class="font-bold text-green-700 text-sm">${{ fmt(totalPagadoLocal) }}</div>
+        <div class="text-xs text-tinta-400 mb-1">Pagado</div>
+        <div class="font-semibold text-green-700 text-sm">${{ fmt(totalPagadoLocal) }}</div>
       </div>
       <div class="bg-red-50 rounded-lg p-3 text-center">
-        <div class="text-xs text-gray-500 mb-1">Saldo</div>
-        <div class="font-bold text-red-700 text-sm">${{ fmt(saldoPendienteLocal) }}</div>
+        <div class="text-xs text-tinta-400 mb-1">Saldo</div>
+        <div class="font-semibold text-red-700 text-sm">${{ fmt(saldoPendienteLocal) }}</div>
       </div>
     </div>
 
     <!-- Cuotas -->
     <div class="mb-4">
       <div class="flex justify-between items-center mb-2">
-        <span class="text-sm font-semibold text-gray-700">Cuotas</span>
+        <span class="text-sm font-semibold text-tinta-700">Cuotas</span>
         <button @click="mostrarFormCuota = !mostrarFormCuota"
           class="text-xs text-[var(--marca)] font-medium flex items-center gap-1">
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
           </svg>
           Nueva cuota
@@ -39,12 +39,12 @@
       <!-- Formulario nueva cuota -->
       <div v-if="mostrarFormCuota" class="bg-blue-50 rounded-lg p-3 mb-3 space-y-2">
         <input v-model="formCuota.concepto" placeholder="Concepto (ej: Anticipo 50%)"
-          class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300" />
+          class="w-full border border-tinta-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300" />
         <div class="grid grid-cols-2 gap-2">
           <input v-model="formCuota.valor" type="number" placeholder="Valor"
-            class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none" />
+            class="border border-tinta-200 rounded-lg px-3 py-2 text-sm focus:outline-none" />
           <input v-model="formCuota.fecha_vencimiento" type="date"
-            class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none" />
+            class="border border-tinta-200 rounded-lg px-3 py-2 text-sm focus:outline-none" />
         </div>
         <div class="flex gap-2">
           <button @click="crearCuota" :disabled="guardandoCuota"
@@ -52,21 +52,21 @@
             {{ guardandoCuota ? 'Guardando...' : 'Guardar' }}
           </button>
           <button @click="mostrarFormCuota = false"
-            class="text-sm text-gray-500 px-4 py-2">
+            class="text-sm text-tinta-400 px-4 py-2">
             Cancelar
           </button>
         </div>
       </div>
 
       <!-- Lista de cuotas -->
-      <div v-if="cargando" class="text-sm text-gray-400 text-center py-4">
+      <div v-if="cargando" class="text-sm text-tinta-300 text-center py-4">
         Cargando...
       </div>
-      <div v-else-if="!cuotas.length" class="text-sm text-gray-400 text-center py-4">
+      <div v-else-if="!cuotas.length" class="text-sm text-tinta-300 text-center py-4">
         No hay cuotas registradas
       </div>
       <div v-for="cuota in cuotas" :key="cuota.id"
-        class="flex items-center justify-between border border-gray-100 rounded-lg px-3 py-2 mb-2">
+        class="flex items-center justify-between border border-linea rounded-lg px-3 py-2 mb-2">
         <div class="flex items-center gap-2 flex-1 min-w-0">
           <span class="w-2.5 h-2.5 rounded-full flex-shrink-0"
             :class="{
@@ -78,19 +78,19 @@
           </span>
           <div class="min-w-0">
             <div class="flex items-center gap-1.5 flex-wrap">
-              <span class="text-sm font-medium text-gray-800 truncate">{{ cuota.concepto }}</span>
+              <span class="text-sm font-medium text-tinta-900 truncate">{{ cuota.concepto }}</span>
               <span v-if="cuota.es_saldo_automatico"
-                class="text-xs bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded flex-shrink-0">
+                class="text-xs bg-tinta-100 text-tinta-400 px-1.5 py-0.5 rounded flex-shrink-0">
                 auto
               </span>
             </div>
-            <div class="text-xs text-gray-400">
+            <div class="text-xs text-tinta-300">
               {{ cuota.fecha_vencimiento ? 'Vence: ' + fmtFecha(cuota.fecha_vencimiento) : 'Sin fecha' }}
             </div>
           </div>
         </div>
         <div class="text-right ml-2 flex-shrink-0">
-          <div class="text-sm font-bold text-gray-800">${{ fmt(cuota.valor) }}</div>
+          <div class="text-sm font-semibold text-tinta-900">${{ fmt(cuota.valor) }}</div>
           <div class="text-xs" :class="cuota.estado === 'pagado' ? 'text-green-600' : 'text-orange-500'">
             {{ cuota.estado === 'pagado' ? '✓ Pagado' : `Saldo $${fmt(cuota.saldo)}` }}
           </div>
@@ -107,39 +107,39 @@
       <div v-if="cuotaSeleccionada"
         class="fixed inset-0 z-50 bg-black/50 flex items-end sm:items-center justify-center">
         <div class="bg-white w-full max-w-md rounded-t-2xl sm:rounded-2xl p-5">
-          <h4 class="font-bold text-gray-800 mb-4">
+          <h4 class="font-semibold text-tinta-900 mb-4">
             Registrar pago — {{ cuotaSeleccionada.concepto }}
           </h4>
           <div class="space-y-3">
             <div>
-              <label class="text-xs text-gray-500 block mb-1">Valor a pagar</label>
+              <label class="text-xs text-tinta-400 block mb-1">Valor a pagar</label>
               <input v-model="formPago.valor" type="number"
                 :placeholder="`Saldo: $${fmt(cuotaSeleccionada.saldo)}`"
-                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300" />
+                class="w-full border border-tinta-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300" />
             </div>
             <div>
-              <label class="text-xs text-gray-500 block mb-1">Medio de pago</label>
+              <label class="text-xs text-tinta-400 block mb-1">Medio de pago</label>
               <select v-model="formPago.medio_pago"
-                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none">
+                class="w-full border border-tinta-200 rounded-lg px-3 py-2 text-sm focus:outline-none">
                 <option value="efectivo">Efectivo</option>
                 <option value="transferencia">Transferencia</option>
                 <option value="cheque">Cheque</option>
               </select>
             </div>
             <div>
-              <label class="text-xs text-gray-500 block mb-1">Fecha de pago</label>
+              <label class="text-xs text-tinta-400 block mb-1">Fecha de pago</label>
               <input v-model="formPago.fecha_pago" type="date"
-                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none" />
+                class="w-full border border-tinta-200 rounded-lg px-3 py-2 text-sm focus:outline-none" />
             </div>
             <div>
-              <label class="text-xs text-gray-500 block mb-1">Referencia (opcional)</label>
+              <label class="text-xs text-tinta-400 block mb-1">Referencia (opcional)</label>
               <input v-model="formPago.referencia" placeholder="Nº cheque / transferencia"
-                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none" />
+                class="w-full border border-tinta-200 rounded-lg px-3 py-2 text-sm focus:outline-none" />
             </div>
             <div>
-              <label class="text-xs text-gray-500 block mb-1">Notas (opcional)</label>
+              <label class="text-xs text-tinta-400 block mb-1">Notas (opcional)</label>
               <textarea v-model="formPago.notas" rows="2" placeholder="Observaciones..."
-                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none resize-none"></textarea>
+                class="w-full border border-tinta-200 rounded-lg px-3 py-2 text-sm focus:outline-none resize-none"></textarea>
             </div>
           </div>
           <p v-if="errorPago" class="text-red-500 text-xs mt-2">{{ errorPago }}</p>
@@ -149,7 +149,7 @@
               {{ guardandoPago ? 'Registrando...' : 'Registrar pago' }}
             </button>
             <button @click="cuotaSeleccionada = null"
-              class="px-4 text-gray-500 text-sm">
+              class="px-4 text-tinta-400 text-sm">
               Cancelar
             </button>
           </div>
@@ -159,18 +159,18 @@
 
     <!-- Historial de pagos -->
     <div v-if="todosLosPagos.length" class="mt-4">
-      <div class="text-sm font-semibold text-gray-700 mb-2">Historial de pagos</div>
+      <div class="text-sm font-semibold text-tinta-700 mb-2">Historial de pagos</div>
       <div v-for="pago in todosLosPagos" :key="pago.id"
-        class="flex items-center justify-between border border-gray-100 rounded-lg px-3 py-2 mb-1.5">
+        class="flex items-center justify-between border border-linea rounded-lg px-3 py-2 mb-1.5">
         <div class="min-w-0 flex-1">
-          <div class="text-sm font-medium text-gray-800">{{ pago.numero_recibo }}</div>
-          <div class="text-xs text-gray-400">{{ fmtFecha(pago.fecha_pago) }} · {{ pago.medio_pago }}</div>
+          <div class="text-sm font-medium text-tinta-900">{{ pago.numero_recibo }}</div>
+          <div class="text-xs text-tinta-300">{{ fmtFecha(pago.fecha_pago) }} · {{ pago.medio_pago }}</div>
         </div>
         <div class="flex items-center gap-2 ml-2 flex-shrink-0">
-          <span class="text-sm font-bold text-green-700">${{ fmt(pago.valor) }}</span>
+          <span class="text-sm font-semibold text-green-700">${{ fmt(pago.valor) }}</span>
           <a :href="`/financiero/pagos/${pago.id}/pdf`" target="_blank"
             class="text-[var(--marca)] text-xs flex items-center gap-1 hover:underline">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
               <path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
             </svg>
             PDF

@@ -63,8 +63,8 @@ const cerrarQR = async () => {
                 class="h-14 w-auto object-contain mb-6"
                 :alt="$page.props.marca.nombre"
             />
-            <h1 class="text-2xl font-bold text-gray-900 text-center">Seguimiento de pedido</h1>
-            <p class="text-gray-500 text-sm mt-1 text-center">Consulta el estado de tu orden de producción</p>
+            <h1 class="text-2xl font-semibold text-tinta-900 text-center">Seguimiento de pedido</h1>
+            <p class="text-tinta-400 text-sm mt-1 text-center">Consulta el estado de tu orden de producción</p>
         </header>
 
         <!-- Formulario -->
@@ -79,7 +79,7 @@ const cerrarQR = async () => {
             </div>
 
             <div class="rounded-2xl shadow-sm p-6" style="background: white;">
-                <label class="block text-sm font-medium text-gray-700 mb-2">
+                <label class="block text-sm font-medium text-tinta-700 mb-2">
                     Número de OP o código de serie
                 </label>
                 <input
@@ -91,7 +91,7 @@ const cerrarQR = async () => {
                     @keyup.enter="consultar"
                 />
 
-                <label class="block text-sm font-medium text-gray-700 mb-2 mt-4">
+                <label class="block text-sm font-medium text-tinta-700 mb-2 mt-4">
                     Apellido o documento del cliente
                 </label>
                 <input
@@ -102,7 +102,7 @@ const cerrarQR = async () => {
                     style="border-color: #D1D5DB; focus-ring-color: var(--marca);"
                     @keyup.enter="consultar"
                 />
-                <p class="text-xs text-gray-400 mt-1.5">
+                <p class="text-xs text-tinta-300 mt-1.5">
                     Por seguridad, pedimos un dato del cliente tal como figura en la orden.
                 </p>
 
@@ -120,7 +120,7 @@ const cerrarQR = async () => {
                     class="mt-3 w-full py-3 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 border"
                     style="color: var(--marca); border-color: var(--marca);"
                 >
-                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
                     </svg>
                     Escanear QR
@@ -130,8 +130,8 @@ const cerrarQR = async () => {
 
         <!-- Footer -->
         <footer class="px-6 py-8 text-center">
-            <p class="text-xs text-gray-400">{{ $page.props.marca.nombre }}</p>
-            <p v-if="$page.props.marca.email" class="text-xs text-gray-400 mt-1">{{ $page.props.marca.email }}</p>
+            <p class="text-xs text-tinta-300">{{ $page.props.marca.nombre }}</p>
+            <p v-if="$page.props.marca.email" class="text-xs text-tinta-300 mt-1">{{ $page.props.marca.email }}</p>
         </footer>
     </div>
 
@@ -147,7 +147,7 @@ const cerrarQR = async () => {
                 class="absolute top-4 right-4 w-10 h-10 rounded-full flex items-center justify-center"
                 style="background: rgba(255,255,255,0.2);"
             >
-                <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                 </svg>
             </button>

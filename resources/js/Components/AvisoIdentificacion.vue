@@ -19,13 +19,13 @@ const emit = defineEmits(['usar-rues'])
     <div v-if="consultando || resultado || error" class="mt-3 space-y-2">
 
         <!-- Consultando -->
-        <p v-if="consultando" class="text-xs text-gray-500 flex items-center gap-2">
-            <span class="inline-block w-3 h-3 border-2 border-gray-300 border-t-blue-600 rounded-full animate-spin"></span>
+        <p v-if="consultando" class="text-xs text-tinta-400 flex items-center gap-2">
+            <span class="inline-block w-3 h-3 border-2 border-tinta-200 border-t-blue-600 rounded-full animate-spin"></span>
             Verificando identificación...
         </p>
 
         <!-- No se pudo consultar: informativo, nunca bloquea -->
-        <p v-if="error" class="text-xs text-gray-500 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2">
+        <p v-if="error" class="text-xs text-tinta-400 bg-tinta-50 border border-linea rounded-lg px-3 py-2">
             {{ error }}
         </p>
 
@@ -98,7 +98,7 @@ const emit = defineEmits(['usar-rues'])
 
             <!-- No estaba en el RUES -->
             <p v-else-if="resultado.rues_aviso && !resultado.duplicado"
-                class="text-xs text-gray-500 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2">
+                class="text-xs text-tinta-400 bg-tinta-50 border border-linea rounded-lg px-3 py-2">
                 {{ resultado.rues_aviso }}
             </p>
         </template>

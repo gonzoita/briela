@@ -38,13 +38,13 @@ const formatTiempo = (min) => {
 
 const badgeOp = (estado) => {
     const map = {
-        borrador:      'bg-gray-100 text-gray-600',
+        borrador:      'bg-tinta-100 text-tinta-500',
         activa:        'bg-blue-100 text-blue-700',
         en_produccion: 'bg-yellow-100 text-yellow-700',
         completada:    'bg-green-100 text-green-700',
         cancelada:     'bg-red-100 text-red-700',
     }
-    return map[estado] ?? 'bg-gray-100 text-gray-600'
+    return map[estado] ?? 'bg-tinta-100 text-tinta-500'
 }
 
 // ── Accordion paso ────────────────────────────────────────────────────────────
@@ -201,7 +201,7 @@ const guardarHoras = async (paso) => {
 const circuloPaso = (paso) => {
     if (paso.completado) return 'bg-green-500 border-green-500'
     if (paso.iniciado_at || paso.operario_id) return 'bg-yellow-50 border-yellow-400'
-    return 'bg-white border-gray-300'
+    return 'bg-white border-tinta-200'
 }
 </script>
 
@@ -209,10 +209,10 @@ const circuloPaso = (paso) => {
     <AppLayout :title="`Trabajo — ${trabajo.op_numero}`">
 
         <!-- ── Breadcrumb ────────────────────────────────────────────────────── -->
-        <div class="flex items-center gap-2 mb-4 text-sm text-gray-500">
+        <div class="flex items-center gap-2 mb-4 text-sm text-tinta-400">
             <button class="hover:text-[var(--marca)] transition-colors" @click="router.visit('/trabajos')">Trabajos</button>
             <span>/</span>
-            <span class="text-gray-800 font-medium">{{ trabajo.op_numero }}</span>
+            <span class="text-tinta-900 font-medium">{{ trabajo.op_numero }}</span>
         </div>
 
         <!-- ── Layout principal ──────────────────────────────────────────────── -->
@@ -224,15 +224,15 @@ const circuloPaso = (paso) => {
             <div class="w-full md:w-[380px] md:shrink-0 space-y-4">
 
                 <!-- Card info general -->
-                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
-                    <h3 class="text-sm font-bold text-gray-800 mb-4">Información general</h3>
+                <div class="bg-white rounded-2xl shadow-sm border border-linea p-5">
+                    <h3 class="text-sm font-semibold text-tinta-900 mb-4">Información general</h3>
                     <div class="space-y-3">
                         <div class="flex items-start justify-between gap-2">
-                            <span class="text-xs text-gray-500 shrink-0">Orden de producción</span>
+                            <span class="text-xs text-tinta-400 shrink-0">Orden de producción</span>
                             <div class="text-right">
                                 <a
                                     :href="`/produccion/ops/${trabajo.op_id}`"
-                                    class="text-sm font-bold text-[var(--marca)] hover:underline"
+                                    class="text-sm font-semibold text-[var(--marca)] hover:underline"
                                     @click.prevent="router.visit(`/produccion/ops/${trabajo.op_id}`)"
                                 >{{ trabajo.op_numero }}</a>
                                 <span
@@ -242,34 +242,34 @@ const circuloPaso = (paso) => {
                             </div>
                         </div>
                         <div class="flex items-center justify-between">
-                            <span class="text-xs text-gray-500">Cliente</span>
-                            <span class="text-sm font-medium text-gray-800 text-right">{{ trabajo.cliente_nombre ?? '—' }}</span>
+                            <span class="text-xs text-tinta-400">Cliente</span>
+                            <span class="text-sm font-medium text-tinta-900 text-right">{{ trabajo.cliente_nombre ?? '—' }}</span>
                         </div>
                         <div class="flex items-start justify-between gap-2">
-                            <span class="text-xs text-gray-500 shrink-0">Ítem</span>
-                            <span class="text-sm text-gray-700 text-right max-w-[200px]">{{ trabajo.item_descripcion ?? '—' }}</span>
+                            <span class="text-xs text-tinta-400 shrink-0">Ítem</span>
+                            <span class="text-sm text-tinta-700 text-right max-w-[200px]">{{ trabajo.item_descripcion ?? '—' }}</span>
                         </div>
                         <div class="flex items-center justify-between">
-                            <span class="text-xs text-gray-500">Template</span>
-                            <span class="text-sm text-gray-700">{{ trabajo.template_nombre ?? '—' }}</span>
+                            <span class="text-xs text-tinta-400">Template</span>
+                            <span class="text-sm text-tinta-700">{{ trabajo.template_nombre ?? '—' }}</span>
                         </div>
                         <div v-if="trabajo.op_fecha" class="flex items-center justify-between">
-                            <span class="text-xs text-gray-500">Fecha creación</span>
-                            <span class="text-sm text-gray-700">{{ trabajo.op_fecha }}</span>
+                            <span class="text-xs text-tinta-400">Fecha creación</span>
+                            <span class="text-sm text-tinta-700">{{ trabajo.op_fecha }}</span>
                         </div>
                     </div>
                 </div>
 
                 <!-- Card progreso general -->
-                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
-                    <h3 class="text-sm font-bold text-gray-800 mb-4">Progreso general</h3>
+                <div class="bg-white rounded-2xl shadow-sm border border-linea p-5">
+                    <h3 class="text-sm font-semibold text-tinta-900 mb-4">Progreso general</h3>
 
                     <!-- Barra grande -->
                     <div class="mb-1 flex justify-between items-end">
-                        <span class="text-xs text-gray-500">Avance</span>
-                        <span class="text-2xl font-bold" style="color:var(--marca);">{{ Math.round(porcentaje) }}%</span>
+                        <span class="text-xs text-tinta-400">Avance</span>
+                        <span class="text-2xl font-semibold" style="color:var(--marca);">{{ Math.round(porcentaje) }}%</span>
                     </div>
-                    <div class="bg-gray-200 rounded-full h-3 mb-4 overflow-hidden">
+                    <div class="bg-tinta-200 rounded-full h-3 mb-4 overflow-hidden">
                         <div
                             class="h-3 rounded-full transition-all duration-500"
                             style="background:var(--marca);"
@@ -278,13 +278,13 @@ const circuloPaso = (paso) => {
                     </div>
 
                     <div class="grid grid-cols-2 gap-3">
-                        <div class="bg-gray-50 rounded-xl p-3 text-center">
-                            <p class="text-xl font-bold text-gray-800">{{ pasosCompletados }}/{{ pasosTotal }}</p>
-                            <p class="text-xs text-gray-500 mt-0.5">Pasos completados</p>
+                        <div class="bg-tinta-50 rounded-xl p-3 text-center">
+                            <p class="text-xl font-semibold text-tinta-900">{{ pasosCompletados }}/{{ pasosTotal }}</p>
+                            <p class="text-xs text-tinta-400 mt-0.5">Pasos completados</p>
                         </div>
-                        <div class="bg-gray-50 rounded-xl p-3 text-center">
-                            <p class="text-xl font-bold text-gray-800">{{ formatTiempo(tiempoTotal) }}</p>
-                            <p class="text-xs text-gray-500 mt-0.5">Tiempo acumulado</p>
+                        <div class="bg-tinta-50 rounded-xl p-3 text-center">
+                            <p class="text-xl font-semibold text-tinta-900">{{ formatTiempo(tiempoTotal) }}</p>
+                            <p class="text-xs text-tinta-400 mt-0.5">Tiempo acumulado</p>
                         </div>
                     </div>
                 </div>
@@ -295,14 +295,14 @@ const circuloPaso = (paso) => {
                  COLUMNA DERECHA — lista de pasos
             ══════════════════════════════════════════════════════════════════ -->
             <div class="flex-1 min-w-0">
-                <h3 class="text-sm font-bold text-gray-800 mb-3">Pasos del trabajo</h3>
+                <h3 class="text-sm font-semibold text-tinta-900 mb-3">Pasos del trabajo</h3>
 
                 <div class="space-y-3">
                     <div
                         v-for="paso in pasos"
                         :key="paso.id"
                         class="bg-white rounded-2xl shadow-sm border transition-all"
-                        :class="paso.completado ? 'border-green-200' : 'border-gray-100'"
+                        :class="paso.completado ? 'border-green-200' : 'border-linea'"
                     >
                         <!-- ── Header del paso (clickeable) ───────────────── -->
                         <div
@@ -318,33 +318,33 @@ const circuloPaso = (paso) => {
                                 <svg v-if="paso.completado" class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
                                 </svg>
-                                <span v-else class="text-xs font-bold text-gray-500">{{ String(paso.orden).padStart(2, '0') }}</span>
+                                <span v-else class="text-xs font-semibold text-tinta-400">{{ String(paso.orden).padStart(2, '0') }}</span>
                             </div>
 
                             <!-- Nombre + badges -->
                             <div class="flex-1 min-w-0">
                                 <div class="flex items-center gap-2 flex-wrap">
-                                    <span class="text-sm font-semibold" :class="paso.completado ? 'text-green-700' : 'text-gray-800'">
+                                    <span class="text-sm font-semibold" :class="paso.completado ? 'text-green-700' : 'text-tinta-900'">
                                         {{ paso.nombre }}
                                     </span>
-                                    <span class="text-xs px-1.5 py-0.5 rounded bg-gray-100 text-gray-500 font-medium" title="Peso de este paso dentro del trabajo">
+                                    <span class="text-xs px-1.5 py-0.5 rounded bg-tinta-100 text-tinta-400 font-medium" title="Peso de este paso dentro del trabajo">
                                         peso {{ paso.peso_porcentaje }}%
                                     </span>
                                     <span v-if="paso.es_extra" class="text-xs px-1.5 py-0.5 rounded bg-orange-100 text-orange-600 font-semibold">
                                         Extra
                                     </span>
                                 </div>
-                                <p v-if="paso.descripcion_resuelta" class="text-xs text-gray-400 mt-0.5 truncate" v-html="paso.descripcion_resuelta"></p>
-                                <p v-if="paso.operario_nombre" class="text-xs text-gray-400 mt-0.5 truncate">
+                                <p v-if="paso.descripcion_resuelta" class="text-xs text-tinta-300 mt-0.5 truncate" v-html="paso.descripcion_resuelta"></p>
+                                <p v-if="paso.operario_nombre" class="text-xs text-tinta-300 mt-0.5 truncate">
                                     {{ paso.operario_nombre }}
                                 </p>
                             </div>
 
                             <!-- Chevron -->
                             <svg
-                                class="w-4 h-4 text-gray-400 shrink-0 transition-transform"
+                                class="w-4 h-4 text-tinta-300 shrink-0 transition-transform"
                                 :class="expandidos.has(paso.id) ? 'rotate-180' : ''"
-                                fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"
+                                fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6"
                             >
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
                             </svg>
@@ -354,31 +354,31 @@ const circuloPaso = (paso) => {
                         <div v-if="expandidos.has(paso.id)" class="px-4 pb-4 border-t border-gray-50">
 
                             <!-- Descripción resuelta -->
-                            <div v-if="paso.descripcion_resuelta" class="mt-3 text-sm text-gray-600 bg-gray-50 rounded-xl p-3 leading-relaxed rich-desc" v-html="paso.descripcion_resuelta"></div>
+                            <div v-if="paso.descripcion_resuelta" class="mt-3 text-sm text-tinta-500 bg-tinta-50 rounded-xl p-3 leading-relaxed rich-desc" v-html="paso.descripcion_resuelta"></div>
 
                             <!-- Línea de tiempo: inicio / fin (fechas automáticas del servidor) -->
                             <div v-if="(paso.iniciado_at || paso.completado_at) && !editandoHoras.has(paso.id)"
-                                class="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-gray-500">
-                                <span v-if="paso.iniciado_at">Iniciado: <span class="font-medium text-gray-700">{{ paso.iniciado_at }}</span></span>
-                                <span v-if="paso.completado_at">Finalizado: <span class="font-medium text-gray-700">{{ paso.completado_at }}</span></span>
+                                class="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-tinta-400">
+                                <span v-if="paso.iniciado_at">Iniciado: <span class="font-medium text-tinta-700">{{ paso.iniciado_at }}</span></span>
+                                <span v-if="paso.completado_at">Finalizado: <span class="font-medium text-tinta-700">{{ paso.completado_at }}</span></span>
                                 <span v-if="paso.duracion_real_minutos !== null && paso.duracion_real_minutos !== undefined">
-                                    Duración: <span class="font-medium text-gray-700">{{ formatDuracion(paso.duracion_real_minutos) }}</span>
+                                    Duración: <span class="font-medium text-tinta-700">{{ formatDuracion(paso.duracion_real_minutos) }}</span>
                                 </span>
                                 <button @click.stop="abrirEditarHoras(paso)" class="text-blue-600 hover:underline">Editar horas</button>
                             </div>
 
                             <!-- Edición manual de horas -->
-                            <div v-if="editandoHoras.has(paso.id)" class="mt-3 bg-gray-50 rounded-xl p-3 space-y-2" @click.stop>
+                            <div v-if="editandoHoras.has(paso.id)" class="mt-3 bg-tinta-50 rounded-xl p-3 space-y-2" @click.stop>
                                 <div class="grid grid-cols-2 gap-2">
                                     <div>
-                                        <label class="text-xs text-gray-400 mb-1 block">Iniciado</label>
+                                        <label class="text-xs text-tinta-300 mb-1 block">Iniciado</label>
                                         <input v-model="horasBorrador[paso.id].iniciado_at" type="datetime-local"
-                                            class="w-full rounded-lg border border-gray-200 px-2 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-blue-300" />
+                                            class="w-full rounded-lg border border-linea px-2 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-blue-300" />
                                     </div>
                                     <div>
-                                        <label class="text-xs text-gray-400 mb-1 block">Finalizado</label>
+                                        <label class="text-xs text-tinta-300 mb-1 block">Finalizado</label>
                                         <input v-model="horasBorrador[paso.id].completado_at" type="datetime-local"
-                                            class="w-full rounded-lg border border-gray-200 px-2 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-blue-300" />
+                                            class="w-full rounded-lg border border-linea px-2 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-blue-300" />
                                     </div>
                                 </div>
                                 <div class="flex gap-2">
@@ -386,49 +386,49 @@ const circuloPaso = (paso) => {
                                         class="px-3 py-1.5 rounded-lg text-xs font-semibold text-white disabled:opacity-60" style="background:var(--marca);">
                                         {{ guardando.has(paso.id) ? 'Guardando...' : 'Guardar horas' }}
                                     </button>
-                                    <button @click="cancelarEditarHoras(paso.id)" class="px-3 py-1.5 rounded-lg text-xs text-gray-500 hover:bg-gray-100">Cancelar</button>
+                                    <button @click="cancelarEditarHoras(paso.id)" class="px-3 py-1.5 rounded-lg text-xs text-tinta-400 hover:bg-tinta-100">Cancelar</button>
                                 </div>
                             </div>
 
                             <div class="mt-3 space-y-2">
                                 <div class="flex items-center justify-between mb-1">
-                                    <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Operarios</label>
+                                    <label class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">Operarios</label>
                                     <button @click.stop="agregarOperario(paso.id)"
                                         class="text-xs text-blue-600 hover:text-blue-800 font-medium flex items-center gap-1">
-                                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
                                         </svg>
                                         Agregar
                                     </button>
                                 </div>
                                 <div v-for="(entry, idx) in (operariosPorPaso[paso.id] ?? [])" :key="idx"
-                                    class="bg-gray-50 rounded-xl p-3 space-y-2">
+                                    class="bg-tinta-50 rounded-xl p-3 space-y-2">
                                     <div class="flex items-center gap-2">
                                         <select v-model="entry.operario_id"
-                                            class="flex-1 rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300 bg-white">
+                                            class="flex-1 rounded-lg border border-linea px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300 bg-white">
                                             <option value="">Sin asignar</option>
                                             <option v-for="op in operarios" :key="op.id" :value="op.id">{{ op.nombre }}</option>
                                         </select>
                                         <button v-if="(operariosPorPaso[paso.id] ?? []).length > 1"
                                             @click.stop="quitarOperario(paso.id, idx)"
                                             class="text-red-400 hover:text-red-600 shrink-0">
-                                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
                                             </svg>
                                         </button>
                                     </div>
                                     <div class="grid grid-cols-2 gap-2">
                                         <div>
-                                            <label class="text-xs text-gray-400 mb-1 block">Tiempo (min)</label>
+                                            <label class="text-xs text-tinta-300 mb-1 block">Tiempo (min)</label>
                                             <input v-model.number="entry.tiempo_minutos" type="number" min="0"
                                                 placeholder="0" @click.stop
-                                                class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300" />
+                                                class="w-full rounded-lg border border-linea px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300" />
                                         </div>
                                         <div>
-                                            <label class="text-xs text-gray-400 mb-1 block">Observaciones</label>
+                                            <label class="text-xs text-tinta-300 mb-1 block">Observaciones</label>
                                             <input v-model="entry.observaciones" type="text"
                                                 placeholder="Opcional" @click.stop
-                                                class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300" />
+                                                class="w-full rounded-lg border border-linea px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300" />
                                         </div>
                                     </div>
                                 </div>
@@ -449,7 +449,7 @@ const circuloPaso = (paso) => {
 
                             <!-- Info si completado -->
                             <div v-if="paso.completado" class="mt-3 bg-green-50 rounded-xl px-3 py-2 flex items-center gap-2 text-xs text-green-700 flex-wrap">
-                                <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
                                 <span>Completado el {{ paso.completado_at }}</span>
@@ -473,7 +473,7 @@ const circuloPaso = (paso) => {
                                 >
                                     <span v-if="guardando.has(paso.id)">Guardando...</span>
                                     <span v-else>
-                                        <svg class="w-4 h-4 inline mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                        <svg class="w-4 h-4 inline mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                         </svg>
@@ -482,7 +482,7 @@ const circuloPaso = (paso) => {
                                 </button>
                                 <button
                                     v-if="!paso.completado && paso.iniciado_at"
-                                    class="px-3 py-2 rounded-xl text-xs font-medium text-gray-500 border border-gray-200 hover:bg-gray-50 transition-colors disabled:opacity-60"
+                                    class="px-3 py-2 rounded-xl text-xs font-medium text-tinta-400 border border-linea hover:bg-tinta-50 transition-colors disabled:opacity-60"
                                     :disabled="guardando.has(paso.id)"
                                     @click.stop="quitarInicio(paso)"
                                 >
@@ -497,7 +497,7 @@ const circuloPaso = (paso) => {
                                 >
                                     <span v-if="guardando.has(paso.id)">Guardando...</span>
                                     <span v-else>
-                                        <svg class="w-4 h-4 inline mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                        <svg class="w-4 h-4 inline mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
                                         </svg>
                                         Marcar completado
@@ -505,7 +505,7 @@ const circuloPaso = (paso) => {
                                 </button>
                                 <button
                                     v-if="paso.completado"
-                                    class="px-4 py-2 rounded-xl text-xs font-medium text-gray-500 border border-gray-200 hover:bg-gray-50 transition-colors disabled:opacity-60"
+                                    class="px-4 py-2 rounded-xl text-xs font-medium text-tinta-400 border border-linea hover:bg-tinta-50 transition-colors disabled:opacity-60"
                                     :disabled="guardando.has(paso.id)"
                                     @click.stop="desmarcarCompletado(paso)"
                                 >
@@ -519,7 +519,7 @@ const circuloPaso = (paso) => {
                             v-if="paso.completado && !expandidos.has(paso.id)"
                             class="px-4 pb-2 flex items-center gap-1 text-xs text-green-600"
                         >
-                            <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
                             </svg>
                             {{ paso.completado_at }}

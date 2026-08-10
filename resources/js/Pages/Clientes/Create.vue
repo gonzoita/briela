@@ -75,7 +75,7 @@ function usarDatosRues(rues) {
 }
 
 function ic(extra = '') {
-    return `w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${extra}`
+    return `w-full rounded-lg border border-tinta-200 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${extra}`
 }
 
 // ─── Contactos ────────────────────────────────────────────────────────────────
@@ -131,46 +131,46 @@ function submit() {
 
             <!-- Cabecera -->
             <div class="flex items-center gap-3 mb-4">
-                <a href="/clientes" class="text-gray-500 hover:text-gray-700">
+                <a href="/clientes" class="text-tinta-400 hover:text-tinta-700">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M15 19l-7-7 7-7"/>
                     </svg>
                 </a>
-                <h1 class="text-xl font-bold text-gray-900">Nuevo cliente</h1>
+                <h1 class="text-xl font-semibold text-tinta-900">Nuevo cliente</h1>
             </div>
 
             <form @submit.prevent="submit" class="space-y-4">
 
                 <!-- Tipo de cliente -->
-                <div class="bg-white rounded-xl border border-gray-200 p-4">
-                    <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Tipo de cliente</p>
+                <div class="bg-white rounded-xl border border-linea p-4">
+                    <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-3">Tipo de cliente</p>
                     <div class="grid grid-cols-2 gap-2">
                         <button type="button" @click="setTipo('empresa')"
                             :class="['rounded-lg border-2 px-4 py-2.5 text-sm font-medium transition-colors',
-                                form.tipo === 'empresa' ? 'border-blue-600 bg-blue-50 text-blue-700' : 'border-gray-200 text-gray-600 hover:border-gray-300']">
+                                form.tipo === 'empresa' ? 'border-blue-600 bg-blue-50 text-blue-700' : 'border-linea text-tinta-500 hover:border-tinta-200']">
                             Empresa
                         </button>
                         <button type="button" @click="setTipo('persona')"
                             :class="['rounded-lg border-2 px-4 py-2.5 text-sm font-medium transition-colors',
-                                form.tipo === 'persona' ? 'border-blue-600 bg-blue-50 text-blue-700' : 'border-gray-200 text-gray-600 hover:border-gray-300']">
+                                form.tipo === 'persona' ? 'border-blue-600 bg-blue-50 text-blue-700' : 'border-linea text-tinta-500 hover:border-tinta-200']">
                             Persona natural
                         </button>
                     </div>
                 </div>
 
                 <!-- Identificación -->
-                <div class="bg-white rounded-xl border border-gray-200 p-4">
-                    <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Identificación</p>
+                <div class="bg-white rounded-xl border border-linea p-4">
+                    <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-3">Identificación</p>
                     <div class="grid grid-cols-2 gap-3">
                         <div>
-                            <label class="block text-xs font-medium text-gray-700 mb-1">Tipo ID</label>
+                            <label class="block text-xs font-medium text-tinta-700 mb-1">Tipo ID</label>
                             <select v-model="form.tipo_identificacion" :class="ic()">
                                 <option v-for="t in tiposId" :key="t" :value="t">{{ t }}</option>
                             </select>
                             <p v-if="form.errors.tipo_identificacion" class="text-red-500 text-xs mt-1">{{ form.errors.tipo_identificacion }}</p>
                         </div>
                         <div>
-                            <label class="block text-xs font-medium text-gray-700 mb-1">Número</label>
+                            <label class="block text-xs font-medium text-tinta-700 mb-1">Número</label>
                             <div class="relative">
                                 <input v-model="form.numero_identificacion" type="text" :class="ic('pr-12')"
                                     placeholder="Ej: 900123456"
@@ -178,11 +178,11 @@ function submit() {
                                     @keyup.enter.prevent="revisarIdentificacion"/>
                                 <!-- El DV no se escribe: se calcula y se muestra aquí -->
                                 <span v-if="form.digito_verificacion"
-                                    class="absolute right-3 top-1/2 -translate-y-1/2 text-sm font-semibold text-gray-400 pointer-events-none">
+                                    class="absolute right-3 top-1/2 -translate-y-1/2 text-sm font-semibold text-tinta-300 pointer-events-none">
                                     &ndash;{{ form.digito_verificacion }}
                                 </span>
                             </div>
-                            <p class="text-xs text-gray-400 mt-1">El dígito de verificación se calcula solo.</p>
+                            <p class="text-xs text-tinta-300 mt-1">El dígito de verificación se calcula solo.</p>
                             <p v-if="form.errors.numero_identificacion" class="text-red-500 text-xs mt-1">{{ form.errors.numero_identificacion }}</p>
                         </div>
                     </div>
@@ -195,47 +195,47 @@ function submit() {
                 </div>
 
                 <!-- Nombre -->
-                <div class="bg-white rounded-xl border border-gray-200 p-4">
-                    <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Datos personales / empresa</p>
+                <div class="bg-white rounded-xl border border-linea p-4">
+                    <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-3">Datos personales / empresa</p>
                     <div :class="esPersona ? 'grid grid-cols-1 sm:grid-cols-2 gap-3' : ''">
                         <div>
-                            <label class="block text-xs font-medium text-gray-700 mb-1">
+                            <label class="block text-xs font-medium text-tinta-700 mb-1">
                                 {{ esPersona ? 'Nombre *' : 'Razón social *' }}
                             </label>
                             <input v-model="form.nombre" type="text" :class="ic()" :placeholder="esPersona ? 'Nombre' : 'Razón social'" required/>
                             <p v-if="form.errors.nombre" class="text-red-500 text-xs mt-1">{{ form.errors.nombre }}</p>
                         </div>
                         <div v-if="esPersona">
-                            <label class="block text-xs font-medium text-gray-700 mb-1">Apellido</label>
+                            <label class="block text-xs font-medium text-tinta-700 mb-1">Apellido</label>
                             <input v-model="form.apellido" type="text" :class="ic()" placeholder="Apellido"/>
                         </div>
                     </div>
                 </div>
 
                 <!-- Contacto directo (persona) -->
-                <div v-if="esPersona" class="bg-white rounded-xl border border-gray-200 p-4">
-                    <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Contacto</p>
+                <div v-if="esPersona" class="bg-white rounded-xl border border-linea p-4">
+                    <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-3">Contacto</p>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
-                            <label class="block text-xs font-medium text-gray-700 mb-1">Email</label>
+                            <label class="block text-xs font-medium text-tinta-700 mb-1">Email</label>
                             <input v-model="form.email" type="email" :class="ic()" placeholder="correo@email.com"/>
                         </div>
                         <div>
-                            <label class="block text-xs font-medium text-gray-700 mb-1">Celular</label>
+                            <label class="block text-xs font-medium text-tinta-700 mb-1">Celular</label>
                             <input v-model="form.celular" type="text" :class="ic()" placeholder="300 000 0000"/>
                         </div>
                         <div>
-                            <label class="block text-xs font-medium text-gray-700 mb-1">Teléfono fijo</label>
+                            <label class="block text-xs font-medium text-tinta-700 mb-1">Teléfono fijo</label>
                             <input v-model="form.telefono" type="text" :class="ic()" placeholder="(601) 000-0000"/>
                         </div>
                     </div>
-                    <p class="text-xs text-gray-400 mt-3 italic">El contacto principal será el mismo titular.</p>
+                    <p class="text-xs text-tinta-300 mt-3 italic">El contacto principal será el mismo titular.</p>
                 </div>
 
                 <!-- Contacto empresa -->
-                <div v-if="!esPersona" class="bg-white rounded-xl border border-gray-200 p-4">
+                <div v-if="!esPersona" class="bg-white rounded-xl border border-linea p-4">
                     <div class="flex items-center justify-between mb-3">
-                        <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Contactos</p>
+                        <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">Contactos</p>
                         <button type="button" @click="abrirNuevoContacto"
                             class="text-xs font-medium px-3 py-1.5 rounded-lg text-white"
                             style="background:var(--marca)">
@@ -254,26 +254,26 @@ function submit() {
                              :style="c.es_principal ? 'border-color:var(--marca); background:#EFF6FF;' : 'border-color:#E5E7EB;'">
                             <div class="flex-1 min-w-0">
                                 <div class="flex items-center gap-2">
-                                    <p class="text-sm font-medium text-gray-900">{{ c.nombre }} {{ c.apellido }}</p>
+                                    <p class="text-sm font-medium text-tinta-900">{{ c.nombre }} {{ c.apellido }}</p>
                                     <span v-if="c.es_principal" class="text-xs px-1.5 py-0.5 rounded-full font-medium" style="background:#DBEAFE;color:#1D4ED8;">Principal</span>
                                 </div>
-                                <p v-if="c.cargo" class="text-xs text-gray-500">{{ c.cargo }}</p>
-                                <p v-if="c.email || c.celular" class="text-xs text-gray-400">{{ [c.email, c.celular].filter(Boolean).join(' · ') }}</p>
+                                <p v-if="c.cargo" class="text-xs text-tinta-400">{{ c.cargo }}</p>
+                                <p v-if="c.email || c.celular" class="text-xs text-tinta-300">{{ [c.email, c.celular].filter(Boolean).join(' · ') }}</p>
                             </div>
                             <div class="flex items-center gap-1 shrink-0">
                                 <button v-if="!c.es_principal" type="button" @click="setPrincipal(idx)"
-                                    class="text-xs px-2 py-1 rounded text-gray-500 hover:text-blue-600 hover:bg-blue-50"
+                                    class="text-xs px-2 py-1 rounded text-tinta-400 hover:text-blue-600 hover:bg-blue-50"
                                     title="Marcar como principal">★</button>
                                 <button type="button" @click="eliminarContacto(idx)"
-                                    class="text-xs px-2 py-1 rounded text-gray-400 hover:text-red-600 hover:bg-red-50">
+                                    class="text-xs px-2 py-1 rounded text-tinta-300 hover:text-red-600 hover:bg-red-50">
                                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M6 18L18 6M6 6l12 12"/>
                                     </svg>
                                 </button>
                             </div>
                         </div>
                     </div>
-                    <p v-else class="text-sm text-gray-400 text-center py-4 border border-dashed border-gray-200 rounded-lg">
+                    <p v-else class="text-sm text-tinta-300 text-center py-4 border border-dashed border-linea rounded-lg">
                         Sin contactos. Debe agregar al menos uno para empresas.
                     </p>
 
@@ -282,41 +282,41 @@ function submit() {
                         <p class="text-xs font-semibold mb-3" style="color:var(--marca);">Nuevo contacto</p>
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             <div>
-                                <label class="block text-xs font-medium text-gray-700 mb-1">Nombre *</label>
+                                <label class="block text-xs font-medium text-tinta-700 mb-1">Nombre *</label>
                                 <input v-model="nuevoContacto.nombre" type="text" :class="ic()" placeholder="Nombre"/>
                             </div>
                             <div>
-                                <label class="block text-xs font-medium text-gray-700 mb-1">Apellido</label>
+                                <label class="block text-xs font-medium text-tinta-700 mb-1">Apellido</label>
                                 <input v-model="nuevoContacto.apellido" type="text" :class="ic()" placeholder="Apellido"/>
                             </div>
                             <div>
-                                <label class="block text-xs font-medium text-gray-700 mb-1">Cargo</label>
+                                <label class="block text-xs font-medium text-tinta-700 mb-1">Cargo</label>
                                 <input v-model="nuevoContacto.cargo" type="text" :class="ic()" placeholder="Gerente, Compras..."/>
                             </div>
                             <div>
-                                <label class="block text-xs font-medium text-gray-700 mb-1">Email</label>
+                                <label class="block text-xs font-medium text-tinta-700 mb-1">Email</label>
                                 <input v-model="nuevoContacto.email" type="email" :class="ic()" placeholder="correo@empresa.com"/>
                             </div>
                             <div>
-                                <label class="block text-xs font-medium text-gray-700 mb-1">Teléfono</label>
+                                <label class="block text-xs font-medium text-tinta-700 mb-1">Teléfono</label>
                                 <input v-model="nuevoContacto.telefono" type="text" :class="ic()" placeholder="(601) 000-0000"/>
                             </div>
                             <div>
-                                <label class="block text-xs font-medium text-gray-700 mb-1">Celular</label>
+                                <label class="block text-xs font-medium text-tinta-700 mb-1">Celular</label>
                                 <input v-model="nuevoContacto.celular" type="text" :class="ic()" placeholder="300 000 0000"/>
                             </div>
                             <div class="sm:col-span-2">
-                                <label class="block text-xs font-medium text-gray-700 mb-1">Notas</label>
+                                <label class="block text-xs font-medium text-tinta-700 mb-1">Notas</label>
                                 <textarea v-model="nuevoContacto.notas" :class="ic()" rows="2" placeholder="Observaciones..."></textarea>
                             </div>
                             <div class="sm:col-span-2 flex items-center gap-2">
                                 <input v-model="nuevoContacto.es_principal" type="checkbox" id="es_principal_nuevo" class="rounded"/>
-                                <label for="es_principal_nuevo" class="text-xs text-gray-700">Marcar como contacto principal</label>
+                                <label for="es_principal_nuevo" class="text-xs text-tinta-700">Marcar como contacto principal</label>
                             </div>
                         </div>
                         <div class="flex gap-2 mt-3">
                             <button type="button" @click="nuevoContactoAbierto = false"
-                                class="flex-1 py-2 rounded-lg border border-gray-300 text-sm text-gray-600">
+                                class="flex-1 py-2 rounded-lg border border-tinta-200 text-sm text-tinta-500">
                                 Cancelar
                             </button>
                             <button type="button" @click="agregarContacto"
@@ -329,55 +329,55 @@ function submit() {
                 </div>
 
                 <!-- Contacto empresa (continuación — email, tel) -->
-                <div v-if="!esPersona" class="bg-white rounded-xl border border-gray-200 p-4">
-                    <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Datos de contacto de la empresa</p>
+                <div v-if="!esPersona" class="bg-white rounded-xl border border-linea p-4">
+                    <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-3">Datos de contacto de la empresa</p>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
-                            <label class="block text-xs font-medium text-gray-700 mb-1">Email empresa</label>
+                            <label class="block text-xs font-medium text-tinta-700 mb-1">Email empresa</label>
                             <input v-model="form.email" type="email" :class="ic()" placeholder="info@empresa.com"/>
                         </div>
                         <div>
-                            <label class="block text-xs font-medium text-gray-700 mb-1">Celular empresa</label>
+                            <label class="block text-xs font-medium text-tinta-700 mb-1">Celular empresa</label>
                             <input v-model="form.celular" type="text" :class="ic()" placeholder="300 000 0000"/>
                         </div>
                         <div>
-                            <label class="block text-xs font-medium text-gray-700 mb-1">Teléfono empresa</label>
+                            <label class="block text-xs font-medium text-tinta-700 mb-1">Teléfono empresa</label>
                             <input v-model="form.telefono" type="text" :class="ic()" placeholder="(601) 000-0000"/>
                         </div>
                     </div>
                 </div>
 
                 <!-- Ubicación -->
-                <div class="bg-white rounded-xl border border-gray-200 p-4">
-                    <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Ubicación</p>
+                <div class="bg-white rounded-xl border border-linea p-4">
+                    <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-3">Ubicación</p>
                     <div v-if="sedes.length > 1" class="mb-3">
-                        <label class="block text-xs font-medium text-gray-700 mb-1">Sede</label>
+                        <label class="block text-xs font-medium text-tinta-700 mb-1">Sede</label>
                         <select v-model="form.sede_id" :class="ic()">
                             <option v-for="s in sedes" :key="s.id" :value="s.id">{{ s.nombre }}</option>
                         </select>
-                        <p class="text-xs text-gray-400 mt-1">Sede a la que pertenece este cliente.</p>
+                        <p class="text-xs text-tinta-300 mt-1">Sede a la que pertenece este cliente.</p>
                     </div>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
-                            <label class="block text-xs font-medium text-gray-700 mb-1">Ciudad</label>
+                            <label class="block text-xs font-medium text-tinta-700 mb-1">Ciudad</label>
                             <input v-model="form.ciudad" type="text" :class="ic()" placeholder="Bogotá"/>
                         </div>
                         <div>
-                            <label class="block text-xs font-medium text-gray-700 mb-1">Dirección</label>
+                            <label class="block text-xs font-medium text-tinta-700 mb-1">Dirección</label>
                             <input v-model="form.direccion" type="text" :class="ic()" placeholder="Calle 00 # 00-00"/>
                         </div>
                     </div>
                 </div>
 
                 <!-- Notas -->
-                <div class="bg-white rounded-xl border border-gray-200 p-4">
-                    <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Notas</p>
+                <div class="bg-white rounded-xl border border-linea p-4">
+                    <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-3">Notas</p>
                     <textarea v-model="form.notas" :class="ic()" rows="3" placeholder="Observaciones internas..."></textarea>
                 </div>
 
                 <!-- Segmentación -->
-                <div class="bg-white rounded-xl border border-gray-200 p-4 space-y-4">
-                    <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Segmentación</p>
+                <div class="bg-white rounded-xl border border-linea p-4 space-y-4">
+                    <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">Segmentación</p>
 
                     <ChipsSegmentacion
                         label="Tipo de contacto"
@@ -401,7 +401,7 @@ function submit() {
                     />
 
                     <div>
-                        <label class="block text-xs font-medium text-gray-700 mb-1">Intereses y observaciones</label>
+                        <label class="block text-xs font-medium text-tinta-700 mb-1">Intereses y observaciones</label>
                         <textarea v-model="form.intereses" :class="ic()" rows="3"
                             placeholder="Describe los intereses, necesidades o notas relevantes del cliente..."></textarea>
                     </div>
@@ -409,7 +409,7 @@ function submit() {
 
                 <!-- Acciones -->
                 <div class="flex gap-3 pb-4">
-                    <a href="/clientes" class="flex-1 text-center px-4 py-2.5 rounded-lg border border-gray-300 text-sm font-medium text-gray-700 hover:bg-gray-50">
+                    <a href="/clientes" class="flex-1 text-center px-4 py-2.5 rounded-lg border border-tinta-200 text-sm font-medium text-tinta-700 hover:bg-tinta-50">
                         Cancelar
                     </a>
                     <button type="submit" :disabled="form.processing"

@@ -97,18 +97,18 @@ async function importar() {
         <div class="max-w-3xl mx-auto">
 
             <div class="flex items-center gap-3 mb-4">
-                <button class="text-gray-400 hover:text-gray-700" @click="router.visit('/clientes')">
+                <button class="text-tinta-300 hover:text-tinta-700" @click="router.visit('/clientes')">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M15 19l-7-7 7-7"/>
                     </svg>
                 </button>
-                <h1 class="text-xl font-bold text-gray-900">Importar clientes desde CSV</h1>
+                <h1 class="text-xl font-semibold text-tinta-900">Importar clientes desde CSV</h1>
             </div>
 
             <!-- Paso 1: plantilla -->
-            <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 mb-4">
-                <h2 class="text-sm font-bold text-gray-800 mb-2">1. Descarga la plantilla</h2>
-                <p class="text-sm text-gray-500 mb-3">
+            <div class="bg-white rounded-2xl border border-linea shadow-sm p-5 mb-4">
+                <h2 class="text-sm font-semibold text-tinta-900 mb-2">1. Descarga la plantilla</h2>
+                <p class="text-sm text-tinta-400 mb-3">
                     Trae los encabezados correctos y dos filas de ejemplo: una empresa con
                     contacto y una persona natural. Solo la columna <strong>nombre</strong> es
                     obligatoria.
@@ -116,46 +116,46 @@ async function importar() {
                 <a href="/clientes/importar/plantilla"
                     class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-white"
                     style="background:var(--marca);">
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
                     </svg>
                     Descargar plantilla CSV
                 </a>
-                <p v-if="sedes.length" class="text-xs text-gray-400 mt-3">
+                <p v-if="sedes.length" class="text-xs text-tinta-300 mt-3">
                     Sedes disponibles para la columna <span class="font-mono">sede</span>:
-                    <span class="font-medium text-gray-600">{{ sedes.join(', ') }}</span>
+                    <span class="font-medium text-tinta-500">{{ sedes.join(', ') }}</span>
                 </p>
 
                 <!-- Opciones válidas de segmentación: sin esto hay que adivinar
                      qué escribir, y lo que no coincide se pierde. -->
                 <div v-if="Object.keys(segmentacion).length" class="mt-3 space-y-1.5">
-                    <p class="text-xs text-gray-500">
+                    <p class="text-xs text-tinta-400">
                         En las columnas de segmentación puedes poner <strong>varias separadas por coma</strong>.
                         Estas son las opciones válidas:
                     </p>
                     <p v-for="[columna, tipo, etiqueta] in camposSegmentacion" :key="columna"
-                        class="text-xs text-gray-400">
+                        class="text-xs text-tinta-300">
                         <span class="font-mono">{{ columna }}</span>
-                        <span class="text-gray-300"> ({{ etiqueta }})</span>:
-                        <span class="font-medium text-gray-600">{{ (segmentacion[tipo] || []).join(', ') || '—' }}</span>
+                        <span class="text-tinta-200"> ({{ etiqueta }})</span>:
+                        <span class="font-medium text-tinta-500">{{ (segmentacion[tipo] || []).join(', ') || '—' }}</span>
                     </p>
                 </div>
             </div>
 
             <!-- Paso 2: subir -->
-            <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 mb-4">
-                <h2 class="text-sm font-bold text-gray-800 mb-2">2. Sube tu archivo</h2>
-                <p class="text-sm text-gray-500 mb-3">
+            <div class="bg-white rounded-2xl border border-linea shadow-sm p-5 mb-4">
+                <h2 class="text-sm font-semibold text-tinta-900 mb-2">2. Sube tu archivo</h2>
+                <p class="text-sm text-tinta-400 mb-3">
                     Si el número de identificación ya existe, ese cliente se
                     <strong>actualiza</strong> (las columnas que dejes vacías no se tocan). Si no
                     existe, se crea nuevo. Puedes reimportar el mismo archivo sin miedo a
                     duplicar.
                 </p>
-                <label class="flex items-center gap-3 border-2 border-dashed border-gray-200 rounded-xl px-4 py-3 cursor-pointer hover:border-blue-300">
-                    <svg class="w-5 h-5 text-gray-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <label class="flex items-center gap-3 border-2 border-dashed border-linea rounded-xl px-4 py-3 cursor-pointer hover:border-blue-300">
+                    <svg class="w-5 h-5 text-tinta-300 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
                     </svg>
-                    <span class="text-sm text-gray-600 truncate">{{ nombreArchivo || 'Elegir archivo .csv' }}</span>
+                    <span class="text-sm text-tinta-500 truncate">{{ nombreArchivo || 'Elegir archivo .csv' }}</span>
                     <input type="file" accept=".csv,text/csv" class="hidden" @change="onFileChange" />
                 </label>
                 <button @click="importar" :disabled="importando || !archivo"
@@ -167,25 +167,25 @@ async function importar() {
             </div>
 
             <!-- Resultado -->
-            <div v-if="resultado" class="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 mb-4">
-                <h2 class="text-sm font-bold text-gray-800 mb-3">Resultado</h2>
+            <div v-if="resultado" class="bg-white rounded-2xl border border-linea shadow-sm p-5 mb-4">
+                <h2 class="text-sm font-semibold text-tinta-900 mb-3">Resultado</h2>
                 <div class="grid grid-cols-3 gap-3 mb-4">
                     <div class="bg-green-50 rounded-xl p-3 text-center">
-                        <p class="text-xl font-bold text-green-700">{{ resultado.creados }}</p>
+                        <p class="text-xl font-semibold text-green-700">{{ resultado.creados }}</p>
                         <p class="text-xs text-green-600 mt-0.5">Creados</p>
                     </div>
                     <div class="bg-blue-50 rounded-xl p-3 text-center">
-                        <p class="text-xl font-bold text-blue-700">{{ resultado.actualizados }}</p>
+                        <p class="text-xl font-semibold text-blue-700">{{ resultado.actualizados }}</p>
                         <p class="text-xs text-blue-600 mt-0.5">Actualizados</p>
                     </div>
                     <div class="bg-red-50 rounded-xl p-3 text-center">
-                        <p class="text-xl font-bold text-red-700">{{ resultado.errores.length }}</p>
+                        <p class="text-xl font-semibold text-red-700">{{ resultado.errores.length }}</p>
                         <p class="text-xs text-red-600 mt-0.5">Con error</p>
                     </div>
                 </div>
 
                 <div v-if="resultado.errores.length" class="space-y-1.5 mb-3">
-                    <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Filas con error</p>
+                    <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">Filas con error</p>
                     <div v-for="e in resultado.errores" :key="e.fila"
                         class="bg-red-50 rounded-lg px-3 py-2 text-xs text-red-700">
                         Fila {{ e.fila }}: {{ e.motivo }}
@@ -193,8 +193,8 @@ async function importar() {
                 </div>
 
                 <div v-if="resultado.avisos?.length" class="space-y-1.5 mb-3">
-                    <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Avisos</p>
-                    <p class="text-xs text-gray-500">
+                    <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">Avisos</p>
+                    <p class="text-xs text-tinta-400">
                         Estas filas se cargaron, pero algo de su segmentación no se reconoció y se omitió.
                     </p>
                     <div v-for="(a, i) in resultado.avisos" :key="i"
@@ -204,8 +204,8 @@ async function importar() {
                 </div>
 
                 <div v-if="resultado.sin_contacto?.length" class="space-y-1.5">
-                    <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Empresas sin contacto</p>
-                    <p class="text-xs text-gray-500">
+                    <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">Empresas sin contacto</p>
+                    <p class="text-xs text-tinta-400">
                         Se cargaron bien, pero no se les puede hacer una cotización hasta que les
                         agregues una persona de contacto.
                     </p>
@@ -216,20 +216,20 @@ async function importar() {
                 </div>
 
                 <button v-if="resultado.creados + resultado.actualizados > 0" @click="router.visit('/clientes')"
-                    class="mt-4 w-full py-2 rounded-xl text-sm font-medium text-gray-600 border border-gray-200 hover:bg-gray-50">
+                    class="mt-4 w-full py-2 rounded-xl text-sm font-medium text-tinta-500 border border-linea hover:bg-tinta-50">
                     Ver clientes
                 </button>
             </div>
 
             <!-- Guía de columnas -->
-            <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
-                <h2 class="text-sm font-bold text-gray-800 mb-3">Guía de columnas</h2>
+            <div class="bg-white rounded-2xl border border-linea shadow-sm p-5">
+                <h2 class="text-sm font-semibold text-tinta-900 mb-3">Guía de columnas</h2>
                 <div class="divide-y divide-gray-50">
                     <div v-for="col in columnas" :key="col" class="py-2 flex items-start gap-3">
-                        <span class="shrink-0 font-mono text-xs px-2 py-1 rounded bg-gray-100 text-gray-700 w-48 truncate">{{ col }}</span>
+                        <span class="shrink-0 font-mono text-xs px-2 py-1 rounded bg-tinta-100 text-tinta-700 w-48 truncate">{{ col }}</span>
                         <div class="flex-1 min-w-0">
-                            <span v-if="descripciones[col]?.obligatoria" class="text-[10px] font-bold text-red-500 uppercase mr-1">Obligatoria</span>
-                            <span class="text-xs text-gray-500">{{ descripciones[col]?.texto ?? '' }}</span>
+                            <span v-if="descripciones[col]?.obligatoria" class="text-[10px] font-semibold text-red-500 uppercase mr-1">Obligatoria</span>
+                            <span class="text-xs text-tinta-400">{{ descripciones[col]?.texto ?? '' }}</span>
                         </div>
                     </div>
                 </div>

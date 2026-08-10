@@ -84,14 +84,14 @@ function pctColor(pct) {
                  class="h-12 object-contain"
                  onerror="this.style.display='none'" />
             <div>
-                <h1 class="text-2xl font-bold" style="color:#00B4D8;">
+                <h1 class="text-2xl font-semibold" style="color:#00B4D8;">
                     Planta de Producción
                 </h1>
                 <p class="text-sm capitalize" style="color:#8BA3C1;">{{ fecha }}</p>
             </div>
         </div>
         <div class="text-right">
-            <p class="text-6xl font-bold tabular-nums" style="color:#00B4D8;">
+            <p class="text-6xl font-semibold tabular-nums" style="color:#00B4D8;">
                 {{ horaActual }}
             </p>
         </div>
@@ -113,9 +113,9 @@ function pctColor(pct) {
             <!-- Top del día -->
             <div v-if="topHoy" class="rounded-2xl p-4 border shrink-0"
                  style="background:#102347; border-color:#FFB300;">
-                <p class="text-xs font-bold uppercase tracking-wider mb-2"
+                <p class="text-xs font-semibold uppercase tracking-[0.12em] mb-2"
                    style="color:#FFB300;">🏆 Mejor del día</p>
-                <p class="text-xl font-bold">{{ topHoy.nombre }}</p>
+                <p class="text-xl font-semibold">{{ topHoy.nombre }}</p>
                 <p class="text-sm mt-1" :style="{ color: nivelColor(topHoy.nivel) }">
                     {{ nivelEmoji(topHoy.nivel) }} {{ topHoy.nivel }}
                     · +{{ topHoy.puntos_hoy }} pts hoy
@@ -124,7 +124,7 @@ function pctColor(pct) {
 
             <!-- Ranking semanal -->
             <div class="flex-1 rounded-2xl p-4 overflow-y-auto" style="background:#102347;">
-                <p class="text-xs font-bold uppercase tracking-wider mb-3"
+                <p class="text-xs font-semibold uppercase tracking-[0.12em] mb-3"
                    style="color:#00B4D8;">🏅 Ranking Semanal</p>
 
                 <div v-if="ranking.length" class="space-y-2">
@@ -145,7 +145,7 @@ function pctColor(pct) {
                             </p>
                         </div>
                         <div class="text-right shrink-0">
-                            <p class="font-bold text-lg" style="color:#00B4D8;">{{ c.puntos_semana }}</p>
+                            <p class="font-semibold text-lg" style="color:#00B4D8;">{{ c.puntos_semana }}</p>
                             <p class="text-xs" style="color:#8BA3C1;">pts</p>
                         </div>
                     </div>
@@ -161,7 +161,7 @@ function pctColor(pct) {
 
         <!-- COLUMNA CENTRAL: Trabajos programados hoy -->
         <div class="rounded-2xl p-4 overflow-y-auto" style="background:#102347;">
-            <p class="text-xs font-bold uppercase tracking-wider mb-4"
+            <p class="text-xs font-semibold uppercase tracking-[0.12em] mb-4"
                style="color:#00B4D8;">⚙️ Programación de Hoy por Estación</p>
 
             <div v-if="trabajos.length" class="space-y-4">
@@ -173,7 +173,7 @@ function pctColor(pct) {
                         <div class="flex items-center gap-2">
                             <div class="w-3 h-3 rounded-full shrink-0"
                                  :style="{ background: estacion.color }"></div>
-                            <span class="font-bold text-sm">{{ estacion.estacion }}</span>
+                            <span class="font-semibold text-sm">{{ estacion.estacion }}</span>
                         </div>
                         <span class="text-xs px-2 py-0.5 rounded-full font-medium"
                               :style="{
@@ -229,7 +229,7 @@ function pctColor(pct) {
 
             <!-- OPs activas -->
             <div class="flex-1 rounded-2xl p-4 overflow-y-auto" style="background:#102347;">
-                <p class="text-xs font-bold uppercase tracking-wider mb-3"
+                <p class="text-xs font-semibold uppercase tracking-[0.12em] mb-3"
                    style="color:#00B4D8;">📦 Órdenes Activas</p>
 
                 <div v-if="ops.length" class="space-y-3">
@@ -237,10 +237,10 @@ function pctColor(pct) {
                          class="p-3 rounded-xl" style="background:#0D2E5A;">
                         <div class="flex items-start justify-between mb-1.5">
                             <div class="min-w-0 flex-1">
-                                <p class="font-bold text-sm" style="color:#00B4D8;">{{ op.numero }}</p>
+                                <p class="font-semibold text-sm" style="color:#00B4D8;">{{ op.numero }}</p>
                                 <p class="text-xs truncate" style="color:#8BA3C1;">{{ op.cliente }}</p>
                             </div>
-                            <span class="font-bold text-xl shrink-0 ml-2"
+                            <span class="font-semibold text-xl shrink-0 ml-2"
                                   :style="{ color: pctColor(op.porcentaje_avance) }">
                                 {{ op.porcentaje_avance }}%
                             </span>
@@ -266,7 +266,7 @@ function pctColor(pct) {
 
             <!-- Completados hoy -->
             <div class="rounded-2xl p-4 shrink-0" style="background:#102347;">
-                <p class="text-xs font-bold uppercase tracking-wider mb-3"
+                <p class="text-xs font-semibold uppercase tracking-[0.12em] mb-3"
                    style="color:#00C853;">✅ Completado hoy</p>
                 <div v-if="pasosHoy.length" class="space-y-1.5">
                     <div v-for="(p, idx) in pasosHoy.slice(0, 5)" :key="idx"

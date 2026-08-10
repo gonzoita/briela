@@ -57,18 +57,18 @@ function saveConfig() {
     <AppLayout title="Config. RRHH">
         <div class="max-w-3xl mx-auto">
 
-            <h1 class="text-xl font-bold text-gray-900 mb-5">Configuración RRHH</h1>
+            <h1 class="text-xl font-semibold text-tinta-900 mb-5">Configuración RRHH</h1>
 
             <!-- Tabs -->
-            <div class="flex gap-1 bg-gray-100 p-1 rounded-2xl mb-5">
+            <div class="flex gap-1 bg-tinta-100 p-1 rounded-2xl mb-5">
                 <button @click="tab = 'turnos'"
                     class="flex-1 py-2 rounded-xl text-sm font-semibold transition-colors"
-                    :class="tab === 'turnos' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'">
+                    :class="tab === 'turnos' ? 'bg-white text-tinta-900 shadow-sm' : 'text-tinta-400'">
                     Turnos
                 </button>
                 <button @click="tab = 'tarifas'"
                     class="flex-1 py-2 rounded-xl text-sm font-semibold transition-colors"
-                    :class="tab === 'tarifas' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'">
+                    :class="tab === 'tarifas' ? 'bg-white text-tinta-900 shadow-sm' : 'text-tinta-400'">
                     Tarifas y Config.
                 </button>
             </div>
@@ -76,19 +76,19 @@ function saveConfig() {
             <!-- ─── TURNOS ─── -->
             <div v-show="tab === 'turnos'" class="space-y-4">
                 <!-- Lista turnos -->
-                <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden">
-                    <div class="px-5 py-3 border-b border-gray-100">
-                        <h2 class="text-sm font-semibold text-gray-700">Turnos configurados</h2>
+                <div class="bg-white rounded-2xl border border-linea overflow-hidden">
+                    <div class="px-5 py-3 border-b border-linea">
+                        <h2 class="text-sm font-semibold text-tinta-700">Turnos configurados</h2>
                     </div>
-                    <div v-if="!turnos.length" class="py-8 text-center text-sm text-gray-400">Sin turnos.</div>
+                    <div v-if="!turnos.length" class="py-8 text-center text-sm text-tinta-300">Sin turnos.</div>
                     <div v-else class="divide-y divide-gray-50">
                         <div v-for="t in turnos" :key="t.id" class="flex items-center px-5 py-3 gap-3">
                             <div class="flex-1 min-w-0">
-                                <p class="text-sm font-medium text-gray-800">{{ t.nombre }}</p>
-                                <p class="text-xs text-gray-400">{{ t.hora_inicio }} — {{ t.hora_fin }}</p>
+                                <p class="text-sm font-medium text-tinta-900">{{ t.nombre }}</p>
+                                <p class="text-xs text-tinta-300">{{ t.hora_inicio }} — {{ t.hora_fin }}</p>
                             </div>
                             <span class="text-xs px-2 py-0.5 rounded-full"
-                                :class="t.activo ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'">
+                                :class="t.activo ? 'bg-green-100 text-green-700' : 'bg-tinta-100 text-tinta-400'">
                                 {{ t.activo ? 'Activo' : 'Inactivo' }}
                             </span>
                             <button @click="editarTurno(t)"
@@ -100,35 +100,35 @@ function saveConfig() {
                 </div>
 
                 <!-- Formulario turno -->
-                <div class="bg-white rounded-2xl border border-gray-200 p-5">
-                    <h3 class="text-sm font-semibold text-gray-700 mb-4">
+                <div class="bg-white rounded-2xl border border-linea p-5">
+                    <h3 class="text-sm font-semibold text-tinta-700 mb-4">
                         {{ editandoTurno ? 'Editar turno' : 'Nuevo turno' }}
                     </h3>
                     <div class="space-y-3">
                         <div>
-                            <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Nombre *</label>
+                            <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1.5">Nombre *</label>
                             <input v-model="turnoForm.nombre" type="text"
-                                class="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2" />
+                                class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-2" />
                         </div>
                         <div class="grid grid-cols-2 gap-3">
                             <div>
-                                <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Hora inicio</label>
+                                <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1.5">Hora inicio</label>
                                 <input v-model="turnoForm.hora_inicio" type="time"
-                                    class="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2" />
+                                    class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-2" />
                             </div>
                             <div>
-                                <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Hora fin</label>
+                                <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1.5">Hora fin</label>
                                 <input v-model="turnoForm.hora_fin" type="time"
-                                    class="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2" />
+                                    class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-2" />
                             </div>
                         </div>
                         <label class="flex items-center gap-2 cursor-pointer">
                             <input v-model="turnoForm.activo" type="checkbox" class="rounded" />
-                            <span class="text-sm text-gray-700">Activo</span>
+                            <span class="text-sm text-tinta-700">Activo</span>
                         </label>
                         <div class="flex gap-3">
                             <button v-if="editandoTurno" @click="cancelarTurno"
-                                class="flex-1 py-2.5 rounded-xl border border-gray-200 text-sm text-gray-600">
+                                class="flex-1 py-2.5 rounded-xl border border-linea text-sm text-tinta-500">
                                 Cancelar
                             </button>
                             <button @click="storeTurno"
@@ -144,21 +144,21 @@ function saveConfig() {
             <!-- ─── TARIFAS ─── -->
             <div v-show="tab === 'tarifas'" class="space-y-4">
                 <!-- Tarifas actuales -->
-                <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden">
-                    <div class="px-5 py-3 border-b border-gray-100">
-                        <h2 class="text-sm font-semibold text-gray-700">Tarifas por tipo de hora extra</h2>
+                <div class="bg-white rounded-2xl border border-linea overflow-hidden">
+                    <div class="px-5 py-3 border-b border-linea">
+                        <h2 class="text-sm font-semibold text-tinta-700">Tarifas por tipo de hora extra</h2>
                     </div>
                     <div class="divide-y divide-gray-50">
                         <div v-for="tarifa in props.tarifas" :key="tarifa.id"
                             class="flex items-center px-5 py-3 gap-3">
                             <div class="flex-1">
-                                <p class="text-sm font-medium text-gray-800 capitalize">{{ tarifa.tipo }}</p>
+                                <p class="text-sm font-medium text-tinta-900 capitalize">{{ tarifa.tipo }}</p>
                             </div>
-                            <span class="text-sm font-bold text-gray-700">
+                            <span class="text-sm font-semibold text-tinta-700">
                                 ${{ Number(tarifa.valor_hora).toLocaleString('es-CO') }}/h
                             </span>
                             <span class="text-xs px-2 py-0.5 rounded-full"
-                                :class="tarifa.activo ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'">
+                                :class="tarifa.activo ? 'bg-green-100 text-green-700' : 'bg-tinta-100 text-tinta-400'">
                                 {{ tarifa.activo ? 'Activa' : 'Inactiva' }}
                             </span>
                         </div>
@@ -166,24 +166,24 @@ function saveConfig() {
                 </div>
 
                 <!-- Actualizar tarifa -->
-                <div class="bg-white rounded-2xl border border-gray-200 p-5">
-                    <h3 class="text-sm font-semibold text-gray-700 mb-4">Actualizar tarifa</h3>
+                <div class="bg-white rounded-2xl border border-linea p-5">
+                    <h3 class="text-sm font-semibold text-tinta-700 mb-4">Actualizar tarifa</h3>
                     <div class="space-y-3">
                         <div>
-                            <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Tipo *</label>
+                            <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1.5">Tipo *</label>
                             <select v-model="tarifaForm.tipo"
-                                class="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2">
+                                class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-2">
                                 <option v-for="t in tarifas" :key="t.tipo" :value="t.tipo">{{ t.label }}</option>
                             </select>
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Valor por hora ($) *</label>
+                            <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1.5">Valor por hora ($) *</label>
                             <input v-model.number="tarifaForm.valor_hora" type="number" min="0"
-                                class="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2" />
+                                class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-2" />
                         </div>
                         <label class="flex items-center gap-2 cursor-pointer">
                             <input v-model="tarifaForm.activo" type="checkbox" class="rounded" />
-                            <span class="text-sm text-gray-700">Activa</span>
+                            <span class="text-sm text-tinta-700">Activa</span>
                         </label>
                         <button @click="storeTarifa"
                             class="w-full py-2.5 rounded-xl text-white text-sm font-semibold"
@@ -194,18 +194,18 @@ function saveConfig() {
                 </div>
 
                 <!-- Config global -->
-                <div class="bg-white rounded-2xl border border-gray-200 p-5">
-                    <h3 class="text-sm font-semibold text-gray-700 mb-4">Configuración general</h3>
+                <div class="bg-white rounded-2xl border border-linea p-5">
+                    <h3 class="text-sm font-semibold text-tinta-700 mb-4">Configuración general</h3>
                     <div class="space-y-3">
                         <div>
-                            <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Tarifa hora base ($/h)</label>
+                            <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1.5">Tarifa hora base ($/h)</label>
                             <input v-model.number="configForm.tarifa_hora_base" type="number" min="0"
-                                class="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2" />
+                                class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-2" />
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Penalización por ausencia ($)</label>
+                            <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1.5">Penalización por ausencia ($)</label>
                             <input v-model.number="configForm.penalizacion_ausencia" type="number" min="0"
-                                class="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2" />
+                                class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-2" />
                         </div>
                         <button @click="saveConfig"
                             class="w-full py-2.5 rounded-xl text-white text-sm font-semibold"

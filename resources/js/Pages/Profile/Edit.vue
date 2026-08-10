@@ -48,7 +48,7 @@ function borrarCuenta() {
 }
 
 function ic(extra = '') {
-    return `w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${extra}`
+    return `w-full rounded-lg border border-tinta-200 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${extra}`
 }
 </script>
 
@@ -59,33 +59,33 @@ function ic(extra = '') {
         <div class="max-w-2xl mx-auto space-y-4 pb-8">
 
             <!-- Quién soy -->
-            <div class="bg-white rounded-xl border border-gray-200 p-4">
+            <div class="bg-white rounded-xl border border-linea p-4">
                 <div class="flex items-center gap-3">
                     <div class="w-12 h-12 rounded-full bg-[var(--marca)] flex items-center justify-center text-white text-lg font-semibold shrink-0">
                         {{ (user.name || '?').charAt(0).toUpperCase() }}
                     </div>
                     <div class="min-w-0">
-                        <p class="font-semibold text-gray-800 truncate">{{ user.name }}</p>
-                        <p class="text-xs text-gray-500 truncate">{{ user.email }}</p>
+                        <p class="font-semibold text-tinta-900 truncate">{{ user.name }}</p>
+                        <p class="text-xs text-tinta-400 truncate">{{ user.email }}</p>
                     </div>
                 </div>
             </div>
 
             <!-- Datos de la cuenta -->
-            <form @submit.prevent="guardarDatos" class="bg-white rounded-xl border border-gray-200 p-4 space-y-3">
+            <form @submit.prevent="guardarDatos" class="bg-white rounded-xl border border-linea p-4 space-y-3">
                 <div>
-                    <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Datos de la cuenta</p>
-                    <p class="text-xs text-gray-500 mt-1">Tu nombre y el correo con el que entras al sistema.</p>
+                    <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">Datos de la cuenta</p>
+                    <p class="text-xs text-tinta-400 mt-1">Tu nombre y el correo con el que entras al sistema.</p>
                 </div>
 
                 <div>
-                    <label class="block text-xs font-medium text-gray-700 mb-1">Nombre</label>
+                    <label class="block text-xs font-medium text-tinta-700 mb-1">Nombre</label>
                     <input v-model="formDatos.name" type="text" :class="ic()" required autocomplete="name"/>
                     <p v-if="formDatos.errors.name" class="text-red-500 text-xs mt-1">{{ formDatos.errors.name }}</p>
                 </div>
 
                 <div>
-                    <label class="block text-xs font-medium text-gray-700 mb-1">Correo</label>
+                    <label class="block text-xs font-medium text-tinta-700 mb-1">Correo</label>
                     <input v-model="formDatos.email" type="email" :class="ic()" required autocomplete="username"/>
                     <p v-if="formDatos.errors.email" class="text-red-500 text-xs mt-1">{{ formDatos.errors.email }}</p>
                 </div>
@@ -115,26 +115,26 @@ function ic(extra = '') {
             </form>
 
             <!-- Contraseña -->
-            <form @submit.prevent="guardarClave" class="bg-white rounded-xl border border-gray-200 p-4 space-y-3">
+            <form @submit.prevent="guardarClave" class="bg-white rounded-xl border border-linea p-4 space-y-3">
                 <div>
-                    <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Contraseña</p>
-                    <p class="text-xs text-gray-500 mt-1">Usa una contraseña larga que no uses en otro lado.</p>
+                    <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">Contraseña</p>
+                    <p class="text-xs text-tinta-400 mt-1">Usa una contraseña larga que no uses en otro lado.</p>
                 </div>
 
                 <div>
-                    <label class="block text-xs font-medium text-gray-700 mb-1">Contraseña actual</label>
+                    <label class="block text-xs font-medium text-tinta-700 mb-1">Contraseña actual</label>
                     <input v-model="formClave.current_password" type="password" :class="ic()" autocomplete="current-password"/>
                     <p v-if="formClave.errors.current_password" class="text-red-500 text-xs mt-1">{{ formClave.errors.current_password }}</p>
                 </div>
 
                 <div>
-                    <label class="block text-xs font-medium text-gray-700 mb-1">Contraseña nueva</label>
+                    <label class="block text-xs font-medium text-tinta-700 mb-1">Contraseña nueva</label>
                     <input v-model="formClave.password" type="password" :class="ic()" autocomplete="new-password"/>
                     <p v-if="formClave.errors.password" class="text-red-500 text-xs mt-1">{{ formClave.errors.password }}</p>
                 </div>
 
                 <div>
-                    <label class="block text-xs font-medium text-gray-700 mb-1">Repite la contraseña nueva</label>
+                    <label class="block text-xs font-medium text-tinta-700 mb-1">Repite la contraseña nueva</label>
                     <input v-model="formClave.password_confirmation" type="password" :class="ic()" autocomplete="new-password"/>
                     <p v-if="formClave.errors.password_confirmation" class="text-red-500 text-xs mt-1">{{ formClave.errors.password_confirmation }}</p>
                 </div>
@@ -154,8 +154,8 @@ function ic(extra = '') {
             <!-- Eliminar cuenta -->
             <div class="bg-white rounded-xl border border-red-200 p-4 space-y-3">
                 <div>
-                    <p class="text-xs font-semibold text-red-600 uppercase tracking-wider">Eliminar mi cuenta</p>
-                    <p class="text-xs text-gray-500 mt-1">
+                    <p class="text-xs font-semibold text-red-600 uppercase tracking-[0.12em]">Eliminar mi cuenta</p>
+                    <p class="text-xs text-tinta-400 mt-1">
                         Se borra tu acceso y tus datos personales de forma permanente. Antes de
                         hacerlo, descarga lo que necesites conservar.
                     </p>
@@ -178,7 +178,7 @@ function ic(extra = '') {
                     </div>
                     <div class="flex gap-2">
                         <button type="button" @click="confirmandoBorrado = false; formBorrar.reset()"
-                            class="rounded-lg border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50">
+                            class="rounded-lg border border-tinta-200 px-4 py-2 text-sm font-semibold text-tinta-700 hover:bg-tinta-50">
                             Cancelar
                         </button>
                         <button type="button" @click="borrarCuenta" :disabled="formBorrar.processing"

@@ -33,7 +33,7 @@ const colores = {
     morado: 'bg-violet-50 text-violet-700',
     verde:  'bg-green-50 text-green-700',
     ambar:  'bg-amber-50 text-amber-700',
-    gris:   'bg-gray-100 text-gray-600',
+    gris:   'bg-tinta-100 text-tinta-500',
 }
 
 // Lista plana, para poder moverse con las flechas entre grupos distintos.
@@ -173,16 +173,16 @@ function indicePlano(gi, ri) {
     <div class="relative">
         <!-- Disparador: barra en computador, lupa en celular -->
         <button type="button" @click="abrir"
-            class="hidden md:flex items-center gap-2 w-56 lg:w-72 rounded-xl border border-gray-200 bg-gray-50 px-3 py-1.5 text-sm text-gray-400 hover:bg-white hover:border-gray-300 transition-colors">
-            <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            class="hidden md:flex items-center gap-2 w-56 lg:w-72 rounded-xl border border-linea bg-tinta-50 px-3 py-1.5 text-sm text-tinta-300 hover:bg-white hover:border-tinta-200 transition-colors">
+            <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
             </svg>
             <span class="flex-1 text-left">Buscar...</span>
-            <kbd class="hidden lg:inline text-[10px] border border-gray-300 rounded px-1 py-0.5 text-gray-400">Ctrl K</kbd>
+            <kbd class="hidden lg:inline text-[10px] border border-tinta-200 rounded px-1 py-0.5 text-tinta-300">Ctrl K</kbd>
         </button>
 
-        <button type="button" @click="abrir" class="md:hidden p-2 text-gray-500" aria-label="Buscar">
-            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <button type="button" @click="abrir" class="md:hidden p-2 text-tinta-400" aria-label="Buscar">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
             </svg>
         </button>
@@ -196,17 +196,17 @@ function indicePlano(gi, ri) {
                 <div class="relative w-full md:max-w-2xl md:mt-20 bg-white md:rounded-2xl shadow-xl overflow-hidden h-full md:h-auto md:max-h-[75vh] flex flex-col">
 
                     <!-- Campo -->
-                    <div class="flex items-center gap-2 px-4 py-3 border-b border-gray-100 shrink-0">
-                        <svg class="w-5 h-5 text-gray-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <div class="flex items-center gap-2 px-4 py-3 border-b border-linea shrink-0">
+                        <svg class="w-5 h-5 text-tinta-300 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                         </svg>
                         <input ref="campo" v-model="termino" type="text"
                             placeholder="Cliente, OP, cotización, remisión, producto, serie..."
                             class="flex-1 text-sm bg-transparent focus:outline-none"
                             @input="alEscribir" @keydown="conTeclado"/>
-                        <span v-if="buscando" class="w-4 h-4 border-2 border-gray-200 border-t-blue-600 rounded-full animate-spin shrink-0"></span>
-                        <button type="button" @click="cerrar" class="text-gray-400 hover:text-gray-600 shrink-0">
-                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <span v-if="buscando" class="w-4 h-4 border-2 border-linea border-t-blue-600 rounded-full animate-spin shrink-0"></span>
+                        <button type="button" @click="cerrar" class="text-tinta-300 hover:text-tinta-500 shrink-0">
+                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
                             </svg>
                         </button>
@@ -215,28 +215,28 @@ function indicePlano(gi, ri) {
                     <!-- Resultados -->
                     <div class="flex-1 overflow-y-auto">
                         <div v-if="termino.trim().length < 2" class="px-4 py-8 text-center">
-                            <p class="text-sm text-gray-400">Escribe al menos dos letras.</p>
-                            <p class="text-xs text-gray-300 mt-1">
+                            <p class="text-sm text-tinta-300">Escribe al menos dos letras.</p>
+                            <p class="text-xs text-tinta-200 mt-1">
                                 Busca por nombre, NIT, número de documento o número de serie.
                             </p>
                         </div>
 
                         <div v-for="(g, gi) in grupos" :key="g.tipo" class="py-1">
-                            <p class="px-4 py-1.5 text-[11px] font-semibold text-gray-400 uppercase tracking-wider">
+                            <p class="px-4 py-1.5 text-[11px] font-semibold text-tinta-300 uppercase tracking-[0.12em]">
                                 {{ g.etiqueta }}
                             </p>
                             <button v-for="(r, ri) in g.resultados" :key="r.url + ri"
                                 type="button" @click="ir(r)"
                                 @mouseenter="activo = indicePlano(gi, ri)"
                                 class="w-full flex items-center gap-3 px-4 py-2 text-left transition-colors"
-                                :class="activo === indicePlano(gi, ri) ? 'bg-gray-50' : ''">
+                                :class="activo === indicePlano(gi, ri) ? 'bg-tinta-50' : ''">
                                 <span class="shrink-0 text-[10px] font-semibold px-1.5 py-0.5 rounded"
                                     :class="colores[g.color] ?? colores.gris">
                                     {{ g.tipo.replace(/_/g, ' ') }}
                                 </span>
                                 <span class="flex-1 min-w-0">
-                                    <span class="block text-sm text-gray-800 truncate">{{ r.titulo }}</span>
-                                    <span v-if="r.detalle" class="block text-xs text-gray-400 truncate">{{ r.detalle }}</span>
+                                    <span class="block text-sm text-tinta-900 truncate">{{ r.titulo }}</span>
+                                    <span v-if="r.detalle" class="block text-xs text-tinta-300 truncate">{{ r.detalle }}</span>
                                 </span>
                             </button>
                         </div>
@@ -249,8 +249,8 @@ function indicePlano(gi, ri) {
 
                         <!-- Nada encontrado: aquí entra la IA -->
                         <div v-if="sinResultados" class="px-4 py-8 text-center">
-                            <p class="text-sm text-gray-500">No encontré nada con “{{ termino }}”.</p>
-                            <p class="text-xs text-gray-400 mt-1">
+                            <p class="text-sm text-tinta-400">No encontré nada con “{{ termino }}”.</p>
+                            <p class="text-xs text-tinta-300 mt-1">
                                 Puede que no exista, que esté en otra sede, o que sea una pregunta
                                 y no un nombre.
                             </p>
@@ -263,10 +263,10 @@ function indicePlano(gi, ri) {
                     </div>
 
                     <!-- Ayuda del teclado -->
-                    <div v-if="planos.length" class="hidden md:flex items-center gap-3 px-4 py-2 border-t border-gray-100 text-[11px] text-gray-400 shrink-0">
-                        <span><kbd class="border border-gray-200 rounded px-1">↑</kbd><kbd class="border border-gray-200 rounded px-1 ml-0.5">↓</kbd> moverse</span>
-                        <span><kbd class="border border-gray-200 rounded px-1">Enter</kbd> abrir</span>
-                        <span><kbd class="border border-gray-200 rounded px-1">Esc</kbd> cerrar</span>
+                    <div v-if="planos.length" class="hidden md:flex items-center gap-3 px-4 py-2 border-t border-linea text-[11px] text-tinta-300 shrink-0">
+                        <span><kbd class="border border-linea rounded px-1">↑</kbd><kbd class="border border-linea rounded px-1 ml-0.5">↓</kbd> moverse</span>
+                        <span><kbd class="border border-linea rounded px-1">Enter</kbd> abrir</span>
+                        <span><kbd class="border border-linea rounded px-1">Esc</kbd> cerrar</span>
                     </div>
                 </div>
             </div>
