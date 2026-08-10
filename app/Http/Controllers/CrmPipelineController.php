@@ -45,7 +45,10 @@ class CrmPipelineController extends Controller
                 }
 
                 if ($fuente) {
-                    $q->where('fuente', $fuente);
+                    // Se filtra por canal de origen: un lead que llegó por
+                    // WhatsApp aparece al filtrar WhatsApp aunque su primer
+                    // contacto haya sido otro.
+                    $q->whereHas('origenes', fn ($o) => $o->where('canal', $fuente));
                 }
 
                 if ($buscar) {
@@ -58,7 +61,7 @@ class CrmPipelineController extends Controller
                     });
                 }
 
-                $q->with(['responsable:id,name', 'cliente:id,nombre', 'tareas'])
+                $q->with(['responsable:id,name', 'cliente:id,nombre', 'tareas', 'origenes'])
                   ->orderBy('orden_en_etapa');
             }])
             ->get()
@@ -77,6 +80,10 @@ class CrmPipelineController extends Controller
                     'empresa_contacto'  => $l->empresa_contacto,
                     'telefono_contacto' => $l->telefono_contacto,
                     'fuente'            => $l->fuente,
+                    // Todos los canales por los que se acercó, para que la tarjeta
+                    // los muestre como etiquetas. Un lead que llegó por tres lados
+                    // vale más que uno que llegó por uno, y eso debe verse.
+                    'origenes'          => $l->origenes->map(fn ($o) => $o->comoEtiqueta())->values(),
                     'estado'            => $l->estado,
                     'responsable'       => $l->responsable?->name,
                     'cliente'           => $l->cliente?->nombre,
@@ -91,12 +98,21 @@ class CrmPipelineController extends Controller
 
         $deSede = fn ($q) => $sedeActiva ? $q->where('sede_id', $sedeActiva) : $q;
 
-        $fuentes = CrmLead::whereNotNull('fuente')
-            ->where('fuente', '!=', '')
-            ->tap($deSede)
+        // Los canales que de verdad tienen leads, con su etiqueta para el filtro.
+        $canalesConLeads = \App\Models\CrmLeadOrigen::query()
+            ->when($sedeActiva, fn ($q) => $q->whereHas('lead', fn ($l) => $l->where('sede_id', $sedeActiva)))
             ->distinct()
-            ->orderBy('fuente')
-            ->pluck('fuente');
+            ->pluck('canal');
+
+        $catalogo = \App\Models\CrmLeadOrigen::canales();
+
+        $fuentes = $canalesConLeads
+            ->map(fn ($c) => [
+                'valor'    => $c,
+                'etiqueta' => $catalogo[$c]['etiqueta'] ?? $c,
+            ])
+            ->sortBy('etiqueta')
+            ->values();
 
         $totalActivos  = CrmLead::where('estado', 'activo')->tap($deSede)->count();
         $totalGanados  = CrmLead::where('estado', 'ganado')->tap($deSede)->count();
@@ -140,12 +156,42 @@ class CrmPipelineController extends Controller
             'cliente_id'        => 'nullable|exists:clientes,id',
         ]);
 
-        $orden = CrmLead::where('etapa_id', $data['etapa_id'])->max('orden_en_etapa') + 1;
-        $lead  = CrmLead::create([...$data, 'orden_en_etapa' => $orden]);
+        // También la carga a mano pasa por la puerta única: si un vendedor escribe
+        // un teléfono que ya está en el embudo, se le suma el contacto en vez de
+        // crear el duplicado. Se le dice, para que sepa por qué no apareció una
+        // tarjeta nueva.
+        $resultado = app(\App\Services\LeadEntranteService::class)->registrar([
+            'canal'          => 'manual',
+            'detalle'        => $data['fuente'] ?? null,
+            'nombre'         => $data['nombre_contacto'] ?? null,
+            'email'          => $data['email_contacto'] ?? null,
+            'telefono'       => $data['telefono_contacto'] ?? null,
+            'empresa'        => $data['empresa_contacto'] ?? null,
+            'mensaje'        => $data['descripcion'] ?? null,
+            'etapa_id'       => $data['etapa_id'],
+            'responsable_id' => $data['responsable_id'] ?? null,
+            'avisar'         => false,
+        ]);
 
-        \App\Models\CrmActividad::registrar($lead->id, 'creacion', 'Lead creado');
+        $lead = $resultado['lead'];
 
-        return response()->json(['lead' => $lead->load('responsable:id,name', 'cliente:id,nombre')]);
+        // El título y el cliente los eligió una persona: mandan sobre lo que
+        // hubiera armado el servicio.
+        $lead->update(array_filter([
+            'titulo'     => $data['titulo'] ?? null,
+            'cliente_id' => $data['cliente_id'] ?? null,
+        ], fn ($v) => $v !== null));
+
+        \App\Models\CrmActividad::registrar(
+            $lead->id,
+            $resultado['nuevo'] ? 'creacion' : 'contacto_repetido',
+            $resultado['nuevo'] ? 'Lead creado' : 'Se registró otro contacto de alguien que ya estaba'
+        );
+
+        return response()->json([
+            'lead'  => $lead->load('responsable:id,name', 'cliente:id,nombre', 'origenes'),
+            'nuevo' => $resultado['nuevo'],
+        ]);
     }
 
     public function showLead(CrmLead $lead)

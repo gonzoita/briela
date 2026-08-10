@@ -25,6 +25,11 @@ Schedule::command('notificaciones:cursos-por-vencer')->dailyAt('06:05');
 // respuesta, insumos bajo el stock mínimo y cuotas de OP vencidas.
 Schedule::command('notificaciones:recordatorios')->dailyAt('06:10');
 
+// Leads que llevan una semana sin que nadie los toque. Va a las 6:15, junto con el
+// resto de los avisos de la mañana: así quien abre el sistema encuentra en la
+// campanita todo lo que tiene pendiente del día, en un solo grupo.
+Schedule::command('crm:avisar-leads-quietos --dias=7')->dailyAt('06:15');
+
 // Cada minuto: publica en redes sociales las publicaciones programadas cuya
 // fecha ya se cumplió (módulo RRSS).
 Schedule::command('rrss:publicar-programadas')->everyMinute();

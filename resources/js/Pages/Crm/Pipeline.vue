@@ -2,6 +2,9 @@
 import { ref, watch } from 'vue'
 import { router } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
+import { useTema } from '@/composables/useTema'
+
+const tema = useTema()
 import ModalLead from '@/Components/Crm/ModalLead.vue'
 import DetalleLead from '@/Components/Crm/DetalleLead.vue'
 
@@ -129,6 +132,7 @@ function onLeadGuardado(lead) {
         empresa_contacto:  lead.empresa_contacto ?? null,
         telefono_contacto: lead.telefono_contacto ?? null,
         fuente:            lead.fuente            ?? null,
+        origenes:          lead.origenes          ?? [],
         estado:            'activo',
         responsable:       lead.responsable?.name ?? lead.responsable ?? null,
         cliente:           lead.cliente?.nombre   ?? lead.cliente     ?? null,
@@ -253,7 +257,7 @@ function getCookie(name) {
                     class="border border-tinta-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)] bg-superficie"
                 >
                     <option value="">Todas las fuentes</option>
-                    <option v-for="f in props.fuentes" :key="f" :value="f">{{ f }}</option>
+                    <option v-for="f in props.fuentes" :key="f.valor" :value="f.valor">{{ f.etiqueta }}</option>
                 </select>
 
                 <!-- Limpiar filtros -->
@@ -337,11 +341,33 @@ function getCookie(name) {
                                     <span class="truncate">{{ lead.empresa_contacto ?? lead.nombre_contacto }}</span>
                                 </div>
 
+                                <!-- Por dónde llegó. Puede ser más de un canal: quien
+                                     se acercó por tres lados vale más que quien lo hizo
+                                     por uno, y en el embudo eso tiene que verse de un
+                                     vistazo. El color identifica el canal; la campaña
+                                     aparece al posar el cursor. -->
+                                <div v-if="lead.origenes?.length" class="flex flex-wrap items-center gap-1 mt-2">
+                                    <span
+                                        v-for="(o, i) in lead.origenes.slice(0, 3)"
+                                        :key="i"
+                                        class="text-[11px] px-1.5 py-0.5 rounded font-medium truncate max-w-[110px]"
+                                        :style="tema.temaEfectivo.value === 'oscuro'
+                                            ? { background: o.fondo_oscuro, color: o.color_oscuro }
+                                            : { background: o.fondo, color: o.color }"
+                                        :title="[o.etiqueta, o.detalle, o.fecha].filter(Boolean).join(' · ')"
+                                    >{{ o.etiqueta }}</span>
+                                    <span
+                                        v-if="lead.origenes.length > 3"
+                                        class="text-[11px] text-tinta-400 px-1"
+                                        :title="lead.origenes.slice(3).map(o => o.etiqueta).join(', ')"
+                                    >+{{ lead.origenes.length - 3 }}</span>
+                                </div>
+
                                 <!-- Footer tarjeta -->
                                 <div class="flex items-center justify-between gap-1 mt-2">
                                     <span
-                                        v-if="lead.fuente"
-                                        class="text-xs bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded-lg truncate max-w-[100px]"
+                                        v-if="!lead.origenes?.length && lead.fuente"
+                                        class="text-xs bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded truncate max-w-[100px]"
                                     >{{ lead.fuente }}</span>
                                     <span v-else class="flex-1"></span>
 

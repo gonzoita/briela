@@ -10,6 +10,7 @@ use App\Models\User;
 use App\Models\WhatsappConversacion;
 use App\Models\WhatsappNumero;
 use Illuminate\Support\Facades\Log;
+use App\Services\LeadEntranteService;
 
 /**
  * Qué pasa cuando un desconocido escribe por WhatsApp.
@@ -207,17 +208,20 @@ class WhatsappAutomatizacionService
 
         $nombre = $conversacion->nombre_contacto ?: $telefono;
 
-        $lead = CrmLead::create([
-            'etapa_id'          => $etapaId,
-            'responsable_id'    => $this->resolverResponsable($cfg),
-            'titulo'            => "{$nombre} — WhatsApp",
-            'nombre_contacto'   => $conversacion->nombre_contacto,
-            'telefono_contacto' => $telefono,
-            'descripcion'       => $texto,
-            'fuente'            => 'whatsapp',
-            'estado'            => 'activo',
-            'orden_en_etapa'    => (CrmLead::where('etapa_id', $etapaId)->max('orden_en_etapa') ?? 0) + 1,
+        $resultado = app(LeadEntranteService::class)->registrar([
+            'canal'          => 'whatsapp',
+            'nombre'         => $conversacion->nombre_contacto,
+            'telefono'       => $telefono,
+            'mensaje'        => $texto,
+            'etapa_id'       => $etapaId,
+            'responsable_id' => $this->resolverResponsable($cfg),
+            // El identificador de la conversación evita registrar dos veces el
+            // mismo contacto si el webhook de WhatsApp se repite, que pasa.
+            'referencia_externa' => 'conv-' . $conversacion->id,
+            'avisar'         => false,
         ]);
+
+        $lead = $resultado['lead'];
 
         // Si el lead quedó sin responsable (no hay nadie configurado en el
         // reparto), el aviso va al rol para que no se quede sin dueño y sin
