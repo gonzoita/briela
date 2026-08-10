@@ -98,7 +98,7 @@ function tipoColor(t) {
             </div>
 
             <!-- Filtros -->
-            <div class="bg-white rounded-xl border border-linea p-3 mb-4 space-y-2">
+            <div class="bg-superficie rounded-xl border border-linea p-3 mb-4 space-y-2">
                 <div class="flex flex-col sm:flex-row gap-2">
                     <input v-model="buscar" type="text" placeholder="Buscar por nombre, NIT, email..."
                         class="flex-1 rounded-lg border border-tinta-200 px-3 py-2 text-sm focus:ring-4 focus:ring-[var(--marca-suave)] focus:outline-none"
@@ -123,7 +123,7 @@ function tipoColor(t) {
             <!-- Lista mobile -->
             <div class="space-y-2 sm:hidden">
                 <div v-for="p in proveedores.data" :key="p.id"
-                    class="bg-white rounded-xl border border-linea p-4">
+                    class="bg-superficie rounded-xl border border-linea p-4">
                     <div class="flex items-start justify-between">
                         <div>
                             <p class="font-semibold text-tinta-900">{{ p.nombre }}</p>
@@ -146,7 +146,7 @@ function tipoColor(t) {
             </div>
 
             <!-- Tabla desktop -->
-            <div class="hidden sm:block bg-white rounded-xl border border-linea overflow-hidden">
+            <div class="hidden sm:block bg-superficie rounded-xl border border-linea overflow-hidden">
                 <table class="w-full text-sm">
                     <thead class="bg-tinta-50 border-b border-linea">
                         <tr>
@@ -191,7 +191,7 @@ function tipoColor(t) {
                 <template v-for="link in proveedores.links" :key="link.label">
                     <button v-if="link.url"
                         @click="router.visit(link.url, { preserveState: true })"
-                        :class="['px-3 py-1.5 rounded-lg text-sm', link.active ? 'text-white font-semibold' : 'bg-white border border-linea text-tinta-700']"
+                        :class="['px-3 py-1.5 rounded-lg text-sm', link.active ? 'text-white font-semibold' : 'bg-superficie border border-linea text-tinta-700']"
                         :style="link.active ? 'background:var(--marca)' : ''"
                         v-html="link.label" />
                     <span v-else class="px-3 py-1.5 rounded-lg text-sm text-tinta-200 border border-linea" v-html="link.label" />
@@ -203,7 +203,7 @@ function tipoColor(t) {
         <Teleport to="body">
             <div v-if="modalAbierto" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
                 <div class="absolute inset-0 bg-black/40" @click="cerrarModal" />
-                <div class="relative bg-white w-full sm:max-w-lg rounded-t-2xl sm:rounded-2xl p-5 max-h-[90vh] overflow-y-auto">
+                <div class="relative bg-superficie w-full sm:max-w-lg rounded-t-2xl sm:rounded-2xl p-5 max-h-[90vh] overflow-y-auto">
                     <h2 class="text-lg font-semibold text-tinta-900 mb-4">
                         {{ editando ? 'Editar proveedor' : 'Nuevo proveedor' }}
                     </h2>

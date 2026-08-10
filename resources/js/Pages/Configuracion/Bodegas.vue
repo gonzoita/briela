@@ -76,7 +76,7 @@ function eliminar(id) {
             </div>
 
             <!-- Lista -->
-            <div class="bg-white rounded-2xl border border-linea overflow-hidden mb-4">
+            <div class="bg-superficie rounded-2xl border border-linea overflow-hidden mb-4">
                 <div class="px-5 py-3 border-b border-linea">
                     <h2 class="text-sm font-semibold text-tinta-700">Bodegas registradas</h2>
                     <p class="text-xs text-tinta-300 mt-0.5">Cada sede puede tener su propia bodega Principal.</p>
@@ -135,7 +135,7 @@ function eliminar(id) {
             </div>
 
             <!-- Formulario crear / editar -->
-            <div class="bg-white rounded-2xl border border-linea p-5">
+            <div class="bg-superficie rounded-2xl border border-linea p-5">
                 <h3 class="text-sm font-semibold text-tinta-700 mb-4">
                     {{ editando ? 'Editar bodega' : 'Nueva bodega' }}
                 </h3>
@@ -148,7 +148,7 @@ function eliminar(id) {
                         </label>
                         <select
                             v-model="form.sede_id"
-                            class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)] bg-white"
+                            class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)] bg-superficie"
                         >
                             <option v-for="s in sedes" :key="s.id" :value="s.id">{{ s.nombre }} ({{ s.codigo }})</option>
                         </select>
@@ -174,7 +174,7 @@ function eliminar(id) {
                         </label>
                         <select
                             v-model="form.tipo"
-                            class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)] bg-white"
+                            class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)] bg-superficie"
                         >
                             <option value="general">General</option>
                             <option value="produccion">Producción</option>

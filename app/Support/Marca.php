@@ -146,7 +146,23 @@ class Marca
             $lineas[] = "--{$nombre}:{$valor}";
         }
 
-        return ':root{' . implode(';', $lineas) . '}';
+        $esquemas = self::esquemas();
+
+        // El modo día va en :root y el de noche en un atributo del <html>, que es
+        // lo que cambia el selector de tema. Así el cambio es instantáneo y no
+        // necesita recargar ni volver a pedir nada al servidor.
+        foreach ($esquemas['claro'] as $nombre => $valor) {
+            $lineas[] = "--{$nombre}:{$valor}";
+        }
+
+        $oscuro = [];
+        foreach ($esquemas['oscuro'] as $nombre => $valor) {
+            $oscuro[] = "--{$nombre}:{$valor}";
+        }
+
+        return ':root{' . implode(';', $lineas) . '}'
+            . 'html[data-tema="oscuro"]{' . implode(';', $oscuro) . '}'
+            . 'html[data-tema="oscuro"]{color-scheme:dark}';
     }
 
     /**
@@ -170,14 +186,69 @@ class Marca
             'radio'     => '8px',
             'radio-lg'  => '12px',
             'radio-xl'  => '14px',
-            'sombra-sm' => '0 1px 2px rgba(16,24,40,.04), 0 1px 3px rgba(16,24,40,.06)',
-            'sombra'    => '0 1px 3px rgba(16,24,40,.04), 0 8px 24px -8px rgba(16,24,40,.10)',
-            'sombra-lg' => '0 2px 6px rgba(16,24,40,.04), 0 24px 48px -12px rgba(16,24,40,.14)',
-            'borde'     => '#EDEFF2',
-            'texto'     => '#101828',
-            'texto-2'   => '#475467',
-            'texto-3'   => '#98A2B3',
-            'fondo'     => '#FBFBFC',
+        ];
+    }
+
+    /**
+     * Los colores de las superficies y del texto, para el modo día y el de noche.
+     *
+     * Están aquí y no en Tailwind porque tienen que poder **cambiar de valor** sin
+     * recompilar: el modo noche no añade clases a las 128 pantallas, cambia lo que
+     * significan las que ya usan. Por eso la escala de grises y las superficies
+     * salen de variables CSS y no de números fijos.
+     *
+     * En el modo de noche la escala se invierte —lo que era casi blanco pasa a ser
+     * casi negro— y las sombras se aclaran: una sombra negra sobre un fondo oscuro
+     * no se ve, así que ahí el relieve lo dan los bordes.
+     *
+     * @return array<string, array<string,string>>
+     */
+    public static function esquemas(): array
+    {
+        return [
+            'claro' => [
+                'superficie'   => '#FFFFFF',
+                'superficie-2' => '#F9FAFB',
+                'fondo'        => '#FBFBFC',
+                'borde'        => '#EDEFF2',
+                'texto'        => '#101828',
+                'texto-2'      => '#475467',
+                'texto-3'      => '#98A2B3',
+                'tinta-900'    => '#101828',
+                'tinta-700'    => '#344054',
+                'tinta-500'    => '#475467',
+                'tinta-400'    => '#667085',
+                'tinta-300'    => '#98A2B3',
+                'tinta-200'    => '#EAECF0',
+                'tinta-100'    => '#F2F4F7',
+                'tinta-50'     => '#F9FAFB',
+                'sombra-sm'    => '0 1px 2px rgba(16,24,40,.04), 0 1px 3px rgba(16,24,40,.06)',
+                'sombra'       => '0 1px 3px rgba(16,24,40,.04), 0 8px 24px -8px rgba(16,24,40,.10)',
+                'sombra-lg'    => '0 2px 6px rgba(16,24,40,.04), 0 24px 48px -12px rgba(16,24,40,.14)',
+            ],
+            'oscuro' => [
+                // Grises con un asomo de azul, no negro puro: el negro absoluto
+                // sobre pantallas OLED produce un contraste que cansa a las dos
+                // horas de trabajo.
+                'superficie'   => '#1C2029',
+                'superficie-2' => '#232833',
+                'fondo'        => '#14171E',
+                'borde'        => '#2E3542',
+                'texto'        => '#F2F4F7',
+                'texto-2'      => '#B4BCCA',
+                'texto-3'      => '#7D8698',
+                'tinta-900'    => '#F2F4F7',
+                'tinta-700'    => '#D9DEE7',
+                'tinta-500'    => '#B4BCCA',
+                'tinta-400'    => '#98A2B3',
+                'tinta-300'    => '#7D8698',
+                'tinta-200'    => '#2E3542',
+                'tinta-100'    => '#252B36',
+                'tinta-50'     => '#232833',
+                'sombra-sm'    => '0 1px 2px rgba(0,0,0,.30)',
+                'sombra'       => '0 2px 8px rgba(0,0,0,.35)',
+                'sombra-lg'    => '0 12px 32px rgba(0,0,0,.45)',
+            ],
         ];
     }
 

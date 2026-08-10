@@ -159,7 +159,7 @@ function ic(extra = '') {
             </a>
 
             <!-- ── Color ──────────────────────────────────────────────────── -->
-            <div class="bg-white rounded-xl border border-linea p-4 space-y-4">
+            <div class="bg-superficie rounded-xl border border-linea p-4 space-y-4">
                 <div>
                     <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">Color de la marca</p>
                     <p class="text-xs text-tinta-400 mt-1">
@@ -170,7 +170,7 @@ function ic(extra = '') {
 
                 <div class="flex items-center gap-3">
                     <input v-model="form.color" type="color"
-                        class="h-11 w-14 shrink-0 cursor-pointer rounded-lg border border-tinta-200 bg-white p-1"/>
+                        class="h-11 w-14 shrink-0 cursor-pointer rounded-lg border border-tinta-200 bg-superficie p-1"/>
                     <input v-model="form.color" type="text" :class="ic('font-mono uppercase')" maxlength="7"/>
                     <button type="button" @click="restaurarColor"
                         class="shrink-0 text-xs text-blue-600 font-medium hover:underline">
@@ -189,7 +189,7 @@ function ic(extra = '') {
             </div>
 
             <!-- ── Vista previa ───────────────────────────────────────────── -->
-            <div class="bg-white rounded-xl border border-linea p-4 space-y-3">
+            <div class="bg-superficie rounded-xl border border-linea p-4 space-y-3">
                 <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">Así se vería</p>
 
                 <div :style="estiloPrevia" class="rounded-xl border border-linea overflow-hidden">
@@ -203,7 +203,7 @@ function ic(extra = '') {
 
                     <div class="p-4 space-y-3 bg-tinta-50">
                         <!-- Tarjeta tipo dashboard -->
-                        <div class="bg-white rounded-xl p-3 flex items-center gap-3">
+                        <div class="bg-superficie rounded-xl p-3 flex items-center gap-3">
                             <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
                                 style="background: var(--p-suave);">
                                 <svg class="w-5 h-5" style="color: var(--p)" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
@@ -220,7 +220,7 @@ function ic(extra = '') {
                         <div class="flex gap-2">
                             <span class="rounded-lg px-4 py-2 text-sm font-semibold"
                                 style="background: var(--p); color: var(--p-texto);">Guardar</span>
-                            <span class="rounded-lg px-4 py-2 text-sm font-semibold border-2 bg-white"
+                            <span class="rounded-lg px-4 py-2 text-sm font-semibold border-2 bg-superficie"
                                 style="border-color: var(--p); color: var(--p);">Cancelar</span>
                         </div>
 
@@ -240,7 +240,7 @@ function ic(extra = '') {
             </div>
 
             <!-- ── Título de la pestaña ───────────────────────────────────── -->
-            <form @submit.prevent="guardar" class="bg-white rounded-xl border border-linea p-4 space-y-3">
+            <form @submit.prevent="guardar" class="bg-superficie rounded-xl border border-linea p-4 space-y-3">
                 <div>
                     <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">Título de la pestaña</p>
                     <p class="text-xs text-tinta-400 mt-1">
@@ -263,7 +263,7 @@ function ic(extra = '') {
 
                 <!-- Cómo se vería la pestaña -->
                 <div class="rounded-lg border border-linea bg-tinta-50 p-3">
-                    <div class="inline-flex items-center gap-2 rounded-t-lg bg-white px-3 py-2 shadow-sm max-w-full">
+                    <div class="inline-flex items-center gap-2 rounded-t-lg bg-superficie px-3 py-2 shadow-sm max-w-full">
                         <img v-if="faviconUrl" :src="faviconUrl" class="w-4 h-4 rounded shrink-0" alt=""/>
                         <span v-else class="w-4 h-4 rounded shrink-0" :style="{ backgroundColor: form.color }"></span>
                         <span class="text-xs text-tinta-700 truncate">{{ tituloEjemplo }}</span>
@@ -319,7 +319,7 @@ function ic(extra = '') {
             </form>
 
             <!-- ── Favicon ────────────────────────────────────────────────── -->
-            <div class="bg-white rounded-xl border border-linea p-4 space-y-3">
+            <div class="bg-superficie rounded-xl border border-linea p-4 space-y-3">
                 <div>
                     <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">Favicon</p>
                     <p class="text-xs text-tinta-400 mt-1">
@@ -359,7 +359,7 @@ function ic(extra = '') {
             </div>
 
             <!-- ── Logo ───────────────────────────────────────────────────── -->
-            <div class="bg-white rounded-xl border border-linea p-4 space-y-3">
+            <div class="bg-superficie rounded-xl border border-linea p-4 space-y-3">
                 <div>
                     <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">Logo</p>
                     <p class="text-xs text-tinta-400 mt-1">

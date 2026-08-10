@@ -316,7 +316,7 @@ watch(() => form.comision_max_distribuidor, () => {
 // ── Submit ────────────────────────────────────────────────────────────────────
 const ic = (field) => [
     'w-full border rounded-xl px-3 py-2 text-sm focus:outline-none transition-colors',
-    form.errors[field] ? 'border-red-400 bg-red-50' : 'border-linea bg-white focus:border-[var(--marca)]',
+    form.errors[field] ? 'border-red-400 bg-red-50' : 'border-linea bg-superficie focus:border-[var(--marca)]',
 ]
 
 const submit = () => {
@@ -351,7 +351,7 @@ const badgeStyle = {
                 </div>
 
                 <form @submit.prevent="submitPadre" class="space-y-4">
-                    <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
+                    <div class="bg-superficie rounded-2xl shadow-sm overflow-hidden">
                         <div class="px-5 py-3 border-b border-linea">
                             <h3 class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">Información general (padre)</h3>
                         </div>
@@ -359,13 +359,13 @@ const badgeStyle = {
                             <div>
                                 <label class="block text-sm font-medium text-tinta-700 mb-1">Nombre <span class="text-red-500">*</span></label>
                                 <input v-model="formPadre.nombre" type="text"
-                                    class="w-full border rounded-xl px-3 py-2 text-sm focus:outline-none bg-white focus:border-[var(--marca)] border-linea" />
+                                    class="w-full border rounded-xl px-3 py-2 text-sm focus:outline-none bg-superficie focus:border-[var(--marca)] border-linea" />
                                 <p v-if="formPadre.errors.nombre" class="mt-1 text-xs text-red-600">{{ formPadre.errors.nombre }}</p>
                             </div>
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                 <div>
                                     <label class="block text-sm font-medium text-tinta-700 mb-1">Categoría</label>
-                                    <select v-model="formPadre.categoria_id" class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none bg-white">
+                                    <select v-model="formPadre.categoria_id" class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none bg-superficie">
                                         <option value="">Sin categoría</option>
                                         <option v-for="c in props.categorias" :key="c.id" :value="String(c.id)">{{ c.nombre }}</option>
                                     </select>
@@ -373,14 +373,14 @@ const badgeStyle = {
                                 <div>
                                     <label class="block text-sm font-medium text-tinta-700 mb-1">Atributo de variante</label>
                                     <input v-model="formPadre.atributo_variante" type="text" placeholder="Ej: Longitud"
-                                        class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none bg-white focus:border-[var(--marca)]" />
+                                        class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none bg-superficie focus:border-[var(--marca)]" />
                                 </div>
                             </div>
                         </div>
                     </div>
 
                     <!-- Variantes existentes -->
-                    <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
+                    <div class="bg-superficie rounded-2xl shadow-sm overflow-hidden">
                         <div class="px-5 py-3 border-b border-linea">
                             <h3 class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">Variantes existentes</h3>
                         </div>
@@ -402,7 +402,7 @@ const badgeStyle = {
                     </div>
 
                     <!-- Agregar nuevas variantes -->
-                    <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
+                    <div class="bg-superficie rounded-2xl shadow-sm overflow-hidden">
                         <div class="px-5 py-3 border-b border-linea flex items-center justify-between">
                             <h3 class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">Agregar variantes</h3>
                             <button type="button" @click="agregarVarianteNueva"
@@ -425,12 +425,12 @@ const badgeStyle = {
                                             Valor ({{ formPadre.atributo_variante || 'Ej: Longitud' }}) <span class="text-red-500">*</span>
                                         </label>
                                         <input v-model="v.valor_variante" type="text" placeholder="Ej: 3m"
-                                            class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none bg-white focus:border-[var(--marca)]" />
+                                            class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none bg-superficie focus:border-[var(--marca)]" />
                                     </div>
                                     <div>
                                         <label class="block text-xs font-medium text-tinta-500 mb-1">Referencia / SKU</label>
                                         <input v-model="v.referencia" type="text" placeholder="Auto-generada si se deja vacío"
-                                            class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none bg-white focus:border-[var(--marca)]" />
+                                            class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none bg-superficie focus:border-[var(--marca)]" />
                                     </div>
                                 </div>
                                 <div v-if="props.bodegas?.length">
@@ -439,7 +439,7 @@ const badgeStyle = {
                                         <div v-for="b in props.bodegas" :key="b.id" class="flex items-center gap-3">
                                             <span class="text-xs text-tinta-500 w-32 shrink-0">{{ b.nombre }}</span>
                                             <input v-model.number="v.stock_inicial[b.id]" type="number" min="0" step="0.001"
-                                                class="w-24 border border-linea rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:border-[var(--marca)] bg-white" placeholder="0" />
+                                                class="w-24 border border-linea rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:border-[var(--marca)] bg-superficie" placeholder="0" />
                                         </div>
                                     </div>
                                 </div>
@@ -455,7 +455,7 @@ const badgeStyle = {
                     </div>
 
                     <div class="flex gap-3 pb-4">
-                        <button type="button" @click="router.visit(`/productos/${p.id}`)" class="flex-1 py-3 rounded-xl border border-linea text-sm font-medium text-tinta-500 bg-white">Cancelar</button>
+                        <button type="button" @click="router.visit(`/productos/${p.id}`)" class="flex-1 py-3 rounded-xl border border-linea text-sm font-medium text-tinta-500 bg-superficie">Cancelar</button>
                         <button type="submit" :disabled="formPadre.processing" class="flex-1 py-3 rounded-xl text-sm font-medium text-white shadow-sm disabled:opacity-60" style="background-color:var(--marca);">
                             {{ formPadre.processing ? 'Guardando...' : 'Guardar cambios' }}
                         </button>
@@ -484,7 +484,7 @@ const badgeStyle = {
                 </div>
 
                 <!-- ═══ Información General ════════════════════════════════ -->
-                <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
+                <div class="bg-superficie rounded-2xl shadow-sm overflow-hidden">
                     <div class="px-5 py-3 border-b border-linea">
                         <h3 class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">Información general</h3>
                     </div>
@@ -509,7 +509,7 @@ const badgeStyle = {
                             <div>
                                 <label class="block text-sm font-medium text-tinta-700 mb-1">Categoría</label>
                                 <div class="flex gap-2">
-                                    <select v-model="form.categoria_id" class="flex-1 border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none bg-white">
+                                    <select v-model="form.categoria_id" class="flex-1 border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none bg-superficie">
                                         <option value="">Sin categoría</option>
                                         <option v-for="c in listaCats" :key="c.id" :value="String(c.id)">{{ c.nombre }}</option>
                                     </select>
@@ -555,7 +555,7 @@ const badgeStyle = {
                 </div>
 
                 <!-- ═══ Imágenes ═══════════════════════════════════════════ -->
-                <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
+                <div class="bg-superficie rounded-2xl shadow-sm overflow-hidden">
                     <div class="px-5 py-3 border-b border-linea">
                         <h3 class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">Imágenes</h3>
                     </div>
@@ -591,14 +591,14 @@ const badgeStyle = {
                 </div>
 
                 <!-- ═══ Clasificación ══════════════════════════════════════ -->
-                <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
+                <div class="bg-superficie rounded-2xl shadow-sm overflow-hidden">
                     <div class="px-5 py-3 border-b border-linea">
                         <h3 class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">Clasificación</h3>
                     </div>
                     <div class="p-5 space-y-3">
                         <label class="flex items-center gap-3 cursor-pointer">
                             <div class="relative w-9 h-5 rounded-full transition-colors" :style="form.es_vendible ? 'background:var(--marca);' : 'background:#D1D5DB;'" @click="form.es_vendible = !form.es_vendible">
-                                <div class="absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform" :style="form.es_vendible ? 'transform:translateX(18px);' : 'transform:translateX(2px);'" />
+                                <div class="absolute top-0.5 w-4 h-4 bg-superficie rounded-full shadow transition-transform" :style="form.es_vendible ? 'transform:translateX(18px);' : 'transform:translateX(2px);'" />
                             </div>
                             <div>
                                 <p class="text-sm font-medium text-tinta-900">Es vendible</p>
@@ -607,7 +607,7 @@ const badgeStyle = {
                         </label>
                         <label class="flex items-center gap-3 cursor-pointer">
                             <div class="relative w-9 h-5 rounded-full transition-colors" :style="form.es_insumo ? 'background:#F59E0B;' : 'background:#D1D5DB;'" @click="form.es_insumo = !form.es_insumo">
-                                <div class="absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform" :style="form.es_insumo ? 'transform:translateX(18px);' : 'transform:translateX(2px);'" />
+                                <div class="absolute top-0.5 w-4 h-4 bg-superficie rounded-full shadow transition-transform" :style="form.es_insumo ? 'transform:translateX(18px);' : 'transform:translateX(2px);'" />
                             </div>
                             <div>
                                 <p class="text-sm font-medium text-tinta-900">Es insumo / material</p>
@@ -625,13 +625,13 @@ const badgeStyle = {
                 </div>
 
                 <!-- ═══ Inventario (solo producto) ═══════════════════════ -->
-                <div v-if="p.tipo === 'producto'" class="bg-white rounded-2xl shadow-sm overflow-hidden">
+                <div v-if="p.tipo === 'producto'" class="bg-superficie rounded-2xl shadow-sm overflow-hidden">
                     <div class="px-5 py-3 border-b border-linea flex items-center justify-between">
                         <h3 class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">Inventario</h3>
                         <label class="flex items-center gap-2 cursor-pointer">
                             <span class="text-xs text-tinta-400">Inventariable</span>
                             <div class="relative w-9 h-5 rounded-full transition-colors cursor-pointer" :style="form.inventariable ? 'background:var(--marca);' : 'background:#D1D5DB;'" @click="form.inventariable = !form.inventariable">
-                                <div class="absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform" :style="form.inventariable ? 'transform:translateX(18px);' : 'transform:translateX(2px);'" />
+                                <div class="absolute top-0.5 w-4 h-4 bg-superficie rounded-full shadow transition-transform" :style="form.inventariable ? 'transform:translateX(18px);' : 'transform:translateX(2px);'" />
                             </div>
                         </label>
                     </div>
@@ -664,7 +664,7 @@ const badgeStyle = {
                 </div>
 
                 <!-- ═══ Lista de precios ═══════════════════════════════════ -->
-                <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
+                <div class="bg-superficie rounded-2xl shadow-sm overflow-hidden">
                     <div class="px-5 py-3 border-b border-linea">
                         <h3 class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">Lista de precios</h3>
                     </div>
@@ -675,7 +675,7 @@ const badgeStyle = {
                             <div class="relative">
                                 <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-tinta-300">$</span>
                                 <input v-model.number="form.precio_costo" type="number" min="0" step="100"
-                                    class="w-full border border-linea rounded-xl pl-7 pr-3 py-2 text-sm bg-white focus:outline-none focus:border-[var(--marca)]" />
+                                    class="w-full border border-linea rounded-xl pl-7 pr-3 py-2 text-sm bg-superficie focus:outline-none focus:border-[var(--marca)]" />
                             </div>
                         </div>
                         <!-- Mayorista -->
@@ -730,7 +730,7 @@ const badgeStyle = {
                 </div>
 
                 <!-- Comisión Vendedor por Canal -->
-                <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
+                <div class="bg-superficie rounded-2xl shadow-sm overflow-hidden">
                     <div class="px-5 py-3 border-b border-linea flex items-center justify-between">
                         <h3 class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">Comisión Vendedor por Canal</h3>
                         <button type="button" @click="sugerirComisiones"
@@ -866,7 +866,7 @@ const badgeStyle = {
 
                 <!-- ── Botones ─────────────────────────────────────────────── -->
                 <div class="flex gap-3 pb-4">
-                    <button type="button" @click="router.visit(`/productos/${p.id}`)" class="flex-1 py-3 rounded-xl border border-linea text-sm font-medium text-tinta-500 bg-white">Cancelar</button>
+                    <button type="button" @click="router.visit(`/productos/${p.id}`)" class="flex-1 py-3 rounded-xl border border-linea text-sm font-medium text-tinta-500 bg-superficie">Cancelar</button>
                     <button type="submit" :disabled="form.processing" class="flex-1 py-3 rounded-xl text-sm font-medium text-white shadow-sm disabled:opacity-60" style="background-color:var(--marca);">
                         {{ form.processing ? 'Guardando...' : 'Guardar cambios' }}
                     </button>
@@ -880,7 +880,7 @@ const badgeStyle = {
         <div v-if="showModalCat"
              class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4"
              style="background:rgba(0,0,0,0.5);">
-            <div class="bg-white rounded-2xl shadow-xl w-full max-w-sm p-5">
+            <div class="bg-superficie rounded-2xl shadow-xl w-full max-w-sm p-5">
                 <h3 class="text-base font-semibold text-tinta-900 mb-4">Nueva categoría</h3>
                 <div class="space-y-4">
 
@@ -933,7 +933,7 @@ const badgeStyle = {
                     <button
                         type="button"
                         @click.stop="showModalCat = false; nuevaCat.nombre = ''; nuevaCat.color = colorMarca()"
-                        class="flex-1 py-2.5 rounded-xl border border-linea text-sm font-medium text-tinta-500 bg-white">
+                        class="flex-1 py-2.5 rounded-xl border border-linea text-sm font-medium text-tinta-500 bg-superficie">
                         Cancelar
                     </button>
                     <button

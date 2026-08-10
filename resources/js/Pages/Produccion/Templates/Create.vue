@@ -170,7 +170,7 @@ function submit() {
             <div class="sm:hidden">
 
                 <!-- Header sticky -->
-                <div class="sticky top-14 z-10 bg-white rounded-xl border border-linea p-4 mb-4 shadow-sm space-y-4">
+                <div class="sticky top-14 z-10 bg-superficie rounded-xl border border-linea p-4 mb-4 shadow-sm space-y-4">
                     <div>
                         <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1.5">Nombre *</label>
                         <input v-model="form.nombre" type="text"
@@ -192,7 +192,7 @@ function submit() {
                 </div>
 
                 <!-- Todos los pasos expandidos -->
-                <div class="bg-white rounded-2xl border border-linea overflow-hidden mb-4">
+                <div class="bg-superficie rounded-2xl border border-linea overflow-hidden mb-4">
                     <div class="px-5 py-3 border-b border-linea flex items-center justify-between">
                         <div>
                             <h2 class="text-sm font-semibold text-tinta-700">Pasos</h2>
@@ -316,7 +316,7 @@ function submit() {
                 <div class="sticky top-14 space-y-3">
 
                     <!-- Header: nombre, plantilla, activo -->
-                    <div class="bg-white rounded-xl border border-linea p-4 space-y-4">
+                    <div class="bg-superficie rounded-xl border border-linea p-4 space-y-4">
                         <div>
                             <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1.5">Nombre *</label>
                             <input v-model="form.nombre" type="text"
@@ -338,7 +338,7 @@ function submit() {
                     </div>
 
                     <!-- Lista resumida de pasos -->
-                    <div class="bg-white rounded-xl border border-linea p-3">
+                    <div class="bg-superficie rounded-xl border border-linea p-3">
                         <p class="text-xs font-semibold text-tinta-300 uppercase tracking-[0.12em] px-2 mb-2">Pasos</p>
                         <div v-if="!form.pasos.length" class="text-xs text-tinta-300 text-center py-3">Sin pasos aún</div>
                         <div v-for="(paso, idx) in form.pasos" :key="idx"
@@ -378,12 +378,12 @@ function submit() {
                 <!-- Panel derecho: detalle del paso activo -->
                 <div>
                     <div v-if="form.pasos.length === 0"
-                        class="bg-white rounded-xl border-2 border-dashed border-linea p-10 text-center text-sm text-tinta-300">
+                        class="bg-superficie rounded-xl border-2 border-dashed border-linea p-10 text-center text-sm text-tinta-300">
                         Agrega un paso para comenzar
                     </div>
 
                     <div v-else-if="form.pasos[pasoActivo]"
-                        :class="['bg-white rounded-xl border p-5 space-y-4',
+                        :class="['bg-superficie rounded-xl border p-5 space-y-4',
                             form.pasos[pasoActivo].es_paso_final ? 'border-purple-300' : 'border-linea']">
                         <!-- Encabezado paso activo -->
                         <div class="flex items-center justify-between">

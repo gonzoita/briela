@@ -173,7 +173,7 @@ function indicePlano(gi, ri) {
     <div class="relative">
         <!-- Disparador: barra en computador, lupa en celular -->
         <button type="button" @click="abrir"
-            class="hidden md:flex items-center gap-2 w-56 lg:w-72 rounded-xl border border-linea bg-tinta-50 px-3 py-1.5 text-sm text-tinta-300 hover:bg-white hover:border-tinta-200 transition-colors">
+            class="hidden md:flex items-center gap-2 w-56 lg:w-72 rounded-xl border border-linea bg-tinta-50 px-3 py-1.5 text-sm text-tinta-300 hover:bg-superficie hover:border-tinta-200 transition-colors">
             <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
             </svg>
@@ -193,7 +193,7 @@ function indicePlano(gi, ri) {
                 @click.self="cerrar">
                 <div class="absolute inset-0 bg-black/30"></div>
 
-                <div class="relative w-full md:max-w-2xl md:mt-20 bg-white md:rounded-2xl shadow-xl overflow-hidden h-full md:h-auto md:max-h-[75vh] flex flex-col">
+                <div class="relative w-full md:max-w-2xl md:mt-20 bg-superficie md:rounded-2xl shadow-xl overflow-hidden h-full md:h-auto md:max-h-[75vh] flex flex-col">
 
                     <!-- Campo -->
                     <div class="flex items-center gap-2 px-4 py-3 border-b border-linea shrink-0">

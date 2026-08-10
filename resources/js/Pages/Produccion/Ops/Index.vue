@@ -98,7 +98,7 @@ function fmt(v) { return Number(v || 0).toLocaleString('es-CO') }
                 { key: 'despachada',    label: 'Despachada',    color: 'text-green-700',  border: 'border-green-100',  ring: 'ring-green-300'  },
             ]" :key="card.key"
                 @click="filters.estado = filters.estado === card.key ? '' : card.key"
-                class="bg-white rounded-2xl border shadow-sm px-4 py-4 text-center transition-all hover:shadow-md w-full"
+                class="bg-superficie rounded-2xl border shadow-sm px-4 py-4 text-center transition-all hover:shadow-md w-full"
                 :class="[card.border, filters.estado === card.key ? `ring-2 ${card.ring}` : '']">
                 <p class="text-2xl font-semibold" :class="card.color">{{ metricas[card.key] ?? 0 }}</p>
                 <p class="text-xs text-tinta-300 mt-1">{{ card.label }}</p>
@@ -106,7 +106,7 @@ function fmt(v) { return Number(v || 0).toLocaleString('es-CO') }
         </div>
 
         <!-- Filtros -->
-        <div class="bg-white rounded-2xl border border-linea shadow-sm p-4 mb-4 space-y-3">
+        <div class="bg-superficie rounded-2xl border border-linea shadow-sm p-4 mb-4 space-y-3">
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                 <input v-model="filters.buscar" type="text" placeholder="Buscar número o cliente..."
                     class="border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[var(--marca)]" />
@@ -140,7 +140,7 @@ function fmt(v) { return Number(v || 0).toLocaleString('es-CO') }
         <div class="space-y-3">
             <template v-if="ops.data?.length">
                 <div v-for="op in ops.data" :key="op.id"
-                    class="bg-white rounded-2xl border border-linea shadow-sm hover:shadow-md transition-shadow cursor-pointer"
+                    class="bg-superficie rounded-2xl border border-linea shadow-sm hover:shadow-md transition-shadow cursor-pointer"
                     @click="router.visit(`/produccion/ops/${op.id}`)">
                     <div class="px-5 py-4 flex items-center gap-4">
                         <div class="min-w-0 flex-1">
@@ -274,7 +274,7 @@ function fmt(v) { return Number(v || 0).toLocaleString('es-CO') }
                     </div>
                 </div>
             </template>
-            <div v-else class="bg-white rounded-2xl border border-linea shadow-sm px-5 py-16 text-center">
+            <div v-else class="bg-superficie rounded-2xl border border-linea shadow-sm px-5 py-16 text-center">
                 <svg class="w-12 h-12 mx-auto mb-3 text-tinta-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
                 </svg>

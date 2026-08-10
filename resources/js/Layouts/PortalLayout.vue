@@ -19,7 +19,7 @@ function salir() {
     <Head :title="title" />
 
     <div class="min-h-screen" style="background-color: #F8F9FA;">
-        <header class="sticky top-0 z-30 flex items-center justify-between px-4 md:px-8 h-16 bg-white shadow-sm">
+        <header class="sticky top-0 z-30 flex items-center justify-between px-4 md:px-8 h-16 bg-superficie shadow-sm">
             <div class="flex items-center gap-3 min-w-0">
                 <img
                     :src="$page.props.marca.logo"

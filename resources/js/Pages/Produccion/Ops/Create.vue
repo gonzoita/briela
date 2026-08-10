@@ -401,7 +401,7 @@ function submit() {
             </div>
 
             <!-- ── General ──────────────────────────────────────────────────── -->
-            <div class="bg-white rounded-2xl border border-linea p-5 mb-4 space-y-4">
+            <div class="bg-superficie rounded-2xl border border-linea p-5 mb-4 space-y-4">
                 <h2 class="text-sm font-semibold text-tinta-700">Datos generales</h2>
 
                 <!-- Cliente -->
@@ -420,7 +420,7 @@ function submit() {
                         </button>
                     </div>
                     <div v-if="clienteAbierto && clienteResultados.length"
-                        class="absolute z-20 mt-1 w-full bg-white border border-linea rounded-xl shadow-lg overflow-hidden">
+                        class="absolute z-20 mt-1 w-full bg-superficie border border-linea rounded-xl shadow-lg overflow-hidden">
                         <button v-for="c in clienteResultados" :key="c.id"
                             @click="seleccionarCliente(c)"
                             class="w-full text-left px-4 py-2.5 text-sm hover:bg-blue-50 border-b border-gray-50 last:border-0">
@@ -476,7 +476,7 @@ function submit() {
             </div>
 
             <!-- ── Ítems ────────────────────────────────────────────────────── -->
-            <div class="bg-white rounded-2xl border border-linea p-5 mb-4">
+            <div class="bg-superficie rounded-2xl border border-linea p-5 mb-4">
                 <div class="flex items-center justify-between mb-4">
                     <h2 class="text-sm font-semibold text-tinta-700">Ítems de la orden</h2>
                     <span v-if="items.length" class="text-xs text-tinta-300">{{ items.length }} ítem{{ items.length !== 1 ? 's' : '' }}</span>
@@ -613,7 +613,7 @@ function submit() {
             </div>
 
             <!-- ── Panel componentes requeridos ─────────────────────────────── -->
-            <div v-if="panelComponentes.length" class="bg-white rounded-2xl border border-linea overflow-hidden mb-4">
+            <div v-if="panelComponentes.length" class="bg-superficie rounded-2xl border border-linea overflow-hidden mb-4">
                 <h2 class="text-sm font-semibold text-tinta-700 px-5 py-3 border-b border-linea">Componentes requeridos</h2>
                 <div class="divide-y divide-gray-50">
                     <div v-for="grupo in panelComponentes" :key="grupo.nombre" class="px-5 py-4">
@@ -668,7 +668,7 @@ function submit() {
                                                     :value="comp.observacion ?? ''"
                                                     @blur="guardarCompEdicion(grupo.item_id, comp, 'observacion', $event.target.value)"
                                                     type="text" placeholder="—"
-                                                    class="w-full min-w-[80px] rounded-lg border border-linea px-2 py-1 text-xs text-tinta-500 focus:outline-none focus:border-blue-300 focus:ring-1 bg-transparent hover:bg-white" />
+                                                    class="w-full min-w-[80px] rounded-lg border border-linea px-2 py-1 text-xs text-tinta-500 focus:outline-none focus:border-blue-300 focus:ring-1 bg-transparent hover:bg-superficie" />
                                             </td>
                                         </tr>
                                     </template>
@@ -680,7 +680,7 @@ function submit() {
             </div>
 
             <!-- ── Notas ────────────────────────────────────────────────────── -->
-            <div class="bg-white rounded-2xl border border-linea p-5 mb-4 space-y-4">
+            <div class="bg-superficie rounded-2xl border border-linea p-5 mb-4 space-y-4">
                 <h2 class="text-sm font-semibold text-tinta-700">Notas</h2>
                 <div>
                     <label class="block text-xs font-medium text-tinta-400 mb-1">Condiciones</label>
@@ -719,7 +719,7 @@ function submit() {
         <Teleport to="body">
             <div v-if="modalPanel" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
                 <div class="absolute inset-0 bg-black/40" @click="cerrarModal"/>
-                <div class="relative w-full sm:max-w-lg bg-white rounded-t-3xl sm:rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+                <div class="relative w-full sm:max-w-lg bg-superficie rounded-t-3xl sm:rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
 
                     <!-- Header modal -->
                     <div class="flex items-center justify-between px-5 pt-4 pb-3 border-b border-linea shrink-0">

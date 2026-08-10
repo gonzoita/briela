@@ -109,7 +109,7 @@ const ic = (extra = '') =>
             <!-- Acordeones por categoría -->
             <div class="space-y-3">
                 <div v-for="(grupo, idx) in agrupados" :key="grupo.categoria"
-                     class="bg-white rounded-xl border border-linea overflow-hidden">
+                     class="bg-superficie rounded-xl border border-linea overflow-hidden">
 
                     <!-- Header categoría -->
                     <button
@@ -209,7 +209,7 @@ const ic = (extra = '') =>
         <!-- Modal agregar insumo -->
         <Teleport to="body">
             <div v-if="modalAgregar" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4" style="background:rgba(0,0,0,0.5);">
-                <div class="bg-white rounded-2xl shadow-xl w-full max-w-md p-5">
+                <div class="bg-superficie rounded-2xl shadow-xl w-full max-w-md p-5">
                     <h3 class="text-base font-semibold text-tinta-900 mb-4">Agregar insumo</h3>
                     <div class="space-y-3">
                         <div>

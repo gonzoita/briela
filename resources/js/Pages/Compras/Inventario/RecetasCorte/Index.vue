@@ -117,7 +117,7 @@ function fmt(n) {
 
             <div class="space-y-3">
                 <div v-for="receta in recetas" :key="receta.id"
-                    class="bg-white rounded-xl border border-linea p-4">
+                    class="bg-superficie rounded-xl border border-linea p-4">
                     <div class="flex items-start justify-between gap-2">
                         <div class="min-w-0">
                             <p class="font-semibold text-tinta-900 truncate">
@@ -151,7 +151,7 @@ function fmt(n) {
                     </div>
                 </div>
 
-                <div v-if="!recetas.length" class="text-center py-10 text-tinta-300 bg-white rounded-xl border border-linea">
+                <div v-if="!recetas.length" class="text-center py-10 text-tinta-300 bg-superficie rounded-xl border border-linea">
                     No hay recetas de corte registradas.
                 </div>
             </div>
@@ -161,7 +161,7 @@ function fmt(n) {
         <Teleport to="body">
             <div v-if="modalReceta" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
                 <div class="absolute inset-0 bg-black/40" @click="cerrarModalReceta" />
-                <div class="relative bg-white w-full sm:max-w-md rounded-t-2xl sm:rounded-2xl p-5 max-h-[90vh] overflow-y-auto">
+                <div class="relative bg-superficie w-full sm:max-w-md rounded-t-2xl sm:rounded-2xl p-5 max-h-[90vh] overflow-y-auto">
                     <h2 class="text-lg font-semibold text-tinta-900 mb-4">
                         {{ editandoReceta ? 'Editar receta de corte' : 'Nueva receta de corte' }}
                     </h2>
@@ -212,7 +212,7 @@ function fmt(n) {
         <Teleport to="body">
             <div v-if="modalConstruir" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
                 <div class="absolute inset-0 bg-black/40" @click="cerrarModalConstruir" />
-                <div class="relative bg-white w-full sm:max-w-sm rounded-t-2xl sm:rounded-2xl p-5">
+                <div class="relative bg-superficie w-full sm:max-w-sm rounded-t-2xl sm:rounded-2xl p-5">
                     <h2 class="text-lg font-semibold text-tinta-900 mb-1">Construir por corte</h2>
                     <p class="text-sm text-tinta-400 mb-4">{{ recetaConstruir?.resultado_nombre_completo }}</p>
                     <div class="space-y-3">

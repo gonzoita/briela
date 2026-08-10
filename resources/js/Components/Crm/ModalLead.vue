@@ -71,7 +71,7 @@ async function guardar() {
             style="background: rgba(0,0,0,0.5);"
             @click.self="emit('cerrar')"
         >
-            <div class="bg-white w-full sm:max-w-lg rounded-t-2xl sm:rounded-2xl shadow-2xl flex flex-col max-h-[90vh]">
+            <div class="bg-superficie w-full sm:max-w-lg rounded-t-2xl sm:rounded-2xl shadow-2xl flex flex-col max-h-[90vh]">
                 <!-- Header -->
                 <div class="flex items-center justify-between px-5 py-4 border-b border-linea shrink-0">
                     <h2 class="text-base font-semibold text-tinta-900">Nueva oportunidad</h2>
@@ -102,7 +102,7 @@ async function guardar() {
                     <div>
                         <label class="block text-xs font-semibold text-tinta-500 mb-1">Etapa</label>
                         <select v-model="form.etapa_id"
-                            class="w-full border border-linea rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)] bg-white">
+                            class="w-full border border-linea rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)] bg-superficie">
                             <option v-for="e in etapas" :key="e.id" :value="e.id">{{ e.nombre }}</option>
                         </select>
                     </div>
@@ -139,7 +139,7 @@ async function guardar() {
                     <div>
                         <label class="block text-xs font-semibold text-tinta-500 mb-1">Fuente</label>
                         <select v-model="form.fuente"
-                            class="w-full border border-linea rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)] bg-white">
+                            class="w-full border border-linea rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)] bg-superficie">
                             <option value="">Sin especificar</option>
                             <option v-for="f in fuentes" :key="f" :value="f">{{ f }}</option>
                         </select>
@@ -149,7 +149,7 @@ async function guardar() {
                     <div>
                         <label class="block text-xs font-semibold text-tinta-500 mb-1">Responsable</label>
                         <select v-model="form.responsable_id"
-                            class="w-full border border-linea rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)] bg-white">
+                            class="w-full border border-linea rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)] bg-superficie">
                             <option :value="null">Sin asignar</option>
                             <option v-for="u in usuarios" :key="u.id" :value="u.id">{{ u.name }}</option>
                         </select>
@@ -159,7 +159,7 @@ async function guardar() {
                     <div>
                         <label class="block text-xs font-semibold text-tinta-500 mb-1">Cliente existente (opcional)</label>
                         <select v-model="form.cliente_id"
-                            class="w-full border border-linea rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)] bg-white">
+                            class="w-full border border-linea rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)] bg-superficie">
                             <option :value="null">Ninguno</option>
                             <option v-for="c in clientes" :key="c.id" :value="c.id">{{ c.nombre }}</option>
                         </select>

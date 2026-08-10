@@ -107,7 +107,7 @@ function desmarcarPaso(paso) {
             </div>
 
             <!-- Progreso -->
-            <div class="bg-white rounded-2xl border border-linea p-4">
+            <div class="bg-superficie rounded-2xl border border-linea p-4">
                 <div class="flex items-center justify-between mb-2">
                     <span class="text-sm font-semibold text-tinta-700">
                         {{ trabajo.template_nombre ?? 'Progreso del trabajo' }}
@@ -128,7 +128,7 @@ function desmarcarPaso(paso) {
 
             <!-- Variables del producto -->
             <div v-if="trabajo.variables_instancia && Object.keys(trabajo.variables_instancia).length"
-                class="bg-white rounded-2xl border border-amber-200 overflow-hidden">
+                class="bg-superficie rounded-2xl border border-amber-200 overflow-hidden">
                 <div class="px-4 py-3 border-b border-amber-100 bg-amber-50">
                     <p class="text-xs font-semibold text-amber-700 uppercase tracking-[0.12em]">Variables del producto</p>
                 </div>
@@ -140,7 +140,7 @@ function desmarcarPaso(paso) {
                             class="rounded-xl overflow-hidden border border-amber-200 bg-amber-50">
                             <a :href="campo.imagen_referencia" target="_blank" rel="noopener">
                                 <img :src="campo.imagen_referencia"
-                                    class="w-full h-32 object-contain bg-white hover:opacity-90 transition-opacity" />
+                                    class="w-full h-32 object-contain bg-superficie hover:opacity-90 transition-opacity" />
                             </a>
                             <p class="text-xs text-amber-700 px-2 py-1.5">
                                 {{ campo.etiqueta }}
@@ -161,7 +161,7 @@ function desmarcarPaso(paso) {
 
             <!-- Imágenes de instancia -->
             <div v-if="trabajo.imagenes_instancia?.length"
-                class="bg-white rounded-2xl border border-linea overflow-hidden">
+                class="bg-superficie rounded-2xl border border-linea overflow-hidden">
                 <div class="px-4 py-3 border-b border-linea">
                     <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">Imágenes de referencia</p>
                 </div>
@@ -170,7 +170,7 @@ function desmarcarPaso(paso) {
                         class="rounded-xl overflow-hidden border border-linea bg-tinta-50">
                         <a :href="'/storage/' + img.ruta" target="_blank" rel="noopener">
                             <img :src="'/storage/' + img.ruta"
-                                class="w-full h-28 object-contain bg-white hover:opacity-90 transition-opacity" />
+                                class="w-full h-28 object-contain bg-superficie hover:opacity-90 transition-opacity" />
                         </a>
                         <p v-if="img.titulo" class="text-xs text-tinta-400 px-2 py-1.5 truncate">{{ img.titulo }}</p>
                     </div>
@@ -178,7 +178,7 @@ function desmarcarPaso(paso) {
             </div>
 
             <!-- Pasos -->
-            <div class="bg-white rounded-2xl border border-linea overflow-hidden">
+            <div class="bg-superficie rounded-2xl border border-linea overflow-hidden">
                 <div class="px-4 py-3 border-b border-linea">
                     <h2 class="text-sm font-semibold text-tinta-700">Pasos del trabajo</h2>
                 </div>
@@ -193,7 +193,7 @@ function desmarcarPaso(paso) {
                                 class="shrink-0 mt-0.5 w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all"
                                 :class="paso.completado
                                     ? 'bg-green-500 border-green-500 hover:bg-green-600'
-                                    : 'border-tinta-200 hover:border-blue-400 bg-white'">
+                                    : 'border-tinta-200 hover:border-blue-400 bg-superficie'">
                                 <svg v-if="paso.completado" class="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
                                 </svg>
@@ -253,7 +253,7 @@ function desmarcarPaso(paso) {
         <Teleport to="body">
             <div v-if="modalPaso" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4"
                 style="background:rgba(0,0,0,0.5);">
-                <div class="bg-white rounded-2xl shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+                <div class="bg-superficie rounded-2xl shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
                     <div class="px-5 py-4 border-b border-linea flex items-center justify-between">
                         <h3 class="text-sm font-semibold text-tinta-900">Completar paso</h3>
                         <button @click="cerrarModal" class="text-tinta-300 hover:text-tinta-500">

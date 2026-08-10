@@ -31,7 +31,7 @@ async function compartir() {
 <template>
     <div class="min-h-screen bg-tinta-50 font-sans">
         <!-- Header -->
-        <header class="bg-white border-b border-linea sticky top-0 z-20">
+        <header class="bg-superficie border-b border-linea sticky top-0 z-20">
             <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
                 <div class="flex items-center gap-2">
                     <img :src="$page.props.marca.logo"
@@ -63,7 +63,7 @@ async function compartir() {
 
                 <!-- Galería -->
                 <div>
-                    <div class="bg-white rounded-2xl overflow-hidden border border-linea aspect-square flex items-center justify-center">
+                    <div class="bg-superficie rounded-2xl overflow-hidden border border-linea aspect-square flex items-center justify-center">
                         <img v-if="imagenPrincipal" :src="imagenPrincipal" :alt="ensamble.nombre"
                             class="w-full h-full object-cover" />
                         <div v-else class="text-tinta-200 text-center p-8">
@@ -129,7 +129,7 @@ async function compartir() {
             </div>
         </div>
 
-        <footer class="mt-12 border-t border-linea bg-white py-6 text-center text-xs text-tinta-300">
+        <footer class="mt-12 border-t border-linea bg-superficie py-6 text-center text-xs text-tinta-300">
             {{ $page.props.marca.nombre }} &copy; {{ new Date().getFullYear() }}
         </footer>
     </div>

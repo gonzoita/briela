@@ -60,7 +60,7 @@ async function calificar() {
             </div>
 
             <div class="space-y-3 mb-4">
-                <div v-for="(pregunta, idx) in preguntas" :key="pregunta.id" class="bg-white rounded-2xl shadow-sm p-4">
+                <div v-for="(pregunta, idx) in preguntas" :key="pregunta.id" class="bg-superficie rounded-2xl shadow-sm p-4">
                     <p class="text-xs text-tinta-300 mb-1">Pregunta {{ idx + 1 }}</p>
                     <p class="text-sm font-semibold text-tinta-900 mb-3">{{ pregunta.enunciado }}</p>
 

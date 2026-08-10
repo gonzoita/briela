@@ -64,7 +64,7 @@ function toggleLink() {
 </script>
 
 <template>
-    <div class="border border-tinta-200 rounded-xl overflow-hidden focus-within:ring-2 focus-within:ring-blue-400 focus-within:border-blue-400 transition-colors bg-white">
+    <div class="border border-tinta-200 rounded-xl overflow-hidden focus-within:ring-2 focus-within:ring-blue-400 focus-within:border-blue-400 transition-colors bg-superficie">
         <!-- Toolbar -->
         <div class="flex flex-wrap gap-0.5 p-1.5 border-b border-linea bg-tinta-50">
 
@@ -182,7 +182,7 @@ function toggleLink() {
             class="px-3 py-2 text-sm text-tinta-900 [&_.ProseMirror]:outline-none [&_.ProseMirror]:min-h-[inherit]"
         />
         <!-- Counter (only when maxLength is set) -->
-        <div v-if="maxLength" class="px-3 py-1 border-t border-linea flex justify-end bg-white">
+        <div v-if="maxLength" class="px-3 py-1 border-t border-linea flex justify-end bg-superficie">
             <span class="text-xs tabular-nums"
                 :class="charCount > maxLength ? 'text-red-500 font-semibold' : charCount > maxLength * 0.9 ? 'text-amber-500 font-semibold' : 'text-tinta-300'">
                 {{ charCount.toLocaleString('es-CO') }}/{{ maxLength.toLocaleString('es-CO') }}

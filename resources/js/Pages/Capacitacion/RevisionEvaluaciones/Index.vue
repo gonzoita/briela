@@ -25,13 +25,13 @@ function formatearFecha(fecha) {
                 <h1 class="text-xl font-semibold text-tinta-900 truncate flex-1">Revisión de evaluaciones</h1>
             </div>
 
-            <div v-if="intentos.length === 0" class="bg-white rounded-2xl shadow-sm py-16 text-center text-tinta-300">
+            <div v-if="intentos.length === 0" class="bg-superficie rounded-2xl shadow-sm py-16 text-center text-tinta-300">
                 <p class="text-sm">No hay evaluaciones pendientes de revisión.</p>
             </div>
 
             <div v-else class="space-y-3">
                 <div v-for="intento in intentos" :key="intento.id"
-                    class="bg-white rounded-2xl shadow-sm p-4 flex items-center gap-3 cursor-pointer active:scale-[0.99] transition-transform"
+                    class="bg-superficie rounded-2xl shadow-sm p-4 flex items-center gap-3 cursor-pointer active:scale-[0.99] transition-transform"
                     @click="router.visit(`/capacitacion/revision-evaluaciones/${intento.id}`)">
                     <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style="background:#FEF3C7;">
                         <svg class="w-5 h-5" style="color:#92400E;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">

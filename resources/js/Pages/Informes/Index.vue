@@ -61,7 +61,7 @@ function eliminar(informe) {
                 <div
                     v-for="informe in informes"
                     :key="informe.id"
-                    class="bg-white rounded-2xl border border-linea shadow-sm p-5 flex flex-col gap-3"
+                    class="bg-superficie rounded-2xl border border-linea shadow-sm p-5 flex flex-col gap-3"
                 >
                     <!-- Fila superior: fuente + público -->
                     <div class="flex items-center gap-2">

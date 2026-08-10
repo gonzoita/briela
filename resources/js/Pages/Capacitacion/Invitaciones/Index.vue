@@ -120,7 +120,7 @@ function limpiarCliente() {
             </div>
 
             <!-- Vacío -->
-            <div v-if="invitaciones.length === 0" class="bg-white rounded-2xl shadow-sm py-16 text-center text-tinta-300">
+            <div v-if="invitaciones.length === 0" class="bg-superficie rounded-2xl shadow-sm py-16 text-center text-tinta-300">
                 <svg class="w-12 h-12 mx-auto mb-3 text-tinta-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
                 </svg>
@@ -128,7 +128,7 @@ function limpiarCliente() {
             </div>
 
             <!-- Lista -->
-            <div v-else class="bg-white rounded-2xl shadow-sm overflow-hidden divide-y divide-linea">
+            <div v-else class="bg-superficie rounded-2xl shadow-sm overflow-hidden divide-y divide-linea">
                 <div v-for="inv in invitaciones" :key="inv.id" class="p-4 space-y-2.5">
                     <div class="flex items-center gap-3 flex-wrap">
                         <div class="flex-1 min-w-0">
@@ -174,7 +174,7 @@ function limpiarCliente() {
         <!-- Modal nueva invitación -->
         <div v-if="modalAbierto" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
             <div class="absolute inset-0 bg-black/40" @click="cerrarModal"></div>
-            <div class="relative bg-white w-full sm:max-w-md sm:rounded-2xl rounded-t-2xl shadow-xl max-h-[90vh] overflow-y-auto">
+            <div class="relative bg-superficie w-full sm:max-w-md sm:rounded-2xl rounded-t-2xl shadow-xl max-h-[90vh] overflow-y-auto">
                 <div class="px-5 py-4 border-b border-linea flex items-center justify-between">
                     <h3 class="text-sm font-semibold text-tinta-900">Nueva invitación</h3>
                     <button @click="cerrarModal" class="w-7 h-7 rounded-lg flex items-center justify-center text-tinta-300 hover:bg-tinta-100">✕</button>
@@ -202,7 +202,7 @@ function limpiarCliente() {
                                 type="text" placeholder="Buscar por nombre o identificación..."
                                 class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:ring-2 focus:outline-none"/>
                             <div v-if="clienteResultados.length > 0"
-                                class="absolute top-full left-0 right-0 mt-1 bg-white rounded-xl shadow-xl border border-linea z-20 overflow-hidden">
+                                class="absolute top-full left-0 right-0 mt-1 bg-superficie rounded-xl shadow-xl border border-linea z-20 overflow-hidden">
                                 <button v-for="c in clienteResultados" :key="c.id" type="button"
                                     @click="seleccionarCliente(c)"
                                     class="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-tinta-50 text-left transition-colors border-b border-gray-50 last:border-0">

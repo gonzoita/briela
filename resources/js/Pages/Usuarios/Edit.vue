@@ -46,7 +46,7 @@ const submit = () => {
 <template>
     <AppLayout title="Editar usuario">
         <div class="max-w-xl">
-            <div class="bg-white rounded-xl shadow-sm p-6">
+            <div class="bg-superficie rounded-xl shadow-sm p-6">
                 <h2 class="font-semibold text-tinta-900 mb-4">Editar usuario</h2>
 
                 <div v-if="hasChanges" class="mb-4 inline-flex items-center gap-1.5 text-xs font-medium text-amber-700 bg-amber-50 border border-amber-200 rounded-xl px-3 py-1.5">
@@ -195,7 +195,7 @@ const submit = () => {
                             :style="form.activo ? 'background-color: var(--marca);' : 'background-color: #D1D5DB;'"
                         >
                             <span
-                                class="inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform"
+                                class="inline-block h-4 w-4 transform rounded-full bg-superficie shadow transition-transform"
                                 :class="form.activo ? 'translate-x-6' : 'translate-x-1'"
                             />
                         </button>

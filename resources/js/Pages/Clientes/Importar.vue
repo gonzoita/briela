@@ -106,7 +106,7 @@ async function importar() {
             </div>
 
             <!-- Paso 1: plantilla -->
-            <div class="bg-white rounded-2xl border border-linea shadow-sm p-5 mb-4">
+            <div class="bg-superficie rounded-2xl border border-linea shadow-sm p-5 mb-4">
                 <h2 class="text-sm font-semibold text-tinta-900 mb-2">1. Descarga la plantilla</h2>
                 <p class="text-sm text-tinta-400 mb-3">
                     Trae los encabezados correctos y dos filas de ejemplo: una empresa con
@@ -143,7 +143,7 @@ async function importar() {
             </div>
 
             <!-- Paso 2: subir -->
-            <div class="bg-white rounded-2xl border border-linea shadow-sm p-5 mb-4">
+            <div class="bg-superficie rounded-2xl border border-linea shadow-sm p-5 mb-4">
                 <h2 class="text-sm font-semibold text-tinta-900 mb-2">2. Sube tu archivo</h2>
                 <p class="text-sm text-tinta-400 mb-3">
                     Si el número de identificación ya existe, ese cliente se
@@ -167,7 +167,7 @@ async function importar() {
             </div>
 
             <!-- Resultado -->
-            <div v-if="resultado" class="bg-white rounded-2xl border border-linea shadow-sm p-5 mb-4">
+            <div v-if="resultado" class="bg-superficie rounded-2xl border border-linea shadow-sm p-5 mb-4">
                 <h2 class="text-sm font-semibold text-tinta-900 mb-3">Resultado</h2>
                 <div class="grid grid-cols-3 gap-3 mb-4">
                     <div class="bg-green-50 rounded-xl p-3 text-center">
@@ -222,7 +222,7 @@ async function importar() {
             </div>
 
             <!-- Guía de columnas -->
-            <div class="bg-white rounded-2xl border border-linea shadow-sm p-5">
+            <div class="bg-superficie rounded-2xl border border-linea shadow-sm p-5">
                 <h2 class="text-sm font-semibold text-tinta-900 mb-3">Guía de columnas</h2>
                 <div class="divide-y divide-gray-50">
                     <div v-for="col in columnas" :key="col" class="py-2 flex items-start gap-3">

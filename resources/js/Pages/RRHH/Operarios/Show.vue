@@ -154,7 +154,7 @@ function storePermiso() {
                     @click="tab = t.key"
                     class="flex-1 min-w-[80px] py-2 px-3 rounded-xl text-xs font-semibold transition-colors whitespace-nowrap"
                     :class="tab === t.key
-                        ? 'bg-white text-tinta-900 shadow-sm'
+                        ? 'bg-superficie text-tinta-900 shadow-sm'
                         : 'text-tinta-400 hover:text-tinta-700'">
                     {{ t.label }}
                 </button>
@@ -163,7 +163,7 @@ function storePermiso() {
             <!-- ─── RESUMEN ─── -->
             <div v-show="tab === 'resumen'" class="space-y-4">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div class="bg-white rounded-2xl border border-linea p-5">
+                    <div class="bg-superficie rounded-2xl border border-linea p-5">
                         <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-3">Información</p>
                         <div class="space-y-2 text-sm">
                             <div v-if="operario.cargo" class="flex justify-between">
@@ -193,7 +193,7 @@ function storePermiso() {
                         </div>
                     </div>
 
-                    <div class="bg-white rounded-2xl border border-linea p-5">
+                    <div class="bg-superficie rounded-2xl border border-linea p-5">
                         <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-3">
                             Bono {{ mesLabel(mes_actual) }} {{ anio_actual }}
                         </p>
@@ -229,7 +229,7 @@ function storePermiso() {
                 </div>
 
                 <!-- Historial bonos -->
-                <div v-if="historial_bonos.length" class="bg-white rounded-2xl border border-linea overflow-hidden">
+                <div v-if="historial_bonos.length" class="bg-superficie rounded-2xl border border-linea overflow-hidden">
                     <div class="px-5 py-3 border-b border-linea">
                         <h2 class="text-sm font-semibold text-tinta-700">Historial de Bonos</h2>
                     </div>
@@ -261,7 +261,7 @@ function storePermiso() {
                 </div>
 
                 <!-- Agregar puntos manual -->
-                <div class="bg-white rounded-2xl border border-linea p-5">
+                <div class="bg-superficie rounded-2xl border border-linea p-5">
                     <h3 class="text-sm font-semibold text-tinta-700 mb-4">Ajuste manual de puntos</h3>
                     <div class="space-y-3">
                         <div>
@@ -285,7 +285,7 @@ function storePermiso() {
                 </div>
 
                 <!-- Historial -->
-                <div class="bg-white rounded-2xl border border-linea overflow-hidden">
+                <div class="bg-superficie rounded-2xl border border-linea overflow-hidden">
                     <div class="px-5 py-3 border-b border-linea">
                         <h2 class="text-sm font-semibold text-tinta-700">Historial de puntos</h2>
                     </div>
@@ -311,7 +311,7 @@ function storePermiso() {
             <!-- ─── DOCUMENTOS ─── -->
             <div v-show="tab === 'documentos'" class="space-y-4">
                 <!-- Seguridad social -->
-                <div class="bg-white rounded-2xl border border-linea p-5">
+                <div class="bg-superficie rounded-2xl border border-linea p-5">
                     <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-3">Seguridad Social</p>
                     <div class="space-y-3 text-sm">
                         <div class="grid grid-cols-2 gap-2">
@@ -330,7 +330,7 @@ function storePermiso() {
                 </div>
 
                 <!-- Info bancaria -->
-                <div class="bg-white rounded-2xl border border-linea p-5">
+                <div class="bg-superficie rounded-2xl border border-linea p-5">
                     <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-3">Información Bancaria</p>
                     <div class="space-y-2 text-sm">
                         <div class="flex justify-between">
@@ -349,7 +349,7 @@ function storePermiso() {
                 </div>
 
                 <!-- Archivos -->
-                <div class="bg-white rounded-2xl border border-linea overflow-hidden">
+                <div class="bg-superficie rounded-2xl border border-linea overflow-hidden">
                     <div class="px-5 py-3 border-b border-linea flex items-center justify-between">
                         <h2 class="text-sm font-semibold text-tinta-700">Archivos</h2>
                         <a :href="`/rrhh/operarios/${operario.id}/editar`"
@@ -376,7 +376,7 @@ function storePermiso() {
                 </div>
 
                 <!-- Gamificación -->
-                <div class="bg-white rounded-2xl border border-linea p-5">
+                <div class="bg-superficie rounded-2xl border border-linea p-5">
                     <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-3">Gamificación</p>
                     <div class="flex items-center gap-4">
                         <div class="text-center">
@@ -393,7 +393,7 @@ function storePermiso() {
 
             <!-- ─── TRABAJOS ─── -->
             <div v-show="tab === 'trabajos'" class="space-y-4">
-                <div class="bg-white rounded-2xl border border-linea overflow-hidden">
+                <div class="bg-superficie rounded-2xl border border-linea overflow-hidden">
                     <div class="px-5 py-3 border-b border-linea">
                         <h2 class="text-sm font-semibold text-tinta-700">
                             Pasos completados — {{ mesLabel(mes_actual) }} {{ anio_actual }}
@@ -426,7 +426,7 @@ function storePermiso() {
             <!-- ─── DISCIPLINA ─── -->
             <div v-show="tab === 'disciplina'" class="space-y-4">
                 <!-- Lista disciplinas -->
-                <div class="bg-white rounded-2xl border border-linea overflow-hidden">
+                <div class="bg-superficie rounded-2xl border border-linea overflow-hidden">
                     <div class="px-5 py-3 border-b border-linea">
                         <h2 class="text-sm font-semibold text-tinta-700">Registros de disciplina</h2>
                     </div>
@@ -456,7 +456,7 @@ function storePermiso() {
                 </div>
 
                 <!-- Nuevo disciplina -->
-                <div class="bg-white rounded-2xl border border-linea p-5">
+                <div class="bg-superficie rounded-2xl border border-linea p-5">
                     <h3 class="text-sm font-semibold text-tinta-700 mb-4">Nuevo registro</h3>
                     <div class="space-y-3">
                         <div>
@@ -497,7 +497,7 @@ function storePermiso() {
             <!-- ─── BONOS / HITOS ─── -->
             <div v-show="tab === 'bonos'" class="space-y-4">
                 <!-- Hitos del mes -->
-                <div class="bg-white rounded-2xl border border-linea overflow-hidden">
+                <div class="bg-superficie rounded-2xl border border-linea overflow-hidden">
                     <div class="px-5 py-3 border-b border-linea flex items-center justify-between">
                         <h2 class="text-sm font-semibold text-tinta-700">Hitos — {{ mesLabel(mes_actual) }}</h2>
                         <button @click="calcularBono"
@@ -525,7 +525,7 @@ function storePermiso() {
                 </div>
 
                 <!-- Agregar hito -->
-                <div class="bg-white rounded-2xl border border-linea p-5">
+                <div class="bg-superficie rounded-2xl border border-linea p-5">
                     <h3 class="text-sm font-semibold text-tinta-700 mb-4">Nuevo hito manual</h3>
                     <div class="space-y-3">
                         <div>
@@ -566,7 +566,7 @@ function storePermiso() {
             <!-- ─── EXTRAS Y PERMISOS ─── -->
             <div v-show="tab === 'extras'" class="space-y-4">
                 <!-- Horas extras del mes -->
-                <div class="bg-white rounded-2xl border border-linea overflow-hidden">
+                <div class="bg-superficie rounded-2xl border border-linea overflow-hidden">
                     <div class="px-5 py-3 border-b border-linea">
                         <h2 class="text-sm font-semibold text-tinta-700">Horas extras — {{ mesLabel(mes_actual) }}</h2>
                     </div>
@@ -583,7 +583,7 @@ function storePermiso() {
                 </div>
 
                 <!-- Agregar horas extras -->
-                <div class="bg-white rounded-2xl border border-linea p-5">
+                <div class="bg-superficie rounded-2xl border border-linea p-5">
                     <h3 class="text-sm font-semibold text-tinta-700 mb-4">Registrar horas extras</h3>
                     <div class="space-y-3">
                         <div class="grid grid-cols-2 gap-3">
@@ -621,7 +621,7 @@ function storePermiso() {
                 </div>
 
                 <!-- Permisos del mes -->
-                <div class="bg-white rounded-2xl border border-linea overflow-hidden">
+                <div class="bg-superficie rounded-2xl border border-linea overflow-hidden">
                     <div class="px-5 py-3 border-b border-linea">
                         <h2 class="text-sm font-semibold text-tinta-700">Permisos — {{ mesLabel(mes_actual) }}</h2>
                     </div>
@@ -642,7 +642,7 @@ function storePermiso() {
                 </div>
 
                 <!-- Agregar permiso -->
-                <div class="bg-white rounded-2xl border border-linea p-5">
+                <div class="bg-superficie rounded-2xl border border-linea p-5">
                     <h3 class="text-sm font-semibold text-tinta-700 mb-4">Registrar permiso</h3>
                     <div class="space-y-3">
                         <div class="grid grid-cols-2 gap-3">

@@ -72,7 +72,7 @@ function ic(extra = '') {
             </a>
 
             <!-- Lo que siempre funciona -->
-            <div class="bg-white rounded-xl border border-linea p-4">
+            <div class="bg-superficie rounded-xl border border-linea p-4">
                 <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-3">
                     Siempre activo
                 </p>
@@ -112,7 +112,7 @@ function ic(extra = '') {
             </div>
 
             <!-- RUES -->
-            <form @submit.prevent="guardar" class="bg-white rounded-xl border border-linea p-4 space-y-4">
+            <form @submit.prevent="guardar" class="bg-superficie rounded-xl border border-linea p-4 space-y-4">
                 <div class="flex items-start justify-between gap-3">
                     <div>
                         <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">
@@ -127,7 +127,7 @@ function ic(extra = '') {
                     <button type="button" @click="form.activo = !form.activo"
                         :class="['relative shrink-0 w-11 h-6 rounded-full transition-colors',
                                  form.activo ? 'bg-blue-600' : 'bg-gray-300']">
-                        <span :class="['absolute top-0.5 w-5 h-5 rounded-full bg-white transition-all',
+                        <span :class="['absolute top-0.5 w-5 h-5 rounded-full bg-superficie transition-all',
                                        form.activo ? 'left-[22px]' : 'left-0.5']"></span>
                     </button>
                 </div>
@@ -184,7 +184,7 @@ function ic(extra = '') {
             </form>
 
             <!-- Probar -->
-            <div v-if="form.activo" class="bg-white rounded-xl border border-linea p-4 space-y-3">
+            <div v-if="form.activo" class="bg-superficie rounded-xl border border-linea p-4 space-y-3">
                 <div>
                     <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">Probar</p>
                     <p class="text-xs text-tinta-400 mt-1">

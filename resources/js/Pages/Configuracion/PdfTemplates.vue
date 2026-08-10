@@ -36,7 +36,7 @@ const colorIcono    = (key) => ICONOS_MODULO[key] ?? { bg: '#E5E7EB', color: '#3
                 <div
                     v-for="modulo in modulos"
                     :key="modulo.key"
-                    class="bg-white rounded-2xl shadow-sm border border-linea p-5 flex flex-col gap-4"
+                    class="bg-superficie rounded-2xl shadow-sm border border-linea p-5 flex flex-col gap-4"
                 >
                     <!-- Ícono + color -->
                     <div class="flex items-start justify-between">
@@ -53,7 +53,7 @@ const colorIcono    = (key) => ICONOS_MODULO[key] ?? { bg: '#E5E7EB', color: '#3
                         <!-- Muestra de color primario -->
                         <div class="flex items-center gap-1.5">
                             <div
-                                class="w-5 h-5 rounded-full border-2 border-white shadow"
+                                class="w-5 h-5 rounded-full border-2 border-superficie shadow"
                                 :style="{ backgroundColor: colorPrimario(modulo) }"
                             />
                             <span class="text-xs text-tinta-300 font-mono">{{ colorPrimario(modulo) }}</span>

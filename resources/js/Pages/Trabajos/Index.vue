@@ -150,19 +150,19 @@ async function eliminarTrabajo(t) {
             <!-- Fila 1: cards de estado (clickeables) -->
             <div class="grid grid-cols-3 gap-3">
                 <button @click="filtros.estado = filtros.estado === 'sin_iniciar' ? '' : 'sin_iniciar'"
-                    class="bg-white rounded-2xl border shadow-sm px-4 py-4 text-center w-full transition-all hover:shadow-md"
+                    class="bg-superficie rounded-2xl border shadow-sm px-4 py-4 text-center w-full transition-all hover:shadow-md"
                     :class="filtros.estado === 'sin_iniciar' ? 'border-gray-400 ring-2 ring-gray-300' : 'border-linea'">
                     <p class="text-2xl font-semibold text-tinta-400">{{ metricas.sin_iniciar ?? 0 }}</p>
                     <p class="text-xs text-tinta-300 mt-1">Sin iniciar</p>
                 </button>
                 <button @click="filtros.estado = filtros.estado === 'en_progreso' ? '' : 'en_progreso'"
-                    class="bg-white rounded-2xl border shadow-sm px-4 py-4 text-center w-full transition-all hover:shadow-md"
+                    class="bg-superficie rounded-2xl border shadow-sm px-4 py-4 text-center w-full transition-all hover:shadow-md"
                     :class="filtros.estado === 'en_progreso' ? 'border-yellow-400 ring-2 ring-yellow-200' : 'border-yellow-100'">
                     <p class="text-2xl font-semibold text-yellow-600">{{ metricas.en_progreso ?? 0 }}</p>
                     <p class="text-xs text-tinta-300 mt-1">En progreso</p>
                 </button>
                 <button @click="filtros.estado = filtros.estado === 'completado' ? '' : 'completado'"
-                    class="bg-white rounded-2xl border shadow-sm px-4 py-4 text-center w-full transition-all hover:shadow-md"
+                    class="bg-superficie rounded-2xl border shadow-sm px-4 py-4 text-center w-full transition-all hover:shadow-md"
                     :class="filtros.estado === 'completado' ? 'border-green-400 ring-2 ring-green-200' : 'border-green-100'">
                     <p class="text-2xl font-semibold text-green-600">{{ metricas.completados ?? 0 }}</p>
                     <p class="text-xs text-tinta-300 mt-1">Completados</p>
@@ -173,7 +173,7 @@ async function eliminarTrabajo(t) {
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 
                 <!-- Pasos -->
-                <div class="bg-white rounded-2xl border border-linea shadow-sm p-5">
+                <div class="bg-superficie rounded-2xl border border-linea shadow-sm p-5">
                     <h3 class="text-sm font-semibold text-tinta-700 mb-3">Pasos de trabajo</h3>
                     <div class="flex items-center gap-4 mb-3">
                         <div class="text-center">
@@ -198,7 +198,7 @@ async function eliminarTrabajo(t) {
                 </div>
 
                 <!-- Top operarios -->
-                <div class="bg-white rounded-2xl border border-linea shadow-sm p-5">
+                <div class="bg-superficie rounded-2xl border border-linea shadow-sm p-5">
                     <h3 class="text-sm font-semibold text-tinta-700 mb-3">Top operarios por tiempo</h3>
                     <div v-if="metricas.top_operarios?.length" class="space-y-2">
                         <div v-for="(op, idx) in metricas.top_operarios" :key="idx"
@@ -226,7 +226,7 @@ async function eliminarTrabajo(t) {
         </div>
 
         <!-- ── Filtros ───────────────────────────────────────────────────────── -->
-        <div class="bg-white rounded-2xl shadow-sm border border-linea p-4 mb-4">
+        <div class="bg-superficie rounded-2xl shadow-sm border border-linea p-4 mb-4">
             <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
                 <!-- OP numero -->
                 <div>
@@ -243,7 +243,7 @@ async function eliminarTrabajo(t) {
                     <label class="text-xs font-medium text-tinta-400 mb-1 block">Template</label>
                     <select
                         v-model="filtros.template_id"
-                        class="w-full rounded-xl border border-linea px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--marca)]/30 focus:border-[var(--marca)] bg-white"
+                        class="w-full rounded-xl border border-linea px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--marca)]/30 focus:border-[var(--marca)] bg-superficie"
                     >
                         <option value="">Todos</option>
                         <option v-for="t in templates" :key="t.id" :value="t.id">{{ t.nombre }}</option>
@@ -254,7 +254,7 @@ async function eliminarTrabajo(t) {
                     <label class="text-xs font-medium text-tinta-400 mb-1 block">Operario</label>
                     <select
                         v-model="filtros.operario_id"
-                        class="w-full rounded-xl border border-linea px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--marca)]/30 focus:border-[var(--marca)] bg-white"
+                        class="w-full rounded-xl border border-linea px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--marca)]/30 focus:border-[var(--marca)] bg-superficie"
                     >
                         <option value="">Todos</option>
                         <option v-for="o in operarios" :key="o.id" :value="o.id">{{ o.nombre }}</option>
@@ -265,7 +265,7 @@ async function eliminarTrabajo(t) {
                     <label class="text-xs font-medium text-tinta-400 mb-1 block">Estado</label>
                     <select
                         v-model="filtros.estado"
-                        class="w-full rounded-xl border border-linea px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--marca)]/30 focus:border-[var(--marca)] bg-white"
+                        class="w-full rounded-xl border border-linea px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--marca)]/30 focus:border-[var(--marca)] bg-superficie"
                     >
                         <option value="">Todos</option>
                         <option value="sin_iniciar">Sin iniciar</option>
@@ -292,7 +292,7 @@ async function eliminarTrabajo(t) {
                     <label class="text-xs font-medium text-tinta-400 mb-1 block">Paso de trabajo</label>
                     <select
                         v-model="filtros.paso"
-                        class="w-full rounded-xl border border-linea px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--marca)]/30 focus:border-[var(--marca)] bg-white"
+                        class="w-full rounded-xl border border-linea px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--marca)]/30 focus:border-[var(--marca)] bg-superficie"
                     >
                         <option value="">Todos los pasos</option>
                         <option v-for="p in pasos_disponibles" :key="p" :value="p">{{ p }}</option>
@@ -306,7 +306,7 @@ async function eliminarTrabajo(t) {
 
         <template v-else>
 
-        <div class="hidden md:block bg-white rounded-2xl shadow-sm border border-linea overflow-hidden">
+        <div class="hidden md:block bg-superficie rounded-2xl shadow-sm border border-linea overflow-hidden">
             <table class="w-full text-sm">
                 <thead>
                     <tr class="border-b border-linea">
@@ -416,13 +416,13 @@ async function eliminarTrabajo(t) {
         </div>
 
         <div class="md:hidden space-y-3">
-            <div v-if="lista.length === 0" class="text-center py-10 text-tinta-300 text-sm bg-white rounded-2xl">
+            <div v-if="lista.length === 0" class="text-center py-10 text-tinta-300 text-sm bg-superficie rounded-2xl">
                 No hay trabajos registrados
             </div>
             <div
                 v-for="t in lista"
                 :key="t.id"
-                class="bg-white rounded-2xl shadow-sm border border-linea p-4"
+                class="bg-superficie rounded-2xl shadow-sm border border-linea p-4"
             >
                 <!-- Header -->
                 <div class="flex items-center justify-between mb-2">

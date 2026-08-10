@@ -35,7 +35,7 @@ function elegir(cual) {
         <Transition name="opciones">
             <div v-if="abierto" class="flex flex-col items-end gap-2">
                 <button @click="elegir('chat')"
-                    class="opcion flex items-center gap-2 pl-3 pr-1.5 py-1.5 rounded-full shadow-lg bg-white border border-linea">
+                    class="opcion flex items-center gap-2 pl-3 pr-1.5 py-1.5 rounded-full shadow-lg bg-superficie border border-linea">
                     <span class="text-xs font-semibold text-tinta-700">Chat del equipo</span>
                     <span class="w-8 h-8 rounded-full flex items-center justify-center relative" style="background:#0F766E;">
                         <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
@@ -50,7 +50,7 @@ function elegir(cual) {
                 </button>
 
                 <button @click="elegir('ia')"
-                    class="opcion flex items-center gap-2 pl-3 pr-1.5 py-1.5 rounded-full shadow-lg bg-white border border-linea">
+                    class="opcion flex items-center gap-2 pl-3 pr-1.5 py-1.5 rounded-full shadow-lg bg-superficie border border-linea">
                     <span class="text-xs font-semibold text-tinta-700">Asistente</span>
                     <span class="w-8 h-8 rounded-full flex items-center justify-center" style="background:var(--marca);">
                         <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">

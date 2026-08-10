@@ -44,7 +44,7 @@ function submit() {
             </div>
 
             <form @submit.prevent="submit" class="space-y-4">
-                <div class="bg-white rounded-2xl shadow-sm p-5 space-y-4">
+                <div class="bg-superficie rounded-2xl shadow-sm p-5 space-y-4">
                     <div>
                         <label class="block text-sm font-medium text-tinta-700 mb-1">Título</label>
                         <input v-model="form.titulo" type="text" maxlength="200"
@@ -90,7 +90,7 @@ function submit() {
                     </div>
                 </div>
 
-                <div class="bg-white rounded-2xl shadow-sm p-5">
+                <div class="bg-superficie rounded-2xl shadow-sm p-5">
                     <label class="block text-sm font-medium text-tinta-700 mb-2">Imagen de portada</label>
                     <div class="flex items-center gap-3">
                         <div class="w-24 h-16 rounded-xl overflow-hidden bg-tinta-50 border border-linea flex items-center justify-center shrink-0">

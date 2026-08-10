@@ -32,7 +32,7 @@ const submit = () => {
                 />
             </div>
 
-            <div class="bg-white rounded-2xl shadow-sm p-6">
+            <div class="bg-superficie rounded-2xl shadow-sm p-6">
                 <h2 class="text-lg font-semibold mb-1" style="color:var(--marca);">Portal de Capacitación</h2>
                 <p class="text-sm text-tinta-400 mb-6">Ingresa con tu cuenta de cliente o contratista</p>
 

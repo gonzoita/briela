@@ -123,7 +123,7 @@ function eliminar(r) {
             </div>
 
             <!-- Lista de roles -->
-            <div class="bg-white rounded-2xl border border-linea overflow-hidden mb-4">
+            <div class="bg-superficie rounded-2xl border border-linea overflow-hidden mb-4">
                 <div class="px-5 py-3 border-b border-linea">
                     <h2 class="text-sm font-semibold text-tinta-700">Roles</h2>
                     <p class="text-xs text-tinta-300 mt-0.5">
@@ -164,7 +164,7 @@ function eliminar(r) {
             </div>
 
             <!-- Formulario -->
-            <div class="bg-white rounded-2xl border border-linea p-5">
+            <div class="bg-superficie rounded-2xl border border-linea p-5">
                 <h3 class="text-sm font-semibold text-tinta-700 mb-4">
                     {{ editando ? 'Editar rol' : 'Nuevo rol' }}
                 </h3>
@@ -185,7 +185,7 @@ function eliminar(r) {
                     <div>
                         <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1.5">Rol base *</label>
                         <select v-model="form.rol_base" :disabled="esSistema"
-                            class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm bg-white disabled:bg-tinta-100 focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]">
+                            class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm bg-superficie disabled:bg-tinta-100 focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]">
                             <option v-for="(label, key) in rolesBase" :key="key" :value="key">{{ label }}</option>
                         </select>
                         <p class="text-xs text-tinta-300 mt-1">

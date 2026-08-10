@@ -89,7 +89,7 @@ function eliminar() {
             </div>
 
             <!-- Tarjeta principal -->
-            <div class="bg-white rounded-xl border border-linea p-5 mb-4">
+            <div class="bg-superficie rounded-xl border border-linea p-5 mb-4">
                 <div class="flex items-center gap-4 mb-4">
                     <div class="w-14 h-14 rounded-full flex items-center justify-center text-lg font-semibold text-white flex-shrink-0"
                          style="background:var(--marca)">
@@ -136,13 +136,13 @@ function eliminar() {
             </div>
 
             <!-- Notas -->
-            <div v-if="cliente.notas" class="bg-white rounded-xl border border-linea p-4 mb-4">
+            <div v-if="cliente.notas" class="bg-superficie rounded-xl border border-linea p-4 mb-4">
                 <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-2">Notas</p>
                 <p class="text-sm text-tinta-700 whitespace-pre-line">{{ cliente.notas }}</p>
             </div>
 
             <!-- Sección de Contactos -->
-            <div class="bg-white rounded-xl border border-linea p-4 mb-4">
+            <div class="bg-superficie rounded-xl border border-linea p-4 mb-4">
                 <div class="flex items-center justify-between mb-3">
                     <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">Contactos</p>
                     <a :href="`/clientes/${cliente.id}/edit`"
@@ -182,7 +182,7 @@ function eliminar() {
             </div>
 
             <!-- Documentos -->
-            <div class="bg-white rounded-xl border border-linea p-4 mb-4">
+            <div class="bg-superficie rounded-xl border border-linea p-4 mb-4">
                 <div class="flex items-center justify-between mb-3">
                     <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">Documentos</p>
                     <a :href="`/clientes/${cliente.id}/edit`"
@@ -215,7 +215,7 @@ function eliminar() {
             <!-- Todo lo que este cliente tiene en el sistema. Cada bloque solo
                  aparece si el usuario puede ver ese módulo. -->
             <div v-for="b in bloques" :key="b.clave"
-                class="bg-white rounded-xl border border-linea p-4">
+                class="bg-superficie rounded-xl border border-linea p-4">
                 <div class="flex items-center justify-between mb-3">
                     <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">
                         {{ b.etiqueta }}

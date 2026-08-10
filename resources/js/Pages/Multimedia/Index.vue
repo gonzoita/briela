@@ -134,7 +134,7 @@ const iconoExtension = (ext) => {
             <div class="flex items-center gap-2 shrink-0">
                 <button
                     @click="modalIa = true"
-                    class="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-linea text-sm font-semibold text-[var(--marca)] bg-white"
+                    class="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-linea text-sm font-semibold text-[var(--marca)] bg-superficie"
                 >
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/>
@@ -158,7 +158,7 @@ const iconoExtension = (ext) => {
         <Teleport to="body">
             <div v-if="modalIa" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4"
                 style="background:rgba(0,0,0,0.5);" @click.self="modalIa = false">
-                <div class="bg-white rounded-2xl shadow-xl w-full max-w-sm p-5">
+                <div class="bg-superficie rounded-2xl shadow-xl w-full max-w-sm p-5">
                     <h3 class="text-base font-semibold text-tinta-900 mb-1">Generar imagen con IA</h3>
                     <p class="text-sm text-tinta-400 mb-4">
                         Para fondos, banners, piezas de redes o ilustraciones de apoyo.
@@ -172,7 +172,7 @@ const iconoExtension = (ext) => {
 
                     <label class="block text-xs font-medium text-tinta-500 mb-1.5">Estilo</label>
                     <select v-model="iaEstilo"
-                        class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm mb-4 bg-white">
+                        class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm mb-4 bg-superficie">
                         <option value="fotografico">Fotográfico</option>
                         <option value="ilustracion">Ilustración</option>
                         <option value="minimalista">Minimalista</option>
@@ -215,7 +215,7 @@ const iconoExtension = (ext) => {
                     v-model="form.buscar"
                     type="text"
                     placeholder="Buscar por nombre..."
-                    class="w-full border border-linea rounded-xl pl-9 pr-3 py-2 text-sm bg-white focus:outline-none"
+                    class="w-full border border-linea rounded-xl pl-9 pr-3 py-2 text-sm bg-superficie focus:outline-none"
                     @keyup.enter="filtrar"
                 />
                 <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-tinta-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
@@ -282,7 +282,7 @@ const iconoExtension = (ext) => {
                 class="group relative"
             >
                 <!-- Card -->
-                <div class="bg-white border border-linea rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                <div class="bg-superficie border border-linea rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
                     <!-- Thumbnail / icono -->
                     <div class="h-28 flex items-center justify-center bg-tinta-50 relative overflow-hidden">
                         <img
@@ -308,7 +308,7 @@ const iconoExtension = (ext) => {
                             <a
                                 :href="archivo.url"
                                 target="_blank"
-                                class="w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center text-white transition-colors"
+                                class="w-8 h-8 rounded-full bg-superficie/20 hover:bg-superficie/30 flex items-center justify-center text-white transition-colors"
                                 title="Ver"
                                 @click.stop
                             >
@@ -338,7 +338,7 @@ const iconoExtension = (ext) => {
         </div>
 
         <!-- Vista LISTA -->
-        <div v-else class="bg-white rounded-2xl border border-linea shadow-sm overflow-hidden">
+        <div v-else class="bg-superficie rounded-2xl border border-linea shadow-sm overflow-hidden">
             <table class="w-full text-sm">
                 <thead class="bg-tinta-50 text-xs text-tinta-400 uppercase tracking-wide">
                     <tr>

@@ -27,7 +27,7 @@ function eliminar(t) {
                 </a>
             </div>
 
-            <div class="bg-white rounded-2xl border border-linea overflow-hidden">
+            <div class="bg-superficie rounded-2xl border border-linea overflow-hidden">
                 <div v-if="!templates.length" class="py-12 text-center text-sm text-tinta-300">
                     No hay templates registrados.
                 </div>

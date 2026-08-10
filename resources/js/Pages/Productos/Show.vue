@@ -140,7 +140,7 @@ const fmtFecha = (d) => d ? new Date(d).toLocaleDateString('es-CO', { day: '2-di
 
             <!-- ── Col izquierda: imagen + miniaturas ─────────────────────── -->
             <div class="md:col-span-2 space-y-4">
-                <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
+                <div class="bg-superficie rounded-2xl shadow-sm overflow-hidden">
                     <!-- Imagen compacta -->
                     <div class="flex items-center justify-center" style="height:288px; background:#F1F5F9;">
                         <img
@@ -169,13 +169,13 @@ const fmtFecha = (d) => d ? new Date(d).toLocaleDateString('es-CO', { day: '2-di
                 </div>
 
                 <!-- Descripción larga (solo desktop — mobile queda abajo en info) -->
-                <div v-if="p.descripcion_larga" class="hidden md:block bg-white rounded-2xl shadow-sm p-5">
+                <div v-if="p.descripcion_larga" class="hidden md:block bg-superficie rounded-2xl shadow-sm p-5">
                     <h3 class="text-sm font-semibold text-tinta-700 mb-2">Descripción</h3>
                     <div class="tiptap-content text-sm text-tinta-500 leading-relaxed" v-html="p.descripcion_larga"></div>
                 </div>
 
                 <!-- Tabla componentes (ensamble) -->
-                <div v-if="p.tipo === 'ensamble'" class="bg-white rounded-2xl shadow-sm overflow-hidden">
+                <div v-if="p.tipo === 'ensamble'" class="bg-superficie rounded-2xl shadow-sm overflow-hidden">
                     <div class="px-5 py-4 border-b border-linea">
                         <h3 class="text-sm font-semibold text-tinta-700">Componentes</h3>
                     </div>
@@ -225,7 +225,7 @@ const fmtFecha = (d) => d ? new Date(d).toLocaleDateString('es-CO', { day: '2-di
                 </div>
 
                 <!-- Config puerta (ensamble) -->
-                <div v-if="p.tipo === 'ensamble' && p.configuracion_puerta" class="bg-white rounded-2xl shadow-sm overflow-hidden">
+                <div v-if="p.tipo === 'ensamble' && p.configuracion_puerta" class="bg-superficie rounded-2xl shadow-sm overflow-hidden">
                     <div class="px-5 py-4 border-b border-linea">
                         <h3 class="text-sm font-semibold text-tinta-700">Configuración de puerta</h3>
                     </div>
@@ -254,7 +254,7 @@ const fmtFecha = (d) => d ? new Date(d).toLocaleDateString('es-CO', { day: '2-di
             <!-- ── Col derecha: info completa ─────────────────────────────── -->
             <div class="md:col-span-3 space-y-4">
 
-                <div class="bg-white rounded-2xl shadow-sm p-5">
+                <div class="bg-superficie rounded-2xl shadow-sm p-5">
                     <!-- Nombre y badges -->
                     <h1 class="text-xl font-semibold text-tinta-900 mb-2 leading-snug">{{ p.nombre }}</h1>
                     <div class="flex flex-wrap gap-2 mb-3">
@@ -434,7 +434,7 @@ const fmtFecha = (d) => d ? new Date(d).toLocaleDateString('es-CO', { day: '2-di
         </div>
 
         <!-- ── Movimientos recientes ──────────────────────────────────────── -->
-        <div v-if="p.movimientos_recientes?.length" class="mt-5 bg-white rounded-2xl shadow-sm overflow-hidden">
+        <div v-if="p.movimientos_recientes?.length" class="mt-5 bg-superficie rounded-2xl shadow-sm overflow-hidden">
             <div class="px-5 py-3 border-b border-linea">
                 <h3 class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">Movimientos recientes</h3>
             </div>
@@ -479,7 +479,7 @@ const fmtFecha = (d) => d ? new Date(d).toLocaleDateString('es-CO', { day: '2-di
         <!-- ── Modal confirmar eliminar ───────────────────────────────────── -->
         <Teleport to="body">
             <div v-if="confirmarEliminar" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4" style="background: rgba(0,0,0,0.5);">
-                <div class="bg-white rounded-2xl shadow-xl w-full max-w-sm p-5">
+                <div class="bg-superficie rounded-2xl shadow-xl w-full max-w-sm p-5">
                     <h3 class="text-base font-semibold text-tinta-900 mb-2">¿Eliminar producto?</h3>
                     <p class="text-sm text-tinta-400 mb-5">Esta acción no se puede deshacer. El producto quedará archivado.</p>
                     <div class="flex gap-3">
@@ -491,7 +491,7 @@ const fmtFecha = (d) => d ? new Date(d).toLocaleDateString('es-CO', { day: '2-di
 
             <!-- Modal ajuste de stock -->
             <div v-if="modalAjuste" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4" style="background:rgba(0,0,0,0.5);">
-                <div class="bg-white rounded-2xl shadow-xl w-full max-w-md p-5">
+                <div class="bg-superficie rounded-2xl shadow-xl w-full max-w-md p-5">
                     <div class="flex items-center justify-between mb-4">
                         <h3 class="text-base font-semibold text-tinta-900">Ajuste de stock</h3>
                         <button @click="modalAjuste = false" class="text-tinta-300 hover:text-tinta-500 text-xl">✕</button>

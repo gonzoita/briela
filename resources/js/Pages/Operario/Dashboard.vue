@@ -60,7 +60,7 @@ function nivelEmoji(nombre) {
         <template v-else>
 
             <!-- ── Tarjeta perfil ────────────────────────────────────────────── -->
-            <div class="bg-white rounded-2xl border border-linea p-5 shadow-sm mb-4">
+            <div class="bg-superficie rounded-2xl border border-linea p-5 shadow-sm mb-4">
                 <div class="flex items-center gap-4">
                     <div class="w-14 h-14 rounded-full flex items-center justify-center text-xl font-semibold text-white shrink-0"
                         style="background-color:var(--marca);">
@@ -75,7 +75,7 @@ function nivelEmoji(nombre) {
             </div>
 
             <!-- ── Puntos y Nivel ──────────────────────────────────────────────── -->
-            <div class="bg-white rounded-2xl border border-linea p-5 shadow-sm mb-4">
+            <div class="bg-superficie rounded-2xl border border-linea p-5 shadow-sm mb-4">
 
                 <!-- Nivel actual + ranking -->
                 <div class="flex items-center gap-4 mb-4">
@@ -120,7 +120,7 @@ function nivelEmoji(nombre) {
             </div>
 
             <!-- ── Trabajos programados hoy ─────────────────────────────────── -->
-            <div v-if="trabajos_hoy.length" class="bg-white rounded-2xl border border-linea p-5 shadow-sm mb-4">
+            <div v-if="trabajos_hoy.length" class="bg-superficie rounded-2xl border border-linea p-5 shadow-sm mb-4">
                 <p class="text-sm font-semibold text-tinta-700 mb-3">📋 Mis trabajos de hoy</p>
                 <div class="space-y-2">
                     <div v-for="(t, idx) in trabajos_hoy" :key="idx"
@@ -145,7 +145,7 @@ function nivelEmoji(nombre) {
             </div>
 
             <!-- ── Historial de puntos recientes ──────────────────────────── -->
-            <div v-if="historial_puntos.length" class="bg-white rounded-2xl border border-linea p-5 shadow-sm mb-4">
+            <div v-if="historial_puntos.length" class="bg-superficie rounded-2xl border border-linea p-5 shadow-sm mb-4">
                 <p class="text-sm font-semibold text-tinta-700 mb-3">⭐ Mis últimos puntos</p>
                 <div class="space-y-2">
                     <div v-for="(p, idx) in historial_puntos" :key="idx"
@@ -164,25 +164,25 @@ function nivelEmoji(nombre) {
 
             <!-- ── Métricas 2×2 ─────────────────────────────────────────────── -->
             <div class="grid grid-cols-2 gap-3 mb-4">
-                <div class="bg-white rounded-2xl border border-linea p-4 shadow-sm">
+                <div class="bg-superficie rounded-2xl border border-linea p-4 shadow-sm">
                     <p class="text-xs text-tinta-400 font-medium">Pasos completados</p>
                     <p class="text-2xl font-semibold mt-1" style="color:var(--marca);">
                         {{ metricas?.pasos_completados ?? 0 }}
                     </p>
                 </div>
-                <div class="bg-white rounded-2xl border border-linea p-4 shadow-sm">
+                <div class="bg-superficie rounded-2xl border border-linea p-4 shadow-sm">
                     <p class="text-xs text-tinta-400 font-medium">Tiempo registrado</p>
                     <p class="text-2xl font-semibold mt-1 text-tinta-900">
                         {{ formatTiempo(metricas?.tiempo_total_minutos) }}
                     </p>
                 </div>
-                <div class="bg-white rounded-2xl border border-linea p-4 shadow-sm">
+                <div class="bg-superficie rounded-2xl border border-linea p-4 shadow-sm">
                     <p class="text-xs text-tinta-400 font-medium">Trabajos activos</p>
                     <p class="text-2xl font-semibold mt-1 text-amber-600">
                         {{ metricas?.trabajos_activos ?? 0 }}
                     </p>
                 </div>
-                <div class="bg-white rounded-2xl border border-linea p-4 shadow-sm">
+                <div class="bg-superficie rounded-2xl border border-linea p-4 shadow-sm">
                     <p class="text-xs text-tinta-400 font-medium">Terminados</p>
                     <p class="text-2xl font-semibold mt-1 text-green-600">
                         {{ metricas?.trabajos_terminados ?? 0 }}
@@ -192,7 +192,7 @@ function nivelEmoji(nombre) {
 
             <!-- ── Trabajos activos ──────────────────────────────────────────── -->
             <div v-if="trabajos_activos?.length"
-                class="bg-white rounded-2xl border border-linea overflow-hidden shadow-sm mb-4">
+                class="bg-superficie rounded-2xl border border-linea overflow-hidden shadow-sm mb-4">
                 <div class="px-4 py-3 border-b border-linea">
                     <h2 class="text-sm font-semibold text-tinta-700">Trabajos activos</h2>
                 </div>
@@ -235,13 +235,13 @@ function nivelEmoji(nombre) {
             </div>
 
             <!-- Sin trabajos activos -->
-            <div v-else class="bg-white rounded-2xl border border-linea p-6 text-center shadow-sm mb-4">
+            <div v-else class="bg-superficie rounded-2xl border border-linea p-6 text-center shadow-sm mb-4">
                 <p class="text-sm text-tinta-400">No tienes trabajos activos asignados.</p>
             </div>
 
             <!-- ── Trabajos terminados ────────────────────────────────────────── -->
             <div v-if="trabajos_terminados?.length"
-                class="bg-white rounded-2xl border border-linea overflow-hidden shadow-sm mb-4">
+                class="bg-superficie rounded-2xl border border-linea overflow-hidden shadow-sm mb-4">
                 <div class="px-4 py-3 border-b border-linea">
                     <h2 class="text-sm font-semibold text-tinta-700">Terminados</h2>
                 </div>

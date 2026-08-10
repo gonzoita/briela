@@ -122,19 +122,19 @@ const chartPoints = computed(() => {
             <!-- Métricas + gráfico -->
             <div v-if="mostrarMetricas" class="mb-4">
                 <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-3">
-                    <div class="bg-white rounded-2xl border border-linea shadow-sm px-4 py-3">
+                    <div class="bg-superficie rounded-2xl border border-linea shadow-sm px-4 py-3">
                         <p class="text-xs text-tinta-300 mb-1">Borradores</p>
                         <p class="text-2xl font-semibold text-tinta-900">{{ metricas?.borradores ?? 0 }}</p>
                     </div>
-                    <div class="bg-white rounded-2xl border border-linea shadow-sm px-4 py-3">
+                    <div class="bg-superficie rounded-2xl border border-linea shadow-sm px-4 py-3">
                         <p class="text-xs text-tinta-300 mb-1">Enviadas</p>
                         <p class="text-2xl font-semibold" style="color:#1D4ED8;">{{ metricas?.enviadas ?? 0 }}</p>
                     </div>
-                    <div class="bg-white rounded-2xl border border-linea shadow-sm px-4 py-3">
+                    <div class="bg-superficie rounded-2xl border border-linea shadow-sm px-4 py-3">
                         <p class="text-xs text-tinta-300 mb-1">Aprobadas</p>
                         <p class="text-2xl font-semibold" style="color:#065F46;">{{ metricas?.aprobadas ?? 0 }}</p>
                     </div>
-                    <div class="bg-white rounded-2xl border border-linea shadow-sm px-4 py-3">
+                    <div class="bg-superficie rounded-2xl border border-linea shadow-sm px-4 py-3">
                         <p class="text-xs text-tinta-300 mb-1">Aprobado este mes</p>
                         <p class="text-xl font-semibold" style="color:var(--marca);">${{ formatCOP(metricas?.total_mes ?? 0) }}</p>
                     </div>
@@ -155,7 +155,7 @@ const chartPoints = computed(() => {
                     <div class="flex flex-wrap gap-2 pl-8">
                         <a v-for="c in metricas.cotizaciones_seguimiento" :key="c.id"
                             :href="`/cotizaciones/${c.id}`"
-                            class="text-xs font-semibold px-2.5 py-1 rounded-full bg-white hover:underline"
+                            class="text-xs font-semibold px-2.5 py-1 rounded-full bg-superficie hover:underline"
                             style="color:#92400E; border:1px solid #F59E0B;">
                             {{ c.numero }} · {{ c.dias }}d
                         </a>
@@ -163,7 +163,7 @@ const chartPoints = computed(() => {
                 </div>
 
                 <!-- Mini gráfico: aprobadas últimos 6 meses -->
-                <div class="bg-white rounded-2xl border border-linea shadow-sm px-4 py-3">
+                <div class="bg-superficie rounded-2xl border border-linea shadow-sm px-4 py-3">
                     <p class="text-xs font-semibold text-tinta-300 uppercase tracking-[0.12em] mb-2">Aprobadas — últimos 6 meses</p>
                     <svg :viewBox="`0 0 ${svgW} ${svgH}`" class="w-full" style="height:80px;">
                         <!-- área rellena -->
@@ -191,7 +191,7 @@ const chartPoints = computed(() => {
             </div>
 
             <!-- Filtros -->
-            <div class="bg-white rounded-xl border border-linea p-4 mb-5">
+            <div class="bg-superficie rounded-xl border border-linea p-4 mb-5">
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                     <input v-model="filters.buscar" type="text" placeholder="Buscar número o cliente..."
                         class="rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:border-[var(--marca)]"/>
@@ -225,7 +225,7 @@ const chartPoints = computed(() => {
             </div>
 
             <!-- Tabla desktop / tarjetas mobile -->
-            <div class="bg-white rounded-2xl border border-linea overflow-hidden">
+            <div class="bg-superficie rounded-2xl border border-linea overflow-hidden">
 
                 <!-- Desktop: tabla -->
                 <div class="hidden md:block overflow-x-auto">

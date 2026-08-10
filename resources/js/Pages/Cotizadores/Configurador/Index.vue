@@ -254,7 +254,7 @@ const badgesTipo = {
             <div class="flex md:hidden mb-4 rounded-xl overflow-hidden border border-linea">
                 <button v-for="tab in [['plantillas','Plantillas'],['campos','Campos'],['componentes','Componentes']]" :key="tab[0]"
                     @click="tabMobile = tab[0]"
-                    :class="['flex-1 py-2.5 text-xs font-semibold transition-colors', tabMobile === tab[0] ? 'text-white' : 'text-tinta-500 bg-white hover:bg-tinta-50']"
+                    :class="['flex-1 py-2.5 text-xs font-semibold transition-colors', tabMobile === tab[0] ? 'text-white' : 'text-tinta-500 bg-superficie hover:bg-tinta-50']"
                     :style="tabMobile === tab[0] ? 'background:var(--marca);' : ''">
                     {{ tab[1] }}
                 </button>
@@ -265,7 +265,7 @@ const badgesTipo = {
 
                 <!-- ══ COL 1: Lista de plantillas ══════════════════════════════════ -->
                 <aside :class="['md:block md:w-60 shrink-0', tabMobile !== 'plantillas' ? 'hidden' : 'block w-full']">
-                    <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
+                    <div class="bg-superficie rounded-2xl shadow-sm overflow-hidden">
                         <div class="px-4 py-3 border-b border-linea flex items-center justify-between">
                             <h2 class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">Plantillas</h2>
                             <button @click="modalNuevaPlantilla = true"
@@ -306,7 +306,7 @@ const badgesTipo = {
 
                     <!-- ══ COL 2: Campos de entrada ═══════════════════════════════ -->
                     <section :class="['flex-1 min-w-0', tabMobile !== 'campos' ? 'hidden md:block' : 'block']">
-                        <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
+                        <div class="bg-superficie rounded-2xl shadow-sm overflow-hidden">
                             <!-- Header editable del nombre -->
                             <div class="px-5 py-3 border-b border-linea space-y-2">
                                 <input v-model="plantillaActual.nombre"
@@ -415,7 +415,7 @@ const badgesTipo = {
 
                     <!-- ══ COL 3: Componentes y fórmulas ═══════════════════════════ -->
                     <section :class="['flex-1 min-w-0', tabMobile !== 'componentes' ? 'hidden md:block' : 'block']">
-                        <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
+                        <div class="bg-superficie rounded-2xl shadow-sm overflow-hidden">
                             <div class="px-5 py-3 border-b border-linea">
                                 <h3 class="text-xs font-semibold text-tinta-300 uppercase tracking-[0.12em]">Componentes y fórmulas</h3>
                                 <p class="text-xs text-tinta-300 mt-0.5">Variables: <span class="font-mono text-blue-600">{{ variablesDisponibles.join(', ') }}</span></p>
@@ -462,7 +462,7 @@ const badgesTipo = {
                                         class="w-full border border-linea rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:border-[var(--marca)]"
                                         placeholder="Buscar producto..." />
                                     <ul v-if="resBusqProd.length"
-                                        class="absolute z-20 left-0 right-0 bg-white border border-linea rounded-xl mt-1 shadow-lg overflow-hidden max-h-40 overflow-y-auto">
+                                        class="absolute z-20 left-0 right-0 bg-superficie border border-linea rounded-xl mt-1 shadow-lg overflow-hidden max-h-40 overflow-y-auto">
                                         <li v-for="p in resBusqProd" :key="p.id"
                                             @click="elegirProducto(p)"
                                             class="px-3 py-2 text-sm cursor-pointer hover:bg-tinta-50">
@@ -521,7 +521,7 @@ const badgesTipo = {
         <!-- ══ Modal nueva plantilla ════════════════════════════════════════════════ -->
         <Teleport to="body">
             <div v-if="modalNuevaPlantilla" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4" style="background:rgba(0,0,0,0.5);">
-                <div class="bg-white rounded-2xl shadow-xl w-full max-w-sm p-5">
+                <div class="bg-superficie rounded-2xl shadow-xl w-full max-w-sm p-5">
                     <h3 class="text-base font-semibold text-tinta-900 mb-4">Nueva plantilla de ensamble</h3>
                     <div class="space-y-3">
                         <div>
@@ -546,7 +546,7 @@ const badgesTipo = {
         <!-- ══ Modal Probar plantilla ════════════════════════════════════════════════ -->
         <Teleport to="body">
             <div v-if="modalProbar" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 overflow-y-auto" style="background:rgba(0,0,0,0.5);">
-                <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg p-5 my-4">
+                <div class="bg-superficie rounded-2xl shadow-xl w-full max-w-lg p-5 my-4">
                     <div class="flex items-center justify-between mb-4">
                         <h3 class="text-base font-semibold text-tinta-900">Probar: {{ plantillaActual?.nombre }}</h3>
                         <button @click="modalProbar = false" class="text-tinta-300 hover:text-tinta-500">

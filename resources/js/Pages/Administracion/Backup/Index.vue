@@ -95,7 +95,7 @@ function eliminarBackup(filename) {
             class="fixed inset-0 z-50 flex flex-col items-center justify-center gap-4"
             style="background: rgba(0,0,0,0.6);"
         >
-            <div class="w-12 h-12 rounded-full border-4 border-white border-t-transparent animate-spin" />
+            <div class="w-12 h-12 rounded-full border-4 border-superficie border-t-transparent animate-spin" />
             <p class="text-white font-semibold text-base text-center px-6">
                 Restaurando base de datos...<br>
                 <span class="text-sm font-normal opacity-80">No cierres esta ventana</span>
@@ -135,7 +135,7 @@ function eliminarBackup(filename) {
             </div>
 
             <!-- ── RESPALDO AUTOMÁTICO ──────────────────────────────────────── -->
-            <div class="bg-white rounded-2xl shadow-sm border p-5"
+            <div class="bg-superficie rounded-2xl shadow-sm border p-5"
                 :class="autoSaludable ? 'border-green-200' : 'border-amber-200'">
                 <div class="flex items-start gap-3">
                     <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
@@ -176,7 +176,7 @@ function eliminarBackup(filename) {
             </div>
 
             <!-- ── ESTADO ───────────────────────────────────────────────────── -->
-            <div class="bg-white rounded-2xl shadow-sm border border-linea p-5">
+            <div class="bg-superficie rounded-2xl shadow-sm border border-linea p-5">
                 <h2 class="text-sm font-semibold text-tinta-400 uppercase tracking-wide mb-3">Estado</h2>
                 <div class="grid grid-cols-2 gap-4">
                     <div>
@@ -202,7 +202,7 @@ function eliminarBackup(filename) {
             </div>
 
             <!-- ── DIAGNÓSTICO (solo si algo falla) ─────────────────────────── -->
-            <div v-if="hayProblema" class="bg-white rounded-2xl shadow-sm border border-amber-200 p-5">
+            <div v-if="hayProblema" class="bg-superficie rounded-2xl shadow-sm border border-amber-200 p-5">
                 <h2 class="text-sm font-semibold text-tinta-400 uppercase tracking-wide mb-1">Diagnóstico del servidor</h2>
                 <p class="text-xs text-tinta-400 mb-3">
                     Algo de la configuración del hosting está limitando los respaldos.
@@ -224,7 +224,7 @@ function eliminarBackup(filename) {
             </div>
 
             <!-- ── CREAR BACKUP ──────────────────────────────────────────────── -->
-            <div class="bg-white rounded-2xl shadow-sm border border-linea p-5">
+            <div class="bg-superficie rounded-2xl shadow-sm border border-linea p-5">
                 <h2 class="text-sm font-semibold text-tinta-400 uppercase tracking-wide mb-3">Crear Backup</h2>
                 <button
                     @click="descargarBackup"
@@ -238,7 +238,7 @@ function eliminarBackup(filename) {
                         <path stroke-linecap="round" stroke-linejoin="round" d="M4 9v4c0 1.657 3.582 3 8 3s8-1.343 8-3V9" />
                         <path stroke-linecap="round" stroke-linejoin="round" d="M4 13v4c0 1.657 3.582 3 8 3s8-1.343 8-3v-4" />
                     </svg>
-                    <div v-else class="w-5 h-5 rounded-full border-2 border-white border-t-transparent animate-spin" />
+                    <div v-else class="w-5 h-5 rounded-full border-2 border-superficie border-t-transparent animate-spin" />
                     {{ descargando ? 'Generando...' : 'Descargar Backup Ahora' }}
                 </button>
                 <p class="text-xs text-tinta-300 mt-2 text-center">
@@ -247,7 +247,7 @@ function eliminarBackup(filename) {
             </div>
 
             <!-- ── RESTAURAR ─────────────────────────────────────────────────── -->
-            <div class="bg-white rounded-2xl shadow-sm border border-orange-100 p-5">
+            <div class="bg-superficie rounded-2xl shadow-sm border border-orange-100 p-5">
                 <h2 class="text-sm font-semibold text-tinta-400 uppercase tracking-wide mb-3">Restaurar</h2>
 
                 <!-- Advertencia -->
@@ -298,7 +298,7 @@ function eliminarBackup(filename) {
             </div>
 
             <!-- ── BACKUPS EN SERVIDOR ───────────────────────────────────────── -->
-            <div class="bg-white rounded-2xl shadow-sm border border-linea p-5">
+            <div class="bg-superficie rounded-2xl shadow-sm border border-linea p-5">
                 <h2 class="text-sm font-semibold text-tinta-400 uppercase tracking-wide mb-3">
                     Backups guardados en servidor
                 </h2>
@@ -346,7 +346,7 @@ function eliminarBackup(filename) {
                 style="background: rgba(0,0,0,0.5);"
                 @click.self="modalConfirm = false"
             >
-                <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden">
+                <div class="bg-superficie rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden">
                     <!-- Header -->
                     <div class="px-6 pt-6 pb-4">
                         <div class="flex items-center gap-3 mb-4">

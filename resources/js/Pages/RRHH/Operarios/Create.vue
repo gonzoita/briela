@@ -88,13 +88,13 @@ const SECCIONES = [
                     type="button"
                     @click="seccion = s.key"
                     class="flex-1 min-w-[72px] py-2 px-2 rounded-xl text-xs font-semibold transition-colors whitespace-nowrap"
-                    :class="seccion === s.key ? 'bg-white text-tinta-900 shadow-sm' : 'text-tinta-400 hover:text-tinta-700'">
+                    :class="seccion === s.key ? 'bg-superficie text-tinta-900 shadow-sm' : 'text-tinta-400 hover:text-tinta-700'">
                     {{ s.label }}
                 </button>
             </div>
 
             <!-- ─── SECCIÓN PERSONAL ─── -->
-            <div v-show="seccion === 'personal'" class="bg-white rounded-2xl border border-linea p-5 space-y-4">
+            <div v-show="seccion === 'personal'" class="bg-superficie rounded-2xl border border-linea p-5 space-y-4">
                 <div>
                     <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1.5">Nombre *</label>
                     <input v-model="form.nombre" @input="onNombreChange" type="text"
@@ -179,7 +179,7 @@ const SECCIONES = [
             </div>
 
             <!-- ─── SECCIÓN SEGURIDAD SOCIAL ─── -->
-            <div v-show="seccion === 'seguridad'" class="bg-white rounded-2xl border border-linea p-5 space-y-4">
+            <div v-show="seccion === 'seguridad'" class="bg-superficie rounded-2xl border border-linea p-5 space-y-4">
                 <p class="text-xs text-tinta-300">Los documentos se pueden cargar después de crear el colaborador.</p>
 
                 <div class="border-b border-linea pb-4">
@@ -216,7 +216,7 @@ const SECCIONES = [
             </div>
 
             <!-- ─── SECCIÓN BANCARIA ─── -->
-            <div v-show="seccion === 'bancario'" class="bg-white rounded-2xl border border-linea p-5 space-y-4">
+            <div v-show="seccion === 'bancario'" class="bg-superficie rounded-2xl border border-linea p-5 space-y-4">
                 <p class="text-xs text-tinta-300">Los documentos se pueden cargar después de crear el colaborador.</p>
 
                 <div>
@@ -243,7 +243,7 @@ const SECCIONES = [
             </div>
 
             <!-- ─── SECCIÓN ACCESO ─── -->
-            <div v-show="seccion === 'acceso'" class="bg-white rounded-2xl border border-linea p-5 space-y-4">
+            <div v-show="seccion === 'acceso'" class="bg-superficie rounded-2xl border border-linea p-5 space-y-4">
                 <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">Acceso al sistema</p>
 
                 <div class="flex gap-2">

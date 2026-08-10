@@ -34,21 +34,31 @@ export default {
                     borde:   'var(--marca-borde)',
                     texto:   'var(--marca-texto)',
                 },
-                // Grises apenas fríos. La escala es corta a propósito: con menos
-                // tonos disponibles es más difícil que cada pantalla invente el
-                // suyo y el conjunto se vea desparejo.
+                // Grises apenas fríos, apuntando a variables CSS y no a números
+                // fijos. Es lo que permite el modo noche: no se añaden clases a las
+                // 128 pantallas, cambia lo que significan las que ya usan.
+                //
+                // La escala es corta a propósito: con menos tonos disponibles es
+                // más difícil que cada pantalla invente el suyo.
                 tinta: {
-                    900: '#101828',
-                    700: '#344054',
-                    500: '#475467',
-                    400: '#667085',
-                    300: '#98A2B3',
-                    200: '#EAECF0',
-                    100: '#F2F4F7',
-                    50:  '#F9FAFB',
+                    900: 'var(--tinta-900)',
+                    700: 'var(--tinta-700)',
+                    500: 'var(--tinta-500)',
+                    400: 'var(--tinta-400)',
+                    300: 'var(--tinta-300)',
+                    200: 'var(--tinta-200)',
+                    100: 'var(--tinta-100)',
+                    50:  'var(--tinta-50)',
                 },
                 linea: 'var(--borde)',
                 lienzo: 'var(--fondo)',
+                // Las superficies: lo que en modo día es blanco y de noche es un
+                // gris muy oscuro. `text-white` se deja como blanco real, porque
+                // casi siempre va encima del color de la marca.
+                superficie: {
+                    DEFAULT: 'var(--superficie)',
+                    2: 'var(--superficie-2)',
+                },
             },
 
             borderRadius: {

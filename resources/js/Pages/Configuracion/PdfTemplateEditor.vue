@@ -158,7 +158,7 @@ async function copiarVariable(variable) {
 
                 <!-- ── Panel izquierdo (controles) ──────────────────────────── -->
                 <div class="w-full lg:w-[420px] shrink-0 flex flex-col gap-0">
-                    <div class="bg-white rounded-2xl shadow-sm border border-linea flex flex-col" style="min-height:600px;">
+                    <div class="bg-superficie rounded-2xl shadow-sm border border-linea flex flex-col" style="min-height:600px;">
 
                         <!-- Nombre del template -->
                         <div class="px-5 pt-5 pb-3 border-b border-linea">
@@ -316,7 +316,7 @@ async function copiarVariable(variable) {
                                         :style="{ backgroundColor: form.mostrar_logo ? 'var(--marca)' : '#D1D5DB' }"
                                     >
                                         <span
-                                            class="absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform"
+                                            class="absolute top-0.5 w-5 h-5 bg-superficie rounded-full shadow transition-transform"
                                             :class="form.mostrar_logo ? 'translate-x-5' : 'translate-x-0.5'"
                                         />
                                     </button>
@@ -389,7 +389,7 @@ async function copiarVariable(variable) {
                                         :style="{ backgroundColor: form.mostrar_encabezado ? 'var(--marca)' : '#D1D5DB' }"
                                     >
                                         <span
-                                            class="absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform"
+                                            class="absolute top-0.5 w-5 h-5 bg-superficie rounded-full shadow transition-transform"
                                             :class="form.mostrar_encabezado ? 'translate-x-5' : 'translate-x-0.5'"
                                         />
                                     </button>
@@ -429,7 +429,7 @@ async function copiarVariable(variable) {
                                             :style="{ backgroundColor: usarEncabezadoHtml ? 'var(--marca)' : '#D1D5DB' }"
                                         >
                                             <span
-                                                class="absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform"
+                                                class="absolute top-0.5 w-5 h-5 bg-superficie rounded-full shadow transition-transform"
                                                 :class="usarEncabezadoHtml ? 'translate-x-5' : 'translate-x-0.5'"
                                             />
                                         </button>
@@ -460,7 +460,7 @@ async function copiarVariable(variable) {
                                         :style="{ backgroundColor: form.mostrar_pie ? 'var(--marca)' : '#D1D5DB' }"
                                     >
                                         <span
-                                            class="absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform"
+                                            class="absolute top-0.5 w-5 h-5 bg-superficie rounded-full shadow transition-transform"
                                             :class="form.mostrar_pie ? 'translate-x-5' : 'translate-x-0.5'"
                                         />
                                     </button>
@@ -491,7 +491,7 @@ async function copiarVariable(variable) {
                                             :style="{ backgroundColor: usarPieHtml ? 'var(--marca)' : '#D1D5DB' }"
                                         >
                                             <span
-                                                class="absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform"
+                                                class="absolute top-0.5 w-5 h-5 bg-superficie rounded-full shadow transition-transform"
                                                 :class="usarPieHtml ? 'translate-x-5' : 'translate-x-0.5'"
                                             />
                                         </button>
@@ -593,7 +593,7 @@ async function copiarVariable(variable) {
                 <!-- ── Panel derecho (preview) ──────────────────────────────── -->
                 <div class="flex-1 flex flex-col gap-3">
                     <!-- Barra de acciones del preview -->
-                    <div class="flex items-center justify-between bg-white rounded-2xl shadow-sm border border-linea px-4 py-3">
+                    <div class="flex items-center justify-between bg-superficie rounded-2xl shadow-sm border border-linea px-4 py-3">
                         <span class="text-sm font-medium text-tinta-700">Vista previa del PDF</span>
                         <div class="flex items-center gap-2">
                             <button
@@ -620,7 +620,7 @@ async function copiarVariable(variable) {
                     </div>
 
                     <!-- iframe -->
-                    <div class="flex-1 bg-white rounded-2xl shadow-sm border border-linea overflow-hidden" style="min-height: 500px;">
+                    <div class="flex-1 bg-superficie rounded-2xl shadow-sm border border-linea overflow-hidden" style="min-height: 500px;">
                         <iframe
                             :key="previewKey"
                             :src="previewUrl"

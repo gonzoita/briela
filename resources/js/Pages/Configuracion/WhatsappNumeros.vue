@@ -177,7 +177,7 @@ function eliminar(id) {
             </div>
 
             <!-- Conexión con Meta -->
-            <div class="bg-white rounded-2xl border border-linea p-5 mb-4">
+            <div class="bg-superficie rounded-2xl border border-linea p-5 mb-4">
                 <div class="flex items-center gap-2 flex-wrap mb-1">
                     <h2 class="text-sm font-semibold text-tinta-700">Conexión con WhatsApp</h2>
                     <span v-if="conexion.lista"
@@ -243,12 +243,12 @@ function eliminar(id) {
                     <p class="mb-1.5">3. Pega acá lo que te dio Meta:</p>
                     <div class="space-y-2">
                         <input v-model="cred.id" type="text" placeholder="Identificador del número de teléfono (Phone Number ID)"
-                            class="w-full bg-white border border-linea rounded-lg px-2.5 py-2 text-[12px] focus:outline-none focus:border-[var(--marca)]" />
+                            class="w-full bg-superficie border border-linea rounded-lg px-2.5 py-2 text-[12px] focus:outline-none focus:border-[var(--marca)]" />
                         <input v-model="cred.secret" type="password"
                             :placeholder="conexion.tiene_secreto ? 'Token de acceso (ya hay uno guardado — deja vacío para conservarlo)' : 'Token de acceso permanente'"
-                            class="w-full bg-white border border-linea rounded-lg px-2.5 py-2 text-[12px] focus:outline-none focus:border-[var(--marca)]" />
+                            class="w-full bg-superficie border border-linea rounded-lg px-2.5 py-2 text-[12px] focus:outline-none focus:border-[var(--marca)]" />
                         <input v-model="cred.redirect" type="text" placeholder="Token de verificación del webhook (lo inventas tú)"
-                            class="w-full bg-white border border-linea rounded-lg px-2.5 py-2 text-[12px] focus:outline-none focus:border-[var(--marca)]" />
+                            class="w-full bg-superficie border border-linea rounded-lg px-2.5 py-2 text-[12px] focus:outline-none focus:border-[var(--marca)]" />
                         <button type="button" @click="guardarCredenciales" :disabled="ocupado === 'guardar'"
                             class="w-full py-2 rounded-lg text-[12px] font-semibold text-white disabled:opacity-50"
                             style="background:var(--marca);">
@@ -263,7 +263,7 @@ function eliminar(id) {
             </div>
 
             <!-- Automatización -->
-            <div class="bg-white rounded-2xl border border-linea p-5 mb-4">
+            <div class="bg-superficie rounded-2xl border border-linea p-5 mb-4">
                 <button @click="autoAbierta = !autoAbierta" class="w-full flex items-center justify-between text-left">
                     <div>
                         <div class="flex items-center gap-2 flex-wrap">
@@ -401,7 +401,7 @@ function eliminar(id) {
             </div>
 
             <!-- Lista -->
-            <div class="bg-white rounded-2xl border border-linea overflow-hidden mb-4">
+            <div class="bg-superficie rounded-2xl border border-linea overflow-hidden mb-4">
                 <div class="px-5 py-3 border-b border-linea">
                     <h2 class="text-sm font-semibold text-tinta-700">Números registrados</h2>
                     <p class="text-xs text-tinta-300 mt-0.5">Cada asesor conserva su app y su historial (modo Coexistencia).</p>
@@ -460,7 +460,7 @@ function eliminar(id) {
             </div>
 
             <!-- Formulario crear / editar -->
-            <div class="bg-white rounded-2xl border border-linea p-5">
+            <div class="bg-superficie rounded-2xl border border-linea p-5">
                 <h3 class="text-sm font-semibold text-tinta-700 mb-4">
                     {{ editando ? 'Editar número' : 'Nuevo número' }}
                 </h3>
@@ -512,7 +512,7 @@ function eliminar(id) {
                         </label>
                         <select
                             v-model="form.rol"
-                            class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)] bg-white"
+                            class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)] bg-superficie"
                         >
                             <option value="asesor">Asesor</option>
                             <option value="central">Central</option>
@@ -526,7 +526,7 @@ function eliminar(id) {
                         </label>
                         <select
                             v-model="form.usuario_id"
-                            class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)] bg-white"
+                            class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)] bg-superficie"
                         >
                             <option value="">Sin asignar</option>
                             <option v-for="u in usuarios" :key="u.id" :value="u.id">{{ u.name }}</option>

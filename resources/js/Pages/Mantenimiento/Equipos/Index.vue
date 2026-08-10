@@ -74,13 +74,13 @@ function eliminar(e) {
                 </select>
             </div>
 
-            <div v-if="!equipos.length" class="bg-white rounded-2xl border border-linea py-12 text-center text-sm text-tinta-300">
+            <div v-if="!equipos.length" class="bg-superficie rounded-2xl border border-linea py-12 text-center text-sm text-tinta-300">
                 Sin equipos registrados.
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div v-for="e in equipos" :key="e.id"
-                    class="bg-white rounded-2xl border border-linea p-4 hover:border-blue-200 transition-colors cursor-pointer"
+                    class="bg-superficie rounded-2xl border border-linea p-4 hover:border-blue-200 transition-colors cursor-pointer"
                     @click="router.visit(`/mantenimiento/equipos/${e.id}`)">
                     <div class="flex items-start justify-between gap-3 mb-3">
                         <div class="min-w-0">

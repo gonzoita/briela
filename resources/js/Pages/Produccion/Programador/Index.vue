@@ -209,14 +209,14 @@ onUnmounted(() => {
             <button
                 @click="tabMobile = 'backlog'"
                 class="flex-1 py-2 rounded-xl text-xs font-semibold transition-colors"
-                :class="tabMobile === 'backlog' ? 'bg-white text-tinta-900 shadow-sm' : 'text-tinta-400'"
+                :class="tabMobile === 'backlog' ? 'bg-superficie text-tinta-900 shadow-sm' : 'text-tinta-400'"
             >
                 Backlog ({{ pasosSinProgramar.length }})
             </button>
             <button
                 @click="tabMobile = 'kanban'"
                 class="flex-1 py-2 rounded-xl text-xs font-semibold transition-colors"
-                :class="tabMobile === 'kanban' ? 'bg-white text-tinta-900 shadow-sm' : 'text-tinta-400'"
+                :class="tabMobile === 'kanban' ? 'bg-superficie text-tinta-900 shadow-sm' : 'text-tinta-400'"
             >
                 Kanban ({{ pasosProgramados.length }})
             </button>
@@ -238,7 +238,7 @@ onUnmounted(() => {
                 </div>
 
                 <div v-if="!pasosSinProgramar.length"
-                    class="bg-white rounded-2xl border border-linea py-10 text-center text-sm text-tinta-300">
+                    class="bg-superficie rounded-2xl border border-linea py-10 text-center text-sm text-tinta-300">
                     Sin pasos pendientes de programar.
                 </div>
 
@@ -246,7 +246,7 @@ onUnmounted(() => {
                 <div
                     v-for="paso in pasosSinProgramar"
                     :key="paso.id"
-                    class="bg-white rounded-2xl border border-linea p-4 shadow-sm"
+                    class="bg-superficie rounded-2xl border border-linea p-4 shadow-sm"
                 >
                     <!-- Info del paso -->
                     <p class="text-sm font-semibold text-tinta-900 leading-snug">{{ paso.nombre }}</p>
@@ -356,7 +356,7 @@ onUnmounted(() => {
             >
                 <!-- Sin estaciones -->
                 <div v-if="!estaciones.length"
-                    class="bg-white rounded-2xl border border-linea py-12 text-center text-sm text-tinta-300">
+                    class="bg-superficie rounded-2xl border border-linea py-12 text-center text-sm text-tinta-300">
                     No hay estaciones de trabajo activas. Configúralas en
                     <a href="/configuracion" @click.prevent="router.visit('/configuracion')"
                         class="text-blue-600 hover:underline">Configuración</a>.
@@ -375,7 +375,7 @@ onUnmounted(() => {
                             :style="{ background: est.color || 'var(--marca)' }"
                         >
                             <span class="flex-1 text-sm font-semibold truncate">{{ est.nombre }}</span>
-                            <span class="text-xs px-1.5 py-0.5 rounded-full bg-white/20 font-semibold shrink-0">
+                            <span class="text-xs px-1.5 py-0.5 rounded-full bg-superficie/20 font-semibold shrink-0">
                                 {{ (kanbanPorEstacion[est.id] ?? []).length }}
                             </span>
                         </div>
@@ -408,7 +408,7 @@ onUnmounted(() => {
                             <div
                                 v-for="paso in kanbanPorEstacion[est.id] ?? []"
                                 :key="paso.id"
-                                class="bg-white rounded-xl border shadow-sm p-3"
+                                class="bg-superficie rounded-xl border shadow-sm p-3"
                                 :class="paso.completado ? 'border-green-200 bg-green-50' : 'border-linea'"
                             >
                                 <!-- Estado badge + botón desprogramar -->

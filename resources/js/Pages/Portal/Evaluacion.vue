@@ -63,7 +63,7 @@ function reintentar() {
         <div class="max-w-xl mx-auto space-y-4">
 
             <!-- Ya aprobado previamente -->
-            <div v-if="yaAprobado && !resultado" class="bg-white rounded-2xl shadow-sm py-10 px-6 text-center">
+            <div v-if="yaAprobado && !resultado" class="bg-superficie rounded-2xl shadow-sm py-10 px-6 text-center">
                 <div class="w-16 h-16 rounded-full mx-auto mb-3 flex items-center justify-center" style="background:#D1FAE5;">
                     <svg class="w-8 h-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
@@ -76,7 +76,7 @@ function reintentar() {
             </div>
 
             <!-- Pendiente de revisión -->
-            <div v-else-if="resultado?.estado === 'pendiente_revision'" class="bg-white rounded-2xl shadow-sm py-10 px-6 text-center">
+            <div v-else-if="resultado?.estado === 'pendiente_revision'" class="bg-superficie rounded-2xl shadow-sm py-10 px-6 text-center">
                 <div class="w-16 h-16 rounded-full mx-auto mb-3 flex items-center justify-center" style="background:#FEF3C7;">
                     <svg class="w-8 h-8" style="color:#92400E;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
@@ -90,7 +90,7 @@ function reintentar() {
             </div>
 
             <!-- Aprobado -->
-            <div v-else-if="resultado?.aprobado" class="bg-white rounded-2xl shadow-sm py-10 px-6 text-center">
+            <div v-else-if="resultado?.aprobado" class="bg-superficie rounded-2xl shadow-sm py-10 px-6 text-center">
                 <p class="text-4xl mb-2">🎉</p>
                 <div class="w-16 h-16 rounded-full mx-auto mb-3 flex items-center justify-center" style="background:#D1FAE5;">
                     <svg class="w-8 h-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
@@ -105,7 +105,7 @@ function reintentar() {
             </div>
 
             <!-- Reprobado -->
-            <div v-else-if="resultado && resultado.aprobado === false" class="bg-white rounded-2xl shadow-sm py-10 px-6 text-center">
+            <div v-else-if="resultado && resultado.aprobado === false" class="bg-superficie rounded-2xl shadow-sm py-10 px-6 text-center">
                 <div class="w-16 h-16 rounded-full mx-auto mb-3 flex items-center justify-center" style="background:#FEE2E2;">
                     <svg class="w-8 h-8 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
@@ -125,7 +125,7 @@ function reintentar() {
 
             <!-- Formulario de evaluación -->
             <template v-else>
-                <div class="bg-white rounded-2xl shadow-sm p-4">
+                <div class="bg-superficie rounded-2xl shadow-sm p-4">
                     <p class="text-sm font-semibold text-tinta-900">{{ evaluacion.nombre }}</p>
                     <p class="text-xs text-tinta-300 mt-0.5">
                         Nota mínima para aprobar: {{ evaluacion.nota_minima_aprobacion }}%
@@ -133,7 +133,7 @@ function reintentar() {
                     </p>
                 </div>
 
-                <div v-for="(pregunta, idx) in preguntas" :key="pregunta.id" class="bg-white rounded-2xl shadow-sm p-4">
+                <div v-for="(pregunta, idx) in preguntas" :key="pregunta.id" class="bg-superficie rounded-2xl shadow-sm p-4">
                     <p class="text-xs text-tinta-300 mb-1">Pregunta {{ idx + 1 }} de {{ preguntas.length }}</p>
                     <p class="text-sm font-semibold text-tinta-900 mb-3">{{ pregunta.enunciado }}</p>
 

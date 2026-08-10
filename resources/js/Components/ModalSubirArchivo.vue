@@ -5,7 +5,7 @@
             class="fixed inset-0 z-50 flex items-end md:items-center justify-center bg-black/60 backdrop-blur-sm"
             @click.self="cerrar"
         >
-            <div class="bg-white w-full max-w-md rounded-t-2xl md:rounded-2xl shadow-2xl overflow-hidden">
+            <div class="bg-superficie w-full max-w-md rounded-t-2xl md:rounded-2xl shadow-2xl overflow-hidden">
 
                 <!-- Header -->
                 <div class="flex items-center justify-between px-5 py-4 bg-[var(--marca)]">
@@ -13,7 +13,7 @@
                         <h3 class="text-white font-semibold text-base">Subir archivo</h3>
                         <p class="text-white/60 text-xs mt-0.5">PDF, imágenes, documentos · Máx 20 MB</p>
                     </div>
-                    <button @click="cerrar" class="w-8 h-8 flex items-center justify-center text-white/70 hover:text-white rounded-lg hover:bg-white/10 transition-colors">
+                    <button @click="cerrar" class="w-8 h-8 flex items-center justify-center text-white/70 hover:text-white rounded-lg hover:bg-superficie/10 transition-colors">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24">
                             <path d="M6 18L18 6M6 6l12 12"/>
                         </svg>
@@ -60,7 +60,7 @@
                     <!-- Categoría -->
                     <div>
                         <label class="block text-sm font-medium text-tinta-700 mb-1.5">Categoría</label>
-                        <select v-model="categoria" class="w-full border border-linea rounded-xl px-4 py-2.5 text-sm bg-white focus:outline-none focus:ring-2">
+                        <select v-model="categoria" class="w-full border border-linea rounded-xl px-4 py-2.5 text-sm bg-superficie focus:outline-none focus:ring-2">
                             <option value="plano">Plano</option>
                             <option value="foto_calidad">Foto de calidad</option>
                             <option value="documento">Documento</option>
@@ -75,7 +75,7 @@
                             v-model="descripcion"
                             type="text"
                             placeholder="Ej: Plano de fachada norte"
-                            class="w-full border border-linea rounded-xl px-4 py-2.5 text-sm bg-white focus:outline-none focus:ring-2"
+                            class="w-full border border-linea rounded-xl px-4 py-2.5 text-sm bg-superficie focus:outline-none focus:ring-2"
                         />
                     </div>
 

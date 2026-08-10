@@ -63,12 +63,12 @@ function saveConfig() {
             <div class="flex gap-1 bg-tinta-100 p-1 rounded-2xl mb-5">
                 <button @click="tab = 'turnos'"
                     class="flex-1 py-2 rounded-xl text-sm font-semibold transition-colors"
-                    :class="tab === 'turnos' ? 'bg-white text-tinta-900 shadow-sm' : 'text-tinta-400'">
+                    :class="tab === 'turnos' ? 'bg-superficie text-tinta-900 shadow-sm' : 'text-tinta-400'">
                     Turnos
                 </button>
                 <button @click="tab = 'tarifas'"
                     class="flex-1 py-2 rounded-xl text-sm font-semibold transition-colors"
-                    :class="tab === 'tarifas' ? 'bg-white text-tinta-900 shadow-sm' : 'text-tinta-400'">
+                    :class="tab === 'tarifas' ? 'bg-superficie text-tinta-900 shadow-sm' : 'text-tinta-400'">
                     Tarifas y Config.
                 </button>
             </div>
@@ -76,7 +76,7 @@ function saveConfig() {
             <!-- ─── TURNOS ─── -->
             <div v-show="tab === 'turnos'" class="space-y-4">
                 <!-- Lista turnos -->
-                <div class="bg-white rounded-2xl border border-linea overflow-hidden">
+                <div class="bg-superficie rounded-2xl border border-linea overflow-hidden">
                     <div class="px-5 py-3 border-b border-linea">
                         <h2 class="text-sm font-semibold text-tinta-700">Turnos configurados</h2>
                     </div>
@@ -100,7 +100,7 @@ function saveConfig() {
                 </div>
 
                 <!-- Formulario turno -->
-                <div class="bg-white rounded-2xl border border-linea p-5">
+                <div class="bg-superficie rounded-2xl border border-linea p-5">
                     <h3 class="text-sm font-semibold text-tinta-700 mb-4">
                         {{ editandoTurno ? 'Editar turno' : 'Nuevo turno' }}
                     </h3>
@@ -144,7 +144,7 @@ function saveConfig() {
             <!-- ─── TARIFAS ─── -->
             <div v-show="tab === 'tarifas'" class="space-y-4">
                 <!-- Tarifas actuales -->
-                <div class="bg-white rounded-2xl border border-linea overflow-hidden">
+                <div class="bg-superficie rounded-2xl border border-linea overflow-hidden">
                     <div class="px-5 py-3 border-b border-linea">
                         <h2 class="text-sm font-semibold text-tinta-700">Tarifas por tipo de hora extra</h2>
                     </div>
@@ -166,7 +166,7 @@ function saveConfig() {
                 </div>
 
                 <!-- Actualizar tarifa -->
-                <div class="bg-white rounded-2xl border border-linea p-5">
+                <div class="bg-superficie rounded-2xl border border-linea p-5">
                     <h3 class="text-sm font-semibold text-tinta-700 mb-4">Actualizar tarifa</h3>
                     <div class="space-y-3">
                         <div>
@@ -194,7 +194,7 @@ function saveConfig() {
                 </div>
 
                 <!-- Config global -->
-                <div class="bg-white rounded-2xl border border-linea p-5">
+                <div class="bg-superficie rounded-2xl border border-linea p-5">
                     <h3 class="text-sm font-semibold text-tinta-700 mb-4">Configuración general</h3>
                     <div class="space-y-3">
                         <div>

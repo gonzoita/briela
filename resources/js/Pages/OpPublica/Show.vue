@@ -38,7 +38,7 @@ const badgeItem = (e) => ESTADOS_ITEM[e] ?? ESTADOS_ITEM.pendiente
         <div class="max-w-xl mx-auto px-4 py-5 space-y-4">
 
             <!-- Estado + cliente -->
-            <div class="bg-white rounded-2xl border border-linea p-4 shadow-sm">
+            <div class="bg-superficie rounded-2xl border border-linea p-4 shadow-sm">
                 <div class="flex items-center gap-3 mb-3">
                     <span class="text-sm px-3 py-1 rounded-full font-semibold"
                         :style="`background:${badge(op.estado).bg};color:${badge(op.estado).text};`">
@@ -62,7 +62,7 @@ const badgeItem = (e) => ESTADOS_ITEM[e] ?? ESTADOS_ITEM.pendiente
             </div>
 
             <!-- Progreso general -->
-            <div class="bg-white rounded-2xl border border-linea p-4 shadow-sm">
+            <div class="bg-superficie rounded-2xl border border-linea p-4 shadow-sm">
                 <div class="flex items-center justify-between mb-2">
                     <span class="text-sm font-semibold text-tinta-700">Progreso general</span>
                     <span class="text-lg font-semibold" style="color:var(--marca);">
@@ -81,7 +81,7 @@ const badgeItem = (e) => ESTADOS_ITEM[e] ?? ESTADOS_ITEM.pendiente
             </div>
 
             <!-- Ítems -->
-            <div v-if="op.items?.length" class="bg-white rounded-2xl border border-linea overflow-hidden shadow-sm">
+            <div v-if="op.items?.length" class="bg-superficie rounded-2xl border border-linea overflow-hidden shadow-sm">
                 <div class="px-4 py-3 border-b border-linea">
                     <h2 class="text-sm font-semibold text-tinta-700">Ítems en producción</h2>
                 </div>

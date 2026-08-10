@@ -148,7 +148,7 @@ function fmt(n) {
             </div>
 
             <!-- Filtros -->
-            <div class="bg-white rounded-xl border border-linea p-3 mb-4">
+            <div class="bg-superficie rounded-xl border border-linea p-3 mb-4">
                 <div class="flex flex-col sm:flex-row gap-2">
                     <input v-model="buscar" type="text" placeholder="Buscar por nombre o código..."
                         class="flex-1 rounded-lg border border-tinta-200 px-3 py-2 text-sm focus:ring-4 focus:ring-[var(--marca-suave)] focus:outline-none"
@@ -169,7 +169,7 @@ function fmt(n) {
             </div>
 
             <!-- Tabla -->
-            <div class="bg-white rounded-xl border border-linea overflow-x-auto">
+            <div class="bg-superficie rounded-xl border border-linea overflow-x-auto">
                 <table class="w-full text-sm min-w-[700px]">
                     <thead class="bg-tinta-50 border-b border-linea">
                         <tr>
@@ -218,7 +218,7 @@ function fmt(n) {
                 <template v-for="link in items.links" :key="link.label">
                     <button v-if="link.url"
                         @click="router.visit(link.url, { preserveState: true })"
-                        :class="['px-3 py-1.5 rounded-lg text-sm', link.active ? 'text-white font-semibold' : 'bg-white border border-linea text-tinta-700']"
+                        :class="['px-3 py-1.5 rounded-lg text-sm', link.active ? 'text-white font-semibold' : 'bg-superficie border border-linea text-tinta-700']"
                         :style="link.active ? 'background:var(--marca)' : ''"
                         v-html="link.label" />
                     <span v-else class="px-3 py-1.5 text-sm text-tinta-200" v-html="link.label" />
@@ -230,8 +230,8 @@ function fmt(n) {
         <Teleport to="body">
             <div v-if="panelMovimientos" class="fixed inset-0 z-50 flex justify-end">
                 <div class="absolute inset-0 bg-black/30" @click="panelMovimientos = false" />
-                <div class="relative bg-white w-full max-w-md h-full overflow-y-auto shadow-2xl">
-                    <div class="flex items-center justify-between p-4 border-b border-linea sticky top-0 bg-white">
+                <div class="relative bg-superficie w-full max-w-md h-full overflow-y-auto shadow-2xl">
+                    <div class="flex items-center justify-between p-4 border-b border-linea sticky top-0 bg-superficie">
                         <div>
                             <p class="font-semibold text-tinta-900">{{ itemSeleccionado?.nombre }}</p>
                             <p class="text-xs text-tinta-400">Historial de movimientos</p>
@@ -276,7 +276,7 @@ function fmt(n) {
         <Teleport to="body">
             <div v-if="modalAjuste" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
                 <div class="absolute inset-0 bg-black/40" @click="modalAjuste = false" />
-                <div class="relative bg-white w-full sm:max-w-sm rounded-t-2xl sm:rounded-2xl p-5">
+                <div class="relative bg-superficie w-full sm:max-w-sm rounded-t-2xl sm:rounded-2xl p-5">
                     <h2 class="text-lg font-semibold text-tinta-900 mb-1">Ajuste de stock</h2>
                     <p class="text-sm text-tinta-400 mb-4">{{ itemAjuste?.nombre }}</p>
                     <div class="space-y-3">
@@ -323,7 +323,7 @@ function fmt(n) {
         <Teleport to="body">
             <div v-if="modalItem" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
                 <div class="absolute inset-0 bg-black/40" @click="cerrarModal" />
-                <div class="relative bg-white w-full sm:max-w-lg rounded-t-2xl sm:rounded-2xl p-5 max-h-[90vh] overflow-y-auto">
+                <div class="relative bg-superficie w-full sm:max-w-lg rounded-t-2xl sm:rounded-2xl p-5 max-h-[90vh] overflow-y-auto">
                     <h2 class="text-lg font-semibold text-tinta-900 mb-4">
                         {{ editandoItem ? 'Editar material' : 'Nuevo material / insumo' }}
                     </h2>

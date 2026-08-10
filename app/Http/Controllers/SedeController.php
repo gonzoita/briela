@@ -27,6 +27,7 @@ class SedeController extends Controller
                     'nit'              => $s->nit,
                     'direccion'        => $s->direccion,
                     'ciudad'           => $s->ciudad,
+                    'zona_horaria'     => $s->zona_horaria,
                     'telefono'         => $s->telefono,
                     'email'            => $s->email,
                     'activa'           => $s->activa,
@@ -34,6 +35,13 @@ class SedeController extends Controller
                     'bodegas_count'    => $s->bodegas_count,
                     'usuarios_count'   => $s->usuarios_count,
                 ]),
+
+            // Zonas para elegir, y cuál es la hora global: la de la sede principal
+            // es la que usa el sistema para guardar las fechas.
+            'zonas' => collect(\App\Support\HoraSistema::zonasDisponibles())
+                ->map(fn ($etiqueta, $valor) => ['valor' => $valor, 'etiqueta' => $etiqueta])
+                ->values(),
+            'zona_global' => \App\Support\HoraSistema::zonaGlobal(),
         ]);
     }
 
@@ -120,9 +128,17 @@ class SedeController extends Controller
             'nit'              => 'nullable|string|max:50',
             'direccion'        => 'nullable|string|max:200',
             'ciudad'           => 'nullable|string|max:100',
+            // La zona decide en qué hora vive esa sede, y la de la sede principal
+            // es la hora global del sistema.
+            'zona_horaria'     => 'required|string|in:' . implode(',', array_keys(\App\Support\HoraSistema::zonasDisponibles())),
             'telefono'         => 'nullable|string|max:50',
             'email'            => 'nullable|email|max:120',
             'activa'           => 'boolean',
+        ], [
+            // Sin esto, al elegir una zona que no está en la lista se le muestra
+            // "validation.in" al usuario, que no le dice nada.
+            'zona_horaria.required' => 'Elige la zona horaria de la sede.',
+            'zona_horaria.in'       => 'Esa zona horaria no está entre las disponibles.',
         ]);
     }
 

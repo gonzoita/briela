@@ -100,7 +100,7 @@ function revocarToken() {
             </p>
 
             <!-- Estado + token -->
-            <div class="bg-white rounded-2xl border border-linea p-5 mb-4">
+            <div class="bg-superficie rounded-2xl border border-linea p-5 mb-4">
                 <div class="flex items-center justify-between mb-3">
                     <h2 class="text-sm font-semibold text-tinta-700">Estado de la conexión</h2>
                     <span class="text-xs px-2 py-0.5 rounded-full"
@@ -170,7 +170,7 @@ function revocarToken() {
             </div>
 
             <!-- Instrucciones -->
-            <div class="bg-white rounded-2xl border border-linea p-5">
+            <div class="bg-superficie rounded-2xl border border-linea p-5">
                 <h2 class="text-sm font-semibold text-tinta-700 mb-3">Cómo conectar el plugin</h2>
                 <ol class="space-y-2.5 text-sm text-tinta-500 list-decimal list-inside">
                     <li>Instala y activa <strong>Briela Connect</strong> en el WordPress del cliente.</li>

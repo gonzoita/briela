@@ -109,7 +109,7 @@ function calcularTotal(item) {
 
             <!-- Info cliente + detalles -->
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div class="bg-white rounded-2xl border border-linea p-5">
+                <div class="bg-superficie rounded-2xl border border-linea p-5">
                     <p class="text-xs font-semibold text-tinta-300 uppercase tracking-[0.12em] mb-3">Cliente</p>
                     <p class="text-base font-semibold text-tinta-900 mb-1">
                         {{ cot.cliente?.nombre ?? cot.nombre_contacto_override ?? '—' }}
@@ -124,7 +124,7 @@ function calcularTotal(item) {
                         {{ cot.contacto.nombre }} {{ cot.contacto.apellido }}
                     </p>
                 </div>
-                <div class="bg-white rounded-2xl border border-linea p-5">
+                <div class="bg-superficie rounded-2xl border border-linea p-5">
                     <p class="text-xs font-semibold text-tinta-300 uppercase tracking-[0.12em] mb-3">Detalles</p>
                     <div class="space-y-1.5 text-sm">
                         <div class="flex justify-between">
@@ -150,7 +150,7 @@ function calcularTotal(item) {
             </div>
 
             <!-- Ítems -->
-            <div class="bg-white rounded-2xl border border-linea overflow-hidden">
+            <div class="bg-superficie rounded-2xl border border-linea overflow-hidden">
                 <div class="px-5 py-3 border-b border-linea">
                     <h2 class="text-sm font-semibold text-tinta-700">Ítems de la cotización</h2>
                 </div>
@@ -237,13 +237,13 @@ function calcularTotal(item) {
             </div>
 
             <!-- Condiciones comerciales -->
-            <div v-if="cot.condiciones_comerciales" class="bg-white rounded-2xl border border-linea p-5">
+            <div v-if="cot.condiciones_comerciales" class="bg-superficie rounded-2xl border border-linea p-5">
                 <p class="text-xs font-semibold text-tinta-300 uppercase tracking-[0.12em] mb-2">Condiciones comerciales</p>
                 <p class="text-sm text-tinta-500 whitespace-pre-line">{{ cot.condiciones_comerciales }}</p>
             </div>
 
             <!-- Botones aprobación — solo si puedeAccionar -->
-            <div v-if="puedeAccionar" class="bg-white rounded-2xl border border-linea p-5">
+            <div v-if="puedeAccionar" class="bg-superficie rounded-2xl border border-linea p-5">
                 <p class="text-sm font-semibold text-tinta-700 mb-1">¿Deseas aprobar esta cotización?</p>
                 <p class="text-xs text-tinta-300 mb-4">Al aprobar, confirmas tu aceptación de los términos y precios indicados.</p>
                 <div class="flex gap-3">
@@ -292,7 +292,7 @@ function calcularTotal(item) {
         <!-- Modal confirmación -->
         <Teleport to="body">
             <div v-if="confirmando" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4" style="background:rgba(0,0,0,0.5);">
-                <div class="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6">
+                <div class="bg-superficie rounded-2xl shadow-xl w-full max-w-sm p-6">
                     <h3 class="text-base font-semibold text-tinta-900 mb-2">
                         {{ confirmando === 'aprobar' ? 'Confirmar aprobación' : 'Confirmar rechazo' }}
                     </h3>

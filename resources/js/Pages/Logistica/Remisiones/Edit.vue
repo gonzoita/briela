@@ -43,7 +43,7 @@ function enviar() {
                 <h1 class="text-xl font-semibold text-tinta-900">Editar {{ remision.numero }}</h1>
             </div>
 
-            <div class="bg-white rounded-2xl border border-linea p-5 space-y-4">
+            <div class="bg-superficie rounded-2xl border border-linea p-5 space-y-4">
 
                 <div>
                     <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1.5">

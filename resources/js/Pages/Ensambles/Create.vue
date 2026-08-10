@@ -379,7 +379,7 @@ onMounted(() => {
             </div>
 
             <!-- ── 1. Plantilla y nombre ────────────────────────────────────── -->
-            <div class="bg-white rounded-2xl shadow-sm p-5 mb-4">
+            <div class="bg-superficie rounded-2xl shadow-sm p-5 mb-4">
                 <h2 class="text-sm font-semibold text-tinta-700 uppercase tracking-[0.12em] mb-4">1. Plantilla y nombre</h2>
 
                 <div class="space-y-4">
@@ -404,7 +404,7 @@ onMounted(() => {
             </div>
 
             <!-- ── 2. Información de catálogo ─────────────────────────────────── -->
-            <div class="bg-white rounded-2xl shadow-sm p-5 mb-4">
+            <div class="bg-superficie rounded-2xl shadow-sm p-5 mb-4">
                 <h2 class="text-sm font-semibold text-tinta-700 uppercase tracking-[0.12em] mb-4">2. Información de catálogo</h2>
 
                 <!-- Categoría + activo -->
@@ -513,7 +513,7 @@ onMounted(() => {
             </div>
 
             <!-- ── 3. Configuración ────────────────────────────────────────── -->
-            <div v-if="plantillaSeleccionada" class="bg-white rounded-2xl shadow-sm p-5 mb-4">
+            <div v-if="plantillaSeleccionada" class="bg-superficie rounded-2xl shadow-sm p-5 mb-4">
                 <h2 class="text-sm font-semibold text-tinta-700 uppercase tracking-[0.12em] mb-4">3. Configuración</h2>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -569,7 +569,7 @@ onMounted(() => {
             </div>
 
             <!-- ── 4. Desglose calculado ───────────────────────────────────── -->
-            <div v-if="calculado" class="bg-white rounded-2xl shadow-sm p-5 mb-4">
+            <div v-if="calculado" class="bg-superficie rounded-2xl shadow-sm p-5 mb-4">
                 <h2 class="text-sm font-semibold text-tinta-700 uppercase tracking-[0.12em] mb-4">4. Desglose calculado</h2>
 
                 <div class="overflow-x-auto">
@@ -646,7 +646,7 @@ onMounted(() => {
             </div>
 
             <!-- Comisión Vendedor por Canal (solo cuando está calculado) -->
-            <div v-if="calculado" class="bg-white rounded-2xl shadow-sm overflow-hidden">
+            <div v-if="calculado" class="bg-superficie rounded-2xl shadow-sm overflow-hidden">
                 <div class="px-5 py-3 border-b border-linea flex items-center justify-between">
                     <h3 class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">Comisión Vendedor por Canal</h3>
                     <button type="button" @click="sugerirComisionesEnsamble"
@@ -784,7 +784,7 @@ onMounted(() => {
         <!-- Modal nueva categoría -->
         <Teleport to="body">
             <div v-if="showModalCat" class="fixed inset-0 z-50 flex items-center justify-center p-4" style="background:rgba(0,0,0,0.5);">
-                <div class="bg-white rounded-2xl shadow-xl w-full max-w-sm p-5">
+                <div class="bg-superficie rounded-2xl shadow-xl w-full max-w-sm p-5">
                     <h3 class="text-sm font-semibold text-tinta-900 mb-4">Nueva categoría</h3>
                     <div class="space-y-3">
                         <div>

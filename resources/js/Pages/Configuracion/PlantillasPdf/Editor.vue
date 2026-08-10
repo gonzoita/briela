@@ -297,7 +297,7 @@ const seccionesTabs = [
             </div>
 
             <!-- Barra de configuración -->
-            <div class="bg-white rounded-2xl border border-linea shadow-sm px-4 py-3 mb-4">
+            <div class="bg-superficie rounded-2xl border border-linea shadow-sm px-4 py-3 mb-4">
                 <div class="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
                     <!-- Nombre -->
                     <input
@@ -361,7 +361,7 @@ const seccionesTabs = [
                             class="relative w-9 h-5 rounded-full transition-colors shrink-0"
                             :style="{ backgroundColor: form.es_default ? 'var(--marca)' : '#D1D5DB' }"
                         >
-                            <span class="absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform"
+                            <span class="absolute top-0.5 w-4 h-4 bg-superficie rounded-full shadow transition-transform"
                                 :class="form.es_default ? 'translate-x-4' : 'translate-x-0.5'" />
                         </button>
                         <span class="text-xs text-tinta-500 whitespace-nowrap">Por defecto</span>
@@ -385,7 +385,7 @@ const seccionesTabs = [
             </div>
 
             <!-- Tabs mobile (editor / preview) -->
-            <div class="flex lg:hidden mb-3 bg-white rounded-xl border border-linea p-1 shadow-sm">
+            <div class="flex lg:hidden mb-3 bg-superficie rounded-xl border border-linea p-1 shadow-sm">
                 <button
                     v-for="t in [{ key: 'editor', label: 'Editor' }, { key: 'preview', label: 'Vista previa' }]"
                     :key="t.key"
@@ -404,21 +404,21 @@ const seccionesTabs = [
                     :class="tabActivo === 'preview' ? 'hidden lg:flex' : 'flex'"
                 >
                     <!-- Toggle modo editor -->
-                    <div class="bg-white rounded-xl border border-linea shadow-sm px-3 py-2 flex flex-wrap items-center gap-2">
+                    <div class="bg-superficie rounded-xl border border-linea shadow-sm px-3 py-2 flex flex-wrap items-center gap-2">
 
                         <!-- Modo Visual / Código -->
                         <div class="flex items-center gap-1 bg-tinta-100 rounded-lg p-0.5">
                             <button
                                 @click="modoEditor = 'visual'; marcarCambio()"
                                 class="px-3 py-1.5 text-xs rounded-lg font-medium transition-all"
-                                :class="modoEditor === 'visual' ? 'bg-white text-[var(--marca)] shadow-sm' : 'text-tinta-400 hover:text-tinta-700'"
+                                :class="modoEditor === 'visual' ? 'bg-superficie text-[var(--marca)] shadow-sm' : 'text-tinta-400 hover:text-tinta-700'"
                             >
                                 🎨 Visual
                             </button>
                             <button
                                 @click="modoEditor = 'codigo'; marcarCambio()"
                                 class="px-3 py-1.5 text-xs rounded-lg font-medium transition-all"
-                                :class="modoEditor === 'codigo' ? 'bg-white text-[var(--marca)] shadow-sm' : 'text-tinta-400 hover:text-tinta-700'"
+                                :class="modoEditor === 'codigo' ? 'bg-superficie text-[var(--marca)] shadow-sm' : 'text-tinta-400 hover:text-tinta-700'"
                             >
                                 &lt;/&gt; Código
                             </button>
@@ -438,10 +438,10 @@ const seccionesTabs = [
                                     Insertar variable
                                 </button>
                                 <div v-if="dropdownVars"
-                                    class="absolute top-full left-0 mt-1 z-20 bg-white border border-linea rounded-xl shadow-lg py-1 w-80 max-h-80 overflow-y-auto"
+                                    class="absolute top-full left-0 mt-1 z-20 bg-superficie border border-linea rounded-xl shadow-lg py-1 w-80 max-h-80 overflow-y-auto"
                                     @click.stop>
                                     <template v-for="grupo in variablesAgrupadas" :key="grupo.grupo">
-                                        <div class="px-3 pt-2 pb-0.5 sticky top-0 bg-white border-b border-gray-50">
+                                        <div class="px-3 pt-2 pb-0.5 sticky top-0 bg-superficie border-b border-gray-50">
                                             <span class="text-xs font-semibold text-tinta-300 uppercase tracking-[0.12em]">{{ grupo.grupo }}</span>
                                         </div>
                                         <div v-for="v in grupo.vars" :key="v.var"
@@ -500,7 +500,7 @@ const seccionesTabs = [
 
                     <!-- Tabs sección (solo modo visual) -->
                     <div v-if="modoEditor === 'visual'"
-                        class="flex bg-white rounded-xl border border-linea shadow-sm overflow-hidden">
+                        class="flex bg-superficie rounded-xl border border-linea shadow-sm overflow-hidden">
                         <button
                             v-for="sec in seccionesTabs"
                             :key="sec.key"
@@ -519,7 +519,7 @@ const seccionesTabs = [
 
                         <!-- Editor visual -->
                         <div v-if="modoEditor === 'visual'" class="flex-1 min-w-0">
-                            <div class="bg-white rounded-xl border border-linea shadow-sm p-4">
+                            <div class="bg-superficie rounded-xl border border-linea shadow-sm p-4">
                                 <EditorBloques
                                     :bloques="form.bloques[seccionActiva]"
                                     :variables="props.variables"
@@ -546,13 +546,13 @@ const seccionesTabs = [
 
                             <!-- Panel de variables -->
                             <div v-if="mostrarVars"
-                                class="w-52 shrink-0 bg-white rounded-xl border border-linea shadow-sm flex flex-col overflow-hidden">
+                                class="w-52 shrink-0 bg-superficie rounded-xl border border-linea shadow-sm flex flex-col overflow-hidden">
                                 <div class="px-3 py-2 border-b border-linea">
                                     <p class="text-xs font-semibold text-tinta-700">Variables disponibles</p>
                                 </div>
                                 <div class="flex-1 overflow-y-auto">
                                     <template v-for="grupo in variablesAgrupadas" :key="grupo.grupo">
-                                        <div class="px-3 pt-3 pb-1 sticky top-0 bg-white z-10 border-b border-gray-50">
+                                        <div class="px-3 pt-3 pb-1 sticky top-0 bg-superficie z-10 border-b border-gray-50">
                                             <span class="text-xs font-semibold text-tinta-300 uppercase tracking-[0.12em]">{{ grupo.grupo }}</span>
                                         </div>
                                         <div class="p-2 space-y-0.5">
@@ -584,7 +584,7 @@ const seccionesTabs = [
                     class="lg:w-[420px] xl:w-[500px] shrink-0 flex flex-col gap-3"
                     :class="tabActivo === 'editor' ? 'hidden lg:flex' : 'flex'"
                 >
-                    <div class="bg-white rounded-xl border border-linea shadow-sm px-3 py-2 flex items-center justify-between">
+                    <div class="bg-superficie rounded-xl border border-linea shadow-sm px-3 py-2 flex items-center justify-between">
                         <span class="text-xs font-medium text-tinta-700">Vista previa</span>
                         <div class="flex items-center gap-2">
                             <button
@@ -608,7 +608,7 @@ const seccionesTabs = [
                         </div>
                     </div>
 
-                    <div class="flex-1 bg-white rounded-xl border border-linea shadow-sm overflow-hidden flex flex-col" style="min-height: 480px;">
+                    <div class="flex-1 bg-superficie rounded-xl border border-linea shadow-sm overflow-hidden flex flex-col" style="min-height: 480px;">
                         <iframe v-if="previewObjectUrl" :src="previewObjectUrl"
                             class="w-full flex-1 border-0" title="Vista previa PDF" />
                         <div v-else class="flex-1 flex flex-col items-center justify-center text-center p-8">

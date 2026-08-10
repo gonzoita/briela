@@ -127,7 +127,7 @@ function enviar(accion) {
                 <a href="/rrss/cuentas" @click.prevent="router.visit('/rrss/cuentas')" class="underline font-semibold">Conectar cuentas →</a>
             </div>
 
-            <div class="bg-white rounded-2xl border border-linea p-5 space-y-4">
+            <div class="bg-superficie rounded-2xl border border-linea p-5 space-y-4">
 
                 <!-- Contenido -->
                 <div>
@@ -155,7 +155,7 @@ function enviar(accion) {
                             placeholder="Describe la imagen. Ej: interior de un cuarto frío moderno con estanterías metálicas"
                             class="w-full rounded-lg border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]"></textarea>
                         <select v-model="iaEstilo"
-                            class="w-full rounded-lg border border-tinta-200 px-3 py-2 text-sm bg-white">
+                            class="w-full rounded-lg border border-tinta-200 px-3 py-2 text-sm bg-superficie">
                             <option value="fotografico">Fotográfico</option>
                             <option value="ilustracion">Ilustración</option>
                             <option value="minimalista">Minimalista</option>

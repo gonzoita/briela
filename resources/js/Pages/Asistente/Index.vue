@@ -213,7 +213,7 @@ async function enviar(texto = null) {
                     <div class="max-w-[85%] rounded-2xl px-4 py-2.5 text-sm whitespace-pre-wrap"
                         :class="m.rol === 'usuario'
                             ? 'text-white rounded-br-sm'
-                            : 'bg-white border border-linea text-tinta-900 rounded-bl-sm'"
+                            : 'bg-superficie border border-linea text-tinta-900 rounded-bl-sm'"
                         :style="m.rol === 'usuario' ? 'background:var(--marca);' : ''">
                         <span v-if="m.rol === 'asistente'" v-html="formatearMensaje(m.contenido)" />
                         <span v-else class="whitespace-pre-wrap">{{ m.contenido }}</span>
@@ -242,7 +242,7 @@ async function enviar(texto = null) {
                 </div>
 
                 <div v-if="cargando" class="flex justify-start">
-                    <div class="bg-white border border-linea rounded-2xl rounded-bl-sm px-4 py-2.5">
+                    <div class="bg-superficie border border-linea rounded-2xl rounded-bl-sm px-4 py-2.5">
                         <span class="text-sm text-tinta-300">{{ nombre }} está escribiendo…</span>
                     </div>
                 </div>

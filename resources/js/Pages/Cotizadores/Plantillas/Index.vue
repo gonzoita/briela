@@ -995,12 +995,12 @@ const badgesTipo = {
             <!-- ── Tabs mobile ── -->
             <div class="flex md:hidden mb-4 rounded-xl overflow-hidden border border-linea">
                 <button @click="tabMobile = 'plantillas'"
-                    :class="['flex-1 py-2.5 text-xs font-semibold transition-colors', tabMobile === 'plantillas' ? 'text-white' : 'text-tinta-500 bg-white']"
+                    :class="['flex-1 py-2.5 text-xs font-semibold transition-colors', tabMobile === 'plantillas' ? 'text-white' : 'text-tinta-500 bg-superficie']"
                     :style="tabMobile === 'plantillas' ? 'background:var(--marca);' : ''">
                     Plantillas
                 </button>
                 <button @click="tabMobile = 'editor'" :disabled="!plantillaActual"
-                    :class="['flex-1 py-2.5 text-xs font-semibold transition-colors disabled:opacity-40', tabMobile === 'editor' ? 'text-white' : 'text-tinta-500 bg-white']"
+                    :class="['flex-1 py-2.5 text-xs font-semibold transition-colors disabled:opacity-40', tabMobile === 'editor' ? 'text-white' : 'text-tinta-500 bg-superficie']"
                     :style="tabMobile === 'editor' ? 'background:var(--marca);' : ''">
                     Editor
                 </button>
@@ -1010,7 +1010,7 @@ const badgesTipo = {
 
                 <!-- ── Lista de plantillas ──────────────────────────────────── -->
                 <aside :class="['md:block md:w-64 shrink-0', tabMobile !== 'plantillas' ? 'hidden' : 'block w-full']">
-                    <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
+                    <div class="bg-superficie rounded-2xl shadow-sm overflow-hidden">
                         <div class="px-4 py-3 border-b border-linea flex items-center justify-between">
                             <h2 class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">Plantillas</h2>
                             <div class="flex items-center gap-2">
@@ -1084,7 +1084,7 @@ const badgesTipo = {
                 <section v-if="plantillaActual" :class="['flex-1 min-w-0', tabMobile !== 'editor' ? 'hidden md:block' : 'block']">
 
                     <!-- Tabs del editor -->
-                    <div class="flex border-b border-linea mb-4 bg-white rounded-t-2xl overflow-hidden">
+                    <div class="flex border-b border-linea mb-4 bg-superficie rounded-t-2xl overflow-hidden">
                         <button v-for="tab in [['info','Info'],['campos','Campos'],['componentes','Componentes'],['produccion','Producción'],['salida','Salida']]"
                             :key="tab[0]"
                             @click="tabActivo = tab[0]"
@@ -1099,7 +1099,7 @@ const badgesTipo = {
                     </div>
 
                     <!-- ══════════════ Tab: Info general ══════════════════════ -->
-                    <div v-if="tabActivo === 'info'" class="bg-white rounded-b-2xl shadow-sm p-5 space-y-4">
+                    <div v-if="tabActivo === 'info'" class="bg-superficie rounded-b-2xl shadow-sm p-5 space-y-4">
                         <div class="space-y-4">
                             <div>
                                 <label class="block text-xs font-medium text-tinta-500 mb-1">Nombre *</label>
@@ -1161,7 +1161,7 @@ const badgesTipo = {
                     </div>
 
                     <!-- ══════════════ Tab: Campos ═════════════════════════════ -->
-                    <div v-if="tabActivo === 'campos'" class="bg-white rounded-b-2xl shadow-sm overflow-hidden">
+                    <div v-if="tabActivo === 'campos'" class="bg-superficie rounded-b-2xl shadow-sm overflow-hidden">
                         <ul class="divide-y divide-gray-50">
                             <template v-for="(c, idx) in plantillaActual.campos" :key="c.id">
                                 <!-- Separador: variables calculadas -->
@@ -1350,7 +1350,7 @@ const badgesTipo = {
                                             @blur="onFormulaCalcBlur"
                                         />
                                         <ul v-if="formulaCalcSugs.length"
-                                            class="absolute z-30 left-0 right-0 mt-1 bg-white border border-purple-200 rounded-xl shadow-lg overflow-hidden">
+                                            class="absolute z-30 left-0 right-0 mt-1 bg-superficie border border-purple-200 rounded-xl shadow-lg overflow-hidden">
                                             <li v-for="s in formulaCalcSugs" :key="s"
                                                 @mousedown.prevent="insertarVariableCalc(s)"
                                                 class="px-3 py-1.5 text-xs font-mono text-purple-700 hover:bg-purple-50 cursor-pointer">
@@ -1483,7 +1483,7 @@ const badgesTipo = {
                     </div>
 
                     <!-- ══════════════ Tab: Componentes ════════════════════════ -->
-                    <div v-if="tabActivo === 'componentes'" class="bg-white rounded-b-2xl shadow-sm">
+                    <div v-if="tabActivo === 'componentes'" class="bg-superficie rounded-b-2xl shadow-sm">
 
                         <!-- MOBILE: Panel variables colapsable (< lg) -->
                         <div class="lg:hidden border-b border-linea">
@@ -1558,14 +1558,14 @@ const badgesTipo = {
                                 <div class="space-y-1.5">
                                     <p class="font-semibold text-tinta-900">2. FÓRMULA DE CANTIDAD</p>
                                     <p class="text-tinta-400">Define cuántas unidades se necesitan. Acepta expresiones matemáticas con variables. Puedes escribirla en varias líneas — se normaliza al guardar.</p>
-                                    <div class="bg-white rounded-lg p-2.5 space-y-0.5 font-mono text-tinta-700 text-[11px]">
+                                    <div class="bg-superficie rounded-lg p-2.5 space-y-0.5 font-mono text-tinta-700 text-[11px]">
                                         <p class="font-semibold text-tinta-300 font-sans not-italic">Simples:</p>
                                         <p>1 <span class="text-tinta-300 font-sans">→ cantidad fija</span></p>
                                         <p>ancho_vano <span class="text-tinta-300 font-sans">→ una variable</span></p>
                                         <p>2 * alto_vano + 2 * ancho_vano + 0.664</p>
                                         <p>perimetro_borde * 1.05 <span class="text-tinta-300 font-sans">→ con margen del 5 %</span></p>
                                     </div>
-                                    <div class="bg-white rounded-lg p-2.5 space-y-0.5 font-mono text-tinta-700 text-[11px]">
+                                    <div class="bg-superficie rounded-lg p-2.5 space-y-0.5 font-mono text-tinta-700 text-[11px]">
                                         <p class="font-semibold text-tinta-300 font-sans not-italic">Funciones disponibles:</p>
                                         <p>round(area_vidrio, 2) <span class="text-tinta-300 font-sans">→ redondear a 2 decimales</span></p>
                                         <p>ceil(alto_vano / 0.6) <span class="text-tinta-300 font-sans">→ redondear hacia arriba</span></p>
@@ -1574,7 +1574,7 @@ const badgesTipo = {
                                         <p>min(ancho_vano, 1.2) <span class="text-tinta-300 font-sans">→ el menor de dos valores</span></p>
                                         <p>abs(alto_vano - 2.1) <span class="text-tinta-300 font-sans">→ valor absoluto</span></p>
                                     </div>
-                                    <div class="bg-white rounded-lg p-2.5 space-y-0.5 font-mono text-tinta-700 text-[11px]">
+                                    <div class="bg-superficie rounded-lg p-2.5 space-y-0.5 font-mono text-tinta-700 text-[11px]">
                                         <p class="font-semibold text-tinta-300 font-sans not-italic">Ternario (condicional en cantidad):</p>
                                         <p>alto_vano > 2 ? 4 : 2 <span class="text-tinta-300 font-sans">→ si > 2 usa 4, sino 2</span></p>
                                         <p>espesor == 80 ? 1.2 : 1.0</p>
@@ -1585,7 +1585,7 @@ const badgesTipo = {
                                 <div class="space-y-1.5">
                                     <p class="font-semibold text-tinta-900">3. CONDICIÓN (opcional)</p>
                                     <p class="text-tinta-400">El componente solo se incluye si la condición es verdadera. Vacía = incluir siempre.</p>
-                                    <div class="bg-white rounded-lg p-2.5 space-y-0.5 font-mono text-tinta-700 text-[11px]">
+                                    <div class="bg-superficie rounded-lg p-2.5 space-y-0.5 font-mono text-tinta-700 text-[11px]">
                                         <p>temperatura == "BAJA" <span class="text-tinta-300 font-sans">→ solo en cámara fría</span></p>
                                         <p>ancho_vano > 1.2 <span class="text-tinta-300 font-sans">→ solo si vano ancho</span></p>
                                         <p>alto_vano >= 2.5 <span class="text-tinta-300 font-sans">→ refuerzo en vano alto</span></p>
@@ -1598,7 +1598,7 @@ const badgesTipo = {
                                 <!-- 4. Operadores -->
                                 <div class="space-y-1.5">
                                     <p class="font-semibold text-tinta-900">4. OPERADORES</p>
-                                    <div class="bg-white rounded-lg p-2.5 space-y-0.5 text-tinta-700 text-[11px]">
+                                    <div class="bg-superficie rounded-lg p-2.5 space-y-0.5 text-tinta-700 text-[11px]">
                                         <p><span class="font-mono">+  -  *  /  %</span>  <span class="text-tinta-300">aritmética básica</span></p>
                                         <p><span class="font-mono">**</span>  <span class="text-tinta-300">potencia (2 ** 3 = 8)</span></p>
                                         <p><span class="font-mono">==  !=  >  &lt;  >=  &lt;=</span>  <span class="text-tinta-300">comparación (en Condición)</span></p>
@@ -1710,10 +1710,10 @@ const badgesTipo = {
                                             @keyup.escape.stop="renombrandoSecId = null"
                                             @blur="confirmarRenombrar(sec)"
                                             @click.stop
-                                            class="w-full bg-white/20 text-white text-xs px-2 py-0.5 rounded border border-white/40 focus:outline-none font-semibold tracking-wide" />
+                                            class="w-full bg-superficie/20 text-white text-xs px-2 py-0.5 rounded border border-superficie/40 focus:outline-none font-semibold tracking-wide" />
                                         <div v-else class="flex items-center gap-2">
                                             <span class="text-xs font-semibold text-white uppercase tracking-wide truncate">{{ sec.nombre }}</span>
-                                            <span class="text-xs bg-white/20 text-white px-1.5 py-0.5 rounded-full font-medium leading-none shrink-0">{{ componentesDeSeccion(sec.id).length }}</span>
+                                            <span class="text-xs bg-superficie/20 text-white px-1.5 py-0.5 rounded-full font-medium leading-none shrink-0">{{ componentesDeSeccion(sec.id).length }}</span>
                                         </div>
                                     </div>
 
@@ -1805,7 +1805,7 @@ const badgesTipo = {
                                             :class="['w-full border rounded-lg px-3 py-1.5 text-sm focus:outline-none', compErrorProducto ? 'border-red-400 focus:border-red-500' : 'border-linea']"
                                             placeholder="Buscar por nombre o referencia..." />
                                         <ResultadosBuscadorProducto v-if="resBusqProd.length" :resultados="resBusqProd" @elegir="elegirProducto"
-                                            class="absolute z-20 left-0 right-0 bg-white border border-linea rounded-xl mt-1 shadow-lg max-h-40 overflow-y-auto" />
+                                            class="absolute z-20 left-0 right-0 bg-superficie border border-linea rounded-xl mt-1 shadow-lg max-h-40 overflow-y-auto" />
                                         <p v-if="compErrorProducto" class="mt-1 text-xs text-red-500">{{ compErrorProducto }}</p>
                                     </div>
 
@@ -1823,7 +1823,7 @@ const badgesTipo = {
                                     <div>
                                         <label class="block text-xs font-medium text-tinta-500 mb-1">Sección</label>
                                         <select v-model="compBorrador.seccion_id"
-                                            class="w-full border border-linea rounded-lg px-3 py-1.5 text-sm focus:outline-none bg-white">
+                                            class="w-full border border-linea rounded-lg px-3 py-1.5 text-sm focus:outline-none bg-superficie">
                                             <option :value="null">Sin sección</option>
                                             <option v-for="sec in seccionesOrdenadas" :key="sec.id" :value="sec.id">{{ sec.nombre }}</option>
                                         </select>
@@ -1844,7 +1844,7 @@ const badgesTipo = {
                                                 @blur="onFormulaBlur"
                                             />
                                             <ul v-if="formulaSugs.length"
-                                                class="absolute z-30 left-0 right-0 mt-1 bg-white border border-[var(--marca-borde)] rounded-xl shadow-lg overflow-hidden">
+                                                class="absolute z-30 left-0 right-0 mt-1 bg-superficie border border-[var(--marca-borde)] rounded-xl shadow-lg overflow-hidden">
                                                 <li v-for="s in formulaSugs" :key="s"
                                                     @mousedown.prevent="insertarVariable(s)"
                                                     class="px-3 py-1.5 text-xs font-mono text-[var(--marca)] hover:bg-[var(--marca-suave)] cursor-pointer">
@@ -1870,7 +1870,7 @@ const badgesTipo = {
                                     </div>
 
                                     <!-- Mini-probador inline -->
-                                    <div v-if="compBorrador.formula" class="bg-white border border-[var(--marca-borde)] rounded-lg p-3 space-y-2">
+                                    <div v-if="compBorrador.formula" class="bg-superficie border border-[var(--marca-borde)] rounded-lg p-3 space-y-2">
                                         <div class="flex items-center justify-between">
                                             <p class="text-xs font-semibold text-[var(--marca)]">▷ Probar esta fórmula</p>
                                             <button @click="ejecutarProbarFormula" :disabled="probarFCarg"
@@ -2092,7 +2092,7 @@ const badgesTipo = {
                                                 :class="['w-full border rounded-lg px-3 py-1.5 text-sm focus:outline-none', compErrorProducto ? 'border-red-400 focus:border-red-500' : 'border-linea']"
                                                 placeholder="Buscar por nombre o referencia..." />
                                             <ResultadosBuscadorProducto v-if="resBusqProd.length" :resultados="resBusqProd" @elegir="elegirProducto"
-                                                class="absolute z-20 left-0 right-0 bg-white border border-linea rounded-xl mt-1 shadow-lg max-h-40 overflow-y-auto" />
+                                                class="absolute z-20 left-0 right-0 bg-superficie border border-linea rounded-xl mt-1 shadow-lg max-h-40 overflow-y-auto" />
                                             <p v-if="compErrorProducto" class="mt-1 text-xs text-red-500">{{ compErrorProducto }}</p>
                                         </div>
                                         <div class="grid grid-cols-2 gap-2">
@@ -2108,7 +2108,7 @@ const badgesTipo = {
                                         <div>
                                             <label class="block text-xs font-medium text-tinta-500 mb-1">Sección</label>
                                             <select v-model="compBorrador.seccion_id"
-                                                class="w-full border border-linea rounded-lg px-3 py-1.5 text-sm focus:outline-none bg-white">
+                                                class="w-full border border-linea rounded-lg px-3 py-1.5 text-sm focus:outline-none bg-superficie">
                                                 <option :value="null">Sin sección</option>
                                                 <option v-for="sec in seccionesOrdenadas" :key="sec.id" :value="sec.id">{{ sec.nombre }}</option>
                                             </select>
@@ -2120,7 +2120,7 @@ const badgesTipo = {
                                                     :class="['w-full border border-linea rounded-lg px-3 py-1.5 text-sm font-mono focus:outline-none focus:border-[var(--marca)] resize-y min-h-[80px]', formulaActiva ? 'input-formula-activa' : '']"
                                                     placeholder="Ej: 2 * alto_vano + 2 * ancho_vano + 0.664"
                                                     @input="onFormulaInput" @focus="formulaActiva = true" @blur="onFormulaBlur" />
-                                                <ul v-if="formulaSugs.length" class="absolute z-30 left-0 right-0 mt-1 bg-white border border-[var(--marca-borde)] rounded-xl shadow-lg overflow-hidden">
+                                                <ul v-if="formulaSugs.length" class="absolute z-30 left-0 right-0 mt-1 bg-superficie border border-[var(--marca-borde)] rounded-xl shadow-lg overflow-hidden">
                                                     <li v-for="s in formulaSugs" :key="s" @mousedown.prevent="insertarVariable(s)"
                                                         class="px-3 py-1.5 text-xs font-mono text-[var(--marca)] hover:bg-[var(--marca-suave)] cursor-pointer">{{ s }}</li>
                                                 </ul>
@@ -2131,7 +2131,7 @@ const badgesTipo = {
                                             <textarea v-model="compBorrador.formula_real" rows="2" placeholder="Ej: largo * ancho (sin desperdicio)"
                                                 class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 font-mono resize-none" />
                                         </div>
-                                        <div v-if="compBorrador.formula" class="bg-white border border-[var(--marca-borde)] rounded-lg p-3 space-y-2">
+                                        <div v-if="compBorrador.formula" class="bg-superficie border border-[var(--marca-borde)] rounded-lg p-3 space-y-2">
                                             <div class="flex items-center justify-between">
                                                 <p class="text-xs font-semibold text-[var(--marca)]">▷ Probar esta fórmula</p>
                                                 <button @click="ejecutarProbarFormula" :disabled="probarFCarg" class="px-2.5 py-1 rounded-lg text-xs font-semibold text-white disabled:opacity-60" style="background:#4338CA;">{{ probarFCarg ? '...' : 'Calcular' }}</button>
@@ -2204,7 +2204,7 @@ const badgesTipo = {
                                     :class="['w-full border rounded-lg px-3 py-1.5 text-sm focus:outline-none', compErrorProducto ? 'border-red-400 focus:border-red-500' : 'border-linea']"
                                     placeholder="Buscar por nombre o referencia..." />
                                 <ResultadosBuscadorProducto v-if="resBusqProd.length" :resultados="resBusqProd" @elegir="elegirProducto"
-                                    class="absolute z-20 left-0 right-0 bg-white border border-linea rounded-xl mt-1 shadow-lg max-h-40 overflow-y-auto" />
+                                    class="absolute z-20 left-0 right-0 bg-superficie border border-linea rounded-xl mt-1 shadow-lg max-h-40 overflow-y-auto" />
                                 <p v-if="compErrorProducto" class="mt-1 text-xs text-red-500">{{ compErrorProducto }}</p>
                             </div>
 
@@ -2222,7 +2222,7 @@ const badgesTipo = {
                             <div>
                                 <label class="block text-xs font-medium text-tinta-500 mb-1">Sección</label>
                                 <select v-model="compBorrador.seccion_id"
-                                    class="w-full border border-linea rounded-lg px-3 py-1.5 text-sm focus:outline-none bg-white">
+                                    class="w-full border border-linea rounded-lg px-3 py-1.5 text-sm focus:outline-none bg-superficie">
                                     <option :value="null">Sin sección</option>
                                     <option v-for="sec in seccionesOrdenadas" :key="sec.id" :value="sec.id">{{ sec.nombre }}</option>
                                 </select>
@@ -2242,7 +2242,7 @@ const badgesTipo = {
                                         @blur="onFormulaBlur"
                                     />
                                     <ul v-if="formulaSugs.length"
-                                        class="absolute z-30 left-0 right-0 mt-1 bg-white border border-[var(--marca-borde)] rounded-xl shadow-lg overflow-hidden">
+                                        class="absolute z-30 left-0 right-0 mt-1 bg-superficie border border-[var(--marca-borde)] rounded-xl shadow-lg overflow-hidden">
                                         <li v-for="s in formulaSugs" :key="s"
                                             @mousedown.prevent="insertarVariable(s)"
                                             class="px-3 py-1.5 text-xs font-mono text-[var(--marca)] hover:bg-[var(--marca-suave)] cursor-pointer">
@@ -2268,7 +2268,7 @@ const badgesTipo = {
                             </div>
 
                             <!-- Mini-probador inline -->
-                            <div v-if="compBorrador.formula" class="bg-white border border-[var(--marca-borde)] rounded-lg p-3 space-y-2">
+                            <div v-if="compBorrador.formula" class="bg-superficie border border-[var(--marca-borde)] rounded-lg p-3 space-y-2">
                                 <div class="flex items-center justify-between">
                                     <p class="text-xs font-semibold text-[var(--marca)]">▷ Probar esta fórmula</p>
                                     <button @click="ejecutarProbarFormula" :disabled="probarFCarg"
@@ -2429,7 +2429,7 @@ const badgesTipo = {
                     </div>
 
                     <!-- ══════════════ Tab: Pasos de producción ═══════════════ -->
-                    <div v-if="tabActivo === 'produccion'" class="bg-white rounded-b-2xl shadow-sm p-5 space-y-4">
+                    <div v-if="tabActivo === 'produccion'" class="bg-superficie rounded-b-2xl shadow-sm p-5 space-y-4">
                         <div class="flex items-start justify-between gap-3">
                             <div>
                                 <h3 class="text-sm font-semibold text-tinta-700">Pasos de producción</h3>
@@ -2490,7 +2490,7 @@ const badgesTipo = {
                                         <RichTextEditor v-model="paso.descripcion" placeholder="Detalle del paso — usa negrita, viñetas, etc." />
                                         <p v-if="variablesDisponibles.length" class="text-xs text-tinta-300 mt-1">
                                             Variables:
-                                            <span v-for="v in variablesDisponibles" :key="v" class="font-mono bg-white border border-linea rounded px-1 mr-1">{{ '{' + v + '}' }}</span>
+                                            <span v-for="v in variablesDisponibles" :key="v" class="font-mono bg-superficie border border-linea rounded px-1 mr-1">{{ '{' + v + '}' }}</span>
                                         </p>
                                     </div>
 
@@ -2565,7 +2565,7 @@ const badgesTipo = {
                     </div>
 
                     <!-- ══════════════ Tab: Config. Salida ════════════════════ -->
-                    <div v-if="tabActivo === 'salida' && plantillaActual.config_salida" class="bg-white rounded-b-2xl shadow-sm p-5 space-y-5">
+                    <div v-if="tabActivo === 'salida' && plantillaActual.config_salida" class="bg-superficie rounded-b-2xl shadow-sm p-5 space-y-5">
                         <div>
                             <h3 class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-3">Comportamiento en cotización</h3>
                             <div class="space-y-3">
@@ -2635,7 +2635,7 @@ const badgesTipo = {
         <!-- ── Modal nueva plantilla ────────────────────────────────────────────── -->
         <Teleport to="body">
             <div v-if="modalNueva" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4" style="background:rgba(0,0,0,0.5);">
-                <div class="bg-white rounded-2xl shadow-xl w-full max-w-sm p-5">
+                <div class="bg-superficie rounded-2xl shadow-xl w-full max-w-sm p-5">
                     <h3 class="text-base font-semibold text-tinta-900 mb-4">Nueva plantilla de ensamble</h3>
                     <div class="space-y-3">
                         <div>
@@ -2666,7 +2666,7 @@ const badgesTipo = {
         <Teleport to="body">
             <div v-if="drawerProbar" class="fixed inset-0 z-50 flex justify-end" style="background:rgba(0,0,0,0.45);" @click.self="drawerProbar = false">
                 <!-- Panel: bottom sheet en mobile, sidebar derecha en desktop -->
-                <div class="w-full sm:w-[440px] bg-white shadow-2xl flex flex-col h-[90vh] sm:h-full rounded-t-3xl sm:rounded-none mt-auto sm:mt-0">
+                <div class="w-full sm:w-[440px] bg-superficie shadow-2xl flex flex-col h-[90vh] sm:h-full rounded-t-3xl sm:rounded-none mt-auto sm:mt-0">
 
                     <!-- Header -->
                     <div class="shrink-0 flex items-center justify-between px-5 py-4 border-b border-linea">

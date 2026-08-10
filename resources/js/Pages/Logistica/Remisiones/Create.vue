@@ -206,7 +206,7 @@ watch(() => form.tipo, () => {
             </div>
 
             <!-- ═══ PASO 1 — Origen ═══ -->
-            <div v-if="paso === 1" class="bg-white rounded-2xl border border-linea p-5 space-y-5">
+            <div v-if="paso === 1" class="bg-superficie rounded-2xl border border-linea p-5 space-y-5">
 
                 <!-- Toggle tipo -->
                 <div>
@@ -244,7 +244,7 @@ watch(() => form.tipo, () => {
                             </div>
                             <!-- Dropdown resultados -->
                             <div v-if="resultadosOp.length"
-                                class="absolute z-10 w-full mt-1 bg-white border border-linea rounded-xl shadow-lg overflow-hidden">
+                                class="absolute z-10 w-full mt-1 bg-superficie border border-linea rounded-xl shadow-lg overflow-hidden">
                                 <button v-for="op in resultadosOp" :key="op.id"
                                     @click="seleccionarOp(op)"
                                     class="w-full text-left px-4 py-2.5 hover:bg-tinta-50 transition-colors border-b border-gray-50 last:border-0">
@@ -382,7 +382,7 @@ watch(() => form.tipo, () => {
             </div>
 
             <!-- ═══ PASO 2 — Datos de remisión ═══ -->
-            <div v-if="paso === 2" class="bg-white rounded-2xl border border-linea p-5 space-y-4">
+            <div v-if="paso === 2" class="bg-superficie rounded-2xl border border-linea p-5 space-y-4">
                 <button @click="paso = 1" type="button" class="text-xs text-blue-600 hover:underline">← Volver</button>
 
                 <div>

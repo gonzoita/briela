@@ -49,7 +49,7 @@ const estadoBadge = {
             </div>
 
             <!-- Info -->
-            <div class="bg-white rounded-2xl border border-linea p-5">
+            <div class="bg-superficie rounded-2xl border border-linea p-5">
                 <h2 class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-3">Datos</h2>
                 <div class="grid grid-cols-2 gap-x-6 gap-y-3 text-sm">
                     <div>
@@ -85,7 +85,7 @@ const estadoBadge = {
             </div>
 
             <!-- Repuestos -->
-            <div v-if="mantenimiento.repuestos?.length" class="bg-white rounded-2xl border border-linea overflow-hidden">
+            <div v-if="mantenimiento.repuestos?.length" class="bg-superficie rounded-2xl border border-linea overflow-hidden">
                 <div class="px-5 py-3 border-b border-linea">
                     <h2 class="text-sm font-semibold text-tinta-700">Repuestos / materiales</h2>
                 </div>

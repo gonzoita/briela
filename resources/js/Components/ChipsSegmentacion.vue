@@ -36,7 +36,7 @@ function isSelected(valor) {
                     'px-3 py-1 rounded-full text-sm border transition-all select-none',
                     isSelected(op.valor)
                         ? 'text-white border-transparent'
-                        : 'bg-white text-tinta-500 border-tinta-200 hover:border-gray-400',
+                        : 'bg-superficie text-tinta-500 border-tinta-200 hover:border-gray-400',
                 ]"
                 :style="isSelected(op.valor) ? `background:${op.color ?? 'var(--marca)'}; border-color:${op.color ?? 'var(--marca)'};` : ''"
             >{{ op.etiqueta }}</button>

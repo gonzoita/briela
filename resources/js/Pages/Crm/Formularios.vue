@@ -233,7 +233,7 @@ const formularioEditando = computed(() => lista.value.find(f => f.id === editand
             </div>
 
             <!-- Lista vacía -->
-            <div v-if="!lista.length" class="bg-white rounded-2xl border border-linea py-16 text-center">
+            <div v-if="!lista.length" class="bg-superficie rounded-2xl border border-linea py-16 text-center">
                 <svg class="w-12 h-12 text-tinta-200 mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                 </svg>
@@ -241,7 +241,7 @@ const formularioEditando = computed(() => lista.value.find(f => f.id === editand
             </div>
 
             <!-- Tabla de formularios -->
-            <div v-else class="bg-white rounded-2xl border border-linea overflow-hidden">
+            <div v-else class="bg-superficie rounded-2xl border border-linea overflow-hidden">
                 <div class="divide-y divide-gray-50">
                     <div v-for="f in lista" :key="f.id" class="px-5 py-4">
                         <!-- Fila principal -->
@@ -279,7 +279,7 @@ const formularioEditando = computed(() => lista.value.find(f => f.id === editand
                             <div class="flex-1 bg-tinta-50 rounded-xl border border-linea p-2 flex items-center gap-2 min-w-0">
                                 <p class="text-xs text-tinta-400 font-mono flex-1 truncate">{{ snippetIframe(f).split('\n')[0] }}…</p>
                                 <button @click="copiarSnippet(f)"
-                                    class="shrink-0 text-xs px-2 py-1 rounded-lg border border-tinta-200 text-tinta-500 hover:bg-white">
+                                    class="shrink-0 text-xs px-2 py-1 rounded-lg border border-tinta-200 text-tinta-500 hover:bg-superficie">
                                     {{ copiado === `${f.id}-iframe` ? '✓ Copiado' : 'Copiar snippet' }}
                                 </button>
                             </div>
@@ -295,10 +295,10 @@ const formularioEditando = computed(() => lista.value.find(f => f.id === editand
                 class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4"
                 @click.self="cerrarModal">
                 <div class="absolute inset-0 bg-black/40" @click="cerrarModal"></div>
-                <div class="relative bg-white w-full sm:max-w-2xl max-h-[95dvh] overflow-y-auto rounded-t-3xl sm:rounded-2xl shadow-2xl">
+                <div class="relative bg-superficie w-full sm:max-w-2xl max-h-[95dvh] overflow-y-auto rounded-t-3xl sm:rounded-2xl shadow-2xl">
 
                     <!-- Header -->
-                    <div class="sticky top-0 bg-white z-10 flex items-center justify-between px-5 py-4 border-b border-linea">
+                    <div class="sticky top-0 bg-superficie z-10 flex items-center justify-between px-5 py-4 border-b border-linea">
                         <h2 class="text-base font-semibold text-tinta-900">
                             {{ editando ? 'Editar formulario' : 'Nuevo formulario' }}
                         </h2>
@@ -324,7 +324,7 @@ const formularioEditando = computed(() => lista.value.find(f => f.id === editand
                                     <div>
                                         <label class="block text-xs font-semibold text-tinta-500 mb-1">Etapa destino</label>
                                         <select v-model="form.etapa_id"
-                                            class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none bg-white">
+                                            class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none bg-superficie">
                                             <option :value="null">Primera etapa</option>
                                             <option v-for="e in etapas" :key="e.id" :value="e.id">{{ e.nombre }}</option>
                                         </select>
@@ -332,7 +332,7 @@ const formularioEditando = computed(() => lista.value.find(f => f.id === editand
                                     <div>
                                         <label class="block text-xs font-semibold text-tinta-500 mb-1">Fuente</label>
                                         <select v-model="form.fuente"
-                                            class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none bg-white">
+                                            class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none bg-superficie">
                                             <option value="">Sin especificar</option>
                                             <option>Web</option>
                                             <option>Instagram</option>
@@ -378,7 +378,7 @@ const formularioEditando = computed(() => lista.value.find(f => f.id === editand
                                 <div v-if="form.asignacion_tipo === 'fijo'">
                                     <label class="block text-xs font-semibold text-tinta-500 mb-1">Responsable</label>
                                     <select v-model="form.responsable_id"
-                                        class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none bg-white">
+                                        class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none bg-superficie">
                                         <option :value="null">Sin asignar</option>
                                         <option v-for="u in usuarios" :key="u.id" :value="u.id">{{ u.name }}</option>
                                     </select>
@@ -505,7 +505,7 @@ const formularioEditando = computed(() => lista.value.find(f => f.id === editand
                                         <input v-model="campo.nombre" type="text" placeholder="nombre_campo"
                                             class="w-28 rounded-lg border border-tinta-200 px-2 py-1.5 text-xs font-mono focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]"/>
                                         <select v-model="campo.tipo"
-                                            class="w-24 rounded-lg border border-tinta-200 px-2 py-1.5 text-xs focus:outline-none bg-white">
+                                            class="w-24 rounded-lg border border-tinta-200 px-2 py-1.5 text-xs focus:outline-none bg-superficie">
                                             <option value="text">Texto</option>
                                             <option value="email">Email</option>
                                             <option value="tel">Teléfono</option>
@@ -549,7 +549,7 @@ const formularioEditando = computed(() => lista.value.find(f => f.id === editand
                                 <div class="relative shrink-0 mt-0.5">
                                     <input v-model="form.captcha_activo" type="checkbox" class="sr-only peer"/>
                                     <div class="w-10 h-6 bg-tinta-200 rounded-full peer-checked:bg-blue-600 transition-colors"></div>
-                                    <div class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform peer-checked:translate-x-4"></div>
+                                    <div class="absolute top-0.5 left-0.5 w-5 h-5 bg-superficie rounded-full shadow transition-transform peer-checked:translate-x-4"></div>
                                 </div>
                                 <div>
                                     <p class="text-sm font-medium text-tinta-700">Google reCAPTCHA v3</p>
@@ -574,7 +574,7 @@ const formularioEditando = computed(() => lista.value.find(f => f.id === editand
                     </div>
 
                     <!-- Footer modal -->
-                    <div class="sticky bottom-0 bg-white border-t border-linea px-5 py-4 flex gap-3">
+                    <div class="sticky bottom-0 bg-superficie border-t border-linea px-5 py-4 flex gap-3">
                         <button @click="cerrarModal"
                             class="flex-1 py-3 rounded-xl border border-linea text-sm text-tinta-500 font-medium">
                             Cancelar

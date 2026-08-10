@@ -23,7 +23,7 @@ const toggleActivo = (usuario) => {
 <template>
     <AppLayout title="Usuarios">
 
-        <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+        <div class="bg-superficie rounded-xl shadow-sm overflow-hidden">
 
             <!-- Cabecera -->
             <div class="flex items-center justify-between px-6 py-4 border-b border-linea">

@@ -131,21 +131,21 @@ const puedeRecibir = computed(() =>
 
             <!-- Info -->
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
-                <div class="bg-white rounded-xl border border-linea p-3">
+                <div class="bg-superficie rounded-xl border border-linea p-3">
                     <p class="text-xs text-tinta-400">Creado por</p>
                     <p class="font-medium text-tinta-900 text-sm">{{ orden.creado_por?.name }}</p>
                 </div>
-                <div class="bg-white rounded-xl border border-linea p-3">
+                <div class="bg-superficie rounded-xl border border-linea p-3">
                     <p class="text-xs text-tinta-400">Fecha entrega est.</p>
                     <p class="font-medium text-tinta-900 text-sm">
                         {{ orden.fecha_entrega_esperada ? new Date(orden.fecha_entrega_esperada).toLocaleDateString('es-CO') : '—' }}
                     </p>
                 </div>
-                <div class="bg-white rounded-xl border border-linea p-3">
+                <div class="bg-superficie rounded-xl border border-linea p-3">
                     <p class="text-xs text-tinta-400">SC vinculada</p>
                     <p class="font-medium text-tinta-900 text-sm">{{ orden.solicitud?.numero ?? '—' }}</p>
                 </div>
-                <div class="bg-white rounded-xl border border-linea p-3">
+                <div class="bg-superficie rounded-xl border border-linea p-3">
                     <p class="text-xs text-tinta-400">Fecha recepción</p>
                     <p class="font-medium text-tinta-900 text-sm">
                         {{ orden.fecha_recepcion ? new Date(orden.fecha_recepcion).toLocaleDateString('es-CO') : '—' }}
@@ -154,7 +154,7 @@ const puedeRecibir = computed(() =>
             </div>
 
             <!-- Ítems -->
-            <div class="bg-white rounded-xl border border-linea overflow-hidden mb-4">
+            <div class="bg-superficie rounded-xl border border-linea overflow-hidden mb-4">
                 <div class="px-4 py-3 border-b border-linea">
                     <h2 class="font-semibold text-tinta-900">Ítems</h2>
                 </div>
@@ -213,7 +213,7 @@ const puedeRecibir = computed(() =>
             </div>
 
             <!-- Condiciones / notas -->
-            <div v-if="orden.condiciones || orden.notas" class="bg-white rounded-xl border border-linea p-4">
+            <div v-if="orden.condiciones || orden.notas" class="bg-superficie rounded-xl border border-linea p-4">
                 <div v-if="orden.condiciones" class="mb-2">
                     <p class="text-sm font-medium text-tinta-700">Condiciones</p>
                     <p class="text-sm text-tinta-400 mt-1">{{ orden.condiciones }}</p>
@@ -229,7 +229,7 @@ const puedeRecibir = computed(() =>
         <Teleport to="body">
             <div v-if="modalRecepcion" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
                 <div class="absolute inset-0 bg-black/40" @click="modalRecepcion = false" />
-                <div class="relative bg-white w-full sm:max-w-lg rounded-t-2xl sm:rounded-2xl p-5 max-h-[90vh] overflow-y-auto">
+                <div class="relative bg-superficie w-full sm:max-w-lg rounded-t-2xl sm:rounded-2xl p-5 max-h-[90vh] overflow-y-auto">
                     <h2 class="text-lg font-semibold text-tinta-900 mb-1">Registrar recepción</h2>
                     <p class="text-sm text-tinta-400 mb-4">Ingresa la cantidad recibida de cada ítem</p>
 

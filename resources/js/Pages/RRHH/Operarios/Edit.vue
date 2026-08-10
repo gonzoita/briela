@@ -132,13 +132,13 @@ async function subirArchivo(event, tipo) {
                     type="button"
                     @click="seccion = s.key"
                     class="flex-1 min-w-[64px] py-2 px-2 rounded-xl text-xs font-semibold transition-colors whitespace-nowrap"
-                    :class="seccion === s.key ? 'bg-white text-tinta-900 shadow-sm' : 'text-tinta-400 hover:text-tinta-700'">
+                    :class="seccion === s.key ? 'bg-superficie text-tinta-900 shadow-sm' : 'text-tinta-400 hover:text-tinta-700'">
                     {{ s.label }}
                 </button>
             </div>
 
             <!-- ─── SECCIÓN PERSONAL ─── -->
-            <div v-show="seccion === 'personal'" class="bg-white rounded-2xl border border-linea p-5 space-y-4">
+            <div v-show="seccion === 'personal'" class="bg-superficie rounded-2xl border border-linea p-5 space-y-4">
                 <div>
                     <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1.5">Nombre *</label>
                     <input v-model="form.nombre" type="text"
@@ -223,7 +223,7 @@ async function subirArchivo(event, tipo) {
             </div>
 
             <!-- ─── SECCIÓN SEGURIDAD SOCIAL ─── -->
-            <div v-show="seccion === 'seguridad'" class="bg-white rounded-2xl border border-linea p-5 space-y-4">
+            <div v-show="seccion === 'seguridad'" class="bg-superficie rounded-2xl border border-linea p-5 space-y-4">
                 <div class="border-b border-linea pb-4">
                     <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-3">EPS</p>
                     <div class="space-y-3">
@@ -288,7 +288,7 @@ async function subirArchivo(event, tipo) {
             </div>
 
             <!-- ─── SECCIÓN BANCARIA ─── -->
-            <div v-show="seccion === 'bancario'" class="bg-white rounded-2xl border border-linea p-5 space-y-4">
+            <div v-show="seccion === 'bancario'" class="bg-superficie rounded-2xl border border-linea p-5 space-y-4">
                 <div>
                     <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1.5">Banco</label>
                     <input v-model="form.banco" type="text"
@@ -329,7 +329,7 @@ async function subirArchivo(event, tipo) {
             </div>
 
             <!-- ─── SECCIÓN DOCUMENTOS ─── -->
-            <div v-show="seccion === 'documentos'" class="bg-white rounded-2xl border border-linea p-5 space-y-3">
+            <div v-show="seccion === 'documentos'" class="bg-superficie rounded-2xl border border-linea p-5 space-y-3">
                 <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-2">Documentos del colaborador</p>
 
                 <div v-for="doc in ARCHIVOS" :key="doc.tipo"
@@ -369,7 +369,7 @@ async function subirArchivo(event, tipo) {
             </div>
 
             <!-- ─── SECCIÓN ACCESO ─── -->
-            <div v-show="seccion === 'acceso'" class="bg-white rounded-2xl border border-linea p-5 space-y-4">
+            <div v-show="seccion === 'acceso'" class="bg-superficie rounded-2xl border border-linea p-5 space-y-4">
                 <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">Acceso al sistema</p>
 
                 <div class="flex gap-2">

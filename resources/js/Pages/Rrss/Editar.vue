@@ -121,7 +121,7 @@ function enviar(accion) {
                 <h1 class="text-xl font-semibold text-tinta-900">Editar publicación</h1>
             </div>
 
-            <div class="bg-white rounded-2xl border border-linea p-5 space-y-4">
+            <div class="bg-superficie rounded-2xl border border-linea p-5 space-y-4">
 
                 <div>
                     <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1.5">Texto *</label>
@@ -145,7 +145,7 @@ function enviar(accion) {
                             placeholder="Describe la imagen que quieres"
                             class="w-full rounded-lg border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]"></textarea>
                         <select v-model="iaEstilo"
-                            class="w-full rounded-lg border border-tinta-200 px-3 py-2 text-sm bg-white">
+                            class="w-full rounded-lg border border-tinta-200 px-3 py-2 text-sm bg-superficie">
                             <option value="fotografico">Fotográfico</option>
                             <option value="ilustracion">Ilustración</option>
                             <option value="minimalista">Minimalista</option>

@@ -142,7 +142,7 @@ function submit() {
             <form @submit.prevent="submit" class="space-y-4">
 
                 <!-- Tipo de cliente -->
-                <div class="bg-white rounded-xl border border-linea p-4">
+                <div class="bg-superficie rounded-xl border border-linea p-4">
                     <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-3">Tipo de cliente</p>
                     <div class="grid grid-cols-2 gap-2">
                         <button type="button" @click="setTipo('empresa')"
@@ -159,7 +159,7 @@ function submit() {
                 </div>
 
                 <!-- Identificación -->
-                <div class="bg-white rounded-xl border border-linea p-4">
+                <div class="bg-superficie rounded-xl border border-linea p-4">
                     <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-3">Identificación</p>
                     <div class="grid grid-cols-2 gap-3">
                         <div>
@@ -195,7 +195,7 @@ function submit() {
                 </div>
 
                 <!-- Nombre -->
-                <div class="bg-white rounded-xl border border-linea p-4">
+                <div class="bg-superficie rounded-xl border border-linea p-4">
                     <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-3">Datos personales / empresa</p>
                     <div :class="esPersona ? 'grid grid-cols-1 sm:grid-cols-2 gap-3' : ''">
                         <div>
@@ -213,7 +213,7 @@ function submit() {
                 </div>
 
                 <!-- Contacto directo (persona) -->
-                <div v-if="esPersona" class="bg-white rounded-xl border border-linea p-4">
+                <div v-if="esPersona" class="bg-superficie rounded-xl border border-linea p-4">
                     <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-3">Contacto</p>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
@@ -233,7 +233,7 @@ function submit() {
                 </div>
 
                 <!-- Contacto empresa -->
-                <div v-if="!esPersona" class="bg-white rounded-xl border border-linea p-4">
+                <div v-if="!esPersona" class="bg-superficie rounded-xl border border-linea p-4">
                     <div class="flex items-center justify-between mb-3">
                         <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">Contactos</p>
                         <button type="button" @click="abrirNuevoContacto"
@@ -329,7 +329,7 @@ function submit() {
                 </div>
 
                 <!-- Contacto empresa (continuación — email, tel) -->
-                <div v-if="!esPersona" class="bg-white rounded-xl border border-linea p-4">
+                <div v-if="!esPersona" class="bg-superficie rounded-xl border border-linea p-4">
                     <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-3">Datos de contacto de la empresa</p>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
@@ -348,7 +348,7 @@ function submit() {
                 </div>
 
                 <!-- Ubicación -->
-                <div class="bg-white rounded-xl border border-linea p-4">
+                <div class="bg-superficie rounded-xl border border-linea p-4">
                     <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-3">Ubicación</p>
                     <div v-if="sedes.length > 1" class="mb-3">
                         <label class="block text-xs font-medium text-tinta-700 mb-1">Sede</label>
@@ -370,13 +370,13 @@ function submit() {
                 </div>
 
                 <!-- Notas -->
-                <div class="bg-white rounded-xl border border-linea p-4">
+                <div class="bg-superficie rounded-xl border border-linea p-4">
                     <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-3">Notas</p>
                     <textarea v-model="form.notas" :class="ic()" rows="3" placeholder="Observaciones internas..."></textarea>
                 </div>
 
                 <!-- Segmentación -->
-                <div class="bg-white rounded-xl border border-linea p-4 space-y-4">
+                <div class="bg-superficie rounded-xl border border-linea p-4 space-y-4">
                     <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">Segmentación</p>
 
                     <ChipsSegmentacion

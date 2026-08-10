@@ -41,22 +41,22 @@ function tipoSimbolo(tipo) {
 
             <!-- Tarjetas -->
             <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-6">
-                <div class="bg-white rounded-xl border border-linea p-4">
+                <div class="bg-superficie rounded-xl border border-linea p-4">
                     <p class="text-xs text-tinta-400 font-medium uppercase tracking-wide">Total ítems</p>
                     <p class="text-3xl font-semibold text-tinta-900 mt-1">{{ totalItems }}</p>
                 </div>
-                <div class="bg-white rounded-xl border border-red-200 p-4">
+                <div class="bg-superficie rounded-xl border border-red-200 p-4">
                     <p class="text-xs text-red-500 font-medium uppercase tracking-wide">Bajo stock</p>
                     <p class="text-3xl font-semibold text-red-600 mt-1">{{ itemsBajoStock.length }}</p>
                 </div>
-                <div class="bg-white rounded-xl border border-linea p-4 col-span-2 sm:col-span-1">
+                <div class="bg-superficie rounded-xl border border-linea p-4 col-span-2 sm:col-span-1">
                     <p class="text-xs text-tinta-400 font-medium uppercase tracking-wide">Valor total</p>
                     <p class="text-2xl font-semibold text-tinta-900 mt-1">{{ fmtMoney(valorTotal) }}</p>
                 </div>
             </div>
 
             <!-- Items bajo stock -->
-            <div v-if="itemsBajoStock.length" class="bg-white rounded-xl border border-red-200 p-4 mb-6">
+            <div v-if="itemsBajoStock.length" class="bg-superficie rounded-xl border border-red-200 p-4 mb-6">
                 <h2 class="font-semibold text-red-700 mb-3 flex items-center gap-2">
                     <span>⚠️</span> Ítems bajo stock mínimo
                 </h2>
@@ -79,7 +79,7 @@ function tipoSimbolo(tipo) {
             </div>
 
             <!-- Últimos movimientos -->
-            <div class="bg-white rounded-xl border border-linea p-4 mb-6">
+            <div class="bg-superficie rounded-xl border border-linea p-4 mb-6">
                 <h2 class="font-semibold text-tinta-900 mb-3">Últimos movimientos</h2>
                 <div v-if="!ultimosMovimientos.length" class="text-center py-4 text-tinta-300 text-sm">Sin movimientos</div>
                 <div v-else class="space-y-2">
@@ -100,7 +100,7 @@ function tipoSimbolo(tipo) {
             </div>
 
             <!-- Gráfica movimientos por día -->
-            <div class="bg-white rounded-xl border border-linea p-4">
+            <div class="bg-superficie rounded-xl border border-linea p-4">
                 <h2 class="font-semibold text-tinta-900 mb-3">Movimientos últimos 30 días</h2>
                 <div v-if="!movimientosPorDia.length" class="text-center py-4 text-tinta-300 text-sm">Sin datos</div>
                 <div v-else class="flex items-end gap-1 h-24">

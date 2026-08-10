@@ -108,7 +108,7 @@ const hayFiltros = computed(() =>
             </div>
 
             <!-- Filtros -->
-            <div class="bg-white rounded-xl border border-linea p-4 mb-4">
+            <div class="bg-superficie rounded-xl border border-linea p-4 mb-4">
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                     <div>
                         <label class="block text-xs font-medium text-tinta-500 mb-1">Producto</label>
@@ -156,7 +156,7 @@ const hayFiltros = computed(() =>
             </div>
 
             <!-- Tabla -->
-            <div class="bg-white rounded-xl border border-linea overflow-x-auto">
+            <div class="bg-superficie rounded-xl border border-linea overflow-x-auto">
                 <table class="w-full text-xs min-w-[700px]">
                     <thead class="bg-tinta-50 border-b border-linea">
                         <tr>
@@ -215,7 +215,7 @@ const hayFiltros = computed(() =>
                 <template v-for="link in movimientos.links" :key="link.label">
                     <button v-if="link.url"
                         @click="router.visit(link.url, { preserveState: true })"
-                        :class="['px-3 py-1.5 rounded-lg text-sm', link.active ? 'text-white font-semibold' : 'bg-white border border-linea text-tinta-700']"
+                        :class="['px-3 py-1.5 rounded-lg text-sm', link.active ? 'text-white font-semibold' : 'bg-superficie border border-linea text-tinta-700']"
                         :style="link.active ? 'background:var(--marca)' : ''"
                         v-html="link.label" />
                     <span v-else class="px-3 py-1.5 text-sm text-tinta-200" v-html="link.label" />

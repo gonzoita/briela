@@ -379,7 +379,7 @@ function marcarTerminado(item) {
             </div>
 
             <!-- Barra de progreso global -->
-            <div class="mb-5 bg-white rounded-2xl border border-linea p-4">
+            <div class="mb-5 bg-superficie rounded-2xl border border-linea p-4">
                 <div class="flex items-center justify-between mb-2">
                     <span class="text-sm font-semibold text-tinta-700">Progreso general de la OP</span>
                     <span class="text-lg font-semibold text-blue-700">{{ parseFloat(op.porcentaje_avance ?? 0).toFixed(1) }}%</span>
@@ -397,14 +397,14 @@ function marcarTerminado(item) {
 
             <!-- Info cards -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
-                <div class="bg-white rounded-2xl border border-linea p-5">
+                <div class="bg-superficie rounded-2xl border border-linea p-5">
                     <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-3">Cliente</p>
                     <p class="text-base font-semibold text-tinta-900">{{ op.cliente_nombre ?? '—' }}</p>
                     <p v-if="op.cotizacion" class="text-xs text-blue-500 mt-1">
                         Cotización: {{ op.cotizacion.numero }}
                     </p>
                 </div>
-                <div class="bg-white rounded-2xl border border-linea p-5">
+                <div class="bg-superficie rounded-2xl border border-linea p-5">
                     <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-3">Detalles</p>
                     <div class="space-y-1.5 text-sm">
                         <div class="flex justify-between">
@@ -424,7 +424,7 @@ function marcarTerminado(item) {
             </div>
 
             <!-- Ítems -->
-            <div class="bg-white rounded-2xl border border-linea overflow-hidden mb-5">
+            <div class="bg-superficie rounded-2xl border border-linea overflow-hidden mb-5">
                 <div class="px-5 py-3 border-b border-linea flex items-center justify-between">
                     <h2 class="text-sm font-semibold text-tinta-700">Ítems</h2>
                     <span class="text-xs text-tinta-300">{{ op.items?.length ?? 0 }} artículos</span>
@@ -551,7 +551,7 @@ function marcarTerminado(item) {
                                                         class="rounded-xl overflow-hidden border border-amber-200 bg-amber-50">
                                                         <a :href="campo.imagen_referencia" target="_blank" rel="noopener">
                                                             <img :src="campo.imagen_referencia"
-                                                                class="w-full h-36 object-contain bg-white hover:opacity-90 transition-opacity" />
+                                                                class="w-full h-36 object-contain bg-superficie hover:opacity-90 transition-opacity" />
                                                         </a>
                                                         <p class="text-xs text-amber-700 px-2 py-1.5">
                                                             {{ campo.imagen_referencia_titulo ?? campo.etiqueta }}
@@ -577,7 +577,7 @@ function marcarTerminado(item) {
                                                         class="rounded-xl overflow-hidden border border-linea bg-tinta-50">
                                                         <a :href="'/storage/' + img.ruta" target="_blank" rel="noopener">
                                                             <img :src="'/storage/' + img.ruta"
-                                                                class="w-full h-28 object-contain bg-white hover:opacity-90 transition-opacity" />
+                                                                class="w-full h-28 object-contain bg-superficie hover:opacity-90 transition-opacity" />
                                                         </a>
                                                         <p v-if="img.titulo" class="text-xs text-tinta-400 px-2 py-1.5 truncate">{{ img.titulo }}</p>
                                                     </div>
@@ -636,7 +636,7 @@ function marcarTerminado(item) {
                                                                                 <input :value="padre.observacion ?? ''"
                                                                                     @blur="guardarObservacion(item, padre, $event.target.value)"
                                                                                     type="text" placeholder="—"
-                                                                                    class="w-full min-w-[100px] rounded-lg border border-linea px-2 py-1 text-xs text-tinta-500 focus:outline-none focus:border-blue-300 focus:ring-1 bg-transparent hover:bg-white"
+                                                                                    class="w-full min-w-[100px] rounded-lg border border-linea px-2 py-1 text-xs text-tinta-500 focus:outline-none focus:border-blue-300 focus:ring-1 bg-transparent hover:bg-superficie"
                                                                                     @click.stop />
                                                                             </td>
                                                                             <td class="px-3 py-2">
@@ -714,7 +714,7 @@ function marcarTerminado(item) {
                                                                             <input :value="comp.observacion ?? ''"
                                                                                 @blur="guardarObservacion(item, comp, $event.target.value)"
                                                                                 type="text" placeholder="—"
-                                                                                class="w-full min-w-[100px] rounded-lg border border-linea px-2 py-1 text-xs text-tinta-500 focus:outline-none focus:border-blue-300 focus:ring-1 bg-transparent hover:bg-white"
+                                                                                class="w-full min-w-[100px] rounded-lg border border-linea px-2 py-1 text-xs text-tinta-500 focus:outline-none focus:border-blue-300 focus:ring-1 bg-transparent hover:bg-superficie"
                                                                                 @click.stop />
                                                                         </td>
                                                                         <td class="px-3 py-2">
@@ -931,7 +931,7 @@ function marcarTerminado(item) {
                                         class="rounded-xl overflow-hidden border border-amber-200 bg-amber-50">
                                         <a :href="campo.imagen_referencia" target="_blank" rel="noopener">
                                             <img :src="campo.imagen_referencia"
-                                                class="w-full h-32 object-contain bg-white hover:opacity-90 transition-opacity" />
+                                                class="w-full h-32 object-contain bg-superficie hover:opacity-90 transition-opacity" />
                                         </a>
                                         <p class="text-xs text-amber-700 px-2 py-1.5">
                                             {{ campo.imagen_referencia_titulo ?? campo.etiqueta }}
@@ -957,7 +957,7 @@ function marcarTerminado(item) {
                                         class="rounded-xl overflow-hidden border border-linea bg-tinta-50">
                                         <a :href="'/storage/' + img.ruta" target="_blank" rel="noopener">
                                             <img :src="'/storage/' + img.ruta"
-                                                class="w-full h-28 object-contain bg-white hover:opacity-90 transition-opacity" />
+                                                class="w-full h-28 object-contain bg-superficie hover:opacity-90 transition-opacity" />
                                         </a>
                                         <p v-if="img.titulo" class="text-xs text-tinta-400 px-2 py-1.5 truncate">{{ img.titulo }}</p>
                                     </div>
@@ -1016,7 +1016,7 @@ function marcarTerminado(item) {
                                                                 <input :value="padre.observacion ?? ''"
                                                                     @blur="guardarObservacion(item, padre, $event.target.value)"
                                                                     type="text" placeholder="—"
-                                                                    class="w-full min-w-[80px] rounded-lg border border-linea px-2 py-1 text-xs text-tinta-500 focus:outline-none focus:border-blue-300 focus:ring-1 bg-transparent hover:bg-white"
+                                                                    class="w-full min-w-[80px] rounded-lg border border-linea px-2 py-1 text-xs text-tinta-500 focus:outline-none focus:border-blue-300 focus:ring-1 bg-transparent hover:bg-superficie"
                                                                     @click.stop />
                                                             </td>
                                                             <td class="px-3 py-2">
@@ -1094,7 +1094,7 @@ function marcarTerminado(item) {
                                                             <input :value="comp.observacion ?? ''"
                                                                 @blur="guardarObservacion(item, comp, $event.target.value)"
                                                                 type="text" placeholder="—"
-                                                                class="w-full min-w-[80px] rounded-lg border border-linea px-2 py-1 text-xs text-tinta-500 focus:outline-none focus:border-blue-300 focus:ring-1 bg-transparent hover:bg-white"
+                                                                class="w-full min-w-[80px] rounded-lg border border-linea px-2 py-1 text-xs text-tinta-500 focus:outline-none focus:border-blue-300 focus:ring-1 bg-transparent hover:bg-superficie"
                                                                 @click.stop />
                                                         </td>
                                                         <td class="px-3 py-2">
@@ -1224,18 +1224,18 @@ function marcarTerminado(item) {
             </div>
 
             <!-- Condiciones / notas -->
-            <div v-if="op.condiciones" class="bg-white rounded-2xl border border-linea p-5 mb-4">
+            <div v-if="op.condiciones" class="bg-superficie rounded-2xl border border-linea p-5 mb-4">
                 <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-2">Condiciones</p>
                 <p class="text-sm text-tinta-500 whitespace-pre-line">{{ op.condiciones }}</p>
             </div>
-            <div v-if="op.notas_internas" class="bg-white rounded-2xl border border-linea p-5 mb-4">
+            <div v-if="op.notas_internas" class="bg-superficie rounded-2xl border border-linea p-5 mb-4">
                 <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-2">Notas internas</p>
                 <p class="text-sm text-tinta-500 whitespace-pre-line">{{ op.notas_internas }}</p>
             </div>
 
             <!-- Control de calidad -->
             <div v-if="['calidad', 'reproceso', 'despachada'].includes(op.estado) && (op.observaciones_calidad || op.motivo_rechazo || op.fotos_calidad?.length || op.estado === 'calidad')"
-                class="bg-white rounded-2xl border border-linea p-5 mb-4">
+                class="bg-superficie rounded-2xl border border-linea p-5 mb-4">
                 <div class="flex items-center gap-2 mb-3">
                     <svg class="w-4 h-4 text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
@@ -1350,7 +1350,7 @@ function marcarTerminado(item) {
         <Teleport to="body">
             <div v-if="modalEstado" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4"
                 style="background:rgba(0,0,0,0.5);">
-                <div class="bg-white rounded-2xl shadow-xl w-full max-w-sm p-5">
+                <div class="bg-superficie rounded-2xl shadow-xl w-full max-w-sm p-5">
                     <h3 class="text-base font-semibold text-tinta-900 mb-4">Cambiar estado</h3>
                     <select v-model="nuevoEstado"
                         class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm mb-2 focus:ring-2 focus:outline-none">

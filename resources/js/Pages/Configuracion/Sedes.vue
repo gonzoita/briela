@@ -5,6 +5,8 @@ import AppLayout from '@/Layouts/AppLayout.vue'
 
 const props = defineProps({
     sedes: Array,
+    zonas: { type: Array, default: () => [] },
+    zona_global: { type: String, default: 'America/Bogota' },
 })
 
 const sedes = ref(props.sedes.map(s => ({ ...s })))
@@ -15,7 +17,7 @@ watch(() => props.sedes, (vals) => {
 
 const formVacio = {
     nombre: '', codigo: '', tiene_ventas: true, tiene_produccion: false,
-    es_principal: false, nit: '', direccion: '', ciudad: '', telefono: '',
+    es_principal: false, nit: '', direccion: '', ciudad: '', zona_horaria: 'America/Bogota', telefono: '',
     email: '', activa: true,
 }
 
@@ -28,7 +30,8 @@ function editar(s) {
         nombre: s.nombre, codigo: s.codigo,
         tiene_ventas: s.tiene_ventas, tiene_produccion: s.tiene_produccion,
         es_principal: s.es_principal, nit: s.nit ?? '', direccion: s.direccion ?? '',
-        ciudad: s.ciudad ?? '', telefono: s.telefono ?? '', email: s.email ?? '',
+        ciudad: s.ciudad ?? '', zona_horaria: s.zona_horaria ?? 'America/Bogota',
+        telefono: s.telefono ?? '', email: s.email ?? '',
         activa: s.activa,
     }
     window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' })
@@ -76,7 +79,7 @@ function eliminar(s) {
             </div>
 
             <!-- Lista -->
-            <div class="bg-white rounded-2xl border border-linea overflow-hidden mb-4">
+            <div class="bg-superficie rounded-2xl border border-linea overflow-hidden mb-4">
                 <div class="px-5 py-3 border-b border-linea">
                     <h2 class="text-sm font-semibold text-tinta-700">Sedes registradas</h2>
                     <p class="text-xs text-tinta-300 mt-0.5">
@@ -134,7 +137,7 @@ function eliminar(s) {
             </div>
 
             <!-- Formulario -->
-            <div class="bg-white rounded-2xl border border-linea p-5">
+            <div class="bg-superficie rounded-2xl border border-linea p-5">
                 <h3 class="text-sm font-semibold text-tinta-700 mb-4">
                     {{ editando ? 'Editar sede' : 'Nueva sede' }}
                 </h3>
@@ -172,6 +175,24 @@ function eliminar(s) {
                             <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1.5">Ciudad</label>
                             <input v-model="form.ciudad" type="text"
                                 class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]" />
+                        </div>
+
+                        <div class="sm:col-span-2">
+                            <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1.5">Zona horaria</label>
+                            <select v-model="form.zona_horaria"
+                                class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm bg-superficie focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]">
+                                <option v-for="z in zonas" :key="z.valor" :value="z.valor">{{ z.etiqueta }}</option>
+                            </select>
+                            <p class="text-xs text-tinta-400 mt-1.5 leading-snug">
+                                La hora que ve quien trabaja en esta sede, y la que usa el modo
+                                automático para pasar a modo noche.
+                                <span v-if="form.es_principal" class="block mt-1 text-tinta-500">
+                                    Al ser la sede principal, esta zona es además la
+                                    <strong>hora global del sistema</strong>: la que se usa para guardar
+                                    todas las fechas. Cambiarla en una instalación que ya viene
+                                    operando no convierte las fechas guardadas, las reinterpreta.
+                                </span>
+                            </p>
                         </div>
                         <div>
                             <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1.5">NIT</label>

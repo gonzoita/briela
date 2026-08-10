@@ -88,7 +88,7 @@ onUnmounted(() => document.removeEventListener('click', clickFuera))
 
         <!-- Dropdown plantillas -->
         <div v-if="abierto"
-            class="absolute top-full left-0 mt-1 bg-white rounded-xl shadow-lg border border-linea z-50 min-w-[200px] py-1"
+            class="absolute top-full left-0 mt-1 bg-superficie rounded-xl shadow-lg border border-linea z-50 min-w-[200px] py-1"
         >
             <div class="px-3 py-1.5 text-xs text-tinta-300 font-semibold uppercase tracking-wide border-b border-linea">
                 Elegir plantilla

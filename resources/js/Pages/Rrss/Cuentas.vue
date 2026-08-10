@@ -131,7 +131,7 @@ function reactivar(c) {
             </div>
 
             <!-- Conectar nuevas -->
-            <div class="bg-white rounded-2xl border border-linea p-5 mb-4">
+            <div class="bg-superficie rounded-2xl border border-linea p-5 mb-4">
                 <h2 class="text-sm font-semibold text-tinta-700 mb-3">Conectar una cuenta</h2>
                 <div class="space-y-2">
                     <button v-for="r in redes" :key="r.key" @click="conectar(r.key)"
@@ -213,9 +213,9 @@ function reactivar(c) {
 
                                 <p class="mb-1">2. Cuando te pida la <strong>URL de retorno</strong>, es esta:</p>
                                 <div class="flex items-center gap-2 mb-3">
-                                    <code class="flex-1 min-w-0 truncate bg-white border border-linea rounded-lg px-2 py-1.5 text-[11px] text-tinta-700">{{ estado(r.key).url_retorno }}</code>
+                                    <code class="flex-1 min-w-0 truncate bg-superficie border border-linea rounded-lg px-2 py-1.5 text-[11px] text-tinta-700">{{ estado(r.key).url_retorno }}</code>
                                     <button type="button" @click="copiar(estado(r.key).url_retorno, r.key)"
-                                        class="shrink-0 px-2.5 py-1.5 rounded-lg border border-linea bg-white text-[11px] font-semibold text-tinta-500 hover:bg-tinta-50">
+                                        class="shrink-0 px-2.5 py-1.5 rounded-lg border border-linea bg-superficie text-[11px] font-semibold text-tinta-500 hover:bg-tinta-50">
                                         {{ copiado === r.key ? 'Copiada' : 'Copiar' }}
                                     </button>
                                 </div>
@@ -224,10 +224,10 @@ function reactivar(c) {
                                 <p class="mb-1.5">3. Copia de la red sus credenciales y pégalas acá:</p>
                                 <div class="space-y-2">
                                     <input v-model="form[r.key].id" type="text" placeholder="Identificador de la aplicación (App ID)"
-                                        class="w-full bg-white border border-linea rounded-lg px-2.5 py-2 text-[12px] focus:outline-none focus:border-[var(--marca)]" />
+                                        class="w-full bg-superficie border border-linea rounded-lg px-2.5 py-2 text-[12px] focus:outline-none focus:border-[var(--marca)]" />
                                     <input v-model="form[r.key].secret" type="password"
                                         :placeholder="estado(r.key).tiene_secreto ? 'Clave secreta (ya hay una guardada — deja vacío para conservarla)' : 'Clave secreta (App Secret)'"
-                                        class="w-full bg-white border border-linea rounded-lg px-2.5 py-2 text-[12px] focus:outline-none focus:border-[var(--marca)]" />
+                                        class="w-full bg-superficie border border-linea rounded-lg px-2.5 py-2 text-[12px] focus:outline-none focus:border-[var(--marca)]" />
                                     <button type="button" @click="guardarCredenciales(r.key)" :disabled="guardando === r.key"
                                         class="w-full py-2 rounded-lg text-[12px] font-semibold text-white disabled:opacity-50"
                                         style="background:var(--marca);">
@@ -244,7 +244,7 @@ function reactivar(c) {
             </div>
 
             <!-- Lista de conectadas -->
-            <div class="bg-white rounded-2xl border border-linea overflow-hidden">
+            <div class="bg-superficie rounded-2xl border border-linea overflow-hidden">
                 <div class="px-5 py-3 border-b border-linea">
                     <h2 class="text-sm font-semibold text-tinta-700">Cuentas</h2>
                 </div>

@@ -167,7 +167,7 @@ const badgeClass = (estado) => ({
                         v-for="t in tarjetasOps"
                         :key="t.key"
                         :href="t.href"
-                        class="bg-white rounded-lg border border-linea p-4 flex flex-col gap-3 hover:border-tinta-200 active:scale-[.99] transition-all cursor-pointer no-underline"
+                        class="bg-superficie rounded-lg border border-linea p-4 flex flex-col gap-3 hover:border-tinta-200 active:scale-[.99] transition-all cursor-pointer no-underline"
                     >
                         <div class="w-9 h-9 rounded-lg bg-tinta-50 flex items-center justify-center text-tinta-400">
                             <svg v-if="t.icon === 'clipboard'" class="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
@@ -199,7 +199,7 @@ const badgeClass = (estado) => ({
                         v-for="t in tarjetasCots"
                         :key="t.key"
                         :href="t.href"
-                        class="bg-white rounded-lg border border-linea p-4 flex flex-col gap-3 hover:border-tinta-200 active:scale-[.99] transition-all cursor-pointer no-underline"
+                        class="bg-superficie rounded-lg border border-linea p-4 flex flex-col gap-3 hover:border-tinta-200 active:scale-[.99] transition-all cursor-pointer no-underline"
                     >
                         <div class="w-9 h-9 rounded-lg bg-tinta-50 flex items-center justify-center text-tinta-400">
                             <svg v-if="t.icon === 'doc-sent'" class="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
@@ -271,7 +271,7 @@ const badgeClass = (estado) => ({
                 <Link
                     v-if="permisos?.puedeVerificarOps"
                     href="/produccion/ops?estado=borrador"
-                    class="flex items-center gap-2 shrink-0 px-5 py-3 rounded-xl text-sm font-semibold border-2 bg-white active:bg-yellow-50 transition-colors"
+                    class="flex items-center gap-2 shrink-0 px-5 py-3 rounded-xl text-sm font-semibold border-2 bg-superficie active:bg-yellow-50 transition-colors"
                     style="border-color: #D97706; color: #D97706;"
                 >
                     <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
@@ -283,7 +283,7 @@ const badgeClass = (estado) => ({
                 <Link
                     v-if="permisos?.esCotizador"
                     href="/cotizaciones/crear"
-                    class="flex items-center gap-2 shrink-0 px-5 py-3 rounded-xl text-sm font-semibold border-2 bg-white active:bg-blue-50 transition-colors"
+                    class="flex items-center gap-2 shrink-0 px-5 py-3 rounded-xl text-sm font-semibold border-2 bg-superficie active:bg-blue-50 transition-colors"
                     style="border-color: #1D4ED8; color: #1D4ED8;"
                 >
                     <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
@@ -294,7 +294,7 @@ const badgeClass = (estado) => ({
 
                 <Link
                     href="/seguimiento"
-                    class="flex items-center gap-2 shrink-0 px-5 py-3 rounded-xl text-sm font-semibold border-2 bg-white active:bg-tinta-50 transition-colors"
+                    class="flex items-center gap-2 shrink-0 px-5 py-3 rounded-xl text-sm font-semibold border-2 bg-superficie active:bg-tinta-50 transition-colors"
                     style="border-color: #6B7280; color: #374151;"
                 >
                     <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
@@ -305,7 +305,7 @@ const badgeClass = (estado) => ({
             </div>
 
             <!-- OPs recientes ───────────────────────────────────────────── -->
-            <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
+            <div class="bg-superficie rounded-2xl shadow-sm overflow-hidden">
                 <div class="flex items-center justify-between px-4 py-3 border-b border-linea">
                     <h2 class="font-semibold text-tinta-900 text-sm">OPs recientes</h2>
                     <Link href="/produccion/ops" class="text-xs font-medium" style="color: var(--marca);">

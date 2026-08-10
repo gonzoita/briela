@@ -138,7 +138,7 @@ const lineaPuntos = computed(() => {
         <div class="max-w-5xl mx-auto space-y-6">
 
             <!-- Cabecera -->
-            <div class="bg-white rounded-2xl border border-linea shadow-sm p-5">
+            <div class="bg-superficie rounded-2xl border border-linea shadow-sm p-5">
                 <div class="flex flex-wrap items-start justify-between gap-4">
                     <div>
                         <div class="flex items-center gap-2 mb-1">
@@ -206,7 +206,7 @@ const lineaPuntos = computed(() => {
 
             <!-- Gráfica SVG -->
             <div v-if="ejecutado && graficaData && informe.tipo_grafica !== 'ninguna'"
-                class="bg-white rounded-2xl border border-linea shadow-sm p-5">
+                class="bg-superficie rounded-2xl border border-linea shadow-sm p-5">
                 <h2 class="text-sm font-semibold text-tinta-700 mb-4">Gráfica — {{ informe.tipo_grafica }}</h2>
 
                 <!-- Barras -->
@@ -285,7 +285,7 @@ const lineaPuntos = computed(() => {
             </div>
 
             <!-- Tabla de resultados -->
-            <div v-if="ejecutado" class="bg-white rounded-2xl border border-linea shadow-sm overflow-hidden">
+            <div v-if="ejecutado" class="bg-superficie rounded-2xl border border-linea shadow-sm overflow-hidden">
                 <div class="px-5 py-3 border-b border-linea flex items-center justify-between">
                     <h2 class="text-sm font-semibold text-tinta-700">Resultados</h2>
                     <span class="text-xs text-tinta-300 font-medium">{{ datos.length }} registro(s)</span>

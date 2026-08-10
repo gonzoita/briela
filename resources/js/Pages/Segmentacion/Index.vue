@@ -135,7 +135,7 @@ function toggleAbierto(key) {
             <div v-if="cargando" class="py-12 text-center text-tinta-300 text-sm">Cargando opciones...</div>
 
             <div v-else class="space-y-3">
-                <div v-for="tipo in TIPOS" :key="tipo.key" class="bg-white rounded-xl border border-linea overflow-hidden">
+                <div v-for="tipo in TIPOS" :key="tipo.key" class="bg-superficie rounded-xl border border-linea overflow-hidden">
 
                     <!-- Cabecera acordeón -->
                     <button type="button" @click="toggleAbierto(tipo.key)"

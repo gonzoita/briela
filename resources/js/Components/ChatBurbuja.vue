@@ -260,7 +260,7 @@ const etiquetaTipo = { solicitud: 'Solicitud', tarea: 'Tarea' }
     <Teleport to="body">
         <div v-if="abierto" class="fixed inset-0 z-50 sm:bg-transparent" style="background:rgba(0,0,0,0.35);"
             @click.self="abierto = false">
-            <div class="panel absolute bg-white shadow-2xl flex flex-col
+            <div class="panel absolute bg-superficie shadow-2xl flex flex-col
                         inset-x-0 bottom-0 rounded-t-2xl max-h-[85vh]
                         sm:inset-auto sm:right-5 sm:bottom-5 sm:w-[26rem] sm:rounded-2xl sm:border sm:border-linea sm:max-h-[80vh]">
 
@@ -420,7 +420,7 @@ const etiquetaTipo = { solicitud: 'Solicitud', tarea: 'Tarea' }
                                             <a v-if="a.esImagen" :href="a.url" target="_blank" rel="noopener" class="block">
                                                 <img :src="a.url" :alt="a.nombre"
                                                     class="rounded-lg max-h-40 w-auto border"
-                                                    :class="m.mio ? 'border-white/30' : 'border-linea'" />
+                                                    :class="m.mio ? 'border-superficie/30' : 'border-linea'" />
                                             </a>
                                             <a v-else :href="a.url" target="_blank" rel="noopener"
                                                 class="block text-[11px] underline truncate"

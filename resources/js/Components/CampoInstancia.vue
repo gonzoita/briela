@@ -23,7 +23,7 @@ const opcionesParseadas = computed(() => {
             v-if="campo.subtipo_variable === 'selector'"
             :value="modelValue"
             @change="$emit('update:modelValue', $event.target.value)"
-            class="w-full border border-tinta-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--marca)] bg-white"
+            class="w-full border border-tinta-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--marca)] bg-superficie"
         >
             <option value="" disabled>Seleccionar...</option>
             <option v-for="op in opcionesParseadas" :key="op.valor" :value="op.valor">

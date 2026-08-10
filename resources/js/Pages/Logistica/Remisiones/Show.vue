@@ -198,11 +198,11 @@ function eliminar() {
 
             <!-- Sección Cliente / OP -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
-                <div class="bg-white rounded-2xl border border-linea p-5">
+                <div class="bg-superficie rounded-2xl border border-linea p-5">
                     <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-3">Cliente</p>
                     <p class="text-base font-semibold text-tinta-900">{{ remision.cliente?.nombre ?? '—' }}</p>
                 </div>
-                <div v-if="remision.op" class="bg-white rounded-2xl border border-linea p-5">
+                <div v-if="remision.op" class="bg-superficie rounded-2xl border border-linea p-5">
                     <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-3">Orden de Producción</p>
                     <a :href="`/produccion/ops/${remision.op.id}`"
                         class="text-base font-semibold text-blue-600 hover:underline font-mono">
@@ -212,7 +212,7 @@ function eliminar() {
             </div>
 
             <!-- Ítems -->
-            <div class="bg-white rounded-2xl border border-linea overflow-hidden mb-5">
+            <div class="bg-superficie rounded-2xl border border-linea overflow-hidden mb-5">
                 <div class="px-5 py-3 border-b border-linea">
                     <h2 class="text-sm font-semibold text-tinta-700">Ítems remisionados</h2>
                 </div>
@@ -242,7 +242,7 @@ function eliminar() {
 
             <!-- Despacho (desde confirmada) -->
             <div v-if="['confirmada','en_camino','entregada'].includes(remision.estado)"
-                class="bg-white rounded-2xl border border-linea p-5 mb-5">
+                class="bg-superficie rounded-2xl border border-linea p-5 mb-5">
                 <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-3">Despacho</p>
                 <div class="grid grid-cols-2 gap-4 text-sm">
                     <div>
@@ -283,7 +283,7 @@ function eliminar() {
                 class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
 
                 <!-- Firma despacho -->
-                <div class="bg-white rounded-2xl border border-linea p-5">
+                <div class="bg-superficie rounded-2xl border border-linea p-5">
                     <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-3">Firma Despachado por</p>
                     <div v-if="remision.firma_despacho" class="mb-3">
                         <img :src="remision.firma_despacho" alt="Firma despacho"
@@ -307,7 +307,7 @@ function eliminar() {
                 </div>
 
                 <!-- Firma recibido -->
-                <div class="bg-white rounded-2xl border border-linea p-5">
+                <div class="bg-superficie rounded-2xl border border-linea p-5">
                     <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-3">Firma Recibido por</p>
                     <div v-if="remision.firma_recibido" class="mb-3">
                         <img :src="remision.firma_recibido" alt="Firma recibido"
@@ -343,7 +343,7 @@ function eliminar() {
         <Teleport to="body">
             <div v-if="modalEstado" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4"
                 style="background:rgba(0,0,0,0.4);">
-                <div class="bg-white rounded-2xl w-full max-w-sm p-6 space-y-4 shadow-xl">
+                <div class="bg-superficie rounded-2xl w-full max-w-sm p-6 space-y-4 shadow-xl">
                     <h3 class="text-base font-semibold text-tinta-900">
                         {{
                             nuevoEstado === 'confirmada' ? 'Confirmar remisión' :

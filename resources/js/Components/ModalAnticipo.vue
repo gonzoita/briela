@@ -1,6 +1,6 @@
 <template>
   <div class="fixed inset-0 z-50 bg-black/50 flex items-end sm:items-center justify-center">
-    <div class="bg-white w-full max-w-md rounded-t-2xl sm:rounded-2xl p-5">
+    <div class="bg-superficie w-full max-w-md rounded-t-2xl sm:rounded-2xl p-5">
 
       <div class="flex items-center gap-3 mb-4">
         <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-yellow-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">

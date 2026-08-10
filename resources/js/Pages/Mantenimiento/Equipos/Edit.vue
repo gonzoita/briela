@@ -70,7 +70,7 @@ const TIPOS = ['compresor', 'evaporador', 'condensador', 'puerta', 'panel', 'mot
                 Cambios sin guardar
             </div>
 
-            <div class="bg-white rounded-2xl border border-linea p-5 mb-4 space-y-4">
+            <div class="bg-superficie rounded-2xl border border-linea p-5 mb-4 space-y-4">
                 <div class="grid grid-cols-2 gap-3">
                     <div class="col-span-2">
                         <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1.5">Nombre *</label>
@@ -154,7 +154,7 @@ const TIPOS = ['compresor', 'evaporador', 'condensador', 'puerta', 'panel', 'mot
             </div>
 
             <!-- Componentes -->
-            <div class="bg-white rounded-2xl border border-linea overflow-hidden mb-4">
+            <div class="bg-superficie rounded-2xl border border-linea overflow-hidden mb-4">
                 <div class="px-5 py-3 border-b border-linea flex items-center justify-between">
                     <h2 class="text-sm font-semibold text-tinta-700">Componentes</h2>
                     <button @click="agregarComponente"

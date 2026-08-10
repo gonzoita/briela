@@ -33,7 +33,7 @@ function verificar() {
         <main class="flex-1 px-6 max-w-md mx-auto w-full">
 
             <!-- Buscador -->
-            <div class="rounded-2xl shadow-sm p-6 bg-white mb-4">
+            <div class="rounded-2xl shadow-sm p-6 bg-superficie mb-4">
                 <label class="block text-sm font-medium text-tinta-700 mb-2">Código del certificado</label>
                 <input
                     v-model="codigo"

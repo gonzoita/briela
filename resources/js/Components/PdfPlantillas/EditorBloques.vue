@@ -250,7 +250,7 @@ function onColDragEnd() {
             <!-- Dropdown tipos -->
             <div
                 v-if="mostrarMenuAgregar"
-                class="absolute top-full left-0 mt-1 z-30 bg-white border border-linea rounded-xl shadow-xl p-3 grid grid-cols-4 gap-1.5"
+                class="absolute top-full left-0 mt-1 z-30 bg-superficie border border-linea rounded-xl shadow-xl p-3 grid grid-cols-4 gap-1.5"
                 style="min-width: 280px;"
                 @click.stop
             >
@@ -294,7 +294,7 @@ function onColDragEnd() {
                     :class="[
                         bloqueSeleccionadoId === bloque.id
                             ? 'bg-blue-50 border-l-2 border-l-[var(--marca)]'
-                            : 'hover:bg-white',
+                            : 'hover:bg-superficie',
                         dragFromIdx === idx ? 'opacity-30' : ''
                     ]"
                 >
@@ -330,7 +330,7 @@ function onColDragEnd() {
             </div>
 
             <!-- Panel derecho: Propiedades -->
-            <div class="flex-1 min-w-0 bg-white rounded-xl border border-linea overflow-hidden flex flex-col">
+            <div class="flex-1 min-w-0 bg-superficie rounded-xl border border-linea overflow-hidden flex flex-col">
 
                 <!-- Sin selección -->
                 <div v-if="!bloqueSeleccionado" class="flex-1 flex items-center justify-center p-8 text-center">
@@ -637,7 +637,7 @@ function onColDragEnd() {
                                 @dragover.prevent="onColDragOver($event, idx)"
                                 @drop.prevent="onColDrop($event, idx)"
                                 @dragend="onColDragEnd"
-                                class="flex items-center gap-2 p-2 mb-1 bg-white border rounded-lg transition-all"
+                                class="flex items-center gap-2 p-2 mb-1 bg-superficie border rounded-lg transition-all"
                                 :class="[
                                     dragColIdx === idx ? 'opacity-30' : '',
                                     dragOverColIdx === idx && dragColIdx !== idx
@@ -831,19 +831,19 @@ function onColDragEnd() {
     @apply text-xs font-semibold text-tinta-400 block mb-1 uppercase tracking-wide;
 }
 .prop-input {
-    @apply w-full text-xs border border-linea rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-[var(--marca)] bg-white;
+    @apply w-full text-xs border border-linea rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-[var(--marca)] bg-superficie;
 }
 .prop-textarea {
-    @apply w-full text-xs border border-linea rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-[var(--marca)] bg-white resize-none;
+    @apply w-full text-xs border border-linea rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-[var(--marca)] bg-superficie resize-none;
 }
 .prop-select {
-    @apply w-full text-xs border border-linea rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-[var(--marca)] bg-white;
+    @apply w-full text-xs border border-linea rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-[var(--marca)] bg-superficie;
 }
 .prop-color {
-    @apply w-full h-8 rounded-lg border border-linea cursor-pointer p-0.5 bg-white;
+    @apply w-full h-8 rounded-lg border border-linea cursor-pointer p-0.5 bg-superficie;
 }
 .var-dropdown {
-    @apply absolute top-5 left-0 z-30 bg-white border border-linea rounded-xl shadow-lg py-1 max-h-48 overflow-y-auto;
+    @apply absolute top-5 left-0 z-30 bg-superficie border border-linea rounded-xl shadow-lg py-1 max-h-48 overflow-y-auto;
     min-width: 220px;
 }
 .var-item {

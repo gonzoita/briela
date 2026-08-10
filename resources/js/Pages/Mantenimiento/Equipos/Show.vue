@@ -53,19 +53,19 @@ function nuevo() {
             <div class="flex gap-1 bg-tinta-100 p-1 rounded-2xl mb-5">
                 <button @click="tab = 'info'"
                     class="flex-1 py-2 rounded-xl text-sm font-semibold transition-colors"
-                    :class="tab === 'info' ? 'bg-white text-tinta-900 shadow-sm' : 'text-tinta-400'">
+                    :class="tab === 'info' ? 'bg-superficie text-tinta-900 shadow-sm' : 'text-tinta-400'">
                     Info
                 </button>
                 <button @click="tab = 'historial'"
                     class="flex-1 py-2 rounded-xl text-sm font-semibold transition-colors"
-                    :class="tab === 'historial' ? 'bg-white text-tinta-900 shadow-sm' : 'text-tinta-400'">
+                    :class="tab === 'historial' ? 'bg-superficie text-tinta-900 shadow-sm' : 'text-tinta-400'">
                     Historial ({{ equipo.mantenimientos?.length ?? 0 }})
                 </button>
             </div>
 
             <!-- INFO -->
             <div v-show="tab === 'info'" class="space-y-4">
-                <div class="bg-white rounded-2xl border border-linea p-5">
+                <div class="bg-superficie rounded-2xl border border-linea p-5">
                     <h2 class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-3">Datos del equipo</h2>
                     <div class="grid grid-cols-2 gap-x-6 gap-y-3 text-sm">
                         <div v-for="[label, val] in [
@@ -106,7 +106,7 @@ function nuevo() {
                 </div>
 
                 <!-- Componentes -->
-                <div v-if="equipo.componentes?.length" class="bg-white rounded-2xl border border-linea overflow-hidden">
+                <div v-if="equipo.componentes?.length" class="bg-superficie rounded-2xl border border-linea overflow-hidden">
                     <div class="px-5 py-3 border-b border-linea">
                         <h2 class="text-sm font-semibold text-tinta-700">Componentes ({{ equipo.componentes.length }})</h2>
                     </div>
@@ -142,13 +142,13 @@ function nuevo() {
                     + Registrar mantenimiento
                 </button>
 
-                <div v-if="!equipo.mantenimientos?.length" class="bg-white rounded-2xl border border-linea py-10 text-center text-sm text-tinta-300">
+                <div v-if="!equipo.mantenimientos?.length" class="bg-superficie rounded-2xl border border-linea py-10 text-center text-sm text-tinta-300">
                     Sin mantenimientos registrados.
                 </div>
 
                 <div v-else class="space-y-3">
                     <div v-for="m in equipo.mantenimientos" :key="m.id"
-                        class="bg-white rounded-2xl border border-linea p-4 hover:border-blue-200 cursor-pointer"
+                        class="bg-superficie rounded-2xl border border-linea p-4 hover:border-blue-200 cursor-pointer"
                         @click="router.visit(`/mantenimiento/mantenimientos/${m.id}`)">
                         <div class="flex items-center gap-3 mb-2">
                             <span class="text-xs px-2 py-0.5 rounded-full font-medium"

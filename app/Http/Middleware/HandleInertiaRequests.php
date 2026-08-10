@@ -49,6 +49,14 @@ class HandleInertiaRequests extends Middleware
                 // menú decide qué mostrar.
                 'permisosLista' => $user ? $user->permisos() : [],
             ],
+            // La hora de la sede en la que se está trabajando. Con esto el modo
+            // automático decide día o noche por la hora de la sede y no por la del
+            // computador de quien mira, que puede estar en otro huso.
+            'hora' => [
+                'sede'        => (int) \App\Support\HoraSistema::ahoraEnSedeActiva()->format('G'),
+                'zona_sede'   => \App\Support\HoraSistema::zonaSedeActiva(),
+                'zona_global' => \App\Support\HoraSistema::zonaGlobal(),
+            ],
             'sedes' => [
                 'disponibles' => $sedes->map(fn ($s) => [
                     'id'     => $s->id,

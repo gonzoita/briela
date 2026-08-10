@@ -79,7 +79,7 @@ watch(descuentoMaxRealClienteFinal, (v) => emit('update:descuentoMaxClienteFinal
 </script>
 
 <template>
-    <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
+    <div class="bg-superficie rounded-2xl shadow-sm overflow-hidden">
         <div class="px-5 py-3 border-b border-linea">
             <h3 class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">Comisiones y descuentos</h3>
         </div>

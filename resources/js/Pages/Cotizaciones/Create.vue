@@ -611,7 +611,7 @@ function submit() {
             <form @submit.prevent="submit" class="space-y-4">
 
                 <!-- ── Encabezado ──────────────────────────────────────────── -->
-                <div class="bg-white rounded-2xl border border-linea p-5">
+                <div class="bg-superficie rounded-2xl border border-linea p-5">
                     <h2 class="text-sm font-semibold text-tinta-700 mb-4">Datos de la cotización</h2>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -624,7 +624,7 @@ function submit() {
                                     type="text" placeholder="Buscar por nombre o identificación..."
                                     class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:ring-2 focus:outline-none"/>
                                 <div v-if="clienteResultados.length > 0"
-                                    class="absolute top-full left-0 right-0 mt-1 bg-white rounded-xl shadow-xl border border-linea z-20 overflow-hidden">
+                                    class="absolute top-full left-0 right-0 mt-1 bg-superficie rounded-xl shadow-xl border border-linea z-20 overflow-hidden">
                                     <button v-for="c in clienteResultados" :key="c.id" type="button"
                                         @click="seleccionarCliente(c)"
                                         class="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-tinta-50 text-left transition-colors border-b border-gray-50 last:border-0">
@@ -706,7 +706,7 @@ function submit() {
                 </div>
 
                 <!-- ── Ítems ───────────────────────────────────────────────── -->
-                <div class="bg-white rounded-2xl border border-linea p-5">
+                <div class="bg-superficie rounded-2xl border border-linea p-5">
                     <div class="flex items-center justify-between mb-4">
                         <h2 class="text-sm font-semibold text-tinta-700">Ítems de la cotización</h2>
                         <span v-if="form.items.length > 0" class="text-xs text-tinta-300">{{ form.items.length }} ítem{{ form.items.length !== 1 ? 's' : '' }}</span>
@@ -890,7 +890,7 @@ function submit() {
                 </div>
 
                 <!-- ── Condiciones ─────────────────────────────────────────── -->
-                <div class="bg-white rounded-2xl border border-linea p-5">
+                <div class="bg-superficie rounded-2xl border border-linea p-5">
                     <h2 class="text-sm font-semibold text-tinta-700 mb-3">Condiciones comerciales</h2>
                     <textarea v-model="form.condiciones_comerciales" rows="4"
                         class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:ring-2 focus:outline-none resize-none"
@@ -925,7 +925,7 @@ function submit() {
                 <div class="absolute inset-0 bg-black/40" @click="cerrarModal"/>
 
                 <!-- Panel -->
-                <div class="relative w-full sm:max-w-lg bg-white rounded-t-3xl sm:rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+                <div class="relative w-full sm:max-w-lg bg-superficie rounded-t-3xl sm:rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
 
                     <!-- Handle / header -->
                     <div class="flex items-center justify-between px-5 pt-4 pb-3 border-b border-linea shrink-0">
@@ -1152,7 +1152,7 @@ function submit() {
                             <div v-if="imagenesReferencia.length" class="space-y-2">
                                 <p class="text-xs font-semibold text-tinta-400 uppercase">Planos de referencia</p>
                                 <div v-for="img in imagenesReferencia" :key="img.id" class="rounded-xl overflow-hidden border border-blue-100 bg-blue-50">
-                                    <img :src="'/storage/' + img.imagen_referencia" class="w-full max-h-40 object-contain bg-white" />
+                                    <img :src="'/storage/' + img.imagen_referencia" class="w-full max-h-40 object-contain bg-superficie" />
                                     <p class="text-xs text-blue-700 px-3 py-1.5 font-medium">
                                         {{ img.imagen_referencia_titulo || img.etiqueta || img.nombre }}
                                     </p>
@@ -1164,7 +1164,7 @@ function submit() {
                                 <p class="text-xs font-semibold text-tinta-400 uppercase">Planos del proyecto <span class="normal-case font-normal text-tinta-300">(opcional)</span></p>
                                 <div v-for="(img, idx) in imagenesInstancia" :key="idx" class="relative rounded-xl overflow-hidden border border-linea">
                                     <img :src="'/storage/' + img.ruta" class="w-full max-h-32 object-contain bg-tinta-50" />
-                                    <div class="flex items-center justify-between px-3 py-1.5 bg-white border-t border-linea">
+                                    <div class="flex items-center justify-between px-3 py-1.5 bg-superficie border-t border-linea">
                                         <input v-model="img.titulo" type="text" placeholder="Título del plano..."
                                             class="flex-1 text-xs text-tinta-700 focus:outline-none bg-transparent" />
                                         <button @click="quitarImagenInstancia(idx)" class="text-red-400 hover:text-red-600 text-sm ml-2">✕</button>

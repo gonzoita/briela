@@ -360,7 +360,7 @@ async function copiarPrompt(texto) {
     <div class="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 p-0 sm:p-4" @click.self="emit('cerrar')">
 
         <!-- Modal -->
-        <div class="bg-white w-full sm:max-w-2xl sm:rounded-2xl shadow-2xl flex flex-col max-h-[95dvh] sm:max-h-[90vh] rounded-t-2xl">
+        <div class="bg-superficie w-full sm:max-w-2xl sm:rounded-2xl shadow-2xl flex flex-col max-h-[95dvh] sm:max-h-[90vh] rounded-t-2xl">
 
             <!-- Header -->
             <div class="flex items-center justify-between px-5 py-4 border-b border-linea shrink-0">
@@ -402,7 +402,7 @@ async function copiarPrompt(texto) {
                     <!-- Estilo visual -->
                     <div class="mb-4">
                         <label class="text-xs font-semibold text-tinta-400 mb-1.5 block uppercase tracking-wide">Estilo visual</label>
-                        <select v-model="diseno.estilo" class="w-full text-sm border border-linea rounded-xl px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white">
+                        <select v-model="diseno.estilo" class="w-full text-sm border border-linea rounded-xl px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-purple-500 bg-superficie">
                             <option v-for="e in estilos" :key="e.value" :value="e.value">{{ e.label }} — {{ e.desc }}</option>
                         </select>
                     </div>
@@ -411,14 +411,14 @@ async function copiarPrompt(texto) {
                     <div class="grid grid-cols-2 gap-3 mb-4">
                         <div>
                             <label class="text-xs font-semibold text-tinta-400 mb-1.5 block uppercase tracking-wide">Color primario</label>
-                            <div class="flex items-center gap-2 border border-linea rounded-xl px-3 py-2 bg-white">
+                            <div class="flex items-center gap-2 border border-linea rounded-xl px-3 py-2 bg-superficie">
                                 <input type="color" v-model="diseno.colorPrimario" class="w-7 h-7 rounded-lg cursor-pointer border-0 p-0 bg-transparent" />
                                 <span class="text-xs font-mono text-tinta-700">{{ diseno.colorPrimario }}</span>
                             </div>
                         </div>
                         <div>
                             <label class="text-xs font-semibold text-tinta-400 mb-1.5 block uppercase tracking-wide">Color secundario</label>
-                            <div class="flex items-center gap-2 border border-linea rounded-xl px-3 py-2 bg-white">
+                            <div class="flex items-center gap-2 border border-linea rounded-xl px-3 py-2 bg-superficie">
                                 <input type="color" v-model="diseno.colorSecundario" class="w-7 h-7 rounded-lg cursor-pointer border-0 p-0 bg-transparent" />
                                 <span class="text-xs font-mono text-tinta-700">{{ diseno.colorSecundario }}</span>
                             </div>
@@ -443,7 +443,7 @@ async function copiarPrompt(texto) {
                         </div>
                         <div>
                             <label class="text-xs font-semibold text-tinta-400 mb-1.5 block uppercase tracking-wide">Tamaño papel</label>
-                            <select v-model="diseno.papel" class="w-full text-sm border border-linea rounded-xl px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white">
+                            <select v-model="diseno.papel" class="w-full text-sm border border-linea rounded-xl px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-purple-500 bg-superficie">
                                 <optgroup label="Estándar">
                                     <option value="a4">A4 (210×297mm)</option>
                                     <option value="a5">A5 (148×210mm)</option>
@@ -487,7 +487,7 @@ async function copiarPrompt(texto) {
                                 class="relative w-9 h-5 rounded-full transition-colors shrink-0"
                                 :style="{ backgroundColor: diseno.logo ? '#9333ea' : '#D1D5DB' }"
                             >
-                                <span class="absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform"
+                                <span class="absolute top-0.5 w-4 h-4 bg-superficie rounded-full shadow transition-transform"
                                     :class="diseno.logo ? 'translate-x-4' : 'translate-x-0.5'" />
                             </button>
                         </div>
@@ -640,7 +640,7 @@ async function copiarPrompt(texto) {
                                 class="relative w-9 h-5 rounded-full transition-colors shrink-0"
                                 :style="{ backgroundColor: diseno[opt.key] ? '#9333ea' : '#D1D5DB' }"
                             >
-                                <span class="absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform"
+                                <span class="absolute top-0.5 w-4 h-4 bg-superficie rounded-full shadow transition-transform"
                                     :class="diseno[opt.key] ? 'translate-x-4' : 'translate-x-0.5'" />
                             </button>
                         </div>
@@ -659,7 +659,7 @@ async function copiarPrompt(texto) {
                                 :key="s.key"
                                 @click="tabPrompt = s.key"
                                 class="flex-1 py-1.5 text-xs font-medium rounded-lg transition-all"
-                                :class="tabPrompt === s.key ? 'bg-white text-purple-700 shadow-sm' : 'text-tinta-400 hover:text-tinta-700'">
+                                :class="tabPrompt === s.key ? 'bg-superficie text-purple-700 shadow-sm' : 'text-tinta-400 hover:text-tinta-700'">
                                 {{ s.label }}
                             </button>
                         </div>

@@ -66,7 +66,7 @@ function estadoBadge(e) {
             </div>
 
             <!-- Filtros -->
-            <div class="bg-white rounded-xl border border-linea p-3 mb-4">
+            <div class="bg-superficie rounded-xl border border-linea p-3 mb-4">
                 <div class="flex flex-col sm:flex-row gap-2">
                     <input v-model="buscar" type="text" placeholder="Número de solicitud..."
                         class="flex-1 rounded-lg border border-tinta-200 px-3 py-2 text-sm" @keyup.enter="aplicarFiltros" />
@@ -83,7 +83,7 @@ function estadoBadge(e) {
             <!-- Lista -->
             <div class="space-y-2">
                 <div v-for="s in solicitudes.data" :key="s.id"
-                    class="bg-white rounded-xl border border-linea p-4">
+                    class="bg-superficie rounded-xl border border-linea p-4">
                     <div class="flex items-start justify-between">
                         <div>
                             <div class="flex items-center gap-2 mb-1">
@@ -123,7 +123,7 @@ function estadoBadge(e) {
                 <template v-for="link in solicitudes.links" :key="link.label">
                     <button v-if="link.url"
                         @click="router.visit(link.url, { preserveState: true })"
-                        :class="['px-3 py-1.5 rounded-lg text-sm', link.active ? 'text-white font-semibold' : 'bg-white border border-linea text-tinta-700']"
+                        :class="['px-3 py-1.5 rounded-lg text-sm', link.active ? 'text-white font-semibold' : 'bg-superficie border border-linea text-tinta-700']"
                         :style="link.active ? 'background:var(--marca)' : ''"
                         v-html="link.label" />
                     <span v-else class="px-3 py-1.5 text-sm text-tinta-200" v-html="link.label" />

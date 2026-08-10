@@ -7,6 +7,8 @@ import AsistenteBurbuja from '@/Components/AsistenteBurbuja.vue'
 import ChatBurbuja from '@/Components/ChatBurbuja.vue'
 import BotonesFlotantes from '@/Components/BotonesFlotantes.vue'
 import BuscadorGlobal from '@/Components/BuscadorGlobal.vue'
+import IconoMenu from '@/Components/IconoMenu.vue'
+import { useTema } from '@/composables/useTema'
 
 const props = defineProps({
     title: { type: String, default: '' },
@@ -19,6 +21,11 @@ const page     = usePage()
 
 // Logo y nombre salen de Ajustes, no del código: así el sistema se puede
 // entregar a otra empresa sin tocar una sola línea.
+// Día, noche o automático. En automático manda la hora de la sede, que llega del
+// servidor: la del computador de quien mira puede ser de otro huso.
+const tema = useTema()
+watch(() => page.props.hora?.sede, (h) => tema.fijarHoraSede(h), { immediate: true })
+
 const marca = computed(() => page.props.marca ?? {
     nombre: 'SGI',
     logo:   '/icons/icon-512.png',
@@ -149,11 +156,45 @@ const navItems = computed(() => {
         const visibles = grupo.items.filter(i => puede(i.permiso))
         if (!visibles.length) continue
         if (grupo.label) items.push({ divider: true, label: grupo.label })
-        items.push(...visibles)
+
+        // Los ítems marcados como `sub` cuelgan del ítem anterior: así el menú se
+        // puede plegar por rama en vez de mostrar una lista de treinta enlaces
+        // seguidos, que era lo que obligaba a desplazar para llegar a Ajustes.
+        for (const item of visibles) {
+            if (item.sub && items.length && items[items.length - 1].hijos) {
+                items[items.length - 1].hijos.push(item)
+            } else {
+                items.push({ ...item, hijos: [] })
+            }
+        }
     }
 
     return items
 })
+
+// ─── Ramas del menú abiertas ─────────────────────────────────────────────────
+// Se recuerda entre visitas: cerrar una rama y encontrarla abierta otra vez en la
+// pantalla siguiente es de las cosas que más molestan de un menú.
+const ramasAbiertas = ref(new Set(
+    JSON.parse(localStorage.getItem('briela.menu.abiertas') ?? '[]')
+))
+
+function alternarRama(clave) {
+    ramasAbiertas.value.has(clave)
+        ? ramasAbiertas.value.delete(clave)
+        : ramasAbiertas.value.add(clave)
+
+    // El Set no es reactivo al mutar: se reemplaza para que Vue lo note.
+    ramasAbiertas.value = new Set(ramasAbiertas.value)
+    localStorage.setItem('briela.menu.abiertas', JSON.stringify([...ramasAbiertas.value]))
+}
+
+/** Una rama está abierta si el usuario la abrió, o si estás dentro de ella. */
+function ramaAbierta(item) {
+    return ramasAbiertas.value.has(item.href ?? item.label)
+        || item.hijos?.some(h => isActive(h.href))
+        || isActive(item.href)
+}
 
 // ─── Menú usuario (desktop topbar) ───────────────────────────────────────────
 const menuUsuario = ref(false)
@@ -399,7 +440,7 @@ onUnmounted(() => {
              DESKTOP — Sidebar fijo izquierdo
         ═══════════════════════════════════════════════════════════════════ -->
         <aside
-            class="hidden md:flex fixed top-0 left-0 h-screen w-64 flex-col z-40 bg-white border-r border-linea"
+            class="hidden md:flex fixed top-0 left-0 h-screen w-64 flex-col z-40 bg-superficie border-r border-linea"
         >
             <!-- Logo -->
             <div class="h-16 px-5 flex items-center shrink-0">
@@ -428,197 +469,125 @@ onUnmounted(() => {
                     >
                         {{ item.label }}
                     </p>
-                    <!-- Link normal -->
-                    <a
-                        v-else
-                        :href="item.href"
-                        class="flex items-center gap-3 rounded-xl transition-colors"
-                        :class="[
-                            item.sub
-                                ? 'pl-7 pr-3 py-1.5 text-[13px] font-medium'
-                                : 'px-3 py-2 text-sm font-medium',
-                            isActive(item.href)
-                                ? 'bg-[var(--marca-suave)] text-[var(--marca)] font-semibold'
-                                : 'text-tinta-500 hover:bg-tinta-50 hover:text-tinta-900',
-                        ]"
-                        @click.prevent="router.visit(item.href)"
-                    >
-                        <span v-if="item.sub" class="w-1 h-1 rounded-full bg-tinta-300 shrink-0 -ml-1"></span>
-                        <!-- home -->
-                        <svg v-if="item.icon === 'home'" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                        </svg>
-                        <!-- clipboard -->
-                        <svg v-if="item.icon === 'clipboard'" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
-                        </svg>
-                        <!-- multimedia -->
-                        <svg v-if="item.icon === 'multimedia'" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                        </svg>
-                        <!-- clientes -->
-                        <svg v-if="item.icon === 'clientes'" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-2 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                        </svg>
-                        <!-- productos -->
-                        <svg v-if="item.icon === 'productos'" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7l8 4" />
-                        </svg>
-                        <!-- users -->
-                        <svg v-if="item.icon === 'users'" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                        </svg>
-                        <!-- cotizacion -->
-                        <svg v-if="item.icon === 'cotizacion'" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                        </svg>
-                        <!-- comisiones -->
-                        <svg v-if="item.icon === 'comisiones'" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        <!-- calculadora -->
-                        <svg v-if="item.icon === 'calculadora'" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                        </svg>
-                        <!-- insumos -->
-                        <svg v-if="item.icon === 'insumos'" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
-                        </svg>
-                        <!-- configurador -->
-                        <svg v-if="item.icon === 'configurador'" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                        </svg>
-                        <!-- ensamble -->
-                        <svg v-if="item.icon === 'ensamble'" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                        </svg>
-                        <!-- database -->
-                        <svg v-if="item.icon === 'database'" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 7C4 5.343 7.582 4 12 4s8 1.343 8 3v2c0 1.657-3.582 3-8 3S4 10.657 4 9V7z" />
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 9v4c0 1.657 3.582 3 8 3s8-1.343 8-3V9" />
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 13v4c0 1.657 3.582 3 8 3s8-1.343 8-3v-4" />
-                        </svg>
-                        <!-- template -->
-                        <svg v-if="item.icon === 'template'" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
-                        </svg>
-                        <!-- trabajos -->
-                        <svg v-if="item.icon === 'trabajos'" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4" />
-                        </svg>
-                        <!-- workers -->
-                        <svg v-if="item.icon === 'workers'" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                        </svg>
-                        <!-- capacitacion -->
-                        <svg v-if="item.icon === 'capacitacion'" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422A12.083 12.083 0 0121 15.5V17a2 2 0 01-2 2H5a2 2 0 01-2-2v-1.5c0-.994.212-1.964.582-2.858L12 14z" />
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 14v7" />
-                        </svg>
-                        <!-- wrench -->
-                        <svg v-if="item.icon === 'wrench'" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                        </svg>
-                        <!-- gear -->
-                        <svg v-if="item.icon === 'gear'" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
-                        </svg>
-                        <!-- calendar -->
-                        <svg v-if="item.icon === 'calendar'" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                        </svg>
-                        <!-- webhook -->
-                        <svg v-if="item.icon === 'webhook'" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-                        </svg>
-                        <!-- mi-panel -->
-                        <svg v-if="item.icon === 'mi-panel'" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 5a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1V5zm10 0a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM4 15a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1v-4zm10 0a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z" />
-                        </svg>
-                        <!-- chart -->
-                        <svg v-if="item.icon === 'chart'" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                        </svg>
-                        <!-- megaphone -->
-                        <svg v-if="item.icon === 'megaphone'" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z" />
-                        </svg>
-                        <!-- camion -->
-                        <svg v-if="item.icon === 'camion'" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 17H3V5h12v12H9zm0 0h6m-6 0a2 2 0 104 0m6 0a2 2 0 104 0M15 5h4l2 4v8h-6V5z"/>
-                        </svg>
-                        <!-- cartera -->
-                        <svg v-if="item.icon === 'cartera'" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                        </svg>
-                        <!-- crm -->
-                        <svg v-if="item.icon === 'crm'" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707L13 13.414V19a1 1 0 01-.553.894l-4 2A1 1 0 017 21v-7.586L3.293 6.707A1 1 0 013 6V4z"/>
-                        </svg>
-                        <!-- chat (asistente IA) -->
-                        <svg v-if="item.icon === 'chat'" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-6l-4 4v-4z"/>
-                        </svg>
-                        <!-- reportes -->
-                        <svg v-if="item.icon === 'reportes' && !item.sub" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
-                        </svg>
-                        <!-- formulario -->
-                        <svg v-if="item.icon === 'formulario' && !item.sub" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
-                        </svg>
-                        <!-- pdf -->
-                        <svg v-if="item.icon === 'pdf'" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
-                        </svg>
-                        <!-- inventario -->
-                        <svg v-if="item.icon === 'inventario'" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
-                        </svg>
-                        <!-- movimientos -->
-                        <svg v-if="item.icon === 'movimientos'" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 10h16M4 14h16M4 18h16"/>
-                        </svg>
-                        <!-- proveedor -->
-                        <svg v-if="item.icon === 'proveedor'" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
-                        </svg>
-                        <!-- solicitud -->
-                        <svg v-if="item.icon === 'solicitud'" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
-                        </svg>
-                        <!-- oc (orden compra) -->
-                        <svg v-if="item.icon === 'oc'" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
-                        </svg>
-                        {{ item.label }}
-                    </a>
+                    <!-- Rama del menú -->
+                    <div v-else>
+                        <div class="flex items-stretch gap-0.5">
+                            <a
+                                :href="item.href"
+                                class="flex-1 min-w-0 flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors"
+                                :class="isActive(item.href)
+                                    ? 'bg-[var(--marca-suave)] text-[var(--marca)] font-semibold'
+                                    : 'text-tinta-500 hover:bg-tinta-50 hover:text-tinta-900'"
+                                @click.prevent="router.visit(item.href)"
+                            >
+                                <IconoMenu :nombre="item.icon" clase="w-5 h-5 shrink-0" />
+                                <span class="truncate">{{ item.label }}</span>
+                            </a>
+
+                            <!-- El botón de plegar va aparte del enlace: así se
+                                 puede abrir la rama sin salir de donde estás. -->
+                            <button
+                                v-if="item.hijos?.length"
+                                type="button"
+                                @click="alternarRama(item.href ?? item.label)"
+                                class="shrink-0 w-7 rounded-lg flex items-center justify-center text-tinta-300 hover:text-tinta-700 hover:bg-tinta-50 transition-colors"
+                                :aria-expanded="ramaAbierta(item)"
+                                :aria-label="ramaAbierta(item) ? 'Plegar ' + item.label : 'Desplegar ' + item.label"
+                            >
+                                <svg class="w-3.5 h-3.5 transition-transform duration-300"
+                                     :class="ramaAbierta(item) ? 'rotate-90' : ''"
+                                     fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+                                </svg>
+                            </button>
+                        </div>
+
+                        <!-- Los hijos. La animación va con grid-template-rows de 0fr
+                             a 1fr: es la única forma de animar la altura sin conocerla
+                             de antemano, y sin el salto que deja un max-height fijo. -->
+                        <div
+                            v-if="item.hijos?.length"
+                            class="grid transition-all duration-300 ease-out"
+                            :class="ramaAbierta(item)
+                                ? 'grid-rows-[1fr] opacity-100'
+                                : 'grid-rows-[0fr] opacity-0'"
+                        >
+                            <div class="overflow-hidden">
+                                <div class="pl-4 mt-0.5 space-y-0.5 border-l border-linea ml-4">
+                                    <a
+                                        v-for="hijo in item.hijos"
+                                        :key="hijo.href"
+                                        :href="hijo.href"
+                                        class="flex items-center gap-2.5 rounded-lg pl-3 pr-3 py-1.5 text-[13px] transition-colors"
+                                        :class="isActive(hijo.href)
+                                            ? 'bg-[var(--marca-suave)] text-[var(--marca)] font-semibold'
+                                            : 'text-tinta-400 hover:bg-tinta-50 hover:text-tinta-900'"
+                                        @click.prevent="router.visit(hijo.href)"
+                                    >
+                                        <IconoMenu :nombre="hijo.icon" clase="w-4 h-4 shrink-0 opacity-70" />
+                                        <span class="truncate">{{ hijo.label }}</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </template>
             </nav>
 
             <!-- Usuario (pie del sidebar) -->
-            <div class="px-3 py-4 border-t shrink-0" style="border-color: rgba(255,255,255,0.12);">
+            <div class="px-3 py-3 border-t border-linea shrink-0">
                 <button
                     @click="irPerfil"
-                    class="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl transition-colors hover:bg-white/10"
+                    class="flex items-center gap-3 w-full px-3 py-2 rounded-lg transition-colors hover:bg-tinta-50"
                 >
                     <div
                         class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold shrink-0"
-                        style="background: rgba(255,255,255,0.2); color: white;"
+                        :style="{ background: 'var(--marca)', color: 'var(--marca-texto)' }"
                     >
                         {{ inicial }}
                     </div>
                     <div class="min-w-0 text-left">
-                        <p class="text-white text-sm font-medium truncate">{{ user?.name }}</p>
-                        <p class="text-blue-300 text-xs truncate">{{ rolLabel }}</p>
+                        <p class="text-tinta-900 text-sm font-medium truncate">{{ user?.name }}</p>
+                        <p class="text-tinta-400 text-xs truncate">{{ rolLabel }}</p>
                     </div>
                 </button>
+                <!-- Día · Noche · Automático. Tres pastillas en vez de un menú:
+                     se ve de un vistazo cuál está puesto y se cambia en un toque. -->
+                <div class="mt-2 px-1">
+                    <div class="flex items-center gap-0.5 p-0.5 rounded-lg bg-tinta-100">
+                        <button
+                            v-for="opcion in tema.opciones"
+                            :key="opcion.valor"
+                            type="button"
+                            @click="tema.elegir(opcion.valor)"
+                            class="flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-md text-[11px] font-medium transition-all"
+                            :class="tema.preferencia.value === opcion.valor
+                                ? 'bg-superficie text-tinta-900 shadow-sm'
+                                : 'text-tinta-400 hover:text-tinta-700'"
+                            :title="opcion.valor === 'automatico' ? tema.explicacionAutomatico.value : opcion.etiqueta"
+                        >
+                            <svg v-if="opcion.icono === 'sol'" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
+                                <circle cx="12" cy="12" r="4"/>
+                                <path stroke-linecap="round" d="M12 3v2m0 14v2M3 12h2m14 0h2M5.6 5.6l1.4 1.4m10 10l1.4 1.4m0-12.8l-1.4 1.4m-10 10l-1.4 1.4"/>
+                            </svg>
+                            <svg v-else-if="opcion.icono === 'luna'" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/>
+                            </svg>
+                            <svg v-else class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
+                                <circle cx="12" cy="12" r="9"/>
+                                <path stroke-linecap="round" d="M12 7.5V12l3 2"/>
+                            </svg>
+                            <span class="hidden lg:inline">{{ opcion.etiqueta }}</span>
+                        </button>
+                    </div>
+                    <p v-if="tema.preferencia.value === 'automatico'" class="text-[10px] text-tinta-300 mt-1.5 px-1 leading-snug">
+                        {{ tema.explicacionAutomatico.value }}
+                    </p>
+                </div>
+
                 <button
                     @click="cerrarSesion"
-                    class="flex items-center gap-3 w-full px-3 py-2 mt-1 rounded-xl text-sm text-blue-200 hover:bg-white/10 hover:text-white transition-colors"
+                    class="flex items-center gap-3 w-full px-3 py-2 mt-1.5 rounded-lg text-sm text-tinta-400 hover:bg-tinta-50 hover:text-tinta-900 transition-colors"
                 >
                     <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
@@ -652,7 +621,7 @@ onUnmounted(() => {
                     <select
                         :value="sedeActivaId"
                         @change="cambiarSede(Number($event.target.value))"
-                        class="rounded-lg border border-linea px-2 py-1.5 text-sm text-tinta-700 bg-white focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]"
+                        class="rounded-lg border border-linea px-2 py-1.5 text-sm text-tinta-700 bg-superficie focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]"
                     >
                         <option v-if="puedeTodasSedes" :value="0">Todas las sedes</option>
                         <option v-for="s in sedesDisponibles" :key="s.id" :value="s.id">{{ s.nombre }}</option>
@@ -792,7 +761,7 @@ onUnmounted(() => {
              MOBILE — Header superior fijo
         ═══════════════════════════════════════════════════════════════════ -->
         <header
-            class="fixed top-0 left-0 right-0 z-40 flex items-center justify-between px-4 h-14 bg-white/85 backdrop-blur-xl border-b border-linea md:hidden"
+            class="fixed top-0 left-0 right-0 z-40 flex items-center justify-between px-4 h-14 bg-superficie/85 backdrop-blur-xl border-b border-linea md:hidden"
         >
             <!-- Logo izquierda -->
             <div class="flex items-center gap-2 min-w-0">
@@ -1064,7 +1033,7 @@ onUnmounted(() => {
                     <select
                         :value="sedeActivaId"
                         @change="cambiarSede(Number($event.target.value))"
-                        class="w-full rounded-lg border border-linea px-3 py-2 text-sm text-tinta-700 bg-white focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]"
+                        class="w-full rounded-lg border border-linea px-3 py-2 text-sm text-tinta-700 bg-superficie focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]"
                     >
                         <option v-if="puedeTodasSedes" :value="0">Todas las sedes</option>
                         <option v-for="s in sedesDisponibles" :key="s.id" :value="s.id">{{ s.nombre }}</option>
@@ -1082,145 +1051,64 @@ onUnmounted(() => {
                         >
                             {{ item.label }}
                         </p>
-                        <!-- Link normal -->
-                        <a
-                            v-else
-                            :href="item.href"
-                            class="flex items-center gap-3 rounded-xl transition-colors mb-1"
-                            :class="[
-                                item.sub
-                                    ? 'pl-8 pr-3 py-2 text-xs font-medium'
-                                    : 'px-3 py-3 text-sm font-medium',
-                                isActive(item.href)
-                                    ? 'text-white'
-                                    : 'text-tinta-700 hover:bg-tinta-100',
-                            ]"
-                            :style="isActive(item.href) ? 'background-color: var(--marca);' : ''"
-                            @click.prevent="navegar(item.href)"
-                        >
-                            <span v-if="item.sub" class="w-1.5 h-1.5 rounded-full bg-gray-300 shrink-0 -ml-1"
-                                :class="isActive(item.href) ? 'bg-white/60' : 'bg-gray-300'"></span>
-                            <svg v-if="item.icon === 'home'" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                            </svg>
-                            <svg v-if="item.icon === 'clipboard'" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
-                            </svg>
-                            <svg v-if="item.icon === 'multimedia'" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                            </svg>
-                            <!-- clientes -->
-                            <svg v-if="item.icon === 'clientes'" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-2 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                            </svg>
-                            <!-- productos -->
-                            <svg v-if="item.icon === 'productos'" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7l8 4" />
-                            </svg>
-                            <svg v-if="item.icon === 'users'" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                            </svg>
-                            <svg v-if="item.icon === 'cotizacion'" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                            </svg>
-                            <svg v-if="item.icon === 'comisiones'" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                            <svg v-if="item.icon === 'calculadora'" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                            </svg>
-                            <svg v-if="item.icon === 'insumos'" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
-                            </svg>
-                            <svg v-if="item.icon === 'configurador'" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                            </svg>
-                            <svg v-if="item.icon === 'ensamble'" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                            </svg>
-                            <svg v-if="item.icon === 'database'" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M4 7C4 5.343 7.582 4 12 4s8 1.343 8 3v2c0 1.657-3.582 3-8 3S4 10.657 4 9V7z" />
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M4 9v4c0 1.657 3.582 3 8 3s8-1.343 8-3V9" />
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M4 13v4c0 1.657 3.582 3 8 3s8-1.343 8-3v-4" />
-                            </svg>
-                            <svg v-if="item.icon === 'template'" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
-                            </svg>
-                            <svg v-if="item.icon === 'trabajos'" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4" />
-                            </svg>
-                            <svg v-if="item.icon === 'workers'" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                            </svg>
-                            <svg v-if="item.icon === 'capacitacion'" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422A12.083 12.083 0 0121 15.5V17a2 2 0 01-2 2H5a2 2 0 01-2-2v-1.5c0-.994.212-1.964.582-2.858L12 14z" />
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 14v7" />
-                            </svg>
-                            <svg v-if="item.icon === 'wrench'" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                            </svg>
-                            <svg v-if="item.icon === 'gear'" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
-                            </svg>
-                            <svg v-if="item.icon === 'calendar'" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                            </svg>
-                            <svg v-if="item.icon === 'webhook'" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-                            </svg>
-                            <!-- mi-panel -->
-                            <svg v-if="item.icon === 'mi-panel'" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M4 5a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1V5zm10 0a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM4 15a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1v-4zm10 0a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z" />
-                            </svg>
-                            <!-- inventario -->
-                            <svg v-if="item.icon === 'inventario'" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
-                            </svg>
-                            <!-- movimientos -->
-                            <svg v-if="item.icon === 'movimientos'" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 10h16M4 14h16M4 18h16"/>
-                            </svg>
-                            <!-- chart -->
-                            <svg v-if="item.icon === 'chart'" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                            </svg>
-                            <!-- megaphone -->
-                            <svg v-if="item.icon === 'megaphone'" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z" />
-                            </svg>
-                            <!-- camion -->
-                            <svg v-if="item.icon === 'camion'" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 17H3V5h12v12H9zm0 0h6m-6 0a2 2 0 104 0m6 0a2 2 0 104 0M15 5h4l2 4v8h-6V5z"/>
-                            </svg>
-                            <!-- cartera -->
-                            <svg v-if="item.icon === 'cartera'" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                            </svg>
-                            <!-- crm -->
-                            <svg v-if="item.icon === 'crm'" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707L13 13.414V19a1 1 0 01-.553.894l-4 2A1 1 0 017 21v-7.586L3.293 6.707A1 1 0 013 6V4z"/>
-                            </svg>
-                            <!-- chat (asistente IA) -->
-                            <svg v-if="item.icon === 'chat'" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-6l-4 4v-4z"/>
-                            </svg>
-                            <!-- reportes -->
-                            <svg v-if="item.icon === 'reportes' && !item.sub" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
-                            </svg>
-                            <!-- formulario -->
-                            <svg v-if="item.icon === 'formulario' && !item.sub" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
-                            </svg>
-                            <!-- pdf -->
-                            <svg v-if="item.icon === 'pdf'" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
-                            </svg>
-                            {{ item.label }}
-                        </a>
+                        <!-- Rama del menú -->
+                        <div v-else class="mb-1">
+                            <div class="flex items-stretch gap-1">
+                                <a
+                                    :href="item.href"
+                                    class="flex-1 min-w-0 flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition-colors"
+                                    :class="isActive(item.href)
+                                        ? 'bg-[var(--marca-suave)] text-[var(--marca)] font-semibold'
+                                        : 'text-tinta-700 hover:bg-tinta-100'"
+                                    @click.prevent="navegar(item.href)"
+                                >
+                                    <IconoMenu :nombre="item.icon" clase="w-5 h-5 shrink-0" />
+                                    <span class="truncate">{{ item.label }}</span>
+                                </a>
+
+                                <!-- Área de toque de 44 puntos: es la medida mínima
+                                     que recomienda Apple para algo que se pulsa con
+                                     el dedo. Un chevron pequeño se falla siempre. -->
+                                <button
+                                    v-if="item.hijos?.length"
+                                    type="button"
+                                    @click="alternarRama(item.href ?? item.label)"
+                                    class="shrink-0 w-11 rounded-lg flex items-center justify-center text-tinta-300 active:bg-tinta-100 transition-colors"
+                                    :aria-expanded="ramaAbierta(item)"
+                                    :aria-label="ramaAbierta(item) ? 'Plegar ' + item.label : 'Desplegar ' + item.label"
+                                >
+                                    <svg class="w-4 h-4 transition-transform duration-300"
+                                         :class="ramaAbierta(item) ? 'rotate-90' : ''"
+                                         fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+                                    </svg>
+                                </button>
+                            </div>
+
+                            <div
+                                v-if="item.hijos?.length"
+                                class="grid transition-all duration-300 ease-out"
+                                :class="ramaAbierta(item) ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'"
+                            >
+                                <div class="overflow-hidden">
+                                    <div class="ml-5 pl-3 mt-1 space-y-1 border-l border-linea">
+                                        <a
+                                            v-for="hijo in item.hijos"
+                                            :key="hijo.href"
+                                            :href="hijo.href"
+                                            class="flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-[13px] transition-colors"
+                                            :class="isActive(hijo.href)
+                                                ? 'bg-[var(--marca-suave)] text-[var(--marca)] font-semibold'
+                                                : 'text-tinta-500 hover:bg-tinta-100'"
+                                            @click.prevent="navegar(hijo.href)"
+                                        >
+                                            <IconoMenu :nombre="hijo.icon" clase="w-4 h-4 shrink-0 opacity-70" />
+                                            <span class="truncate">{{ hijo.label }}</span>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </template>
                 </nav>
 
@@ -1278,9 +1166,9 @@ onUnmounted(() => {
                 <video ref="videoRef" class="flex-1 object-cover w-full" autoplay playsinline muted />
                 <div class="flex justify-center pb-8 pt-4 shrink-0">
                     <button @click="capturarFoto"
-                        class="w-16 h-16 rounded-full flex items-center justify-center border-4 border-white"
+                        class="w-16 h-16 rounded-full flex items-center justify-center border-4 border-superficie"
                         style="background: rgba(255,255,255,0.2);">
-                        <div class="w-12 h-12 rounded-full bg-white" />
+                        <div class="w-12 h-12 rounded-full bg-superficie" />
                     </button>
                 </div>
             </div>
@@ -1304,7 +1192,7 @@ onUnmounted(() => {
     <teleport to="body">
         <div v-if="modalDisciplinas" class="fixed inset-0 z-[70] flex items-center justify-center p-4"
             style="background:rgba(0,0,0,0.55);">
-            <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden">
+            <div class="bg-superficie rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden">
                 <div class="px-5 py-4 border-b border-linea">
                     <div class="flex items-center gap-3">
                         <div class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center shrink-0">
@@ -1345,7 +1233,7 @@ onUnmounted(() => {
             v-if="mostrarPWA && !yaInstalada"
             class="fixed bottom-20 md:bottom-4 left-4 right-4 md:left-auto md:right-4 md:w-80 z-50"
         >
-            <div class="bg-white rounded-2xl shadow-2xl border border-linea overflow-hidden">
+            <div class="bg-superficie rounded-2xl shadow-2xl border border-linea overflow-hidden">
                 <div class="px-4 py-3 flex items-center gap-3" style="background-color: var(--marca);">
                     <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style="background: rgba(255,255,255,0.2);">
                         <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">

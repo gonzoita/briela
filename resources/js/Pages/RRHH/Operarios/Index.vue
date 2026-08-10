@@ -110,7 +110,7 @@ const mesActual = MESES[new Date().getMonth()]
             <Teleport to="body">
                 <div v-if="modalBonos" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4"
                     style="background:rgba(0,0,0,0.5);">
-                    <div class="bg-white rounded-2xl w-full max-w-sm p-5 space-y-4">
+                    <div class="bg-superficie rounded-2xl w-full max-w-sm p-5 space-y-4">
                         <h3 class="text-base font-semibold text-tinta-900">Calcular bonos del mes</h3>
                         <p class="text-xs text-tinta-400">
                             Calcula el bono de <strong>todos los colaboradores activos</strong> para el mes elegido,
@@ -145,26 +145,26 @@ const mesActual = MESES[new Date().getMonth()]
 
             <!-- Métricas -->
             <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5">
-                <div class="bg-white rounded-2xl border border-linea p-4 text-center">
+                <div class="bg-superficie rounded-2xl border border-linea p-4 text-center">
                     <p class="text-2xl font-semibold text-tinta-900">{{ metricas.total_activos }}</p>
                     <p class="text-xs text-tinta-400 mt-1">Activos</p>
                 </div>
-                <div class="bg-white rounded-2xl border border-linea p-4 text-center">
+                <div class="bg-superficie rounded-2xl border border-linea p-4 text-center">
                     <p class="text-2xl font-semibold text-blue-600">{{ metricas.bonos_calculados_mes }}</p>
                     <p class="text-xs text-tinta-400 mt-1">Bonos {{ mesActual }}</p>
                 </div>
-                <div class="bg-white rounded-2xl border border-linea p-4 text-center">
+                <div class="bg-superficie rounded-2xl border border-linea p-4 text-center">
                     <p class="text-2xl font-semibold text-red-500">{{ metricas.disciplinas_pendientes }}</p>
                     <p class="text-xs text-tinta-400 mt-1">Disciplinas pend.</p>
                 </div>
-                <div class="bg-white rounded-2xl border border-linea p-4 text-center">
+                <div class="bg-superficie rounded-2xl border border-linea p-4 text-center">
                     <p class="text-2xl font-semibold text-amber-600">{{ metricas.horas_extras_mes }}</p>
                     <p class="text-xs text-tinta-400 mt-1">Horas extras {{ mesActual }}</p>
                 </div>
             </div>
 
             <!-- Filtros -->
-            <div class="bg-white rounded-xl border border-linea p-4 mb-4 space-y-3">
+            <div class="bg-superficie rounded-xl border border-linea p-4 mb-4 space-y-3">
                 <!-- Fila 1: búsqueda + tipo + estado + nivel -->
                 <div class="flex flex-wrap gap-2">
                     <input v-model="filters.buscar" type="text"
@@ -221,7 +221,7 @@ const mesActual = MESES[new Date().getMonth()]
 
             <!-- Lista vacía -->
             <div v-if="!operarios.length"
-                class="py-12 text-center bg-white rounded-2xl border border-linea">
+                class="py-12 text-center bg-superficie rounded-2xl border border-linea">
                 <p class="text-sm text-tinta-300">No hay colaboradores que coincidan con los filtros.</p>
             </div>
 
@@ -230,7 +230,7 @@ const mesActual = MESES[new Date().getMonth()]
                 <a v-for="op in operarios" :key="op.id"
                     :href="`/rrhh/operarios/${op.id}`"
                     @click.prevent="router.visit(`/rrhh/operarios/${op.id}`)"
-                    class="flex items-start gap-3 bg-white rounded-xl border border-linea px-4 py-3 hover:border-blue-300 hover:shadow-sm transition-all cursor-pointer">
+                    class="flex items-start gap-3 bg-superficie rounded-xl border border-linea px-4 py-3 hover:border-blue-300 hover:shadow-sm transition-all cursor-pointer">
 
                     <!-- Avatar con inicial -->
                     <div class="w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold text-white flex-shrink-0"

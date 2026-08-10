@@ -107,7 +107,7 @@ function enviar(estado) {
             </div>
 
             <!-- Info general -->
-            <div class="bg-white rounded-xl border border-linea p-4 mb-4 space-y-3">
+            <div class="bg-superficie rounded-xl border border-linea p-4 mb-4 space-y-3">
                 <h2 class="font-semibold text-tinta-900">Información general</h2>
                 <div>
                     <label class="block text-sm font-medium text-tinta-700 mb-1">Motivo / descripción</label>
@@ -137,14 +137,14 @@ function enviar(estado) {
             </div>
 
             <!-- Ítems -->
-            <div class="bg-white rounded-xl border border-linea p-4 mb-4">
+            <div class="bg-superficie rounded-xl border border-linea p-4 mb-4">
                 <h2 class="font-semibold text-tinta-900 mb-3">Ítems a solicitar</h2>
 
                 <!-- Buscador inventario -->
                 <div class="relative mb-3">
                     <input v-model="buscarItem" type="text" placeholder="Buscar en inventario por nombre o código..."
                         class="w-full rounded-lg border border-tinta-200 px-3 py-2 text-sm focus:ring-4 focus:ring-[var(--marca-suave)] focus:outline-none" />
-                    <div v-if="buscarItem && itemsFiltrados.length" class="absolute z-10 top-full left-0 right-0 mt-1 bg-white border border-linea rounded-lg shadow-lg max-h-48 overflow-y-auto">
+                    <div v-if="buscarItem && itemsFiltrados.length" class="absolute z-10 top-full left-0 right-0 mt-1 bg-superficie border border-linea rounded-lg shadow-lg max-h-48 overflow-y-auto">
                         <button v-for="item in itemsFiltrados.slice(0, 8)" :key="item.id"
                             @click="agregarItemDesdeInventario(item)"
                             class="w-full text-left px-3 py-2 hover:bg-blue-50 text-sm border-b border-gray-50 last:border-0">

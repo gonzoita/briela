@@ -78,7 +78,7 @@ function guardarConfig() {
                 <!-- Columna izquierda: Parametros -->
                 <div class="space-y-4 mb-6 lg:mb-0">
 
-                    <div class="bg-white rounded-2xl border border-linea p-5">
+                    <div class="bg-superficie rounded-2xl border border-linea p-5">
                         <h2 class="text-sm font-semibold text-tinta-700 mb-4">Parámetros de la puerta</h2>
 
                         <!-- Tipo de puerta -->
@@ -189,7 +189,7 @@ function guardarConfig() {
                 <div class="space-y-4">
 
                     <!-- Desglose de componentes -->
-                    <div class="bg-white rounded-2xl border border-linea overflow-hidden">
+                    <div class="bg-superficie rounded-2xl border border-linea overflow-hidden">
                         <div class="px-5 py-3 border-b border-linea flex items-center justify-between">
                             <h2 class="text-sm font-semibold text-tinta-700">Desglose de componentes</h2>
                             <span class="text-xs text-tinta-300">Columna activa: <strong>{{ columnaActiva }}</strong></span>
@@ -229,7 +229,7 @@ function guardarConfig() {
                     </div>
 
                     <!-- Tabla de precios por version de lamina -->
-                    <div v-if="errores.length === 0" class="bg-white rounded-2xl border border-linea overflow-hidden">
+                    <div v-if="errores.length === 0" class="bg-superficie rounded-2xl border border-linea overflow-hidden">
                         <div class="px-5 py-3 border-b border-linea">
                             <h2 class="text-sm font-semibold text-tinta-700">Precios por tipo de lámina</h2>
                             <p class="text-xs text-tinta-300 mt-0.5">Márgenes: Mayorista 30% · Distribuidor 32.5% · Cliente 35%</p>
@@ -268,7 +268,7 @@ function guardarConfig() {
         <!-- Modal guardar -->
         <Teleport to="body">
             <div v-if="modalGuardar" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4" style="background:rgba(0,0,0,0.5);">
-                <div class="bg-white rounded-2xl shadow-xl w-full max-w-sm p-5">
+                <div class="bg-superficie rounded-2xl shadow-xl w-full max-w-sm p-5">
                     <h3 class="text-base font-semibold text-tinta-900 mb-4">Guardar configuración</h3>
                     <div>
                         <label class="block text-xs font-medium text-tinta-700 mb-1">Nombre de la configuración *</label>

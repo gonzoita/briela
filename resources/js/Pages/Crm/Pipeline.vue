@@ -180,7 +180,7 @@ function getCookie(name) {
             </div>
 
             <!-- Métricas rápidas -->
-            <div class="flex gap-4 -mx-4 px-4 py-2 bg-white border-b border-linea shrink-0">
+            <div class="flex gap-4 -mx-4 px-4 py-2 bg-superficie border-b border-linea shrink-0">
                 <div class="flex items-center gap-1.5 text-sm">
                     <span class="w-2 h-2 rounded-full bg-blue-500"></span>
                     <span class="text-tinta-400">Activos:</span>
@@ -199,7 +199,7 @@ function getCookie(name) {
             </div>
 
             <!-- Barra de filtros -->
-            <div class="flex flex-wrap gap-2 -mx-4 px-4 py-2.5 bg-white border-b border-linea mb-3 shrink-0">
+            <div class="flex flex-wrap gap-2 -mx-4 px-4 py-2.5 bg-superficie border-b border-linea mb-3 shrink-0">
                 <!-- Búsqueda -->
                 <div class="relative">
                     <input
@@ -228,7 +228,7 @@ function getCookie(name) {
                 <select
                     v-model="filtroEstado"
                     @change="aplicarFiltros"
-                    class="border border-tinta-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)] bg-white"
+                    class="border border-tinta-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)] bg-superficie"
                 >
                     <option value="activo">Activos</option>
                     <option value="ganado">Ganados</option>
@@ -240,7 +240,7 @@ function getCookie(name) {
                 <select
                     v-model="filtroResponsable"
                     @change="aplicarFiltros"
-                    class="border border-tinta-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)] bg-white"
+                    class="border border-tinta-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)] bg-superficie"
                 >
                     <option value="">Todos los responsables</option>
                     <option v-for="u in props.usuarios" :key="u.id" :value="String(u.id)">{{ u.name }}</option>
@@ -250,7 +250,7 @@ function getCookie(name) {
                 <select
                     v-model="filtroFuente"
                     @change="aplicarFiltros"
-                    class="border border-tinta-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)] bg-white"
+                    class="border border-tinta-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)] bg-superficie"
                 >
                     <option value="">Todas las fuentes</option>
                     <option v-for="f in props.fuentes" :key="f" :value="f">{{ f }}</option>
@@ -312,7 +312,7 @@ function getCookie(name) {
                                 draggable="true"
                                 @dragstart="onDragStart($event, lead, etapa.id)"
                                 @click="abrirDetalleLead(lead.id)"
-                                class="bg-white rounded-xl border border-linea p-3 cursor-pointer hover:shadow-md transition-shadow select-none"
+                                class="bg-superficie rounded-xl border border-linea p-3 cursor-pointer hover:shadow-md transition-shadow select-none"
                             >
                                 <!-- Badge estado ganado/perdido -->
                                 <div

@@ -17,7 +17,7 @@ const isDashboard = computed(() =>
 <template>
     <div>
         <div class="min-h-screen bg-tinta-100">
-            <nav class="border-b border-linea bg-white">
+            <nav class="border-b border-linea bg-superficie">
                 <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <div class="flex h-16 justify-between">
                         <div class="flex">
@@ -39,7 +39,7 @@ const isDashboard = computed(() =>
                                     <template #trigger>
                                         <span class="inline-flex rounded-lg">
                                             <button type="button"
-                                                class="inline-flex items-center rounded-lg border border-transparent bg-white px-3 py-2 text-sm font-medium leading-4 text-tinta-400 transition duration-150 ease-in-out hover:text-tinta-700 focus:outline-none">
+                                                class="inline-flex items-center rounded-lg border border-transparent bg-superficie px-3 py-2 text-sm font-medium leading-4 text-tinta-400 transition duration-150 ease-in-out hover:text-tinta-700 focus:outline-none">
                                                 {{ $page.props.auth.user.name }}
                                                 <svg class="-me-0.5 ms-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                                                     <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
@@ -86,7 +86,7 @@ const isDashboard = computed(() =>
                 </div>
             </nav>
 
-            <header class="bg-white shadow" v-if="$slots.header">
+            <header class="bg-superficie shadow" v-if="$slots.header">
                 <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
                     <slot name="header" />
                 </div>

@@ -60,10 +60,10 @@ function guardar(f) {
             </div>
 
             <!-- Selector de sede -->
-            <div class="bg-white rounded-xl border border-linea p-3 mb-4">
+            <div class="bg-superficie rounded-xl border border-linea p-3 mb-4">
                 <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1.5">Sede</label>
                 <select v-model="sedeSeleccionada"
-                    class="w-full rounded-lg border border-tinta-200 px-3 py-2 text-sm bg-white">
+                    class="w-full rounded-lg border border-tinta-200 px-3 py-2 text-sm bg-superficie">
                     <option v-for="s in sedes" :key="s.id" :value="s.id">
                         {{ s.nombre }} ({{ s.codigo }}){{ s.activa ? '' : ' — inactiva' }}
                     </option>
@@ -72,7 +72,7 @@ function guardar(f) {
 
             <!-- Documentos -->
             <div class="space-y-3">
-                <div v-for="f in filasDeSede" :key="f.id" class="bg-white rounded-2xl border border-linea p-4">
+                <div v-for="f in filasDeSede" :key="f.id" class="bg-superficie rounded-2xl border border-linea p-4">
                     <div class="flex items-center justify-between mb-3">
                         <h3 class="text-sm font-semibold text-tinta-900">{{ f.tipo_label }}</h3>
                         <span class="text-xs font-mono px-2 py-1 rounded-lg bg-tinta-100 text-tinta-700">

@@ -59,7 +59,7 @@ function ic(extra = '') {
         <div class="max-w-2xl mx-auto space-y-4 pb-8">
 
             <!-- Quién soy -->
-            <div class="bg-white rounded-xl border border-linea p-4">
+            <div class="bg-superficie rounded-xl border border-linea p-4">
                 <div class="flex items-center gap-3">
                     <div class="w-12 h-12 rounded-full bg-[var(--marca)] flex items-center justify-center text-white text-lg font-semibold shrink-0">
                         {{ (user.name || '?').charAt(0).toUpperCase() }}
@@ -72,7 +72,7 @@ function ic(extra = '') {
             </div>
 
             <!-- Datos de la cuenta -->
-            <form @submit.prevent="guardarDatos" class="bg-white rounded-xl border border-linea p-4 space-y-3">
+            <form @submit.prevent="guardarDatos" class="bg-superficie rounded-xl border border-linea p-4 space-y-3">
                 <div>
                     <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">Datos de la cuenta</p>
                     <p class="text-xs text-tinta-400 mt-1">Tu nombre y el correo con el que entras al sistema.</p>
@@ -115,7 +115,7 @@ function ic(extra = '') {
             </form>
 
             <!-- Contraseña -->
-            <form @submit.prevent="guardarClave" class="bg-white rounded-xl border border-linea p-4 space-y-3">
+            <form @submit.prevent="guardarClave" class="bg-superficie rounded-xl border border-linea p-4 space-y-3">
                 <div>
                     <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">Contraseña</p>
                     <p class="text-xs text-tinta-400 mt-1">Usa una contraseña larga que no uses en otro lado.</p>
@@ -152,7 +152,7 @@ function ic(extra = '') {
             </form>
 
             <!-- Eliminar cuenta -->
-            <div class="bg-white rounded-xl border border-red-200 p-4 space-y-3">
+            <div class="bg-superficie rounded-xl border border-red-200 p-4 space-y-3">
                 <div>
                     <p class="text-xs font-semibold text-red-600 uppercase tracking-[0.12em]">Eliminar mi cuenta</p>
                     <p class="text-xs text-tinta-400 mt-1">

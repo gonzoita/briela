@@ -157,7 +157,7 @@ function guardar() {
                         :key="f.key"
                         @click="seleccionarFuente(f.key)"
                         class="flex items-start gap-4 p-4 rounded-2xl border-2 text-left transition-all"
-                        :class="fuente === f.key ? f.colorActivo + ' border-2' : 'border-linea bg-white hover:border-tinta-200'"
+                        :class="fuente === f.key ? f.colorActivo + ' border-2' : 'border-linea bg-superficie hover:border-tinta-200'"
                     >
                         <!-- Ícono -->
                         <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
@@ -215,7 +215,7 @@ function guardar() {
                         class="flex items-center gap-3 p-3.5 rounded-xl border cursor-pointer transition-colors"
                         :class="camposSelec.includes(campo.key)
                             ? 'border-blue-300 bg-blue-50'
-                            : 'border-linea bg-white hover:border-tinta-200'"
+                            : 'border-linea bg-superficie hover:border-tinta-200'"
                     >
                         <input
                             type="checkbox"
@@ -261,7 +261,7 @@ function guardar() {
                         <select
                             v-if="filtro.tipo === 'select'"
                             v-model="filtrosValor[filtro.key]"
-                            class="w-full rounded-xl border border-linea bg-white px-3 py-2.5 text-sm text-tinta-900 focus:outline-none focus:border-[var(--marca)]"
+                            class="w-full rounded-xl border border-linea bg-superficie px-3 py-2.5 text-sm text-tinta-900 focus:outline-none focus:border-[var(--marca)]"
                         >
                             <option value="">— Todos —</option>
                             <template v-if="Array.isArray(filtro.opciones)">
@@ -277,7 +277,7 @@ function guardar() {
                             v-else-if="filtro.tipo === 'date'"
                             type="date"
                             v-model="filtrosValor[filtro.key]"
-                            class="w-full rounded-xl border border-linea bg-white px-3 py-2.5 text-sm text-tinta-900 focus:outline-none focus:border-[var(--marca)]"
+                            class="w-full rounded-xl border border-linea bg-superficie px-3 py-2.5 text-sm text-tinta-900 focus:outline-none focus:border-[var(--marca)]"
                         />
 
                         <!-- Text -->
@@ -286,7 +286,7 @@ function guardar() {
                             type="text"
                             v-model="filtrosValor[filtro.key]"
                             :placeholder="'Filtrar por ' + filtro.label.toLowerCase()"
-                            class="w-full rounded-xl border border-linea bg-white px-3 py-2.5 text-sm text-tinta-900 focus:outline-none focus:border-[var(--marca)]"
+                            class="w-full rounded-xl border border-linea bg-superficie px-3 py-2.5 text-sm text-tinta-900 focus:outline-none focus:border-[var(--marca)]"
                         />
                     </div>
                 </div>
@@ -378,7 +378,7 @@ function guardar() {
                             :style="publico ? 'background-color:var(--marca)' : 'background-color:#D1D5DB'"
                         >
                             <span
-                                class="absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow-sm transition-transform"
+                                class="absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-superficie shadow-sm transition-transform"
                                 :class="publico ? 'translate-x-5' : 'translate-x-0'"
                             />
                         </button>

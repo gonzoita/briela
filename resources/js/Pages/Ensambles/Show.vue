@@ -93,7 +93,7 @@ const variablesEntries = Object.entries(props.ensamble.variables ?? {})
 
             <!-- Descripciones -->
             <div v-if="ensamble.descripcion_corta || ensamble.descripcion_larga"
-                class="bg-white rounded-2xl shadow-sm p-5 mb-4">
+                class="bg-superficie rounded-2xl shadow-sm p-5 mb-4">
                 <h2 class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-3">Descripción</h2>
                 <p v-if="ensamble.descripcion_corta" class="text-sm font-medium text-tinta-700 mb-2">
                     {{ ensamble.descripcion_corta }}
@@ -102,7 +102,7 @@ const variablesEntries = Object.entries(props.ensamble.variables ?? {})
             </div>
 
             <!-- Variables configuradas -->
-            <div class="bg-white rounded-2xl shadow-sm p-5 mb-4">
+            <div class="bg-superficie rounded-2xl shadow-sm p-5 mb-4">
                 <h2 class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-3">Variables configuradas</h2>
                 <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
                     <div v-for="[k, v] in variablesEntries" :key="k"
@@ -114,7 +114,7 @@ const variablesEntries = Object.entries(props.ensamble.variables ?? {})
             </div>
 
             <!-- Desglose de componentes -->
-            <div class="bg-white rounded-2xl shadow-sm p-5 mb-4">
+            <div class="bg-superficie rounded-2xl shadow-sm p-5 mb-4">
                 <h2 class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-3">Desglose de componentes</h2>
                 <div class="overflow-x-auto">
                     <table class="w-full text-sm">
@@ -147,7 +147,7 @@ const variablesEntries = Object.entries(props.ensamble.variables ?? {})
             </div>
 
             <!-- Tabla de precios -->
-            <div class="bg-white rounded-2xl shadow-sm p-5 mb-4">
+            <div class="bg-superficie rounded-2xl shadow-sm p-5 mb-4">
                 <h2 class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-3">Precios por canal</h2>
                 <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
                     <div class="p-4 rounded-xl text-center" style="background:#F8F9FA;">

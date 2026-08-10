@@ -90,11 +90,11 @@ function eliminar(m) {
                 </select>
             </div>
 
-            <div v-if="!mantenimientos.length" class="bg-white rounded-2xl border border-linea py-12 text-center text-sm text-tinta-300">
+            <div v-if="!mantenimientos.length" class="bg-superficie rounded-2xl border border-linea py-12 text-center text-sm text-tinta-300">
                 Sin mantenimientos registrados.
             </div>
 
-            <div v-else class="bg-white rounded-2xl border border-linea overflow-hidden">
+            <div v-else class="bg-superficie rounded-2xl border border-linea overflow-hidden">
                 <div class="divide-y divide-gray-50">
                     <div v-for="m in mantenimientos" :key="m.id"
                         class="flex items-center px-4 py-4 gap-3 hover:bg-tinta-50 cursor-pointer"

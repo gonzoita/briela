@@ -105,7 +105,7 @@ async function importar() {
             </div>
 
             <!-- Paso 1: plantilla -->
-            <div class="bg-white rounded-2xl border border-linea shadow-sm p-5 mb-4">
+            <div class="bg-superficie rounded-2xl border border-linea shadow-sm p-5 mb-4">
                 <h2 class="text-sm font-semibold text-tinta-900 mb-2">1. Descarga la plantilla</h2>
                 <p class="text-sm text-tinta-400 mb-3">
                     Trae los encabezados correctos y filas de ejemplo (producto simple, servicio, y un producto con variantes). Solo la columna <strong>nombre</strong> es obligatoria — el resto se puede dejar vacío.
@@ -121,7 +121,7 @@ async function importar() {
             </div>
 
             <!-- Paso 2: subir -->
-            <div class="bg-white rounded-2xl border border-linea shadow-sm p-5 mb-4">
+            <div class="bg-superficie rounded-2xl border border-linea shadow-sm p-5 mb-4">
                 <h2 class="text-sm font-semibold text-tinta-900 mb-2">2. Sube tu archivo</h2>
                 <p class="text-sm text-tinta-400 mb-3">
                     Si una referencia del archivo ya existe en el sistema, ese producto se <strong>actualiza</strong> (las columnas que dejes vacías no se tocan). Si no existe, se crea nuevo.
@@ -142,7 +142,7 @@ async function importar() {
             </div>
 
             <!-- Resultado -->
-            <div v-if="resultado" class="bg-white rounded-2xl border border-linea shadow-sm p-5 mb-4">
+            <div v-if="resultado" class="bg-superficie rounded-2xl border border-linea shadow-sm p-5 mb-4">
                 <h2 class="text-sm font-semibold text-tinta-900 mb-3">Resultado</h2>
                 <div class="grid grid-cols-3 gap-3 mb-4">
                     <div class="bg-green-50 rounded-xl p-3 text-center">
@@ -180,7 +180,7 @@ async function importar() {
             </div>
 
             <!-- Guía de columnas -->
-            <div class="bg-white rounded-2xl border border-linea shadow-sm p-5">
+            <div class="bg-superficie rounded-2xl border border-linea shadow-sm p-5">
                 <h2 class="text-sm font-semibold text-tinta-900 mb-3">Guía de columnas</h2>
                 <div class="divide-y divide-gray-50">
                     <div v-for="col in columnas" :key="col" class="py-2 flex items-start gap-3">

@@ -218,7 +218,7 @@ function marcarEnviada() {
                         <img :src="$page.props.marca.logo"
                             :alt="$page.props.marca.nombre" class="h-10 w-auto object-contain"
                             style="filter: brightness(0) invert(1);" />
-                        <div class="w-px h-8 bg-white/30"/>
+                        <div class="w-px h-8 bg-superficie/30"/>
                         <div>
                             <p class="text-xs text-blue-200 font-medium uppercase tracking-widest">Cotización</p>
                             <h1 class="text-2xl font-semibold text-white leading-none">{{ cot.numero }}</h1>
@@ -272,7 +272,7 @@ function marcarEnviada() {
             <!-- Ficha cliente + detalles -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
 
-                <div class="bg-white rounded-2xl border border-linea p-5">
+                <div class="bg-superficie rounded-2xl border border-linea p-5">
                     <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-3">Cliente</p>
                     <p class="text-base font-semibold text-tinta-900 mb-1">
                         {{ cot.cliente?.nombre ?? cot.nombre_contacto_override ?? '—' }}
@@ -287,7 +287,7 @@ function marcarEnviada() {
                     </p>
                 </div>
 
-                <div class="bg-white rounded-2xl border border-linea p-5">
+                <div class="bg-superficie rounded-2xl border border-linea p-5">
                     <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-3">Detalles</p>
                     <div class="space-y-1.5 text-sm">
                         <div class="flex justify-between">
@@ -311,7 +311,7 @@ function marcarEnviada() {
             </div>
 
             <!-- Tabla de ítems -->
-            <div class="bg-white rounded-2xl border border-linea overflow-hidden mb-5">
+            <div class="bg-superficie rounded-2xl border border-linea overflow-hidden mb-5">
                 <div class="px-5 py-3 border-b border-linea">
                     <h2 class="text-sm font-semibold text-tinta-700">Ítems</h2>
                 </div>
@@ -368,13 +368,13 @@ function marcarEnviada() {
             </div>
 
             <!-- Condiciones -->
-            <div v-if="cot.condiciones_comerciales" class="bg-white rounded-2xl border border-linea p-5 mb-4">
+            <div v-if="cot.condiciones_comerciales" class="bg-superficie rounded-2xl border border-linea p-5 mb-4">
                 <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-2">Condiciones comerciales</p>
                 <p class="text-sm text-tinta-500 whitespace-pre-line">{{ cot.condiciones_comerciales }}</p>
             </div>
 
             <!-- Seguimiento -->
-            <div class="bg-white rounded-2xl border border-linea p-5 mb-4">
+            <div class="bg-superficie rounded-2xl border border-linea p-5 mb-4">
                 <div class="flex items-center justify-between mb-3">
                     <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">Seguimiento</p>
                     <span v-if="diasSinRespuestaLocal >= 5"
@@ -421,7 +421,7 @@ function marcarEnviada() {
         <Teleport to="body">
             <div v-if="modalGenerarOP" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4"
                 style="background:rgba(0,0,0,0.5);">
-                <div class="bg-white rounded-2xl shadow-xl w-full max-w-sm p-5">
+                <div class="bg-superficie rounded-2xl shadow-xl w-full max-w-sm p-5">
                     <h3 class="text-base font-semibold text-tinta-900 mb-1">Generar Orden de Producción</h3>
                     <p class="text-sm text-tinta-400 mb-4">
                         Se creará una OP desde la cotización <strong>{{ cot.numero }}</strong>.
@@ -482,7 +482,7 @@ function marcarEnviada() {
         <!-- Modal cambio de estado -->
         <Teleport to="body">
             <div v-if="modalEstado" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4" style="background:rgba(0,0,0,0.5);">
-                <div class="bg-white rounded-2xl shadow-xl w-full max-w-sm p-5">
+                <div class="bg-superficie rounded-2xl shadow-xl w-full max-w-sm p-5">
                     <h3 class="text-base font-semibold text-tinta-900 mb-4">Cambiar estado</h3>
                     <select v-model="nuevoEstado"
                         class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm mb-5 focus:ring-2 focus:outline-none">
@@ -504,7 +504,7 @@ function marcarEnviada() {
         <!-- Modal enviar al cliente -->
         <Teleport to="body">
             <div v-if="modalEnviar" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4" style="background:rgba(0,0,0,0.5);">
-                <div class="bg-white rounded-2xl shadow-xl w-full max-w-sm p-5">
+                <div class="bg-superficie rounded-2xl shadow-xl w-full max-w-sm p-5">
                     <div class="flex items-center justify-between mb-4">
                         <h3 class="text-base font-semibold text-tinta-900">Enviar al cliente</h3>
                         <button @click="modalEnviar = false" class="text-tinta-300 hover:text-tinta-500">

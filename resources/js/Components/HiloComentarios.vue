@@ -98,7 +98,7 @@ onMounted(cargar)
 </script>
 
 <template>
-    <div :class="embebido ? '' : 'bg-white rounded-2xl border border-linea overflow-hidden'">
+    <div :class="embebido ? '' : 'bg-superficie rounded-2xl border border-linea overflow-hidden'">
         <div v-if="!embebido" class="px-5 py-3 border-b border-linea flex items-center gap-2 flex-wrap">
             <h2 class="text-sm font-semibold text-tinta-700">Hilo interno</h2>
             <span v-if="abiertos" class="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-700 leading-none">

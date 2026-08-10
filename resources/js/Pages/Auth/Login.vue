@@ -71,7 +71,7 @@ const submit = () => {
                             autofocus
                             required
                             placeholder="tu@empresa.com"
-                            class="w-full px-3.5 py-3 rounded-lg border bg-white text-base text-tinta-900 placeholder:text-tinta-300 transition-shadow focus:outline-none focus:ring-4"
+                            class="w-full px-3.5 py-3 rounded-lg border bg-superficie text-base text-tinta-900 placeholder:text-tinta-300 transition-shadow focus:outline-none focus:ring-4"
                             :class="form.errors.email
                                 ? 'border-red-300 focus:ring-red-100'
                                 : 'border-tinta-200 focus:border-[var(--marca)] focus:ring-[var(--marca-suave)]'"
@@ -96,7 +96,7 @@ const submit = () => {
                                 autocomplete="current-password"
                                 required
                                 placeholder="••••••••"
-                                class="w-full pl-3.5 pr-11 py-3 rounded-lg border bg-white text-base text-tinta-900 placeholder:text-tinta-300 transition-shadow focus:outline-none focus:ring-4"
+                                class="w-full pl-3.5 pr-11 py-3 rounded-lg border bg-superficie text-base text-tinta-900 placeholder:text-tinta-300 transition-shadow focus:outline-none focus:ring-4"
                                 :class="form.errors.password
                                     ? 'border-red-300 focus:ring-red-100'
                                     : 'border-tinta-200 focus:border-[var(--marca)] focus:ring-[var(--marca-suave)]'"

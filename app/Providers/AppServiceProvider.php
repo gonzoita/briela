@@ -24,6 +24,11 @@ class AppServiceProvider extends ServiceProvider
     {
         Vite::prefetch(concurrency: 3);
 
+        // La hora del sistema sale de la sede principal, no de un valor fijo en la
+        // configuración: una empresa con sedes en husos distintos necesita decidir
+        // en cuál vive su operación. Si la base todavía no existe, esto no estorba.
+        \App\Support\HoraSistema::aplicar();
+
         // Color de marca para las vistas que no pueden usar variables CSS.
         //
         // En la interfaz el color entra como var(--marca) desde app.blade.php,

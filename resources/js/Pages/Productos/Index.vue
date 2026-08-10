@@ -236,7 +236,7 @@ const precioMostrar = (p) => {
                 <!-- Botón Categorías -->
                 <button
                     @click="abrirModalCategorias"
-                    class="flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium border border-linea bg-white text-tinta-500 shadow-sm hover:bg-tinta-50 transition-colors"
+                    class="flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium border border-linea bg-superficie text-tinta-500 shadow-sm hover:bg-tinta-50 transition-colors"
                 >
                     <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
@@ -245,7 +245,7 @@ const precioMostrar = (p) => {
                 </button>
 
                 <!-- Toggle lista/grid -->
-                <div class="flex items-center rounded-xl border border-linea bg-white overflow-hidden shadow-sm">
+                <div class="flex items-center rounded-xl border border-linea bg-superficie overflow-hidden shadow-sm">
                     <button
                         @click="viewMode = 'list'"
                         class="w-9 h-9 flex items-center justify-center transition-colors"
@@ -285,7 +285,7 @@ const precioMostrar = (p) => {
                     </button>
                     <div
                         v-if="mostrarMenuNuevo"
-                        class="absolute right-0 top-full mt-1 bg-white rounded-xl shadow-lg border border-linea z-30 min-w-[160px] overflow-hidden"
+                        class="absolute right-0 top-full mt-1 bg-superficie rounded-xl shadow-lg border border-linea z-30 min-w-[160px] overflow-hidden"
                     >
                         <button
                             v-for="opt in [
@@ -380,7 +380,7 @@ const precioMostrar = (p) => {
                         v-model="form.buscar"
                         type="text"
                         placeholder="Buscar por nombre o referencia..."
-                        class="w-full rounded-xl border border-linea pl-9 pr-3 py-2.5 text-sm bg-white focus:outline-none"
+                        class="w-full rounded-xl border border-linea pl-9 pr-3 py-2.5 text-sm bg-superficie focus:outline-none"
                         @keyup.enter="filtrar"
                     />
                     <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-tinta-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
@@ -390,7 +390,7 @@ const precioMostrar = (p) => {
                 <button
                     v-if="hayFiltros"
                     @click="limpiar"
-                    class="px-3 py-2.5 rounded-xl text-xs text-tinta-400 border border-linea bg-white whitespace-nowrap"
+                    class="px-3 py-2.5 rounded-xl text-xs text-tinta-400 border border-linea bg-superficie whitespace-nowrap"
                 >
                     Limpiar
                 </button>
@@ -403,7 +403,7 @@ const precioMostrar = (p) => {
         </div>
 
         <!-- ── VISTA LISTA ────────────────────────────────────────────────── -->
-        <div v-else-if="viewMode === 'list'" class="bg-white rounded-2xl shadow-sm overflow-hidden">
+        <div v-else-if="viewMode === 'list'" class="bg-superficie rounded-2xl shadow-sm overflow-hidden">
             <table class="w-full text-sm">
                 <thead>
                     <tr style="background:#F8FAFC; border-bottom:1px solid #E5E7EB;">
@@ -541,7 +541,7 @@ const precioMostrar = (p) => {
             <div
                 v-for="p in productosLocal"
                 :key="p.id"
-                class="bg-white rounded-2xl shadow-sm overflow-hidden cursor-pointer active:scale-[0.98] transition-transform"
+                class="bg-superficie rounded-2xl shadow-sm overflow-hidden cursor-pointer active:scale-[0.98] transition-transform"
                 @click="p.es_padre ? toggleExpandido(p.id) : router.visit(`/productos/${p.id}`)"
             >
                 <div class="aspect-square relative overflow-hidden" style="background: #F1F5F9;">
@@ -630,7 +630,7 @@ const precioMostrar = (p) => {
             <div class="absolute inset-0 bg-black/40" @click="modalCategorias = false" />
 
             <!-- Panel -->
-            <div class="relative w-full sm:max-w-lg bg-white rounded-t-3xl sm:rounded-2xl shadow-2xl flex flex-col max-h-[90vh]">
+            <div class="relative w-full sm:max-w-lg bg-superficie rounded-t-3xl sm:rounded-2xl shadow-2xl flex flex-col max-h-[90vh]">
 
                 <!-- Header -->
                 <div class="flex items-center justify-between px-5 py-4 border-b border-linea shrink-0">
@@ -669,13 +669,13 @@ const precioMostrar = (p) => {
                                 type="text"
                                 placeholder="Nombre de la categoría..."
                                 maxlength="100"
-                                class="flex-1 border border-linea rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-[var(--marca)] bg-white"
+                                class="flex-1 border border-linea rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-[var(--marca)] bg-superficie"
                                 @keyup.enter="guardarCategoria"
                                 autofocus
                             />
                             <div class="flex flex-col items-center gap-0.5 shrink-0">
                                 <input v-model="catForm.color" type="color"
-                                    class="w-10 h-10 rounded-xl border border-linea cursor-pointer p-0.5 bg-white" />
+                                    class="w-10 h-10 rounded-xl border border-linea cursor-pointer p-0.5 bg-superficie" />
                                 <span class="text-xs text-tinta-300 font-mono">{{ catForm.color }}</span>
                             </div>
                         </div>

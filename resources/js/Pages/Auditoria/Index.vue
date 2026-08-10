@@ -63,7 +63,7 @@ const formatFecha = (d) => d
             </div>
 
             <!-- Filtros -->
-            <div class="bg-white rounded-xl border border-linea p-4 mb-5">
+            <div class="bg-superficie rounded-xl border border-linea p-4 mb-5">
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
                     <input v-model="filtros.buscar" type="text" placeholder="Buscar descripción..."
                         class="rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:border-[var(--marca)]"/>
@@ -103,7 +103,7 @@ const formatFecha = (d) => d
             </div>
 
             <!-- Lista -->
-            <div class="bg-white rounded-2xl border border-linea divide-y divide-gray-50">
+            <div class="bg-superficie rounded-2xl border border-linea divide-y divide-gray-50">
                 <div v-if="registros.data.length === 0" class="px-4 py-12 text-center text-tinta-300 text-sm">
                     Sin registros de actividad para estos filtros.
                 </div>

@@ -99,7 +99,7 @@ function eliminar(id) {
                 </div>
                 <!-- Tipo -->
                 <select @change="filtrarTipo" :value="tipoFiltro"
-                    class="px-3 py-1.5 rounded-xl border border-linea text-sm text-tinta-700 bg-white">
+                    class="px-3 py-1.5 rounded-xl border border-linea text-sm text-tinta-700 bg-superficie">
                     <option value="">Todos los tipos</option>
                     <option value="op">Desde OP</option>
                     <option value="manual">Manual</option>
@@ -107,7 +107,7 @@ function eliminar(id) {
             </div>
 
             <!-- Tabla desktop -->
-            <div class="hidden md:block bg-white rounded-2xl border border-linea overflow-hidden">
+            <div class="hidden md:block bg-superficie rounded-2xl border border-linea overflow-hidden">
                 <table class="w-full text-sm">
                     <thead>
                         <tr class="bg-tinta-50 border-b border-linea">
@@ -177,7 +177,7 @@ function eliminar(id) {
                     No hay remisiones.
                 </div>
                 <div v-for="rem in remisiones.data" :key="rem.id"
-                    class="bg-white rounded-2xl border border-linea p-4">
+                    class="bg-superficie rounded-2xl border border-linea p-4">
                     <div class="flex items-center justify-between mb-2">
                         <span class="font-mono text-sm font-semibold text-tinta-900">{{ rem.numero }}</span>
                         <span class="text-xs px-2.5 py-1 rounded-full font-semibold"

@@ -140,7 +140,7 @@ function toggleLista(ordenada) {
 </script>
 
 <template>
-    <div class="border border-linea rounded-lg overflow-hidden bg-white">
+    <div class="border border-linea rounded-lg overflow-hidden bg-superficie">
         <div class="flex items-center gap-1 border-b border-linea bg-tinta-50 px-2 py-1">
             <button type="button" @mousedown.prevent="cmd('bold')"
                 class="w-7 h-7 rounded text-sm font-semibold text-tinta-500 hover:bg-tinta-200">B</button>

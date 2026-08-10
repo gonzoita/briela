@@ -78,9 +78,9 @@ function publicarAhora(p) {
             </div>
 
             <!-- Filtro -->
-            <div class="bg-white rounded-xl border border-linea p-3 mb-4">
+            <div class="bg-superficie rounded-xl border border-linea p-3 mb-4">
                 <select v-model="estado" @change="aplicarFiltro"
-                    class="w-full rounded-lg border border-tinta-200 px-3 py-2 text-sm bg-white">
+                    class="w-full rounded-lg border border-tinta-200 px-3 py-2 text-sm bg-superficie">
                     <option value="">Todos los estados</option>
                     <option v-for="(v, k) in estados" :key="k" :value="k">{{ v.label }}</option>
                 </select>
@@ -92,7 +92,7 @@ function publicarAhora(p) {
             </div>
 
             <div class="space-y-2">
-                <div v-for="p in publicaciones.data" :key="p.id" class="bg-white rounded-xl border border-linea p-4">
+                <div v-for="p in publicaciones.data" :key="p.id" class="bg-superficie rounded-xl border border-linea p-4">
                     <div class="flex items-start justify-between gap-2">
                         <div class="min-w-0 flex-1">
                             <div class="flex items-center gap-2 mb-1 flex-wrap">
@@ -134,7 +134,7 @@ function publicarAhora(p) {
                     :disabled="!link.url"
                     @click="link.url && router.visit(link.url, { preserveScroll: true })"
                     class="px-3 py-1.5 rounded-lg text-xs"
-                    :class="link.active ? 'bg-[var(--marca)] text-white' : 'bg-white border border-linea text-tinta-500 disabled:opacity-40'"
+                    :class="link.active ? 'bg-[var(--marca)] text-white' : 'bg-superficie border border-linea text-tinta-500 disabled:opacity-40'"
                 />
             </div>
 

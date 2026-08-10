@@ -55,7 +55,7 @@ function eliminar(curso) {
             </div>
 
             <!-- Vacío -->
-            <div v-if="cursos.length === 0" class="bg-white rounded-2xl shadow-sm py-16 text-center text-tinta-300">
+            <div v-if="cursos.length === 0" class="bg-superficie rounded-2xl shadow-sm py-16 text-center text-tinta-300">
                 <svg class="w-12 h-12 mx-auto mb-3 text-tinta-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422A12.083 12.083 0 0121 15.5V17a2 2 0 01-2 2H5a2 2 0 01-2-2v-1.5c0-.994.212-1.964.582-2.858L12 14z"/>
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 14v7"/>
@@ -66,7 +66,7 @@ function eliminar(curso) {
             <!-- Grid de tarjetas -->
             <div v-else class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
                 <div v-for="c in cursos" :key="c.id"
-                    class="bg-white rounded-2xl shadow-sm overflow-hidden cursor-pointer active:scale-[0.98] transition-transform"
+                    class="bg-superficie rounded-2xl shadow-sm overflow-hidden cursor-pointer active:scale-[0.98] transition-transform"
                     :class="{ 'opacity-50': !c.activo }"
                     @click="router.visit(`/capacitacion/cursos/${c.id}`)">
                     <div class="aspect-video overflow-hidden" style="background:#F1F5F9;">
@@ -88,7 +88,7 @@ function eliminar(curso) {
                             <button @click="toggleActivo(c)"
                                 class="relative inline-flex h-5 w-9 items-center rounded-full transition-colors shrink-0"
                                 :style="c.activo ? 'background:var(--marca);' : 'background:#D1D5DB;'">
-                                <span class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform"
+                                <span class="inline-block h-4 w-4 transform rounded-full bg-superficie transition-transform"
                                     :style="c.activo ? 'transform:translateX(18px);' : 'transform:translateX(2px);'"/>
                             </button>
                             <button @click="eliminar(c)" class="w-7 h-7 rounded-lg flex items-center justify-center text-tinta-300 hover:text-red-600 hover:bg-red-50 transition-colors">

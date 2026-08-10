@@ -72,19 +72,19 @@ const años = Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i)
                 <!-- Filtros de período -->
                 <div class="flex flex-wrap gap-2 items-center">
                     <select v-model="periodo" @change="aplicarFiltros"
-                        class="border border-tinta-200 rounded-lg px-3 py-1.5 text-sm bg-white focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]">
+                        class="border border-tinta-200 rounded-lg px-3 py-1.5 text-sm bg-superficie focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]">
                         <option value="mes">Mes</option>
                         <option value="trimestre">Trimestre</option>
                         <option value="año">Año</option>
                     </select>
 
                     <select v-model="año" @change="aplicarFiltros"
-                        class="border border-tinta-200 rounded-lg px-3 py-1.5 text-sm bg-white focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]">
+                        class="border border-tinta-200 rounded-lg px-3 py-1.5 text-sm bg-superficie focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]">
                         <option v-for="a in años" :key="a" :value="a">{{ a }}</option>
                     </select>
 
                     <select v-if="periodo !== 'año'" v-model="mes" @change="aplicarFiltros"
-                        class="border border-tinta-200 rounded-lg px-3 py-1.5 text-sm bg-white focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]">
+                        class="border border-tinta-200 rounded-lg px-3 py-1.5 text-sm bg-superficie focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]">
                         <option v-for="m in meses" :key="m.v" :value="m.v">{{ m.l }}</option>
                     </select>
                 </div>
@@ -92,17 +92,17 @@ const años = Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i)
 
             <!-- Tarjetas métricas -->
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                <div class="bg-white rounded-2xl border border-linea shadow-sm px-4 py-4">
+                <div class="bg-superficie rounded-2xl border border-linea shadow-sm px-4 py-4">
                     <p class="text-xs text-tinta-400 font-medium">Total período</p>
                     <p class="text-3xl font-semibold mt-1" style="color: var(--marca);">{{ totalPeriodo }}</p>
                     <p class="text-xs text-tinta-300 mt-1">leads creados</p>
                 </div>
-                <div class="bg-white rounded-2xl border border-linea shadow-sm px-4 py-4">
+                <div class="bg-superficie rounded-2xl border border-linea shadow-sm px-4 py-4">
                     <p class="text-xs text-tinta-400 font-medium">Ganados</p>
                     <p class="text-3xl font-semibold mt-1 text-green-600">{{ ganadosPeriodo }}</p>
                     <p class="text-xs text-tinta-300 mt-1">leads cerrados</p>
                 </div>
-                <div class="bg-white rounded-2xl border border-linea shadow-sm px-4 py-4">
+                <div class="bg-superficie rounded-2xl border border-linea shadow-sm px-4 py-4">
                     <p class="text-xs text-tinta-400 font-medium">Conversión</p>
                     <p class="text-3xl font-semibold mt-1"
                         :style="{ color: colorConversion(tasaConversion) }">
@@ -110,7 +110,7 @@ const años = Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i)
                     </p>
                     <p class="text-xs text-tinta-300 mt-1">tasa global</p>
                 </div>
-                <div class="bg-white rounded-2xl border border-linea shadow-sm px-4 py-4">
+                <div class="bg-superficie rounded-2xl border border-linea shadow-sm px-4 py-4">
                     <p class="text-xs text-tinta-400 font-medium">Activos ahora</p>
                     <p class="text-3xl font-semibold mt-1 text-yellow-600">{{ activos }}</p>
                     <p class="text-xs text-tinta-300 mt-1">en pipeline</p>
@@ -118,7 +118,7 @@ const años = Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i)
             </div>
 
             <!-- Gráfica leads por mes -->
-            <div class="bg-white rounded-2xl border border-linea shadow-sm p-5">
+            <div class="bg-superficie rounded-2xl border border-linea shadow-sm p-5">
                 <h2 class="text-sm font-semibold text-tinta-700 mb-4">Leads últimos 6 meses</h2>
                 <div v-if="porMes.length" class="overflow-x-auto">
                     <svg :width="Math.max(porMes.length * 80, 400)" height="180" class="block">
@@ -162,7 +162,7 @@ const años = Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i)
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
 
                 <!-- Leads por fuente -->
-                <div class="bg-white rounded-2xl border border-linea shadow-sm p-5">
+                <div class="bg-superficie rounded-2xl border border-linea shadow-sm p-5">
                     <h2 class="text-sm font-semibold text-tinta-700 mb-4">Leads por fuente</h2>
                     <div v-if="porFuente.length" class="space-y-3">
                         <div v-for="f in porFuente" :key="f.fuente">
@@ -183,7 +183,7 @@ const años = Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i)
                 </div>
 
                 <!-- Embudo por etapa -->
-                <div class="bg-white rounded-2xl border border-linea shadow-sm p-5">
+                <div class="bg-superficie rounded-2xl border border-linea shadow-sm p-5">
                     <h2 class="text-sm font-semibold text-tinta-700 mb-4">Pipeline activo por etapa</h2>
                     <div v-if="porEtapa.length" class="space-y-3">
                         <div v-for="e in porEtapa" :key="e.id">
@@ -207,7 +207,7 @@ const años = Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i)
             </div>
 
             <!-- Tabla por responsable -->
-            <div class="bg-white rounded-2xl border border-linea shadow-sm p-5">
+            <div class="bg-superficie rounded-2xl border border-linea shadow-sm p-5">
                 <h2 class="text-sm font-semibold text-tinta-700 mb-4">Por responsable</h2>
                 <div v-if="porResponsable.length" class="overflow-x-auto">
                     <table class="w-full text-sm">

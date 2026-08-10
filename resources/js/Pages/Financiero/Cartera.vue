@@ -54,7 +54,7 @@ const semaforoClass = {
 
       <!-- Resumen -->
       <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
-        <div class="bg-white rounded-2xl border border-linea p-4 text-center">
+        <div class="bg-superficie rounded-2xl border border-linea p-4 text-center">
           <div class="text-xs text-tinta-400 mb-1">Total en cartera</div>
           <div class="font-semibold text-tinta-900">${{ fmt(totalCartera) }}</div>
         </div>
@@ -62,11 +62,11 @@ const semaforoClass = {
           <div class="text-xs text-tinta-400 mb-1">Vencido</div>
           <div class="font-semibold text-red-700">${{ fmt(totalVencido) }}</div>
         </div>
-        <div class="bg-white rounded-2xl border border-linea p-4 text-center">
+        <div class="bg-superficie rounded-2xl border border-linea p-4 text-center">
           <div class="text-xs text-tinta-400 mb-1">Vencidas</div>
           <div class="font-semibold text-red-600 text-lg">{{ countRojo }}</div>
         </div>
-        <div class="bg-white rounded-2xl border border-linea p-4 text-center">
+        <div class="bg-superficie rounded-2xl border border-linea p-4 text-center">
           <div class="text-xs text-tinta-400 mb-1">Por vencer</div>
           <div class="font-semibold text-yellow-600 text-lg">{{ countAmarillo }}</div>
         </div>
@@ -91,7 +91,7 @@ const semaforoClass = {
       </div>
 
       <!-- Tabla desktop -->
-      <div class="bg-white rounded-2xl border border-linea overflow-hidden">
+      <div class="bg-superficie rounded-2xl border border-linea overflow-hidden">
         <div v-if="!cuotasFiltradas.length" class="p-10 text-center text-sm text-tinta-300">
           No hay cuotas pendientes
         </div>

@@ -201,7 +201,7 @@ const guardarHoras = async (paso) => {
 const circuloPaso = (paso) => {
     if (paso.completado) return 'bg-green-500 border-green-500'
     if (paso.iniciado_at || paso.operario_id) return 'bg-yellow-50 border-yellow-400'
-    return 'bg-white border-tinta-200'
+    return 'bg-superficie border-tinta-200'
 }
 </script>
 
@@ -224,7 +224,7 @@ const circuloPaso = (paso) => {
             <div class="w-full md:w-[380px] md:shrink-0 space-y-4">
 
                 <!-- Card info general -->
-                <div class="bg-white rounded-2xl shadow-sm border border-linea p-5">
+                <div class="bg-superficie rounded-2xl shadow-sm border border-linea p-5">
                     <h3 class="text-sm font-semibold text-tinta-900 mb-4">Información general</h3>
                     <div class="space-y-3">
                         <div class="flex items-start justify-between gap-2">
@@ -261,7 +261,7 @@ const circuloPaso = (paso) => {
                 </div>
 
                 <!-- Card progreso general -->
-                <div class="bg-white rounded-2xl shadow-sm border border-linea p-5">
+                <div class="bg-superficie rounded-2xl shadow-sm border border-linea p-5">
                     <h3 class="text-sm font-semibold text-tinta-900 mb-4">Progreso general</h3>
 
                     <!-- Barra grande -->
@@ -301,7 +301,7 @@ const circuloPaso = (paso) => {
                     <div
                         v-for="paso in pasos"
                         :key="paso.id"
-                        class="bg-white rounded-2xl shadow-sm border transition-all"
+                        class="bg-superficie rounded-2xl shadow-sm border transition-all"
                         :class="paso.completado ? 'border-green-200' : 'border-linea'"
                     >
                         <!-- ── Header del paso (clickeable) ───────────────── -->
@@ -405,7 +405,7 @@ const circuloPaso = (paso) => {
                                     class="bg-tinta-50 rounded-xl p-3 space-y-2">
                                     <div class="flex items-center gap-2">
                                         <select v-model="entry.operario_id"
-                                            class="flex-1 rounded-lg border border-linea px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300 bg-white">
+                                            class="flex-1 rounded-lg border border-linea px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300 bg-superficie">
                                             <option value="">Sin asignar</option>
                                             <option v-for="op in operarios" :key="op.id" :value="op.id">{{ op.nombre }}</option>
                                         </select>

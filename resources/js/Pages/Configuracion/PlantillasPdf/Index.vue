@@ -153,14 +153,14 @@ function irACrear() {
                     class="shrink-0 px-3 py-1.5 rounded-full text-xs font-medium transition-colors whitespace-nowrap border"
                     :class="moduloActivo === m.key
                         ? 'bg-[var(--marca)] text-white border-[var(--marca)]'
-                        : 'bg-white text-tinta-500 border-linea hover:bg-tinta-50'"
+                        : 'bg-superficie text-tinta-500 border-linea hover:bg-tinta-50'"
                 >
                     {{ m.label }}
                 </button>
             </div>
 
             <!-- Sin resultados -->
-            <div v-if="plantillasFiltradas.length === 0" class="text-center py-16 bg-white rounded-2xl border border-linea shadow-sm">
+            <div v-if="plantillasFiltradas.length === 0" class="text-center py-16 bg-superficie rounded-2xl border border-linea shadow-sm">
                 <svg class="w-12 h-12 mx-auto text-tinta-200 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
                 </svg>
@@ -201,7 +201,7 @@ function irACrear() {
                     <div
                         v-for="p in mod.items"
                         :key="p.id"
-                        class="bg-white rounded-xl border border-linea shadow-sm px-4 py-3"
+                        class="bg-superficie rounded-xl border border-linea shadow-sm px-4 py-3"
                     >
                         <div class="flex items-start justify-between gap-3">
                             <!-- Info -->
@@ -309,7 +309,7 @@ function irACrear() {
                 class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4"
                 style="background: rgba(0,0,0,0.5);"
                 @click.self="modalNueva = false">
-                <div class="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6 space-y-4">
+                <div class="bg-superficie rounded-2xl shadow-xl w-full max-w-sm p-6 space-y-4">
                     <h3 class="font-semibold text-tinta-900">Nueva plantilla PDF</h3>
                     <div>
                         <label class="block text-sm text-tinta-500 mb-1">Módulo</label>

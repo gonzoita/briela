@@ -106,7 +106,7 @@ async function liquidar(id) {
                     <p class="text-xl font-semibold" style="color:#14532D;">{{ formatCOP(totales.ejecutada) }}</p>
                     <p class="text-xs mt-1" style="color:#86EFAC;">OPs completadas</p>
                 </div>
-                <div class="rounded-xl border p-4 bg-white border-linea">
+                <div class="rounded-xl border p-4 bg-superficie border-linea">
                     <p class="text-xs font-semibold uppercase mb-1 text-tinta-400">Liquidadas</p>
                     <p class="text-xl font-semibold text-tinta-900">{{ formatCOP(totales.liquidada) }}</p>
                     <p class="text-xs mt-1 text-tinta-300">Pagadas</p>
@@ -114,13 +114,13 @@ async function liquidar(id) {
             </div>
 
             <!-- Total del mes -->
-            <div class="bg-white rounded-xl border border-linea p-4 mb-4 flex items-center justify-between">
+            <div class="bg-superficie rounded-xl border border-linea p-4 mb-4 flex items-center justify-between">
                 <span class="text-sm font-semibold text-tinta-700">Total del mes</span>
                 <span class="text-xl font-semibold" style="color:var(--marca);">{{ formatCOP(totalMes) }}</span>
             </div>
 
             <!-- Tabla de comisiones — desktop -->
-            <div class="bg-white rounded-xl border border-linea overflow-hidden hidden sm:block">
+            <div class="bg-superficie rounded-xl border border-linea overflow-hidden hidden sm:block">
                 <table class="w-full text-sm">
                     <thead class="bg-tinta-50 border-b border-linea">
                         <tr>
@@ -170,7 +170,7 @@ async function liquidar(id) {
             </div>
 
             <!-- Lista mobile -->
-            <div class="sm:hidden bg-white rounded-xl border border-linea overflow-hidden">
+            <div class="sm:hidden bg-superficie rounded-xl border border-linea overflow-hidden">
                 <div v-if="comisiones.length === 0" class="py-10 text-center text-tinta-300 text-sm">
                     Sin comisiones para este período
                 </div>

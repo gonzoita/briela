@@ -35,7 +35,7 @@ const submit = () => {
                 />
             </div>
 
-            <div class="bg-white rounded-2xl shadow-sm p-6">
+            <div class="bg-superficie rounded-2xl shadow-sm p-6">
 
                 <!-- Invitación inválida -->
                 <div v-if="!invitacion" class="text-center py-4">

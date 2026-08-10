@@ -273,14 +273,14 @@ async function limpiar() {
         <div v-if="abierto" class="fixed inset-0 z-50 sm:bg-transparent" style="background:rgba(0,0,0,0.35);"
             @click.self="abierto = false">
             <div
-                class="absolute bg-white shadow-2xl flex flex-col
+                class="absolute bg-superficie shadow-2xl flex flex-col
                        inset-x-0 bottom-0 rounded-t-2xl
                        sm:inset-auto sm:right-5 sm:bottom-5 sm:w-96 sm:rounded-2xl sm:border sm:border-linea"
                 style="height: 78vh; max-height: 620px;"
             >
                 <!-- Cabecera -->
                 <div class="flex items-center gap-3 px-4 py-3 rounded-t-2xl shrink-0" style="background:var(--marca);">
-                    <div class="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
+                    <div class="w-8 h-8 rounded-full bg-superficie/20 flex items-center justify-center">
                         <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                             <path stroke-linecap="round" stroke-linejoin="round"
                                 d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-6l-4 4v-4z" />
@@ -313,7 +313,7 @@ async function limpiar() {
                 </div>
 
                 <!-- Preferencia personal de escucha -->
-                <div v-if="ajustesAbiertos" class="px-4 py-3 border-b border-linea bg-white shrink-0 space-y-2">
+                <div v-if="ajustesAbiertos" class="px-4 py-3 border-b border-linea bg-superficie shrink-0 space-y-2">
                     <label class="flex items-center gap-2 cursor-pointer">
                         <input v-model="prefs.leerAuto" type="checkbox" class="rounded"
                             @change="!prefs.leerAuto && detenerVoz()" />
@@ -334,7 +334,7 @@ async function limpiar() {
                         </p>
                         <div class="flex flex-col gap-1.5 px-4">
                             <button v-for="s in sugerencias" :key="s" @click="enviar(s)"
-                                class="text-xs px-3 py-2 rounded-xl border border-linea bg-white text-tinta-500 hover:border-blue-300 text-left">
+                                class="text-xs px-3 py-2 rounded-xl border border-linea bg-superficie text-tinta-500 hover:border-blue-300 text-left">
                                 {{ s }}
                             </button>
                         </div>
@@ -345,7 +345,7 @@ async function limpiar() {
                         <div class="max-w-[85%] rounded-2xl px-3 py-2 text-sm whitespace-pre-wrap"
                             :class="m.rol === 'usuario'
                                 ? 'text-white rounded-br-sm'
-                                : 'bg-white border border-linea text-tinta-900 rounded-bl-sm'"
+                                : 'bg-superficie border border-linea text-tinta-900 rounded-bl-sm'"
                             :style="m.rol === 'usuario' ? 'background:var(--marca);' : ''">
                             <!-- Las respuestas vienen en Markdown; se convierten a HTML
                                  seguro (el texto se escapa antes de dar formato). -->
@@ -385,7 +385,7 @@ async function limpiar() {
                     <!-- Solo mientras no haya empezado a escribir: una vez sale
                          texto, el aviso sobra y estorba. -->
                     <div v-if="cargando && !mensajes.some(m => m.escribiendo)" class="flex justify-start">
-                        <div class="bg-white border border-linea rounded-2xl rounded-bl-sm px-3 py-2">
+                        <div class="bg-superficie border border-linea rounded-2xl rounded-bl-sm px-3 py-2">
                             <span class="text-sm text-tinta-300">{{ nombre }} está escribiendo…</span>
                         </div>
                     </div>
@@ -394,7 +394,7 @@ async function limpiar() {
                 </div>
 
                 <!-- Entrada -->
-                <div class="p-3 border-t border-linea shrink-0 bg-white rounded-b-2xl">
+                <div class="p-3 border-t border-linea shrink-0 bg-superficie rounded-b-2xl">
                     <p v-if="dictando" class="text-xs text-center mb-2" style="color:var(--marca);">
                         Escuchando… habla y se envía sola al terminar.
                     </p>

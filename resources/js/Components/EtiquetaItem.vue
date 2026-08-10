@@ -17,7 +17,7 @@
             class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm"
             @click.self="mostrar = false"
         >
-            <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full mx-4 overflow-hidden">
+            <div class="bg-superficie rounded-2xl shadow-2xl max-w-lg w-full mx-4 overflow-hidden">
 
                 <!-- Header modal -->
                 <div class="flex items-center justify-between px-5 py-4 bg-[var(--marca)]">
@@ -28,7 +28,7 @@
                     <div class="flex items-center gap-2">
                         <button
                             @click="imprimir"
-                            class="px-3 py-1.5 bg-white text-[var(--marca)] rounded-lg text-sm font-semibold hover:bg-blue-50 flex items-center gap-1.5"
+                            class="px-3 py-1.5 bg-superficie text-[var(--marca)] rounded-lg text-sm font-semibold hover:bg-blue-50 flex items-center gap-1.5"
                         >
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2m-6 0v4H9v-4h6z"/>
@@ -37,7 +37,7 @@
                         </button>
                         <button
                             @click="mostrar = false"
-                            class="text-white/70 hover:text-white p-1 rounded-lg hover:bg-white/10"
+                            class="text-white/70 hover:text-white p-1 rounded-lg hover:bg-superficie/10"
                         >
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
@@ -50,7 +50,7 @@
                 <div class="p-6 flex justify-center bg-tinta-50">
                     <div
                         id="etiqueta-imprimir"
-                        class="bg-white border-2 border-gray-800 rounded-lg overflow-hidden"
+                        class="bg-superficie border-2 border-gray-800 rounded-lg overflow-hidden"
                         style="width:378px;height:189px;position:relative;"
                     >
                         <!-- Franja superior azul -->

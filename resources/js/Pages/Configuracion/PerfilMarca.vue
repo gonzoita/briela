@@ -251,7 +251,7 @@ async function importar() {
             </div>
 
             <!-- Credencial y modelos de IA -->
-            <div class="bg-white rounded-2xl border border-linea p-5 mb-4">
+            <div class="bg-superficie rounded-2xl border border-linea p-5 mb-4">
                 <div class="flex items-center justify-between mb-1">
                     <h2 class="text-sm font-semibold text-tinta-700">Conexión con la IA</h2>
                     <span class="text-xs px-2 py-0.5 rounded-full"
@@ -285,7 +285,7 @@ async function importar() {
                             <input v-model="buscarTexto" type="text" placeholder="Filtrar… ej: claude, gpt, gemini"
                                 class="w-full rounded-xl border border-linea px-3 py-1.5 text-xs mb-1.5 focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]" />
                             <select v-if="totalTexto" v-model="iaModeloTexto" size="6"
-                                class="w-full rounded-xl border border-tinta-200 px-2 py-1 text-xs bg-white focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]">
+                                class="w-full rounded-xl border border-tinta-200 px-2 py-1 text-xs bg-superficie focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]">
                                 <option v-for="(label, id) in modelosTextoFiltrados" :key="id" :value="id">{{ label }}</option>
                             </select>
                             <input v-else v-model="iaModeloTexto" type="text" placeholder="anthropic/claude-sonnet-5"
@@ -300,7 +300,7 @@ async function importar() {
                             <input v-model="buscarImagen" type="text" placeholder="Filtrar… ej: gpt, gemini, flux"
                                 class="w-full rounded-xl border border-linea px-3 py-1.5 text-xs mb-1.5 focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]" />
                             <select v-if="totalImagen" v-model="iaModeloImagen" size="6"
-                                class="w-full rounded-xl border border-tinta-200 px-2 py-1 text-xs bg-white focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]">
+                                class="w-full rounded-xl border border-tinta-200 px-2 py-1 text-xs bg-superficie focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]">
                                 <option v-for="(label, id) in modelosImagenFiltrados" :key="id" :value="id">{{ label }}</option>
                             </select>
                             <input v-else v-model="iaModeloImagen" type="text" placeholder="openai/gpt-image-2"
@@ -378,7 +378,7 @@ async function importar() {
             </div>
 
             <!-- El asistente -->
-            <div class="bg-white rounded-2xl border border-linea p-5 mb-4">
+            <div class="bg-superficie rounded-2xl border border-linea p-5 mb-4">
                 <h2 class="text-sm font-semibold text-tinta-700 mb-1">Tu asistente</h2>
                 <p class="text-xs text-tinta-300 mb-3">
                     Ponle el nombre que quieras. Responde usando este perfil de marca.
@@ -432,7 +432,7 @@ async function importar() {
                             <div>
                                 <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1.5">Voz</label>
                                 <select v-model="vozElegida"
-                                    class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm bg-white focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]">
+                                    class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm bg-superficie focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]">
                                     <option v-for="(label, id) in vocesSugeridas" :key="id" :value="id">{{ label }}</option>
                                     <option value="__otra">Otra (escribirla a mano)</option>
                                 </select>
@@ -529,7 +529,7 @@ async function importar() {
 
             <!-- Secciones -->
             <div class="space-y-3">
-                <div v-for="fila in filas" :key="fila.seccion" class="bg-white rounded-2xl border border-linea p-4">
+                <div v-for="fila in filas" :key="fila.seccion" class="bg-superficie rounded-2xl border border-linea p-4">
                     <div class="flex items-start justify-between gap-2 mb-2">
                         <div class="min-w-0">
                             <div class="flex items-center gap-2 flex-wrap">
@@ -577,7 +577,7 @@ async function importar() {
             <Teleport to="body">
                 <div v-if="modalImportar" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4"
                     style="background:rgba(0,0,0,0.5);" @click.self="modalImportar = false">
-                    <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg p-5">
+                    <div class="bg-superficie rounded-2xl shadow-xl w-full max-w-lg p-5">
                         <h3 class="text-base font-semibold text-tinta-900 mb-1">Importar perfil de marca</h3>
                         <p class="text-sm text-tinta-400 mb-3">
                             Pega aquí el texto de tu documento de marca. La IA lo reparte en las secciones.

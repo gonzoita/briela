@@ -56,7 +56,7 @@ function inicial(nombre) {
                 </div>
                 <div class="flex items-center gap-2">
                     <!-- Toggle lista/grid -->
-                    <div class="flex items-center rounded-xl border border-linea bg-white overflow-hidden shadow-sm">
+                    <div class="flex items-center rounded-xl border border-linea bg-superficie overflow-hidden shadow-sm">
                         <button @click="viewMode = 'list'"
                             class="w-9 h-9 flex items-center justify-center transition-colors"
                             :style="viewMode === 'list' ? 'background:var(--marca);color:white;' : 'color:#9CA3AF;'"
@@ -87,7 +87,7 @@ function inicial(nombre) {
             </div>
 
             <!-- Filtros -->
-            <div class="bg-white rounded-2xl shadow-sm p-4 mb-4 flex flex-wrap gap-3">
+            <div class="bg-superficie rounded-2xl shadow-sm p-4 mb-4 flex flex-wrap gap-3">
                 <input
                     v-model="buscar"
                     @input="aplicarFiltros"
@@ -103,7 +103,7 @@ function inicial(nombre) {
             </div>
 
             <!-- Vacío -->
-            <div v-if="ensambles.data?.length === 0" class="bg-white rounded-2xl shadow-sm py-16 text-center text-tinta-300">
+            <div v-if="ensambles.data?.length === 0" class="bg-superficie rounded-2xl shadow-sm py-16 text-center text-tinta-300">
                 <svg class="w-12 h-12 mx-auto mb-3 text-tinta-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
                 </svg>
@@ -111,7 +111,7 @@ function inicial(nombre) {
             </div>
 
             <!-- VISTA LISTA -->
-            <div v-else-if="viewMode === 'list'" class="bg-white rounded-2xl shadow-sm overflow-hidden">
+            <div v-else-if="viewMode === 'list'" class="bg-superficie rounded-2xl shadow-sm overflow-hidden">
                 <ul class="divide-y divide-gray-50">
                     <li v-for="e in ensambles.data" :key="e.id"
                         class="flex items-center gap-3 px-4 py-3 hover:bg-blue-50/40 transition-colors cursor-pointer"
@@ -167,7 +167,7 @@ function inicial(nombre) {
             <!-- VISTA GRID -->
             <div v-else class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
                 <div v-for="e in ensambles.data" :key="e.id"
-                    class="bg-white rounded-2xl shadow-sm overflow-hidden cursor-pointer active:scale-[0.98] transition-transform"
+                    class="bg-superficie rounded-2xl shadow-sm overflow-hidden cursor-pointer active:scale-[0.98] transition-transform"
                     @click="router.visit(`/ensambles/${e.id}`)">
                     <div class="aspect-square overflow-hidden" style="background:#F1F5F9;">
                         <img v-if="e.imagen_principal" :src="urlImagen(e.imagen_principal)" :alt="e.nombre" class="w-full h-full object-cover"/>

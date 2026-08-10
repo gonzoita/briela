@@ -73,7 +73,7 @@ const liquidar = () => {
             <div class="grid grid-cols-1 md:grid-cols-[320px_1fr] gap-4 items-start">
 
                 <!-- ── Columna izquierda — info general ── -->
-                <div class="bg-white rounded-xl border border-linea p-5">
+                <div class="bg-superficie rounded-xl border border-linea p-5">
 
                     <!-- Header con botón volver -->
                     <div class="flex items-center gap-3 mb-4">
@@ -167,7 +167,7 @@ const liquidar = () => {
                 </div>
 
                 <!-- ── Columna derecha — desglose por ítem ── -->
-                <div class="bg-white rounded-xl border border-linea overflow-hidden">
+                <div class="bg-superficie rounded-xl border border-linea overflow-hidden">
                     <div class="px-5 py-4 border-b border-linea">
                         <h2 class="font-semibold text-tinta-900">Desglose por ítem</h2>
                         <p class="text-xs text-tinta-300 mt-0.5">

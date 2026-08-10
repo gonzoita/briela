@@ -28,7 +28,7 @@ const fmt = (n) => Number(n).toLocaleString('es-CO')
 
             <!-- Stats -->
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                <div class="bg-white rounded-2xl border border-linea p-4 text-center">
+                <div class="bg-superficie rounded-2xl border border-linea p-4 text-center">
                     <p class="text-2xl font-semibold text-tinta-900">{{ stats.total_equipos }}</p>
                     <p class="text-xs text-tinta-400 mt-0.5">Equipos</p>
                 </div>
@@ -54,7 +54,7 @@ const fmt = (n) => Number(n).toLocaleString('es-CO')
                 </p>
                 <div class="space-y-2">
                     <div v-for="e in alertas" :key="e.id"
-                        class="flex items-center justify-between bg-white rounded-xl p-3 border border-red-100 cursor-pointer hover:bg-red-50"
+                        class="flex items-center justify-between bg-superficie rounded-xl p-3 border border-red-100 cursor-pointer hover:bg-red-50"
                         @click="router.visit(`/mantenimiento/equipos/${e.id}`)">
                         <div>
                             <p class="text-sm font-medium text-tinta-900">{{ e.nombre }}</p>
@@ -72,7 +72,7 @@ const fmt = (n) => Number(n).toLocaleString('es-CO')
                 <p class="text-sm font-semibold text-amber-700 mb-3">Revisiones en los próximos 7 días</p>
                 <div class="space-y-2">
                     <div v-for="e in proximos" :key="e.id"
-                        class="flex items-center justify-between bg-white rounded-xl p-3 border border-amber-100 cursor-pointer hover:bg-amber-50"
+                        class="flex items-center justify-between bg-superficie rounded-xl p-3 border border-amber-100 cursor-pointer hover:bg-amber-50"
                         @click="router.visit(`/mantenimiento/equipos/${e.id}`)">
                         <div>
                             <p class="text-sm font-medium text-tinta-900">{{ e.nombre }}</p>
@@ -86,7 +86,7 @@ const fmt = (n) => Number(n).toLocaleString('es-CO')
             </div>
 
             <!-- En proceso -->
-            <div v-if="en_proceso.length" class="bg-white rounded-2xl border border-linea overflow-hidden">
+            <div v-if="en_proceso.length" class="bg-superficie rounded-2xl border border-linea overflow-hidden">
                 <div class="px-5 py-3 border-b border-linea">
                     <h2 class="text-sm font-semibold text-tinta-700">En proceso ahora</h2>
                 </div>
@@ -105,7 +105,7 @@ const fmt = (n) => Number(n).toLocaleString('es-CO')
             </div>
 
             <div v-if="!alertas.length && !proximos.length && !en_proceso.length"
-                class="bg-white rounded-2xl border border-linea py-12 text-center">
+                class="bg-superficie rounded-2xl border border-linea py-12 text-center">
                 <div class="text-4xl mb-2">✓</div>
                 <p class="text-sm font-medium text-tinta-500">Todo al día</p>
                 <p class="text-xs text-tinta-300 mt-1">No hay alertas ni revisiones pendientes esta semana</p>

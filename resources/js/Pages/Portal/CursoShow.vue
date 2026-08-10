@@ -90,7 +90,7 @@ const tipoLabel = (v) => ({ video_drive: 'Video', video_externo: 'Video', texto:
         <div class="space-y-4">
 
             <!-- Barra de progreso del curso -->
-            <div class="bg-white rounded-2xl shadow-sm p-4">
+            <div class="bg-superficie rounded-2xl shadow-sm p-4">
                 <div class="flex items-center justify-between mb-2">
                     <p class="text-sm font-semibold text-tinta-900 truncate">{{ curso.titulo }}</p>
                     <span class="text-xs font-semibold shrink-0" style="color:var(--marca);">{{ porcentajeActual }}%</span>
@@ -113,7 +113,7 @@ const tipoLabel = (v) => ({ video_drive: 'Video', video_externo: 'Video', texto:
 
                 <!-- Sidebar módulos/lecciones -->
                 <div class="md:col-span-1 order-2 md:order-1 space-y-3">
-                    <div v-for="modulo in curso.modulos" :key="modulo.id" class="bg-white rounded-2xl shadow-sm overflow-hidden" :class="{ 'opacity-60': modulo.bloqueado }">
+                    <div v-for="modulo in curso.modulos" :key="modulo.id" class="bg-superficie rounded-2xl shadow-sm overflow-hidden" :class="{ 'opacity-60': modulo.bloqueado }">
                         <div class="flex items-center gap-2 px-4 py-2.5 border-b border-gray-50">
                             <svg v-if="modulo.bloqueado" class="w-3.5 h-3.5 text-tinta-300 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
@@ -156,7 +156,7 @@ const tipoLabel = (v) => ({ video_drive: 'Video', video_externo: 'Video', texto:
 
                 <!-- Panel principal / reproductor -->
                 <div class="md:col-span-2 order-1 md:order-2">
-                    <div v-if="leccionActual" class="bg-white rounded-2xl shadow-sm overflow-hidden">
+                    <div v-if="leccionActual" class="bg-superficie rounded-2xl shadow-sm overflow-hidden">
 
                         <div v-if="leccionActual.tipo === 'video_drive' || leccionActual.tipo === 'video_externo'" class="aspect-video bg-black">
                             <iframe :src="embedUrl(leccionActual)" class="w-full h-full" frameborder="0" allow="autoplay; fullscreen" allowfullscreen></iframe>
@@ -187,7 +187,7 @@ const tipoLabel = (v) => ({ video_drive: 'Video', video_externo: 'Video', texto:
                         </div>
                     </div>
 
-                    <div v-else class="bg-white rounded-2xl shadow-sm py-16 text-center text-tinta-300">
+                    <div v-else class="bg-superficie rounded-2xl shadow-sm py-16 text-center text-tinta-300">
                         <p class="text-sm">Este curso aún no tiene lecciones.</p>
                     </div>
                 </div>

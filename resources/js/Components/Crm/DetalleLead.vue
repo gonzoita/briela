@@ -226,7 +226,7 @@ function formatFecha(fecha) {
         <div class="fixed inset-0 z-[55]" style="background: rgba(0,0,0,0.4);" @click="emit('cerrar')" />
 
         <!-- Panel slide-over -->
-        <div class="fixed top-0 right-0 bottom-0 z-[56] flex flex-col bg-white shadow-2xl w-full max-w-lg overflow-hidden">
+        <div class="fixed top-0 right-0 bottom-0 z-[56] flex flex-col bg-superficie shadow-2xl w-full max-w-lg overflow-hidden">
 
             <!-- Loader -->
             <div v-if="cargando" class="flex-1 flex items-center justify-center">
@@ -329,7 +329,7 @@ function formatFecha(fecha) {
                                         <div>
                                             <label class="text-xs text-tinta-400 block mb-1">Tipo</label>
                                             <select v-model="formConvertir.tipo"
-                                                class="w-full border border-tinta-200 rounded-lg px-2 py-1.5 text-sm bg-white">
+                                                class="w-full border border-tinta-200 rounded-lg px-2 py-1.5 text-sm bg-superficie">
                                                 <option value="empresa">Empresa</option>
                                                 <option value="persona">Persona</option>
                                             </select>
@@ -378,7 +378,7 @@ function formatFecha(fecha) {
                                     <p class="text-xs text-tinta-300 mb-1">O vincular a cliente existente:</p>
                                     <div class="flex gap-2">
                                         <select v-model="clienteExistenteId"
-                                            class="flex-1 border border-tinta-200 rounded-lg px-2 py-1.5 text-sm bg-white">
+                                            class="flex-1 border border-tinta-200 rounded-lg px-2 py-1.5 text-sm bg-superficie">
                                             <option value="">Seleccionar cliente...</option>
                                             <option v-for="c in clientes" :key="c.id" :value="c.id">{{ c.nombre }}</option>
                                         </select>
@@ -413,10 +413,10 @@ function formatFecha(fecha) {
                         <!-- Form nueva tarea -->
                         <div v-if="mostrarFormTarea" class="bg-blue-50 rounded-xl p-3 mb-3 space-y-2">
                             <input v-model="formTarea.titulo" type="text" placeholder="Título de la tarea"
-                                class="w-full border border-linea rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)] bg-white"/>
+                                class="w-full border border-linea rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)] bg-superficie"/>
                             <div class="grid grid-cols-2 gap-2">
                                 <select v-model="formTarea.tipo"
-                                    class="border border-linea rounded-lg px-2 py-2 text-sm bg-white focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]">
+                                    class="border border-linea rounded-lg px-2 py-2 text-sm bg-superficie focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]">
                                     <option value="llamada">Llamada</option>
                                     <option value="email">Email</option>
                                     <option value="reunion">Reunión</option>
@@ -424,10 +424,10 @@ function formatFecha(fecha) {
                                     <option value="otro">Otro</option>
                                 </select>
                                 <input v-model="formTarea.fecha_vencimiento" type="date"
-                                    class="border border-linea rounded-lg px-2 py-2 text-sm bg-white focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]"/>
+                                    class="border border-linea rounded-lg px-2 py-2 text-sm bg-superficie focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]"/>
                             </div>
                             <select v-model="formTarea.responsable_id"
-                                class="w-full border border-linea rounded-lg px-2 py-2 text-sm bg-white focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]">
+                                class="w-full border border-linea rounded-lg px-2 py-2 text-sm bg-superficie focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]">
                                 <option :value="null">Sin responsable</option>
                                 <option v-for="u in usuarios" :key="u.id" :value="u.id">{{ u.name }}</option>
                             </select>
@@ -584,7 +584,7 @@ function formatFecha(fecha) {
         <div v-if="modalCierre"
             class="fixed inset-0 z-[60] flex items-center justify-center p-4"
             style="background: rgba(0,0,0,0.55);">
-            <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden">
+            <div class="bg-superficie rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden">
                 <div class="px-5 py-4 border-b border-linea">
                     <h3 class="font-semibold text-tinta-900">
                         {{ tipoCierre === 'ganado' ? '¡Marcar como ganado!' : 'Marcar como perdido' }}
