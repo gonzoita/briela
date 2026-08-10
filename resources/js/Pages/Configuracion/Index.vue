@@ -1433,6 +1433,30 @@ const configPuntos = computed(() =>
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
                             </svg>
                         </a>
+                        <a href="/administracion/actualizacion" @click.prevent="router.visit('/administracion/actualizacion')"
+                            class="flex items-center gap-3 bg-superficie rounded-xl border border-linea p-4 hover:border-blue-300 hover:shadow-sm transition-all">
+                            <div class="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center shrink-0">
+                                <svg class="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v12m0 0l-4-4m4 4l4-4" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 18v1a1 1 0 001 1h14a1 1 0 001-1v-1" />
+                                </svg>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-semibold text-tinta-900">Actualizar el sistema</p>
+                                <p class="text-xs text-tinta-400 mt-0.5">
+                                    Versión {{ $page.props.licencia?.version ?? 'sin determinar' }}
+                                </p>
+                            </div>
+                            <!-- El punto es todo el aviso que hace falta: quien no tenga
+                                 nada pendiente no debería ver nada llamándole la atención. -->
+                            <span v-if="$page.props.licencia?.actualizacion"
+                                class="shrink-0 text-xs font-semibold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700">
+                                {{ $page.props.licencia.actualizacion.version }}
+                            </span>
+                            <svg class="w-4 h-4 text-tinta-300 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                            </svg>
+                        </a>
                     </div>
                 </div>
 

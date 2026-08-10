@@ -456,6 +456,25 @@ Route::middleware('auth')->group(function () {
     });
 
     // ─── Backup BD (solo administrador) ─────────────────────────────────────
+
+    // ─── Actualizaciones ─────────────────────────────────────────────────────
+    // Cada paso es una ruta aparte: copiar 43.000 archivos no cabe en el límite de
+    // ejecución de un hosting compartido, así que el navegador va llamando por tandas.
+    Route::middleware('permiso:configuracion.editar')
+        ->prefix('administracion/actualizacion')
+        ->name('actualizacion.')
+        ->group(function () {
+            Route::get('/',            [\App\Http\Controllers\ActualizacionController::class, 'index'])->name('index');
+            Route::post('/comprobar',  [\App\Http\Controllers\ActualizacionController::class, 'comprobar'])->name('comprobar');
+            Route::post('/serial',     [\App\Http\Controllers\ActualizacionController::class, 'guardarSerial'])->name('serial');
+            Route::post('/descargar',  [\App\Http\Controllers\ActualizacionController::class, 'descargar'])->name('descargar');
+            Route::post('/respaldar',  [\App\Http\Controllers\ActualizacionController::class, 'respaldar'])->name('respaldar');
+            Route::post('/extraer',    [\App\Http\Controllers\ActualizacionController::class, 'extraer'])->name('extraer');
+            Route::post('/copiar',     [\App\Http\Controllers\ActualizacionController::class, 'copiar'])->name('copiar');
+            Route::post('/finalizar',  [\App\Http\Controllers\ActualizacionController::class, 'finalizar'])->name('finalizar');
+            Route::post('/cancelar',   [\App\Http\Controllers\ActualizacionController::class, 'cancelar'])->name('cancelar');
+        });
+
     Route::middleware('permiso:configuracion.editar')
         ->prefix('administracion/backup')
         ->group(function () {
