@@ -7,19 +7,24 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
 /**
- * Punto único de contacto con la IA, a través de OpenRouter.
+ * Punto único de contacto con la IA.
  *
- * OpenRouter es una pasarela: con UNA sola credencial y UN solo saldo se puede
- * usar Claude para texto y modelos de imagen, sin abrir cuenta en cada
- * proveedor. Su API es compatible con la de OpenAI.
+ * Normalmente sale por el proxy de Briela, que es el que tiene la credencial del
+ * proveedor: así la llave no viaja dentro de la instalación —donde cualquiera podría
+ * leerla del .env— y el consumo queda medido y cobrado por instalación. La credencial
+ * que se manda es el serial.
  *
- * Requiere en .env: OPENROUTER_API_KEY.
- * Sin credencial el módulo queda apagado: lanza un error claro y el resto del
- * sistema sigue funcionando igual.
+ * Si la instalación tiene una llave propia configurada Y no tiene serial, habla
+ * directo con OpenRouter. Ese camino queda para desarrollo: una instalación con
+ * serial siempre sale por el proxy, aunque alguien pegue una llave en Ajustes.
+ *
+ * Sin ninguna de las dos cosas el módulo queda apagado: lanza un error claro y el
+ * resto del sistema sigue funcionando igual.
  */
 class IaService
 {
-    private const API_URL = 'https://openrouter.ai/api/v1/chat/completions';
+    /** El proveedor, para el camino directo de desarrollo. */
+    private const OPENROUTER = 'https://openrouter.ai/api/v1';
 
     /**
      * La configuración se lee primero de Ajustes (base de datos) y, si no está
@@ -63,9 +68,79 @@ class IaService
         return $this->ajuste('ia_modelo_imagen', 'services.ia.modelo_imagen', 'openai/gpt-image-2');
     }
 
+    /**
+     * El serial de esta instalación, que es la credencial ante el proxy.
+     *
+     * Se lee del servicio de licencias para que exista un solo lugar donde se sabe
+     * cuál es el serial.
+     */
+    private function serial(): ?string
+    {
+        return app(\App\Services\LicenciaService::class)->serial();
+    }
+
+    /**
+     * ¿Se sale por el proxy de Briela o directo al proveedor?
+     *
+     * Tener serial manda: si la instalación está registrada, sale por el proxy y no
+     * hay manera de esquivarlo desde Ajustes. Lo contrario dejaría que cualquier
+     * cliente pusiera su propia llave y el asistente dejaría de ser lo que se cobra.
+     */
+    public function porProxy(): bool
+    {
+        return $this->serial() !== null;
+    }
+
+    /** La dirección de un endpoint, según por dónde se salga. */
+    private function url(string $ruta): string
+    {
+        return $this->porProxy()
+            ? rtrim((string) config('briela.ia_url'), '/') . '/' . ltrim($ruta, '/')
+            : self::OPENROUTER . '/' . ltrim($ruta, '/');
+    }
+
+    /**
+     * Las cabeceras de salida.
+     *
+     * Al proxy se le manda el serial; al proveedor, la llave. La forma es la misma
+     * —Bearer— a propósito: así el resto del servicio no tiene que saber por dónde
+     * está saliendo.
+     */
+    private function cabeceras(array $extra = []): array
+    {
+        $credencial = $this->porProxy() ? $this->serial() : $this->apiKey();
+
+        return array_merge([
+            'Authorization' => 'Bearer ' . $credencial,
+            'Content-Type'  => 'application/json',
+        ], $extra);
+    }
+
     public function configurado(): bool
     {
-        return $this->apiKey() !== '';
+        return $this->porProxy() || $this->apiKey() !== '';
+    }
+
+    /**
+     * Qué decirle al usuario cuando la respuesta es 402.
+     *
+     * El mismo código significa dos cosas distintas según por dónde se salga: por el
+     * proxy es la suscripción o el límite del día, y el proxy ya manda el motivo
+     * redactado; directo al proveedor es saldo agotado. Decir "recarga en openrouter"
+     * a un cliente que ni tiene cuenta ahí sería mandarlo a un sitio que no le
+     * corresponde.
+     */
+    private function mensajeDe402(array $data): string
+    {
+        $delProxy = $data['error']['message'] ?? '';
+
+        if ($this->porProxy()) {
+            return $delProxy !== ''
+                ? $delProxy
+                : 'El asistente no está disponible en este momento. Revisa el estado de la suscripción.';
+        }
+
+        return 'La cuenta de IA se quedó sin saldo. Recarga en openrouter.ai.';
     }
 
     /**
@@ -183,15 +258,13 @@ class IaService
 
         $inicio = microtime(true);
 
-        $resp = Http::withHeaders([
-                'Authorization' => 'Bearer ' . $this->apiKey(),
-                'Content-Type'  => 'application/json',
-                'HTTP-Referer'  => config('app.url'),
-                'X-Title'       => 'Briela',
-            ])
+        $resp = Http::withHeaders($this->cabeceras([
+                'HTTP-Referer' => config('app.url'),
+                'X-Title'      => 'Briela',
+            ]))
             ->withOptions(['stream' => true])
             ->timeout(120)
-            ->post(self::API_URL, $payload);
+            ->post($this->url('chat/completions'), $payload);
 
         if (! $resp->successful()) {
             $data = $resp->json() ?? [];
@@ -199,7 +272,7 @@ class IaService
             Log::error('IA: error al abrir el stream', ['status' => $resp->status(), 'respuesta' => $data]);
 
             if ($resp->status() === 402) {
-                throw new IaException('La cuenta de IA se quedó sin saldo. Recarga en openrouter.ai.');
+                throw new IaException($this->mensajeDe402($data));
             }
 
             throw new IaException('La IA respondió con un error: ' . ($data['error']['message'] ?? $resp->body()));
@@ -401,14 +474,12 @@ class IaService
     /** Camino para modelos TTS dedicados. */
     private function vozPorTts(string $texto, ?string $voz = null): string
     {
-        $resp = Http::withHeaders([
-                'Authorization' => 'Bearer ' . $this->apiKey(),
-                'Content-Type'  => 'application/json',
-                'HTTP-Referer'  => config('app.url'),
-                'X-Title'       => 'Briela',
-            ])
+        $resp = Http::withHeaders($this->cabeceras([
+                'HTTP-Referer' => config('app.url'),
+                'X-Title'      => 'Briela',
+            ]))
             ->timeout(90)
-            ->post('https://openrouter.ai/api/v1/audio/speech', [
+            ->post($this->url('audio/speech'), [
                 'model'           => $this->modeloVoz(),
                 'voice'           => $voz ?: $this->nombreVoz(),
                 'input'           => $texto,
@@ -457,14 +528,12 @@ class IaService
             . 'no agregues saludos ni despedidas, no respondas nada más. '
             . $this->instruccionesVoz();
 
-        $resp = Http::withHeaders([
-                'Authorization' => 'Bearer ' . $this->apiKey(),
-                'Content-Type'  => 'application/json',
-                'HTTP-Referer'  => config('app.url'),
-                'X-Title'       => 'Briela',
-            ])
+        $resp = Http::withHeaders($this->cabeceras([
+                'HTTP-Referer' => config('app.url'),
+                'X-Title'      => 'Briela',
+            ]))
             ->timeout(120)
-            ->post(self::API_URL, [
+            ->post($this->url('chat/completions'), [
                 'model'      => $this->modeloVoz(),
                 'modalities' => ['text', 'audio'],
                 'audio'      => [
@@ -627,9 +696,9 @@ class IaService
 
         return \Cache::remember('ia_modelos_openrouter_v3', now()->addDay(), function () {
             try {
-                $resp = Http::withHeaders(['Authorization' => 'Bearer ' . $this->apiKey()])
+                $resp = Http::withHeaders($this->cabeceras())
                     ->timeout(20)
-                    ->get('https://openrouter.ai/api/v1/models');
+                    ->get($this->url('models'));
 
                 if (! $resp->successful()) {
                     return ['texto' => [], 'imagen' => []];
@@ -709,31 +778,30 @@ class IaService
 
         $inicio = microtime(true);
 
-        $resp = Http::withHeaders([
-                'Authorization' => 'Bearer ' . $this->apiKey(),
-                'Content-Type'  => 'application/json',
+        $resp = Http::withHeaders($this->cabeceras([
                 // OpenRouter pide identificar la aplicación que consume la API.
-                'HTTP-Referer'  => config('app.url'),
-                'X-Title'       => 'Briela',
-            ])
+                'HTTP-Referer' => config('app.url'),
+                'X-Title'      => 'Briela',
+            ]))
             ->timeout($timeout)
-            ->post(self::API_URL, $payload);
+            ->post($this->url('chat/completions'), $payload);
 
         $this->ultimaDuracionMs = (int) ((microtime(true) - $inicio) * 1000);
 
         if (! $resp->successful()) {
             $data = $resp->json() ?? [];
 
-            Log::error('IA: error en la llamada a OpenRouter', [
+            Log::error('IA: error en la llamada', [
+                'por_proxy' => $this->porProxy(),
                 'status'    => $resp->status(),
                 'respuesta' => $data,
             ]);
 
             $detalle = $data['error']['message'] ?? $resp->body();
 
-            // El caso más común en producción: se acabó el saldo.
+            // El caso más común en producción: se acabó el saldo, o la suscripción.
             if ($resp->status() === 402) {
-                throw new IaException('La cuenta de IA se quedó sin saldo. Recarga en openrouter.ai.', $data);
+                throw new IaException($this->mensajeDe402($data), $data);
             }
 
             throw new IaException("La IA respondió con un error: {$detalle}", $data);
