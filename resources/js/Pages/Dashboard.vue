@@ -64,7 +64,7 @@ function doRefresh() {
 
 // ─── Tarjetas OPs ───────────────────────────────────────────────────────────
 const tarjetasOps = [
-    { key: 'en_produccion',   label: 'En producción',   color: '#0A4283', bg: '#EFF6FF', href: '/produccion/ops?estado=en_produccion', icon: 'clipboard' },
+    { key: 'en_produccion',   label: 'En producción',   color: 'var(--marca)', bg: '#EFF6FF', href: '/produccion/ops?estado=en_produccion', icon: 'clipboard' },
     { key: 'borrador',        label: 'Por confirmar',   color: '#D97706', bg: '#FFFBEB', href: '/produccion/ops?estado=borrador',      icon: 'clock'     },
     { key: 'calidad',         label: 'Ctrl. calidad',   color: '#7C3AED', bg: '#F5F3FF', href: '/produccion/ops?estado=calidad',       icon: 'check'     },
     { key: 'despachadas_mes', label: 'Despachadas/mes', color: '#059669', bg: '#ECFDF5', href: '/produccion/ops?estado=despachada',    icon: 'truck'     },
@@ -132,7 +132,7 @@ const badgeClass = (estado) => ({
             <!-- Solo aparece si hay algo. Un bloque vacío que dice "todo bien"
                  se vuelve ruido y la gente deja de mirarlo. -->
             <div v-if="atencion.length" class="mb-5">
-                <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Requiere tu atención</p>
+                <p class="text-[11px] font-semibold text-tinta-300 uppercase tracking-[0.12em] mb-2.5">Requiere tu atención</p>
                 <div class="space-y-2">
                     <Link
                         v-for="a in atencion"
@@ -142,7 +142,7 @@ const badgeClass = (estado) => ({
                                  tonos[a.tono].caja]"
                     >
                         <div :class="['w-10 h-10 rounded-xl flex items-center justify-center shrink-0', tonos[a.tono].icono]">
-                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
                             </svg>
                         </div>
@@ -152,7 +152,7 @@ const badgeClass = (estado) => ({
                             </p>
                             <p :class="['text-xs mt-0.5', tonos[a.tono].texto]">{{ a.detalle }}</p>
                         </div>
-                        <svg class="w-4 h-4 shrink-0 opacity-40" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <svg class="w-4 h-4 shrink-0 opacity-40" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
                         </svg>
                     </Link>
@@ -161,31 +161,31 @@ const badgeClass = (estado) => ({
 
             <!-- Sección: Producción ─────────────────────────────────────── -->
             <div class="mb-5">
-                <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Producción</p>
+                <p class="text-[11px] font-semibold text-tinta-300 uppercase tracking-[0.12em] mb-2.5">Producción</p>
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
                     <Link
                         v-for="t in tarjetasOps"
                         :key="t.key"
                         :href="t.href"
-                        class="bg-white rounded-2xl shadow-sm p-4 flex flex-col gap-2 active:scale-95 transition-transform cursor-pointer no-underline"
+                        class="bg-white rounded-lg border border-linea p-4 flex flex-col gap-3 hover:border-tinta-200 active:scale-[.99] transition-all cursor-pointer no-underline"
                     >
-                        <div class="w-10 h-10 rounded-xl flex items-center justify-center" :style="{ backgroundColor: t.bg }">
-                            <svg v-if="t.icon === 'clipboard'" class="w-5 h-5" :style="{ color: t.color }" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <div class="w-9 h-9 rounded-lg bg-tinta-50 flex items-center justify-center text-tinta-400">
+                            <svg v-if="t.icon === 'clipboard'" class="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
                             </svg>
-                            <svg v-if="t.icon === 'clock'" class="w-5 h-5" :style="{ color: t.color }" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <svg v-if="t.icon === 'clock'" class="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
                             </svg>
-                            <svg v-if="t.icon === 'check'" class="w-5 h-5" :style="{ color: t.color }" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <svg v-if="t.icon === 'check'" class="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                             </svg>
-                            <svg v-if="t.icon === 'truck'" class="w-5 h-5" :style="{ color: t.color }" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <svg v-if="t.icon === 'truck'" class="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M5 17H3a2 2 0 01-2-2V5a2 2 0 012-2h11a2 2 0 012 2v3m0 0h4l3 3v4h-7m0-7H8m9 7a2 2 0 11-4 0 2 2 0 014 0zM7 17a2 2 0 11-4 0 2 2 0 014 0z"/>
                             </svg>
                         </div>
                         <div>
-                            <p class="text-2xl font-bold text-gray-900 leading-none">{{ metricas?.[t.key] ?? 0 }}</p>
-                            <p class="text-xs text-gray-500 mt-1 leading-snug">{{ t.label }}</p>
+                            <p class="text-[13px] text-tinta-400 leading-snug">{{ t.label }}</p>
+                            <p class="text-[26px] font-semibold text-tinta-900 leading-none mt-1.5 tracking-[-0.02em]">{{ metricas?.[t.key] ?? 0 }}</p>
                         </div>
                     </Link>
                 </div>
@@ -193,25 +193,25 @@ const badgeClass = (estado) => ({
 
             <!-- Sección: Cotizaciones (admin/vendedor) ──────────────────── -->
             <div v-if="permisos?.esCotizador" class="mb-5">
-                <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Cotizaciones</p>
+                <p class="text-[11px] font-semibold text-tinta-300 uppercase tracking-[0.12em] mb-2.5">Cotizaciones</p>
                 <div class="grid grid-cols-2 gap-3">
                     <Link
                         v-for="t in tarjetasCots"
                         :key="t.key"
                         :href="t.href"
-                        class="bg-white rounded-2xl shadow-sm p-4 flex flex-col gap-2 active:scale-95 transition-transform cursor-pointer no-underline"
+                        class="bg-white rounded-lg border border-linea p-4 flex flex-col gap-3 hover:border-tinta-200 active:scale-[.99] transition-all cursor-pointer no-underline"
                     >
-                        <div class="w-10 h-10 rounded-xl flex items-center justify-center" :style="{ backgroundColor: t.bg }">
-                            <svg v-if="t.icon === 'doc-sent'" class="w-5 h-5" :style="{ color: t.color }" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <div class="w-9 h-9 rounded-lg bg-tinta-50 flex items-center justify-center text-tinta-400">
+                            <svg v-if="t.icon === 'doc-sent'" class="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                             </svg>
-                            <svg v-if="t.icon === 'doc-list'" class="w-5 h-5" :style="{ color: t.color }" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <svg v-if="t.icon === 'doc-list'" class="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 10h16M4 14h16M4 18h16"/>
                             </svg>
                         </div>
                         <div>
-                            <p class="text-2xl font-bold text-gray-900 leading-none">{{ metricas?.[t.key] ?? 0 }}</p>
-                            <p class="text-xs text-gray-500 mt-1 leading-snug">{{ t.label }}</p>
+                            <p class="text-[13px] text-tinta-400 leading-snug">{{ t.label }}</p>
+                            <p class="text-[26px] font-semibold text-tinta-900 leading-none mt-1.5 tracking-[-0.02em]">{{ metricas?.[t.key] ?? 0 }}</p>
                         </div>
                     </Link>
                 </div>
@@ -219,7 +219,7 @@ const badgeClass = (estado) => ({
 
             <!-- Sección: Alertas mantenimiento (admin/jefe) ─────────────── -->
             <div v-if="permisos?.esMantenimiento && hayAlertasMant" class="mb-5">
-                <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Alertas mantenimiento</p>
+                <p class="text-[11px] font-semibold text-tinta-300 uppercase tracking-[0.12em] mb-2.5">Alertas mantenimiento</p>
                 <div class="grid grid-cols-2 gap-3">
                     <Link
                         v-if="(metricas?.mant_vencidos ?? 0) > 0"
@@ -227,7 +227,7 @@ const badgeClass = (estado) => ({
                         class="bg-red-50 border border-red-200 rounded-2xl p-4 flex flex-col gap-2 active:scale-95 transition-transform no-underline"
                     >
                         <div class="w-10 h-10 rounded-xl bg-red-100 flex items-center justify-center">
-                            <svg class="w-5 h-5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <svg class="w-5 h-5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
                             </svg>
                         </div>
@@ -242,7 +242,7 @@ const badgeClass = (estado) => ({
                         class="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex flex-col gap-2 active:scale-95 transition-transform no-underline"
                     >
                         <div class="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center">
-                            <svg class="w-5 h-5 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <svg class="w-5 h-5 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
                             </svg>
                         </div>
@@ -274,7 +274,7 @@ const badgeClass = (estado) => ({
                     class="flex items-center gap-2 shrink-0 px-5 py-3 rounded-xl text-sm font-semibold border-2 bg-white active:bg-yellow-50 transition-colors"
                     style="border-color: #D97706; color: #D97706;"
                 >
-                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 8l2 2 4-4"/>
                     </svg>
                     Verificar
@@ -286,7 +286,7 @@ const badgeClass = (estado) => ({
                     class="flex items-center gap-2 shrink-0 px-5 py-3 rounded-xl text-sm font-semibold border-2 bg-white active:bg-blue-50 transition-colors"
                     style="border-color: #1D4ED8; color: #1D4ED8;"
                 >
-                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                     </svg>
                     Nueva Cot.
@@ -297,7 +297,7 @@ const badgeClass = (estado) => ({
                     class="flex items-center gap-2 shrink-0 px-5 py-3 rounded-xl text-sm font-semibold border-2 bg-white active:bg-gray-50 transition-colors"
                     style="border-color: #6B7280; color: #374151;"
                 >
-                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                     </svg>
                     Seguimiento
@@ -332,7 +332,7 @@ const badgeClass = (estado) => ({
                             <p class="text-sm text-gray-700 truncate">{{ op.cliente }}</p>
                             <p class="text-xs text-gray-400 mt-0.5">{{ op.created_at }}</p>
                         </div>
-                        <svg class="w-4 h-4 text-gray-300 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <svg class="w-4 h-4 text-gray-300 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
                         </svg>
                     </Link>
