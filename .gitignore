@@ -68,3 +68,7 @@ binlog*.sql
 
 # Lo genera briela:empaquetar en cada paquete.
 /version.txt
+
+# Respaldos y volcados que dejo el trabajo con scripts
+/.respaldo-*
+/.iconos.json
