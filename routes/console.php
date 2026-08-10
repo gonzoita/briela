@@ -30,6 +30,10 @@ Schedule::command('notificaciones:recordatorios')->dailyAt('06:10');
 // campanita todo lo que tiene pendiente del día, en un solo grupo.
 Schedule::command('crm:avisar-leads-quietos --dias=7')->dailyAt('06:15');
 
+// El latido de la licencia: cuatro veces al día. Va por el cron y no en las cargas de
+// página para que ninguna pantalla dependa de que el servidor de licencias responda.
+Schedule::command('briela:latido')->cron('7 */6 * * *');
+
 // Cada minuto: publica en redes sociales las publicaciones programadas cuya
 // fecha ya se cumplió (módulo RRSS).
 Schedule::command('rrss:publicar-programadas')->everyMinute();

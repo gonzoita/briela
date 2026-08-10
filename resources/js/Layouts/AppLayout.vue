@@ -8,6 +8,7 @@ import ChatBurbuja from '@/Components/ChatBurbuja.vue'
 import BotonesFlotantes from '@/Components/BotonesFlotantes.vue'
 import BuscadorGlobal from '@/Components/BuscadorGlobal.vue'
 import IconoMenu from '@/Components/IconoMenu.vue'
+import AvisoLicencia from '@/Components/AvisoLicencia.vue'
 import { useTema } from '@/composables/useTema'
 
 const props = defineProps({
@@ -908,6 +909,8 @@ onUnmounted(() => {
         <!-- ══════════════════════════════════════════════════════════════════
              CONTENIDO PRINCIPAL
         ═══════════════════════════════════════════════════════════════════ -->
+        <AvisoLicencia class="md:ml-64 mt-14 md:mt-16" />
+
         <main
             class="pt-14 pb-20 px-4
                    md:ml-64 md:pt-20 md:pb-8 md:px-8"

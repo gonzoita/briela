@@ -87,6 +87,12 @@ class HandleInertiaRequests extends Middleware
                 'email'  => \App\Models\Configuracion::get('empresa_email', ''),
                 'web'    => \App\Models\Configuracion::get('empresa_web', ''),
             ],
+            // Estado de la licencia, para el aviso. Solo lee lo guardado: de
+            // preguntarle al servidor se encarga el cron, así ninguna pantalla
+            // depende de que ese servidor responda.
+            'licencia' => fn () => $user
+                ? app(\App\Services\LicenciaService::class)->paraInterfaz()
+                : null,
             // Nombre del asistente de IA, para el menú, y si usa voz natural.
             'asistente' => [
                 'nombre'      => \App\Models\Configuracion::get('ia_asistente_nombre', 'Asistente'),
