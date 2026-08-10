@@ -131,7 +131,7 @@ function claseCardPrecio(canal) {
     const esActivo = canal === canalCliente.value
     const clases = {
         mayorista:    esActivo ? 'border-2 border-blue-500 bg-blue-50 ring-2 ring-blue-200'   : 'border border-linea bg-tinta-50 opacity-60',
-        distribuidor: esActivo ? 'border-2 border-indigo-500 bg-indigo-50 ring-2 ring-indigo-200' : 'border border-linea bg-tinta-50 opacity-60',
+        distribuidor: esActivo ? 'border-2 border-[var(--marca)] bg-[var(--marca-suave)] ring-2 ring-[var(--marca-suave)]' : 'border border-linea bg-tinta-50 opacity-60',
         cliente_final:esActivo ? 'border-2 border-green-500 bg-green-50 ring-2 ring-green-200'  : 'border border-linea bg-tinta-50 opacity-60',
     }
     return clases[canal] || ''
@@ -1006,7 +1006,7 @@ function submit() {
                         <div class="px-5 py-3 shrink-0">
                             <input :value="productoQuery" @input="buscarProducto($event.target.value)"
                                 type="text" placeholder="Nombre o referencia..." autofocus
-                                class="w-full rounded-xl border border-tinta-200 px-3 py-2.5 text-sm focus:ring-2 focus:border-blue-400 focus:outline-none"/>
+                                class="w-full rounded-xl border border-tinta-200 px-3 py-2.5 text-sm focus:ring-2 focus:border-[var(--marca)] focus:outline-none"/>
                         </div>
                         <div class="overflow-y-auto flex-1">
                             <p v-if="!productoQuery" class="text-sm text-tinta-300 text-center py-8">Escribe para buscar...</p>
@@ -1070,10 +1070,10 @@ function submit() {
                                             :class="['text-left p-3 rounded-xl transition-all', claseCardPrecio('distribuidor')]">
                                             <div class="flex items-center justify-between mb-1">
                                                 <p class="text-xs text-tinta-400">Distribuidor</p>
-                                                <span v-if="canalCliente === 'distribuidor'" class="text-xs bg-indigo-500 text-white px-1.5 py-0.5 rounded-full">★ Tu canal</span>
+                                                <span v-if="canalCliente === 'distribuidor'" class="text-xs bg-[var(--marca)] text-white px-1.5 py-0.5 rounded-full">★ Tu canal</span>
                                             </div>
                                             <p class="font-semibold text-tinta-900">${{ formatCOP(e.precio_distribuidor) }}</p>
-                                            <p v-if="canalCliente === 'distribuidor'" class="text-xs text-indigo-600 mt-0.5">Precio sugerido</p>
+                                            <p v-if="canalCliente === 'distribuidor'" class="text-xs text-[var(--marca)] mt-0.5">Precio sugerido</p>
                                         </button>
                                         <!-- Cliente final -->
                                         <button type="button" @click="agregarItemDesdeEnsamble(e, e.precio_cliente_final)"
@@ -1097,7 +1097,7 @@ function submit() {
                                     <div class="mt-3 p-2 rounded-lg text-xs text-center"
                                         :class="{
                                             'bg-blue-50 text-blue-600':   canalCliente === 'mayorista',
-                                            'bg-indigo-50 text-indigo-600': canalCliente === 'distribuidor',
+                                            'bg-[var(--marca-suave)] text-[var(--marca)]': canalCliente === 'distribuidor',
                                             'bg-green-50 text-green-600':  canalCliente === 'cliente_final',
                                         }">
                                         <span v-if="canalCliente === 'mayorista'">📋 Canal Mayorista — precio fijo, sin comisión ni descuento</span>
@@ -1205,10 +1205,10 @@ function submit() {
                                         :class="['text-left p-3 rounded-xl transition-all', claseCardPrecio('distribuidor')]">
                                         <div class="flex items-center justify-between mb-1">
                                             <p class="text-xs text-tinta-400">Distribuidor</p>
-                                            <span v-if="canalCliente === 'distribuidor'" class="text-xs bg-indigo-500 text-white px-1.5 py-0.5 rounded-full">★ Tu canal</span>
+                                            <span v-if="canalCliente === 'distribuidor'" class="text-xs bg-[var(--marca)] text-white px-1.5 py-0.5 rounded-full">★ Tu canal</span>
                                         </div>
                                         <p class="font-semibold text-tinta-900">${{ formatCOP(preciosCalculados.precio_distribuidor) }}</p>
-                                        <p v-if="canalCliente === 'distribuidor'" class="text-xs text-indigo-600 mt-0.5">Precio sugerido</p>
+                                        <p v-if="canalCliente === 'distribuidor'" class="text-xs text-[var(--marca)] mt-0.5">Precio sugerido</p>
                                     </button>
                                     <!-- Cliente final -->
                                     <button type="button" @click="agregarItemDesdeEnsambleInstancia(preciosCalculados.precio_cliente_final)"
@@ -1232,7 +1232,7 @@ function submit() {
                                 <div class="mt-1 p-2 rounded-lg text-xs text-center"
                                     :class="{
                                         'bg-blue-50 text-blue-600':   canalCliente === 'mayorista',
-                                        'bg-indigo-50 text-indigo-600': canalCliente === 'distribuidor',
+                                        'bg-[var(--marca-suave)] text-[var(--marca)]': canalCliente === 'distribuidor',
                                         'bg-green-50 text-green-600':  canalCliente === 'cliente_final',
                                     }">
                                     <span v-if="canalCliente === 'mayorista'">📋 Canal Mayorista — precio fijo, sin comisión</span>

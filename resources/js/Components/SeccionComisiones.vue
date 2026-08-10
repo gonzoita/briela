@@ -96,10 +96,10 @@ watch(descuentoMaxRealClienteFinal, (v) => emit('update:descuentoMaxClienteFinal
                     <p class="font-semibold text-blue-700">${{ formatCOP(precioMayorista) }}</p>
                     <p class="text-xs text-blue-300 mt-0.5">Precio fijo · sin descuento</p>
                 </div>
-                <div class="bg-indigo-50 rounded-lg p-3 text-center">
-                    <p class="text-xs text-indigo-400 mb-1">Distribuidor</p>
-                    <p class="font-semibold text-indigo-700">${{ formatCOP(precioDistribuidor) }}</p>
-                    <p class="text-xs text-indigo-300 mt-0.5">Mín: ${{ formatCOP(precioMinDistribuidor) }}</p>
+                <div class="bg-[var(--marca-suave)] rounded-lg p-3 text-center">
+                    <p class="text-xs text-[var(--marca)] mb-1">Distribuidor</p>
+                    <p class="font-semibold text-[var(--marca)]">${{ formatCOP(precioDistribuidor) }}</p>
+                    <p class="text-xs text-tinta-300 mt-0.5">Mín: ${{ formatCOP(precioMinDistribuidor) }}</p>
                 </div>
                 <div class="bg-green-50 rounded-lg p-3 text-center">
                     <p class="text-xs text-green-400 mb-1">Cliente final</p>
@@ -150,14 +150,14 @@ watch(descuentoMaxRealClienteFinal, (v) => emit('update:descuentoMaxClienteFinal
                         <input :value="comisionMin"
                             @input="emit('update:comisionMin', parseFloat($event.target.value) || 0)"
                             type="number" step="0.1" min="0"
-                            class="w-full border border-tinta-200 rounded px-2 py-1.5 text-sm focus:outline-none focus:border-blue-400" />
+                            class="w-full border border-tinta-200 rounded px-2 py-1.5 text-sm focus:outline-none focus:border-[var(--marca)]" />
                     </div>
                     <div>
                         <label class="block text-xs text-tinta-400 mb-1">Máxima (%)</label>
                         <input :value="comisionMax"
                             @input="emit('update:comisionMax', parseFloat($event.target.value) || 0)"
                             type="number" step="0.1" min="0"
-                            class="w-full border border-tinta-200 rounded px-2 py-1.5 text-sm focus:outline-none focus:border-blue-400" />
+                            class="w-full border border-tinta-200 rounded px-2 py-1.5 text-sm focus:outline-none focus:border-[var(--marca)]" />
                     </div>
                 </div>
                 <p :class="['text-xs', validacionDistribuidor.ok === true ? 'text-green-600' : validacionDistribuidor.ok === false ? 'text-red-600' : 'text-tinta-300']">

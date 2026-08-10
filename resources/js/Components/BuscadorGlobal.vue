@@ -29,7 +29,7 @@ const abrirAsistente = inject('abrirAsistente', null)
 
 const colores = {
     azul:   'bg-blue-50 text-blue-700',
-    indigo: 'bg-indigo-50 text-indigo-700',
+    marca: 'bg-[var(--marca-suave)] text-[var(--marca)]',
     morado: 'bg-violet-50 text-violet-700',
     verde:  'bg-green-50 text-green-700',
     ambar:  'bg-amber-50 text-amber-700',

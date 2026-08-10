@@ -66,19 +66,19 @@ const formatFecha = (d) => d
             <div class="bg-white rounded-xl border border-linea p-4 mb-5">
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
                     <input v-model="filtros.buscar" type="text" placeholder="Buscar descripción..."
-                        class="rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:border-blue-400"/>
+                        class="rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:border-[var(--marca)]"/>
                     <select v-model="filtros.usuario_id"
-                        class="rounded-xl border border-tinta-200 px-3 py-2 text-sm text-tinta-700 focus:outline-none focus:border-blue-400">
+                        class="rounded-xl border border-tinta-200 px-3 py-2 text-sm text-tinta-700 focus:outline-none focus:border-[var(--marca)]">
                         <option value="">Todos los usuarios</option>
                         <option v-for="u in usuarios" :key="u.id" :value="u.id">{{ u.name }}</option>
                     </select>
                     <select v-model="filtros.modelo"
-                        class="rounded-xl border border-tinta-200 px-3 py-2 text-sm text-tinta-700 focus:outline-none focus:border-blue-400">
+                        class="rounded-xl border border-tinta-200 px-3 py-2 text-sm text-tinta-700 focus:outline-none focus:border-[var(--marca)]">
                         <option value="">Todos los módulos</option>
                         <option v-for="m in modelos" :key="m" :value="m">{{ m }}</option>
                     </select>
                     <select v-model="filtros.accion"
-                        class="rounded-xl border border-tinta-200 px-3 py-2 text-sm text-tinta-700 focus:outline-none focus:border-blue-400">
+                        class="rounded-xl border border-tinta-200 px-3 py-2 text-sm text-tinta-700 focus:outline-none focus:border-[var(--marca)]">
                         <option value="">Todas las acciones</option>
                         <option value="creado">Creado</option>
                         <option value="actualizado">Actualizado</option>
@@ -87,10 +87,10 @@ const formatFecha = (d) => d
                     </select>
                     <div class="flex items-center gap-2">
                         <input v-model="filtros.desde" type="date"
-                            class="flex-1 min-w-0 rounded-xl border border-tinta-200 px-3 py-2 text-sm text-tinta-700 focus:outline-none focus:border-blue-400"/>
+                            class="flex-1 min-w-0 rounded-xl border border-tinta-200 px-3 py-2 text-sm text-tinta-700 focus:outline-none focus:border-[var(--marca)]"/>
                         <span class="text-xs text-tinta-300 shrink-0">–</span>
                         <input v-model="filtros.hasta" type="date"
-                            class="flex-1 min-w-0 rounded-xl border border-tinta-200 px-3 py-2 text-sm text-tinta-700 focus:outline-none focus:border-blue-400"/>
+                            class="flex-1 min-w-0 rounded-xl border border-tinta-200 px-3 py-2 text-sm text-tinta-700 focus:outline-none focus:border-[var(--marca)]"/>
                     </div>
                 </div>
                 <div v-if="filtros.usuario_id || filtros.modelo || filtros.accion || filtros.desde || filtros.hasta || filtros.buscar"

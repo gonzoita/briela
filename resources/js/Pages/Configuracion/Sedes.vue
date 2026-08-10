@@ -144,12 +144,12 @@ function eliminar(s) {
                         <div class="sm:col-span-2">
                             <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1.5">Nombre *</label>
                             <input v-model="form.nombre" type="text" placeholder="Ej: Cali"
-                                class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                                class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]" />
                         </div>
                         <div>
                             <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1.5">Código *</label>
                             <input v-model="form.codigo" type="text" maxlength="10" placeholder="CAL"
-                                class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm uppercase focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                                class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm uppercase focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]" />
                             <p class="text-xs text-tinta-300 mt-1">Se usa en los códigos de documentos.</p>
                         </div>
                     </div>
@@ -171,31 +171,31 @@ function eliminar(s) {
                         <div>
                             <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1.5">Ciudad</label>
                             <input v-model="form.ciudad" type="text"
-                                class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                                class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]" />
                         </div>
                         <div>
                             <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1.5">NIT</label>
                             <input v-model="form.nit" type="text"
-                                class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                                class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]" />
                         </div>
                     </div>
 
                     <div>
                         <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1.5">Dirección</label>
                         <input v-model="form.direccion" type="text"
-                            class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                            class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]" />
                     </div>
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
                             <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1.5">Teléfono</label>
                             <input v-model="form.telefono" type="text"
-                                class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                                class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]" />
                         </div>
                         <div>
                             <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1.5">Correo</label>
                             <input v-model="form.email" type="email"
-                                class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                                class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]" />
                         </div>
                     </div>
 

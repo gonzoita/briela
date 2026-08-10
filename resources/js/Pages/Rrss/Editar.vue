@@ -126,7 +126,7 @@ function enviar(accion) {
                 <div>
                     <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1.5">Texto *</label>
                     <textarea v-model="form.contenido" rows="5" maxlength="3000"
-                        class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                        class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]"></textarea>
                     <p class="text-xs text-tinta-300 mt-1 text-right">{{ form.contenido.length }}/3000</p>
                     <p v-if="form.errors.contenido" class="text-xs text-red-500 mt-1">{{ form.errors.contenido }}</p>
                 </div>
@@ -143,7 +143,7 @@ function enviar(accion) {
                     <div v-if="iaAbierto" class="rounded-xl border border-linea bg-tinta-50 p-3 mb-2 space-y-2">
                         <textarea v-model="iaDescripcion" rows="2" maxlength="1000"
                             placeholder="Describe la imagen que quieres"
-                            class="w-full rounded-lg border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                            class="w-full rounded-lg border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]"></textarea>
                         <select v-model="iaEstilo"
                             class="w-full rounded-lg border border-tinta-200 px-3 py-2 text-sm bg-white">
                             <option value="fotografico">Fotográfico</option>
@@ -182,7 +182,7 @@ function enviar(accion) {
                 <div>
                     <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1.5">Fecha y hora *</label>
                     <input v-model="form.fecha_programada" type="datetime-local"
-                        class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                        class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]" />
                     <p v-if="form.errors.fecha_programada" class="text-xs text-red-500 mt-1">{{ form.errors.fecha_programada }}</p>
                 </div>
 

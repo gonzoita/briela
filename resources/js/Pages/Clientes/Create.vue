@@ -75,7 +75,7 @@ function usarDatosRues(rues) {
 }
 
 function ic(extra = '') {
-    return `w-full rounded-lg border border-tinta-200 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${extra}`
+    return `w-full rounded-lg border border-tinta-200 px-3 py-2 text-sm focus:ring-4 focus:ring-[var(--marca-suave)] focus:outline-none ${extra}`
 }
 
 // ─── Contactos ────────────────────────────────────────────────────────────────

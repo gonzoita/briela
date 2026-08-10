@@ -243,12 +243,12 @@ function eliminar(id) {
                     <p class="mb-1.5">3. Pega acá lo que te dio Meta:</p>
                     <div class="space-y-2">
                         <input v-model="cred.id" type="text" placeholder="Identificador del número de teléfono (Phone Number ID)"
-                            class="w-full bg-white border border-linea rounded-lg px-2.5 py-2 text-[12px] focus:outline-none focus:border-blue-400" />
+                            class="w-full bg-white border border-linea rounded-lg px-2.5 py-2 text-[12px] focus:outline-none focus:border-[var(--marca)]" />
                         <input v-model="cred.secret" type="password"
                             :placeholder="conexion.tiene_secreto ? 'Token de acceso (ya hay uno guardado — deja vacío para conservarlo)' : 'Token de acceso permanente'"
-                            class="w-full bg-white border border-linea rounded-lg px-2.5 py-2 text-[12px] focus:outline-none focus:border-blue-400" />
+                            class="w-full bg-white border border-linea rounded-lg px-2.5 py-2 text-[12px] focus:outline-none focus:border-[var(--marca)]" />
                         <input v-model="cred.redirect" type="text" placeholder="Token de verificación del webhook (lo inventas tú)"
-                            class="w-full bg-white border border-linea rounded-lg px-2.5 py-2 text-[12px] focus:outline-none focus:border-blue-400" />
+                            class="w-full bg-white border border-linea rounded-lg px-2.5 py-2 text-[12px] focus:outline-none focus:border-[var(--marca)]" />
                         <button type="button" @click="guardarCredenciales" :disabled="ocupado === 'guardar'"
                             class="w-full py-2 rounded-lg text-[12px] font-semibold text-white disabled:opacity-50"
                             style="background:var(--marca);">
@@ -314,10 +314,10 @@ function eliminar(id) {
 
                                 <template v-if="agenteForm.activo">
                                     <input v-model="agenteForm.nombre" type="text" placeholder="Cómo se presenta (ej. Ofe)"
-                                        class="w-full border border-linea rounded-lg px-2 py-1.5 text-[12px] focus:outline-none focus:border-blue-400" />
+                                        class="w-full border border-linea rounded-lg px-2 py-1.5 text-[12px] focus:outline-none focus:border-[var(--marca)]" />
                                     <textarea v-model="agenteForm.indicaciones" rows="4"
                                         placeholder="Indicaciones propias del negocio. Ej: «Somos fabricantes, no vendemos al detal. Si preguntan por instalación, aclara que sí la hacemos en todo el país.»"
-                                        class="w-full border border-linea rounded-lg px-2 py-1.5 text-[12px] focus:outline-none focus:border-blue-400"></textarea>
+                                        class="w-full border border-linea rounded-lg px-2 py-1.5 text-[12px] focus:outline-none focus:border-[var(--marca)]"></textarea>
                                     <p class="text-tinta-300">
                                         El agente solo conoce <strong>quién es la empresa, cómo contactarla y qué
                                         vende</strong>. No tiene acceso a datos de ningún cliente, y tiene prohibido
@@ -339,9 +339,9 @@ function eliminar(id) {
                             </p>
                             <div v-for="(r, i) in auto.respuestas" :key="i" class="flex gap-2 items-start">
                                 <input v-model="r.palabra_clave" type="text" placeholder="palabra clave (opcional)"
-                                    class="w-36 shrink-0 border border-linea rounded-lg px-2 py-1.5 text-[12px] focus:outline-none focus:border-blue-400" />
+                                    class="w-36 shrink-0 border border-linea rounded-lg px-2 py-1.5 text-[12px] focus:outline-none focus:border-[var(--marca)]" />
                                 <textarea v-model="r.mensaje" rows="2" placeholder="Mensaje que se envía"
-                                    class="flex-1 border border-linea rounded-lg px-2 py-1.5 text-[12px] focus:outline-none focus:border-blue-400"></textarea>
+                                    class="flex-1 border border-linea rounded-lg px-2 py-1.5 text-[12px] focus:outline-none focus:border-[var(--marca)]"></textarea>
                                 <button type="button" @click="quitarRespuesta(i)"
                                     class="shrink-0 w-7 h-7 rounded-lg text-red-500 hover:bg-red-50 leading-none">✕</button>
                             </div>
@@ -475,7 +475,7 @@ function eliminar(id) {
                             v-model="form.nombre"
                             type="text"
                             placeholder="Ej: Renier Dominguez"
-                            class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]"
                         />
                     </div>
 
@@ -488,7 +488,7 @@ function eliminar(id) {
                             v-model="form.numero_telefono"
                             type="text"
                             placeholder="+573001234567"
-                            class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]"
                         />
                     </div>
 
@@ -501,7 +501,7 @@ function eliminar(id) {
                             v-model="form.phone_number_id"
                             type="text"
                             placeholder="ID asignado por Meta"
-                            class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]"
                         />
                     </div>
 
@@ -512,7 +512,7 @@ function eliminar(id) {
                         </label>
                         <select
                             v-model="form.rol"
-                            class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                            class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)] bg-white"
                         >
                             <option value="asesor">Asesor</option>
                             <option value="central">Central</option>
@@ -526,7 +526,7 @@ function eliminar(id) {
                         </label>
                         <select
                             v-model="form.usuario_id"
-                            class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                            class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)] bg-white"
                         >
                             <option value="">Sin asignar</option>
                             <option v-for="u in usuarios" :key="u.id" :value="u.id">{{ u.name }}</option>

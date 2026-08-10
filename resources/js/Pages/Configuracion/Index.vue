@@ -471,7 +471,7 @@ const configPuntos = computed(() =>
                                     v-else
                                     :type="c.tipo === 'integer' ? 'number' : 'text'"
                                     v-model="configForm[c.clave]"
-                                    class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]"
                                 />
                                 <p v-if="c.descripcion" class="text-xs text-tinta-300 mt-1">{{ c.descripcion }}</p>
                             </div>
@@ -613,7 +613,7 @@ const configPuntos = computed(() =>
                                     v-model="configForm['smtp_host']"
                                     type="text"
                                     placeholder="smtp.hostinger.com"
-                                    class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]"
                                 />
                             </div>
                             <div>
@@ -622,7 +622,7 @@ const configPuntos = computed(() =>
                                     v-model="configForm['smtp_port']"
                                     type="number"
                                     placeholder="465"
-                                    class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]"
                                 />
                             </div>
                         </div>
@@ -632,7 +632,7 @@ const configPuntos = computed(() =>
                             <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1.5">Cifrado</label>
                             <select
                                 v-model="configForm['smtp_encryption']"
-                                class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                                class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)] bg-white"
                             >
                                 <option value="ssl">SSL</option>
                                 <option value="tls">TLS</option>
@@ -647,7 +647,7 @@ const configPuntos = computed(() =>
                                 v-model="configForm['smtp_username']"
                                 type="email"
                                 placeholder="noreply@empresa.com"
-                                class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]"
                             />
                         </div>
                         <div>
@@ -657,7 +657,7 @@ const configPuntos = computed(() =>
                                     v-model="configForm['smtp_password']"
                                     :type="mostrarPassword ? 'text' : 'password'"
                                     placeholder="••••••••"
-                                    class="w-full rounded-xl border border-tinta-200 px-3 py-2 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    class="w-full rounded-xl border border-tinta-200 px-3 py-2 pr-10 text-sm focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]"
                                 />
                                 <button
                                     type="button"
@@ -683,7 +683,7 @@ const configPuntos = computed(() =>
                                     v-model="configForm['smtp_from_name']"
                                     type="text"
                                     placeholder="Mi empresa"
-                                    class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]"
                                 />
                             </div>
                             <div>
@@ -692,7 +692,7 @@ const configPuntos = computed(() =>
                                     v-model="configForm['smtp_from_email']"
                                     type="email"
                                     placeholder="noreply@empresa.com"
-                                    class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]"
                                 />
                             </div>
                         </div>
@@ -717,7 +717,7 @@ const configPuntos = computed(() =>
                             v-model="emailPrueba"
                             type="email"
                             placeholder="destino@ejemplo.com"
-                            class="flex-1 rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            class="flex-1 rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]"
                         />
                         <button
                             @click="probarSmtp"
@@ -790,7 +790,7 @@ const configPuntos = computed(() =>
                                 v-model="tipoForm.nombre"
                                 type="text"
                                 placeholder="Ej: Supervisor"
-                                class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]"
                             />
                         </div>
                         <div>
@@ -904,7 +904,7 @@ const configPuntos = computed(() =>
                                 v-model="estacionForm.nombre"
                                 type="text"
                                 placeholder="Ej: Taller de panelería"
-                                class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]"
                             />
                         </div>
                         <div>
@@ -913,7 +913,7 @@ const configPuntos = computed(() =>
                                 v-model="estacionForm.descripcion"
                                 rows="2"
                                 placeholder="Descripción opcional..."
-                                class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                                class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)] resize-none"
                             ></textarea>
                         </div>
                         <div>
@@ -933,7 +933,7 @@ const configPuntos = computed(() =>
                                 v-model.number="estacionForm.capacidad_simultanea"
                                 type="number"
                                 min="1"
-                                class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]"
                             />
                         </div>
                         <label class="flex items-center gap-2 cursor-pointer">
@@ -976,7 +976,7 @@ const configPuntos = computed(() =>
                             <input
                                 type="number"
                                 v-model="configForm[c.clave]"
-                                class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]"
                             />
                         </div>
                     </div>
@@ -1153,7 +1153,7 @@ const configPuntos = computed(() =>
                         <div>
                             <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1.5">Nombre *</label>
                             <input v-model="crmEtapaForm.nombre" type="text" placeholder="Ej: Propuesta enviada"
-                                class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"/>
+                                class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]"/>
                         </div>
                         <div class="grid grid-cols-2 gap-3">
                             <div>
@@ -1167,7 +1167,7 @@ const configPuntos = computed(() =>
                             <div>
                                 <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1.5">Acción automática</label>
                                 <select v-model="crmEtapaForm.accion_automatica"
-                                    class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                                    class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)] bg-white">
                                     <option value="ninguna">Ninguna</option>
                                     <option value="cotizacion">Crear cotización</option>
                                     <option value="op">Crear OP</option>

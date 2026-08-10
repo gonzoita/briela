@@ -270,7 +270,7 @@ async function importar() {
                         </label>
                         <input v-model="iaClave" type="password" autocomplete="off"
                             :placeholder="ia.clave_parcial ? `Guardada (${ia.clave_parcial}) — escribe una nueva para cambiarla` : 'sk-or-v1-...'"
-                            class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                            class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]" />
                         <p class="text-xs text-tinta-300 mt-1">
                             Déjalo vacío si no la vas a cambiar. No se muestra completa por seguridad.
                         </p>
@@ -283,13 +283,13 @@ async function importar() {
                                 <span v-if="totalTexto" class="normal-case text-tinta-300 font-normal">({{ totalTexto }} disponibles)</span>
                             </label>
                             <input v-model="buscarTexto" type="text" placeholder="Filtrar… ej: claude, gpt, gemini"
-                                class="w-full rounded-xl border border-linea px-3 py-1.5 text-xs mb-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                                class="w-full rounded-xl border border-linea px-3 py-1.5 text-xs mb-1.5 focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]" />
                             <select v-if="totalTexto" v-model="iaModeloTexto" size="6"
-                                class="w-full rounded-xl border border-tinta-200 px-2 py-1 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                class="w-full rounded-xl border border-tinta-200 px-2 py-1 text-xs bg-white focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]">
                                 <option v-for="(label, id) in modelosTextoFiltrados" :key="id" :value="id">{{ label }}</option>
                             </select>
                             <input v-else v-model="iaModeloTexto" type="text" placeholder="anthropic/claude-sonnet-5"
-                                class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                                class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]" />
                             <p class="text-xs text-tinta-300 mt-1 truncate">Elegido: {{ iaModeloTexto || '—' }}</p>
                         </div>
                         <div>
@@ -298,13 +298,13 @@ async function importar() {
                                 <span v-if="totalImagen" class="normal-case text-tinta-300 font-normal">({{ totalImagen }} disponibles)</span>
                             </label>
                             <input v-model="buscarImagen" type="text" placeholder="Filtrar… ej: gpt, gemini, flux"
-                                class="w-full rounded-xl border border-linea px-3 py-1.5 text-xs mb-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                                class="w-full rounded-xl border border-linea px-3 py-1.5 text-xs mb-1.5 focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]" />
                             <select v-if="totalImagen" v-model="iaModeloImagen" size="6"
-                                class="w-full rounded-xl border border-tinta-200 px-2 py-1 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                class="w-full rounded-xl border border-tinta-200 px-2 py-1 text-xs bg-white focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]">
                                 <option v-for="(label, id) in modelosImagenFiltrados" :key="id" :value="id">{{ label }}</option>
                             </select>
                             <input v-else v-model="iaModeloImagen" type="text" placeholder="openai/gpt-image-2"
-                                class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                                class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]" />
                             <p class="text-xs text-tinta-300 mt-1 truncate">Elegido: {{ iaModeloImagen || '—' }}</p>
                         </div>
                     </div>
@@ -316,7 +316,7 @@ async function importar() {
                         </label>
                         <input v-model="iaModeloRapido" list="modelos-rapidos" type="text"
                             placeholder="Vacío = usa el de texto"
-                            class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                            class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm font-mono focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]" />
                         <datalist id="modelos-rapidos">
                             <option v-for="(label, id) in modelosSugeridos.texto" :key="id" :value="id">{{ label }}</option>
                         </datalist>
@@ -333,7 +333,7 @@ async function importar() {
                             Espacio máximo por respuesta
                         </label>
                         <input v-model.number="iaMaxTokens" type="number" min="500" max="16000" step="500"
-                            class="w-32 rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                            class="w-32 rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]" />
                         <p class="text-xs text-tinta-300 mt-1">
                             Medido en tokens (más o menos 3 de cada 4 palabras). Con 3000 alcanza para
                             un informe de varios temas.
@@ -387,13 +387,13 @@ async function importar() {
                     <div>
                         <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1.5">Nombre</label>
                         <input v-model="asistenteNombre" type="text" maxlength="40" placeholder="Ej: Frida"
-                            class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                            class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]" />
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1.5">Rol</label>
                         <textarea v-model="asistenteRol" rows="3" maxlength="1000"
                             placeholder="¿Qué rol cumple? Ej: analista de datos del negocio"
-                            class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                            class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]"></textarea>
                         <div class="flex flex-wrap gap-1.5 mt-2">
                             <button v-for="(r, i) in rolesSugeridos" :key="i" type="button"
                                 @click="asistenteRol = r"
@@ -411,7 +411,7 @@ async function importar() {
                         <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1.5">Personalidad (opcional)</label>
                         <textarea v-model="asistentePersonalidad" rows="2" maxlength="500"
                             placeholder="Ej: directa, práctica, con vocabulario técnico de refrigeración"
-                            class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                            class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]"></textarea>
                     </div>
                     <!-- Su voz -->
                     <div class="rounded-xl bg-tinta-50 border border-linea p-3">
@@ -432,13 +432,13 @@ async function importar() {
                             <div>
                                 <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1.5">Voz</label>
                                 <select v-model="vozElegida"
-                                    class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm bg-white focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]">
                                     <option v-for="(label, id) in vocesSugeridas" :key="id" :value="id">{{ label }}</option>
                                     <option value="__otra">Otra (escribirla a mano)</option>
                                 </select>
                                 <input v-if="vozElegida === '__otra'" v-model="vozPersonalizada" type="text"
                                     placeholder="Nombre de la voz según el modelo"
-                                    class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm mt-1.5 font-mono focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                                    class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm mt-1.5 font-mono focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]" />
                                 <p class="text-xs text-tinta-300 mt-1">
                                     Estas voces son de los modelos de OpenAI. Otros modelos tienen las suyas.
                                 </p>
@@ -450,7 +450,7 @@ async function importar() {
                                 </label>
                                 <textarea v-model="vozInstrucciones" rows="4" maxlength="1000"
                                     placeholder="Ej: español colombiano de Bogotá, tono cálido y cercano, ritmo conversacional"
-                                    class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                                    class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]"></textarea>
                                 <div class="flex flex-wrap gap-1.5 mt-2">
                                     <button v-for="(texto, nombre) in acentos" :key="nombre" type="button"
                                         @click="vozInstrucciones = texto"
@@ -473,7 +473,7 @@ async function importar() {
                                      siempre trae todos los modelos de voz. -->
                                 <input v-model="modeloVoz" type="text"
                                     placeholder="openai/gpt-4o-mini-tts-2025-12-15"
-                                    class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                                    class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm font-mono focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]" />
 
                                 <button type="button" @click="modeloVoz = 'openai/gpt-audio-mini'"
                                     class="mt-1.5 text-xs font-semibold text-[var(--marca)] hover:underline">
@@ -485,7 +485,7 @@ async function importar() {
                                         Ver los {{ totalVoz }} modelos que detecté en tu cuenta
                                     </summary>
                                     <input v-model="buscarVoz" type="text" placeholder="Filtrar…"
-                                        class="w-full rounded-xl border border-linea px-3 py-1.5 text-xs my-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                                        class="w-full rounded-xl border border-linea px-3 py-1.5 text-xs my-1.5 focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]" />
                                     <div class="max-h-32 overflow-y-auto rounded-xl border border-linea divide-y divide-gray-50">
                                         <button v-for="(label, id) in modelosVozFiltrados" :key="id" type="button"
                                             @click="modeloVoz = id"
@@ -552,7 +552,7 @@ async function importar() {
                         <p class="text-sm text-tinta-700 font-medium">{{ fila.pregunta }}</p>
                         <textarea v-model="respuesta" rows="3" maxlength="5000"
                             placeholder="Responde con tus palabras, sin preocuparte por la redacción."
-                            class="w-full rounded-lg border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                            class="w-full rounded-lg border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]"></textarea>
                         <button @click="generar(fila)" :disabled="generando || !respuesta.trim()"
                             class="w-full py-2 rounded-lg text-white text-sm font-semibold disabled:opacity-50"
                             style="background:var(--marca);">
@@ -562,7 +562,7 @@ async function importar() {
                     </div>
 
                     <textarea v-model="fila.contenido" rows="5" maxlength="20000"
-                        class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                        class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]"></textarea>
 
                     <div class="flex justify-end mt-2">
                         <button @click="guardar(fila)"
@@ -585,7 +585,7 @@ async function importar() {
                         </p>
                         <textarea v-model="textoImportar" rows="10" maxlength="60000"
                             placeholder="Pega el contenido del documento…"
-                            class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm mb-3 focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                            class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm mb-3 focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]"></textarea>
                         <p v-if="errorImportar" class="text-xs text-red-600 mb-3">{{ errorImportar }}</p>
                         <div class="flex gap-3">
                             <button @click="modalImportar = false"

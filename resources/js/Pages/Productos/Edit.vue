@@ -316,7 +316,7 @@ watch(() => form.comision_max_distribuidor, () => {
 // ── Submit ────────────────────────────────────────────────────────────────────
 const ic = (field) => [
     'w-full border rounded-xl px-3 py-2 text-sm focus:outline-none transition-colors',
-    form.errors[field] ? 'border-red-400 bg-red-50' : 'border-linea bg-white focus:border-blue-400',
+    form.errors[field] ? 'border-red-400 bg-red-50' : 'border-linea bg-white focus:border-[var(--marca)]',
 ]
 
 const submit = () => {
@@ -359,7 +359,7 @@ const badgeStyle = {
                             <div>
                                 <label class="block text-sm font-medium text-tinta-700 mb-1">Nombre <span class="text-red-500">*</span></label>
                                 <input v-model="formPadre.nombre" type="text"
-                                    class="w-full border rounded-xl px-3 py-2 text-sm focus:outline-none bg-white focus:border-blue-400 border-linea" />
+                                    class="w-full border rounded-xl px-3 py-2 text-sm focus:outline-none bg-white focus:border-[var(--marca)] border-linea" />
                                 <p v-if="formPadre.errors.nombre" class="mt-1 text-xs text-red-600">{{ formPadre.errors.nombre }}</p>
                             </div>
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -373,7 +373,7 @@ const badgeStyle = {
                                 <div>
                                     <label class="block text-sm font-medium text-tinta-700 mb-1">Atributo de variante</label>
                                     <input v-model="formPadre.atributo_variante" type="text" placeholder="Ej: Longitud"
-                                        class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none bg-white focus:border-blue-400" />
+                                        class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none bg-white focus:border-[var(--marca)]" />
                                 </div>
                             </div>
                         </div>
@@ -425,12 +425,12 @@ const badgeStyle = {
                                             Valor ({{ formPadre.atributo_variante || 'Ej: Longitud' }}) <span class="text-red-500">*</span>
                                         </label>
                                         <input v-model="v.valor_variante" type="text" placeholder="Ej: 3m"
-                                            class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none bg-white focus:border-blue-400" />
+                                            class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none bg-white focus:border-[var(--marca)]" />
                                     </div>
                                     <div>
                                         <label class="block text-xs font-medium text-tinta-500 mb-1">Referencia / SKU</label>
                                         <input v-model="v.referencia" type="text" placeholder="Auto-generada si se deja vacío"
-                                            class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none bg-white focus:border-blue-400" />
+                                            class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none bg-white focus:border-[var(--marca)]" />
                                     </div>
                                 </div>
                                 <div v-if="props.bodegas?.length">
@@ -439,7 +439,7 @@ const badgeStyle = {
                                         <div v-for="b in props.bodegas" :key="b.id" class="flex items-center gap-3">
                                             <span class="text-xs text-tinta-500 w-32 shrink-0">{{ b.nombre }}</span>
                                             <input v-model.number="v.stock_inicial[b.id]" type="number" min="0" step="0.001"
-                                                class="w-24 border border-linea rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:border-blue-400 bg-white" placeholder="0" />
+                                                class="w-24 border border-linea rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:border-[var(--marca)] bg-white" placeholder="0" />
                                         </div>
                                     </div>
                                 </div>
@@ -675,7 +675,7 @@ const badgeStyle = {
                             <div class="relative">
                                 <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-tinta-300">$</span>
                                 <input v-model.number="form.precio_costo" type="number" min="0" step="100"
-                                    class="w-full border border-linea rounded-xl pl-7 pr-3 py-2 text-sm bg-white focus:outline-none focus:border-blue-400" />
+                                    class="w-full border border-linea rounded-xl pl-7 pr-3 py-2 text-sm bg-white focus:outline-none focus:border-[var(--marca)]" />
                             </div>
                         </div>
                         <!-- Mayorista -->
@@ -683,7 +683,7 @@ const badgeStyle = {
                             <div>
                                 <label class="block text-xs font-medium text-tinta-500 mb-1">Margen Mayorista %</label>
                                 <input v-model.number="form.margen_mayorista" type="number" min="1" max="99" step="0.5"
-                                    class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-400" />
+                                    class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[var(--marca)]" />
                             </div>
                             <div>
                                 <label class="block text-xs font-medium text-tinta-500 mb-1">Precio Mayorista</label>
@@ -699,7 +699,7 @@ const badgeStyle = {
                             <div>
                                 <label class="block text-xs font-medium text-tinta-500 mb-1">Margen Distribuidor %</label>
                                 <input v-model.number="form.margen_distribuidor" type="number" min="1" max="99" step="0.5"
-                                    class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-400" />
+                                    class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[var(--marca)]" />
                             </div>
                             <div>
                                 <label class="block text-xs font-medium text-tinta-500 mb-1">Precio Distribuidor</label>
@@ -715,7 +715,7 @@ const badgeStyle = {
                             <div>
                                 <label class="block text-xs font-medium text-tinta-500 mb-1">Margen Cliente Final %</label>
                                 <input v-model.number="form.margen_cliente_final" type="number" min="1" max="99" step="0.5"
-                                    class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-400" />
+                                    class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[var(--marca)]" />
                             </div>
                             <div>
                                 <label class="block text-xs font-medium text-tinta-500 mb-1">Precio Cliente Final</label>
@@ -753,17 +753,17 @@ const badgeStyle = {
                         </div>
 
                         <!-- Distribuidor -->
-                        <div class="border border-indigo-100 rounded-lg p-3 space-y-3 bg-indigo-50/30">
+                        <div class="border border-[var(--marca-borde)] rounded-lg p-3 space-y-3 bg-[var(--marca-suave)]/30">
                             <div class="flex items-center justify-between flex-wrap gap-1">
-                                <span class="text-xs font-semibold text-indigo-700 uppercase">Distribuidor</span>
-                                <span class="text-xs text-indigo-500">Base: {{ formatCOP(form.precio_distribuidor) }} · Mín: {{ formatCOP(form.precio_mayorista) }} · Desc. máx: {{ descuentoMaxRealDistribuidor }}%</span>
+                                <span class="text-xs font-semibold text-[var(--marca)] uppercase">Distribuidor</span>
+                                <span class="text-xs text-[var(--marca)]">Base: {{ formatCOP(form.precio_distribuidor) }} · Mín: {{ formatCOP(form.precio_mayorista) }} · Desc. máx: {{ descuentoMaxRealDistribuidor }}%</span>
                             </div>
                             <div class="grid grid-cols-2 gap-3">
                                 <div>
                                     <label class="text-xs text-tinta-400 mb-1 block">Comisión mínima (%)</label>
                                     <div class="flex items-center gap-2">
                                         <input type="number" step="0.1" min="0" v-model.number="form.comision_min_distribuidor" @input="validarComisiones"
-                                            class="w-24 border border-tinta-200 rounded-lg px-2 py-1.5 text-sm focus:ring-2 focus:ring-indigo-300 focus:outline-none" />
+                                            class="w-24 border border-tinta-200 rounded-lg px-2 py-1.5 text-sm focus:ring-2 focus:ring-[var(--marca-suave)] focus:outline-none" />
                                         <span class="text-xs text-tinta-300">= {{ formatCOP(excedenteDistribuidor * form.comision_min_distribuidor / 100) }}</span>
                                     </div>
                                 </div>
@@ -771,12 +771,12 @@ const badgeStyle = {
                                     <label class="text-xs text-tinta-400 mb-1 block">Comisión máxima (%)</label>
                                     <div class="flex items-center gap-2">
                                         <input type="number" step="0.1" min="0" v-model.number="form.comision_max_distribuidor" @input="validarComisiones"
-                                            class="w-24 border border-tinta-200 rounded-lg px-2 py-1.5 text-sm focus:ring-2 focus:ring-indigo-300 focus:outline-none" />
+                                            class="w-24 border border-tinta-200 rounded-lg px-2 py-1.5 text-sm focus:ring-2 focus:ring-[var(--marca-suave)] focus:outline-none" />
                                         <span class="text-xs text-tinta-300">= {{ formatCOP(excedenteDistribuidor * form.comision_max_distribuidor / 100) }}</span>
                                     </div>
                                 </div>
                             </div>
-                            <p v-if="form.comision_min_distribuidor > 0 && form.comision_max_distribuidor > 0" class="text-xs text-indigo-600">
+                            <p v-if="form.comision_min_distribuidor > 0 && form.comision_max_distribuidor > 0" class="text-xs text-[var(--marca)]">
                                 ✅ Vendedor gana entre {{ formatCOP(excedenteDistribuidor * form.comision_min_distribuidor / 100) }} y {{ formatCOP(excedenteDistribuidor * form.comision_max_distribuidor / 100) }}
                             </p>
                         </div>
@@ -831,11 +831,11 @@ const badgeStyle = {
                                     <span class="text-xs text-tinta-300 w-20 text-right">Sin comisión</span>
                                 </div>
                                 <div class="flex items-center gap-2">
-                                    <span class="text-xs text-indigo-600 w-28">Distribuidor:</span>
+                                    <span class="text-xs text-[var(--marca)] w-28">Distribuidor:</span>
                                     <div class="flex-1 bg-tinta-200 rounded-full h-1.5">
-                                        <div class="bg-indigo-400 h-1.5 rounded-full" :style="`width: ${Math.min(form.comision_max_distribuidor * 5, 100)}%`"></div>
+                                        <div class="bg-[var(--marca)] h-1.5 rounded-full" :style="`width: ${Math.min(form.comision_max_distribuidor * 5, 100)}%`"></div>
                                     </div>
-                                    <span class="text-xs text-indigo-600 w-20 text-right font-medium">máx {{ form.comision_max_distribuidor }}%</span>
+                                    <span class="text-xs text-[var(--marca)] w-20 text-right font-medium">máx {{ form.comision_max_distribuidor }}%</span>
                                 </div>
                                 <div class="flex items-center gap-2">
                                     <span class="text-xs text-green-600 w-28">Cliente final:</span>
@@ -892,7 +892,7 @@ const badgeStyle = {
                             :value="nuevaCat.nombre"
                             @input="nuevaCat.nombre = $event.target.value"
                             placeholder="Ej: Puertas Refrigeradas"
-                            class="w-full border border-linea rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+                            class="w-full border border-linea rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-[var(--marca)] focus:ring-2 focus:ring-blue-100"
                         />
                     </div>
 
@@ -921,7 +921,7 @@ const badgeStyle = {
                                 @input="nuevaCat.color = $event.target.value"
                                 placeholder="#2563EB"
                                 maxlength="7"
-                                class="flex-1 border border-linea rounded-lg px-3 py-1.5 text-sm font-mono focus:ring-2 focus:ring-blue-100 focus:border-blue-400"
+                                class="flex-1 border border-linea rounded-lg px-3 py-1.5 text-sm font-mono focus:ring-2 focus:ring-blue-100 focus:border-[var(--marca)]"
                             />
                         </div>
                     </div>

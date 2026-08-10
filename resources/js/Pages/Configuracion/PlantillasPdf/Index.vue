@@ -179,7 +179,7 @@ function irACrear() {
                 <!-- Encabezado de sección -->
                 <div class="flex items-center gap-3">
                     <span
-                        class="text-xs font-semibold uppercase tracking-widest px-2.5 py-1 rounded-lg"
+                        class="text-sm font-semibold px-2.5 py-1 rounded-lg"
                         style="background-color: var(--marca); color: white;"
                     >
                         {{ seccion.grupo }}

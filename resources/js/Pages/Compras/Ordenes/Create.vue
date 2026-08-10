@@ -95,7 +95,7 @@ function fmtMoney(n) {
                 <h2 class="font-semibold text-tinta-900">Información general</h2>
                 <div>
                     <label class="block text-sm font-medium text-tinta-700 mb-1">Proveedor *</label>
-                    <select v-model="form.proveedor_id" class="w-full rounded-lg border border-tinta-200 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                    <select v-model="form.proveedor_id" class="w-full rounded-lg border border-tinta-200 px-3 py-2 text-sm focus:ring-4 focus:ring-[var(--marca-suave)] focus:outline-none">
                         <option value="">Seleccionar proveedor...</option>
                         <option v-for="p in proveedores" :key="p.id" :value="p.id">{{ p.nombre }}</option>
                     </select>
@@ -127,7 +127,7 @@ function fmtMoney(n) {
                 <!-- Buscador -->
                 <div class="relative mb-3">
                     <input v-model="buscarItem" type="text" placeholder="Buscar en inventario..."
-                        class="w-full rounded-lg border border-tinta-200 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+                        class="w-full rounded-lg border border-tinta-200 px-3 py-2 text-sm focus:ring-4 focus:ring-[var(--marca-suave)] focus:outline-none" />
                     <div v-if="buscarItem && itemsFiltrados.length" class="absolute z-10 top-full left-0 right-0 mt-1 bg-white border border-linea rounded-lg shadow-lg max-h-48 overflow-y-auto">
                         <button v-for="item in itemsFiltrados.slice(0,8)" :key="item.id"
                             @click="agregarItemDesdeInventario(item)"

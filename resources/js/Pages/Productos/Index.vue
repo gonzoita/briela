@@ -669,7 +669,7 @@ const precioMostrar = (p) => {
                                 type="text"
                                 placeholder="Nombre de la categoría..."
                                 maxlength="100"
-                                class="flex-1 border border-linea rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-blue-400 bg-white"
+                                class="flex-1 border border-linea rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-[var(--marca)] bg-white"
                                 @keyup.enter="guardarCategoria"
                                 autofocus
                             />

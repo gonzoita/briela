@@ -194,22 +194,22 @@ const chartPoints = computed(() => {
             <div class="bg-white rounded-xl border border-linea p-4 mb-5">
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                     <input v-model="filters.buscar" type="text" placeholder="Buscar número o cliente..."
-                        class="rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:border-blue-400"/>
+                        class="rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:border-[var(--marca)]"/>
                     <select v-model="filters.estado"
-                        class="rounded-xl border border-tinta-200 px-3 py-2 text-sm text-tinta-700 focus:outline-none focus:border-blue-400">
+                        class="rounded-xl border border-tinta-200 px-3 py-2 text-sm text-tinta-700 focus:outline-none focus:border-[var(--marca)]">
                         <option v-for="e in estados" :key="e.value" :value="e.value">{{ e.label }}</option>
                     </select>
                     <select v-model="filters.responsable_id"
-                        class="rounded-xl border border-tinta-200 px-3 py-2 text-sm text-tinta-700 focus:outline-none focus:border-blue-400">
+                        class="rounded-xl border border-tinta-200 px-3 py-2 text-sm text-tinta-700 focus:outline-none focus:border-[var(--marca)]">
                         <option value="">Todos los responsables</option>
                         <option v-for="r in responsables" :key="r.id" :value="r.id">{{ r.name }}</option>
                     </select>
                     <div class="flex items-center gap-2">
                         <input v-model="filters.desde" type="date"
-                            class="flex-1 min-w-0 rounded-xl border border-tinta-200 px-3 py-2 text-sm text-tinta-700 focus:outline-none focus:border-blue-400"/>
+                            class="flex-1 min-w-0 rounded-xl border border-tinta-200 px-3 py-2 text-sm text-tinta-700 focus:outline-none focus:border-[var(--marca)]"/>
                         <span class="text-xs text-tinta-300 shrink-0">–</span>
                         <input v-model="filters.hasta" type="date"
-                            class="flex-1 min-w-0 rounded-xl border border-tinta-200 px-3 py-2 text-sm text-tinta-700 focus:outline-none focus:border-blue-400"/>
+                            class="flex-1 min-w-0 rounded-xl border border-tinta-200 px-3 py-2 text-sm text-tinta-700 focus:outline-none focus:border-[var(--marca)]"/>
                     </div>
                 </div>
                 <div v-if="filters.buscar || filters.estado || filters.responsable_id || filters.desde || filters.hasta"

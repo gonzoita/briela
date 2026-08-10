@@ -84,7 +84,7 @@ function iniciales(c) {
                         v-model="buscar"
                         type="text"
                         placeholder="Buscar por nombre, ID, email..."
-                        class="flex-1 rounded-lg border border-tinta-200 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                        class="flex-1 rounded-lg border border-tinta-200 px-3 py-2 text-sm focus:ring-4 focus:ring-[var(--marca-suave)] focus:outline-none"
                         @keyup.enter="aplicarFiltros"
                     />
                     <select v-model="tipo" class="rounded-lg border border-tinta-200 px-3 py-2 text-sm" @change="aplicarFiltros">

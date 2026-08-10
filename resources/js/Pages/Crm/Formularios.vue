@@ -318,7 +318,7 @@ const formularioEditando = computed(() => lista.value.find(f => f.id === editand
                                 <div>
                                     <label class="block text-xs font-semibold text-tinta-500 mb-1">Nombre interno *</label>
                                     <input v-model="form.nombre" type="text" placeholder="Ej: Formulario landing refrigeración"
-                                        class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"/>
+                                        class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]"/>
                                 </div>
                                 <div class="grid grid-cols-2 gap-3">
                                     <div>
@@ -346,7 +346,7 @@ const formularioEditando = computed(() => lista.value.find(f => f.id === editand
                                 <div>
                                     <label class="block text-xs font-semibold text-tinta-500 mb-1">Email notificación</label>
                                     <input v-model="form.email_notificacion" type="email" placeholder="notificaciones@empresa.com"
-                                        class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"/>
+                                        class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]"/>
                                 </div>
                                 <div v-if="editando">
                                     <label class="flex items-center gap-2 cursor-pointer">
@@ -439,17 +439,17 @@ const formularioEditando = computed(() => lista.value.find(f => f.id === editand
                                 <div>
                                     <label class="block text-xs font-semibold text-tinta-500 mb-1">Título del formulario</label>
                                     <input v-model="form.titulo_formulario" type="text"
-                                        class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"/>
+                                        class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]"/>
                                 </div>
                                 <div>
                                     <label class="block text-xs font-semibold text-tinta-500 mb-1">Descripción / subtítulo</label>
                                     <textarea v-model="form.descripcion_formulario" rows="2"
-                                        class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 resize-none"></textarea>
+                                        class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)] resize-none"></textarea>
                                 </div>
                                 <div>
                                     <label class="block text-xs font-semibold text-tinta-500 mb-1">Texto del botón</label>
                                     <input v-model="form.texto_boton" type="text"
-                                        class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"/>
+                                        class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]"/>
                                 </div>
                             </div>
                         </section>
@@ -472,12 +472,12 @@ const formularioEditando = computed(() => lista.value.find(f => f.id === editand
                                 <div v-if="form.gracias_tipo === 'mensaje'">
                                     <label class="block text-xs font-semibold text-tinta-500 mb-1">Mensaje de confirmación</label>
                                     <input v-model="form.mensaje_exito" type="text" placeholder="¡Gracias! Nos pondremos en contacto pronto."
-                                        class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"/>
+                                        class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]"/>
                                 </div>
                                 <div v-else>
                                     <label class="block text-xs font-semibold text-tinta-500 mb-1">URL de destino</label>
                                     <input v-model="form.gracias_url" type="url" placeholder="https://tudominio.com/gracias"
-                                        class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"/>
+                                        class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]"/>
                                 </div>
                             </div>
                         </section>
@@ -501,9 +501,9 @@ const formularioEditando = computed(() => lista.value.find(f => f.id === editand
                                     <div class="flex items-center gap-2 flex-wrap">
                                         <span class="text-xs text-tinta-300 font-mono w-4 text-center shrink-0">{{ idx + 1 }}</span>
                                         <input v-model="campo.etiqueta" type="text" placeholder="Etiqueta visible"
-                                            class="flex-1 min-w-0 rounded-lg border border-tinta-200 px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"/>
+                                            class="flex-1 min-w-0 rounded-lg border border-tinta-200 px-2 py-1.5 text-sm focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]"/>
                                         <input v-model="campo.nombre" type="text" placeholder="nombre_campo"
-                                            class="w-28 rounded-lg border border-tinta-200 px-2 py-1.5 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-blue-400"/>
+                                            class="w-28 rounded-lg border border-tinta-200 px-2 py-1.5 text-xs font-mono focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]"/>
                                         <select v-model="campo.tipo"
                                             class="w-24 rounded-lg border border-tinta-200 px-2 py-1.5 text-xs focus:outline-none bg-white">
                                             <option value="text">Texto</option>

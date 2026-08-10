@@ -147,7 +147,7 @@ function reintentar() {
                     </div>
 
                     <textarea v-else v-model="respuestas[pregunta.id]" rows="4" placeholder="Escribe tu respuesta..."
-                        class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-400"></textarea>
+                        class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[var(--marca)]"></textarea>
                 </div>
 
                 <p v-if="error" class="text-xs text-red-500">{{ error }}</p>

@@ -975,7 +975,7 @@ const formatCOP = (v) => new Intl.NumberFormat('es-CO', { maximumFractionDigits:
 const badgesTipo = {
     texto:    'bg-tinta-100 text-tinta-500',
     numero:   'bg-blue-100 text-blue-700',
-    decimal:  'bg-indigo-100 text-indigo-700',
+    decimal:  'bg-[var(--marca-suave)] text-[var(--marca)]',
     select:   'bg-purple-100 text-purple-700',
     boolean:  'bg-green-100 text-green-700',
     checkbox: 'bg-orange-100 text-orange-700',
@@ -1104,7 +1104,7 @@ const badgesTipo = {
                             <div>
                                 <label class="block text-xs font-medium text-tinta-500 mb-1">Nombre *</label>
                                 <input v-model="plantillaActual.nombre" type="text"
-                                    class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-400" />
+                                    class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[var(--marca)]" />
                             </div>
                             <div class="flex items-center gap-3">
                                 <input v-model="plantillaActual.activo" type="checkbox" id="activa" class="rounded" />
@@ -1291,11 +1291,11 @@ const badgesTipo = {
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
                                     <div>
                                         <label class="block text-xs font-medium text-tinta-500 mb-1">Etiqueta visible *</label>
-                                        <input v-model="campoBorrador.etiqueta" type="text" class="w-full border border-linea rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:border-blue-400" placeholder="Ej: Ancho del vano (m)" />
+                                        <input v-model="campoBorrador.etiqueta" type="text" class="w-full border border-linea rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:border-[var(--marca)]" placeholder="Ej: Ancho del vano (m)" />
                                     </div>
                                     <div>
                                         <label class="block text-xs font-medium text-tinta-500 mb-1">Nombre interno</label>
-                                        <input v-model="campoBorrador.nombre" type="text" class="w-full border border-linea rounded-lg px-3 py-1.5 text-sm font-mono focus:outline-none focus:border-blue-400" placeholder="ancho_vano" />
+                                        <input v-model="campoBorrador.nombre" type="text" class="w-full border border-linea rounded-lg px-3 py-1.5 text-sm font-mono focus:outline-none focus:border-[var(--marca)]" placeholder="ancho_vano" />
                                     </div>
                                     <div>
                                         <label class="block text-xs font-medium text-tinta-500 mb-1">Valor por defecto</label>
@@ -1658,7 +1658,7 @@ const badgesTipo = {
                                     <input v-model="nuevaSecNombre"
                                         @keyup.enter="crearSeccion"
                                         @keyup.escape="showNuevaSec = false; nuevaSecNombre = ''"
-                                        class="flex-1 border border-blue-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-blue-400"
+                                        class="flex-1 border border-blue-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-[var(--marca-suave)]"
                                         placeholder="Nombre de la sección..."
                                         autofocus />
                                     <button @click="crearSeccion" :disabled="creandoSeccion || !nuevaSecNombre.trim()"
@@ -1770,7 +1770,7 @@ const badgesTipo = {
                                         <!-- Info -->
                                         <div class="flex-1 min-w-0">
                                             <p class="text-sm font-semibold text-tinta-900 truncate">{{ c.etiqueta || c.producto?.nombre || '(sin nombre)' }}</p>
-                                            <p v-if="!c.sub_formulas?.length" class="text-xs font-mono text-indigo-600 mt-0.5 break-all" style="white-space:pre-wrap;">{{ c.formula }}</p>
+                                            <p v-if="!c.sub_formulas?.length" class="text-xs font-mono text-[var(--marca)] mt-0.5 break-all" style="white-space:pre-wrap;">{{ c.formula }}</p>
                                             <p v-else class="text-xs text-blue-600 mt-0.5 font-medium">{{ c.sub_formulas.length }} sub-fórmula{{ c.sub_formulas.length !== 1 ? 's' : '' }}</p>
                                             <p v-if="c.condicion" class="text-xs text-tinta-300 mt-0.5 italic">if {{ c.condicion }}</p>
                                             <div class="flex items-center gap-2 mt-1 flex-wrap">
@@ -1793,10 +1793,10 @@ const badgesTipo = {
                                     </div>
 
                                     <!-- INLINE EDIT row -->
-                                    <div v-else class="border-t border-indigo-100 p-4 space-y-3" style="background:#F5F3FF;">
+                                    <div v-else class="border-t border-[var(--marca-borde)] p-4 space-y-3" style="background:#F5F3FF;">
                                     <div class="flex items-center justify-between">
-                                        <p class="text-xs font-semibold text-indigo-700 uppercase">Editar componente</p>
-                                        <button @click="cancelarComponente" class="w-6 h-6 rounded-full flex items-center justify-center text-tinta-300 hover:bg-indigo-100 text-sm leading-none">✕</button>
+                                        <p class="text-xs font-semibold text-[var(--marca)] uppercase">Editar componente</p>
+                                        <button @click="cancelarComponente" class="w-6 h-6 rounded-full flex items-center justify-center text-tinta-300 hover:bg-[var(--marca-suave)] text-sm leading-none">✕</button>
                                     </div>
 
                                     <div class="relative">
@@ -1837,17 +1837,17 @@ const badgesTipo = {
                                                 v-model="compBorrador.formula"
                                                 rows="4"
                                                 spellcheck="false"
-                                                :class="['w-full border border-linea rounded-lg px-3 py-1.5 text-sm font-mono focus:outline-none focus:border-indigo-400 resize-y min-h-[80px]', formulaActiva ? 'input-formula-activa' : '']"
+                                                :class="['w-full border border-linea rounded-lg px-3 py-1.5 text-sm font-mono focus:outline-none focus:border-[var(--marca)] resize-y min-h-[80px]', formulaActiva ? 'input-formula-activa' : '']"
                                                 placeholder="Ej: 2 * alto_vano + 2 * ancho_vano + 0.664"
                                                 @input="onFormulaInput"
                                                 @focus="formulaActiva = true"
                                                 @blur="onFormulaBlur"
                                             />
                                             <ul v-if="formulaSugs.length"
-                                                class="absolute z-30 left-0 right-0 mt-1 bg-white border border-indigo-200 rounded-xl shadow-lg overflow-hidden">
+                                                class="absolute z-30 left-0 right-0 mt-1 bg-white border border-[var(--marca-borde)] rounded-xl shadow-lg overflow-hidden">
                                                 <li v-for="s in formulaSugs" :key="s"
                                                     @mousedown.prevent="insertarVariable(s)"
-                                                    class="px-3 py-1.5 text-xs font-mono text-indigo-700 hover:bg-indigo-50 cursor-pointer">
+                                                    class="px-3 py-1.5 text-xs font-mono text-[var(--marca)] hover:bg-[var(--marca-suave)] cursor-pointer">
                                                     {{ s }}
                                                 </li>
                                             </ul>
@@ -1870,9 +1870,9 @@ const badgesTipo = {
                                     </div>
 
                                     <!-- Mini-probador inline -->
-                                    <div v-if="compBorrador.formula" class="bg-white border border-indigo-200 rounded-lg p-3 space-y-2">
+                                    <div v-if="compBorrador.formula" class="bg-white border border-[var(--marca-borde)] rounded-lg p-3 space-y-2">
                                         <div class="flex items-center justify-between">
-                                            <p class="text-xs font-semibold text-indigo-600">▷ Probar esta fórmula</p>
+                                            <p class="text-xs font-semibold text-[var(--marca)]">▷ Probar esta fórmula</p>
                                             <button @click="ejecutarProbarFormula" :disabled="probarFCarg"
                                                 class="px-2.5 py-1 rounded-lg text-xs font-semibold text-white disabled:opacity-60"
                                                 style="background:#4338CA;">
@@ -1881,41 +1881,41 @@ const badgesTipo = {
                                         </div>
                                         <div v-if="camposParaProbar.length" class="grid grid-cols-2 gap-1.5">
                                             <div v-for="c in camposParaProbar" :key="c.nombre">
-                                                <label class="block text-[10px] text-indigo-500 mb-0.5 font-mono">{{ c.nombre }}</label>
+                                                <label class="block text-[10px] text-[var(--marca)] mb-0.5 font-mono">{{ c.nombre }}</label>
                                                 <select v-if="c.subtipo_variable === 'selector'" v-model="probarFVals[c.nombre]"
-                                                    class="w-full border border-indigo-200 rounded px-2 py-0.5 text-xs font-mono focus:outline-none bg-indigo-50">
+                                                    class="w-full border border-[var(--marca-borde)] rounded px-2 py-0.5 text-xs font-mono focus:outline-none bg-[var(--marca-suave)]">
                                                     <option v-for="op in c.opciones_selector ?? []" :key="op.valor" :value="op.valor">{{ op.etiqueta }}</option>
                                                 </select>
                                                 <select v-else-if="c.tipo === 'select'" v-model="probarFVals[c.nombre]"
-                                                    class="w-full border border-indigo-200 rounded px-2 py-0.5 text-xs font-mono focus:outline-none bg-indigo-50">
+                                                    class="w-full border border-[var(--marca-borde)] rounded px-2 py-0.5 text-xs font-mono focus:outline-none bg-[var(--marca-suave)]">
                                                     <option v-for="op in c.opciones ?? []" :key="op.valor" :value="op.valor">{{ op.etiqueta }}</option>
                                                 </select>
                                                 <input v-else-if="c.tipo === 'texto' || c.subtipo_variable === 'texto'" type="text" v-model="probarFVals[c.nombre]"
-                                                    class="w-full border border-indigo-200 rounded px-2 py-0.5 text-xs font-mono focus:outline-none bg-indigo-50" />
+                                                    class="w-full border border-[var(--marca-borde)] rounded px-2 py-0.5 text-xs font-mono focus:outline-none bg-[var(--marca-suave)]" />
                                                 <input v-else type="number" :step="c.tipo === 'decimal' || c.subtipo_variable === 'decimal' ? '0.01' : '1'"
                                                     v-model.number="probarFVals[c.nombre]"
-                                                    class="w-full border border-indigo-200 rounded px-2 py-0.5 text-xs font-mono focus:outline-none bg-indigo-50" />
+                                                    class="w-full border border-[var(--marca-borde)] rounded px-2 py-0.5 text-xs font-mono focus:outline-none bg-[var(--marca-suave)]" />
                                             </div>
                                         </div>
                                         <p v-else class="text-xs text-tinta-300 italic">Esta plantilla no tiene variables de entrada.</p>
-                                        <div v-if="probarFRes !== null" class="bg-indigo-50 border border-indigo-200 rounded-lg px-3 py-2 space-y-1">
+                                        <div v-if="probarFRes !== null" class="bg-[var(--marca-suave)] border border-[var(--marca-borde)] rounded-lg px-3 py-2 space-y-1">
                                             <div class="flex items-baseline justify-between gap-2">
-                                                <span class="text-[10px] text-indigo-400 shrink-0 whitespace-nowrap">Fórmula cotización:</span>
+                                                <span class="text-[10px] text-[var(--marca)] shrink-0 whitespace-nowrap">Fórmula cotización:</span>
                                                 <span v-if="probarFRes.error" class="text-xs font-mono text-red-600 break-all">✕ {{ probarFRes.error }}</span>
                                                 <span v-else class="text-xs font-mono font-semibold text-green-700">= {{ probarFRes.resultado }}</span>
                                             </div>
                                             <div v-if="compBorrador.formula_real && probarFResReal !== null" class="flex items-baseline justify-between gap-2">
-                                                <span class="text-[10px] text-indigo-400 shrink-0 whitespace-nowrap">Fórmula real:</span>
+                                                <span class="text-[10px] text-[var(--marca)] shrink-0 whitespace-nowrap">Fórmula real:</span>
                                                 <span v-if="probarFResReal.error" class="text-xs font-mono text-red-600 break-all">✕ {{ probarFResReal.error }}</span>
                                                 <span v-else class="text-xs font-mono font-semibold text-blue-700">= {{ probarFResReal.resultado }}</span>
                                             </div>
                                             <template v-if="compBorrador.sub_formulas?.some(s => s.formula)">
-                                                <div class="border-t border-indigo-200 pt-1 mt-0.5">
-                                                    <span class="text-[10px] text-indigo-400">── Sub-fórmulas de producción ──</span>
+                                                <div class="border-t border-[var(--marca-borde)] pt-1 mt-0.5">
+                                                    <span class="text-[10px] text-[var(--marca)]">── Sub-fórmulas de producción ──</span>
                                                 </div>
                                                 <div v-for="sub in compBorrador.sub_formulas.filter(s => s.formula)" :key="sub.id" class="flex items-baseline justify-between gap-2">
-                                                    <span class="text-[10px] text-indigo-400 shrink-0 whitespace-nowrap">{{ sub.etiqueta || sub.formula }}:</span>
-                                                    <span v-if="sub._probando" class="text-xs font-mono text-indigo-400">...</span>
+                                                    <span class="text-[10px] text-[var(--marca)] shrink-0 whitespace-nowrap">{{ sub.etiqueta || sub.formula }}:</span>
+                                                    <span v-if="sub._probando" class="text-xs font-mono text-[var(--marca)]">...</span>
                                                     <span v-else-if="sub._error" class="text-xs font-mono text-red-600 break-all">✕ {{ sub._error }}</span>
                                                     <span v-else-if="sub._resultado !== null" class="text-xs font-mono font-semibold text-green-700">= {{ sub._resultado }}</span>
                                                     <span v-else class="text-xs font-mono text-tinta-300">—</span>
@@ -1925,7 +1925,7 @@ const badgesTipo = {
                                     </div>
 
                                     <!-- Sub-fórmulas — sección adicional para el documento de producción -->
-                                    <div class="border-t border-indigo-100 pt-3 mt-1">
+                                    <div class="border-t border-[var(--marca-borde)] pt-3 mt-1">
                                         <p class="text-xs font-semibold text-blue-700 uppercase tracking-wide mb-2">
                                             Sub-fórmulas de producción
                                             <span class="font-normal text-tinta-300 normal-case ml-1">(opcional — generan filas separadas en la OP)</span>
@@ -1935,13 +1935,13 @@ const badgesTipo = {
                                                 class="bg-blue-50 border border-blue-200 rounded-lg p-3 space-y-2">
                                                 <div class="flex gap-2">
                                                     <input v-model="sub.etiqueta" type="text" placeholder="Etiqueta (ej: Perfil altura izquierdo)"
-                                                        class="flex-1 rounded border-tinta-200 text-sm px-2 py-1 focus:outline-none focus:border-blue-400" />
+                                                        class="flex-1 rounded border-tinta-200 text-sm px-2 py-1 focus:outline-none focus:border-[var(--marca)]" />
                                                     <input v-model="sub.unidad" type="text" placeholder="Unidad"
                                                         class="w-20 rounded border-tinta-200 text-sm px-2 py-1 focus:outline-none" />
                                                 </div>
                                                 <div class="flex gap-2 items-center">
                                                     <input v-model="sub.formula" type="text" placeholder="Fórmula"
-                                                        class="flex-1 rounded border-tinta-200 text-sm font-mono px-2 py-1 focus:outline-none focus:border-blue-400" />
+                                                        class="flex-1 rounded border-tinta-200 text-sm font-mono px-2 py-1 focus:outline-none focus:border-[var(--marca)]" />
                                                     <button type="button" @click="probarSubFormula(sub, 'formula')" :disabled="sub._probando"
                                                         class="px-2 py-1 text-xs bg-gray-700 text-white rounded hover:bg-gray-900 disabled:opacity-50 shrink-0">
                                                         {{ sub._probando ? '...' : 'Probar' }}
@@ -2059,7 +2059,7 @@ const badgesTipo = {
                                         </div>
                                         <div class="flex-1 min-w-0">
                                             <p class="text-sm font-semibold text-tinta-900 truncate">{{ c.etiqueta || c.producto?.nombre || '(sin nombre)' }}</p>
-                                            <p v-if="!c.sub_formulas?.length" class="text-xs font-mono text-indigo-600 mt-0.5 break-all" style="white-space:pre-wrap;">{{ c.formula }}</p>
+                                            <p v-if="!c.sub_formulas?.length" class="text-xs font-mono text-[var(--marca)] mt-0.5 break-all" style="white-space:pre-wrap;">{{ c.formula }}</p>
                                             <p v-else class="text-xs text-blue-600 mt-0.5 font-medium">{{ c.sub_formulas.length }} sub-fórmula{{ c.sub_formulas.length !== 1 ? 's' : '' }}</p>
                                             <p v-if="c.condicion" class="text-xs text-tinta-300 mt-0.5 italic">if {{ c.condicion }}</p>
                                             <div class="flex items-center gap-2 mt-1 flex-wrap">
@@ -2081,10 +2081,10 @@ const badgesTipo = {
                                     </div>
 
                                     <!-- EDIT row sin sección -->
-                                    <div v-else class="border-t border-indigo-100 p-4 space-y-3" style="background:#F5F3FF;">
+                                    <div v-else class="border-t border-[var(--marca-borde)] p-4 space-y-3" style="background:#F5F3FF;">
                                         <div class="flex items-center justify-between">
-                                            <p class="text-xs font-semibold text-indigo-700 uppercase">Editar componente</p>
-                                            <button @click="cancelarComponente" class="w-6 h-6 rounded-full flex items-center justify-center text-tinta-300 hover:bg-indigo-100 text-sm leading-none">✕</button>
+                                            <p class="text-xs font-semibold text-[var(--marca)] uppercase">Editar componente</p>
+                                            <button @click="cancelarComponente" class="w-6 h-6 rounded-full flex items-center justify-center text-tinta-300 hover:bg-[var(--marca-suave)] text-sm leading-none">✕</button>
                                         </div>
                                         <div class="relative">
                                             <label class="block text-xs font-medium text-tinta-500 mb-1">Producto vinculado <span class="text-red-500">*</span></label>
@@ -2117,12 +2117,12 @@ const badgesTipo = {
                                             <label class="block text-xs font-medium text-tinta-500 mb-1">Fórmula * <span class="font-normal text-tinta-300">(escribe para autocompletar)</span></label>
                                             <div class="relative">
                                                 <textarea ref="formulaInputEl" v-model="compBorrador.formula" rows="4" spellcheck="false"
-                                                    :class="['w-full border border-linea rounded-lg px-3 py-1.5 text-sm font-mono focus:outline-none focus:border-indigo-400 resize-y min-h-[80px]', formulaActiva ? 'input-formula-activa' : '']"
+                                                    :class="['w-full border border-linea rounded-lg px-3 py-1.5 text-sm font-mono focus:outline-none focus:border-[var(--marca)] resize-y min-h-[80px]', formulaActiva ? 'input-formula-activa' : '']"
                                                     placeholder="Ej: 2 * alto_vano + 2 * ancho_vano + 0.664"
                                                     @input="onFormulaInput" @focus="formulaActiva = true" @blur="onFormulaBlur" />
-                                                <ul v-if="formulaSugs.length" class="absolute z-30 left-0 right-0 mt-1 bg-white border border-indigo-200 rounded-xl shadow-lg overflow-hidden">
+                                                <ul v-if="formulaSugs.length" class="absolute z-30 left-0 right-0 mt-1 bg-white border border-[var(--marca-borde)] rounded-xl shadow-lg overflow-hidden">
                                                     <li v-for="s in formulaSugs" :key="s" @mousedown.prevent="insertarVariable(s)"
-                                                        class="px-3 py-1.5 text-xs font-mono text-indigo-700 hover:bg-indigo-50 cursor-pointer">{{ s }}</li>
+                                                        class="px-3 py-1.5 text-xs font-mono text-[var(--marca)] hover:bg-[var(--marca-suave)] cursor-pointer">{{ s }}</li>
                                                 </ul>
                                             </div>
                                         </div>
@@ -2131,29 +2131,29 @@ const badgesTipo = {
                                             <textarea v-model="compBorrador.formula_real" rows="2" placeholder="Ej: largo * ancho (sin desperdicio)"
                                                 class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 font-mono resize-none" />
                                         </div>
-                                        <div v-if="compBorrador.formula" class="bg-white border border-indigo-200 rounded-lg p-3 space-y-2">
+                                        <div v-if="compBorrador.formula" class="bg-white border border-[var(--marca-borde)] rounded-lg p-3 space-y-2">
                                             <div class="flex items-center justify-between">
-                                                <p class="text-xs font-semibold text-indigo-600">▷ Probar esta fórmula</p>
+                                                <p class="text-xs font-semibold text-[var(--marca)]">▷ Probar esta fórmula</p>
                                                 <button @click="ejecutarProbarFormula" :disabled="probarFCarg" class="px-2.5 py-1 rounded-lg text-xs font-semibold text-white disabled:opacity-60" style="background:#4338CA;">{{ probarFCarg ? '...' : 'Calcular' }}</button>
                                             </div>
                                             <div v-if="camposParaProbar.length" class="grid grid-cols-2 gap-1.5">
                                                 <div v-for="c in camposParaProbar" :key="c.nombre">
-                                                    <label class="block text-[10px] text-indigo-500 mb-0.5 font-mono">{{ c.nombre }}</label>
-                                                    <select v-if="c.subtipo_variable === 'selector'" v-model="probarFVals[c.nombre]" class="w-full border border-indigo-200 rounded px-2 py-0.5 text-xs font-mono focus:outline-none bg-indigo-50"><option v-for="op in c.opciones_selector ?? []" :key="op.valor" :value="op.valor">{{ op.etiqueta }}</option></select>
-                                                    <select v-else-if="c.tipo === 'select'" v-model="probarFVals[c.nombre]" class="w-full border border-indigo-200 rounded px-2 py-0.5 text-xs font-mono focus:outline-none bg-indigo-50"><option v-for="op in c.opciones ?? []" :key="op.valor" :value="op.valor">{{ op.etiqueta }}</option></select>
-                                                    <input v-else-if="c.tipo === 'texto' || c.subtipo_variable === 'texto'" type="text" v-model="probarFVals[c.nombre]" class="w-full border border-indigo-200 rounded px-2 py-0.5 text-xs font-mono focus:outline-none bg-indigo-50" />
-                                                    <input v-else type="number" :step="c.tipo === 'decimal' || c.subtipo_variable === 'decimal' ? '0.01' : '1'" v-model.number="probarFVals[c.nombre]" class="w-full border border-indigo-200 rounded px-2 py-0.5 text-xs font-mono focus:outline-none bg-indigo-50" />
+                                                    <label class="block text-[10px] text-[var(--marca)] mb-0.5 font-mono">{{ c.nombre }}</label>
+                                                    <select v-if="c.subtipo_variable === 'selector'" v-model="probarFVals[c.nombre]" class="w-full border border-[var(--marca-borde)] rounded px-2 py-0.5 text-xs font-mono focus:outline-none bg-[var(--marca-suave)]"><option v-for="op in c.opciones_selector ?? []" :key="op.valor" :value="op.valor">{{ op.etiqueta }}</option></select>
+                                                    <select v-else-if="c.tipo === 'select'" v-model="probarFVals[c.nombre]" class="w-full border border-[var(--marca-borde)] rounded px-2 py-0.5 text-xs font-mono focus:outline-none bg-[var(--marca-suave)]"><option v-for="op in c.opciones ?? []" :key="op.valor" :value="op.valor">{{ op.etiqueta }}</option></select>
+                                                    <input v-else-if="c.tipo === 'texto' || c.subtipo_variable === 'texto'" type="text" v-model="probarFVals[c.nombre]" class="w-full border border-[var(--marca-borde)] rounded px-2 py-0.5 text-xs font-mono focus:outline-none bg-[var(--marca-suave)]" />
+                                                    <input v-else type="number" :step="c.tipo === 'decimal' || c.subtipo_variable === 'decimal' ? '0.01' : '1'" v-model.number="probarFVals[c.nombre]" class="w-full border border-[var(--marca-borde)] rounded px-2 py-0.5 text-xs font-mono focus:outline-none bg-[var(--marca-suave)]" />
                                                 </div>
                                             </div>
                                             <p v-else class="text-xs text-tinta-300 italic">Sin variables de entrada.</p>
-                                            <div v-if="probarFRes !== null" class="bg-indigo-50 border border-indigo-200 rounded-lg px-3 py-2 space-y-1">
+                                            <div v-if="probarFRes !== null" class="bg-[var(--marca-suave)] border border-[var(--marca-borde)] rounded-lg px-3 py-2 space-y-1">
                                                 <div class="flex items-baseline justify-between gap-2">
-                                                    <span class="text-[10px] text-indigo-400 shrink-0 whitespace-nowrap">Fórmula cotización:</span>
+                                                    <span class="text-[10px] text-[var(--marca)] shrink-0 whitespace-nowrap">Fórmula cotización:</span>
                                                     <span v-if="probarFRes.error" class="text-xs font-mono text-red-600 break-all">✕ {{ probarFRes.error }}</span>
                                                     <span v-else class="text-xs font-mono font-semibold text-green-700">= {{ probarFRes.resultado }}</span>
                                                 </div>
                                                 <div v-if="compBorrador.formula_real && probarFResReal !== null" class="flex items-baseline justify-between gap-2">
-                                                    <span class="text-[10px] text-indigo-400 shrink-0 whitespace-nowrap">Fórmula real:</span>
+                                                    <span class="text-[10px] text-[var(--marca)] shrink-0 whitespace-nowrap">Fórmula real:</span>
                                                     <span v-if="probarFResReal.error" class="text-xs font-mono text-red-600 break-all">✕ {{ probarFResReal.error }}</span>
                                                     <span v-else class="text-xs font-mono font-semibold text-blue-700">= {{ probarFResReal.resultado }}</span>
                                                 </div>
@@ -2195,8 +2195,8 @@ const badgesTipo = {
                         </div>
 
                         <!-- Nuevo componente (bottom) -->
-                        <div v-if="editandoComponente === 'nuevo'" class="border-t border-indigo-100 p-4 space-y-3" style="background:#F5F3FF;">
-                            <p class="text-xs font-semibold text-indigo-700 uppercase">Nuevo componente</p>
+                        <div v-if="editandoComponente === 'nuevo'" class="border-t border-[var(--marca-borde)] p-4 space-y-3" style="background:#F5F3FF;">
+                            <p class="text-xs font-semibold text-[var(--marca)] uppercase">Nuevo componente</p>
 
                             <div class="relative">
                                 <label class="block text-xs font-medium text-tinta-500 mb-1">Producto vinculado <span class="text-red-500">*</span></label>
@@ -2235,17 +2235,17 @@ const badgesTipo = {
                                         v-model="compBorrador.formula"
                                         rows="4"
                                         spellcheck="false"
-                                        :class="['w-full border border-linea rounded-lg px-3 py-1.5 text-sm font-mono focus:outline-none focus:border-indigo-400 resize-y min-h-[80px]', formulaActiva ? 'input-formula-activa' : '']"
+                                        :class="['w-full border border-linea rounded-lg px-3 py-1.5 text-sm font-mono focus:outline-none focus:border-[var(--marca)] resize-y min-h-[80px]', formulaActiva ? 'input-formula-activa' : '']"
                                         placeholder="Ej: 2 * alto_vano + 2 * ancho_vano + 0.664"
                                         @input="onFormulaInput"
                                         @focus="formulaActiva = true"
                                         @blur="onFormulaBlur"
                                     />
                                     <ul v-if="formulaSugs.length"
-                                        class="absolute z-30 left-0 right-0 mt-1 bg-white border border-indigo-200 rounded-xl shadow-lg overflow-hidden">
+                                        class="absolute z-30 left-0 right-0 mt-1 bg-white border border-[var(--marca-borde)] rounded-xl shadow-lg overflow-hidden">
                                         <li v-for="s in formulaSugs" :key="s"
                                             @mousedown.prevent="insertarVariable(s)"
-                                            class="px-3 py-1.5 text-xs font-mono text-indigo-700 hover:bg-indigo-50 cursor-pointer">
+                                            class="px-3 py-1.5 text-xs font-mono text-[var(--marca)] hover:bg-[var(--marca-suave)] cursor-pointer">
                                             {{ s }}
                                         </li>
                                     </ul>
@@ -2268,9 +2268,9 @@ const badgesTipo = {
                             </div>
 
                             <!-- Mini-probador inline -->
-                            <div v-if="compBorrador.formula" class="bg-white border border-indigo-200 rounded-lg p-3 space-y-2">
+                            <div v-if="compBorrador.formula" class="bg-white border border-[var(--marca-borde)] rounded-lg p-3 space-y-2">
                                 <div class="flex items-center justify-between">
-                                    <p class="text-xs font-semibold text-indigo-600">▷ Probar esta fórmula</p>
+                                    <p class="text-xs font-semibold text-[var(--marca)]">▷ Probar esta fórmula</p>
                                     <button @click="ejecutarProbarFormula" :disabled="probarFCarg"
                                         class="px-2.5 py-1 rounded-lg text-xs font-semibold text-white disabled:opacity-60"
                                         style="background:#4338CA;">
@@ -2279,41 +2279,41 @@ const badgesTipo = {
                                 </div>
                                 <div v-if="camposParaProbar.length" class="grid grid-cols-2 gap-1.5">
                                     <div v-for="c in camposParaProbar" :key="c.nombre">
-                                        <label class="block text-[10px] text-indigo-500 mb-0.5 font-mono">{{ c.nombre }}</label>
+                                        <label class="block text-[10px] text-[var(--marca)] mb-0.5 font-mono">{{ c.nombre }}</label>
                                         <select v-if="c.subtipo_variable === 'selector'" v-model="probarFVals[c.nombre]"
-                                            class="w-full border border-indigo-200 rounded px-2 py-0.5 text-xs font-mono focus:outline-none bg-indigo-50">
+                                            class="w-full border border-[var(--marca-borde)] rounded px-2 py-0.5 text-xs font-mono focus:outline-none bg-[var(--marca-suave)]">
                                             <option v-for="op in c.opciones_selector ?? []" :key="op.valor" :value="op.valor">{{ op.etiqueta }}</option>
                                         </select>
                                         <select v-else-if="c.tipo === 'select'" v-model="probarFVals[c.nombre]"
-                                            class="w-full border border-indigo-200 rounded px-2 py-0.5 text-xs font-mono focus:outline-none bg-indigo-50">
+                                            class="w-full border border-[var(--marca-borde)] rounded px-2 py-0.5 text-xs font-mono focus:outline-none bg-[var(--marca-suave)]">
                                             <option v-for="op in c.opciones ?? []" :key="op.valor" :value="op.valor">{{ op.etiqueta }}</option>
                                         </select>
                                         <input v-else-if="c.tipo === 'texto' || c.subtipo_variable === 'texto'" type="text" v-model="probarFVals[c.nombre]"
-                                            class="w-full border border-indigo-200 rounded px-2 py-0.5 text-xs font-mono focus:outline-none bg-indigo-50" />
+                                            class="w-full border border-[var(--marca-borde)] rounded px-2 py-0.5 text-xs font-mono focus:outline-none bg-[var(--marca-suave)]" />
                                         <input v-else type="number" :step="c.tipo === 'decimal' || c.subtipo_variable === 'decimal' ? '0.01' : '1'"
                                             v-model.number="probarFVals[c.nombre]"
-                                            class="w-full border border-indigo-200 rounded px-2 py-0.5 text-xs font-mono focus:outline-none bg-indigo-50" />
+                                            class="w-full border border-[var(--marca-borde)] rounded px-2 py-0.5 text-xs font-mono focus:outline-none bg-[var(--marca-suave)]" />
                                     </div>
                                 </div>
                                 <p v-else class="text-xs text-tinta-300 italic">Esta plantilla no tiene variables de entrada.</p>
-                                <div v-if="probarFRes !== null" class="bg-indigo-50 border border-indigo-200 rounded-lg px-3 py-2 space-y-1">
+                                <div v-if="probarFRes !== null" class="bg-[var(--marca-suave)] border border-[var(--marca-borde)] rounded-lg px-3 py-2 space-y-1">
                                     <div class="flex items-baseline justify-between gap-2">
-                                        <span class="text-[10px] text-indigo-400 shrink-0 whitespace-nowrap">Fórmula cotización:</span>
+                                        <span class="text-[10px] text-[var(--marca)] shrink-0 whitespace-nowrap">Fórmula cotización:</span>
                                         <span v-if="probarFRes.error" class="text-xs font-mono text-red-600 break-all">✕ {{ probarFRes.error }}</span>
                                         <span v-else class="text-xs font-mono font-semibold text-green-700">= {{ probarFRes.resultado }}</span>
                                     </div>
                                     <div v-if="compBorrador.formula_real && probarFResReal !== null" class="flex items-baseline justify-between gap-2">
-                                        <span class="text-[10px] text-indigo-400 shrink-0 whitespace-nowrap">Fórmula real:</span>
+                                        <span class="text-[10px] text-[var(--marca)] shrink-0 whitespace-nowrap">Fórmula real:</span>
                                         <span v-if="probarFResReal.error" class="text-xs font-mono text-red-600 break-all">✕ {{ probarFResReal.error }}</span>
                                         <span v-else class="text-xs font-mono font-semibold text-blue-700">= {{ probarFResReal.resultado }}</span>
                                     </div>
                                     <template v-if="compBorrador.sub_formulas?.some(s => s.formula)">
-                                        <div class="border-t border-indigo-200 pt-1 mt-0.5">
-                                            <span class="text-[10px] text-indigo-400">── Sub-fórmulas de producción ──</span>
+                                        <div class="border-t border-[var(--marca-borde)] pt-1 mt-0.5">
+                                            <span class="text-[10px] text-[var(--marca)]">── Sub-fórmulas de producción ──</span>
                                         </div>
                                         <div v-for="sub in compBorrador.sub_formulas.filter(s => s.formula)" :key="sub.id" class="flex items-baseline justify-between gap-2">
-                                            <span class="text-[10px] text-indigo-400 shrink-0 whitespace-nowrap">{{ sub.etiqueta || sub.formula }}:</span>
-                                            <span v-if="sub._probando" class="text-xs font-mono text-indigo-400">...</span>
+                                            <span class="text-[10px] text-[var(--marca)] shrink-0 whitespace-nowrap">{{ sub.etiqueta || sub.formula }}:</span>
+                                            <span v-if="sub._probando" class="text-xs font-mono text-[var(--marca)]">...</span>
                                             <span v-else-if="sub._error" class="text-xs font-mono text-red-600 break-all">✕ {{ sub._error }}</span>
                                             <span v-else-if="sub._resultado !== null" class="text-xs font-mono font-semibold text-green-700">= {{ sub._resultado }}</span>
                                             <span v-else class="text-xs font-mono text-tinta-300">—</span>
@@ -2323,7 +2323,7 @@ const badgesTipo = {
                             </div>
 
                             <!-- Sub-fórmulas — sección adicional para el documento de producción -->
-                            <div class="border-t border-indigo-100 pt-3 mt-1">
+                            <div class="border-t border-[var(--marca-borde)] pt-3 mt-1">
                                 <p class="text-xs font-semibold text-blue-700 uppercase tracking-wide mb-2">
                                     Sub-fórmulas de producción
                                     <span class="font-normal text-tinta-300 normal-case ml-1">(opcional — generan filas separadas en la OP)</span>
@@ -2333,12 +2333,12 @@ const badgesTipo = {
                                         class="bg-blue-50 border border-blue-200 rounded-lg p-3 space-y-2">
                                         <div class="flex gap-2">
                                             <input v-model="sub.etiqueta" type="text" placeholder="Etiqueta (ej: Perfil altura izquierdo)"
-                                                class="flex-1 rounded border-tinta-200 text-sm px-2 py-1 focus:outline-none focus:border-blue-400" />
+                                                class="flex-1 rounded border-tinta-200 text-sm px-2 py-1 focus:outline-none focus:border-[var(--marca)]" />
                                             <input v-model="sub.unidad" type="text" placeholder="Unidad"
                                                 class="w-20 rounded border-tinta-200 text-sm px-2 py-1 focus:outline-none" />
                                         </div>
                                         <input v-model="sub.formula" type="text" placeholder="Fórmula"
-                                            class="w-full rounded border-tinta-200 text-sm font-mono px-2 py-1 focus:outline-none focus:border-blue-400" />
+                                            class="w-full rounded border-tinta-200 text-sm font-mono px-2 py-1 focus:outline-none focus:border-[var(--marca)]" />
                                         <input v-model="sub.formula_real" type="text" placeholder="Fórmula real (opcional)"
                                             class="w-full rounded border-tinta-200 text-sm font-mono px-2 py-1 focus:outline-none" />
                                         <button type="button" @click="eliminarSubFormula(compBorrador, sIdx)"

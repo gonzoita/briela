@@ -277,7 +277,7 @@ function desmarcarPaso(paso) {
                                 </button>
                             </div>
                             <select v-model="op_data.operario_id"
-                                class="w-full rounded-xl border border-linea px-3 py-2 text-sm focus:outline-none focus:border-blue-400">
+                                class="w-full rounded-xl border border-linea px-3 py-2 text-sm focus:outline-none focus:border-[var(--marca)]">
                                 <option :value="null">Seleccionar operario...</option>
                                 <option v-for="op_item in operarios" :key="op_item.id" :value="op_item.id">
                                     {{ op_item.nombre }}
@@ -288,12 +288,12 @@ function desmarcarPaso(paso) {
                                     <label class="text-xs text-tinta-400 block mb-1">Tiempo (min)</label>
                                     <input v-model.number="op_data.tiempo_minutos" type="number" min="0"
                                         placeholder="0"
-                                        class="w-full rounded-xl border border-linea px-3 py-2 text-sm focus:outline-none focus:border-blue-400"/>
+                                        class="w-full rounded-xl border border-linea px-3 py-2 text-sm focus:outline-none focus:border-[var(--marca)]"/>
                                 </div>
                                 <div>
                                     <label class="text-xs text-tinta-400 block mb-1">Observación</label>
                                     <input v-model="op_data.observaciones" type="text" placeholder="—"
-                                        class="w-full rounded-xl border border-linea px-3 py-2 text-sm focus:outline-none focus:border-blue-400"/>
+                                        class="w-full rounded-xl border border-linea px-3 py-2 text-sm focus:outline-none focus:border-[var(--marca)]"/>
                                 </div>
                             </div>
                         </div>

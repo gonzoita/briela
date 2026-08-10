@@ -154,7 +154,7 @@ onMounted(cargar)
             <div class="border-t border-linea pt-4 space-y-2">
                 <textarea v-model="nuevo.contenido" rows="3"
                     placeholder="Escribe aquí. Menciona a alguien con @ y le llega el aviso."
-                    class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-400"></textarea>
+                    class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[var(--marca)]"></textarea>
 
                 <div class="flex flex-wrap gap-2 items-center">
                     <select v-model="nuevo.tipo"

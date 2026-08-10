@@ -168,7 +168,7 @@ const iconoExtension = (ext) => {
                     <label class="block text-xs font-medium text-tinta-500 mb-1.5">¿Qué quieres ver en la imagen?</label>
                     <textarea v-model="iaDescripcion" rows="3" maxlength="1000"
                         placeholder="Ej: fondo abstracto con tonos azules y formas geométricas frías"
-                        class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm mb-3 focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                        class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm mb-3 focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]"></textarea>
 
                     <label class="block text-xs font-medium text-tinta-500 mb-1.5">Estilo</label>
                     <select v-model="iaEstilo"

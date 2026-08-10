@@ -101,7 +101,7 @@ function tipoColor(t) {
             <div class="bg-white rounded-xl border border-linea p-3 mb-4 space-y-2">
                 <div class="flex flex-col sm:flex-row gap-2">
                     <input v-model="buscar" type="text" placeholder="Buscar por nombre, NIT, email..."
-                        class="flex-1 rounded-lg border border-tinta-200 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                        class="flex-1 rounded-lg border border-tinta-200 px-3 py-2 text-sm focus:ring-4 focus:ring-[var(--marca-suave)] focus:outline-none"
                         @keyup.enter="aplicarFiltros" />
                     <select v-model="tipo" class="rounded-lg border border-tinta-200 px-3 py-2 text-sm" @change="aplicarFiltros">
                         <option value="">Todos los tipos</option>
@@ -210,16 +210,16 @@ function tipoColor(t) {
                     <div class="space-y-3">
                         <div>
                             <label class="block text-sm font-medium text-tinta-700 mb-1">Nombre *</label>
-                            <input v-model="form.nombre" type="text" class="w-full rounded-lg border border-tinta-200 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+                            <input v-model="form.nombre" type="text" class="w-full rounded-lg border border-tinta-200 px-3 py-2 text-sm focus:ring-4 focus:ring-[var(--marca-suave)] focus:outline-none" />
                         </div>
                         <div class="grid grid-cols-2 gap-3">
                             <div>
                                 <label class="block text-sm font-medium text-tinta-700 mb-1">NIT</label>
-                                <input v-model="form.nit" type="text" class="w-full rounded-lg border border-tinta-200 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+                                <input v-model="form.nit" type="text" class="w-full rounded-lg border border-tinta-200 px-3 py-2 text-sm focus:ring-4 focus:ring-[var(--marca-suave)] focus:outline-none" />
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-tinta-700 mb-1">Tipo *</label>
-                                <select v-model="form.tipo" class="w-full rounded-lg border border-tinta-200 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                                <select v-model="form.tipo" class="w-full rounded-lg border border-tinta-200 px-3 py-2 text-sm focus:ring-4 focus:ring-[var(--marca-suave)] focus:outline-none">
                                     <option value="materia_prima">Materia Prima</option>
                                     <option value="insumos">Insumos</option>
                                     <option value="mixto">Mixto</option>
@@ -228,31 +228,31 @@ function tipoColor(t) {
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-tinta-700 mb-1">Contacto</label>
-                            <input v-model="form.contacto" type="text" class="w-full rounded-lg border border-tinta-200 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+                            <input v-model="form.contacto" type="text" class="w-full rounded-lg border border-tinta-200 px-3 py-2 text-sm focus:ring-4 focus:ring-[var(--marca-suave)] focus:outline-none" />
                         </div>
                         <div class="grid grid-cols-2 gap-3">
                             <div>
                                 <label class="block text-sm font-medium text-tinta-700 mb-1">Teléfono</label>
-                                <input v-model="form.telefono" type="text" class="w-full rounded-lg border border-tinta-200 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+                                <input v-model="form.telefono" type="text" class="w-full rounded-lg border border-tinta-200 px-3 py-2 text-sm focus:ring-4 focus:ring-[var(--marca-suave)] focus:outline-none" />
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-tinta-700 mb-1">Email</label>
-                                <input v-model="form.email" type="email" class="w-full rounded-lg border border-tinta-200 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+                                <input v-model="form.email" type="email" class="w-full rounded-lg border border-tinta-200 px-3 py-2 text-sm focus:ring-4 focus:ring-[var(--marca-suave)] focus:outline-none" />
                             </div>
                         </div>
                         <div class="grid grid-cols-2 gap-3">
                             <div>
                                 <label class="block text-sm font-medium text-tinta-700 mb-1">Ciudad</label>
-                                <input v-model="form.ciudad" type="text" class="w-full rounded-lg border border-tinta-200 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+                                <input v-model="form.ciudad" type="text" class="w-full rounded-lg border border-tinta-200 px-3 py-2 text-sm focus:ring-4 focus:ring-[var(--marca-suave)] focus:outline-none" />
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-tinta-700 mb-1">Dirección</label>
-                                <input v-model="form.direccion" type="text" class="w-full rounded-lg border border-tinta-200 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+                                <input v-model="form.direccion" type="text" class="w-full rounded-lg border border-tinta-200 px-3 py-2 text-sm focus:ring-4 focus:ring-[var(--marca-suave)] focus:outline-none" />
                             </div>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-tinta-700 mb-1">Notas</label>
-                            <textarea v-model="form.notas" rows="2" class="w-full rounded-lg border border-tinta-200 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+                            <textarea v-model="form.notas" rows="2" class="w-full rounded-lg border border-tinta-200 px-3 py-2 text-sm focus:ring-4 focus:ring-[var(--marca-suave)] focus:outline-none" />
                         </div>
                         <div v-if="editando" class="flex items-center gap-2">
                             <input id="activo" v-model="form.activo" type="checkbox" class="rounded" />

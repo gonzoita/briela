@@ -48,7 +48,7 @@ function submit() {
                     <div>
                         <label class="block text-sm font-medium text-tinta-700 mb-1">Título</label>
                         <input v-model="form.titulo" type="text" maxlength="200"
-                            class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-400"
+                            class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[var(--marca)]"
                             :class="{ 'border-red-400': form.errors.titulo }" />
                         <p v-if="form.errors.titulo" class="text-xs text-red-500 mt-1">{{ form.errors.titulo }}</p>
                     </div>
@@ -56,19 +56,19 @@ function submit() {
                     <div>
                         <label class="block text-sm font-medium text-tinta-700 mb-1">Descripción</label>
                         <textarea v-model="form.descripcion" rows="3"
-                            class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-400"/>
+                            class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[var(--marca)]"/>
                     </div>
 
                     <div class="grid grid-cols-2 gap-3">
                         <div>
                             <label class="block text-sm font-medium text-tinta-700 mb-1">Categoría</label>
                             <input v-model="form.categoria" type="text" maxlength="100"
-                                class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-400" />
+                                class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[var(--marca)]" />
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-tinta-700 mb-1">Público objetivo</label>
                             <select v-model="form.publico_objetivo"
-                                class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-400">
+                                class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[var(--marca)]">
                                 <option value="todos">Todos</option>
                                 <option value="colaborador">Colaboradores</option>
                                 <option value="contratista">Contratistas</option>
@@ -85,7 +85,7 @@ function submit() {
                     <div v-if="form.publico_objetivo === 'colaborador'">
                         <label class="block text-sm font-medium text-tinta-700 mb-1">Puntos que otorga al aprobar</label>
                         <input v-model.number="form.puntos_otorga" type="number" min="0"
-                            class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-400" />
+                            class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[var(--marca)]" />
                         <p class="text-xs text-tinta-300 mt-1">Puntos de gamificación que recibe el colaborador al aprobar la evaluación del curso.</p>
                     </div>
                 </div>

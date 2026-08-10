@@ -14,7 +14,7 @@ const props = defineProps({
 
 const classes = computed(() =>
     props.active
-        ? 'block w-full ps-3 pe-4 py-2 border-l-4 border-indigo-400 text-start text-base font-medium text-indigo-700 bg-indigo-50 focus:outline-none focus:text-indigo-800 focus:bg-indigo-100 focus:border-indigo-700 transition duration-150 ease-in-out'
+        ? 'block w-full ps-3 pe-4 py-2 border-l-4 border-[var(--marca)] text-start text-base font-medium text-[var(--marca)] bg-[var(--marca-suave)] focus:outline-none focus:text-[var(--marca)] focus:bg-[var(--marca-suave)] focus:border-[var(--marca)] transition duration-150 ease-in-out'
         : 'block w-full ps-3 pe-4 py-2 border-l-4 border-transparent text-start text-base font-medium text-tinta-500 hover:text-tinta-900 hover:bg-tinta-50 hover:border-tinta-200 focus:outline-none focus:text-tinta-900 focus:bg-tinta-50 focus:border-tinta-200 transition duration-150 ease-in-out',
 );
 </script>

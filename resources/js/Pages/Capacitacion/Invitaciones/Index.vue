@@ -162,7 +162,7 @@ function limpiarCliente() {
                     <!-- Link completo, siempre visible y seleccionable -->
                     <input :value="urlInvitacion(inv)" readonly type="text"
                         @focus="$event.target.select()" @click="$event.target.select()"
-                        class="w-full border border-linea rounded-lg px-2.5 py-1.5 text-xs text-tinta-400 bg-tinta-50 focus:outline-none focus:border-blue-400 truncate" />
+                        class="w-full border border-linea rounded-lg px-2.5 py-1.5 text-xs text-tinta-400 bg-tinta-50 focus:outline-none focus:border-[var(--marca)] truncate" />
                     <p v-if="copiaFallidaId === inv.id" class="text-xs" style="color:#B91C1C;">
                         No se pudo copiar automáticamente. Selecciona el texto de arriba y usa Ctrl+C.
                     </p>
@@ -183,13 +183,13 @@ function limpiarCliente() {
                     <div>
                         <label class="block text-sm font-medium text-tinta-700 mb-1">Correo electrónico</label>
                         <input v-model="form.email" type="email" placeholder="correo@ejemplo.com"
-                            class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-400" />
+                            class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[var(--marca)]" />
                         <p v-if="form.errors.email" class="text-xs text-red-500 mt-1">{{ form.errors.email }}</p>
                     </div>
 
                     <div>
                         <label class="block text-sm font-medium text-tinta-700 mb-1">Tipo</label>
-                        <select v-model="form.tipo" class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-400">
+                        <select v-model="form.tipo" class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[var(--marca)]">
                             <option value="contratista">Contratista</option>
                             <option value="cliente">Cliente</option>
                         </select>
@@ -230,7 +230,7 @@ function limpiarCliente() {
                     <div>
                         <label class="block text-sm font-medium text-tinta-700 mb-1">Nombre sugerido (opcional)</label>
                         <input v-model="form.nombre_sugerido" type="text" maxlength="150"
-                            class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-400" />
+                            class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[var(--marca)]" />
                     </div>
                 </div>
                 <div class="px-5 py-4 border-t border-linea flex gap-2">

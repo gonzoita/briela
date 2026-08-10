@@ -151,7 +151,7 @@ function fmt(n) {
             <div class="bg-white rounded-xl border border-linea p-3 mb-4">
                 <div class="flex flex-col sm:flex-row gap-2">
                     <input v-model="buscar" type="text" placeholder="Buscar por nombre o código..."
-                        class="flex-1 rounded-lg border border-tinta-200 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                        class="flex-1 rounded-lg border border-tinta-200 px-3 py-2 text-sm focus:ring-4 focus:ring-[var(--marca-suave)] focus:outline-none"
                         @keyup.enter="aplicarFiltros" />
                     <select v-model="tipo" class="rounded-lg border border-tinta-200 px-3 py-2 text-sm" @change="aplicarFiltros">
                         <option value="">Todos los tipos</option>

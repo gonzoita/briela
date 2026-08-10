@@ -161,7 +161,7 @@ function toggleAbierto(key) {
                                 <div v-if="editando.id === op.id"
                                     class="flex items-center gap-2 p-2 rounded-lg border-2" style="border-color:var(--marca); background:#F0F7FF;">
                                     <input v-model="editando.etiqueta" type="text"
-                                        class="flex-1 text-sm border border-tinta-200 rounded-lg px-2 py-1 focus:outline-none focus:border-blue-400"
+                                        class="flex-1 text-sm border border-tinta-200 rounded-lg px-2 py-1 focus:outline-none focus:border-[var(--marca)]"
                                         @keyup.enter="guardarEdicion" @keyup.escape="cancelarEdicion" />
                                     <div class="flex items-center gap-1.5 shrink-0">
                                         <div class="w-5 h-5 rounded-full border border-tinta-200 cursor-pointer"
@@ -205,7 +205,7 @@ function toggleAbierto(key) {
                         <div v-if="formNuevo[tipo.key]"
                             class="flex items-center gap-2 p-2 rounded-lg border-2 border-dashed" style="border-color:var(--marca); background:#F0F7FF;">
                             <input v-model="formNuevo[tipo.key].etiqueta" type="text" placeholder="Etiqueta..."
-                                class="flex-1 text-sm border border-tinta-200 rounded-lg px-2 py-1 focus:outline-none focus:border-blue-400"
+                                class="flex-1 text-sm border border-tinta-200 rounded-lg px-2 py-1 focus:outline-none focus:border-[var(--marca)]"
                                 @keyup.enter="guardarNuevo(tipo.key)" @keyup.escape="cancelarNuevo(tipo.key)"
                                 autofocus />
                             <input v-model="formNuevo[tipo.key].color" type="color"

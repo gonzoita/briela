@@ -109,19 +109,19 @@ function fmt(v) { return Number(v || 0).toLocaleString('es-CO') }
         <div class="bg-white rounded-2xl border border-linea shadow-sm p-4 mb-4 space-y-3">
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                 <input v-model="filters.buscar" type="text" placeholder="Buscar número o cliente..."
-                    class="border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-400" />
-                <select v-model="filters.estado" class="border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-400">
+                    class="border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[var(--marca)]" />
+                <select v-model="filters.estado" class="border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[var(--marca)]">
                     <option v-for="e in ESTADOS" :key="e.value" :value="e.value">{{ e.label }}</option>
                 </select>
-                <select v-model="filters.responsable_id" class="border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-400">
+                <select v-model="filters.responsable_id" class="border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[var(--marca)]">
                     <option value="">Todos los responsables</option>
                     <option v-for="r in responsables" :key="r.id" :value="r.id">{{ r.name }}</option>
                 </select>
                 <div class="flex gap-2">
                     <input v-model="filters.desde" type="date"
-                        class="flex-1 border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-400" title="Desde" />
+                        class="flex-1 border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[var(--marca)]" title="Desde" />
                     <input v-model="filters.hasta" type="date"
-                        class="flex-1 border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-400" title="Hasta" />
+                        class="flex-1 border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[var(--marca)]" title="Hasta" />
                 </div>
             </div>
             <div v-if="filters.buscar || filters.estado || filters.responsable_id || filters.desde || filters.hasta"

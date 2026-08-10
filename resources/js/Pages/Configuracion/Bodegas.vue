@@ -148,7 +148,7 @@ function eliminar(id) {
                         </label>
                         <select
                             v-model="form.sede_id"
-                            class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                            class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)] bg-white"
                         >
                             <option v-for="s in sedes" :key="s.id" :value="s.id">{{ s.nombre }} ({{ s.codigo }})</option>
                         </select>
@@ -163,7 +163,7 @@ function eliminar(id) {
                             v-model="form.nombre"
                             type="text"
                             placeholder="Ej: Almacén Norte"
-                            class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]"
                         />
                     </div>
 
@@ -174,7 +174,7 @@ function eliminar(id) {
                         </label>
                         <select
                             v-model="form.tipo"
-                            class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                            class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)] bg-white"
                         >
                             <option value="general">General</option>
                             <option value="produccion">Producción</option>

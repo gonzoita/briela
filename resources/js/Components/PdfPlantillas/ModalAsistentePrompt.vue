@@ -658,7 +658,7 @@ async function copiarPrompt(texto) {
                             <button v-for="s in [{ key:'header', label:'⬆ Encabezado' }, { key:'body', label:'📄 Cuerpo' }, { key:'footer', label:'⬇ Pie' }]"
                                 :key="s.key"
                                 @click="tabPrompt = s.key"
-                                class="flex-1 py-1.5 text-xs font-medium rounded-md transition-all"
+                                class="flex-1 py-1.5 text-xs font-medium rounded-lg transition-all"
                                 :class="tabPrompt === s.key ? 'bg-white text-purple-700 shadow-sm' : 'text-tinta-400 hover:text-tinta-700'">
                                 {{ s.label }}
                             </button>

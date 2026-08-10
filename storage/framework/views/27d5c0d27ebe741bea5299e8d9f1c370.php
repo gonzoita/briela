@@ -63,6 +63,30 @@
         /* Texto más parejo en pantallas de alta densidad, como en las interfaces
            de Apple: sin esto la tipografía del sistema se ve más gruesa en Mac. */
         body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; text-rendering: optimizeLegibility; }
+
+        /* Detalles que no se piensan pero se sienten. En un ERP se pasa el día
+           entero desplazando listas y seleccionando datos para copiarlos: la
+           barra de scroll gruesa y la selección azul del navegador son dos de las
+           cosas que más delatan una aplicación web genérica. */
+        * { scrollbar-width: thin; scrollbar-color: #D0D5DD transparent; }
+        ::-webkit-scrollbar { width: 10px; height: 10px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb {
+            background: #D0D5DD;
+            border-radius: 999px;
+            border: 3px solid transparent;
+            background-clip: content-box;
+        }
+        ::-webkit-scrollbar-thumb:hover { background: #98A2B3; background-clip: content-box; }
+
+        ::selection { background: var(--marca-medio); color: var(--texto); }
+
+        /* El resaltado azul al tocar en móvil: sobra cuando cada elemento ya
+           responde con su propio estado. */
+        * { -webkit-tap-highlight-color: transparent; }
+
+        /* Que el foco se vea solo cuando se navega con teclado, no al hacer clic. */
+        :focus:not(:focus-visible) { outline: none; }
     </style>
 </head>
 <body class="font-sans antialiased bg-lienzo text-tinta-900">

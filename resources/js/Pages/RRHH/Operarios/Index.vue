@@ -171,7 +171,7 @@ const mesActual = MESES[new Date().getMonth()]
                         placeholder="Buscar por nombre, documento, especialidad..."
                         @keyup.enter="buscar"
                         @input="onBuscarTexto"
-                        class="flex-1 min-w-48 rounded-lg border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200" />
+                        class="flex-1 min-w-48 rounded-lg border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]" />
 
                     <select v-model="filters.tipo_colaborador_id" @change="buscar"
                         class="rounded-lg border border-tinta-200 px-3 py-2 text-sm focus:outline-none">

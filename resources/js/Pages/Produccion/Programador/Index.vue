@@ -173,7 +173,7 @@ onUnmounted(() => {
                     v-model="fechaInput"
                     type="date"
                     @change="cargarFecha"
-                    class="rounded-xl border border-tinta-200 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    class="rounded-xl border border-tinta-200 px-3 py-1.5 text-sm focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]"
                 />
                 <button
                     @click="irFecha(1)"
@@ -292,7 +292,7 @@ onUnmounted(() => {
                             </label>
                             <select
                                 v-model="programarForm.estacion_trabajo_id"
-                                class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]"
                             >
                                 <option :value="null">Seleccionar estación...</option>
                                 <option
@@ -310,7 +310,7 @@ onUnmounted(() => {
                             </label>
                             <select
                                 v-model="programarForm.colaborador_programado_id"
-                                class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]"
                             >
                                 <option :value="null">Sin asignar</option>
                                 <option v-for="col in colaboradores" :key="col.id" :value="col.id">
@@ -326,7 +326,7 @@ onUnmounted(() => {
                                 v-model.number="programarForm.tiempo_estimado_minutos"
                                 type="number"
                                 min="1"
-                                class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]"
                             />
                         </div>
                         <div class="flex gap-2 pt-1">

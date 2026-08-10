@@ -224,10 +224,10 @@ function reactivar(c) {
                                 <p class="mb-1.5">3. Copia de la red sus credenciales y pégalas acá:</p>
                                 <div class="space-y-2">
                                     <input v-model="form[r.key].id" type="text" placeholder="Identificador de la aplicación (App ID)"
-                                        class="w-full bg-white border border-linea rounded-lg px-2.5 py-2 text-[12px] focus:outline-none focus:border-blue-400" />
+                                        class="w-full bg-white border border-linea rounded-lg px-2.5 py-2 text-[12px] focus:outline-none focus:border-[var(--marca)]" />
                                     <input v-model="form[r.key].secret" type="password"
                                         :placeholder="estado(r.key).tiene_secreto ? 'Clave secreta (ya hay una guardada — deja vacío para conservarla)' : 'Clave secreta (App Secret)'"
-                                        class="w-full bg-white border border-linea rounded-lg px-2.5 py-2 text-[12px] focus:outline-none focus:border-blue-400" />
+                                        class="w-full bg-white border border-linea rounded-lg px-2.5 py-2 text-[12px] focus:outline-none focus:border-[var(--marca)]" />
                                     <button type="button" @click="guardarCredenciales(r.key)" :disabled="guardando === r.key"
                                         class="w-full py-2 rounded-lg text-[12px] font-semibold text-white disabled:opacity-50"
                                         style="background:var(--marca);">

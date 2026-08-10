@@ -207,7 +207,7 @@ function getCookie(name) {
                         type="text"
                         placeholder="Buscar lead..."
                         @input="debounceSearch"
-                        class="border border-tinta-200 rounded-lg pl-8 pr-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 w-48"
+                        class="border border-tinta-200 rounded-lg pl-8 pr-3 py-1.5 text-sm focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)] w-48"
                     />
                     <svg xmlns="http://www.w3.org/2000/svg"
                         class="w-4 h-4 text-tinta-300 absolute left-2 top-1/2 -translate-y-1/2"
@@ -221,14 +221,14 @@ function getCookie(name) {
                     v-model="filtroMes"
                     type="month"
                     @change="aplicarFiltros"
-                    class="border border-tinta-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
+                    class="border border-tinta-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]"
                 />
 
                 <!-- Estado -->
                 <select
                     v-model="filtroEstado"
                     @change="aplicarFiltros"
-                    class="border border-tinta-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 bg-white"
+                    class="border border-tinta-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)] bg-white"
                 >
                     <option value="activo">Activos</option>
                     <option value="ganado">Ganados</option>
@@ -240,7 +240,7 @@ function getCookie(name) {
                 <select
                     v-model="filtroResponsable"
                     @change="aplicarFiltros"
-                    class="border border-tinta-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 bg-white"
+                    class="border border-tinta-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)] bg-white"
                 >
                     <option value="">Todos los responsables</option>
                     <option v-for="u in props.usuarios" :key="u.id" :value="String(u.id)">{{ u.name }}</option>
@@ -250,7 +250,7 @@ function getCookie(name) {
                 <select
                     v-model="filtroFuente"
                     @change="aplicarFiltros"
-                    class="border border-tinta-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 bg-white"
+                    class="border border-tinta-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)] bg-white"
                 >
                     <option value="">Todas las fuentes</option>
                     <option v-for="f in props.fuentes" :key="f" :value="f">{{ f }}</option>
@@ -317,7 +317,7 @@ function getCookie(name) {
                                 <!-- Badge estado ganado/perdido -->
                                 <div
                                     v-if="lead.estado && lead.estado !== 'activo'"
-                                    class="inline-flex items-center text-xs font-semibold px-1.5 py-0.5 rounded-md mb-1"
+                                    class="inline-flex items-center text-xs font-semibold px-1.5 py-0.5 rounded-lg mb-1"
                                     :class="lead.estado === 'ganado' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-600'"
                                 >
                                     {{ lead.estado === 'ganado' ? '✓ Ganado' : '✗ Perdido' }}
@@ -341,7 +341,7 @@ function getCookie(name) {
                                 <div class="flex items-center justify-between gap-1 mt-2">
                                     <span
                                         v-if="lead.fuente"
-                                        class="text-xs bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded-md truncate max-w-[100px]"
+                                        class="text-xs bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded-lg truncate max-w-[100px]"
                                     >{{ lead.fuente }}</span>
                                     <span v-else class="flex-1"></span>
 

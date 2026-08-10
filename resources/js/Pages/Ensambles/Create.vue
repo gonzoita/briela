@@ -386,7 +386,7 @@ onMounted(() => {
                     <div>
                         <label class="block text-sm font-medium text-tinta-700 mb-1.5">Plantilla <span class="text-red-500">*</span></label>
                         <select v-model="plantillaId" :disabled="esEdicion"
-                            class="w-full border border-linea rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-blue-400 disabled:bg-tinta-50">
+                            class="w-full border border-linea rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-[var(--marca)] disabled:bg-tinta-50">
                             <option value="">— Seleccionar plantilla —</option>
                             <option v-for="p in plantillas" :key="p.id" :value="p.id">{{ p.nombre }}</option>
                         </select>
@@ -395,7 +395,7 @@ onMounted(() => {
                     <div v-if="plantillaSeleccionada">
                         <label class="block text-sm font-medium text-tinta-700 mb-1.5">Nombre del ensamble <span class="text-red-500">*</span></label>
                         <input v-model="nombre" type="text"
-                            class="w-full border border-linea rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-blue-400"
+                            class="w-full border border-linea rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-[var(--marca)]"
                             placeholder="Nombre descriptivo..."
                             @input="onNombreInput" />
                         <p class="text-xs text-tinta-300 mt-1">Se genera automáticamente desde las variables.</p>
@@ -413,7 +413,7 @@ onMounted(() => {
                         <label class="block text-sm font-medium text-tinta-700 mb-1.5">Categoría</label>
                         <div class="flex gap-2">
                             <select v-model="categoriaId"
-                                class="flex-1 border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-400">
+                                class="flex-1 border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[var(--marca)]">
                                 <option value="">— Sin categoría —</option>
                                 <option v-for="c in listaCats" :key="c.id" :value="c.id">{{ c.nombre }}</option>
                             </select>
@@ -435,7 +435,7 @@ onMounted(() => {
                     </div>
                     <textarea v-model="descripcionCorta" rows="2" maxlength="1000"
                         class="w-full border rounded-xl px-3 py-2 text-sm focus:outline-none resize-none"
-                        :class="page.props.errors?.descripcion_corta ? 'border-red-400 focus:border-red-400' : 'border-linea focus:border-blue-400'"
+                        :class="page.props.errors?.descripcion_corta ? 'border-red-400 focus:border-red-400' : 'border-linea focus:border-[var(--marca)]'"
                         placeholder="Descripción breve para el catálogo..." />
                     <p v-if="page.props.errors?.descripcion_corta" class="mt-1 text-xs text-red-600">
                         {{ page.props.errors.descripcion_corta }}
@@ -532,14 +532,14 @@ onMounted(() => {
                                 <span v-if="campo.requerido && campo.tipo !== 'checkbox'" class="text-red-500">*</span>
                             </label>
                             <select v-if="campo.tipo === 'select'" v-model="variables[campo.nombre]"
-                                class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-400">
+                                class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[var(--marca)]">
                                 <option v-for="op in campo.opciones ?? []" :key="op.valor" :value="op.valor">{{ op.etiqueta }}</option>
                             </select>
                             <input v-else-if="campo.tipo === 'decimal' || campo.tipo === 'numero'"
                                 v-model.number="variables[campo.nombre]"
                                 type="number" step="0.01"
                                 :placeholder="campo.placeholder"
-                                class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-400" />
+                                class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[var(--marca)]" />
                             <input v-else-if="campo.tipo === 'boolean' || campo.tipo === 'checkbox'"
                                 v-model="variables[campo.nombre]"
                                 type="checkbox"
@@ -548,7 +548,7 @@ onMounted(() => {
                                 v-model="variables[campo.nombre]"
                                 type="text"
                                 :placeholder="campo.placeholder"
-                                class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-400" />
+                                class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[var(--marca)]" />
                             <p v-if="campo.ayuda && campo.tipo !== 'checkbox' && campo.tipo !== 'boolean'"
                                 class="text-xs text-tinta-300 mt-1">{{ campo.ayuda }}</p>
                         </div>
@@ -669,17 +669,17 @@ onMounted(() => {
                     </div>
 
                     <!-- Distribuidor -->
-                    <div class="border border-indigo-100 rounded-lg p-3 space-y-3 bg-indigo-50/30">
+                    <div class="border border-[var(--marca-borde)] rounded-lg p-3 space-y-3 bg-[var(--marca-suave)]/30">
                         <div class="flex items-center justify-between flex-wrap gap-1">
-                            <span class="text-xs font-semibold text-indigo-700 uppercase">Distribuidor</span>
-                            <span class="text-xs text-indigo-500">Base: {{ formatCOP(precioDist) }} · Mín: {{ formatCOP(precioMayor) }} · Desc. máx: {{ descuentoMaxRealDistribuidor }}%</span>
+                            <span class="text-xs font-semibold text-[var(--marca)] uppercase">Distribuidor</span>
+                            <span class="text-xs text-[var(--marca)]">Base: {{ formatCOP(precioDist) }} · Mín: {{ formatCOP(precioMayor) }} · Desc. máx: {{ descuentoMaxRealDistribuidor }}%</span>
                         </div>
                         <div class="grid grid-cols-2 gap-3">
                             <div>
                                 <label class="text-xs text-tinta-400 mb-1 block">Comisión mínima (%)</label>
                                 <div class="flex items-center gap-2">
                                     <input type="number" step="0.1" min="0" v-model.number="comisionMinDistribuidor" @input="validarComisiones"
-                                        class="w-24 border border-tinta-200 rounded-lg px-2 py-1.5 text-sm focus:ring-2 focus:ring-indigo-300 focus:outline-none" />
+                                        class="w-24 border border-tinta-200 rounded-lg px-2 py-1.5 text-sm focus:ring-2 focus:ring-[var(--marca-suave)] focus:outline-none" />
                                     <span class="text-xs text-tinta-300">= {{ formatCOP(excedenteDistribuidor * comisionMinDistribuidor / 100) }}</span>
                                 </div>
                             </div>
@@ -687,12 +687,12 @@ onMounted(() => {
                                 <label class="text-xs text-tinta-400 mb-1 block">Comisión máxima (%)</label>
                                 <div class="flex items-center gap-2">
                                     <input type="number" step="0.1" min="0" v-model.number="comisionMaxDistribuidor" @input="validarComisiones"
-                                        class="w-24 border border-tinta-200 rounded-lg px-2 py-1.5 text-sm focus:ring-2 focus:ring-indigo-300 focus:outline-none" />
+                                        class="w-24 border border-tinta-200 rounded-lg px-2 py-1.5 text-sm focus:ring-2 focus:ring-[var(--marca-suave)] focus:outline-none" />
                                     <span class="text-xs text-tinta-300">= {{ formatCOP(excedenteDistribuidor * comisionMaxDistribuidor / 100) }}</span>
                                 </div>
                             </div>
                         </div>
-                        <p v-if="comisionMinDistribuidor > 0 && comisionMaxDistribuidor > 0" class="text-xs text-indigo-600">
+                        <p v-if="comisionMinDistribuidor > 0 && comisionMaxDistribuidor > 0" class="text-xs text-[var(--marca)]">
                             ✅ Vendedor gana entre {{ formatCOP(excedenteDistribuidor * comisionMinDistribuidor / 100) }} y {{ formatCOP(excedenteDistribuidor * comisionMaxDistribuidor / 100) }}
                         </p>
                     </div>
@@ -747,11 +747,11 @@ onMounted(() => {
                                 <span class="text-xs text-tinta-300 w-20 text-right">Sin comisión</span>
                             </div>
                             <div class="flex items-center gap-2">
-                                <span class="text-xs text-indigo-600 w-28">Distribuidor:</span>
+                                <span class="text-xs text-[var(--marca)] w-28">Distribuidor:</span>
                                 <div class="flex-1 bg-tinta-200 rounded-full h-1.5">
-                                    <div class="bg-indigo-400 h-1.5 rounded-full" :style="`width: ${Math.min(comisionMaxDistribuidor * 5, 100)}%`"></div>
+                                    <div class="bg-[var(--marca)] h-1.5 rounded-full" :style="`width: ${Math.min(comisionMaxDistribuidor * 5, 100)}%`"></div>
                                 </div>
-                                <span class="text-xs text-indigo-600 w-20 text-right font-medium">máx {{ comisionMaxDistribuidor }}%</span>
+                                <span class="text-xs text-[var(--marca)] w-20 text-right font-medium">máx {{ comisionMaxDistribuidor }}%</span>
                             </div>
                             <div class="flex items-center gap-2">
                                 <span class="text-xs text-green-600 w-28">Cliente final:</span>
@@ -790,7 +790,7 @@ onMounted(() => {
                         <div>
                             <label class="block text-xs font-medium text-tinta-500 mb-1">Nombre *</label>
                             <input v-model="nuevaCat.nombre" type="text" @keyup.enter="crearCategoria"
-                                class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-400"
+                                class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[var(--marca)]"
                                 placeholder="Nombre de la categoría" />
                         </div>
                         <div>

@@ -93,7 +93,7 @@ function inicial(nombre) {
                     @input="aplicarFiltros"
                     type="text"
                     placeholder="Buscar por nombre..."
-                    class="flex-1 min-w-48 border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-400"
+                    class="flex-1 min-w-48 border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[var(--marca)]"
                 />
                 <select v-model="plantillaId" @change="aplicarFiltros"
                     class="border border-linea rounded-xl px-3 py-2 text-sm text-tinta-700 focus:outline-none">
@@ -137,7 +137,7 @@ function inicial(nombre) {
                         </div>
                         <div class="flex items-center gap-1 shrink-0" @click.stop>
                             <button @click="router.visit(`/ensambles/${e.id}/editar`)"
-                                class="w-8 h-8 rounded-lg flex items-center justify-center text-tinta-300 hover:text-indigo-600 hover:bg-indigo-50 transition-colors">
+                                class="w-8 h-8 rounded-lg flex items-center justify-center text-tinta-300 hover:text-[var(--marca)] hover:bg-[var(--marca-suave)] transition-colors">
                                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
                                 </svg>

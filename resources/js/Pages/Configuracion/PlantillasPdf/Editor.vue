@@ -410,14 +410,14 @@ const seccionesTabs = [
                         <div class="flex items-center gap-1 bg-tinta-100 rounded-lg p-0.5">
                             <button
                                 @click="modoEditor = 'visual'; marcarCambio()"
-                                class="px-3 py-1.5 text-xs rounded-md font-medium transition-all"
+                                class="px-3 py-1.5 text-xs rounded-lg font-medium transition-all"
                                 :class="modoEditor === 'visual' ? 'bg-white text-[var(--marca)] shadow-sm' : 'text-tinta-400 hover:text-tinta-700'"
                             >
                                 🎨 Visual
                             </button>
                             <button
                                 @click="modoEditor = 'codigo'; marcarCambio()"
-                                class="px-3 py-1.5 text-xs rounded-md font-medium transition-all"
+                                class="px-3 py-1.5 text-xs rounded-lg font-medium transition-all"
                                 :class="modoEditor === 'codigo' ? 'bg-white text-[var(--marca)] shadow-sm' : 'text-tinta-400 hover:text-tinta-700'"
                             >
                                 &lt;/&gt; Código
@@ -564,7 +564,7 @@ const seccionesTabs = [
                                                         @click="insertarVariable(v.var)">{{ v.var }}</code>
                                                     <button
                                                         @click="copiarVariable(v.var)"
-                                                        class="shrink-0 text-xs px-1.5 py-0.5 rounded-md transition-colors opacity-0 group-hover:opacity-100"
+                                                        class="shrink-0 text-xs px-1.5 py-0.5 rounded-lg transition-colors opacity-0 group-hover:opacity-100"
                                                         :class="copiadoVar === v.var ? 'bg-green-100 text-green-700' : 'bg-tinta-100 text-tinta-400'">
                                                         {{ copiadoVar === v.var ? '✓' : 'Copiar' }}
                                                     </button>

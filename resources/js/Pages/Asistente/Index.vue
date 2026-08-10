@@ -270,7 +270,7 @@ async function enviar(texto = null) {
                     <textarea v-model="entrada" rows="1" maxlength="2000"
                         placeholder="Escribe tu pregunta…"
                         @keydown.enter.exact.prevent="enviar()"
-                        class="flex-1 rounded-xl border border-tinta-200 px-3 py-2.5 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                        class="flex-1 rounded-xl border border-tinta-200 px-3 py-2.5 text-sm resize-none focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]"></textarea>
 
                     <button v-if="soportaDictado" @click="alternarMicrofono" :disabled="cargando"
                         class="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 border disabled:opacity-40"

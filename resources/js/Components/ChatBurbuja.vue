@@ -308,7 +308,7 @@ const etiquetaTipo = { solicitud: 'Solicitud', tarea: 'Tarea' }
                     <!-- ── Buscar persona ─────────────────────────────── -->
                     <template v-if="vista === 'personas'">
                         <input v-model="buscar" @input="buscarUsuarios" type="text" placeholder="Buscar a alguien..."
-                            class="w-full border border-linea rounded-xl px-3 py-2 text-sm mb-3 focus:outline-none focus:border-blue-400" />
+                            class="w-full border border-linea rounded-xl px-3 py-2 text-sm mb-3 focus:outline-none focus:border-[var(--marca)]" />
 
                         <p v-if="conversaciones.length && !buscar" class="text-[11px] font-semibold text-tinta-300 uppercase tracking-[0.12em] mb-1">Conversaciones</p>
                         <ul v-if="!buscar" class="space-y-1 mb-3">
@@ -340,7 +340,7 @@ const etiquetaTipo = { solicitud: 'Solicitud', tarea: 'Tarea' }
 
                             <div v-if="creandoGrupo" class="rounded-xl border border-linea p-2 mb-2 space-y-2">
                                 <input v-model="grupoNuevo.nombre" type="text" placeholder="Nombre del grupo (ej. Producción)"
-                                    class="w-full border border-linea rounded-lg px-2 py-1.5 text-xs focus:outline-none focus:border-blue-400" />
+                                    class="w-full border border-linea rounded-lg px-2 py-1.5 text-xs focus:outline-none focus:border-[var(--marca)]" />
                                 <div class="flex flex-wrap gap-1">
                                     <label v-for="u in usuarios" :key="'g'+u.id"
                                         class="inline-flex items-center gap-1 px-2 py-1 rounded-lg border cursor-pointer text-[11px]"
@@ -441,7 +441,7 @@ const etiquetaTipo = { solicitud: 'Solicitud', tarea: 'Tarea' }
                             <div v-if="buscadorAbierto" class="rounded-xl border border-linea p-2">
                                 <input v-model="buscarDoc" @input="buscarDocumentos" type="text"
                                     placeholder="Buscar cotización, remisión, OP, cliente..."
-                                    class="w-full border border-linea rounded-lg px-2 py-1.5 text-xs mb-2 focus:outline-none focus:border-blue-400" />
+                                    class="w-full border border-linea rounded-lg px-2 py-1.5 text-xs mb-2 focus:outline-none focus:border-[var(--marca)]" />
                                 <div class="max-h-48 overflow-y-auto">
                                     <div v-for="g in gruposDoc" :key="g.tipo" class="mb-2">
                                         <p class="text-[10px] font-semibold text-tinta-300 uppercase tracking-[0.12em] mb-0.5">{{ g.etiqueta }}</p>
@@ -472,7 +472,7 @@ const etiquetaTipo = { solicitud: 'Solicitud', tarea: 'Tarea' }
                             </div>
 
                             <textarea v-model="nuevo.contenido" rows="2" placeholder="Escribe un mensaje..."
-                                class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-400"></textarea>
+                                class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[var(--marca)]"></textarea>
                             <div class="flex flex-wrap gap-2 items-center">
                                 <button type="button" @click="buscadorAbierto = !buscadorAbierto"
                                     class="w-8 h-8 rounded-lg border border-linea text-tinta-400 hover:bg-tinta-50 flex items-center justify-center"

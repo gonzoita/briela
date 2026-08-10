@@ -652,7 +652,7 @@ onUnmounted(() => {
                     <select
                         :value="sedeActivaId"
                         @change="cambiarSede(Number($event.target.value))"
-                        class="rounded-lg border border-linea px-2 py-1.5 text-sm text-tinta-700 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        class="rounded-lg border border-linea px-2 py-1.5 text-sm text-tinta-700 bg-white focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]"
                     >
                         <option v-if="puedeTodasSedes" :value="0">Todas las sedes</option>
                         <option v-for="s in sedesDisponibles" :key="s.id" :value="s.id">{{ s.nombre }}</option>
@@ -1064,7 +1064,7 @@ onUnmounted(() => {
                     <select
                         :value="sedeActivaId"
                         @change="cambiarSede(Number($event.target.value))"
-                        class="w-full rounded-lg border border-linea px-3 py-2 text-sm text-tinta-700 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        class="w-full rounded-lg border border-linea px-3 py-2 text-sm text-tinta-700 bg-white focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]"
                     >
                         <option v-if="puedeTodasSedes" :value="0">Todas las sedes</option>
                         <option v-for="s in sedesDisponibles" :key="s.id" :value="s.id">{{ s.nombre }}</option>

@@ -84,17 +84,17 @@ function guardar(f) {
                         <div class="col-span-2 sm:col-span-1">
                             <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1.5">Prefijo</label>
                             <input v-model="f.prefijo" type="text" maxlength="30" placeholder="OP-"
-                                class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                                class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]" />
                         </div>
                         <div>
                             <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1.5">Siguiente</label>
                             <input v-model.number="f.siguiente_numero" type="number" min="1"
-                                class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                                class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]" />
                         </div>
                         <div>
                             <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1.5">Ceros</label>
                             <input v-model.number="f.padding" type="number" min="1" max="10"
-                                class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                                class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]" />
                         </div>
                     </div>
 

@@ -40,9 +40,16 @@ export default defineConfig({
                     { src: '/icons/icon-128.png', sizes: '128x128', type: 'image/png' },
                     { src: '/icons/icon-144.png', sizes: '144x144', type: 'image/png' },
                     { src: '/icons/icon-152.png', sizes: '152x152', type: 'image/png' },
-                    { src: '/icons/icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any maskable' },
+                    { src: '/icons/icon-192.png', sizes: '192x192', type: 'image/png' },
                     { src: '/icons/icon-384.png', sizes: '384x384', type: 'image/png' },
-                    { src: '/icons/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any maskable' },
+                    { src: '/icons/icon-512.png', sizes: '512x512', type: 'image/png' },
+                    // Los maskable van aparte, no marcando "any maskable" en el
+                    // mismo archivo: Android recorta el icono con su propia
+                    // máscara, y uno que ya viene con esquinas redondeadas queda
+                    // con doble borde o con el logo mordido. Estos llenan el
+                    // cuadrado y dejan el logo en la zona segura.
+                    { src: '/icons/icon-192-maskable.png', sizes: '192x192', type: 'image/png', purpose: 'maskable' },
+                    { src: '/icons/icon-512-maskable.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
                 ],
                 shortcuts: [
                     {

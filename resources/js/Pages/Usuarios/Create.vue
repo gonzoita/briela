@@ -64,7 +64,7 @@ const submit = () => {
                             type="text"
                             required
                             class="w-full px-3 py-2.5 border rounded-lg text-sm focus:outline-none focus:ring-2"
-                            :class="form.errors.name ? 'border-red-400 focus:ring-red-200' : 'border-tinta-200 focus:ring-blue-200'"
+                            :class="form.errors.name ? 'border-red-400 focus:ring-red-200' : 'border-tinta-200 focus:ring-[var(--marca-suave)]'"
                         />
                         <p v-if="form.errors.name" class="mt-1 text-xs text-red-600">{{ form.errors.name }}</p>
                     </div>
@@ -77,7 +77,7 @@ const submit = () => {
                             type="email"
                             required
                             class="w-full px-3 py-2.5 border rounded-lg text-sm focus:outline-none focus:ring-2"
-                            :class="form.errors.email ? 'border-red-400 focus:ring-red-200' : 'border-tinta-200 focus:ring-blue-200'"
+                            :class="form.errors.email ? 'border-red-400 focus:ring-red-200' : 'border-tinta-200 focus:ring-[var(--marca-suave)]'"
                         />
                         <p v-if="form.errors.email" class="mt-1 text-xs text-red-600">{{ form.errors.email }}</p>
                     </div>
@@ -90,7 +90,7 @@ const submit = () => {
                             type="tel"
                             placeholder="Ej: 3001234567"
                             class="w-full px-3 py-2.5 border rounded-lg text-sm focus:outline-none focus:ring-2"
-                            :class="form.errors.telefono ? 'border-red-400 focus:ring-red-200' : 'border-tinta-200 focus:ring-blue-200'"
+                            :class="form.errors.telefono ? 'border-red-400 focus:ring-red-200' : 'border-tinta-200 focus:ring-[var(--marca-suave)]'"
                         />
                         <p v-if="form.errors.telefono" class="mt-1 text-xs text-red-600">{{ form.errors.telefono }}</p>
                     </div>
@@ -103,7 +103,7 @@ const submit = () => {
                             type="password"
                             required
                             class="w-full px-3 py-2.5 border rounded-lg text-sm focus:outline-none focus:ring-2"
-                            :class="form.errors.password ? 'border-red-400 focus:ring-red-200' : 'border-tinta-200 focus:ring-blue-200'"
+                            :class="form.errors.password ? 'border-red-400 focus:ring-red-200' : 'border-tinta-200 focus:ring-[var(--marca-suave)]'"
                         />
                         <p v-if="form.errors.password" class="mt-1 text-xs text-red-600">{{ form.errors.password }}</p>
                     </div>
@@ -115,7 +115,7 @@ const submit = () => {
                             v-model="form.password_confirmation"
                             type="password"
                             required
-                            class="w-full px-3 py-2.5 border rounded-lg text-sm focus:outline-none focus:ring-2 border-tinta-200 focus:ring-blue-200"
+                            class="w-full px-3 py-2.5 border rounded-lg text-sm focus:outline-none focus:ring-2 border-tinta-200 focus:ring-[var(--marca-suave)]"
                         />
                     </div>
 
@@ -125,7 +125,7 @@ const submit = () => {
                         <select
                             v-model="form.rol_id"
                             class="w-full px-3 py-2.5 border rounded-lg text-sm focus:outline-none focus:ring-2"
-                            :class="form.errors.rol_id ? 'border-red-400 focus:ring-red-200' : 'border-tinta-200 focus:ring-blue-200'"
+                            :class="form.errors.rol_id ? 'border-red-400 focus:ring-red-200' : 'border-tinta-200 focus:ring-[var(--marca-suave)]'"
                         >
                             <option v-for="r in roles" :key="r.id" :value="r.id">{{ r.nombre }}</option>
                         </select>
@@ -141,7 +141,7 @@ const submit = () => {
                         <select
                             v-model="form.sede_id"
                             class="w-full px-3 py-2.5 border rounded-lg text-sm focus:outline-none focus:ring-2"
-                            :class="form.errors.sede_id ? 'border-red-400 focus:ring-red-200' : 'border-tinta-200 focus:ring-blue-200'"
+                            :class="form.errors.sede_id ? 'border-red-400 focus:ring-red-200' : 'border-tinta-200 focus:ring-[var(--marca-suave)]'"
                         >
                             <option v-for="s in sedes" :key="s.id" :value="s.id">{{ s.nombre }} ({{ s.codigo }})</option>
                         </select>

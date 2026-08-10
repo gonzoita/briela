@@ -413,10 +413,10 @@ function formatFecha(fecha) {
                         <!-- Form nueva tarea -->
                         <div v-if="mostrarFormTarea" class="bg-blue-50 rounded-xl p-3 mb-3 space-y-2">
                             <input v-model="formTarea.titulo" type="text" placeholder="Título de la tarea"
-                                class="w-full border border-linea rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"/>
+                                class="w-full border border-linea rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)] bg-white"/>
                             <div class="grid grid-cols-2 gap-2">
                                 <select v-model="formTarea.tipo"
-                                    class="border border-linea rounded-lg px-2 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    class="border border-linea rounded-lg px-2 py-2 text-sm bg-white focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]">
                                     <option value="llamada">Llamada</option>
                                     <option value="email">Email</option>
                                     <option value="reunion">Reunión</option>
@@ -424,10 +424,10 @@ function formatFecha(fecha) {
                                     <option value="otro">Otro</option>
                                 </select>
                                 <input v-model="formTarea.fecha_vencimiento" type="date"
-                                    class="border border-linea rounded-lg px-2 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"/>
+                                    class="border border-linea rounded-lg px-2 py-2 text-sm bg-white focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]"/>
                             </div>
                             <select v-model="formTarea.responsable_id"
-                                class="w-full border border-linea rounded-lg px-2 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                class="w-full border border-linea rounded-lg px-2 py-2 text-sm bg-white focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]">
                                 <option :value="null">Sin responsable</option>
                                 <option v-for="u in usuarios" :key="u.id" :value="u.id">{{ u.name }}</option>
                             </select>
@@ -462,7 +462,7 @@ function formatFecha(fecha) {
                                         {{ tarea.titulo }}
                                     </p>
                                     <div class="flex items-center gap-2 mt-0.5 flex-wrap">
-                                        <span class="text-xs px-1.5 py-0.5 rounded-md font-medium"
+                                        <span class="text-xs px-1.5 py-0.5 rounded-lg font-medium"
                                             :class="`bg-${tipoTareaColor[tarea.tipo]}-100 text-${tipoTareaColor[tarea.tipo]}-700`">
                                             {{ tipoTareaLabel[tarea.tipo] }}
                                         </span>
@@ -532,7 +532,7 @@ function formatFecha(fecha) {
                         <!-- Nueva nota -->
                         <div class="flex gap-2 mb-3">
                             <textarea v-model="nuevaNota" rows="2"
-                                class="flex-1 border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                                class="flex-1 border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)] resize-none"
                                 placeholder="Agregar nota…"></textarea>
                             <button @click="guardarNota" :disabled="guardandoNota || !nuevaNota.trim()"
                                 class="px-3 py-2 rounded-xl text-white text-sm font-semibold disabled:opacity-40 transition-opacity self-end"
@@ -593,7 +593,7 @@ function formatFecha(fecha) {
                 <div class="px-5 py-4">
                     <label class="block text-xs font-semibold text-tinta-500 mb-1">Motivo / observaciones</label>
                     <textarea v-model="motivoCierre" rows="3"
-                        class="w-full border border-linea rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                        class="w-full border border-linea rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)] resize-none"
                         placeholder="Opcional…"></textarea>
                 </div>
                 <div class="px-5 py-4 border-t border-linea flex gap-3">

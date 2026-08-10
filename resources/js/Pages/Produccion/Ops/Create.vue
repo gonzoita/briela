@@ -410,7 +410,7 @@ function submit() {
                     <div class="relative">
                         <input v-model="clienteBuscar" type="text"
                             placeholder="Buscar por nombre o NIT..."
-                            class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-400"
+                            class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[var(--marca)]"
                             @input="debounceCliente" @focus="buscarClientes" autocomplete="off"/>
                         <button v-if="form.cliente_id" @click="limpiarCliente"
                             class="absolute right-3 top-1/2 -translate-y-1/2 text-tinta-300 hover:text-tinta-500">
@@ -435,7 +435,7 @@ function submit() {
                     <div>
                         <label class="block text-xs font-medium text-tinta-400 mb-1">Responsable <span class="text-red-500">*</span></label>
                         <select v-model="form.responsable_id"
-                            class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-400">
+                            class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[var(--marca)]">
                             <option value="">Seleccionar...</option>
                             <option v-for="r in responsables" :key="r.id" :value="r.id">{{ r.name }}</option>
                         </select>
@@ -446,7 +446,7 @@ function submit() {
                     <div>
                         <label class="block text-xs font-medium text-tinta-400 mb-1">Estado</label>
                         <select v-model="form.estado"
-                            class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-400">
+                            class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[var(--marca)]">
                             <option v-for="e in ESTADOS_OP" :key="e.value" :value="e.value">{{ e.label }}</option>
                         </select>
                     </div>
@@ -455,21 +455,21 @@ function submit() {
                     <div>
                         <label class="block text-xs font-medium text-tinta-400 mb-1">Fecha creación <span class="text-red-500">*</span></label>
                         <input v-model="form.fecha_creacion" type="date"
-                            class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-400"/>
+                            class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[var(--marca)]"/>
                     </div>
 
                     <!-- Entrega estimada -->
                     <div>
                         <label class="block text-xs font-medium text-tinta-400 mb-1">Entrega estimada</label>
                         <input v-model="form.fecha_entrega_estimada" type="date"
-                            class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-400"/>
+                            class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[var(--marca)]"/>
                     </div>
 
                     <!-- Anticipo -->
                     <div class="md:col-span-2">
                         <label class="block text-xs font-medium text-tinta-400 mb-1">Anticipo (COP)</label>
                         <input v-model="form.anticipo" type="number" min="0" step="1000"
-                            class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-400"
+                            class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[var(--marca)]"
                             placeholder="0"/>
                     </div>
                 </div>
@@ -685,13 +685,13 @@ function submit() {
                 <div>
                     <label class="block text-xs font-medium text-tinta-400 mb-1">Condiciones</label>
                     <textarea v-model="form.condiciones" rows="3"
-                        class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-400 resize-none"
+                        class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[var(--marca)] resize-none"
                         placeholder="Condiciones de entrega, garantías, etc."/>
                 </div>
                 <div>
                     <label class="block text-xs font-medium text-tinta-400 mb-1">Notas internas</label>
                     <textarea v-model="form.notas_internas" rows="3"
-                        class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-400 resize-none"
+                        class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[var(--marca)] resize-none"
                         placeholder="Notas visibles solo para el equipo..."/>
                 </div>
             </div>
@@ -784,7 +784,7 @@ function submit() {
                         <div class="px-5 py-3 shrink-0">
                             <input :value="productoQuery" @input="buscarProducto($event.target.value)"
                                 type="text" placeholder="Nombre o referencia..." autofocus
-                                class="w-full rounded-xl border border-tinta-200 px-3 py-2.5 text-sm focus:ring-2 focus:border-blue-400 focus:outline-none"/>
+                                class="w-full rounded-xl border border-tinta-200 px-3 py-2.5 text-sm focus:ring-2 focus:border-[var(--marca)] focus:outline-none"/>
                         </div>
                         <div class="overflow-y-auto flex-1">
                             <p v-if="!productoQuery" class="text-sm text-tinta-300 text-center py-8">Escribe para buscar...</p>

@@ -67,7 +67,7 @@ function guardarRecepcion() {
 const estados = {
     borrador:         { label: 'Borrador',         bg: 'bg-tinta-100',   text: 'text-tinta-700'   },
     enviada:          { label: 'Enviada',           bg: 'bg-blue-100',   text: 'text-blue-700'   },
-    confirmada:       { label: 'Confirmada',        bg: 'bg-indigo-100', text: 'text-indigo-700' },
+    confirmada:       { label: 'Confirmada',        bg: 'bg-[var(--marca-suave)]', text: 'text-[var(--marca)]' },
     recibida_parcial: { label: 'Recib. Parcial',    bg: 'bg-yellow-100', text: 'text-yellow-700' },
     recibida:         { label: 'Recibida',          bg: 'bg-green-100',  text: 'text-green-700'  },
     cancelada:        { label: 'Cancelada',         bg: 'bg-red-100',    text: 'text-red-700'    },

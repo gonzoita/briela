@@ -72,19 +72,19 @@ const años = Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i)
                 <!-- Filtros de período -->
                 <div class="flex flex-wrap gap-2 items-center">
                     <select v-model="periodo" @change="aplicarFiltros"
-                        class="border border-tinta-200 rounded-lg px-3 py-1.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-200">
+                        class="border border-tinta-200 rounded-lg px-3 py-1.5 text-sm bg-white focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]">
                         <option value="mes">Mes</option>
                         <option value="trimestre">Trimestre</option>
                         <option value="año">Año</option>
                     </select>
 
                     <select v-model="año" @change="aplicarFiltros"
-                        class="border border-tinta-200 rounded-lg px-3 py-1.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-200">
+                        class="border border-tinta-200 rounded-lg px-3 py-1.5 text-sm bg-white focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]">
                         <option v-for="a in años" :key="a" :value="a">{{ a }}</option>
                     </select>
 
                     <select v-if="periodo !== 'año'" v-model="mes" @change="aplicarFiltros"
-                        class="border border-tinta-200 rounded-lg px-3 py-1.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-200">
+                        class="border border-tinta-200 rounded-lg px-3 py-1.5 text-sm bg-white focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]">
                         <option v-for="m in meses" :key="m.v" :value="m.v">{{ m.l }}</option>
                     </select>
                 </div>

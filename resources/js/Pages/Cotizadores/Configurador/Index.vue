@@ -233,7 +233,7 @@ const variablesDisponibles = computed(() => {
 const badgesTipo = {
     texto: 'bg-tinta-100 text-tinta-500',
     numero: 'bg-blue-100 text-blue-700',
-    decimal: 'bg-indigo-100 text-indigo-700',
+    decimal: 'bg-[var(--marca-suave)] text-[var(--marca)]',
     select: 'bg-purple-100 text-purple-700',
     boolean: 'bg-green-100 text-green-700',
     checkbox: 'bg-orange-100 text-orange-700',
@@ -371,18 +371,18 @@ const badgesTipo = {
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
                                     <div>
                                         <label class="block text-xs font-medium text-tinta-500 mb-1">Etiqueta visible <span class="text-red-400">*</span></label>
-                                        <input v-model="campoBorrador.etiqueta" type="text" class="w-full border border-linea rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:border-blue-400" placeholder="Ej: Ancho del vano (m)" />
+                                        <input v-model="campoBorrador.etiqueta" type="text" class="w-full border border-linea rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:border-[var(--marca)]" placeholder="Ej: Ancho del vano (m)" />
                                     </div>
                                     <div>
                                         <label class="block text-xs font-medium text-tinta-500 mb-1">Nombre interno</label>
-                                        <input v-model="campoBorrador.nombre" type="text" class="w-full border border-linea rounded-lg px-3 py-1.5 text-sm font-mono focus:outline-none focus:border-blue-400" placeholder="ancho_vano" />
+                                        <input v-model="campoBorrador.nombre" type="text" class="w-full border border-linea rounded-lg px-3 py-1.5 text-sm font-mono focus:outline-none focus:border-[var(--marca)]" placeholder="ancho_vano" />
                                     </div>
                                 </div>
 
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
                                     <div>
                                         <label class="block text-xs font-medium text-tinta-500 mb-1">Valor por defecto</label>
-                                        <input v-model="campoBorrador.valor_defecto" type="text" class="w-full border border-linea rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:border-blue-400" placeholder="Ej: 1.0" />
+                                        <input v-model="campoBorrador.valor_defecto" type="text" class="w-full border border-linea rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:border-[var(--marca)]" placeholder="Ej: 1.0" />
                                     </div>
                                     <div class="flex items-center gap-2 pt-4">
                                         <input v-model="campoBorrador.requerido" type="checkbox" id="req-campo" class="rounded" />
@@ -427,7 +427,7 @@ const badgesTipo = {
                                     :class="['px-4 py-3 flex items-start gap-3 group', !c.activo ? 'opacity-50' : '']">
                                     <div class="flex-1 min-w-0">
                                         <p class="text-sm font-semibold text-tinta-900 truncate">{{ c.etiqueta || c.producto?.nombre || '(sin nombre)' }}</p>
-                                        <p class="text-xs font-mono text-indigo-600 mt-0.5 break-all">{{ c.formula }}</p>
+                                        <p class="text-xs font-mono text-[var(--marca)] mt-0.5 break-all">{{ c.formula }}</p>
                                         <p v-if="c.condicion" class="text-xs text-amber-600 mt-0.5 break-all font-mono">if {{ c.condicion }}</p>
                                         <span class="text-xs text-tinta-300">{{ c.unidad }}</span>
                                     </div>
@@ -452,14 +452,14 @@ const badgesTipo = {
                             </div>
 
                             <!-- Editor de componente (inline) -->
-                            <div v-if="editandoComponente !== null" class="border-t border-indigo-100 p-4 space-y-3" style="background:#F5F3FF;">
-                                <p class="text-xs font-semibold text-indigo-700 uppercase">{{ editandoComponente === 'nuevo' ? 'Nuevo componente' : 'Editar componente' }}</p>
+                            <div v-if="editandoComponente !== null" class="border-t border-[var(--marca-borde)] p-4 space-y-3" style="background:#F5F3FF;">
+                                <p class="text-xs font-semibold text-[var(--marca)] uppercase">{{ editandoComponente === 'nuevo' ? 'Nuevo componente' : 'Editar componente' }}</p>
 
                                 <!-- Buscador de producto -->
                                 <div class="relative">
                                     <label class="block text-xs font-medium text-tinta-500 mb-1">Producto/Insumo vinculado</label>
                                     <input v-model="busqProducto" type="text"
-                                        class="w-full border border-linea rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:border-blue-400"
+                                        class="w-full border border-linea rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:border-[var(--marca)]"
                                         placeholder="Buscar producto..." />
                                     <ul v-if="resBusqProd.length"
                                         class="absolute z-20 left-0 right-0 bg-white border border-linea rounded-xl mt-1 shadow-lg overflow-hidden max-h-40 overflow-y-auto">
@@ -486,7 +486,7 @@ const badgesTipo = {
                                 <div>
                                     <label class="block text-xs font-medium text-tinta-500 mb-1">Fórmula <span class="text-red-400">*</span></label>
                                     <input v-model="compBorrador.formula" type="text"
-                                        class="w-full border border-linea rounded-lg px-3 py-1.5 text-sm font-mono focus:outline-none focus:border-indigo-400"
+                                        class="w-full border border-linea rounded-lg px-3 py-1.5 text-sm font-mono focus:outline-none focus:border-[var(--marca)]"
                                         placeholder="Ej: 2 * alto_vano + 2 * ancho_vano + 0.664" />
                                     <p class="text-xs text-tinta-300 mt-0.5">Variables: {{ variablesDisponibles.join(', ') }}</p>
                                 </div>

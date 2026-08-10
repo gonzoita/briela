@@ -261,7 +261,7 @@ function guardar() {
                         <select
                             v-if="filtro.tipo === 'select'"
                             v-model="filtrosValor[filtro.key]"
-                            class="w-full rounded-xl border border-linea bg-white px-3 py-2.5 text-sm text-tinta-900 focus:outline-none focus:border-blue-400"
+                            class="w-full rounded-xl border border-linea bg-white px-3 py-2.5 text-sm text-tinta-900 focus:outline-none focus:border-[var(--marca)]"
                         >
                             <option value="">— Todos —</option>
                             <template v-if="Array.isArray(filtro.opciones)">
@@ -277,7 +277,7 @@ function guardar() {
                             v-else-if="filtro.tipo === 'date'"
                             type="date"
                             v-model="filtrosValor[filtro.key]"
-                            class="w-full rounded-xl border border-linea bg-white px-3 py-2.5 text-sm text-tinta-900 focus:outline-none focus:border-blue-400"
+                            class="w-full rounded-xl border border-linea bg-white px-3 py-2.5 text-sm text-tinta-900 focus:outline-none focus:border-[var(--marca)]"
                         />
 
                         <!-- Text -->
@@ -286,7 +286,7 @@ function guardar() {
                             type="text"
                             v-model="filtrosValor[filtro.key]"
                             :placeholder="'Filtrar por ' + filtro.label.toLowerCase()"
-                            class="w-full rounded-xl border border-linea bg-white px-3 py-2.5 text-sm text-tinta-900 focus:outline-none focus:border-blue-400"
+                            class="w-full rounded-xl border border-linea bg-white px-3 py-2.5 text-sm text-tinta-900 focus:outline-none focus:border-[var(--marca)]"
                         />
                     </div>
                 </div>
@@ -322,7 +322,7 @@ function guardar() {
                             v-model="nombre"
                             type="text"
                             placeholder="Ej: OPs en producción — Junio 2026"
-                            class="w-full rounded-xl border border-linea px-3 py-2.5 text-sm text-tinta-900 focus:outline-none focus:border-blue-400"
+                            class="w-full rounded-xl border border-linea px-3 py-2.5 text-sm text-tinta-900 focus:outline-none focus:border-[var(--marca)]"
                             :class="!nombre && 'border-red-300'"
                         />
                     </div>
@@ -336,7 +336,7 @@ function guardar() {
                             v-model="descripcion"
                             rows="2"
                             placeholder="Breve descripción del propósito del informe"
-                            class="w-full rounded-xl border border-linea px-3 py-2.5 text-sm text-tinta-900 focus:outline-none focus:border-blue-400 resize-none"
+                            class="w-full rounded-xl border border-linea px-3 py-2.5 text-sm text-tinta-900 focus:outline-none focus:border-[var(--marca)] resize-none"
                         />
                     </div>
 

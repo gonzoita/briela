@@ -13,7 +13,7 @@ const emit = defineEmits(['update:bloques'])
 // ─── Tipos de bloque ──────────────────────────────────────────────────────────
 const TIPOS = {
     texto:       { label: 'Texto',       icono: 'T',  color: 'bg-blue-100 text-blue-700' },
-    titulo:      { label: 'Título',      icono: 'H',  color: 'bg-indigo-100 text-indigo-700' },
+    titulo:      { label: 'Título',      icono: 'H',  color: 'bg-[var(--marca-suave)] text-[var(--marca)]' },
     imagen:      { label: 'Imagen',      icono: '🖼',  color: 'bg-green-100 text-green-700' },
     separador:   { label: 'Separador',   icono: '─',  color: 'bg-tinta-100 text-tinta-500' },
     spacer:      { label: 'Espacio',     icono: '□',  color: 'bg-tinta-50 text-tinta-300' },

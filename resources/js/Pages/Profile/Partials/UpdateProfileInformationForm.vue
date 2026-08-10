@@ -76,7 +76,7 @@ const form = useForm({
                         href="/email/verification-notification"
                         method="post"
                         as="button"
-                        class="rounded-md text-sm text-tinta-500 underline hover:text-tinta-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                        class="rounded-lg text-sm text-tinta-500 underline hover:text-tinta-900 focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)] focus:ring-offset-2"
                     >
                         Click here to re-send the verification email.
                     </Link>

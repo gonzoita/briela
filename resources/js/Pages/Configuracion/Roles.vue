@@ -173,19 +173,19 @@ function eliminar(r) {
                     <div>
                         <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1.5">Nombre *</label>
                         <input v-model="form.nombre" type="text" placeholder="Ej: Comercial"
-                            class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                            class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]" />
                     </div>
 
                     <div>
                         <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1.5">Descripción</label>
                         <input v-model="form.descripcion" type="text" placeholder="Para qué sirve este rol"
-                            class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                            class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]" />
                     </div>
 
                     <div>
                         <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1.5">Rol base *</label>
                         <select v-model="form.rol_base" :disabled="esSistema"
-                            class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm bg-white disabled:bg-tinta-100 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm bg-white disabled:bg-tinta-100 focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]">
                             <option v-for="(label, key) in rolesBase" :key="key" :value="key">{{ label }}</option>
                         </select>
                         <p class="text-xs text-tinta-300 mt-1">
