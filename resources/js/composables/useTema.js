@@ -37,8 +37,29 @@ const temaEfectivo = computed(() => {
     return esDeNoche(hora) ? 'oscuro' : 'claro'
 })
 
+// El favicon de la pestaña, que también puede tener versión de noche. Se cambia
+// reemplazando el <link>, porque los navegadores ignoran un cambio de href.
+const faviconClaro = ref(null)
+const faviconOscuro = ref(null)
+
+function aplicarFavicon() {
+    const url = temaEfectivo.value === 'oscuro'
+        ? (faviconOscuro.value || faviconClaro.value)
+        : faviconClaro.value
+
+    if (!url) return
+
+    document.querySelectorAll('link[rel="icon"]').forEach(l => l.remove())
+
+    const link = document.createElement('link')
+    link.rel = 'icon'
+    link.href = url
+    document.head.appendChild(link)
+}
+
 function aplicar() {
     document.documentElement.setAttribute('data-tema', temaEfectivo.value)
+    aplicarFavicon()
 }
 
 watch(temaEfectivo, aplicar, { immediate: true })
@@ -58,6 +79,13 @@ export function useTema() {
             preferencia.value = valor
             localStorage.setItem(CLAVE, valor)
             aplicar()
+        },
+
+        /** Los favicon de cada tema, que llegan del servidor. */
+        fijarFavicons(claro, oscuro) {
+            faviconClaro.value = claro || null
+            faviconOscuro.value = oscuro || null
+            aplicarFavicon()
         },
 
         /** La llama el layout con la hora que envía el servidor. */

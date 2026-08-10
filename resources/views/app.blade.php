@@ -93,6 +93,43 @@
 
         /* Que el foco se vea solo cuando se navega con teclado, no al hacer clic. */
         :focus:not(:focus-visible) { outline: none; }
+
+        /* ── Los campos, en modo de noche ──────────────────────────────────────
+           El plugin de formularios de Tailwind les pone fondo blanco fijo, así que
+           en el modo oscuro quedaban blancos con el texto claro encima: ilegibles.
+           Se corrigen aquí, en un solo lugar, en vez de en cada uno de los cientos
+           de campos del sistema. */
+        html[data-tema="oscuro"] input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),
+        html[data-tema="oscuro"] select,
+        html[data-tema="oscuro"] textarea {
+            background-color: var(--superficie-2) !important;
+            border-color: var(--borde);
+            color: var(--texto);
+        }
+        html[data-tema="oscuro"] input::placeholder,
+        html[data-tema="oscuro"] textarea::placeholder { color: var(--texto-3); }
+
+        /* Las opciones del desplegable las dibuja el sistema operativo: sin esto
+           salen negras sobre blanco por su cuenta. */
+        html[data-tema="oscuro"] select option {
+            background-color: var(--superficie-2);
+            color: var(--texto);
+        }
+
+        /* Los campos de fecha y hora traen su propio icono, negro por defecto. */
+        html[data-tema="oscuro"] input[type="date"]::-webkit-calendar-picker-indicator,
+        html[data-tema="oscuro"] input[type="time"]::-webkit-calendar-picker-indicator,
+        html[data-tema="oscuro"] input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+            filter: invert(1) opacity(.6);
+        }
+
+        /* Lo que el navegador rellena solo se pinta de amarillo claro y borra el
+           texto en modo oscuro. */
+        html[data-tema="oscuro"] input:-webkit-autofill,
+        html[data-tema="oscuro"] input:-webkit-autofill:focus {
+            -webkit-text-fill-color: var(--texto);
+            -webkit-box-shadow: 0 0 0 1000px var(--superficie-2) inset;
+        }
     </style>
 </head>
 <body class="font-sans antialiased bg-lienzo text-tinta-900">

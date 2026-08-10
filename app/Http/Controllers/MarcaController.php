@@ -28,6 +28,8 @@ class MarcaController extends Controller
                 'titulo'      => Marca::plantillaTitulo(),
                 'favicon_url' => ImagenMarcaService::url('marca_favicon') ?? '',
                 'logo_url'    => ImagenMarcaService::url('empresa_logo') ?? '',
+                'logo_oscuro_url'    => ImagenMarcaService::url('empresa_logo_oscuro') ?? '',
+                'favicon_oscuro_url' => ImagenMarcaService::url('marca_favicon_oscuro') ?? '',
                 'empresa'     => Marca::nombreEmpresa(),
                 'paleta'      => Marca::paleta(),
                 'fuente'      => Marca::fuenteClave(),
@@ -116,6 +118,52 @@ class MarcaController extends Controller
         $url = ImagenMarcaService::guardar($request->file('logo'), 'empresa_logo');
 
         return response()->json(['url' => $url]);
+    }
+
+    /**
+     * El logo para el modo de noche.
+     *
+     * Va aparte y no se genera solo: un logo es una imagen, y un texto oscuro sobre
+     * fondo oscuro no se arregla invirtiendo colores sin arruinar la marca.
+     */
+    public function subirLogoOscuro(Request $request): JsonResponse
+    {
+        $request->validate([
+            'logo_oscuro' => 'required|file|mimes:png,svg,jpg,jpeg,webp|max:2048',
+        ], [
+            'logo_oscuro.max' => 'El logo no debe pesar más de 2 MB.',
+        ]);
+
+        $url = ImagenMarcaService::guardar($request->file('logo_oscuro'), 'empresa_logo_oscuro');
+
+        return response()->json(['url' => $url]);
+    }
+
+    public function quitarLogoOscuro(): RedirectResponse
+    {
+        ImagenMarcaService::eliminar('empresa_logo_oscuro');
+
+        return back()->with('success', 'Se quitó el logo del modo de noche.');
+    }
+
+    public function subirFaviconOscuro(Request $request): JsonResponse
+    {
+        $request->validate([
+            'favicon_oscuro' => 'required|file|mimes:png,svg,ico,jpg,jpeg,webp|max:1024',
+        ], [
+            'favicon_oscuro.max' => 'El favicon no debe pesar más de 1 MB.',
+        ]);
+
+        $url = ImagenMarcaService::guardar($request->file('favicon_oscuro'), 'marca_favicon_oscuro');
+
+        return response()->json(['url' => $url]);
+    }
+
+    public function quitarFaviconOscuro(): RedirectResponse
+    {
+        ImagenMarcaService::eliminar('marca_favicon_oscuro');
+
+        return back()->with('success', 'Se quitó el favicon del modo de noche.');
     }
 
     public function quitarLogo(): RedirectResponse

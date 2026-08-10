@@ -62,19 +62,21 @@ class CrmFormularioPublicoController extends Controller
         $etapaId = $formulario->etapa_id ?? CrmEtapa::orderBy('orden')->value('id');
         $orden   = CrmLead::where('etapa_id', $etapaId)->max('orden_en_etapa') + 1;
 
-        $lead = CrmLead::create([
-            'etapa_id'          => $etapaId,
-            'responsable_id'    => $this->resolverResponsable($formulario),
-            'titulo'            => ($data['nombre'] ?? $data['empresa'] ?? 'Lead') . ' — ' . $formulario->nombre,
-            'nombre_contacto'   => $data['nombre'] ?? null,
-            'email_contacto'    => $data['email'] ?? null,
-            'telefono_contacto' => $data['telefono'] ?? null,
-            'empresa_contacto'  => $data['empresa'] ?? null,
-            'descripcion'       => $data['mensaje'] ?? null,
-            'fuente'            => $formulario->fuente ?? 'Web',
-            'estado'            => 'activo',
-            'orden_en_etapa'    => $orden,
+        $resultado = app(\App\Services\LeadEntranteService::class)->registrar([
+            'canal'    => 'formulario',
+            'detalle'  => $formulario->fuente ?? $formulario->nombre,
+            'nombre'   => $data['nombre'] ?? null,
+            'email'    => $data['email'] ?? null,
+            'telefono' => $data['telefono'] ?? null,
+            'empresa'  => $data['empresa'] ?? null,
+            'mensaje'  => $data['mensaje'] ?? null,
+            'etapa_id' => $etapaId,
+            'responsable_id' => $this->resolverResponsable($formulario),
+            // Este controlador avisa al vendedor asignado con su propio texto.
+            'avisar'   => false,
         ]);
+
+        $lead = $resultado['lead'];
 
         // Aviso interno al vendedor asignado (o a admin si no hay asignado).
         $notif = app(\App\Services\NotificacionService::class);

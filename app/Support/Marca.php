@@ -178,14 +178,14 @@ class Marca
     public static function tokens(): array
     {
         return [
-            // Los radios quedan cerca de los valores de Tailwind, apenas más
-            // generosos. Subirlos de golpe hincha la interfaz entera: hay más de
-            // mil elementos que ya usan rounded-xl, y con 22px se ven como
-            // burbujas en vez de tarjetas.
-            'radio-sm'  => '6px',
-            'radio'     => '8px',
-            'radio-lg'  => '12px',
-            'radio-xl'  => '14px',
+            // Radios contenidos. Un botón de 40 píxeles de alto con 14 de radio se
+            // lee como pastilla, y la pastilla es de las cosas que más abaratan el
+            // aspecto de una interfaz de trabajo. Estos valores dejan la esquina
+            // suave sin que la forma llame la atención.
+            'radio-sm'  => '4px',
+            'radio'     => '6px',
+            'radio-lg'  => '8px',
+            'radio-xl'  => '10px',
         ];
     }
 
@@ -225,6 +225,15 @@ class Marca
                 'sombra-sm'    => '0 1px 2px rgba(16,24,40,.04), 0 1px 3px rgba(16,24,40,.06)',
                 'sombra'       => '0 1px 3px rgba(16,24,40,.04), 0 8px 24px -8px rgba(16,24,40,.10)',
                 'sombra-lg'    => '0 2px 6px rgba(16,24,40,.04), 0 24px 48px -12px rgba(16,24,40,.14)',
+                // Los fondos suaves de aviso. Son 505 sitios en el sistema que los
+                // usan como fondo de cajas informativas, etiquetas y alertas.
+                'pastel-azul'    => '#EFF8FF',
+                'pastel-azul-2'  => '#D1E9FF',
+                'pastel-verde'   => '#ECFDF3',
+                'pastel-ambar'   => '#FFFAEB',
+                'pastel-rojo'    => '#FEF3F2',
+                'pastel-violeta' => '#F4F3FF',
+                'pastel-naranja' => '#FEF6EE',
             ],
             'oscuro' => [
                 // Grises con un asomo de azul, no negro puro: el negro absoluto
@@ -248,6 +257,17 @@ class Marca
                 'sombra-sm'    => '0 1px 2px rgba(0,0,0,.30)',
                 'sombra'       => '0 2px 8px rgba(0,0,0,.35)',
                 'sombra-lg'    => '0 12px 32px rgba(0,0,0,.45)',
+                // En el modo de noche los pasteles se vuelven tintes oscuros del
+                // mismo color: mantienen el significado —azul informa, rojo avisa—
+                // sin dejar una caja clara con texto claro encima, que es lo que
+                // los volvía ilegibles.
+                'pastel-azul'    => '#182A45',
+                'pastel-azul-2'  => '#1E3A5F',
+                'pastel-verde'   => '#14302A',
+                'pastel-ambar'   => '#33280F',
+                'pastel-rojo'    => '#3A1D1D',
+                'pastel-violeta' => '#251F41',
+                'pastel-naranja' => '#37220F',
             ],
         ];
     }
@@ -362,6 +382,29 @@ class Marca
     {
         return \App\Services\ImagenMarcaService::url('empresa_logo')
             ?? (trim((string) Configuracion::get('empresa_logo_url', '')) ?: asset('icons/icon-512.png'));
+    }
+
+    /**
+     * Logo para el modo de noche.
+     *
+     * Un logo con texto oscuro desaparece sobre fondo oscuro, y no hay forma de
+     * arreglarlo por CSS: es una imagen. Así que se sube aparte. Si la empresa no
+     * subió versión de noche, se usa la de día, que es mejor que no mostrar nada.
+     */
+    public static function logoOscuroUrl(): ?string
+    {
+        return \App\Services\ImagenMarcaService::url('empresa_logo_oscuro');
+    }
+
+    /** ¿Tiene una versión propia para el modo de noche? */
+    public static function tieneLogoOscuro(): bool
+    {
+        return self::logoOscuroUrl() !== null;
+    }
+
+    public static function faviconOscuroUrl(): ?string
+    {
+        return \App\Services\ImagenMarcaService::url('marca_favicon_oscuro');
     }
 
     /**

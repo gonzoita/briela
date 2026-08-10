@@ -69,23 +69,27 @@ class WordpressIntegracionController extends Controller
 
         $orden = CrmLead::where('etapa_id', $etapaId)->max('orden_en_etapa') + 1;
 
-        $lead = CrmLead::create([
-            'sede_id'           => $sedeId,
-            'etapa_id'          => $etapaId,
-            'titulo'            => ($data['nombre'] ?? $data['empresa'] ?? 'Lead') . ' — Sitio web',
-            'nombre_contacto'   => $data['nombre'] ?? null,
-            'email_contacto'    => $data['email'] ?? null,
-            'telefono_contacto' => $data['telefono'] ?? null,
-            'empresa_contacto'  => $data['empresa'] ?? null,
-            'descripcion'       => $data['mensaje'] ?? null,
-            'fuente'            => filled($data['fuente'] ?? null) ? $data['fuente'] : 'Sitio web',
-            'pagina_origen'     => $data['pagina_origen'] ?? null,
-            'utm_source'        => $data['utm_source'] ?? null,
-            'utm_medium'        => $data['utm_medium'] ?? null,
-            'utm_campaign'      => $data['utm_campaign'] ?? null,
-            'estado'            => 'activo',
-            'orden_en_etapa'    => $orden,
+        // Pasa por la puerta única: si esa persona ya estaba en el embudo, se le
+        // suma el origen en vez de crear un lead repetido.
+        $resultado = app(\App\Services\LeadEntranteService::class)->registrar([
+            'canal'        => 'web',
+            'detalle'      => filled($data['fuente'] ?? null) ? $data['fuente'] : 'Sitio web',
+            'nombre'       => $data['nombre'] ?? null,
+            'email'        => $data['email'] ?? null,
+            'telefono'     => $data['telefono'] ?? null,
+            'empresa'      => $data['empresa'] ?? null,
+            'mensaje'      => $data['mensaje'] ?? null,
+            'pagina'       => $data['pagina_origen'] ?? null,
+            'utm_source'   => $data['utm_source'] ?? null,
+            'utm_medium'   => $data['utm_medium'] ?? null,
+            'utm_campaign' => $data['utm_campaign'] ?? null,
+            'sede_id'      => $sedeId,
+            'etapa_id'     => $etapaId,
+            // El aviso lo manda este controlador con su propio texto.
+            'avisar'       => false,
         ]);
+
+        $lead = $resultado['lead'];
 
         // Sin responsable asignado (nadie lo eligió todavía): avisa a los
         // administradores, igual que hace el formulario público del CRM.

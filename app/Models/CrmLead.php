@@ -58,6 +58,17 @@ class CrmLead extends Model
         return $this->hasMany(CrmTarea::class, 'lead_id')->orderBy('fecha_vencimiento');
     }
 
+    /**
+     * Por dónde se ha acercado este lead. Puede ser más de un canal: escribió por
+     * WhatsApp, después llenó el formulario y más tarde respondió un anuncio.
+     */
+    public function origenes()
+    {
+        // Por id y no por fecha: varios orígenes que entran en el mismo segundo
+        // quedarían en orden indefinido, y el primero es el que atribuye el negocio.
+        return $this->hasMany(CrmLeadOrigen::class, 'lead_id')->orderBy('id');
+    }
+
     public function notas()
     {
         return $this->hasMany(CrmNota::class, 'lead_id')->latest();

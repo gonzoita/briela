@@ -31,7 +31,9 @@ class NotificacionService
             'Comercial' => [
                 ['tipo' => 'cotizacion_aprobada',    'label' => 'Cliente aprobó una cotización'],
                 ['tipo' => 'cotizacion_rechazada',   'label' => 'Cliente rechazó una cotización'],
-                ['tipo' => 'lead_nuevo',             'label' => 'Lead nuevo (formulario web o WhatsApp)'],
+                ['tipo' => 'lead_nuevo',             'label' => 'Lead nuevo (cualquier canal)'],
+                ['tipo' => 'lead_repetido',          'label' => 'Un lead que ya estaba volvió a escribir'],
+                ['tipo' => 'lead_quieto',            'label' => 'Lead sin movimiento hace varios días'],
                 ['tipo' => 'whatsapp_mensaje_nuevo', 'label' => 'Mensaje nuevo de WhatsApp'],
                 ['tipo' => 'cotizacion_sin_respuesta','label' => 'Cotización sin respuesta (recordatorio)'],
             ],

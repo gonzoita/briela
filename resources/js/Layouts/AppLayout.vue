@@ -26,6 +26,16 @@ const page     = usePage()
 const tema = useTema()
 watch(() => page.props.hora?.sede, (h) => tema.fijarHoraSede(h), { immediate: true })
 
+// El logo que toca según el tema. Con una sola versión, un logo de texto oscuro
+// desaparece sobre el fondo de noche.
+const logoSegunTema = computed(() => {
+    const m = page.props.marca ?? {}
+
+    return tema.temaEfectivo.value === 'oscuro' && m.logo_oscuro
+        ? m.logo_oscuro
+        : m.logo
+})
+
 const marca = computed(() => page.props.marca ?? {
     nombre: 'SGI',
     logo:   '/icons/icon-512.png',
@@ -446,7 +456,7 @@ onUnmounted(() => {
             <div class="h-16 px-5 flex items-center shrink-0">
                 <img
                     v-if="marca.logo_propio"
-                    :src="marca.logo"
+                    :src="logoSegunTema"
                     class="h-8 w-auto object-contain"
                     :alt="marca.nombre"
                 />
@@ -767,7 +777,7 @@ onUnmounted(() => {
             <div class="flex items-center gap-2 min-w-0">
                 <img
                     v-if="marca.logo_propio"
-                    :src="marca.logo"
+                    :src="logoSegunTema"
                     :alt="marca.nombre"
                     class="h-8 w-auto object-contain flex-shrink-0"
                     style="max-width: 120px;"

@@ -631,6 +631,12 @@ Route::middleware('auth')->group(function () {
         Route::delete('/marca/favicon',       [MarcaController::class, 'quitarFavicon'])->name('marca.favicon.quitar');
         Route::post('/marca/logo',            [MarcaController::class, 'subirLogo'])->name('marca.logo');
         Route::delete('/marca/logo',          [MarcaController::class, 'quitarLogo'])->name('marca.logo.quitar');
+        // Versiones para el modo de noche: un logo con texto oscuro desaparece
+        // sobre fondo oscuro, así que se sube aparte.
+        Route::post('/marca/logo-oscuro',      [MarcaController::class, 'subirLogoOscuro'])->name('marca.logo.oscuro');
+        Route::delete('/marca/logo-oscuro',    [MarcaController::class, 'quitarLogoOscuro'])->name('marca.logo.oscuro.quitar');
+        Route::post('/marca/favicon-oscuro',   [MarcaController::class, 'subirFaviconOscuro'])->name('marca.favicon.oscuro');
+        Route::delete('/marca/favicon-oscuro', [MarcaController::class, 'quitarFaviconOscuro'])->name('marca.favicon.oscuro.quitar');
 
         // ─── Identificación de clientes (DV del NIT y consulta al RUES) ──────
         Route::get('/identificacion',        [IdentificacionConfigController::class, 'index'])->name('identificacion.index');

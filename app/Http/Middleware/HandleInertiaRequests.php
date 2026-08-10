@@ -77,6 +77,9 @@ class HandleInertiaRequests extends Middleware
                 // Las pantallas públicas prefieren mostrar el nombre en
                 // tipografía antes que un icono genérico que no es de nadie.
                 'logo_propio' => \App\Services\ImagenMarcaService::url('empresa_logo') !== null,
+                // Versión para el modo de noche: un logo con texto oscuro se
+                // pierde sobre fondo oscuro, y eso no se arregla con CSS.
+                'logo_oscuro' => \App\Support\Marca::logoOscuroUrl(),
                 'color'  => \App\Support\Marca::color(),
                 // Para los pies de página de las pantallas públicas (catálogo,
                 // seguimiento, aprobación de cotizaciones): antes llevaban el
