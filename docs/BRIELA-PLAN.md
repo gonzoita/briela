@@ -157,12 +157,46 @@ de salida:
 Cambiar la URL base y la autenticación es un cambio **localizado en un archivo**,
 no disperso por el sistema.
 
-Lo que el superadmin tiene que hacer en cada llamada:
+Lo que el superadmin hace en cada llamada:
 
 1. Validar el serial y que la suscripción esté al día.
-2. Reenviar a OpenRouter con la llave de Briela.
-3. **Medir tokens y costo real**, registrarlos por cliente.
-4. Aplicar el límite del plan.
+2. Reenviar a OpenRouter **con la llave propia de esa instalación**.
+3. Anotar tokens y costo por cliente.
+4. Aplicar el tope del día.
+
+### 5.1 Una llave de OpenRouter por cliente — decidido el 10 ago 2026
+
+La primera versión usaba **una sola llave de Briela** para todas las instalaciones
+y medía el consumo sumando lo que informaba cada respuesta. Funciona, pero el
+número que se factura sale de una cuenta propia: si una llamada se corta a mitad
+—se cobra igual— o no se alcanza a anotar, la cuenta queda corta y la diferencia
+la paga Briela sin que nadie lo note.
+
+Se cambió a **una llave por instalación**, todas bajo la cuenta de Briela, creadas
+y administradas desde el superadmin con la API de gestión del proveedor
+(`/api/v1/keys`). Eso mueve dos cosas al lado correcto:
+
+| | Antes | Ahora |
+|---|---|---|
+| El número que se cobra | lo suma Briela leyendo cada respuesta | lo informa quien factura (`usage` de la llave) |
+| El tope | una comprobación en PHP, que solo ve lo ya anotado | lo hace cumplir el proveedor (`limit` mensual) |
+| Cortar a un cliente | control de licencia en el proxy | eso **y** apagar su llave (`disabled`) |
+
+**La llave sigue sin viajar a la instalación.** Vive cifrada en el superadmin y el
+proxy elige la que corresponde según el serial. Se evaluó entregársela a cada
+instalación —ahorraría el proxy— y se descartó: cualquiera con acceso al servidor
+del cliente podría leerla del `.env` y gastar saldo de Briela en lo que quisiera.
+El tope mensual limita el daño, pero el daño lo paga Briela igual.
+
+Quedan **dos números de consumo, y los dos hacen falta**: el propio, que aparece al
+instante y sirve para el día a día; y el del proveedor, que es el que se cobra.
+`php artisan ia:conciliar` los compara y marca las diferencias — cuando lo anotado
+es menor que lo cobrado, es plata yéndose sin registrarse.
+
+El tope del día en PHP **no se quitó** al llegar el tope mensual del proveedor: ese
+impide el desastre del mes, este atrapa el bucle mal escrito en la primera hora. Un
+límite mensual de USD 50 se puede gastar entero en una tarde, y para cuando el
+proveedor lo corta, ya está gastado.
 
 Dos puntos delicados que hay que resolver bien:
 
@@ -451,6 +485,16 @@ límites por plan.
 **Criterio de aceptación:** el asistente sigue escribiendo en vivo y la voz sigue
 funcionando, con la llave de OpenRouter **fuera** de la instalación; y el consumo
 de cada cliente queda medido con su costo real.
+
+**Hecha el 10 ago 2026.** Con una llave por instalación (sección 5.1), no una
+compartida. Probado contra un proveedor de prueba sobre sockets: llamada normal y
+streaming con los trozos llegando separados en el tiempo, cada cliente saliendo con
+su propia llave, el consumo conciliado contra lo que informa el proveedor, y los tres
+cortes funcionando — suscripción vencida, tope del día y llave apagada.
+
+Falta antes de cobrarle a alguien: la voz se mide en caracteres pero con costo cero,
+porque el proveedor no informa costo en `audio/speech`; sale en la conciliación como
+diferencia hasta que se resuelva.
 
 ### Fase 4 — Asistente de instalación
 
