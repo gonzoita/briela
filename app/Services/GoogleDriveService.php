@@ -18,10 +18,11 @@ class GoogleDriveService
     {
         if (static::$drive) return static::$drive;
 
-        $credPath = env(
-            'GOOGLE_DRIVE_CREDENTIALS_PATH',
-            storage_path('app/private/google-drive.json')
-        );
+        // Desde config y no con env(): con la caché de configuración activa —que es lo
+        // que hace que el sistema no relea todos los archivos de config en cada
+        // petición— env() deja de ver el .env y esto se perdía en silencio.
+        $credPath = config('services.google_drive.credenciales')
+            ?: storage_path('app/private/google-drive.json');
 
         $client = new Client();
         $client->setAuthConfig($credPath);
@@ -29,7 +30,7 @@ class GoogleDriveService
         $client->setApplicationName('Briela');
 
         static::$drive        = new Drive($client);
-        static::$rootFolderId = env('GOOGLE_DRIVE_FOLDER_ID', '');
+        static::$rootFolderId = (string) config('services.google_drive.carpeta', '');
 
         return static::$drive;
     }

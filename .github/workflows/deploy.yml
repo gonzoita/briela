@@ -165,9 +165,15 @@ jobs:
             cat version.txt"
 
       - name: Comprobar que el sitio responde
-        # Un deploy que termina bien y deja el sitio caído no es un deploy que terminó
-        # bien. Se mira el código de la pantalla de entrada.
+        # Se comprueba DESDE EL SERVIDOR y no desde aquí con curl: Hostinger tiene una
+        # capa de protección delante que responde 403 a clientes que no parecen
+        # navegadores. Un deploy correcto se reportaría como fallido, que es la peor
+        # clase de falso negativo — enseña a ignorar los avisos.
         run: |
-          CODIGO=$(curl -s -o /dev/null -w '%{http_code}' https://sistema.briela.app/login)
-          echo "La pantalla de entrada respondió $CODIGO"
-          [ "$CODIGO" = "200" ] || { echo "::error::El sitio no responde 200 después del deploy."; exit 1; }
+          ssh destino "cd '${{ env.RUTA }}' && php -r '
+            \$app = require \"bootstrap/app.php\";
+            \$k = \$app->make(Illuminate\Contracts\Http\Kernel::class);
+            \$r = \$k->handle(Illuminate\Http\Request::create(\"/login\", \"GET\"));
+            echo \"La pantalla de entrada devolvió \", \$r->getStatusCode(), PHP_EOL;
+            exit(\$r->getStatusCode() === 200 ? 0 : 1);
+          '" || { echo "::error::El sistema no devuelve 200 en /login después del deploy."; exit 1; }

@@ -93,4 +93,16 @@ return [
         'voz'           => env('OPENROUTER_VOZ', 'nova'),
     ],
 
+    /*
+     * Google Drive — heredado, en retirada.
+     *
+     * Estos dos valores se leían con env() dentro del servicio, y eso impedía activar
+     * la caché de configuración: con la caché puesta, env() deja de ver el .env y los
+     * ajustes se perdían en silencio. Aquí sí se pueden cachear.
+     */
+    'google_drive' => [
+        'credenciales' => env('GOOGLE_DRIVE_CREDENTIALS_PATH'),
+        'carpeta'      => env('GOOGLE_DRIVE_FOLDER_ID', ''),
+    ],
+
 ];
