@@ -49,6 +49,25 @@ jobs:
         # exactamente qué está arriba sí. El latido de licencia reporta esto.
         run: echo "dev-${GITHUB_SHA::7}" > version.txt
 
+      - name: Comprobar que los secretos están puestos
+        # Sin esto, un secreto vacío se cuela hasta el archivo de configuración de ssh y
+        # el error que aparece es "no hay una instalación en la ruta" — que manda a
+        # revisar el servidor cuando el problema está en GitHub. Pasó en la primera
+        # corrida real, con SSH_USER sin crear.
+        env:
+          H: ${{ secrets.SSH_HOST }}
+          P: ${{ secrets.SSH_PORT }}
+          U: ${{ secrets.SSH_USER }}
+          K: ${{ secrets.SSH_KEY }}
+        run: |
+          FALTAN=""
+          [ -n "$H" ] || FALTAN="$FALTAN SSH_HOST"
+          [ -n "$P" ] || FALTAN="$FALTAN SSH_PORT"
+          [ -n "$U" ] || FALTAN="$FALTAN SSH_USER"
+          [ -n "$K" ] || FALTAN="$FALTAN SSH_KEY"
+          [ -z "$FALTAN" ] || { echo "::error::Faltan secretos en este repositorio:$FALTAN — se crean en Settings → Secrets and variables → Actions. Ojo: cada repositorio tiene los suyos."; exit 1; }
+          echo "Los cuatro secretos están puestos."
+
       - name: Preparar el acceso SSH
         run: |
           mkdir -p ~/.ssh
