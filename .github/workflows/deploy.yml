@@ -1,79 +1,133 @@
 name: Deploy a sistema.briela.app
 
-# Cada push a main compila los assets con Vite, los guarda en el repo y —si hay
-# servidor configurado— actualiza la instalación propia de Briela
-# (sistema.briela.app), que es el banco de pruebas de cada versión.
-#
-# OJO: esto NO actualiza las instalaciones de los clientes. Esas se actualizan
-# con el botón de actualizar, desde un paquete firmado.
+# Mientras Briela esté en pruebas, cada push a main va directo al banco de pruebas.
+# NO se generan paquetes ni versiones: eso empieza el día que se declare la 1.0.0, y
+# desde entonces los clientes se actualizan con el botón, no con esto.
 # Ver docs/BRIELA-PLAN.md sección 6.2.
 #
-# Secretos que hay que crear en el repo (Settings → Secrets → Actions):
-#   SSH_HOST · SSH_USER · SSH_PASSWORD · SSH_PORT · DEPLOY_PATH
-# Mientras SSH_HOST esté vacío, el paso de deploy se salta y el workflow solo
-# compila. Así el repo funciona desde el primer día, sin servidor todavía.
+# Secretos que hay que crear en el repo (Settings → Secrets and variables → Actions):
+#   SSH_HOST · SSH_PORT · SSH_USER · SSH_KEY
+# La ruta de destino NO es un secreto: va fija más abajo, a propósito.
+
 on:
   push:
     branches: [ main ]
+  workflow_dispatch:
 
-# Permite que el workflow committee el build compilado de vuelta al repo.
-permissions:
-  contents: write
-
-# Si se hacen dos push seguidos, se encolan en vez de pisarse entre sí.
+# Dos push seguidos se encolan en vez de pisarse: un deploy a medias sobre otro deploy
+# a medias deja archivos de dos versiones distintas conviviendo.
 concurrency:
-  group: deploy-produccion
+  group: deploy-sistema
   cancel-in-progress: false
 
 jobs:
-  build-and-deploy:
+  desplegar:
     runs-on: ubuntu-latest
 
-    # El secreto se sube a variable de entorno del trabajo porque el `if` de un paso
-    # NO puede leer `secrets`: GitHub rechaza el archivo al compilarlo y la ejecución
-    # queda "sin trabajos", reportada como fallo. Desde `env` sí se puede.
     env:
-      SSH_HOST: ${{ secrets.SSH_HOST }}
+      # Fija en el archivo y no en un secreto, porque más abajo hay un rsync --delete y
+      # en esta misma cuenta de hosting viven otros sitios en producción. Una ruta
+      # equivocada aquí no sería un error recuperable, y un secreto mal escrito no se
+      # ve en el diff — esto sí.
+      RUTA: /home/u787912762/domains/briela.app/public_html/sistema
 
     steps:
       - name: Traer el código
         uses: actions/checkout@v4
 
-      - name: Preparar Node
-        uses: actions/setup-node@v4
+      - name: Preparar PHP y Composer
+        uses: shivammathur/setup-php@v2
         with:
-          node-version: '20'
-          cache: 'npm'
+          php-version: '8.3'
+          tools: composer
 
-      - name: Instalar dependencias y compilar assets
+      - name: Instalar dependencias de producción
+        run: composer install --no-dev --optimize-autoloader --no-interaction --no-progress
+
+      - name: Marcar qué commit queda instalado
+        # Durante las pruebas los números de versión no significan nada, pero saber
+        # exactamente qué está arriba sí. El latido de licencia reporta esto.
+        run: echo "dev-${GITHUB_SHA::7}" > version.txt
+
+      - name: Preparar el acceso SSH
         run: |
-          npm ci
-          npm run build
+          mkdir -p ~/.ssh
+          printf '%s\n' "${{ secrets.SSH_KEY }}" > ~/.ssh/id_deploy
+          chmod 600 ~/.ssh/id_deploy
+          ssh-keyscan -p "${{ secrets.SSH_PORT }}" -H "${{ secrets.SSH_HOST }}" >> ~/.ssh/known_hosts 2>/dev/null
+          printf 'Host destino\n  HostName %s\n  Port %s\n  User %s\n  IdentityFile ~/.ssh/id_deploy\n  StrictHostKeyChecking yes\n' \
+            "${{ secrets.SSH_HOST }}" "${{ secrets.SSH_PORT }}" "${{ secrets.SSH_USER }}" >> ~/.ssh/config
 
-      - name: Guardar el build compilado en el repo
+      - name: Comprobar que la carpeta de destino es la correcta
+        # El rsync del paso siguiente borra lo que no esté en el repo. Antes de eso se
+        # verifica que al otro lado haya una instalación de Briela y no otra cosa: si
+        # la ruta estuviera mal, el deploy se detiene aquí en vez de arrasar un sitio.
         run: |
-          git config user.name  "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add public/build -f
-          if git diff --staged --quiet; then
-            echo "El build no cambió, nada que commitear."
-          else
-            git commit -m "build: assets compilados por CI [skip ci]"
-            git push origin main
-          fi
+          ssh destino "test -f '${{ env.RUTA }}/artisan' && test -f '${{ env.RUTA }}/.env'" \
+            || { echo "::error::En ${{ env.RUTA }} no hay una instalación de Briela. Deploy detenido."; exit 1; }
 
-      - name: Deploy por SSH a la instalación propia
-        if: env.SSH_HOST != ''
-        uses: appleboy/ssh-action@v1.2.0
-        with:
-          host:     ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          password: ${{ secrets.SSH_PASSWORD }}
-          port:     ${{ secrets.SSH_PORT }}
-          script: |
-            cd ${{ secrets.DEPLOY_PATH }}
-            git pull origin main
+      - name: Respaldar la base antes de tocar nada
+        # Obligatorio y antes de todo. Las credenciales se pasan por archivo temporal y
+        # no en la línea de comandos, donde cualquier otro usuario del servidor
+        # compartido podría verlas listando procesos.
+        run: |
+          ssh destino "set -e
+            cd '${{ env.RUTA }}'
+            mkdir -p storage/app/backups
+            CNF=\$(mktemp)
+            chmod 600 \$CNF
+            printf '[client]\nuser=%s\npassword=%s\n' \
+              \"\$(grep '^DB_USERNAME=' .env | cut -d= -f2- | tr -d '\\\"')\" \
+              \"\$(grep '^DB_PASSWORD=' .env | cut -d= -f2- | tr -d '\\\"')\" > \$CNF
+            BASE=\$(grep '^DB_DATABASE=' .env | cut -d= -f2- | tr -d '\\\"')
+            mysqldump --defaults-extra-file=\$CNF --single-transaction --default-character-set=utf8mb4 \"\$BASE\" \
+              > storage/app/backups/deploy-\$(date +%F-%H%M%S).sql
+            rm -f \$CNF
+            # Se guardan los diez últimos: en un hosting compartido el disco y los
+            # inodos son finitos, y un respaldo por push los agota.
+            ls -1t storage/app/backups/deploy-*.sql | tail -n +11 | xargs -r rm --
+            ls -1t storage/app/backups/deploy-*.sql | head -1"
+
+      - name: Enviar los archivos
+        # Nunca .env, storage/ ni public/storage: son la configuración y los archivos
+        # que subió la empresa. El resto se reemplaza y lo que sobra se borra, para que
+        # el servidor sea exactamente lo que dice el repo.
+        run: |
+          rsync -az --delete \
+            -e "ssh" \
+            --exclude='.git/' \
+            --exclude='.github/' \
+            --exclude='.claude/' \
+            --exclude='node_modules/' \
+            --exclude='graphify-out/' \
+            --exclude='docs/' \
+            --exclude='tests/' \
+            --exclude='installer/' \
+            --exclude='CLAUDE.md' \
+            --exclude='.env' \
+            --exclude='storage/' \
+            --exclude='public/storage' \
+            ./ "destino:${{ env.RUTA }}/"
+
+      - name: Migrar, limpiar cachés y revisar el enlace de archivos
+        run: |
+          ssh destino "set -e
+            cd '${{ env.RUTA }}'
             php artisan migrate --force
             php artisan config:clear
             php artisan route:clear
             php artisan view:clear
+            # El enlace de archivos no se envía por rsync (es un enlace, no un archivo),
+            # así que se comprueba en cada deploy. Sin él, las imágenes subidas se ven
+            # rotas. php artisan storage:link no sirve aquí: usa exec(), desactivado.
+            [ -e public/storage ] || ln -s ../storage/app/public public/storage
+            php artisan --version
+            cat version.txt"
+
+      - name: Comprobar que el sitio responde
+        # Un deploy que termina bien y deja el sitio caído no es un deploy que terminó
+        # bien. Se mira el código de la pantalla de entrada.
+        run: |
+          CODIGO=$(curl -s -o /dev/null -w '%{http_code}' https://sistema.briela.app/login)
+          echo "La pantalla de entrada respondió $CODIGO"
+          [ "$CODIGO" = "200" ] || { echo "::error::El sitio no responde 200 después del deploy."; exit 1; }
