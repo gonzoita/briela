@@ -162,6 +162,20 @@ class InstaladorController extends Controller
             return null;
         }
 
+        // Primero symlink() a mano, y no el comando de Laravel: ese termina llamando a
+        // exec(), que muchos hostings compartidos desactivan. En sistema.briela.app,
+        // `php artisan storage:link` falla con "Call to undefined function exec()"
+        // aunque symlink() esté disponible.
+        if (function_exists('symlink')) {
+            @symlink(storage_path('app/public'), $enlace);
+        }
+
+        if (file_exists($enlace)) {
+            return null;
+        }
+
+        // Si symlink() tampoco está, se intenta el comando: en algún hosting con exec
+        // permitido y symlink bloqueado, este es el que funciona.
         try {
             Artisan::call('storage:link');
         } catch (Throwable $e) {
@@ -172,12 +186,15 @@ class InstaladorController extends Controller
             return null;
         }
 
-        // Algunos hostings desactivan symlink(). No se puede arreglar desde aquí, pero
-        // sí se puede decir con precisión, que es lo que evita una hora de dar vueltas.
-        return 'La instalación quedó lista, pero no se pudo crear el enlace de archivos '
-            . '(public/storage). Hasta que exista, las imágenes que subas se van a ver '
-            . 'rotas. Pídele a tu proveedor de hosting que habilite los enlaces '
-            . 'simbólicos, o que ejecute: php artisan storage:link';
+        // Ni symlink() ni exec(). No se puede arreglar desde aquí, pero sí se puede
+        // decir con precisión y dar el comando exacto, que es lo que evita una hora de
+        // dar vueltas buscando por qué las imágenes no cargan.
+        return 'La instalación quedó lista, pero no se pudo crear el enlace de archivos: '
+            . 'este servidor no permite crear enlaces desde PHP. Hasta que exista, las '
+            . 'imágenes que subas se van a ver rotas. Si tienes acceso por consola, se '
+            . 'arregla con una línea, desde la carpeta del sistema: '
+            . 'ln -s ../storage/app/public public/storage — si no, pídele eso mismo a tu '
+            . 'proveedor de hosting.';
     }
 
     // ─── Paso 3: empresa y administrador ─────────────────────────────────────
