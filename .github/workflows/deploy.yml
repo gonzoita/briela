@@ -29,6 +29,12 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
 
+    # El secreto se sube a variable de entorno del trabajo porque el `if` de un paso
+    # NO puede leer `secrets`: GitHub rechaza el archivo al compilarlo y la ejecución
+    # queda "sin trabajos", reportada como fallo. Desde `env` sí se puede.
+    env:
+      SSH_HOST: ${{ secrets.SSH_HOST }}
+
     steps:
       - name: Traer el código
         uses: actions/checkout@v4
@@ -57,7 +63,7 @@ jobs:
           fi
 
       - name: Deploy por SSH a la instalación propia
-        if: ${{ secrets.SSH_HOST != '' }}
+        if: env.SSH_HOST != ''
         uses: appleboy/ssh-action@v1.2.0
         with:
           host:     ${{ secrets.SSH_HOST }}
