@@ -68,7 +68,7 @@ if ($paso === 'extraer' && esPost()) {
 if ($paso === 'terminar' && esPost()) {
     verificarToken();
 
-    if ($error = prepararEnv($raiz)) {
+    if ($error = prepararEnv($raiz, (string) ($_POST['codigo'] ?? ''))) {
         responderJson(['ok' => false, 'mensaje' => $error]);
     }
 
@@ -309,9 +309,17 @@ function extraerTanda(string $zipRuta, string $raiz, string $rutaEstado): array
  * La sesión y la caché quedan en archivos, no en base de datos: cuando el
  * asistente de configuración arranca, la base todavía no tiene tablas.
  *
+ * El código que se escribió al empezar se guarda como serial. Antes no se guardaba, y
+ * el resultado era que el cliente escribía su serial, entraba, y el sistema le decía
+ * que no tenía licencia: sin verificación y sin asistente de IA hasta que alguien lo
+ * volviera a escribir en Ajustes. Nadie lo iba a adivinar.
+ *
+ * Solo se guarda si tiene forma de serial. Un texto cualquiera guardado ahí haría que
+ * la instalación reporte un serial inexistente, que es peor que no tener ninguno.
+ *
  * @return string|null  El motivo si algo falló, o null si quedó bien.
  */
-function prepararEnv(string $raiz): ?string
+function prepararEnv(string $raiz, string $codigo = ''): ?string
 {
     $env     = $raiz . '/.env';
     $ejemplo = $raiz . '/.env.example';
@@ -333,6 +341,12 @@ function prepararEnv(string $raiz): ?string
         'CACHE_STORE'       => 'file',
         'QUEUE_CONNECTION'  => 'sync',
     ];
+
+    $codigo = strtoupper(trim($codigo));
+
+    if (preg_match('/^BRL(-[A-Z0-9]{4}){3}$/', $codigo)) {
+        $reemplazos['BRIELA_SERIAL'] = $codigo;
+    }
 
     foreach ($reemplazos as $clave => $valor) {
         $patron = '/^' . preg_quote($clave, '/') . '=.*$/m';
@@ -503,7 +517,10 @@ async function empezar() {
         }
 
         decir('Terminando…');
-        await pedir('terminar', {});
+        // El código se manda otra vez: es el serial de esta instalación y hay que
+        // guardarlo en la configuración. Sin esto, quien lo escribió arriba entra a un
+        // sistema que cree no tener licencia.
+        await pedir('terminar', { codigo: codigo });
         decir('Listo. Abriendo el asistente de configuración…');
         setTimeout(() => location.href = '/instalar', 1200);
     } catch (err) {

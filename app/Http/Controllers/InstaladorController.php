@@ -98,11 +98,27 @@ class InstaladorController extends Controller
     }
 
     /**
-     * Corre las migraciones.
+     * Cuántas migraciones se corren por petición.
      *
-     * Va por AJAX y no dentro del formulario porque en un hosting compartido
-     * cargado son decenas de segundos, y una petición normal se cortaría a la
-     * mitad dejando la base incompleta.
+     * Ocho, no más. Medido en local, una tanda de doce tardó entre 1,6 y 4,4 segundos
+     * según qué migraciones cayeran: no todas pesan igual. En un hosting compartido
+     * cargado eso se multiplica por tres o cinco, y la tanda pesada quedaría cerca de
+     * los treinta segundos que muchos servidores permiten. Una petición de más es
+     * gratis; una instalación a medias, no.
+     */
+    private const MIGRACIONES_POR_TANDA = 8;
+
+    /**
+     * Corre las migraciones, de a pocas por petición.
+     *
+     * Antes se corrían todas de una vez. En un hosting compartido cargado eso se pasa
+     * del tiempo máximo de la petición y el navegador recibe una respuesta cortada: el
+     * usuario ve un error rojo con la base a medio construir. Pasó en la instalación
+     * propia, y ahí había consola para salir del paso — un cliente no la tiene.
+     *
+     * Cada tanda se aplica archivo por archivo, con `--path`, y la siguiente peticion
+     * sigue donde quedó la anterior. Volver a llamar es seguro: las migraciones ya
+     * aplicadas quedan registradas en la tabla `migrations` y no se repiten.
      */
     public function migrar(): JsonResponse
     {
@@ -121,12 +137,44 @@ class InstaladorController extends Controller
         }
 
         try {
-            Artisan::call('migrate', ['--force' => true]);
+            // La tabla de control tiene que existir antes de poder saber qué falta.
+            if (! Schema::hasTable('migrations')) {
+                Artisan::call('migrate:install');
+            }
+
+            $pendientes = $this->migracionesPendientes();
+            $total      = count($pendientes);
+            $tanda      = array_slice($pendientes, 0, self::MIGRACIONES_POR_TANDA);
+            $salida     = '';
+
+            foreach ($tanda as $archivo) {
+                Artisan::call('migrate', [
+                    '--force'    => true,
+                    '--path'     => $archivo,
+                    '--realpath' => true,
+                ]);
+                $salida .= trim(Artisan::output()) . "\n";
+            }
+
+            $quedan = $total - count($tanda);
         } catch (Throwable $e) {
             return response()->json([
                 'ok'      => false,
                 'mensaje' => 'Las migraciones fallaron: ' . $e->getMessage(),
             ], 500);
+        }
+
+        // Mientras queden pendientes se responde sin terminar, y el navegador vuelve a
+        // llamar. Solo en la última tanda se revisa que la base quedó completa.
+        if ($quedan > 0) {
+            return response()->json([
+                'ok'       => true,
+                'listo'    => false,
+                'hechas'   => count($tanda),
+                'quedan'   => $quedan,
+                'total'    => $total,
+                'mensaje'  => 'Creando las tablas…',
+            ]);
         }
 
         if (! Schema::hasTable('users')) {
@@ -138,10 +186,35 @@ class InstaladorController extends Controller
 
         return response()->json([
             'ok'      => true,
+            'listo'   => true,
             'mensaje' => 'Base de datos lista.',
-            'salida'  => trim(Artisan::output()),
+            'salida'  => trim($salida),
             'aviso'   => $this->enlazarStorage(),
         ]);
+    }
+
+    /**
+     * Los archivos de migración que todavía no se han aplicado, en orden.
+     *
+     * El orden importa: una migración que agrega una columna no puede correr antes de
+     * la que crea la tabla. Los nombres empiezan por fecha, así que ordenar por nombre
+     * es ordenar cronológicamente.
+     *
+     * @return list<string>
+     */
+    private function migracionesPendientes(): array
+    {
+        $aplicadas = Schema::hasTable('migrations')
+            ? DB::table('migrations')->pluck('migration')->all()
+            : [];
+
+        $archivos = glob(database_path('migrations/*.php')) ?: [];
+        sort($archivos);
+
+        return array_values(array_filter(
+            $archivos,
+            fn ($ruta) => ! in_array(basename($ruta, '.php'), $aplicadas, true)
+        ));
     }
 
     /**
