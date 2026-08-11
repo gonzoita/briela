@@ -260,11 +260,27 @@ async function importar() {
                     </span>
                 </div>
                 <p class="text-xs text-tinta-300 mb-3">
-                    Una sola credencial de OpenRouter para textos e imágenes. El saldo se recarga en openrouter.ai.
+                    {{ ia.por_proxy
+                        ? 'El asistente sale por el servicio de Briela, incluido en la suscripción. Aquí solo eliges los modelos.'
+                        : 'Una sola credencial de OpenRouter para textos e imágenes. El saldo se recarga en openrouter.ai.' }}
                 </p>
 
                 <div class="space-y-3">
-                    <div>
+                    <!-- Con serial no hay campo de credencial.
+                         El asistente sale por el proxy de Briela y una llave propia se
+                         ignoraría. Mostrar el campo haría creer que el consumo se paga
+                         por fuera, y llevaría a pegar una credencial que no se usa. -->
+                    <div v-if="ia.por_proxy" class="rounded-xl bg-tinta-50 px-3 py-2.5">
+                        <p class="text-xs text-tinta-500 leading-relaxed">
+                            No hace falta ninguna credencial: el consumo de IA va incluido y se
+                            mide por instalación. Si el asistente deja de responder, revisa el
+                            estado de la suscripción en
+                            <button type="button" @click="router.visit('/administracion/actualizacion')"
+                                class="font-semibold underline underline-offset-2" :style="{ color: 'var(--marca)' }">Actualizar el sistema</button>.
+                        </p>
+                    </div>
+
+                    <div v-else>
                         <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1.5">
                             API key de OpenRouter
                         </label>

@@ -116,8 +116,15 @@ class ActualizadorService
             $problemas[] = 'No se puede escribir la carpeta de respaldos, y el respaldo antes de migrar es obligatorio.';
         }
 
+        // Se distingue entre "no está" y "está pero PHP no puede ejecutarlo", porque
+        // son dos cosas distintas y llevan a soluciones distintas. Muchos hostings
+        // traen mysqldump y desactivan shell_exec: decir "no hay mysqldump" manda al
+        // cliente a pedirle a su proveedor algo que ya tiene.
         if (($diag['mysqldump']['ok'] ?? false) === false) {
-            $avisos[] = 'No hay mysqldump en el servidor: el respaldo se armará desde PHP, que es más lento.';
+            $avisos[] = function_exists('shell_exec')
+                ? 'No hay mysqldump en el servidor: el respaldo se armará desde PHP, que es más lento.'
+                : 'El hosting no permite ejecutar programas externos, así que el respaldo se '
+                    . 'armará desde PHP. Funciona igual, solo es más lento.';
         }
 
         return [

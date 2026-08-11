@@ -53,6 +53,11 @@ class PerfilMarcaController extends Controller
             'ia' => [
                 'configurada'   => $this->ia->configurado(),
                 'clave_parcial' => $this->claveParcial(),
+                // Con serial, el asistente sale por el proxy de Briela y la llave
+                // propia se ignora. La pantalla esconde el campo en ese caso: dejarlo
+                // visible invita a pegar una credencial que no se va a usar, y hace
+                // creer que el consumo se paga por fuera cuando no es así.
+                'por_proxy'     => $this->ia->porProxy(),
                 'modelo_texto'  => $this->ia->modeloTexto(),
                 'modelo_imagen' => $this->ia->modeloImagen(),
                 'modelo_rapido' => Configuracion::get('ia_modelo_rapido', ''),
