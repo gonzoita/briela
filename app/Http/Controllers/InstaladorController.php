@@ -140,7 +140,44 @@ class InstaladorController extends Controller
             'ok'      => true,
             'mensaje' => 'Base de datos lista.',
             'salida'  => trim(Artisan::output()),
+            'aviso'   => $this->enlazarStorage(),
         ]);
+    }
+
+    /**
+     * Crea el enlace public/storage. Devuelve un aviso si no se pudo.
+     *
+     * Sin este enlace, todo lo que la empresa sube —el logo, el favicon, las fotos de
+     * los pasos de producción— se guarda bien pero el navegador no lo encuentra, y se
+     * ve como una imagen rota. Lo primero que hace un cliente al entrar es subir su
+     * logo, así que sin esto la primera impresión del producto es que está roto.
+     *
+     * No estaba, y se descubrió en la instalación propia.
+     */
+    private function enlazarStorage(): ?string
+    {
+        $enlace = public_path('storage');
+
+        if (file_exists($enlace)) {
+            return null;
+        }
+
+        try {
+            Artisan::call('storage:link');
+        } catch (Throwable $e) {
+            // Se sigue de largo: el aviso de abajo dice qué pasó.
+        }
+
+        if (file_exists($enlace)) {
+            return null;
+        }
+
+        // Algunos hostings desactivan symlink(). No se puede arreglar desde aquí, pero
+        // sí se puede decir con precisión, que es lo que evita una hora de dar vueltas.
+        return 'La instalación quedó lista, pero no se pudo crear el enlace de archivos '
+            . '(public/storage). Hasta que exista, las imágenes que subas se van a ver '
+            . 'rotas. Pídele a tu proveedor de hosting que habilite los enlaces '
+            . 'simbólicos, o que ejecute: php artisan storage:link';
     }
 
     // ─── Paso 3: empresa y administrador ─────────────────────────────────────

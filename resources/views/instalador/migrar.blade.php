@@ -42,6 +42,15 @@
                 const datos = await r.json().catch(() => ({ mensaje: 'El servidor respondió algo inesperado.' }));
                 if (!r.ok || !datos.ok) throw new Error(datos.mensaje || 'Falló la preparación.');
                 caja.textContent = datos.mensaje;
+                // Un aviso no detiene la instalación, pero tiene que verse: si no se
+                // pudo crear el enlace de archivos, las imágenes se van a ver rotas y
+                // nadie va a saber por qué.
+                if (datos.aviso) {
+                    const av = document.createElement('div');
+                    av.className = 'aviso-caja';
+                    av.textContent = datos.aviso;
+                    caja.after(av);
+                }
                 seguir.style.display = 'block';
             })
             .catch((e) => {
