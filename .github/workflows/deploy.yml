@@ -69,13 +69,34 @@ jobs:
           echo "Los cuatro secretos están puestos."
 
       - name: Preparar el acceso SSH
+        # Los secretos se escriben a mano, así que se les quitan espacios y saltos de
+        # línea: un carácter invisible al final del puerto hace fallar la conexión con un
+        # error que no dice nada.
+        #
+        # Antes había un ssh-keyscan con verificación estricta. Se quitó: keyscan confía
+        # en lo que le responda el servidor, así que no da más seguridad que aceptar la
+        # huella en el primer contacto — solo agrega un punto de falla, y falló.
+        env:
+          H: ${{ secrets.SSH_HOST }}
+          P: ${{ secrets.SSH_PORT }}
+          U: ${{ secrets.SSH_USER }}
+          K: ${{ secrets.SSH_KEY }}
         run: |
           mkdir -p ~/.ssh
-          printf '%s\n' "${{ secrets.SSH_KEY }}" > ~/.ssh/id_deploy
+          printf '%s\n' "$K" > ~/.ssh/id_deploy
           chmod 600 ~/.ssh/id_deploy
-          ssh-keyscan -p "${{ secrets.SSH_PORT }}" -H "${{ secrets.SSH_HOST }}" >> ~/.ssh/known_hosts 2>/dev/null
-          printf 'Host destino\n  HostName %s\n  Port %s\n  User %s\n  IdentityFile ~/.ssh/id_deploy\n  StrictHostKeyChecking yes\n' \
-            "${{ secrets.SSH_HOST }}" "${{ secrets.SSH_PORT }}" "${{ secrets.SSH_USER }}" >> ~/.ssh/config
+          printf 'Host destino\n  HostName %s\n  Port %s\n  User %s\n  IdentityFile ~/.ssh/id_deploy\n  StrictHostKeyChecking accept-new\n  ConnectTimeout 20\n  BatchMode yes\n' \
+            "$(printf '%s' "$H" | tr -d '[:space:]')" \
+            "$(printf '%s' "$P" | tr -d '[:space:]')" \
+            "$(printf '%s' "$U" | tr -d '[:space:]')" > ~/.ssh/config
+          chmod 600 ~/.ssh/config
+
+      - name: Comprobar que se puede entrar al servidor
+        # Un paso aparte para que el error diga qué falló. Antes, cualquier problema de
+        # conexión aparecía como "no hay una instalación en la ruta".
+        run: |
+          ssh destino "echo conectado como \$(whoami) en \$(hostname)" \
+            || { echo "::error::No se pudo entrar al servidor por SSH. Revisa SSH_HOST, SSH_PORT, SSH_USER y que SSH_KEY esté completa, con sus líneas BEGIN y END."; exit 1; }
 
       - name: Comprobar que la carpeta de destino es la correcta
         # El rsync del paso siguiente borra lo que no esté en el repo. Antes de eso se
