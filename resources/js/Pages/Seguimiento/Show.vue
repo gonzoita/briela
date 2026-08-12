@@ -79,7 +79,7 @@ const compartir = () => {
 
     <div class="min-h-screen pb-8" style="background: var(--superficie-2);">
         <!-- Header -->
-        <header class="px-6 pt-8 pb-6" style="background: white; border-bottom: 1px solid #E5E7EB;">
+        <header class="px-6 pt-8 pb-6" style="background: var(--superficie); border-bottom: 1px solid var(--borde);">
             <img
                 :src="$page.props.marca.logo"
                 class="h-8 w-auto object-contain mb-4"
@@ -103,7 +103,7 @@ const compartir = () => {
 
         <div class="px-4 mt-6 space-y-4">
             <!-- Ítem específico (si se buscó por serie) -->
-            <div v-if="item" class="rounded-2xl shadow-sm p-5" style="background: white;">
+            <div v-if="item" class="rounded-2xl shadow-sm p-5" style="background: var(--superficie);">
                 <p class="text-xs font-medium text-tinta-400 uppercase tracking-[0.12em] mb-3">Ítem</p>
                 <div class="flex items-center justify-between mb-2">
                     <span class="font-mono font-semibold text-base" style="color: var(--marca);">{{ item.numero_serie }}</span>
@@ -127,7 +127,7 @@ const compartir = () => {
             </div>
 
             <!-- Timeline de estados -->
-            <div class="rounded-2xl shadow-sm p-5" style="background: white;">
+            <div class="rounded-2xl shadow-sm p-5" style="background: var(--superficie);">
                 <p class="text-xs font-medium text-tinta-400 uppercase tracking-[0.12em] mb-4">Estado del pedido</p>
 
                 <div class="space-y-0">
@@ -161,7 +161,7 @@ const compartir = () => {
                                 v-if="i < timeline.length - 1"
                                 class="w-0.5 flex-1 my-1"
                                 style="min-height: 24px;"
-                                :style="{ background: paso.completado ? 'var(--marca)' : '#E5E7EB' }"
+                                :style="{ background: paso.completado ? 'var(--marca)' : 'var(--borde)' }"
                             />
                         </div>
 

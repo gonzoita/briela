@@ -197,7 +197,7 @@ watch(() => form.tipo, () => {
             <div class="flex items-center gap-3 mb-6">
                 <div v-for="n in [1,2]" :key="n" class="flex items-center gap-2">
                     <div class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-semibold transition-colors"
-                        :style="paso >= n ? 'background:var(--marca);color:white;' : 'background:var(--tinta-200);color:var(--texto-3);'">
+                        :style="paso >= n ? 'background:var(--marca);color:var(--marca-texto);' : 'background:var(--tinta-200);color:var(--texto-3);'">
                         {{ n }}
                     </div>
                     <span class="text-xs text-tinta-400">{{ n === 1 ? 'Origen e ítems' : 'Datos de remisión' }}</span>
@@ -214,12 +214,12 @@ watch(() => form.tipo, () => {
                     <div class="flex rounded-xl border border-linea overflow-hidden">
                         <button @click="form.tipo = 'op'"
                             class="flex-1 py-2.5 text-sm font-medium transition-colors"
-                            :style="form.tipo === 'op' ? 'background:var(--marca);color:white;' : 'background:white;color:var(--texto-2);'">
+                            :style="form.tipo === 'op' ? 'background:var(--marca);color:var(--marca-texto);' : 'background:var(--superficie);color:var(--texto-2);'">
                             Desde OP
                         </button>
                         <button @click="form.tipo = 'manual'"
                             class="flex-1 py-2.5 text-sm font-medium transition-colors"
-                            :style="form.tipo === 'manual' ? 'background:var(--marca);color:white;' : 'background:white;color:var(--texto-2);'">
+                            :style="form.tipo === 'manual' ? 'background:var(--marca);color:var(--marca-texto);' : 'background:var(--superficie);color:var(--texto-2);'">
                             Manual
                         </button>
                     </div>
@@ -317,7 +317,7 @@ watch(() => form.tipo, () => {
                                         <input type="number" step="1" min="1" :max="item.unidades_disponibles"
                                             v-model.number="cantidadesARemisionar[item.id]"
                                             class="mt-1 w-full border border-blue-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none"
-                                            style="background:white;"/>
+                                            style="background:var(--superficie);"/>
                                     </div>
                                 </div>
                             </label>

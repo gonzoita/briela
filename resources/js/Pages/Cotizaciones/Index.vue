@@ -231,7 +231,7 @@ const chartPoints = computed(() => {
                 <div class="hidden md:block overflow-x-auto">
                     <table class="w-full text-sm">
                         <thead>
-                            <tr style="background:var(--superficie-2); border-bottom: 1px solid #E5E7EB;">
+                            <tr style="background:var(--superficie-2); border-bottom: 1px solid var(--borde);">
                                 <th class="text-left px-4 py-3 text-xs font-semibold text-tinta-400 uppercase">Número</th>
                                 <th class="text-left px-4 py-3 text-xs font-semibold text-tinta-400 uppercase">Cliente</th>
                                 <th class="text-left px-4 py-3 text-xs font-semibold text-tinta-400 uppercase">Responsable</th>

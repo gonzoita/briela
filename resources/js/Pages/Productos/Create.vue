@@ -394,7 +394,7 @@ const badgeStyle = {
                             <input type="file" multiple accept="image/*" class="hidden" @change="onImagenes" />
                         </label>
                         <div v-if="previews.length" class="grid grid-cols-3 sm:grid-cols-5 gap-2">
-                            <div v-for="(prev, i) in previews" :key="i" class="relative rounded-xl overflow-hidden border-2" :style="prev.principal ? 'border-color:#F59E0B;' : 'border-color:#E5E7EB;'">
+                            <div v-for="(prev, i) in previews" :key="i" class="relative rounded-xl overflow-hidden border-2" :style="prev.principal ? 'border-color:#F59E0B;' : 'border-color:var(--borde);'">
                                 <img :src="prev.url" class="w-full aspect-square object-cover" />
                                 <div class="absolute top-1 right-1 flex gap-1">
                                     <button type="button" @click="marcarPrincipal(i)" class="w-5 h-5 rounded-full flex items-center justify-center" :style="prev.principal ? 'background:#F59E0B;' : 'background:rgba(0,0,0,0.4);'">

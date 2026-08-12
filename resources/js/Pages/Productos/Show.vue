@@ -161,7 +161,7 @@ const fmtFecha = (d) => d ? new Date(d).toLocaleDateString('es-CO', { day: '2-di
                             v-for="img in p.imagenes" :key="img.id"
                             @click="setImagenActiva(img)"
                             class="w-14 h-14 shrink-0 rounded-xl overflow-hidden border-2 transition-colors"
-                            :style="imagenActiva?.id === img.id ? 'border-color:var(--marca);' : 'border-color:#E5E7EB;'"
+                            :style="imagenActiva?.id === img.id ? 'border-color:var(--marca);' : 'border-color:var(--borde);'"
                         >
                             <img :src="img.url" class="w-full h-full object-cover"/>
                         </button>
@@ -441,7 +441,7 @@ const fmtFecha = (d) => d ? new Date(d).toLocaleDateString('es-CO', { day: '2-di
             <div class="overflow-x-auto">
                 <table class="w-full text-xs min-w-[480px]">
                     <thead>
-                        <tr style="background:var(--superficie-2); border-bottom:1px solid #E5E7EB;">
+                        <tr style="background:var(--superficie-2); border-bottom:1px solid var(--borde);">
                             <th class="text-left px-4 py-2.5 font-semibold text-tinta-400">Fecha</th>
                             <th class="text-left px-3 py-2.5 font-semibold text-tinta-400">Tipo</th>
                             <th class="text-right px-3 py-2.5 font-semibold text-tinta-400">Cantidad</th>

@@ -17,7 +17,7 @@ const ICONOS_MODULO = {
 }
 
 const colorPrimario = (modulo) => modulo?.template?.color_primario ?? colorMarca()
-const colorIcono    = (key) => ICONOS_MODULO[key] ?? { bg: '#E5E7EB', color: '#374151' }
+const colorIcono    = (key) => ICONOS_MODULO[key] ?? { bg: 'var(--borde)', color: '#374151' }
 </script>
 
 <template>

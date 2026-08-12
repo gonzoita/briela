@@ -562,7 +562,7 @@ const badgeStyle = {
                     <div class="p-5">
                         <!-- Existentes -->
                         <div v-if="imagenesExistentes.length" class="grid grid-cols-3 sm:grid-cols-5 gap-2 mb-3">
-                            <div v-for="img in imagenesExistentes" :key="img.id" class="relative rounded-xl overflow-hidden border-2" :style="img.es_principal ? 'border-color:#F59E0B;' : 'border-color:#E5E7EB;'">
+                            <div v-for="img in imagenesExistentes" :key="img.id" class="relative rounded-xl overflow-hidden border-2" :style="img.es_principal ? 'border-color:#F59E0B;' : 'border-color:var(--borde);'">
                                 <img :src="img.url" class="w-full aspect-square object-cover" />
                                 <div class="absolute top-1 right-1 flex gap-1">
                                     <button type="button" @click="setPrincipal(img.id)" class="w-5 h-5 rounded-full flex items-center justify-center" :style="img.es_principal ? 'background:#F59E0B;' : 'background:rgba(0,0,0,0.4);'">

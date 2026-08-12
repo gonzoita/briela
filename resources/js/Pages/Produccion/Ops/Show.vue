@@ -759,7 +759,7 @@ function marcarTerminado(item) {
                                                                 ? 'background:var(--pastel-azul-2);border-color:#93C5FD;color:var(--texto-azul);'
                                                                 : t.porcentaje_avance > 0
                                                                     ? 'background:var(--pastel-ambar);border-color:#FCD34D;color:var(--texto-ambar);'
-                                                                    : 'background:var(--superficie-2);border-color:#E5E7EB;color:var(--texto-3);'">
+                                                                    : 'background:var(--superficie-2);border-color:var(--borde);color:var(--texto-3);'">
                                                         <span class="font-semibold">U{{ t.numero_unidad }}</span>
                                                         <span v-if="t.remisionado">Remisionado ✓</span>
                                                         <span v-else-if="t.porcentaje_avance >= 100">Completado ✓</span>
@@ -1139,7 +1139,7 @@ function marcarTerminado(item) {
                                                 ? 'background:var(--pastel-azul-2);border-color:#93C5FD;color:var(--texto-azul);'
                                                 : t.porcentaje_avance > 0
                                                     ? 'background:var(--pastel-ambar);border-color:#FCD34D;color:var(--texto-ambar);'
-                                                    : 'background:var(--superficie-2);border-color:#E5E7EB;color:var(--texto-3);'">
+                                                    : 'background:var(--superficie-2);border-color:var(--borde);color:var(--texto-3);'">
                                         <span class="font-semibold">U{{ t.numero_unidad }}</span>
                                         <span v-if="t.remisionado">Remisionado ✓</span>
                                         <span v-else-if="t.porcentaje_avance >= 100">Completado ✓</span>

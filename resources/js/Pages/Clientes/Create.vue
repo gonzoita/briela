@@ -251,7 +251,7 @@ function submit() {
                     <div v-if="form.contactos.length > 0" class="space-y-2 mb-4">
                         <div v-for="(c, idx) in form.contactos" :key="idx"
                              class="flex items-center gap-3 px-3 py-2.5 rounded-lg border"
-                             :style="c.es_principal ? 'border-color:var(--marca); background:var(--pastel-azul);' : 'border-color:#E5E7EB;'">
+                             :style="c.es_principal ? 'border-color:var(--marca); background:var(--pastel-azul);' : 'border-color:var(--borde);'">
                             <div class="flex-1 min-w-0">
                                 <div class="flex items-center gap-2">
                                     <p class="text-sm font-medium text-tinta-900">{{ c.nombre }} {{ c.apellido }}</p>

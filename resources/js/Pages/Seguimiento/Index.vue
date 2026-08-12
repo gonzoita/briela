@@ -78,7 +78,7 @@ const cerrarQR = async () => {
                 {{ flash.error }}
             </div>
 
-            <div class="rounded-2xl shadow-sm p-6" style="background: white;">
+            <div class="rounded-2xl shadow-sm p-6" style="background: var(--superficie);">
                 <label class="block text-sm font-medium text-tinta-700 mb-2">
                     Número de OP o código de serie
                 </label>

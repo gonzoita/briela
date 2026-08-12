@@ -236,7 +236,7 @@ const lineaPuntos = computed(() => {
                                 fill="#374151"
                             >{{ val }}</text>
                         </g>
-                        <line x1="40" :y1="alturaBarras - 30" :x2="anchoBarras - 10" :y2="alturaBarras - 30" stroke="#E5E7EB" stroke-width="1"/>
+                        <line x1="40" :y1="alturaBarras - 30" :x2="anchoBarras - 10" :y2="alturaBarras - 30" stroke="var(--borde)" stroke-width="1"/>
                     </svg>
                 </div>
 
@@ -265,7 +265,7 @@ const lineaPuntos = computed(() => {
                                 fill="#6B7280"
                             >{{ graficaData.labels[i] }}</text>
                         </g>
-                        <line x1="40" :y1="alturaBarras - 30" :x2="anchoBarras - 10" :y2="alturaBarras - 30" stroke="#E5E7EB" stroke-width="1"/>
+                        <line x1="40" :y1="alturaBarras - 30" :x2="anchoBarras - 10" :y2="alturaBarras - 30" stroke="var(--borde)" stroke-width="1"/>
                     </svg>
                 </div>
 

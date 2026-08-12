@@ -249,7 +249,7 @@ const precioMostrar = (p) => {
                     <button
                         @click="viewMode = 'list'"
                         class="w-9 h-9 flex items-center justify-center transition-colors"
-                        :style="viewMode === 'list' ? 'background:var(--marca);color:white;' : 'color:var(--texto-3);'"
+                        :style="viewMode === 'list' ? 'background:var(--marca);color:var(--marca-texto);' : 'color:var(--texto-3);'"
                         title="Vista lista"
                     >
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
@@ -259,7 +259,7 @@ const precioMostrar = (p) => {
                     <button
                         @click="viewMode = 'grid'"
                         class="w-9 h-9 flex items-center justify-center transition-colors"
-                        :style="viewMode === 'grid' ? 'background:var(--marca);color:white;' : 'color:var(--texto-3);'"
+                        :style="viewMode === 'grid' ? 'background:var(--marca);color:var(--marca-texto);' : 'color:var(--texto-3);'"
                         title="Vista grid"
                     >
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
@@ -320,7 +320,7 @@ const precioMostrar = (p) => {
                 class="px-3.5 py-1.5 rounded-full text-sm font-medium whitespace-nowrap border transition-colors shrink-0"
                 :style="form.tipo === opt.value
                     ? 'background-color: var(--marca); color: white; border-color: var(--marca);'
-                    : 'background: white; color: var(--texto-2); border-color: #E5E7EB;'"
+                    : 'background: var(--superficie); color: var(--texto-2); border-color: var(--borde);'"
             >
                 {{ opt.label }}
             </button>
@@ -333,7 +333,7 @@ const precioMostrar = (p) => {
                 class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-medium whitespace-nowrap border transition-colors shrink-0"
                 :style="form.es_vendible
                     ? 'background:var(--pastel-azul-2); color:var(--texto-azul); border-color:#BFDBFE;'
-                    : 'background:white; color:var(--texto-2); border-color:#E5E7EB;'"
+                    : 'background:var(--superficie); color:var(--texto-2); border-color:var(--borde);'"
             >
                 <span>Vendible</span>
             </button>
@@ -342,7 +342,7 @@ const precioMostrar = (p) => {
                 class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-medium whitespace-nowrap border transition-colors shrink-0"
                 :style="form.es_insumo
                     ? 'background:var(--pastel-ambar); color:var(--texto-ambar); border-color:#FDE68A;'
-                    : 'background:white; color:var(--texto-2); border-color:#E5E7EB;'"
+                    : 'background:var(--superficie); color:var(--texto-2); border-color:var(--borde);'"
             >
                 <span>Insumo</span>
             </button>
@@ -355,7 +355,7 @@ const precioMostrar = (p) => {
                 class="px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap border transition-colors shrink-0"
                 :style="!form.categoria
                     ? 'background-color: var(--marca); color: var(--marca-texto); border-color: var(--marca);'
-                    : 'background: white; color: var(--texto-2); border-color: #E5E7EB;'"
+                    : 'background: var(--superficie); color: var(--texto-2); border-color: var(--borde);'"
             >
                 Todas
             </button>
@@ -366,7 +366,7 @@ const precioMostrar = (p) => {
                 class="px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap border transition-colors shrink-0"
                 :style="String(form.categoria) === String(cat.id)
                     ? `background-color: ${cat.color}; color: white; border-color: ${cat.color};`
-                    : `background: white; color: ${cat.color}; border-color: ${cat.color}44;`"
+                    : `background: var(--superficie); color: ${cat.color}; border-color: ${cat.color}44;`"
             >
                 {{ cat.nombre }}
             </button>
@@ -406,7 +406,7 @@ const precioMostrar = (p) => {
         <div v-else-if="viewMode === 'list'" class="bg-superficie rounded-2xl shadow-sm overflow-hidden">
             <table class="w-full text-sm">
                 <thead>
-                    <tr style="background:var(--superficie-2); border-bottom:1px solid #E5E7EB;">
+                    <tr style="background:var(--superficie-2); border-bottom:1px solid var(--borde);">
                         <th class="text-left px-4 py-3 text-xs font-semibold text-tinta-400 uppercase w-12"></th>
                         <th class="text-left px-4 py-3 text-xs font-semibold text-tinta-400 uppercase">Nombre</th>
                         <th class="hidden sm:table-cell text-left px-3 py-3 text-xs font-semibold text-tinta-400 uppercase">Referencia</th>
