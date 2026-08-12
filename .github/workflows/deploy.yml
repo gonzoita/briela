@@ -164,16 +164,22 @@ jobs:
             php artisan --version
             cat version.txt"
 
-      - name: Comprobar que el sitio responde
-        # Se comprueba DESDE EL SERVIDOR y no desde aquí con curl: Hostinger tiene una
-        # capa de protección delante que responde 403 a clientes que no parecen
-        # navegadores. Un deploy correcto se reportaría como fallido, que es la peor
-        # clase de falso negativo — enseña a ignorar los avisos.
+      - name: Comprobar que el sistema arranca y los assets llegaron
+        # Desde el servidor y con comandos simples. Dos intentos anteriores fallaron por
+        # motivos distintos, y los dos daban falsos negativos sobre un deploy correcto:
+        #
+        #   curl contra el sitio → Hostinger responde 403 a lo que no parece navegador.
+        #   php -r incrustado    → sin el autoloader no existe ninguna clase de Laravel,
+        #                          y entre ssh, bash y php las comillas se pierden.
+        #
+        # route:list arranca la aplicación completa —configuración, proveedores, rutas—,
+        # así que si algo quedó roto de verdad, falla. Y se revisa que el build esté ahí,
+        # que es lo que se rompe cuando un rsync queda a medias.
         run: |
-          ssh destino "cd '${{ env.RUTA }}' && php -r '
-            \$app = require \"bootstrap/app.php\";
-            \$k = \$app->make(Illuminate\Contracts\Http\Kernel::class);
-            \$r = \$k->handle(Illuminate\Http\Request::create(\"/login\", \"GET\"));
-            echo \"La pantalla de entrada devolvió \", \$r->getStatusCode(), PHP_EOL;
-            exit(\$r->getStatusCode() === 200 ? 0 : 1);
-          '" || { echo "::error::El sistema no devuelve 200 en /login después del deploy."; exit 1; }
+          ssh destino "cd '${{ env.RUTA }}' && php artisan route:list --path=login" > /tmp/rutas.txt 2>&1 \
+            || { echo "::error::La aplicación no arranca en el servidor:"; cat /tmp/rutas.txt; exit 1; }
+          grep -q 'login' /tmp/rutas.txt \
+            || { echo "::error::La aplicación arrancó pero no encuentra la ruta de entrada."; cat /tmp/rutas.txt; exit 1; }
+          ssh destino "cd '${{ env.RUTA }}' && test -s public/build/manifest.json && ls public/build/assets/*.js >/dev/null" \
+            || { echo "::error::Los archivos compilados no llegaron al servidor."; exit 1; }
+          echo "El sistema arranca, la ruta de entrada existe y el build está en su sitio."
