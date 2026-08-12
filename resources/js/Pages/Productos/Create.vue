@@ -674,26 +674,40 @@ const badgeStyle = {
                              Antes eran tres cajas fijas: mayorista, distribuidor y cliente
                              final. Ahora la empresa crea los canales que necesite y esta
                              pantalla dibuja los que existan. -->
-                        <div v-for="canal in form.canales" :key="canal.segmentacion_opcion_id"
-                            class="grid grid-cols-2 gap-3 items-end">
-                            <div>
-                                <label class="flex items-center gap-1.5 text-xs font-medium text-tinta-500 mb-1">
-                                    <span class="w-2 h-2 rounded-full shrink-0" :style="`background:${canal.color};`"/>
-                                    Margen {{ canal.etiqueta }} %
-                                    <span v-if="canal.es_canal_base" class="text-[10px] text-blue-600 font-semibold">base</span>
-                                </label>
-                                <input v-model.number="canal.margen_pct" type="number" min="1" max="99" step="0.5"
-                                    class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[var(--marca)]" />
+                        <!-- El nombre del canal va como encabezado de la fila, y los campos se
+                             llaman «Margen %» y «Precio». Antes se componía «Margen {nombre} %»,
+                             y con nombres como «Precio Público» salía «Margen Precio Público %»
+                             y «Precio Precio Público». El nombre lo pone la empresa: la pantalla
+                             no puede asumir cómo empieza. -->
+                        <div v-for="canal in form.canales" :key="canal.segmentacion_opcion_id">
+                            <div class="flex items-center gap-1.5 mb-1.5">
+                                <span class="w-2 h-2 rounded-full shrink-0" :style="`background:${canal.color};`"/>
+                                <span class="text-xs font-semibold text-tinta-600">{{ canal.etiqueta }}</span>
+                                <span v-if="canal.es_canal_base" class="text-[10px] px-1.5 py-0.5 rounded-full bg-blue-50 text-blue-700">canal base</span>
+                                <span v-if="canal.es_precio_publico" class="text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700">precio público</span>
                             </div>
-                            <div>
-                                <label class="block text-xs font-medium text-tinta-500 mb-1">Precio {{ canal.etiqueta }}</label>
-                                <div class="relative">
-                                    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-tinta-300">$</span>
-                                    <input :value="formatCOP(canal.precio)" readonly
-                                        class="w-full border border-linea rounded-xl pl-7 pr-3 py-2 text-sm bg-tinta-50 font-semibold text-tinta-700" />
+                            <div class="grid grid-cols-2 gap-3 items-end">
+                                <div>
+                                    <label class="block text-xs font-medium text-tinta-400 mb-1">Margen %</label>
+                                    <input v-model.number="canal.margen_pct" type="number" min="1" max="99" step="0.5"
+                                        class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[var(--marca)]" />
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-medium text-tinta-400 mb-1">Precio</label>
+                                    <div class="relative">
+                                        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-tinta-300">$</span>
+                                        <input :value="formatCOP(canal.precio)" readonly
+                                            class="w-full border border-linea rounded-xl pl-7 pr-3 py-2 text-sm bg-tinta-50 font-semibold text-tinta-700" />
+                                    </div>
                                 </div>
                             </div>
                         </div>
+
+                        <!-- El precio sale del costo: sin costo, todos quedan en cero y no es
+                             evidente por qué. -->
+                        <p v-if="form.canales.length && !form.precio_costo" class="text-xs text-amber-700">
+                            Escribe el precio de costo y los precios de cada canal se calculan solos.
+                        </p>
 
                         <!-- Sin canales no hay precios que poner, y decirlo aquí evita que
                              alguien crea que el producto quedó mal guardado. -->
