@@ -16,34 +16,53 @@ class SegmentacionOpcion extends Model
         'color',
         'orden',
         'activo',
+        'define_precio',
+        'es_canal_base',
+        'es_precio_publico',
     ];
 
     protected $casts = [
-        'activo' => 'boolean',
-        'orden'  => 'integer',
+        'activo'            => 'boolean',
+        'orden'             => 'integer',
+        'define_precio'     => 'boolean',
+        'es_canal_base'     => 'boolean',
+        'es_precio_publico' => 'boolean',
     ];
 
     protected $appends = ['atada_a_precios'];
 
     /**
-     * Tipos de contacto que el cotizador usa para decidir el canal de precio.
+     * ¿Esta opción está atada a los precios y por eso no se puede borrar?
      *
-     * `Cotizaciones/Create.vue` compara contra estos textos exactos para elegir
-     * entre precio mayorista, distribuidor o cliente final — y de ahí sale
-     * también la comisión del vendedor. Si alguien borrara una de estas
-     * opciones, los clientes que la tuvieran pasarían a cotizarse como cliente
-     * final sin que nadie se entere, así que el borrado está bloqueado.
+     * Antes eran dos textos escritos aquí —`mayorista` y `distribuidor`—, comparados a
+     * mano en `Cotizaciones/Create.vue`. Ahora lo dice el dato: cualquier tipo de
+     * contacto que defina precio queda protegido, sea uno de los tres originales o uno
+     * que la empresa haya creado.
+     *
+     * Borrar una opción con precios dejaría a sus clientes sin canal, y el sistema los
+     * pasaría a cotizar sin precio sin que nadie se entere.
      */
-    public const VALORES_CANAL_PRECIO = ['mayorista', 'distribuidor'];
-
     public function getAtadaAPreciosAttribute(): bool
     {
-        return $this->tipo === 'tipo_contacto'
-            && in_array($this->valor, self::VALORES_CANAL_PRECIO, true);
+        return $this->tipo === 'tipo_contacto' && (bool) $this->define_precio;
+    }
+
+    public function precios(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(CanalPrecio::class, 'segmentacion_opcion_id');
     }
 
     public function scopePorTipo(Builder $query, string $tipo): Builder
     {
         return $query->where('tipo', $tipo)->where('activo', true)->orderBy('orden');
+    }
+
+    /** Los canales de precio, en el orden que decide la prioridad. */
+    public function scopeCanalesDePrecio(Builder $query): Builder
+    {
+        return $query->where('tipo', 'tipo_contacto')
+            ->where('activo', true)
+            ->where('define_precio', true)
+            ->orderBy('orden');
     }
 }

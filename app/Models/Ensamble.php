@@ -86,4 +86,21 @@ class Ensamble extends Model
         $this->precio_distribuidor  = round($costo * (1 + ($m + 2.5) / 100), 0);
         $this->precio_cliente_final = round($costo * (1 + ($m + 5) / 100), 0);
     }
+
+    /**
+     * Los precios por canal. Reemplazan a las columnas fijas por canal, que siguen
+     * existiendo durante el período de compatibilidad de la regla 2.
+     */
+    public function preciosPorCanal(): \Illuminate\Database\Eloquent\Relations\MorphMany
+    {
+        return $this->morphMany(\App\Models\CanalPrecio::class, "precionable");
+    }
+
+    /** El precio de un canal concreto, o null si ese canal no tiene precio cargado. */
+    public function precioDeCanal(?\App\Models\SegmentacionOpcion $canal): ?\App\Models\CanalPrecio
+    {
+        return $canal
+            ? $this->preciosPorCanal->firstWhere("segmentacion_opcion_id", $canal->id)
+            : null;
+    }
 }
