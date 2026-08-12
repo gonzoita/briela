@@ -10,7 +10,10 @@ class SegmentacionOpcionController extends Controller
 {
     public function index(): JsonResponse
     {
-        $opciones = SegmentacionOpcion::orderBy('tipo')->orderBy('orden')->orderBy('etiqueta')->get();
+        // Con la cuenta de precios cargados: al borrar un canal se van con él, y eso hay que
+        // decirlo ANTES, no después.
+        $opciones = SegmentacionOpcion::withCount('precios')
+            ->orderBy('tipo')->orderBy('orden')->orderBy('etiqueta')->get();
 
         $agrupadas = $opciones->groupBy('tipo');
 
@@ -97,9 +100,12 @@ class SegmentacionOpcionController extends Controller
             return 'Solo los tipos de contacto pueden definir precios.';
         }
 
-        // Se le está QUITANDO el precio. Cada motivo lleva su propio mensaje: decir
-        // «primero tiene que definir precio» a quien acaba de destildar «define precio»
-        // no explica nada y deja a la persona dando vueltas.
+        // Se le está QUITANDO el precio. Solo se impide en los dos papeles que el sistema
+        // necesita; en cualquier otro canal es una decisión de la empresa y se permite.
+        //
+        // Los precios cargados no se borran al quitar la marca: quedan guardados y vuelven si
+        // se marca de nuevo. Por eso no hace falta bloquearlo — antes se bloqueaba, y eso
+        // dejaba la lista intocable.
         if ($define === false && $opcion->define_precio) {
             if ($opcion->es_canal_base) {
                 return "«{$opcion->etiqueta}» es el canal base: es el piso de utilidad y contra su precio "
@@ -109,12 +115,6 @@ class SegmentacionOpcionController extends Controller
             if ($opcion->es_precio_publico) {
                 return "«{$opcion->etiqueta}» es el precio público del catálogo. Marca otro canal como "
                     . 'precio público antes de quitarle el precio.';
-            }
-
-            if (($cuantos = $opcion->precios()->count()) > 0) {
-                return "«{$opcion->etiqueta}» tiene {$cuantos} precios cargados en productos o ensambles. "
-                    . 'Si ya no lo usas, desactiva la opción en vez de quitarle el precio: así los precios '
-                    . 'quedan guardados por si vuelves a necesitarlos.';
             }
         }
 
@@ -131,17 +131,15 @@ class SegmentacionOpcionController extends Controller
 
     public function destroy(SegmentacionOpcion $opcion): JsonResponse
     {
-        // Borrar un canal no da error en ninguna parte: sus clientes simplemente se
-        // quedan sin precio, y eso se descubre cuando alguien intenta cotizarles. Un daño
-        // silencioso y difícil de rastrear después.
+        // Solo el canal base y el precio público están protegidos: el sistema necesita saber
+        // cuál es el piso de utilidad y qué precio ve un desconocido. Los demás son de la
+        // empresa y se borran cuando quiera.
         if ($opcion->atada_a_precios) {
-            $cuantos = $opcion->precios()->count();
+            $papel = $opcion->es_canal_base ? 'el canal base' : 'el precio público';
 
             return response()->json([
-                'message' => "«{$opcion->etiqueta}» define precios"
-                    . ($cuantos > 0 ? " y tiene {$cuantos} cargados en productos o ensambles" : '')
-                    . '. Si no la necesitas, desactívala: los clientes que la tengan dejarían de '
-                    . 'tener precio y solo se notaría al cotizarles.',
+                'message' => "«{$opcion->etiqueta}» es {$papel}, y el sistema necesita uno. "
+                    . 'Marca otro canal con esa función y este queda libre para borrarlo.',
             ], 422);
         }
 

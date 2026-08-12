@@ -73,20 +73,40 @@ De fábrica el orden es Mayorista, Distribuidor, Cliente directo — así que un
 cliente marcado como mayorista y distribuidor a la vez paga precio mayorista.
 Si prefieres otra prioridad, cambia el orden.
 
-## Por qué un canal no se puede borrar
+## Los únicos dos que no se pueden borrar
 
-Las opciones con «define precio» no tienen botón de eliminar, y si intentas
-quitarles la marca cuando tienen precios cargados, el sistema te lo explica en
-vez de dejarte hacerlo.
+**El canal base y el precio público.** Nada más. El sistema necesita saber cuál
+es el piso de utilidad —contra él calcula las comisiones— y qué precio ve
+alguien que no ha entrado. Sin uno de los dos, las comisiones salen en cero y el
+catálogo no sabe qué mostrar.
 
-Es a propósito. Si se borrara un canal, sus clientes no darían ningún error:
-simplemente se quedarían sin precio, y solo se notaría al intentar cotizarles.
-Si ya no lo usas, **desactiva la opción** en vez de borrarla: así los precios
-quedan guardados por si vuelves a necesitarlos.
+Lo que está atado es **el papel, no el nombre**. Puedes llamarlos como quieras:
+«Precio de fábrica», «Lista pública», lo que use tu negocio. No tienen por qué
+ser «Mayorista» ni «Cliente final».
 
-Tampoco puedes quitarle el precio al canal base ni al precio público sin marcar
-otro antes: sin canal base no se pueden calcular comisiones, y sin precio
-público el catálogo no sabría qué mostrar.
+Y si quieres borrar justamente uno de esos dos: marca otro canal con esa
+función, y el anterior queda libre. Al marcar el nuevo, el viejo se desmarca
+solo.
+
+**Todos los demás canales se crean, se borran y se renombran cuando quieras.**
+
+Si borras un canal que tenía precios cargados, el sistema te dice cuántos son
+antes de hacerlo: esos precios se van con él y hay que volver a cargarlos. Los
+clientes que tuvieran ese tipo se quedan sin precio hasta que les asignes otro.
+
+Si solo quieres dejar de usarlo sin perder nada, **quítale «define precio»**: los
+precios quedan guardados y vuelven si lo marcas de nuevo.
+
+## El nombre es tuyo; la clave, no
+
+Cada opción tiene una **clave interna** —el texto gris a la derecha— que no
+cambia cuando renombras la etiqueta. Es a propósito: los clientes guardan esa
+clave, y cambiarla dejaría a los clientes existentes apuntando a un tipo que ya
+no existe.
+
+Consecuencia práctica: la etiqueta y la clave pueden dejar de parecerse, y eso
+está bien. Solo importa en un caso — **el importador de clientes por CSV usa la
+clave, no la etiqueta.**
 
 ## Los ensambles a medida
 

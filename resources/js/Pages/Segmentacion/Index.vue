@@ -101,9 +101,11 @@ async function guardarEdicion() {
  * forma de eliminar nada ni de saber por qué.
  */
 function avisarNoBorrable(op) {
-    mensaje.value = `«${op.etiqueta}» define precio, así que no se puede eliminar: sus clientes se `
-        + 'quedarían sin precio y solo se notaría al cotizarles. Quítale «define precio» primero, '
-        + 'o desactívala si solo quieres dejar de usarla.'
+    const papel = op.es_canal_base ? 'el canal base' : 'el precio público'
+
+    mensaje.value = `«${op.etiqueta}» es ${papel}, y el sistema necesita uno: sin canal base las `
+        + 'comisiones salen en cero, y sin precio público el catálogo no sabe qué mostrar. '
+        + 'Marca otro canal con esa función y este queda libre.'
     mensajeEsError.value = true
 }
 
@@ -148,8 +150,19 @@ async function cambiarMarca(op, marca) {
     await cargar()
 }
 
-async function eliminar(id) {
-    if (!confirm('¿Eliminar esta opción?')) return
+async function eliminar(id, op = null) {
+    // Si el canal tiene precios cargados, se van con él. Decirlo antes y con el número:
+    // «¿Eliminar esta opción?» no deja ver que se están borrando precios de productos.
+    const cuantos = op?.precios_count ?? 0
+
+    const pregunta = cuantos > 0
+        ? `«${op.etiqueta}» tiene ${cuantos} precios cargados en productos o ensambles.\n\n`
+          + 'Si la eliminas, esos precios se borran y hay que volver a cargarlos. Los clientes '
+          + 'que tengan este tipo se quedan sin precio hasta que les asignes otro.\n\n¿Continuar?'
+        : '¿Eliminar esta opción?'
+
+    if (!confirm(pregunta)) return
+
     const r = await fetch(`/api/segmentacion-opciones/${id}`, {
         method: 'DELETE',
         headers: headers(),
@@ -266,7 +279,7 @@ function toggleAbierto(key) {
                                                 class="text-xs px-2 py-1 rounded text-blue-600 hover:bg-blue-50">Editar</button>
                                             <button type="button"
                                                 :disabled="op.atada_a_precios"
-                                                @click="op.atada_a_precios ? avisarNoBorrable(op) : eliminar(op.id)"
+                                                @click="op.atada_a_precios ? avisarNoBorrable(op) : eliminar(op.id, op)"
                                                 class="text-xs px-2 py-1 rounded"
                                                 :class="op.atada_a_precios
                                                     ? 'text-tinta-300 cursor-help'
