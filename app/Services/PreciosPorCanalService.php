@@ -67,21 +67,16 @@ class PreciosPorCanalService
     /**
      * Con qué margen nace un canal en un producto nuevo.
      *
-     * El formulario viejo traía 25, 30 y 35 escritos en la pantalla. Sin esto, un producto
-     * nuevo aparecería con todos los márgenes en cero y precios en cero — se guardaría sin
-     * precios y nadie entendería por qué.
+     * Lo pone la empresa en Segmentación. Estuvo escrito primero en la pantalla (25/30/35) y
+     * después aquí: en los dos sitios era un número que la empresa no podía cambiar, y es un
+     * número que depende del mercado y del rubro.
      *
-     * El canal base lleva el margen más bajo porque es el piso de utilidad, y el precio
-     * público el más alto porque es el que ve cualquiera. Los que la empresa cree quedan en
-     * medio, y se ajustan a mano.
+     * Sigue siendo ajustable producto por producto al crearlo: esto es con qué arranca el
+     * formulario, no un tope.
      */
     private function margenSugerido(SegmentacionOpcion $canal): float
     {
-        if ($canal->es_canal_base) {
-            return 25;
-        }
-
-        return $canal->es_precio_publico ? 35 : 30;
+        return (float) $canal->margen_sugerido;
     }
 
     /**

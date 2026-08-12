@@ -94,6 +94,40 @@ async function guardarEdicion() {
  * por ejemplo— y devuelve el motivo. Ese motivo se muestra tal cual: son decisiones de
  * dinero y el usuario tiene que entender por qué no se pudo, no ver un error genérico.
  */
+/**
+ * Explica por qué una opción no se puede eliminar, en vez de esconder el botón.
+ *
+ * Antes el botón simplemente no estaba, y con todos los tipos marcados como canal no había
+ * forma de eliminar nada ni de saber por qué.
+ */
+function avisarNoBorrable(op) {
+    mensaje.value = `«${op.etiqueta}» define precio, así que no se puede eliminar: sus clientes se `
+        + 'quedarían sin precio y solo se notaría al cotizarles. Quítale «define precio» primero, '
+        + 'o desactívala si solo quieres dejar de usarla.'
+    mensajeEsError.value = true
+}
+
+/** El margen con el que este canal nace en un producto nuevo. */
+async function cambiarMargen(op, valor) {
+    const r = await fetch(`/api/segmentacion-opciones/${op.id}`, {
+        method: 'PUT',
+        headers: headers(),
+        body: JSON.stringify({ margen_sugerido: Number(valor) || 0 }),
+    })
+
+    if (!r.ok) {
+        const d = await r.json().catch(() => ({}))
+        mensaje.value = d.message ?? 'No se pudo guardar el margen.'
+        mensajeEsError.value = true
+        return
+    }
+
+    mensaje.value = 'Margen guardado.'
+    mensajeEsError.value = false
+    setTimeout(() => mensaje.value = '', 2000)
+    await cargar()
+}
+
 async function cambiarMarca(op, marca) {
     const r = await fetch(`/api/segmentacion-opciones/${op.id}`, {
         method: 'PUT',
@@ -181,6 +215,19 @@ function toggleAbierto(key) {
                     <!-- Contenido acordeón -->
                     <div v-if="abiertos[tipo.key]" class="border-t border-linea p-4">
 
+                        <!-- El orden de esta lista decide tres cosas, y no es evidente.
+                             Vale más decirlo aquí que dejar que se descubra en una factura. -->
+                        <div v-if="tipo.key === 'tipo_contacto'"
+                            class="mb-3 px-3 py-2.5 rounded-xl bg-tinta-50 border border-linea">
+                            <p class="text-xs text-tinta-500 leading-relaxed">
+                                <span class="font-semibold text-tinta-700">El orden importa.</span>
+                                Va del canal más barato al más caro, y decide tres cosas: qué precio
+                                paga un cliente que tenga varios tipos —gana el de más arriba—, hasta
+                                dónde puede descontar cada canal —hasta el precio del anterior— y
+                                cuánta comisión gana el vendedor, que sube en cada escalón.
+                            </p>
+                        </div>
+
                         <!-- Lista de opciones -->
                         <div class="space-y-1.5 mb-3">
                             <div v-for="op in (opciones[tipo.key] ?? [])" :key="op.id">
@@ -203,17 +250,40 @@ function toggleAbierto(key) {
                                         class="text-xs px-2 py-1 rounded-lg border border-tinta-200 text-tinta-400">✕</button>
                                 </div>
 
-                                <!-- Modo visualización -->
-                                <div v-else class="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-tinta-50 group">
-                                    <div class="w-3 h-3 rounded-full shrink-0"
-                                        :style="`background:${op.color ?? '#9CA3AF'};`"/>
-                                    <span class="text-sm text-tinta-700 flex-1">{{ op.etiqueta }}</span>
+                                <!-- Modo visualización.
+                                     Dos líneas y no una: con las tres marcas en la misma fila
+                                     no cabían los botones de editar y eliminar, y quedaban
+                                     fuera de la pantalla. Y dejan de aparecer solo al pasar el
+                                     cursor — en un celular eso nunca ocurre. -->
+                                <div v-else class="px-2 py-2 rounded-lg hover:bg-tinta-50">
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-3 h-3 rounded-full shrink-0"
+                                            :style="`background:${op.color ?? '#9CA3AF'};`"/>
+                                        <span class="text-sm text-tinta-700 flex-1 min-w-0 truncate">{{ op.etiqueta }}</span>
+                                        <span class="text-xs text-tinta-300 font-mono hidden sm:block shrink-0">{{ op.valor }}</span>
+                                        <div class="flex gap-1 shrink-0">
+                                            <button type="button" @click="iniciarEdicion(op)"
+                                                class="text-xs px-2 py-1 rounded text-blue-600 hover:bg-blue-50">Editar</button>
+                                            <button type="button"
+                                                :disabled="op.atada_a_precios"
+                                                @click="op.atada_a_precios ? avisarNoBorrable(op) : eliminar(op.id)"
+                                                class="text-xs px-2 py-1 rounded"
+                                                :class="op.atada_a_precios
+                                                    ? 'text-tinta-300 cursor-help'
+                                                    : 'text-red-500 hover:bg-red-50'"
+                                                :title="op.atada_a_precios
+                                                    ? 'Define precio, así que no se puede eliminar. Toca para saber por qué.'
+                                                    : 'Eliminar esta opción'">
+                                                Eliminar
+                                            </button>
+                                        </div>
+                                    </div>
 
-                                    <!-- Las tres marcas de precio. Solo en tipos de contacto:
-                                         industrias o fuentes de contacto no cobran nada.
-                                         Son botones y no etiquetas porque ahora los decide la
-                                         empresa; antes estaban escritos en el código. -->
-                                    <div v-if="tipo.key === 'tipo_contacto'" class="flex items-center gap-1 shrink-0">
+                                    <!-- Las tres marcas de precio, en su propia línea. Solo en
+                                         tipos de contacto: industrias o fuentes de contacto no
+                                         cobran nada. Son botones y no etiquetas porque ahora los
+                                         decide la empresa; antes estaban en el código. -->
+                                    <div v-if="tipo.key === 'tipo_contacto'" class="flex items-center flex-wrap gap-1 mt-1.5 ml-5">
                                         <button type="button" @click="cambiarMarca(op, 'define_precio')"
                                             class="text-[10px] px-1.5 py-0.5 rounded-full border transition-colors"
                                             :class="op.define_precio
@@ -242,13 +312,20 @@ function toggleAbierto(key) {
                                             title="El precio que ve alguien que no ha entrado al sistema, en el catálogo público. Solo uno puede serlo.">
                                             precio público
                                         </button>
-                                    </div>
-                                    <span class="text-xs text-tinta-300 font-mono hidden sm:block">{{ op.valor }}</span>
-                                    <div class="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
-                                        <button type="button" @click="iniciarEdicion(op)"
-                                            class="text-xs px-2 py-1 rounded text-blue-600 hover:bg-blue-50">Editar</button>
-                                        <button v-if="!op.atada_a_precios" type="button" @click="eliminar(op.id)"
-                                            class="text-xs px-2 py-1 rounded text-red-500 hover:bg-red-50">Eliminar</button>
+
+                                        <!-- El margen con el que nace este canal en un producto
+                                             nuevo. Estaba escrito en el servidor (25/30/35); ahora
+                                             lo pone la empresa y se puede cambiar al crear cada
+                                             producto. -->
+                                        <label v-if="op.define_precio"
+                                            class="flex items-center gap-1 text-[10px] text-tinta-400 pl-1">
+                                            margen
+                                            <input type="number" min="0" max="99" step="0.5"
+                                                :value="op.margen_sugerido"
+                                                @change="cambiarMargen(op, $event.target.value)"
+                                                class="w-14 rounded border border-linea px-1.5 py-0.5 text-[11px] text-right bg-superficie focus:outline-none focus:border-[var(--marca)]" />
+                                            %
+                                        </label>
                                     </div>
                                 </div>
                             </div>

@@ -29,6 +29,10 @@ Hay dos marcas más, y solo una opción puede llevar cada una:
 De fábrica viene: Mayorista como canal base, Cliente directo como precio
 público, y Distribuidor como canal normal. Prospecto no define precio.
 
+Cada canal lleva además un **margen sugerido**, que es el que traerá un producto
+nuevo. Se edita en la misma fila y se puede cambiar producto por producto al
+crearlo: es con qué arranca el formulario, no un tope.
+
 ## Cuando cotizas
 
 El sistema mira el tipo de contacto del cliente y **muestra solo el precio que
@@ -45,6 +49,20 @@ precio por omisión es la forma de vender mal sin que nadie se entere.
 Lo mismo si el cliente solo tiene tipos que no definen precio — un Prospecto,
 por ejemplo. El aviso lo distingue del caso anterior, porque se arreglan
 distinto: uno se soluciona en la ficha del cliente, el otro en Segmentación.
+
+## El orden de la lista decide tres cosas
+
+Va **del canal más barato al más caro**, y de ahí salen tres reglas:
+
+1. **Qué precio paga un cliente con varios tipos**: gana el que esté más arriba.
+2. **Hasta dónde puede descontar cada canal**: hasta el precio del canal anterior,
+   nunca por debajo.
+3. **Cuánta comisión gana el vendedor**: sube en cada escalón, porque vender a un
+   canal más lejos del base deja más excedente para repartir.
+
+Si pones un canal barato después de uno caro, ese canal no podrá descontar nada y su
+comisión quedará más alta que la del anterior. No es un error del sistema: es lo que
+dice el orden que le pusiste.
 
 ## Un cliente con varios canales
 

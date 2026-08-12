@@ -108,6 +108,91 @@ watch(
 // el precio con el que se hizo.
 form.canales = (props.canales ?? []).map(c => ({ ...c }))
 
+/** El canal base: el piso de utilidad. No lleva comisión. */
+const canalBase = computed(() => form.canales.find(c => c.es_canal_base) ?? null)
+
+/** Los canales que sí pagan comisión, en orden de prioridad. */
+const canalesConComision = computed(() => form.canales.filter(c => !c.es_canal_base))
+
+/**
+ * Lo que se vende por encima del canal base, que es sobre lo que se paga comisión.
+ *
+ * La comisión no se calcula sobre el precio de venta completo: sobre el excedente. Vender
+ * al precio del canal base no genera comisión porque no hay excedente que repartir.
+ */
+function excedenteDe(canal) {
+    return Math.max(0, (Number(canal.precio) || 0) - (Number(canalBase.value?.precio) || 0))
+}
+
+/**
+ * La escalera de incentivos: cada canal debe pagar al menos lo que el anterior.
+ *
+ * Antes esta regla estaba escrita para dos canales concretos —«la mínima de cliente final
+ * debe ser ≥ la máxima de distribuidor»—. Ahora se aplica a la lista completa, en el orden
+ * que la empresa haya puesto: mientras más lejos del canal base, más incentivo.
+ */
+function minimoExigido(i) {
+    return i > 0 ? (Number(canalesConComision.value[i - 1].comision_max_pct) || 0) : 0
+}
+
+function errorEscalera(i) {
+    const canal = canalesConComision.value[i]
+
+    return (Number(canal.comision_min_pct) || 0) < minimoExigido(i)
+}
+
+const hayErrorDeEscalera = computed(() =>
+    canalesConComision.value.some((c, i) => (Number(c.comision_min_pct) || 0) > 0 && errorEscalera(i))
+)
+
+/**
+ * Hasta dónde puede bajar el precio de un canal sin invadir al de abajo.
+ *
+ * Cada canal puede descontar hasta llegar al precio del canal anterior en la lista, y el
+ * primero hasta el canal base. Así un descuento nunca hace que un cliente pague menos que
+ * el canal que tiene mejor precio por derecho.
+ */
+function descuentoMaxDe(canal) {
+    const i    = form.canales.findIndex(c => c.segmentacion_opcion_id === canal.segmentacion_opcion_id)
+    const piso = i > 0 ? (Number(form.canales[i - 1].precio) || 0) : 0
+    const base = Number(canal.precio) || 0
+
+    if (!base) return 0
+
+    return Math.max(0, parseFloat(((base - piso) / base * 100).toFixed(2)))
+}
+
+/**
+ * Propone comisiones que respetan la escalera.
+ *
+ * Reparte parte del excedente de cada canal, y arranca cada uno donde terminó el anterior.
+ * Antes había dos porcentajes escritos para dos canales concretos (65 % y 80 %); ahora es la
+ * misma proporción para todos, y el que sea precio público lleva un poco más porque traer un
+ * cliente nuevo cuesta más que atender a uno que ya compra.
+ */
+function sugerirComisionesPorCanal() {
+    let anterior = 0
+
+    canalesConComision.value.forEach(canal => {
+        const precio    = Number(canal.precio) || 0
+        const excedente = excedenteDe(canal)
+
+        if (!precio || !excedente) {
+            canal.comision_min_pct = anterior
+            canal.comision_max_pct = anterior
+            return
+        }
+
+        const disponible = (excedente / precio) * 100
+        const reparto    = canal.es_precio_publico ? 0.8 : 0.65
+
+        canal.comision_min_pct = anterior
+        canal.comision_max_pct = parseFloat(Math.max(anterior * 1.2, disponible * reparto).toFixed(2))
+
+        anterior = canal.comision_max_pct
+    })
+}
+
 watch(
     [() => form.precio_costo, () => form.canales.map(c => c.margen_pct).join(',')],
     () => {
@@ -242,19 +327,24 @@ const ic = (field) => [
 const puedeGuardar = computed(() => !esPadre.value || variantes.value.length > 0)
 
 const submit = () => {
-    validarComisiones()
-    if (errorComisionClienteFinal.value) {
-        alert('Corrige los rangos de comisión antes de guardar.\n' +
-              'La comisión mínima de cliente final debe ser ≥ comisión máxima de distribuidor.')
+    // La escalera se valida sobre la lista de canales, no sobre dos nombres fijos.
+    if (hayErrorDeEscalera.value) {
+        alert('Corrige los rangos de comisión antes de guardar.\n\n'
+            + 'La comisión mínima de cada canal debe ser mayor o igual a la máxima del canal '
+            + 'anterior: mientras más lejos del canal base, más incentivo para el vendedor.')
         return
     }
     if (esPadre.value && variantes.value.length === 0) {
         alert('Agrega al menos una variante.')
         return
     }
-    form.descuento_max_mayorista    = 0
-    form.descuento_max_distribuidor = descuentoMaxRealDistribuidor.value
-    form.descuento_max_cliente_final = descuentoMaxRealClienteFinal.value
+
+    // El descuento máximo de cada canal sale de su distancia con el canal de abajo. El canal
+    // base no descuenta: su precio es el piso.
+    form.canales.forEach(canal => {
+        canal.descuento_max_pct = canal.es_canal_base ? 0 : descuentoMaxDe(canal)
+    })
+
     markClean()
 
     const buildStock = (obj) => {
@@ -623,7 +713,7 @@ const badgeStyle = {
                 <div class="bg-superficie rounded-2xl shadow-sm overflow-hidden">
                     <div class="px-5 py-3 border-b border-linea flex items-center justify-between">
                         <h3 class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">Comisión Vendedor por Canal</h3>
-                        <button type="button" @click="sugerirComisiones"
+                        <button type="button" @click="sugerirComisionesPorCanal"
                             class="text-xs text-[var(--marca)] border border-[var(--marca)] rounded-lg px-3 py-1.5 hover:bg-blue-50 transition-colors flex items-center gap-1.5">
                             <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
@@ -633,106 +723,85 @@ const badgeStyle = {
                     </div>
                     <div class="p-5 space-y-4">
 
-                        <!-- Mayorista — sin comisión -->
-                        <div class="bg-blue-50 border border-blue-100 rounded-lg p-3">
-                            <div class="flex items-center gap-2">
-                                <span class="text-xs font-semibold text-blue-700 uppercase">Mayorista</span>
+                        <!-- Una tarjeta por canal, no tres fijas.
+                             El canal base va primero y sin campos: es el piso de utilidad
+                             de la empresa, no una venta con margen para repartir. -->
+                        <div v-if="canalBase" class="bg-blue-50 border border-blue-100 rounded-lg p-3">
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <span class="text-xs font-semibold text-blue-700 uppercase">{{ canalBase.etiqueta }}</span>
                                 <span class="bg-blue-100 text-blue-600 text-xs px-2 py-0.5 rounded-full">Sin comisión · Precio fijo</span>
                             </div>
-                            <p class="text-xs text-blue-400 mt-1">El margen mayorista ({{ form.margen_mayorista }}%) es la utilidad mínima garantizada de la empresa. No hay comisión para el vendedor en este canal.</p>
-                        </div>
-
-                        <!-- Distribuidor -->
-                        <div class="border border-[var(--marca-borde)] rounded-lg p-3 space-y-3 bg-[var(--marca-suave)]/30">
-                            <div class="flex items-center justify-between flex-wrap gap-1">
-                                <span class="text-xs font-semibold text-[var(--marca)] uppercase">Distribuidor</span>
-                                <span class="text-xs text-[var(--marca)]">Base: {{ formatCOP(form.precio_distribuidor) }} · Mín: {{ formatCOP(form.precio_mayorista) }} · Desc. máx: {{ descuentoMaxRealDistribuidor }}%</span>
-                            </div>
-                            <div class="grid grid-cols-2 gap-3">
-                                <div>
-                                    <label class="text-xs text-tinta-400 mb-1 block">Comisión mínima (%)</label>
-                                    <div class="flex items-center gap-2">
-                                        <input type="number" step="0.1" min="0" v-model.number="form.comision_min_distribuidor" @input="validarComisiones"
-                                            class="w-24 border border-tinta-200 rounded-lg px-2 py-1.5 text-sm focus:ring-2 focus:ring-[var(--marca-suave)] focus:outline-none" />
-                                        <span class="text-xs text-tinta-300">= {{ formatCOP(excedenteDistribuidor * form.comision_min_distribuidor / 100) }}</span>
-                                    </div>
-                                </div>
-                                <div>
-                                    <label class="text-xs text-tinta-400 mb-1 block">Comisión máxima (%)</label>
-                                    <div class="flex items-center gap-2">
-                                        <input type="number" step="0.1" min="0" v-model.number="form.comision_max_distribuidor" @input="validarComisiones"
-                                            class="w-24 border border-tinta-200 rounded-lg px-2 py-1.5 text-sm focus:ring-2 focus:ring-[var(--marca-suave)] focus:outline-none" />
-                                        <span class="text-xs text-tinta-300">= {{ formatCOP(excedenteDistribuidor * form.comision_max_distribuidor / 100) }}</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <p v-if="form.comision_min_distribuidor > 0 && form.comision_max_distribuidor > 0" class="text-xs text-[var(--marca)]">
-                                ✅ Vendedor gana entre {{ formatCOP(excedenteDistribuidor * form.comision_min_distribuidor / 100) }} y {{ formatCOP(excedenteDistribuidor * form.comision_max_distribuidor / 100) }}
+                            <p class="text-xs text-blue-400 mt-1">
+                                Su margen ({{ canalBase.margen_pct }}%) es la utilidad mínima garantizada de la
+                                empresa. No hay comisión para el vendedor en este canal, y la de los demás se
+                                calcula sobre lo que se venda por encima de {{ formatCOP(canalBase.precio) }}.
                             </p>
                         </div>
 
-                        <!-- Cliente Final -->
-                        <div class="border border-green-100 rounded-lg p-3 space-y-3 bg-green-50/30">
+                        <div v-for="(canal, i) in canalesConComision" :key="canal.segmentacion_opcion_id"
+                            class="border rounded-lg p-3 space-y-3"
+                            :style="`border-color:${canal.color}40; background:${canal.color}0a;`">
                             <div class="flex items-center justify-between flex-wrap gap-1">
                                 <div class="flex items-center gap-2">
-                                    <span class="text-xs font-semibold text-green-700 uppercase">Cliente Final</span>
-                                    <span class="bg-green-100 text-green-600 text-xs px-2 py-0.5 rounded-full">⭐ Mayor incentivo</span>
+                                    <span class="text-xs font-semibold uppercase" :style="`color:${canal.color};`">{{ canal.etiqueta }}</span>
+                                    <span v-if="canal.es_precio_publico" class="bg-green-100 text-green-600 text-xs px-2 py-0.5 rounded-full">⭐ Mayor incentivo</span>
                                 </div>
-                                <span class="text-xs text-green-500">Base: {{ formatCOP(form.precio_cliente_final) }} · Desc. máx: {{ descuentoMaxRealClienteFinal }}%</span>
+                                <span class="text-xs text-tinta-400">
+                                    Base: {{ formatCOP(canal.precio) }} · Excedente: {{ formatCOP(excedenteDe(canal)) }} · Desc. máx: {{ descuentoMaxDe(canal) }}%
+                                </span>
                             </div>
+
                             <div class="grid grid-cols-2 gap-3">
                                 <div>
                                     <label class="text-xs text-tinta-400 mb-1 block">
                                         Comisión mínima (%)
-                                        <span class="text-orange-500 ml-1">← mín = máx distribuidor ({{ form.comision_max_distribuidor }}%)</span>
+                                        <span v-if="minimoExigido(i) > 0" class="text-orange-500 ml-1">
+                                            ← mín = máx {{ canalesConComision[i - 1].etiqueta }} ({{ minimoExigido(i) }}%)
+                                        </span>
                                     </label>
                                     <div class="flex items-center gap-2">
-                                        <input type="number" step="0.1" :min="form.comision_max_distribuidor" v-model.number="form.comision_min_cliente_final" @input="validarComisiones"
+                                        <input type="number" step="0.1" :min="minimoExigido(i)" v-model.number="canal.comision_min_pct"
                                             :class="['w-24 border rounded-lg px-2 py-1.5 text-sm focus:ring-2 focus:outline-none',
-                                                errorComisionClienteFinal ? 'border-red-400 focus:ring-red-300' : 'border-tinta-200 focus:ring-green-300']" />
-                                        <span class="text-xs text-tinta-300">= {{ formatCOP(excedenteClienteFinal * form.comision_min_cliente_final / 100) }}</span>
+                                                errorEscalera(i) ? 'border-red-400 focus:ring-red-300' : 'border-tinta-200 focus:ring-[var(--marca-suave)]']" />
+                                        <span class="text-xs text-tinta-300">= {{ formatCOP(excedenteDe(canal) * canal.comision_min_pct / 100) }}</span>
                                     </div>
                                 </div>
                                 <div>
                                     <label class="text-xs text-tinta-400 mb-1 block">Comisión máxima (%)</label>
                                     <div class="flex items-center gap-2">
-                                        <input type="number" step="0.1" :min="form.comision_min_cliente_final" v-model.number="form.comision_max_cliente_final" @input="validarComisiones"
-                                            :class="['w-24 border rounded-lg px-2 py-1.5 text-sm focus:ring-2 focus:outline-none',
-                                                errorComisionClienteFinal ? 'border-red-400 focus:ring-red-300' : 'border-tinta-200 focus:ring-green-300']" />
-                                        <span class="text-xs text-tinta-300">= {{ formatCOP(excedenteClienteFinal * form.comision_max_cliente_final / 100) }}</span>
+                                        <input type="number" step="0.1" :min="canal.comision_min_pct" v-model.number="canal.comision_max_pct"
+                                            class="w-24 border border-tinta-200 rounded-lg px-2 py-1.5 text-sm focus:ring-2 focus:ring-[var(--marca-suave)] focus:outline-none" />
+                                        <span class="text-xs text-tinta-300">= {{ formatCOP(excedenteDe(canal) * canal.comision_max_pct / 100) }}</span>
                                     </div>
                                 </div>
                             </div>
-                            <p v-if="errorComisionClienteFinal" class="text-xs text-red-600">
-                                ⚠️ La comisión mínima de cliente final debe ser ≥ comisión máxima de distribuidor ({{ form.comision_max_distribuidor }}%) para incentivar traer clientes nuevos
+
+                            <p v-if="errorEscalera(i)" class="text-xs text-red-600">
+                                ⚠️ La comisión mínima debe ser mayor o igual a la máxima de
+                                {{ canalesConComision[i - 1].etiqueta }} ({{ minimoExigido(i) }}%): mientras más lejos
+                                del canal base, más incentivo para el vendedor.
                             </p>
-                            <p v-else-if="form.comision_min_cliente_final > 0 && form.comision_max_cliente_final > 0" class="text-xs text-green-600">
-                                ✅ Vendedor gana entre {{ formatCOP(excedenteClienteFinal * form.comision_min_cliente_final / 100) }} y {{ formatCOP(excedenteClienteFinal * form.comision_max_cliente_final / 100) }} (más que en distribuidor ✓)
+                            <p v-else-if="canal.comision_min_pct > 0 && canal.comision_max_pct > 0" class="text-xs" :style="`color:${canal.color};`">
+                                ✅ El vendedor gana entre {{ formatCOP(excedenteDe(canal) * canal.comision_min_pct / 100) }}
+                                y {{ formatCOP(excedenteDe(canal) * canal.comision_max_pct / 100) }}
                             </p>
                         </div>
 
-                        <!-- Comparativa -->
-                        <div v-if="form.comision_max_distribuidor > 0 && form.comision_max_cliente_final > 0" class="bg-tinta-50 rounded-lg p-3">
+                        <!-- Comparativa de incentivos -->
+                        <div v-if="canalesConComision.some(c => c.comision_max_pct > 0)" class="bg-tinta-50 rounded-lg p-3">
                             <p class="text-xs font-medium text-tinta-500 mb-2">📊 Comparativa de incentivos por canal</p>
                             <div class="space-y-1.5">
-                                <div class="flex items-center gap-2">
-                                    <span class="text-xs text-tinta-400 w-28">Mayorista:</span>
+                                <div v-if="canalBase" class="flex items-center gap-2">
+                                    <span class="text-xs text-tinta-400 w-28 truncate">{{ canalBase.etiqueta }}:</span>
                                     <div class="flex-1 bg-tinta-200 rounded-full h-1.5"></div>
                                     <span class="text-xs text-tinta-300 w-20 text-right">Sin comisión</span>
                                 </div>
-                                <div class="flex items-center gap-2">
-                                    <span class="text-xs text-[var(--marca)] w-28">Distribuidor:</span>
+                                <div v-for="canal in canalesConComision" :key="'cmp-' + canal.segmentacion_opcion_id" class="flex items-center gap-2">
+                                    <span class="text-xs w-28 truncate" :style="`color:${canal.color};`">{{ canal.etiqueta }}:</span>
                                     <div class="flex-1 bg-tinta-200 rounded-full h-1.5">
-                                        <div class="bg-[var(--marca)] h-1.5 rounded-full" :style="`width: ${Math.min(form.comision_max_distribuidor * 5, 100)}%`"></div>
+                                        <div class="h-1.5 rounded-full" :style="`width:${Math.min(canal.comision_max_pct * 5, 100)}%; background:${canal.color};`"></div>
                                     </div>
-                                    <span class="text-xs text-[var(--marca)] w-20 text-right font-medium">máx {{ form.comision_max_distribuidor }}%</span>
-                                </div>
-                                <div class="flex items-center gap-2">
-                                    <span class="text-xs text-green-600 w-28">Cliente final:</span>
-                                    <div class="flex-1 bg-tinta-200 rounded-full h-1.5">
-                                        <div class="bg-green-500 h-1.5 rounded-full" :style="`width: ${Math.min(form.comision_max_cliente_final * 5, 100)}%`"></div>
-                                    </div>
-                                    <span class="text-xs text-green-600 w-20 text-right font-medium">máx {{ form.comision_max_cliente_final }}%</span>
+                                    <span class="text-xs w-20 text-right" :style="`color:${canal.color};`">{{ canal.comision_max_pct }}%</span>
                                 </div>
                             </div>
                         </div>

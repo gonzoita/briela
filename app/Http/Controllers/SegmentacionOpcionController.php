@@ -56,6 +56,8 @@ class SegmentacionOpcionController extends Controller
             'define_precio'     => 'nullable|boolean',
             'es_canal_base'     => 'nullable|boolean',
             'es_precio_publico' => 'nullable|boolean',
+            // El margen con el que este canal nace en un producto nuevo.
+            'margen_sugerido'   => 'nullable|numeric|min:0|max:99',
         ]);
 
         if ($error = $this->validarMarcas($opcion, $data)) {

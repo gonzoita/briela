@@ -19,6 +19,7 @@ class SegmentacionOpcion extends Model
         'define_precio',
         'es_canal_base',
         'es_precio_publico',
+        'margen_sugerido',
     ];
 
     protected $casts = [
@@ -27,6 +28,7 @@ class SegmentacionOpcion extends Model
         'define_precio'     => 'boolean',
         'es_canal_base'     => 'boolean',
         'es_precio_publico' => 'boolean',
+        'margen_sugerido'   => 'decimal:2',
     ];
 
     protected $appends = ['atada_a_precios'];
