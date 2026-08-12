@@ -109,6 +109,46 @@ function avisarNoBorrable(op) {
     mensajeEsError.value = true
 }
 
+/**
+ * Sube o baja una opción en su lista.
+ *
+ * Con flechas y no arrastrando: en un celular arrastrar dentro de una lista que además hace
+ * scroll es incómodo y se falla, y aquí el orden decide precios — no es un sitio donde
+ * convenga equivocarse por un dedo mal puesto.
+ *
+ * Se reenumera la lista completa de 1 en 1 al guardar: los números venían con huecos de
+ * borrados anteriores, y con huecos «el siguiente» deja de ser predecible.
+ */
+async function moverOpcion(tipo, indice, direccion) {
+    const lista = [...(opciones.value[tipo] ?? [])]
+    const destino = indice + direccion
+
+    if (destino < 0 || destino >= lista.length) return
+
+    ;[lista[indice], lista[destino]] = [lista[destino], lista[indice]]
+
+    // Se pinta ya, sin esperar al servidor: mover algo y ver que no se mueve se siente roto.
+    opciones.value[tipo] = lista
+
+    const r = await fetch('/api/segmentacion-opciones/reordenar', {
+        method: 'POST',
+        headers: headers(),
+        body: JSON.stringify({ items: lista.map((op, i) => ({ id: op.id, orden: i + 1 })) }),
+    })
+
+    if (!r.ok) {
+        mensaje.value = 'No se pudo guardar el orden.'
+        mensajeEsError.value = true
+        await cargar()
+        return
+    }
+
+    mensaje.value = 'Orden guardado.'
+    mensajeEsError.value = false
+    setTimeout(() => mensaje.value = '', 1500)
+    await cargar()
+}
+
 /** El margen con el que este canal nace en un producto nuevo. */
 async function cambiarMargen(op, valor) {
     const r = await fetch(`/api/segmentacion-opciones/${op.id}`, {
@@ -243,7 +283,7 @@ function toggleAbierto(key) {
 
                         <!-- Lista de opciones -->
                         <div class="space-y-1.5 mb-3">
-                            <div v-for="op in (opciones[tipo.key] ?? [])" :key="op.id">
+                            <div v-for="(op, indice) in (opciones[tipo.key] ?? [])" :key="op.id">
                                 <!-- Modo edición inline -->
                                 <div v-if="editando.id === op.id"
                                     class="flex items-center gap-2 p-2 rounded-lg border-2" style="border-color:var(--marca); background:var(--pastel-azul);">
@@ -270,6 +310,28 @@ function toggleAbierto(key) {
                                      cursor — en un celular eso nunca ocurre. -->
                                 <div v-else class="px-2 py-2 rounded-lg hover:bg-tinta-50">
                                     <div class="flex items-center gap-2">
+                                        <!-- Subir y bajar. El orden decide qué precio paga un
+                                             cliente, así que tiene que poder cambiarse aquí. -->
+                                        <div class="flex flex-col shrink-0 -my-1">
+                                            <button type="button"
+                                                :disabled="indice === 0"
+                                                @click="moverOpcion(tipo.key, indice, -1)"
+                                                class="px-1 leading-none text-tinta-300 hover:text-tinta-700 disabled:opacity-25 disabled:hover:text-tinta-300"
+                                                title="Subir">
+                                                <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 15l7-7 7 7"/>
+                                                </svg>
+                                            </button>
+                                            <button type="button"
+                                                :disabled="indice === (opciones[tipo.key] ?? []).length - 1"
+                                                @click="moverOpcion(tipo.key, indice, 1)"
+                                                class="px-1 leading-none text-tinta-300 hover:text-tinta-700 disabled:opacity-25 disabled:hover:text-tinta-300"
+                                                title="Bajar">
+                                                <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+                                                </svg>
+                                            </button>
+                                        </div>
                                         <div class="w-3 h-3 rounded-full shrink-0"
                                             :style="`background:${op.color ?? '#9CA3AF'};`"/>
                                         <span class="text-sm text-tinta-700 flex-1 min-w-0 truncate">{{ op.etiqueta }}</span>

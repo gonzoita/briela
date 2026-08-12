@@ -67,7 +67,8 @@ dice el orden que le pusiste.
 ## Un cliente con varios canales
 
 **Gana el que esté más arriba en la lista de Segmentación.** El orden de esa
-lista es la prioridad, y lo controlas arrastrando las opciones.
+lista es la prioridad, y lo cambias con las flechas de subir y bajar que tiene
+cada opción.
 
 De fábrica el orden es Mayorista, Distribuidor, Cliente directo — así que un
 cliente marcado como mayorista y distribuidor a la vez paga precio mayorista.
