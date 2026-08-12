@@ -225,6 +225,10 @@ class Marca
                 'sombra-sm'    => '0 1px 2px rgba(16,24,40,.04), 0 1px 3px rgba(16,24,40,.06)',
                 'sombra'       => '0 1px 3px rgba(16,24,40,.04), 0 8px 24px -8px rgba(16,24,40,.10)',
                 'sombra-lg'    => '0 2px 6px rgba(16,24,40,.04), 0 24px 48px -12px rgba(16,24,40,.14)',
+                // La barra inferior del móvil proyecta hacia arriba. Va aparte porque en
+                // modo de noche una sombra negra sobre fondo oscuro no se ve, y lo que
+                // separa la barra del contenido pasa a ser un borde claro.
+                'sombra-barra' => 'rgba(16,24,40,.08)',
                 // Los fondos suaves de aviso. Son 505 sitios en el sistema que los
                 // usan como fondo de cajas informativas, etiquetas y alertas.
                 'pastel-azul'    => '#EFF8FF',
@@ -271,6 +275,9 @@ class Marca
                 'sombra-sm'    => '0 1px 2px rgba(0,0,0,.30)',
                 'sombra'       => '0 2px 8px rgba(0,0,0,.35)',
                 'sombra-lg'    => '0 12px 32px rgba(0,0,0,.45)',
+                // Sobre fondo oscuro una sombra negra no separa nada: se usa un halo
+                // claro, que es lo que hace de línea entre la barra y el contenido.
+                'sombra-barra' => 'rgba(255,255,255,.10)',
                 // En el modo de noche los pasteles se vuelven tintes oscuros del
                 // mismo color: mantienen el significado —azul informa, rojo avisa—
                 // sin dejar una caja clara con texto claro encima, que es lo que

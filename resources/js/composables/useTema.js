@@ -57,9 +57,35 @@ function aplicarFavicon() {
     document.head.appendChild(link)
 }
 
+/**
+ * El color de la barra del sistema en el teléfono.
+ *
+ * En la app instalada, el celular pinta la franja del reloj y la de los gestos con este
+ * color. Estaba fijo en el color de la marca, así que en modo de noche quedaban dos
+ * franjas claras arriba y abajo de una pantalla oscura. Se toma el color real del lienzo,
+ * el mismo que ya calcula la paleta.
+ */
+function aplicarColorDeBarra() {
+    // El token se llama --fondo. La clase de Tailwind es `lienzo`, que apunta a él: si
+    // aquí se leyera --lienzo, la función no encontraría nada y no haría nada, en
+    // silencio — que es como se cuelan los arreglos que parecen hechos y no lo están.
+    const fondo = getComputedStyle(document.documentElement)
+        .getPropertyValue('--fondo').trim()
+
+    if (!fondo) return
+
+    document.querySelectorAll('meta[name="theme-color"]').forEach(m => m.remove())
+
+    const meta = document.createElement('meta')
+    meta.name = 'theme-color'
+    meta.content = fondo
+    document.head.appendChild(meta)
+}
+
 function aplicar() {
     document.documentElement.setAttribute('data-tema', temaEfectivo.value)
     aplicarFavicon()
+    aplicarColorDeBarra()
 }
 
 watch(temaEfectivo, aplicar, { immediate: true })

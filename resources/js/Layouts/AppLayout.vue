@@ -682,7 +682,7 @@ onUnmounted(() => {
                     <!-- Dropdown notificaciones -->
                     <div v-if="menuNotif"
                         class="absolute right-0 top-12 w-80 rounded-xl shadow-xl overflow-hidden z-50"
-                        style="background:white; border:1px solid #E5E7EB;">
+                        style="background:var(--superficie); border:1px solid var(--borde);">
                         <div class="flex items-center justify-between px-4 py-2.5 border-b border-linea">
                             <span class="text-sm font-semibold text-tinta-900">Notificaciones</span>
                             <button v-if="notifNoLeidas > 0" @click="marcarTodasLeidas"
@@ -736,7 +736,7 @@ onUnmounted(() => {
                     <div
                         v-if="menuUsuario"
                         class="absolute right-0 top-12 w-48 rounded-xl shadow-xl overflow-hidden z-50"
-                        style="background: white; border: 1px solid #E5E7EB;"
+                        style="background: var(--superficie); border: 1px solid var(--borde);"
                     >
                         <button @click="irPerfil"
                             class="flex items-center gap-2 w-full px-4 py-3 text-sm text-tinta-700 hover:bg-tinta-50">
@@ -771,8 +771,12 @@ onUnmounted(() => {
         <!-- ══════════════════════════════════════════════════════════════════
              MOBILE — Header superior fijo
         ═══════════════════════════════════════════════════════════════════ -->
+        <!-- La altura suma la zona del sistema. Con viewport-fit=cover y la barra de
+             estado translúcida, el contenido se dibuja DEBAJO del reloj y la hora del
+             teléfono: sin este espacio, la primera fila del encabezado no se ve. -->
         <header
-            class="fixed top-0 left-0 right-0 z-40 flex items-center justify-between px-4 h-14 bg-superficie/85 backdrop-blur-xl border-b border-linea md:hidden"
+            class="fixed top-0 left-0 right-0 z-40 flex items-center justify-between px-4 bg-superficie/85 backdrop-blur-xl border-b border-linea md:hidden"
+            style="height: calc(3.5rem + env(safe-area-inset-top)); padding-top: env(safe-area-inset-top);"
         >
             <!-- Logo izquierda -->
             <div class="flex items-center gap-2 min-w-0">
@@ -837,7 +841,7 @@ onUnmounted(() => {
             <!-- Panel de notificaciones mobile -->
             <div v-if="menuNotif" class="fixed inset-0 z-[55] md:hidden" @click="menuNotif = false">
                 <div class="absolute top-14 left-2 right-2 rounded-xl shadow-xl overflow-hidden"
-                    style="background:white; border:1px solid #E5E7EB;" @click.stop>
+                    style="background:var(--superficie); border:1px solid var(--borde);" @click.stop>
                     <div class="flex items-center justify-between px-4 py-2.5 border-b border-linea">
                         <span class="text-sm font-semibold text-tinta-900">Notificaciones</span>
                         <button v-if="notifNoLeidas > 0" @click="marcarTodasLeidas"
@@ -909,11 +913,18 @@ onUnmounted(() => {
         <!-- ══════════════════════════════════════════════════════════════════
              CONTENIDO PRINCIPAL
         ═══════════════════════════════════════════════════════════════════ -->
-        <AvisoLicencia class="md:ml-64 mt-14 md:mt-16" />
+        <AvisoLicencia
+            class="md:ml-64 md:mt-16"
+            style="margin-top: calc(3.5rem + env(safe-area-inset-top));"
+        />
 
+        <!-- Los espacios de arriba y abajo suman las zonas del sistema: el reloj del
+             teléfono arriba, la barra de gestos abajo. Sin eso, el contenido queda
+             tapado en los extremos. En escritorio las variables valen cero. -->
         <main
-            class="pt-14 pb-20 px-4
-                   md:ml-64 md:pt-20 md:pb-8 md:px-8"
+            class="px-4 md:ml-64 md:pt-20 md:pb-8 md:px-8"
+            style="padding-top: calc(3.5rem + env(safe-area-inset-top));
+                   padding-bottom: calc(5rem + env(safe-area-inset-bottom));"
         >
             <slot />
         </main>
@@ -921,15 +932,20 @@ onUnmounted(() => {
         <!-- ══════════════════════════════════════════════════════════════════
              MOBILE — Barra de navegación inferior
         ═══════════════════════════════════════════════════════════════════ -->
+        <!-- El fondo era `white` fijo, y en modo de noche quedaba una franja blanca al
+             pie de la pantalla. Y la altura no contaba la barra de gestos del teléfono,
+             así que abajo del último ícono asomaba el fondo de la página. -->
         <nav
-            class="md:hidden fixed bottom-0 left-0 right-0 z-40 flex items-center justify-around"
-            style="height: 64px; background: white; box-shadow: 0 -1px 8px rgba(0,0,0,0.08);"
+            class="md:hidden fixed bottom-0 left-0 right-0 z-40 flex items-start justify-around bg-superficie"
+            style="height: calc(64px + env(safe-area-inset-bottom));
+                   padding-bottom: env(safe-area-inset-bottom);
+                   box-shadow: 0 -1px 8px var(--sombra-barra);"
         >
             <!-- Inicio -->
             <button
                 @click="router.visit('/dashboard')"
                 class="flex flex-col items-center justify-center gap-0.5 min-w-0 flex-1 py-2"
-                :style="{ color: isActive('/dashboard') ? 'var(--marca)' : '#9CA3AF' }"
+                :style="{ color: isActive('/dashboard') ? 'var(--marca)' : 'var(--tinta-400)' }"
             >
                 <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
@@ -941,7 +957,7 @@ onUnmounted(() => {
             <button
                 @click="router.visit('/clientes')"
                 class="flex flex-col items-center justify-center gap-0.5 min-w-0 flex-1 py-2"
-                :style="{ color: isActive('/clientes') ? 'var(--marca)' : '#9CA3AF' }"
+                :style="{ color: isActive('/clientes') ? 'var(--marca)' : 'var(--tinta-400)' }"
             >
                 <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-2 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
@@ -953,7 +969,7 @@ onUnmounted(() => {
             <button
                 @click="router.visit('/cotizaciones')"
                 class="flex flex-col items-center justify-center gap-0.5 min-w-0 flex-1 py-2"
-                :style="{ color: isActive('/cotizaciones') ? 'var(--marca)' : '#9CA3AF' }"
+                :style="{ color: isActive('/cotizaciones') ? 'var(--marca)' : 'var(--tinta-400)' }"
             >
                 <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -966,7 +982,7 @@ onUnmounted(() => {
                 v-if="user?.rol !== 'operario'"
                 @click="router.visit('/productos')"
                 class="flex flex-col items-center justify-center gap-0.5 min-w-0 flex-1 py-2"
-                :style="{ color: isActive('/productos') ? 'var(--marca)' : '#9CA3AF' }"
+                :style="{ color: isActive('/productos') ? 'var(--marca)' : 'var(--tinta-400)' }"
             >
                 <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7l8 4" />
@@ -978,7 +994,7 @@ onUnmounted(() => {
             <button
                 @click="toggleDrawer"
                 class="flex flex-col items-center justify-center gap-0.5 min-w-0 flex-1 py-2"
-                :style="{ color: drawerAbierto ? 'var(--marca)' : '#9CA3AF' }"
+                :style="{ color: drawerAbierto ? 'var(--marca)' : 'var(--tinta-400)' }"
             >
                 <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
@@ -1003,7 +1019,7 @@ onUnmounted(() => {
             <!-- Panel del drawer -->
             <div
                 class="relative flex flex-col h-full overflow-y-auto shadow-2xl"
-                style="width: 280px; background: white;"
+                style="width: 280px; background: var(--superficie);"
             >
                 <!-- Cabecera del drawer -->
                 <div
@@ -1126,7 +1142,50 @@ onUnmounted(() => {
                 </nav>
 
                 <!-- Acciones al pie del drawer -->
-                <div class="px-3 py-4 border-t border-linea space-y-1 shrink-0">
+                <!-- El espacio de abajo suma la barra de gestos del teléfono: sin él, el
+                     botón de cerrar sesión queda debajo de ella y no se puede tocar. -->
+                <div
+                    class="px-3 py-4 border-t border-linea space-y-1 shrink-0"
+                    style="padding-bottom: calc(1rem + env(safe-area-inset-bottom));"
+                >
+                    <!-- Día · Noche · Automático.
+                         Solo estaban en el menú de escritorio, así que en el teléfono
+                         —donde más se necesita, porque es el que se usa de noche— no
+                         había forma de cambiarlo. -->
+                    <div class="pb-3 mb-1 border-b border-linea">
+                        <p class="text-[11px] font-semibold text-tinta-400 uppercase tracking-[0.12em] px-3 mb-2">
+                            Apariencia
+                        </p>
+                        <div class="flex items-center gap-0.5 p-0.5 rounded-xl bg-tinta-100 mx-2">
+                            <button
+                                v-for="opcion in tema.opciones"
+                                :key="'movil-' + opcion.valor"
+                                type="button"
+                                @click="tema.elegir(opcion.valor)"
+                                class="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-medium transition-all"
+                                :class="tema.preferencia.value === opcion.valor
+                                    ? 'bg-superficie text-tinta-900 shadow-sm'
+                                    : 'text-tinta-400'"
+                            >
+                                <svg v-if="opcion.icono === 'sol'" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
+                                    <circle cx="12" cy="12" r="4"/>
+                                    <path stroke-linecap="round" d="M12 3v2m0 14v2M3 12h2m14 0h2M5.6 5.6l1.4 1.4m10 10l1.4 1.4m0-12.8l-1.4 1.4m-10 10l-1.4 1.4"/>
+                                </svg>
+                                <svg v-else-if="opcion.icono === 'luna'" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/>
+                                </svg>
+                                <svg v-else class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
+                                    <circle cx="12" cy="12" r="9"/>
+                                    <path stroke-linecap="round" d="M12 7.5V12l3 2"/>
+                                </svg>
+                                {{ opcion.etiqueta }}
+                            </button>
+                        </div>
+                        <p v-if="tema.preferencia.value === 'automatico'" class="text-[10px] text-tinta-300 mt-1.5 px-3 leading-snug">
+                            {{ tema.explicacionAutomatico.value }}
+                        </p>
+                    </div>
+
                     <button
                         @click="irPerfil"
                         class="flex items-center gap-3 w-full px-3 py-3 rounded-xl text-sm font-medium text-tinta-700 hover:bg-tinta-100 transition-colors"
