@@ -391,32 +391,57 @@ const faltaConfigurar = computed(() => {
                                          cobran nada. Son botones y no etiquetas porque ahora los
                                          decide la empresa; antes estaban en el código. -->
                                     <div v-if="tipo.key === 'tipo_contacto'" class="flex items-center flex-wrap gap-1 mt-1.5 ml-5">
+                                        <!-- Con casilla y no como pastilla de color.
+                                             Apagadas se veían grises al lado de otras grises, y
+                                             una pastilla gris se lee como etiqueta informativa,
+                                             no como algo que se puede tocar: el usuario creó dos
+                                             canales y no aparecían en los productos porque no
+                                             sabía que había que marcarlos. Una casilla vacía no
+                                             se confunde con un rótulo. -->
                                         <button type="button" @click="cambiarMarca(op, 'define_precio')"
-                                            class="text-[10px] px-1.5 py-0.5 rounded-full border transition-colors"
+                                            class="flex items-center gap-1 text-[11px] px-2 py-1 rounded-lg border cursor-pointer transition-colors"
                                             :class="op.define_precio
                                                 ? 'bg-amber-50 text-amber-700 border-amber-200'
-                                                : 'bg-tinta-50 text-tinta-300 border-linea hover:text-tinta-500'"
+                                                : 'bg-superficie text-tinta-400 border-tinta-200 hover:border-amber-300 hover:text-amber-700'"
                                             :title="op.define_precio
                                                 ? 'Tiene su propia lista de precios en productos y ensambles. Toca para quitarlo.'
-                                                : 'Toca para darle su propia lista de precios.'">
+                                                : 'Toca para darle su propia lista de precios: aparecerá en cada producto y ensamble.'">
+                                            <span class="w-3 h-3 rounded-sm border flex items-center justify-center shrink-0"
+                                                :class="op.define_precio ? 'bg-amber-500 border-amber-500' : 'border-tinta-300'">
+                                                <svg v-if="op.define_precio" class="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3.5">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                                                </svg>
+                                            </span>
                                             define precio
                                         </button>
 
                                         <button type="button" @click="cambiarMarca(op, 'es_canal_base')"
-                                            class="text-[10px] px-1.5 py-0.5 rounded-full border transition-colors"
+                                            class="flex items-center gap-1 text-[11px] px-2 py-1 rounded-lg border cursor-pointer transition-colors"
                                             :class="op.es_canal_base
                                                 ? 'bg-blue-50 text-blue-700 border-blue-200'
-                                                : 'bg-tinta-50 text-tinta-300 border-linea hover:text-tinta-500'"
+                                                : 'bg-superficie text-tinta-400 border-tinta-200 hover:border-blue-300 hover:text-blue-700'"
                                             title="El piso de utilidad de la empresa: no paga comisión al vendedor, y la comisión de los demás canales se calcula contra su precio. Solo uno puede serlo.">
+                                            <span class="w-3 h-3 rounded-sm border flex items-center justify-center shrink-0"
+                                                :class="op.es_canal_base ? 'bg-blue-600 border-blue-600' : 'border-tinta-300'">
+                                                <svg v-if="op.es_canal_base" class="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3.5">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                                                </svg>
+                                            </span>
                                             canal base
                                         </button>
 
                                         <button type="button" @click="cambiarMarca(op, 'es_precio_publico')"
-                                            class="text-[10px] px-1.5 py-0.5 rounded-full border transition-colors"
+                                            class="flex items-center gap-1 text-[11px] px-2 py-1 rounded-lg border cursor-pointer transition-colors"
                                             :class="op.es_precio_publico
                                                 ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                                                : 'bg-tinta-50 text-tinta-300 border-linea hover:text-tinta-500'"
+                                                : 'bg-superficie text-tinta-400 border-tinta-200 hover:border-emerald-300 hover:text-emerald-700'"
                                             title="El precio que ve alguien que no ha entrado al sistema, en el catálogo público. Solo uno puede serlo.">
+                                            <span class="w-3 h-3 rounded-sm border flex items-center justify-center shrink-0"
+                                                :class="op.es_precio_publico ? 'bg-emerald-600 border-emerald-600' : 'border-tinta-300'">
+                                                <svg v-if="op.es_precio_publico" class="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3.5">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                                                </svg>
+                                            </span>
                                             precio público
                                         </button>
 

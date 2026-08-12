@@ -11,9 +11,13 @@ se le cobra al cliente.**
 ## Los canales de precio los defines tú
 
 Un tipo de contacto se convierte en canal de precio cuando le marcas **«define
-precio»**. Desde ese momento aparece como una fila más de margen y precio en
-cada producto y en cada ensamble, y los clientes que lo tengan se cotizan a ese
-precio.
+precio»** —la casilla que tiene cada opción en la lista—. Desde ese momento
+aparece como una fila más de margen y precio en cada producto y en cada
+ensamble, y los clientes que lo tengan se cotizan a ese precio.
+
+**Si creaste un canal y no aparece en los productos, es porque le falta esa
+casilla.** Sin ella la opción sigue siendo una etiqueta para clasificar
+clientes, nada más.
 
 Puedes crear los canales que necesites. Si tu negocio vende distinto a una
 constructora, creas «Constructora», le marcas «define precio», y aparece en
