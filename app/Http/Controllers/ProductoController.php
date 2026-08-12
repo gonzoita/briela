@@ -8,6 +8,7 @@ use App\Models\ImagenProducto;
 use App\Models\Producto;
 use App\Models\Proveedor;
 use App\Services\ArchivoServidorService;
+use App\Services\PreciosPorCanalService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -78,6 +79,9 @@ class ProductoController extends Controller
             'categorias'  => $categorias,
             'bodegas'     => $bodegas,
             'proveedores' => $proveedores,
+            // Los canales que la empresa configuró en Segmentación. Antes eran tres cajas
+            // fijas en la pantalla; ahora la pantalla dibuja los que existan.
+            'canales'     => app(PreciosPorCanalService::class)->paraFormulario(null),
         ]);
     }
 
@@ -131,6 +135,8 @@ class ProductoController extends Controller
                 'atributo_variante' => $esPadre ? $request->atributo_variante : null,
                 'inventariable'     => $esPadre ? false : $datosBase['inventariable'],
             ]));
+
+            $this->guardarCanales($request, $producto);
 
             if ($esPadre) {
                 foreach ($request->input('variantes', []) as $variante) {
@@ -252,6 +258,9 @@ class ProductoController extends Controller
             'categorias'  => CategoriaProducto::where('activa', true)->orderBy('nombre')->get(),
             'proveedores' => Proveedor::where('activo', true)->orderBy('nombre')->get(['id', 'nombre']),
             'bodegas'     => Bodega::where('activa', true)->orderByDesc('es_principal')->orderBy('nombre')->get(),
+            // Con lo que ya tenga guardado, y en cero los canales creados después de este
+            // producto: así aparecen para poder llenarlos.
+            'canales'     => app(PreciosPorCanalService::class)->paraFormulario($producto),
         ]);
     }
 
@@ -341,12 +350,36 @@ class ProductoController extends Controller
                 'descuento_max_mayorista'     => $request->descuento_max_mayorista ?? 8,
             ]);
 
+            $this->guardarCanales($request, $producto);
             $this->procesarImagenes($request, $producto);
         } catch (\Exception $e) {
             return back()->withErrors(['error' => $e->getMessage()]);
         }
 
         return redirect("/productos/{$producto->id}")->with('success', 'Producto actualizado.');
+    }
+
+    /**
+     * Guarda los precios por canal, en el formato nuevo o en el viejo.
+     *
+     * Acepta los dos porque las pantallas se cambian una por una: mientras la de variantes
+     * o la de importación sigan mandando `precio_mayorista` y compañía, esos campos tienen
+     * que llegar igual a las filas nuevas. Cambiar todo en el mismo commit es la forma de
+     * que un error se lleve tres pantallas a la vez.
+     *
+     * Cuando ya nadie mande el formato viejo, se borra la segunda rama.
+     */
+    private function guardarCanales(Request $request, Producto $producto): void
+    {
+        $servicio = app(PreciosPorCanalService::class);
+        $filas    = $request->input('canales');
+
+        $servicio->guardar(
+            $producto,
+            is_array($filas) && $filas !== []
+                ? $filas
+                : $servicio->desdeCamposViejos($request->all())
+        );
     }
 
     public function destroy(int $id): RedirectResponse
