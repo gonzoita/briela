@@ -1,0 +1,190 @@
+<?php
+
+namespace App\Services;
+
+use App\Models\CanalPrecio;
+use App\Models\Ensamble;
+use App\Models\Producto;
+use App\Models\SegmentacionOpcion;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
+
+/**
+ * Guarda y lee los precios por canal de un producto o un ensamble.
+ *
+ * Escribe en los dos formatos a la vez: las filas nuevas de `canal_precios` y las
+ * columnas viejas por canal. Eso es el período de compatibilidad de la regla 2 — hay
+ * cincuenta y seis lugares en el sistema que todavía leen las columnas, y cambiarlos
+ * todos de golpe es la forma de romper algo sin darse cuenta.
+ *
+ * Las columnas solo existen para los tres canales originales. Un canal que la empresa
+ * cree vive únicamente en las filas, que es donde ya lee el código nuevo.
+ */
+class PreciosPorCanalService
+{
+    /** Qué columna vieja le corresponde a cada canal original. */
+    private const COLUMNAS_HEREDADAS = [
+        'mayorista'       => 'mayorista',
+        'distribuidor'    => 'distribuidor',
+        'cliente_directo' => 'cliente_final',
+    ];
+
+    public function __construct(private CanalesPrecioService $canales) {}
+
+    /**
+     * Lo que necesita el formulario: una fila por canal configurado, con lo que ya esté
+     * guardado o ceros si es nuevo.
+     *
+     * Devuelve TODOS los canales, no solo los que tienen precio: si un canal se creó
+     * después del producto, tiene que aparecer vacío para poder llenarlo.
+     */
+    public function paraFormulario(?Model $item): array
+    {
+        $guardados = $item
+            ? $item->preciosPorCanal()->get()->keyBy('segmentacion_opcion_id')
+            : collect();
+
+        return $this->canales->canales()->map(function ($canal) use ($guardados) {
+            $fila = $guardados->get($canal->id);
+
+            return [
+                'segmentacion_opcion_id' => $canal->id,
+                'etiqueta'               => $canal->etiqueta,
+                'color'                  => $canal->color,
+                'es_canal_base'          => (bool) $canal->es_canal_base,
+                'es_precio_publico'      => (bool) $canal->es_precio_publico,
+                'margen_pct'             => (float) ($fila->margen_pct ?? 0),
+                'precio'                 => (float) ($fila->precio ?? 0),
+                // El canal base no paga comisión: es el piso de utilidad. Se manda en
+                // cero y la pantalla ni siquiera muestra los campos.
+                'comision_min_pct'       => (float) ($fila->comision_min_pct ?? 0),
+                'comision_max_pct'       => (float) ($fila->comision_max_pct ?? 0),
+                'descuento_max_pct'      => (float) ($fila->descuento_max_pct ?? 0),
+            ];
+        })->values()->all();
+    }
+
+    /**
+     * Guarda los canales que llegan del formulario.
+     *
+     * Se ignoran los que no correspondan a un canal configurado: si alguien manda un id
+     * inventado, no se crea una fila fantasma que después nadie sabe de dónde salió.
+     *
+     * @param  array<int, array<string, mixed>>  $filas
+     */
+    public function guardar(Model $item, array $filas): void
+    {
+        $validos = $this->canales->canales()->keyBy('id');
+        $base    = $this->canales->base();
+
+        DB::transaction(function () use ($item, $filas, $validos, $base) {
+            foreach ($filas as $fila) {
+                $canal = $validos->get((int) ($fila['segmentacion_opcion_id'] ?? 0));
+
+                if (! $canal) {
+                    continue;
+                }
+
+                $esBase = $base && $canal->id === $base->id;
+
+                CanalPrecio::updateOrCreate(
+                    [
+                        'precionable_type'       => $item->getMorphClass(),
+                        'precionable_id'         => $item->getKey(),
+                        'segmentacion_opcion_id' => $canal->id,
+                    ],
+                    [
+                        'margen_pct'  => (float) ($fila['margen_pct'] ?? 0),
+                        'precio'      => (float) ($fila['precio'] ?? 0),
+                        // El canal base no lleva comisión, aunque el formulario mande algo:
+                        // es el piso de utilidad de la empresa, no una venta con margen
+                        // para repartir.
+                        'comision_min_pct'  => $esBase ? 0 : (float) ($fila['comision_min_pct'] ?? 0),
+                        'comision_max_pct'  => $esBase ? 0 : (float) ($fila['comision_max_pct'] ?? 0),
+                        'descuento_max_pct' => (float) ($fila['descuento_max_pct'] ?? 0),
+                    ]
+                );
+            }
+
+            $this->espejarEnColumnasViejas($item);
+        });
+    }
+
+    /**
+     * Copia los tres canales originales a sus columnas de siempre.
+     *
+     * Mientras haya código leyendo `precio_mayorista` y compañía, las dos
+     * representaciones tienen que decir lo mismo. Cuando ese código ya no exista, esto se
+     * borra y las columnas se retiran — no antes: al otro lado hay instalaciones de
+     * clientes con versiones anteriores.
+     */
+    private function espejarEnColumnasViejas(Model $item): void
+    {
+        $porOpcion = $item->preciosPorCanal()->with('canal')->get()
+            ->keyBy(fn ($p) => $p->canal?->valor);
+
+        $cambios   = [];
+        $esProducto = $item instanceof Producto;
+
+        foreach (self::COLUMNAS_HEREDADAS as $valor => $sufijo) {
+            $fila = $porOpcion->get($valor);
+
+            if (! $fila) {
+                continue;
+            }
+
+            $cambios["precio_{$sufijo}"] = $fila->precio;
+
+            // Los márgenes por canal solo existen en productos: el precio de un ensamble
+            // lo calcula el cotizador desde su receta, no un margen sobre el costo.
+            if ($esProducto) {
+                $cambios["margen_{$sufijo}"] = $fila->margen_pct;
+            }
+
+            // Mayorista nunca tuvo columnas de comisión: es el canal base.
+            if ($valor !== 'mayorista') {
+                $cambios["comision_min_{$sufijo}"] = $fila->comision_min_pct;
+                $cambios["comision_max_{$sufijo}"] = $fila->comision_max_pct;
+            }
+
+            $cambios["descuento_max_{$sufijo}"] = $fila->descuento_max_pct;
+        }
+
+        if ($cambios !== []) {
+            // Sin eventos ni timestamps: es un espejo interno, no un cambio del usuario, y
+            // no tiene por qué aparecer en la auditoría dos veces.
+            $item->newQuery()->whereKey($item->getKey())->update($cambios);
+        }
+    }
+
+    /**
+     * Traduce el formato viejo del formulario al nuevo.
+     *
+     * Sirve para que las pantallas que todavía mandan `precio_mayorista` y compañía sigan
+     * funcionando mientras se cambian una por una. Sin esto habría que cambiar productos,
+     * ensambles y sus variantes en el mismo commit, y un error se llevaría los tres.
+     */
+    public function desdeCamposViejos(array $entrada): array
+    {
+        $filas = [];
+
+        foreach (self::COLUMNAS_HEREDADAS as $valor => $sufijo) {
+            $canal = SegmentacionOpcion::canalesDePrecio()->where('valor', $valor)->first();
+
+            if (! $canal) {
+                continue;
+            }
+
+            $filas[] = [
+                'segmentacion_opcion_id' => $canal->id,
+                'margen_pct'        => (float) ($entrada["margen_{$sufijo}"] ?? 0),
+                'precio'            => (float) ($entrada["precio_{$sufijo}"] ?? 0),
+                'comision_min_pct'  => (float) ($entrada["comision_min_{$sufijo}"] ?? 0),
+                'comision_max_pct'  => (float) ($entrada["comision_max_{$sufijo}"] ?? 0),
+                'descuento_max_pct' => (float) ($entrada["descuento_max_{$sufijo}"] ?? 0),
+            ];
+        }
+
+        return $filas;
+    }
+}

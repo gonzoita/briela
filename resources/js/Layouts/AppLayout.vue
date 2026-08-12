@@ -913,19 +913,13 @@ onUnmounted(() => {
         <!-- ══════════════════════════════════════════════════════════════════
              CONTENIDO PRINCIPAL
         ═══════════════════════════════════════════════════════════════════ -->
-        <AvisoLicencia
-            class="md:ml-64 md:mt-16"
-            style="margin-top: calc(3.5rem + env(safe-area-inset-top));"
-        />
+        <AvisoLicencia class="md:ml-64 con-espacio-superior" />
 
-        <!-- Los espacios de arriba y abajo suman las zonas del sistema: el reloj del
-             teléfono arriba, la barra de gestos abajo. Sin eso, el contenido queda
-             tapado en los extremos. En escritorio las variables valen cero. -->
-        <main
-            class="px-4 md:ml-64 md:pt-20 md:pb-8 md:px-8"
-            style="padding-top: calc(3.5rem + env(safe-area-inset-top));
-                   padding-bottom: calc(5rem + env(safe-area-inset-bottom));"
-        >
+        <!-- Los espacios los pone la clase `con-espacio-de-barras`, definida en
+             app.blade.php: suma las zonas del sistema del teléfono en móvil y el alto de
+             la barra fija en escritorio. En línea no funcionaba — un estilo en línea le
+             gana a las clases, y el contenido se metía bajo la barra superior. -->
+        <main class="px-4 md:ml-64 md:px-8 con-espacio-de-barras">
             <slot />
         </main>
 

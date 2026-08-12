@@ -102,6 +102,27 @@
         /* Que el foco se vea solo cuando se navega con teclado, no al hacer clic. */
         :focus:not(:focus-visible) { outline: none; }
 
+        /* ── Los espacios que dejan libre el encabezado y las barras ───────────
+           Van en una clase y NO en un estilo en línea. Se hicieron en línea primero, y
+           un estilo en línea le gana a las clases de Tailwind: el `md:pt-20` de
+           escritorio dejó de aplicarse y el contenido se metió debajo de la barra
+           superior. Aquí sí se puede distinguir móvil de escritorio.
+
+           En móvil el espacio suma las zonas del sistema —el reloj arriba, la barra de
+           gestos abajo—; en escritorio esas variables valen cero y manda el tamaño de
+           la barra fija. */
+        .con-espacio-de-barras {
+            padding-top: calc(3.5rem + env(safe-area-inset-top));
+            padding-bottom: calc(5rem + env(safe-area-inset-bottom));
+        }
+        .con-espacio-superior {
+            margin-top: calc(3.5rem + env(safe-area-inset-top));
+        }
+        @media (min-width: 768px) {
+            .con-espacio-de-barras { padding-top: 5rem; padding-bottom: 2rem; }
+            .con-espacio-superior  { margin-top: 4rem; }
+        }
+
         /* ── Los campos, en modo de noche ──────────────────────────────────────
            El plugin de formularios de Tailwind les pone fondo blanco fijo, así que
            en el modo oscuro quedaban blancos con el texto claro encima: ilegibles.
