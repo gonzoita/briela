@@ -225,6 +225,24 @@ async function eliminar(id, op = null) {
 function toggleAbierto(key) {
     abiertos.value[key] = !abiertos.value[key]
 }
+
+/**
+ * Lo que falta para que los precios funcionen.
+ *
+ * Sin canal base las comisiones salen en cero; sin precio público el catálogo no muestra
+ * nada. Ninguna de las dos cosas da error en pantalla, así que hay que decirlo aquí: se
+ * descubren en una factura o en una queja de un cliente.
+ */
+const faltaConfigurar = computed(() => {
+    const canales = (opciones.value.tipo_contacto ?? [])
+    const falta = []
+
+    if (! canales.some(c => c.define_precio))     falta.push('ningún tipo de contacto define precio, así que ningún cliente puede tener precio')
+    if (! canales.some(c => c.es_canal_base))     falta.push('falta el canal base: sin él las comisiones se calculan en cero')
+    if (! canales.some(c => c.es_precio_publico)) falta.push('falta el precio público: el catálogo no va a mostrar precio')
+
+    return falta
+})
 </script>
 
 <template>
@@ -267,6 +285,20 @@ function toggleAbierto(key) {
 
                     <!-- Contenido acordeón -->
                     <div v-if="abiertos[tipo.key]" class="border-t border-linea p-4">
+
+                        <!-- Lo que falta para que los precios funcionen. Va arriba y en rojo
+                             porque nada de esto da error en pantalla: se descubre cobrando. -->
+                        <div v-if="tipo.key === 'tipo_contacto' && faltaConfigurar.length"
+                            class="mb-3 px-3 py-2.5 rounded-xl bg-red-50 border border-red-200">
+                            <p class="text-xs font-semibold text-red-700 mb-1">Falta configurar</p>
+                            <ul class="space-y-0.5">
+                                <li v-for="f in faltaConfigurar" :key="f" class="text-xs text-red-700 leading-relaxed">· {{ f }}</li>
+                            </ul>
+                            <p class="text-xs text-red-600 mt-1.5">
+                                Toca «canal base» o «precio público» en la opción que deba serlo. Se marca de una,
+                                sin tener que darle «define precio» antes.
+                            </p>
+                        </div>
 
                         <!-- El orden de esta lista decide tres cosas, y no es evidente.
                              Vale más decirlo aquí que dejar que se descubra en una factura. -->
@@ -370,7 +402,7 @@ function toggleAbierto(key) {
                                             define precio
                                         </button>
 
-                                        <button v-if="op.define_precio" type="button" @click="cambiarMarca(op, 'es_canal_base')"
+                                        <button type="button" @click="cambiarMarca(op, 'es_canal_base')"
                                             class="text-[10px] px-1.5 py-0.5 rounded-full border transition-colors"
                                             :class="op.es_canal_base
                                                 ? 'bg-blue-50 text-blue-700 border-blue-200'
@@ -379,7 +411,7 @@ function toggleAbierto(key) {
                                             canal base
                                         </button>
 
-                                        <button v-if="op.define_precio" type="button" @click="cambiarMarca(op, 'es_precio_publico')"
+                                        <button type="button" @click="cambiarMarca(op, 'es_precio_publico')"
                                             class="text-[10px] px-1.5 py-0.5 rounded-full border transition-colors"
                                             :class="op.es_precio_publico
                                                 ? 'bg-emerald-50 text-emerald-700 border-emerald-200'

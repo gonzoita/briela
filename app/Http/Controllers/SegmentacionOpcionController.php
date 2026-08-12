@@ -67,6 +67,13 @@ class SegmentacionOpcionController extends Controller
             return response()->json(['message' => $error], 422);
         }
 
+        // Marcar canal base o precio público implica definir precio: pedirlo en dos pasos es
+        // hacer trámite. Antes se rechazaba con «márcale define precio primero», y el botón
+        // ni siquiera aparecía hasta entonces.
+        if ((($data['es_canal_base'] ?? false) || ($data['es_precio_publico'] ?? false)) && ! $opcion->define_precio) {
+            $data['define_precio'] = true;
+        }
+
         $opcion->update($data);
 
         // Base y precio público son únicos: marcar uno desmarca al anterior. Es más
@@ -118,12 +125,17 @@ class SegmentacionOpcionController extends Controller
             }
         }
 
-        // Se pide base o público sobre algo que no define precio.
-        $definiraPrecio = $define ?? $opcion->define_precio;
-
-        if (($base || $publico) && ! $definiraPrecio) {
-            return "«{$opcion->etiqueta}» todavía no define precio. Márcale «define precio» primero: "
-                . 'un canal base sin lista de precios no es un piso de utilidad, es nada.';
+        // Apagar la última marca de base o de precio público deja al sistema sin ella, y eso
+        // no falla en ninguna parte: las comisiones empiezan a salir en cero y el catálogo
+        // deja de mostrar precio, sin un solo error en pantalla. Se descubre en una factura.
+        //
+        // Así que estas dos marcas se MUEVEN, no se apagan: para quitarla de aquí, se pone en
+        // otra opción y esta se libera sola.
+        foreach ([['es_canal_base', $base, 'canal base'], ['es_precio_publico', $publico, 'precio público']] as [$campo, $pedido, $nombre]) {
+            if ($pedido === false && $opcion->{$campo}) {
+                return "«{$opcion->etiqueta}» es el {$nombre}, y el sistema necesita uno. "
+                    . "No se apaga: márcalo en la opción que deba serlo y esta queda libre sola.";
+            }
         }
 
         return null;
