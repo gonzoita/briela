@@ -11,6 +11,9 @@ const props = defineProps({
     categorias:  Array,
     bodegas:     Array,
     proveedores: Array,
+    // Los canales de precio configurados en Segmentación, ya con lo que el producto tenga
+    // guardado o en cero si es nuevo.
+    canales:     { type: Array, default: () => [] },
 })
 
 const tipoSeleccionado = ref(props.tipo || '')
@@ -93,6 +96,26 @@ watch(
         form.precio_distribuidor  = calcPrecio(costo, md)
         form.precio_cliente_final = calcPrecio(costo, mcf)
     }
+)
+
+// ─── Canales de precio ────────────────────────────────────────────────────────
+//
+// Los canales los define la empresa en Segmentación. Antes eran tres cajas fijas aquí, y
+// atender a un cliente con un cuarto canal pedía tocar código.
+//
+// El margen es lo que se escribe; el precio se calcula redondeando hacia arriba al millar,
+// igual que antes. Se guardan los dos porque una cotización vieja tiene que poder mostrar
+// el precio con el que se hizo.
+form.canales = (props.canales ?? []).map(c => ({ ...c }))
+
+watch(
+    [() => form.precio_costo, () => form.canales.map(c => c.margen_pct).join(',')],
+    () => {
+        form.canales.forEach(c => {
+            c.precio = calcPrecio(form.precio_costo, c.margen_pct)
+        })
+    },
+    { immediate: true }
 )
 
 const { hasChanges, setOriginal, checkChanges, markClean } = useUnsavedChanges()
@@ -557,53 +580,41 @@ const badgeStyle = {
                                     class="w-full border rounded-xl pl-7 pr-3 py-2 text-sm focus:outline-none border-linea bg-superficie focus:border-[var(--marca)]" />
                             </div>
                         </div>
-                        <!-- Mayorista -->
-                        <div class="grid grid-cols-2 gap-3 items-end">
+                        <!-- Una fila por canal configurado en Segmentación.
+                             Antes eran tres cajas fijas: mayorista, distribuidor y cliente
+                             final. Ahora la empresa crea los canales que necesite y esta
+                             pantalla dibuja los que existan. -->
+                        <div v-for="canal in form.canales" :key="canal.segmentacion_opcion_id"
+                            class="grid grid-cols-2 gap-3 items-end">
                             <div>
-                                <label class="block text-xs font-medium text-tinta-500 mb-1">Margen Mayorista %</label>
-                                <input v-model.number="form.margen_mayorista" type="number" min="1" max="99" step="0.5"
+                                <label class="flex items-center gap-1.5 text-xs font-medium text-tinta-500 mb-1">
+                                    <span class="w-2 h-2 rounded-full shrink-0" :style="`background:${canal.color};`"/>
+                                    Margen {{ canal.etiqueta }} %
+                                    <span v-if="canal.es_canal_base" class="text-[10px] text-blue-600 font-semibold">base</span>
+                                </label>
+                                <input v-model.number="canal.margen_pct" type="number" min="1" max="99" step="0.5"
                                     class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[var(--marca)]" />
                             </div>
                             <div>
-                                <label class="block text-xs font-medium text-tinta-500 mb-1">Precio Mayorista</label>
+                                <label class="block text-xs font-medium text-tinta-500 mb-1">Precio {{ canal.etiqueta }}</label>
                                 <div class="relative">
                                     <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-tinta-300">$</span>
-                                    <input :value="formatCOP(form.precio_mayorista)" readonly
+                                    <input :value="formatCOP(canal.precio)" readonly
                                         class="w-full border border-linea rounded-xl pl-7 pr-3 py-2 text-sm bg-tinta-50 font-semibold text-tinta-700" />
                                 </div>
                             </div>
                         </div>
-                        <!-- Distribuidor -->
-                        <div class="grid grid-cols-2 gap-3 items-end">
-                            <div>
-                                <label class="block text-xs font-medium text-tinta-500 mb-1">Margen Distribuidor %</label>
-                                <input v-model.number="form.margen_distribuidor" type="number" min="1" max="99" step="0.5"
-                                    class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[var(--marca)]" />
-                            </div>
-                            <div>
-                                <label class="block text-xs font-medium text-tinta-500 mb-1">Precio Distribuidor</label>
-                                <div class="relative">
-                                    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-tinta-300">$</span>
-                                    <input :value="formatCOP(form.precio_distribuidor)" readonly
-                                        class="w-full border border-linea rounded-xl pl-7 pr-3 py-2 text-sm bg-tinta-50 font-semibold text-tinta-700" />
-                                </div>
-                            </div>
-                        </div>
-                        <!-- Cliente Final -->
-                        <div class="grid grid-cols-2 gap-3 items-end">
-                            <div>
-                                <label class="block text-xs font-medium text-tinta-500 mb-1">Margen Cliente Final %</label>
-                                <input v-model.number="form.margen_cliente_final" type="number" min="1" max="99" step="0.5"
-                                    class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[var(--marca)]" />
-                            </div>
-                            <div>
-                                <label class="block text-xs font-medium text-tinta-500 mb-1">Precio Cliente Final</label>
-                                <div class="relative">
-                                    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-tinta-300">$</span>
-                                    <input :value="formatCOP(form.precio_cliente_final)" readonly
-                                        class="w-full border border-linea rounded-xl pl-7 pr-3 py-2 text-sm bg-tinta-50 font-semibold text-tinta-700" />
-                                </div>
-                            </div>
+
+                        <!-- Sin canales no hay precios que poner, y decirlo aquí evita que
+                             alguien crea que el producto quedó mal guardado. -->
+                        <div v-if="!form.canales.length"
+                            class="rounded-xl bg-amber-50 border border-amber-200 px-3 py-2.5">
+                            <p class="text-xs text-amber-800 leading-relaxed">
+                                No hay canales de precio configurados. Ve a
+                                <button type="button" @click="router.visit('/administracion/segmentacion')"
+                                    class="font-semibold underline underline-offset-2">Segmentación</button>
+                                y márcale «define precio» a los tipos de contacto que deban tener lista de precios.
+                            </p>
                         </div>
                     </div>
                 </div>
