@@ -16,6 +16,11 @@
 
 set -euo pipefail
 
+# El cron corre con un PATH mínimo: sin esto no encuentra php ni composer, y el
+# despliegue falla en silencio — el peor modo de fallar, porque nadie se entera hasta
+# que alguien nota que producción llevaba días atrasada.
+export PATH="/usr/local/bin:/usr/bin:/bin:$PATH"
+
 RAIZ="${1:?Falta la ruta de la instalación}"
 RAMA="${2:-main}"
 
