@@ -22,7 +22,15 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="{{ $empresaNombre }}">
     <meta name="application-name" content="{{ $empresaNombre }}">
-    <meta name="theme-color" content="{{ $colorMarca }}">
+    {{--
+        El color de la franja del sistema en el teléfono, ANTES de que corra nada.
+        Dos etiquetas, una por esquema: en pantallas donde el interruptor de tema no está
+        montado —la de entrada, el instalador, los portales públicos— no hay JavaScript
+        que lo ajuste, y con una sola etiqueta la franja quedaba clara sobre una pantalla
+        oscura. Cuando el usuario elige un tema a mano, useTema reemplaza esto.
+    --}}
+    <meta name="theme-color" content="{{ \App\Support\Marca::colorFondo('claro') }}" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="{{ \App\Support\Marca::colorFondo('oscuro') }}" media="(prefers-color-scheme: dark)">
     <meta name="msapplication-TileColor" content="{{ $colorMarca }}">
     <meta name="msapplication-TileImage" content="/icons/icon-144.png">
 

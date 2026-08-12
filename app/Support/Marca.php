@@ -38,6 +38,18 @@ class Marca
         return self::esHex($valor) ? strtoupper($valor) : self::COLOR_POR_DEFECTO;
     }
 
+    /**
+     * El color de fondo de un esquema, para la franja del sistema en el teléfono.
+     *
+     * Lo necesita el HTML antes de que corra nada: en las pantallas sin sesión no hay
+     * interruptor de tema montado, y sin esto la franja del reloj queda clara sobre una
+     * pantalla oscura.
+     */
+    public static function colorFondo(string $esquema = 'claro'): string
+    {
+        return self::esquemas()[$esquema]['fondo'] ?? '#FFFFFF';
+    }
+
     public static function esHex(string $valor): bool
     {
         return (bool) preg_match('/^#[0-9A-Fa-f]{6}$/', $valor);
