@@ -60,30 +60,43 @@ Cuando se aprueba y se genera una Orden de Producción, queda marcada como
    pasada. Requiere que el cron del servidor esté configurado — ver
    sección de deploy más abajo.
 
+## Qué precio se le muestra a cada cliente *(cambiado 12 ago 2026)*
+
+Al elegir el cliente, la cotización muestra **solo el precio de su canal**.
+Los demás no aparecen. Junto al nombre del cliente sale una etiqueta con el
+canal que se está usando.
+
+Antes se mostraban los tres precios y se resaltaba el del cliente. Eso pone
+el precio mayorista delante de quien está cotizando a un cliente final, y un
+clic en la tarjeta equivocada es una venta por debajo.
+
+**Si el cliente no está segmentado no se muestra ningún precio**, y la pantalla
+explica qué hacer. Cuál canal le corresponde a cada cliente se decide en
+[Segmentación](./segmentacion-y-precios.md).
+
 ## Cómo se calcula la comisión *(corregido 23 jul 2026)*
 
 La comisión del vendedor **no** se calcula sobre el precio de venta
 completo del ítem. Se calcula sobre el **excedente** por encima del precio
-mayorista:
+del canal base:
 
 ```
-excedente   = precio de venta del ítem − precio mayorista del producto/ensamble
+excedente   = precio de venta del ítem − precio del canal base
 comisión    = excedente × cantidad × % de comisión aplicado
 ```
 
-El precio mayorista es la utilidad garantizada e intocable de la empresa.
-Cualquier venta por encima de ese valor en los canales Distribuidor o
-Cliente final genera un excedente, que se reparte entre más utilidad para
-la empresa y comisión para el vendedor. Por eso el canal Mayorista nunca
-genera comisión: ahí no hay excedente que repartir.
+El canal base es la utilidad garantizada e intocable de la empresa —de fábrica
+es Mayorista, y se cambia marcándolo en Segmentación. Cualquier venta por
+encima de ese valor en los otros canales genera un excedente, que se reparte
+entre más utilidad para la empresa y comisión para el vendedor. Por eso **el
+canal base nunca genera comisión**: ahí no hay excedente que repartir.
 
 Antes la fórmula usaba el precio de venta completo en vez del excedente,
 lo que inflaba muchísimo la comisión mostrada (ej. 28,5% de $1.630.000 =
 $464.550, cuando el excedente real sobre el mayorista era mucho menor). El
-precio mayorista de cada ítem queda guardado en la cotización al momento
-de agregarlo (no se recalcula después), para que cotizaciones viejas no
-cambien de valor si el precio mayorista del producto se actualiza más
-adelante.
+precio del canal base queda guardado en la cotización al momento de agregar
+cada ítem, y no se recalcula después: una comisión que se liquida meses más
+tarde tiene que calcularse con el precio que había al vender.
 
 **Dónde se configura el % de comisión por producto/ensamble**: en el
 detalle del producto o ensamble → botón "Editar" → sección "Comisión

@@ -214,6 +214,52 @@ conveniencia, no como monopolio** — y hay que ponerle precio así.
 
 ---
 
+## 5.2 Canales de precio configurables — decidido el 12 ago 2026
+
+No es parte del licenciamiento, pero es la primera vez que se aplicó de verdad la regla
+de **cero personalización por cliente**, y por eso queda registrado aquí.
+
+Los canales de precio eran tres textos escritos en el código —`mayorista`,
+`distribuidor`, `cliente_final`— comparados a mano en `Cotizaciones/Create.vue`, más
+dieciséis columnas fijas repartidas entre `productos` y `ensambles`. Se podían agregar
+tipos de contacto nuevos, pero **cualquiera que se agregara caía en «cliente final» sin
+que nada lo dijera**. Un cliente que vendiera a cuatro canales no se podía atender sin
+tocar código.
+
+Ahora un tipo de contacto se vuelve canal con tres marcas, que son los tres papeles que
+antes estaban implícitos:
+
+| Marca | Qué era antes |
+|---|---|
+| `define_precio` | los tres nombres escritos en el Vue |
+| `es_canal_base` | `mayorista`, clavado en el cálculo de comisiones |
+| `es_precio_publico` | `precio_cliente_final`, clavado en el catálogo |
+
+Los precios pasan a filas en `canal_precios`, morfológica para servir a productos y
+ensambles sin duplicar cada consulta. **Las columnas viejas no se borran**: quedan el
+período de compatibilidad de la regla 2, y se llenan en paralelo mientras exista código
+que las lea.
+
+**Tres cosas que salieron al construirlo y conviene no repetir:**
+
+La prioridad entre canales la da el orden de la lista, y el orden que traía era el
+contrario al del código. Sin corregirlo en la migración, un cliente marcado como
+mayorista y distribuidor habría pasado a pagar el precio de distribuidor de un día para
+otro: quince mil pesos más por unidad, en silencio. Una migración no puede cambiar
+precios.
+
+Al cambiar `canalCliente` de texto a objeto quedaron treinta comparaciones contra los
+nombres viejos, que pasaron a ser siempre falsas: las comisiones se fueron a cero y una
+línea rompió la pantalla al renderizar. Cuando cambia el tipo de un valor compartido, hay
+que buscar **todos** sus usos antes de dar por terminado.
+
+Y el margen de un producto nuevo estaba escrito en la pantalla (25/30/35). Al mover los
+canales al servidor, un producto nuevo habría nacido con todos los precios en cero.
+
+**Lo que queda:** las plantillas de ensamble solo llevan margen para los tres canales
+originales; un canal nuevo usa un margen sugerido según su papel. El formulario de
+ensambles todavía muestra las tres cajas fijas, aunque por debajo ya guarda por canal.
+
 ## 6. Instalador y actualizaciones
 
 ### 6.1 Asistente de instalación

@@ -49,14 +49,23 @@ valor de la variante, y el sistema se encarga de que no se repita.
 
 ## Precios
 
-Cada producto guarda tres precios de venta en escalera — **mayorista**,
-**distribuidor** y **cliente final** — que pueden fijarse a mano o calcularse
-desde el costo con un margen para cada uno.
+Cada producto guarda **un precio por canal**, y los canales los defines tú: son
+los tipos de contacto que hayas marcado con «define precio» en
+[Segmentación](./segmentacion-y-precios.md). De fábrica vienen tres —mayorista,
+distribuidor y cliente directo— pero puedes crear los que necesite el negocio.
 
-Además guarda los topes de negociación: comisión mínima y máxima por tipo de
-cliente, utilidad mínima de la empresa y descuento máximo autorizado para cada
-precio. Eso es lo que después define hasta dónde puede mover el precio un
-vendedor.
+El precio se calcula desde el costo con el margen que le pongas a cada canal,
+redondeando hacia arriba al millar. Un producto nuevo nace con márgenes
+sugeridos: el más bajo para el canal base, que es el piso de utilidad de la
+empresa, y el más alto para el precio público.
+
+Cada canal guarda además sus topes de negociación: comisión mínima y máxima para
+el vendedor y descuento máximo autorizado. Eso es lo que después define hasta
+dónde puede mover el precio un vendedor. **El canal base no lleva comisión** —
+es la utilidad garantizada, no una venta con margen para repartir.
+
+Si no hay ningún canal configurado, la pantalla lo dice y te lleva a
+Segmentación, en vez de mostrar un bloque de precios vacío.
 
 Por el lado del costo hay tres cifras distintas, y conviene no confundirlas:
 
