@@ -30,9 +30,31 @@ function armarTitulo(pagina) {
 
 createInertiaApp({
     title: armarTitulo,
+    /**
+     * Cada pantalla en su propio archivo, que se trae cuando se abre.
+     *
+     * Antes esto llevaba `eager: true`, y eso metía las 128 pantallas del sistema en un
+     * solo archivo de 2,9 MB que el navegador tenía que descargar y procesar en CADA
+     * primera carga — incluida la de entrada, donde no hace falta ninguna de ellas.
+     * Medido en el servidor real: 655 KB transferidos y 1,6 segundos hasta que la
+     * página respondía.
+     *
+     * Sin `eager` se sigue usando `import.meta.glob` y no `resolvePageComponent`: el
+     * glob devuelve funciones en vez de módulos ya cargados, y se llama la que
+     * corresponde. El costo es una descarga de unos kilobytes la primera vez que se
+     * abre cada pantalla.
+     */
     resolve: (name) => {
-        const pages = import.meta.glob('./Pages/**/*.vue', { eager: true });
-        return pages[`./Pages/${name}.vue`];
+        const paginas = import.meta.glob('./Pages/**/*.vue');
+        const cargar = paginas[`./Pages/${name}.vue`];
+
+        if (! cargar) {
+            // Sin esto el fallo es un componente vacío y una pantalla en blanco, sin
+            // pista de qué pantalla falta.
+            throw new Error(`No existe la pantalla Pages/${name}.vue`);
+        }
+
+        return cargar();
     },
     setup({ el, App, props, plugin }) {
         return createApp({ render: () => h(App, props) })

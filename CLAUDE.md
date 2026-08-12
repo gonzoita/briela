@@ -61,7 +61,12 @@ viaja al servidor del cliente.
    decí / entrá / hablá". Siempre "toma / di / entra / habla". Aplica a la UI,
    comentarios de código, mensajes de commit y respuestas de chat.
 2. **Sin Ziggy** — todas las URLs son strings hardcodeados en los componentes Vue.
-3. **Sin resolvePageComponent** — el resolve de Inertia usa `import.meta.glob` con `eager: true`.
+3. **Sin resolvePageComponent** — el resolve de Inertia usa `import.meta.glob`, **sin
+   `eager`**: cada pantalla queda en su propio archivo y se trae al abrirla. Llevaba
+   `eager: true` hasta el 12 ago 2026, y eso metía las 128 pantallas en un solo archivo
+   de 2,9 MB que el navegador descargaba y procesaba en cada primera carga. Medido en el
+   servidor real, lo que bloquea el dibujado bajó de 2.980 KB a 356 KB. De paso, un
+   cambio ya no invalida el bundle completo: solo el trozo de la pantalla que se tocó.
 4. **Sin CSS separado** — el CSS va dentro del bundle JS generado por Vite.
 5. `app.blade.php` usa `@vite(['resources/js/app.js'])` — sin CSS separado.
 6. Todas las vistas son componentes Vue en `resources/js/Pages/`. Nunca Blade para vistas.

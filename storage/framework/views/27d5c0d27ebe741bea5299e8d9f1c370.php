@@ -22,7 +22,9 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="<?php echo e($empresaNombre); ?>">
     <meta name="application-name" content="<?php echo e($empresaNombre); ?>">
-    <meta name="theme-color" content="<?php echo e($colorMarca); ?>">
+    
+    <meta name="theme-color" content="<?php echo e(\App\Support\Marca::colorFondo('claro')); ?>" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="<?php echo e(\App\Support\Marca::colorFondo('oscuro')); ?>" media="(prefers-color-scheme: dark)">
     <meta name="msapplication-TileColor" content="<?php echo e($colorMarca); ?>">
     <meta name="msapplication-TileImage" content="/icons/icon-144.png">
 
