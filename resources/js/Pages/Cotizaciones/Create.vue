@@ -13,6 +13,8 @@ const props = defineProps({
     condiciones_default:   String,
     plantillas:            { type: Array, default: () => [] },
     lead_preseleccionado:  { type: Object, default: null },
+    // Los canales de precio configurados, ya en orden de prioridad.
+    canales:               { type: Array, default: () => [] },
 })
 
 const esEdicion = computed(() => !!props.cotizacion)
@@ -80,33 +82,67 @@ const clienteSeleccionado = ref(props.cotizacion?.cliente ?? props.lead_preselec
 const contactos          = ref(props.cotizacion?.cliente?.contactos ?? props.lead_preseleccionado?.cliente?.contactos ?? [])
 
 // ─── Canal de precio según tipo de contacto ───────────────────────────────────
+//
+// Antes esto comparaba tres nombres escritos aquí —mayorista, distribuidor, y si no,
+// cliente final—. Eso significaba que cualquier tipo de contacto que la empresa creara
+// caía en «cliente final» sin que nada lo dijera, y que un cliente sin segmentar recibía
+// precios como si fuera cliente final.
+//
+// Ahora los canales llegan del servidor en orden de prioridad, y ese orden lo controla la
+// empresa arrastrando la lista en Segmentación. Sin canal no hay precios: es deliberado —
+// mostrar un precio por omisión es la forma de vender al precio equivocado sin notarlo.
+
+/** El canal del cliente, o null si no le corresponde ninguno. */
 const canalCliente = computed(() => {
     const tipos = clienteSeleccionado.value?.tipos_contacto || []
-    if (tipos.includes('mayorista')) return 'mayorista'
-    if (tipos.includes('distribuidor')) return 'distribuidor'
-    return 'cliente_final'
+    if (!tipos.length) return null
+
+    return (props.canales || []).find(c => tipos.includes(c.valor)) ?? null
 })
-function getPrecioSegunCanal(data) {
-    const canal = canalCliente.value
-    if (canal === 'mayorista')    return parseFloat(data.precio_mayorista)    || 0
-    if (canal === 'distribuidor') return parseFloat(data.precio_distribuidor) || 0
-    return parseFloat(data.precio_cliente_final) || 0
-}
-function getDescuentoMaxSegunCanal(data) {
-    const canal = canalCliente.value
-    if (canal === 'mayorista')    return parseFloat(data.descuento_max_mayorista)    || 0
-    if (canal === 'distribuidor') return parseFloat(data.descuento_max_distribuidor) || 0
-    return parseFloat(data.descuento_max_cliente_final) || 0
-}
-function getPrecioMinimo(data) {
-    const canal  = canalCliente.value
-    const precio = getPrecioSegunCanal(data)
-    if (canal === 'mayorista') return precio
-    if (canal === 'distribuidor') {
-        const dtoMax = parseFloat(data.descuento_max_distribuidor) || 0
-        return Math.round(precio * (1 - dtoMax / 100))
+
+/** Por qué no hay precios, en palabras que sirvan en pantalla. */
+const motivoSinCanal = computed(() => {
+    if (canalCliente.value) return null
+    if (!clienteSeleccionado.value) return 'Elige un cliente para ver los precios que le corresponden.'
+
+    const tipos = clienteSeleccionado.value.tipos_contacto || []
+
+    if (!tipos.length) {
+        return 'Este cliente no está segmentado, así que no se le pueden calcular precios. '
+             + 'Asígnale un tipo de contacto en su ficha.'
     }
-    const dtoMax = parseFloat(data.descuento_max_cliente_final) || 0
+
+    return 'Ninguno de los tipos de contacto de este cliente tiene lista de precios. '
+         + 'Márcale «define precio» en Segmentación, o cámbiale el tipo de contacto.'
+})
+
+/** La fila de precios del producto o ensamble para el canal del cliente. */
+function filaDelCanal(data) {
+    const canal = canalCliente.value
+    if (!canal) return null
+
+    return (data?.canales || []).find(f => f.segmentacion_opcion_id === canal.id) ?? null
+}
+
+function getPrecioSegunCanal(data) {
+    return parseFloat(filaDelCanal(data)?.precio) || 0
+}
+
+function getDescuentoMaxSegunCanal(data) {
+    return parseFloat(filaDelCanal(data)?.descuento_max_pct) || 0
+}
+
+function getPrecioMinimo(data) {
+    const fila = filaDelCanal(data)
+    if (!fila) return 0
+
+    const precio = parseFloat(fila.precio) || 0
+
+    // El canal base es el piso de utilidad de la empresa: no baja de ahí.
+    if (canalCliente.value?.es_canal_base) return precio
+
+    const dtoMax = parseFloat(fila.descuento_max_pct) || 0
+
     return Math.round(precio * (1 - dtoMax / 100))
 }
 function getCanalComisionMin(data) {
@@ -644,10 +680,32 @@ function submit() {
                                 <p class="text-sm font-medium flex-1" style="color:var(--texto-azul);">
                                     {{ clienteSeleccionado.nombre }}{{ clienteSeleccionado.apellido ? ' ' + clienteSeleccionado.apellido : '' }}
                                 </p>
+                                <!-- El canal que le corresponde, a la vista. Sin esto, dos
+                                     clientes distintos daban precios distintos sin que
+                                     nada en pantalla explicara por qué. -->
+                                <span v-if="canalCliente"
+                                    class="text-[11px] font-semibold px-2 py-0.5 rounded-full shrink-0"
+                                    :style="`background:${canalCliente.color}1a; color:${canalCliente.color};`">
+                                    {{ canalCliente.etiqueta }}
+                                </span>
                                 <button type="button" @click="limpiarCliente" class="text-blue-300 hover:text-blue-500">
                                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
                                     </svg>
+                                </button>
+                            </div>
+
+                            <!-- Cliente sin canal: no hay precios, y se dice por qué y qué
+                                 hacer. Antes se le cotizaba como cliente final en silencio. -->
+                            <div v-if="clienteSeleccionado && motivoSinCanal"
+                                class="mt-2 flex items-start gap-2.5 px-3 py-2.5 rounded-xl bg-amber-50 border border-amber-200">
+                                <svg class="w-4 h-4 shrink-0 mt-0.5 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4m0 4h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/>
+                                </svg>
+                                <p class="text-xs text-amber-800 leading-relaxed flex-1">{{ motivoSinCanal }}</p>
+                                <button type="button" @click="router.visit('/clientes/' + clienteSeleccionado.id + '/editar')"
+                                    class="text-xs font-semibold text-amber-900 underline underline-offset-2 shrink-0">
+                                    Ver ficha
                                 </button>
                             </div>
                             <div v-if="!clienteSeleccionado" class="mt-2">

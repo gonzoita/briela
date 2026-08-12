@@ -114,6 +114,17 @@ class CotizacionController extends Controller
             'condiciones_default' => 'Precios en pesos colombianos. Validez 30 días. Anticipo 50% para inicio de producción. Tiempo de entrega: 15 días hábiles.',
             'plantillas'          => PlantillaEnsamble::with('campos')
                 ->where('activo', true)->orderBy('nombre')->get(),
+            // Los canales de precio, en orden de prioridad. La pantalla ya no compara
+            // nombres de canal a mano: pregunta cuál de estos tiene el cliente.
+            'canales'             => app(\App\Services\CanalesPrecioService::class)->canales()
+                ->map(fn ($c) => [
+                    'id'                => $c->id,
+                    'valor'             => $c->valor,
+                    'etiqueta'          => $c->etiqueta,
+                    'color'             => $c->color,
+                    'es_canal_base'     => (bool) $c->es_canal_base,
+                    'es_precio_publico' => (bool) $c->es_precio_publico,
+                ])->values(),
             'lead_preseleccionado' => $lead ? [
                 'id'      => $lead->id,
                 'titulo'  => $lead->titulo,
@@ -198,6 +209,17 @@ class CotizacionController extends Controller
             'condiciones_default' => 'Precios en pesos colombianos. Validez 30 días. Anticipo 50% para inicio de producción. Tiempo de entrega: 15 días hábiles.',
             'plantillas'          => PlantillaEnsamble::with('campos')
                 ->where('activo', true)->orderBy('nombre')->get(),
+            // Los canales de precio, en orden de prioridad. La pantalla ya no compara
+            // nombres de canal a mano: pregunta cuál de estos tiene el cliente.
+            'canales'             => app(\App\Services\CanalesPrecioService::class)->canales()
+                ->map(fn ($c) => [
+                    'id'                => $c->id,
+                    'valor'             => $c->valor,
+                    'etiqueta'          => $c->etiqueta,
+                    'color'             => $c->color,
+                    'es_canal_base'     => (bool) $c->es_canal_base,
+                    'es_precio_publico' => (bool) $c->es_precio_publico,
+                ])->values(),
         ]);
     }
 
@@ -344,7 +366,7 @@ class CotizacionController extends Controller
         $buscar = $request->get('q', '');
 
         return response()->json(
-            Producto::with('padre:id,nombre,atributo_variante')
+            Producto::with(['padre:id,nombre,atributo_variante', 'preciosPorCanal'])
                 ->seleccionables()
                 ->where('activo', true)
                 ->whereIn('tipo', ['producto', 'servicio'])
@@ -381,6 +403,16 @@ class CotizacionController extends Controller
                     'descuento_max_cliente_final' => (float) $p->descuento_max_cliente_final,
                     'descuento_max_distribuidor'  => (float) $p->descuento_max_distribuidor,
                     'descuento_max_mayorista'     => (float) $p->descuento_max_mayorista,
+                    // Los canales configurados, con su precio. Los tres campos de arriba
+                    // quedan mientras la pantalla se cambia; esto es lo que sustituye a
+                    // comparar nombres de canal a mano.
+                    'canales' => $p->preciosPorCanal->map(fn ($c) => [
+                        'segmentacion_opcion_id' => $c->segmentacion_opcion_id,
+                        'precio'                 => (float) $c->precio,
+                        'comision_min_pct'       => (float) $c->comision_min_pct,
+                        'comision_max_pct'       => (float) $c->comision_max_pct,
+                        'descuento_max_pct'      => (float) $c->descuento_max_pct,
+                    ])->values(),
                 ])
         );
     }
