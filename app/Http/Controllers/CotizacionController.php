@@ -417,6 +417,45 @@ class CotizacionController extends Controller
         );
     }
 
+    /**
+     * El precio de un ensamble a medida, para cada canal configurado.
+     *
+     * A diferencia de un producto, el precio de un ensamble instanciado no está guardado:
+     * se calcula ahí mismo desde el costo de sus componentes y un margen. Y ese margen vive
+     * en la plantilla, no en el ensamble.
+     *
+     * La plantilla tiene margen para los tres canales originales. Para un canal que la
+     * empresa cree, se usa el margen sugerido según su papel —el más bajo si es el canal
+     * base, el más alto si es el precio público— hasta que las plantillas puedan llevar un
+     * margen por canal. Es lo siguiente que hay que hacer configurable aquí; mientras, el
+     * precio sale razonable en vez de salir en cero.
+     *
+     * @param  array<string, mixed>  $conf  El config_salida de la plantilla.
+     */
+    private function canalesDeInstancia(array $conf, float $costo, callable $redondear): array
+    {
+        // El nombre del margen en la plantilla, para los canales que ya existían.
+        $heredados = [
+            'mayorista'       => 'margen_mayorista',
+            'distribuidor'    => 'margen_distribuidor',
+            'cliente_directo' => 'margen_cliente_final',
+        ];
+
+        return app(\App\Services\CanalesPrecioService::class)->canales()->map(function ($canal) use ($conf, $costo, $redondear, $heredados) {
+            $clave  = $heredados[$canal->valor] ?? null;
+            $margen = $clave !== null && isset($conf[$clave])
+                ? (float) $conf[$clave]
+                : ($canal->es_canal_base ? 30 : ($canal->es_precio_publico ? 35 : 32.5));
+
+            return [
+                'segmentacion_opcion_id' => $canal->id,
+                'etiqueta'               => $canal->etiqueta,
+                'margen_pct'             => $margen,
+                'precio'                 => $redondear($costo, $margen),
+            ];
+        })->values()->all();
+    }
+
     public function calcularEnsamble(Request $request, FormulaEvaluatorService $svc): JsonResponse
     {
         // Modo ensamble instancia: ensamble_id + variables_instancia
@@ -443,6 +482,7 @@ class CotizacionController extends Controller
                 'precio_mayorista'     => $ceil5k($totalCosto, $mmay),
                 'precio_distribuidor'  => $ceil5k($totalCosto, $mdist),
                 'precio_cliente_final' => $ceil5k($totalCosto, $mfinal),
+                'canales'              => $this->canalesDeInstancia($conf, $totalCosto, $ceil5k),
             ]);
         }
 

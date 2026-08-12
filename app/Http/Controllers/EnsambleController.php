@@ -365,7 +365,7 @@ class EnsambleController extends Controller
     {
         $q = $request->get('q', '');
 
-        $ensambles = Ensamble::with(['plantilla', 'categoria'])
+        $ensambles = Ensamble::with(['plantilla', 'categoria', 'preciosPorCanal'])
             ->where('nombre', 'like', "%{$q}%")
             ->latest()
             ->limit(15)
@@ -386,6 +386,15 @@ class EnsambleController extends Controller
                 'precio_mayorista'           => (float) $e->precio_mayorista,
                 'precio_distribuidor'        => (float) $e->precio_distribuidor,
                 'precio_cliente_final'       => (float) $e->precio_cliente_final,
+                // Los canales configurados. Las tres claves de arriba quedan mientras haya
+                // pantallas que las lean; el cotizador ya usa esto.
+                'canales' => $e->preciosPorCanal->map(fn ($c) => [
+                    'segmentacion_opcion_id' => $c->segmentacion_opcion_id,
+                    'precio'                 => (float) $c->precio,
+                    'comision_min_pct'       => (float) $c->comision_min_pct,
+                    'comision_max_pct'       => (float) $c->comision_max_pct,
+                    'descuento_max_pct'      => (float) $c->descuento_max_pct,
+                ])->values(),
                 'variables'                  => $e->variables,
                 'componentes_resultado'      => $e->componentes_resultado,
                 'comision_pct_minima'         => (float) ($e->comision_pct_minima ?? 0),

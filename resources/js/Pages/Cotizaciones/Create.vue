@@ -145,33 +145,56 @@ function getPrecioMinimo(data) {
 
     return Math.round(precio * (1 - dtoMax / 100))
 }
+// Las comisiones salen de la fila del canal. El canal base las tiene en cero guardadas
+// —el servicio se encarga—, así que no hace falta un caso especial aquí.
 function getCanalComisionMin(data) {
-    const canal = canalCliente.value
-    if (canal === 'distribuidor')  return parseFloat(data.comision_min_distribuidor)  || 0
-    if (canal === 'cliente_final') return parseFloat(data.comision_min_cliente_final) || 0
-    return 0
+    return parseFloat(filaDelCanal(data)?.comision_min_pct) || 0
 }
 function getCanalComisionMax(data) {
-    const canal = canalCliente.value
-    if (canal === 'distribuidor')  return parseFloat(data.comision_max_distribuidor)  || 0
-    if (canal === 'cliente_final') return parseFloat(data.comision_max_cliente_final) || 0
-    return 0
+    return parseFloat(filaDelCanal(data)?.comision_max_pct) || 0
 }
+
+/**
+ * El precio base contra el que se calcula la comisión: el del canal base.
+ *
+ * Se congela en la cotización, porque una comisión liquidada meses después tiene que
+ * calcularse con el precio que había cuando se vendió, no con el de hoy. Antes se tomaba de
+ * la columna `precio_mayorista`; ahora del canal que la empresa marcó como base.
+ */
+function getPrecioBase(data) {
+    const base = (props.canales || []).find(c => c.es_canal_base)
+    if (!base) return 0
+
+    const fila = (data?.canales || []).find(f => f.segmentacion_opcion_id === base.id)
+
+    return parseFloat(fila?.precio) || 0
+}
+
+/** El precio calculado del ensamble a medida, para el canal del cliente. */
+const precioCalculadoDelCanal = computed(() => {
+    const canal = canalCliente.value
+    if (!canal || !preciosCalculados.value) return 0
+
+    const fila = (preciosCalculados.value.canales || [])
+        .find(f => f.segmentacion_opcion_id === canal.id)
+
+    return parseFloat(fila?.precio) || 0
+})
+/**
+ * ¿Este ítem paga comisión al vendedor?
+ *
+ * El canal base no paga: es el piso de utilidad de la empresa. Los demás pagan si tienen
+ * comisión máxima cargada. Antes esto comparaba los tres nombres a mano, y cualquier canal
+ * nuevo caía en la rama de «cliente final» leyendo una columna que no le correspondía.
+ */
 function itemTieneComision(item) {
-    const canal = canalCliente.value
-    if (canal === 'mayorista') return false
-    if (canal === 'distribuidor') return (parseFloat(item.comision_max_distribuidor) || 0) > 0
-    return (parseFloat(item.comision_max_cliente_final) || 0) > 0
+    if (!canalCliente.value || canalCliente.value.es_canal_base) return false
+
+    return (parseFloat(item.comision_pct_maxima) || 0) > 0
 }
-function claseCardPrecio(canal) {
-    const esActivo = canal === canalCliente.value
-    const clases = {
-        mayorista:    esActivo ? 'border-2 border-blue-500 bg-blue-50 ring-2 ring-blue-200'   : 'border border-linea bg-tinta-50 opacity-60',
-        distribuidor: esActivo ? 'border-2 border-[var(--marca)] bg-[var(--marca-suave)] ring-2 ring-[var(--marca-suave)]' : 'border border-linea bg-tinta-50 opacity-60',
-        cliente_final:esActivo ? 'border-2 border-green-500 bg-green-50 ring-2 ring-green-200'  : 'border border-linea bg-tinta-50 opacity-60',
-    }
-    return clases[canal] || ''
-}
+
+/** El canal base no admite descuento: su precio es el piso. */
+const canalSinDescuento = computed(() => !canalCliente.value || canalCliente.value.es_canal_base)
 
 let timerCliente = null
 
@@ -239,7 +262,7 @@ function agregarItemDesdeProducto(prod) {
         cantidad: 1, precio_unitario: precio, descuento_pct: 0, impuesto_pct: 0,
         orden: form.items.length,
         precio_lista:                precio,
-        precio_mayorista_base:       parseFloat(prod.precio_mayorista) || 0,
+        precio_mayorista_base:       getPrecioBase(prod),
         precio_minimo_absoluto:      getPrecioMinimo(prod),
         comision_pct_minima:         getCanalComisionMin(prod),
         comision_pct_maxima:         getCanalComisionMax(prod),
@@ -578,7 +601,7 @@ function ajustarComision(item, index, delta) {
     onComisionChange(item, index, actual + delta)
 }
 function onDescuentoChange(item, index, nuevoPct) {
-    if (canalCliente.value === 'mayorista') return
+    if (canalSinDescuento.value) return
 
     const descuentoMax = getDescuentoMaxSegunCanal(item)
     const descPct = Math.max(0, Math.min(descuentoMax, parseFloat(nuevoPct) || 0))
@@ -850,10 +873,10 @@ function submit() {
                                         <input type="number" step="0.01" min="0"
                                             :max="itemTieneComision(item) ? descuentoMaxDisponible(item) : 100"
                                             :value="item.descuento_pct"
-                                            :disabled="canalCliente === 'mayorista'"
+                                            :disabled="canalSinDescuento"
                                             class="w-full rounded-lg border border-tinta-200 px-2 py-1.5 text-sm text-right focus:outline-none"
-                                            :class="canalCliente === 'mayorista' ? 'bg-tinta-100 cursor-not-allowed text-tinta-300' : ''"
-                                            @change="canalCliente !== 'mayorista' && (itemTieneComision(item)
+                                            :class="canalSinDescuento ? 'bg-tinta-100 cursor-not-allowed text-tinta-300' : ''"
+                                            @change="!canalSinDescuento && (itemTieneComision(item)
                                                 ? onDescuentoChange(item, idx, $event.target.value)
                                                 : (item.descuento_pct = parseFloat($event.target.value) || 0))"/>
                                     </div>
@@ -874,7 +897,7 @@ function submit() {
                                 </div>
 
                                 <!-- Badge canal mayorista -->
-                                <div v-if="canalCliente === 'mayorista'"
+                                <div v-if="canalSinDescuento"
                                     class="mt-2 p-2 bg-blue-50 border border-blue-100 rounded-lg">
                                     <p class="text-xs text-blue-600 text-center">
                                         Canal mayorista — precio fijo sin descuento ni comisión
@@ -1073,7 +1096,7 @@ function submit() {
                                 <template #extra="{ producto }">
                                     <div class="text-right shrink-0">
                                         <p class="text-sm font-semibold" style="color:var(--marca)">${{ formatCOP(getPrecioSegunCanal(producto)) }}</p>
-                                        <p class="text-xs text-tinta-300 capitalize">{{ canalCliente.replace('_', ' ') }}</p>
+                                        <p class="text-xs text-tinta-300">{{ canalCliente?.etiqueta ?? 'sin canal' }}</p>
                                     </div>
                                 </template>
                             </ResultadosBuscadorProducto>
@@ -1111,39 +1134,28 @@ function submit() {
                                     </div>
                                 </div>
                                 <!-- Panel de precios resaltados por canal -->
+                                <!-- Solo el precio del canal del cliente.
+                                     Antes se mostraban los tres y se resaltaba el suyo: eso
+                                     le pone delante el precio mayorista a quien está
+                                     cotizando a un cliente final, y basta un clic en la
+                                     tarjeta equivocada para vender al costo. -->
                                 <div v-if="ensambleExpandido?.id === e.id" class="px-5 pb-4 pt-2" style="background:var(--pastel-ambar);">
-                                    <div class="grid grid-cols-2 gap-2">
-                                        <!-- Mayorista -->
-                                        <button type="button" @click="agregarItemDesdeEnsamble(e, e.precio_mayorista)"
-                                            :class="['text-left p-3 rounded-xl transition-all', claseCardPrecio('mayorista')]">
+                                    <div v-if="canalCliente" class="grid grid-cols-2 gap-2">
+                                        <button type="button" @click="agregarItemDesdeEnsamble(e, getPrecioSegunCanal(e))"
+                                            class="text-left p-3 rounded-xl transition-all border-2"
+                                            :style="`border-color:${canalCliente.color}; background:${canalCliente.color}12;`">
                                             <div class="flex items-center justify-between mb-1">
-                                                <p class="text-xs text-tinta-400">Mayorista</p>
-                                                <span v-if="canalCliente === 'mayorista'" class="text-xs bg-blue-500 text-white px-1.5 py-0.5 rounded-full">★ Tu canal</span>
+                                                <p class="text-xs text-tinta-400">{{ canalCliente.etiqueta }}</p>
+                                                <span class="text-xs px-1.5 py-0.5 rounded-full text-white"
+                                                    :style="`background:${canalCliente.color};`">★ Su canal</span>
                                             </div>
-                                            <p class="font-semibold text-tinta-900">${{ formatCOP(e.precio_mayorista) }}</p>
-                                            <p v-if="canalCliente === 'mayorista'" class="text-xs text-blue-600 mt-0.5">Precio fijo · Sin descuento</p>
+                                            <p class="font-semibold text-tinta-900">${{ formatCOP(getPrecioSegunCanal(e)) }}</p>
+                                            <p class="text-xs mt-0.5" :style="`color:${canalCliente.color};`">
+                                                {{ canalCliente.es_canal_base ? 'Precio fijo · Sin descuento' : 'Precio sugerido' }}
+                                            </p>
                                         </button>
-                                        <!-- Distribuidor -->
-                                        <button type="button" @click="agregarItemDesdeEnsamble(e, e.precio_distribuidor)"
-                                            :class="['text-left p-3 rounded-xl transition-all', claseCardPrecio('distribuidor')]">
-                                            <div class="flex items-center justify-between mb-1">
-                                                <p class="text-xs text-tinta-400">Distribuidor</p>
-                                                <span v-if="canalCliente === 'distribuidor'" class="text-xs bg-[var(--marca)] text-white px-1.5 py-0.5 rounded-full">★ Tu canal</span>
-                                            </div>
-                                            <p class="font-semibold text-tinta-900">${{ formatCOP(e.precio_distribuidor) }}</p>
-                                            <p v-if="canalCliente === 'distribuidor'" class="text-xs text-[var(--marca)] mt-0.5">Precio sugerido</p>
-                                        </button>
-                                        <!-- Cliente final -->
-                                        <button type="button" @click="agregarItemDesdeEnsamble(e, e.precio_cliente_final)"
-                                            :class="['text-left p-3 rounded-xl transition-all', claseCardPrecio('cliente_final')]">
-                                            <div class="flex items-center justify-between mb-1">
-                                                <p class="text-xs text-tinta-400">Cliente final</p>
-                                                <span v-if="canalCliente === 'cliente_final'" class="text-xs bg-green-500 text-white px-1.5 py-0.5 rounded-full">★ Tu canal</span>
-                                            </div>
-                                            <p class="font-semibold text-tinta-900">${{ formatCOP(e.precio_cliente_final) }}</p>
-                                            <p v-if="canalCliente === 'cliente_final'" class="text-xs text-green-600 mt-0.5">Precio sugerido ⭐</p>
-                                        </button>
-                                        <!-- Costo -->
+                                        <!-- El costo sigue a la vista: es la referencia que
+                                             evita vender por debajo sin darse cuenta. -->
                                         <button type="button" @click="agregarItemDesdeEnsamble(e, e.precio_costo)"
                                             class="text-left p-3 rounded-xl border border-linea bg-tinta-50 opacity-70 hover:opacity-100 transition-all">
                                             <p class="text-xs text-tinta-300 mb-1">Costo</p>
@@ -1151,16 +1163,9 @@ function submit() {
                                             <p class="text-xs text-tinta-300 mt-0.5">Solo referencia</p>
                                         </button>
                                     </div>
-                                    <!-- Canal indicator -->
-                                    <div class="mt-3 p-2 rounded-lg text-xs text-center"
-                                        :class="{
-                                            'bg-blue-50 text-blue-600':   canalCliente === 'mayorista',
-                                            'bg-[var(--marca-suave)] text-[var(--marca)]': canalCliente === 'distribuidor',
-                                            'bg-green-50 text-green-600':  canalCliente === 'cliente_final',
-                                        }">
-                                        <span v-if="canalCliente === 'mayorista'">📋 Canal Mayorista — precio fijo, sin comisión ni descuento</span>
-                                        <span v-else-if="canalCliente === 'distribuidor'">🏪 Canal Distribuidor — precio resaltado es el sugerido</span>
-                                        <span v-else>👤 Canal Cliente Final — precio resaltado es el sugerido · Mayor comisión ⭐</span>
+
+                                    <div v-else class="p-3 rounded-xl bg-amber-50 border border-amber-200">
+                                        <p class="text-xs text-amber-800 leading-relaxed">{{ motivoSinCanal }}</p>
                                     </div>
                                 </div>
                             </div>
@@ -1247,38 +1252,21 @@ function submit() {
                             <!-- Resultados de precios resaltados por canal -->
                             <div v-if="preciosCalculados" class="space-y-2">
                                 <p class="text-xs font-semibold text-tinta-400 uppercase mt-2">Selecciona el precio:</p>
-                                <div class="grid grid-cols-2 gap-2">
-                                    <!-- Mayorista -->
-                                    <button type="button" @click="agregarItemDesdeEnsambleInstancia(preciosCalculados.precio_mayorista)"
-                                        :class="['text-left p-3 rounded-xl transition-all', claseCardPrecio('mayorista')]">
+                                <!-- Solo el canal del cliente, más el costo como referencia. -->
+                                <div v-if="canalCliente" class="grid grid-cols-2 gap-2">
+                                    <button type="button" @click="agregarItemDesdeEnsambleInstancia(precioCalculadoDelCanal)"
+                                        class="text-left p-3 rounded-xl transition-all border-2"
+                                        :style="`border-color:${canalCliente.color}; background:${canalCliente.color}12;`">
                                         <div class="flex items-center justify-between mb-1">
-                                            <p class="text-xs text-tinta-400">Mayorista</p>
-                                            <span v-if="canalCliente === 'mayorista'" class="text-xs bg-blue-500 text-white px-1.5 py-0.5 rounded-full">★ Tu canal</span>
+                                            <p class="text-xs text-tinta-400">{{ canalCliente.etiqueta }}</p>
+                                            <span class="text-xs px-1.5 py-0.5 rounded-full text-white"
+                                                :style="`background:${canalCliente.color};`">★ Su canal</span>
                                         </div>
-                                        <p class="font-semibold text-tinta-900">${{ formatCOP(preciosCalculados.precio_mayorista) }}</p>
-                                        <p v-if="canalCliente === 'mayorista'" class="text-xs text-blue-600 mt-0.5">Precio fijo · Sin descuento</p>
+                                        <p class="font-semibold text-tinta-900">${{ formatCOP(precioCalculadoDelCanal) }}</p>
+                                        <p class="text-xs mt-0.5" :style="`color:${canalCliente.color};`">
+                                            {{ canalCliente.es_canal_base ? 'Precio fijo · Sin descuento' : 'Precio sugerido' }}
+                                        </p>
                                     </button>
-                                    <!-- Distribuidor -->
-                                    <button type="button" @click="agregarItemDesdeEnsambleInstancia(preciosCalculados.precio_distribuidor)"
-                                        :class="['text-left p-3 rounded-xl transition-all', claseCardPrecio('distribuidor')]">
-                                        <div class="flex items-center justify-between mb-1">
-                                            <p class="text-xs text-tinta-400">Distribuidor</p>
-                                            <span v-if="canalCliente === 'distribuidor'" class="text-xs bg-[var(--marca)] text-white px-1.5 py-0.5 rounded-full">★ Tu canal</span>
-                                        </div>
-                                        <p class="font-semibold text-tinta-900">${{ formatCOP(preciosCalculados.precio_distribuidor) }}</p>
-                                        <p v-if="canalCliente === 'distribuidor'" class="text-xs text-[var(--marca)] mt-0.5">Precio sugerido</p>
-                                    </button>
-                                    <!-- Cliente final -->
-                                    <button type="button" @click="agregarItemDesdeEnsambleInstancia(preciosCalculados.precio_cliente_final)"
-                                        :class="['text-left p-3 rounded-xl transition-all', claseCardPrecio('cliente_final')]">
-                                        <div class="flex items-center justify-between mb-1">
-                                            <p class="text-xs text-tinta-400">Cliente final</p>
-                                            <span v-if="canalCliente === 'cliente_final'" class="text-xs bg-green-500 text-white px-1.5 py-0.5 rounded-full">★ Tu canal</span>
-                                        </div>
-                                        <p class="font-semibold text-tinta-900">${{ formatCOP(preciosCalculados.precio_cliente_final) }}</p>
-                                        <p v-if="canalCliente === 'cliente_final'" class="text-xs text-green-600 mt-0.5">Precio sugerido ⭐</p>
-                                    </button>
-                                    <!-- Costo -->
                                     <button type="button" @click="agregarItemDesdeEnsambleInstancia(preciosCalculados.total_costo)"
                                         class="text-left p-3 rounded-xl border border-linea bg-tinta-50 opacity-70 hover:opacity-100 transition-all">
                                         <p class="text-xs text-tinta-300 mb-1">Costo</p>
@@ -1286,16 +1274,9 @@ function submit() {
                                         <p class="text-xs text-tinta-300 mt-0.5">Solo referencia</p>
                                     </button>
                                 </div>
-                                <!-- Canal indicator -->
-                                <div class="mt-1 p-2 rounded-lg text-xs text-center"
-                                    :class="{
-                                        'bg-blue-50 text-blue-600':   canalCliente === 'mayorista',
-                                        'bg-[var(--marca-suave)] text-[var(--marca)]': canalCliente === 'distribuidor',
-                                        'bg-green-50 text-green-600':  canalCliente === 'cliente_final',
-                                    }">
-                                    <span v-if="canalCliente === 'mayorista'">📋 Canal Mayorista — precio fijo, sin comisión</span>
-                                    <span v-else-if="canalCliente === 'distribuidor'">🏪 Canal Distribuidor — precio resaltado es el sugerido</span>
-                                    <span v-else>👤 Canal Cliente Final — precio resaltado es el sugerido ⭐</span>
+
+                                <div v-else class="p-3 rounded-xl bg-amber-50 border border-amber-200">
+                                    <p class="text-xs text-amber-800 leading-relaxed">{{ motivoSinCanal }}</p>
                                 </div>
                             </div>
                         </div>
