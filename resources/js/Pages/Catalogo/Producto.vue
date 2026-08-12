@@ -11,6 +11,17 @@ const { copyText } = useClipboard()
 
 const imagenActiva = ref(props.producto.imagenes?.[0] ?? null)
 
+/**
+ * El precio que se le muestra a quien no ha entrado.
+ *
+ * Lo decide la marca «precio público» en Segmentación. Se cae a la columna de siempre solo
+ * mientras exista el período de compatibilidad; cuando se retire, esta segunda parte se
+ * borra y un catálogo sin canal público simplemente no muestra precio.
+ */
+const precioPublico = computed(() =>
+    Number(props.producto.precio_publico ?? props.producto.precio_cliente_final ?? 0)
+)
+
 const imagenPrincipal = computed(() =>
     imagenActiva.value?.url ?? props.producto.imagenes?.[0]?.url ?? null
 )
@@ -100,11 +111,14 @@ async function compartir() {
                         {{ producto.descripcion_corta }}
                     </div>
 
-                    <div v-if="mostrarPrecio && producto.precio_cliente_final > 0"
+                    <!-- Cuál es el precio público lo decide la marca en Segmentación, no el
+                         nombre de una columna. Si nadie marcó ninguno, no se muestra precio:
+                         mejor eso que enseñarle el precio mayorista a un desconocido. -->
+                    <div v-if="mostrarPrecio && precioPublico > 0"
                         class="bg-green-50 border border-green-200 rounded-xl p-4">
                         <p class="text-xs text-green-600 font-medium mb-0.5">Precio de referencia</p>
                         <p class="text-2xl font-semibold text-green-700">
-                            ${{ Number(producto.precio_cliente_final).toLocaleString('es-CO') }}
+                            ${{ Number(precioPublico).toLocaleString('es-CO') }}
                         </p>
                         <p class="text-xs text-green-500 mt-1">IVA no incluido · Precio sujeto a cambio sin aviso</p>
                     </div>

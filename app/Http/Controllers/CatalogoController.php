@@ -28,9 +28,34 @@ class CatalogoController extends Controller
             ]), [
                 'categoria_nombre' => $producto->categoria?->nombre,
                 'imagenes'         => $imagenes->values(),
+                // Cuál es el precio público lo dice la marca en Segmentación, no el nombre
+                // de una columna. La clave vieja se sigue mandando mientras la pantalla se
+                // cambie; esta es la que manda.
+                'precio_publico'   => $this->precioPublico($producto),
             ]),
             'mostrarPrecio' => $mostrarPrecio,
         ]);
+    }
+
+    /**
+     * El precio que se le muestra a quien no ha entrado al sistema.
+     *
+     * Antes era `precio_cliente_final`, el nombre de una columna. Si la empresa marca otro
+     * canal como precio público, el catálogo tiene que seguir esa decisión — y si no hay
+     * ninguno marcado, es mejor no mostrar precio que mostrar uno cualquiera: podría ser el
+     * precio mayorista, que no se le enseña a un desconocido.
+     */
+    private function precioPublico(\Illuminate\Database\Eloquent\Model $item): ?float
+    {
+        $canal = app(\App\Services\CanalesPrecioService::class)->publico();
+
+        if (! $canal) {
+            return null;
+        }
+
+        $fila = $item->precioDeCanal($canal);
+
+        return $fila ? (float) $fila->precio : null;
     }
 
     public function ensamble(int $id, Request $request)
@@ -62,6 +87,7 @@ class CatalogoController extends Controller
                 'plantilla_nombre' => $ensamble->plantilla?->nombre,
                 'categoria_nombre' => $ensamble->categoria?->nombre,
                 'imagenes'         => $todasImagenes->values(),
+                'precio_publico'   => $this->precioPublico($ensamble),
             ]),
             'mostrarPrecio' => $mostrarPrecio,
         ]);

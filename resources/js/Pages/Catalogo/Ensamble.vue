@@ -11,6 +11,11 @@ const { copyText } = useClipboard()
 
 const imagenActiva = ref(props.ensamble.imagenes?.[0] ?? null)
 
+/** El precio público lo decide la marca en Segmentación; la columna vieja es el respaldo. */
+const precioPublico = computed(() =>
+    Number(props.ensamble.precio_publico ?? props.ensamble.precio_cliente_final ?? 0)
+)
+
 const imagenPrincipal = computed(() =>
     imagenActiva.value?.url ?? props.ensamble.imagenes?.[0]?.url ?? null
 )
@@ -104,11 +109,12 @@ async function compartir() {
                         {{ ensamble.descripcion_corta }}
                     </div>
 
-                    <div v-if="mostrarPrecio && ensamble.precio_cliente_final > 0"
+                    <!-- El precio público lo decide la marca en Segmentación. -->
+                    <div v-if="mostrarPrecio && precioPublico > 0"
                         class="bg-green-50 border border-green-200 rounded-xl p-4">
                         <p class="text-xs text-green-600 font-medium mb-0.5">Precio base estimado</p>
                         <p class="text-2xl font-semibold text-green-700">
-                            ${{ Number(ensamble.precio_cliente_final).toLocaleString('es-CO') }}
+                            ${{ Number(precioPublico).toLocaleString('es-CO') }}
                         </p>
                         <p class="text-xs text-green-500 mt-1">El precio final depende de la configuración · IVA no incluido</p>
                     </div>
