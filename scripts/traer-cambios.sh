@@ -24,6 +24,23 @@ export PATH="/usr/local/bin:/usr/bin:/bin:$PATH"
 RAIZ="${1:?Falta la ruta de la instalación}"
 RAMA="${2:-main}"
 
+# El registro lo abre el propio script, y no se deja en manos de la redirección del
+# cron: el campo del panel puede recortar la línea al pegarla, y entonces el despliegue
+# funciona pero no queda rastro de nada. Sin rastro, el día que falle no hay por dónde
+# empezar.
+exec >> "${HOME}/despliegue.log" 2>&1
+
+# Un candado por instalación. Dos despliegues simultáneos sobre la misma carpeta se
+# pisan: uno reemplaza archivos mientras el otro migra. Ya pasó una vez —el automatismo
+# de GitHub y este script desplegaron a la vez, con veinte segundos de diferencia— y
+# salió bien de pura suerte.
+exec 9> "/tmp/briela-despliegue-$(echo "$RAIZ" | md5sum | cut -c1-12).lock"
+
+if ! flock -n 9; then
+    echo "[$(date '+%F %T')] otro despliegue está en curso sobre $RAIZ: no se hace nada"
+    exit 0
+fi
+
 cd "$RAIZ"
 
 # ─── ¿Hay algo nuevo? ────────────────────────────────────────────────────────
