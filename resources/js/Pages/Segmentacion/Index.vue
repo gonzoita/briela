@@ -87,6 +87,33 @@ async function guardarEdicion() {
     }
 }
 
+/**
+ * Cambia una de las tres marcas de precio de un tipo de contacto.
+ *
+ * El servidor rechaza las combinaciones que no tienen sentido —canal base sin precio,
+ * por ejemplo— y devuelve el motivo. Ese motivo se muestra tal cual: son decisiones de
+ * dinero y el usuario tiene que entender por qué no se pudo, no ver un error genérico.
+ */
+async function cambiarMarca(op, marca) {
+    const r = await fetch(`/api/segmentacion-opciones/${op.id}`, {
+        method: 'PUT',
+        headers: headers(),
+        body: JSON.stringify({ [marca]: !op[marca] }),
+    })
+
+    if (!r.ok) {
+        const d = await r.json().catch(() => ({}))
+        mensaje.value = d.message ?? 'No se pudo cambiar.'
+        mensajeEsError.value = true
+        return
+    }
+
+    mensaje.value = 'Guardado.'
+    mensajeEsError.value = false
+    setTimeout(() => mensaje.value = '', 2500)
+    await cargar()
+}
+
 async function eliminar(id) {
     if (!confirm('¿Eliminar esta opción?')) return
     const r = await fetch(`/api/segmentacion-opciones/${id}`, {
@@ -181,11 +208,41 @@ function toggleAbierto(key) {
                                     <div class="w-3 h-3 rounded-full shrink-0"
                                         :style="`background:${op.color ?? '#9CA3AF'};`"/>
                                     <span class="text-sm text-tinta-700 flex-1">{{ op.etiqueta }}</span>
-                                    <span v-if="op.atada_a_precios"
-                                        class="text-[10px] px-1.5 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200 shrink-0"
-                                        title="El cotizador usa esta opción para decidir el precio y la comisión. No se puede eliminar.">
-                                        define precio
-                                    </span>
+
+                                    <!-- Las tres marcas de precio. Solo en tipos de contacto:
+                                         industrias o fuentes de contacto no cobran nada.
+                                         Son botones y no etiquetas porque ahora los decide la
+                                         empresa; antes estaban escritos en el código. -->
+                                    <div v-if="tipo.key === 'tipo_contacto'" class="flex items-center gap-1 shrink-0">
+                                        <button type="button" @click="cambiarMarca(op, 'define_precio')"
+                                            class="text-[10px] px-1.5 py-0.5 rounded-full border transition-colors"
+                                            :class="op.define_precio
+                                                ? 'bg-amber-50 text-amber-700 border-amber-200'
+                                                : 'bg-tinta-50 text-tinta-300 border-linea hover:text-tinta-500'"
+                                            :title="op.define_precio
+                                                ? 'Tiene su propia lista de precios en productos y ensambles. Toca para quitarlo.'
+                                                : 'Toca para darle su propia lista de precios.'">
+                                            define precio
+                                        </button>
+
+                                        <button v-if="op.define_precio" type="button" @click="cambiarMarca(op, 'es_canal_base')"
+                                            class="text-[10px] px-1.5 py-0.5 rounded-full border transition-colors"
+                                            :class="op.es_canal_base
+                                                ? 'bg-blue-50 text-blue-700 border-blue-200'
+                                                : 'bg-tinta-50 text-tinta-300 border-linea hover:text-tinta-500'"
+                                            title="El piso de utilidad de la empresa: no paga comisión al vendedor, y la comisión de los demás canales se calcula contra su precio. Solo uno puede serlo.">
+                                            canal base
+                                        </button>
+
+                                        <button v-if="op.define_precio" type="button" @click="cambiarMarca(op, 'es_precio_publico')"
+                                            class="text-[10px] px-1.5 py-0.5 rounded-full border transition-colors"
+                                            :class="op.es_precio_publico
+                                                ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                                                : 'bg-tinta-50 text-tinta-300 border-linea hover:text-tinta-500'"
+                                            title="El precio que ve alguien que no ha entrado al sistema, en el catálogo público. Solo uno puede serlo.">
+                                            precio público
+                                        </button>
+                                    </div>
                                     <span class="text-xs text-tinta-300 font-mono hidden sm:block">{{ op.valor }}</span>
                                     <div class="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
                                         <button type="button" @click="iniciarEdicion(op)"
