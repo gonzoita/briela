@@ -14,6 +14,9 @@ const props = defineProps({
     // Los canales de precio configurados en Segmentación, ya con lo que el producto tenga
     // guardado o en cero si es nuevo.
     canales:     { type: Array, default: () => [] },
+    // Al duplicar, los datos del producto que sirve de molde. Null cuando se crea de cero.
+    base:        { type: Object, default: null },
+    origen:      { type: Object, default: null },
 })
 
 const tipoSeleccionado = ref(props.tipo || '')
@@ -80,6 +83,12 @@ const form = useForm({
     descuento_max_distribuidor:   5,
     descuento_max_mayorista:      8,
     imagenes:                    [],
+    // Declarado aquí y no asignado después a propósito: `form.data()` de Inertia recorre
+    // las claves con las que nació el formulario, así que un campo agregado más tarde se
+    // ve en pantalla, se edita, y **no se envía**. Con tres canales no se notaba —el
+    // controlador reconstruía las filas desde las columnas viejas—, pero el cuarto canal
+    // que la empresa creara se guardaba sin precio y la cotización salía vacía.
+    canales:                     [],
 })
 
 watch(tipoSeleccionado, (v) => { form.tipo = v; form.unidad_medida = 'unidad' })
@@ -107,6 +116,40 @@ watch(
 // igual que antes. Se guardan los dos porque una cotización vieja tiene que poder mostrar
 // el precio con el que se hizo.
 form.canales = (props.canales ?? []).map(c => ({ ...c }))
+
+// ─── Duplicar ─────────────────────────────────────────────────────────────────
+//
+// Llega el producto molde y se copia campo por campo sobre el formulario vacío. No se
+// copian la referencia —es única y se genera sola—, ni el stock, ni las imágenes.
+//
+// Los selects guardan el id como texto (sus opciones son `String(c.id)`), así que un id
+// numérico no preseleccionaría nada: se ve «Sin categoría» aunque haya llegado una.
+if (props.base) {
+    const molde = { ...props.base }
+    const listaVariantes = molde.variantes ?? []
+
+    delete molde.variantes
+    delete molde.es_padre
+
+    Object.entries(molde).forEach(([campo, valor]) => {
+        if (! (campo in form.data())) return
+
+        form[campo] = ['categoria_id', 'proveedor_id'].includes(campo)
+            ? (valor ? String(valor) : '')
+            : valor
+    })
+
+    esPadre.value = !! props.base.es_padre
+
+    // Las variantes traen el valor —«Rojo», «120 cm»— pero no su referencia ni su stock:
+    // son otras unidades físicas, no las mismas.
+    variantes.value = listaVariantes.map(v => {
+        const stockPorBodega = {}
+        ;(props.bodegas ?? []).forEach(b => { stockPorBodega[b.id] = '' })
+
+        return { valor_variante: v.valor_variante, referencia: '', stock_inicial: stockPorBodega }
+    })
+}
 
 /** El canal base: el piso de utilidad. No lleva comisión. */
 const canalBase = computed(() => form.canales.find(c => c.es_canal_base) ?? null)
@@ -375,8 +418,27 @@ const badgeStyle = {
 </script>
 
 <template>
-    <AppLayout title="Nuevo producto">
+    <AppLayout :title="origen ? 'Duplicar producto' : 'Nuevo producto'">
         <div class="max-w-4xl mx-auto">
+
+            <!-- Al duplicar: de qué producto viene y qué NO se copió. Si no se dice, la
+                 referencia nueva y el stock en cero se leen como un error del sistema. -->
+            <div v-if="origen" class="mb-4 rounded-2xl p-4 flex items-start gap-3"
+                style="background:var(--pastel-azul); border:1px solid var(--marca);">
+                <svg class="w-5 h-5 shrink-0 mt-0.5" style="color:var(--marca);" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                </svg>
+                <div class="min-w-0">
+                    <p class="text-sm font-semibold text-tinta-900">
+                        Copia de <a :href="`/productos/${origen.id}`" class="underline">{{ origen.nombre }}</a>
+                    </p>
+                    <p class="text-xs text-tinta-500 mt-1">
+                        Se copiaron los datos, los precios y los canales. No se copian la referencia
+                        —se genera nueva—, el stock ni las imágenes. Revisa el nombre antes de guardar:
+                        el original sigue igual hasta que guardes este.
+                    </p>
+                </div>
+            </div>
 
             <!-- Selección de tipo -->
             <div v-if="!tipoSeleccionado" class="mb-5">

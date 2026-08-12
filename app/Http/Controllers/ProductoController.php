@@ -85,6 +85,68 @@ class ProductoController extends Controller
         ]);
     }
 
+    /**
+     * Abre el formulario de creación con los datos de otro producto ya cargados.
+     *
+     * No crea nada: llena la pantalla y el usuario revisa, cambia lo que sea distinto y
+     * guarda. Duplicar de una vez en la base dejaría productos a medio nombrar cada vez que
+     * alguien toca el botón por curiosidad, y con referencias que hay que corregir después.
+     *
+     * Lo que NO se copia, a propósito:
+     * - **La referencia**: es única en la base. Se genera nueva sola.
+     * - **El stock**: el inventario es de cada producto, no del molde.
+     * - **Las imágenes**: son archivos en el servidor; copiarlas duplica el peso del disco
+     *   en cada instalación del cliente. Se suben las del producto nuevo.
+     */
+    public function duplicar(int $id): Response
+    {
+        $producto = Producto::with('variantes')->findOrFail($id);
+
+        $base = collect($producto->toArray())->only([
+            'tipo', 'categoria_id', 'proveedor_id', 'unidad_medida',
+            'descripcion_corta', 'descripcion_larga',
+            'inventariable', 'es_vendible', 'es_insumo',
+            'stock_minimo', 'stock_maximo',
+            'precio_costo',
+            'margen_mayorista', 'margen_distribuidor', 'margen_cliente_final',
+            'precio_mayorista', 'precio_distribuidor', 'precio_cliente_final',
+            'comision_pct_minima', 'comision_pct_maxima',
+            'comision_min_distribuidor', 'comision_max_distribuidor',
+            'comision_min_cliente_final', 'comision_max_cliente_final',
+            'utilidad_minima_empresa_pct',
+            'descuento_max_cliente_final', 'descuento_max_distribuidor', 'descuento_max_mayorista',
+            'es_padre', 'atributo_variante',
+        ])->all();
+
+        // Los decimales de MySQL llegan como texto ('50000.00'), y el formulario hace
+        // cuentas con ellos: un '0.00' es verdadero en JavaScript, y ahí empiezan los
+        // márgenes calculados sobre un costo que la pantalla cree que existe.
+        foreach ($base as $campo => $valor) {
+            if (is_string($valor) && is_numeric($valor)) {
+                $base[$campo] = (float) $valor;
+            }
+        }
+
+        // El nombre llega con el aviso de que es una copia: guardar dos productos con el
+        // mismo nombre y distinta referencia es la forma de no volver a encontrar ninguno.
+        $base['nombre']    = mb_substr($producto->nombre.' (copia)', 0, 200);
+        $base['variantes'] = $producto->variantes->map(fn ($v) => [
+            'valor_variante' => $v->valor_variante,
+        ])->values()->all();
+
+        return Inertia::render('Productos/Create', [
+            'tipo'        => $producto->tipo,
+            'categorias'  => CategoriaProducto::where('activa', true)->orderBy('nombre')->get(),
+            'bodegas'     => Bodega::where('activa', true)->orderByDesc('es_principal')->orderBy('nombre')->get(),
+            'proveedores' => Proveedor::where('activo', true)->orderBy('nombre')->get(['id', 'nombre']),
+            // Los precios por canal del original, incluidos los canales que no tenga
+            // cargados: se copia lo que hay y lo demás queda listo para llenar.
+            'canales'     => app(PreciosPorCanalService::class)->paraFormulario($producto),
+            'base'        => $base,
+            'origen'      => ['id' => $producto->id, 'nombre' => $producto->nombre],
+        ]);
+    }
+
     public function store(Request $request): RedirectResponse
     {
         $tipo    = $request->input('tipo', 'producto');

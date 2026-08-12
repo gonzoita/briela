@@ -47,6 +47,31 @@ Dos reglas que se siguen de eso:
 La referencia de cada variante se genera sola a partir de la del padre más el
 valor de la variante, y el sistema se encarga de que no se repita.
 
+## Duplicar un producto
+
+En la ficha de cualquier producto está el botón **Duplicar**. Abre el formulario
+de creación con todo ya escrito: categoría, proveedor, descripciones, costo,
+márgenes, precios de cada canal, comisiones, umbrales de stock y las variantes.
+
+**No crea nada todavía.** Revisas, cambias lo que sea distinto y guardas. El
+original no se toca.
+
+Tres cosas no se copian, a propósito:
+
+| No se copia | Por qué |
+|---|---|
+| La **referencia** | Es única en el sistema. Se genera nueva sola |
+| El **stock** | El inventario es de cada producto, no del molde |
+| Las **imágenes** | Son archivos en el servidor; copiarlas duplica el disco de la instalación |
+
+El nombre llega con «(copia)» al final para que no queden dos productos con el
+mismo nombre si alguien guarda sin mirar. De las variantes se copia el valor
+—«Rojo», «120 cm»—, no su referencia ni su stock.
+
+Sirve para lo que hoy se hace a mano: un catálogo con veinte productos que se
+diferencian en dos campos, donde volver a escribir precios y comisiones es la
+forma de equivocarse en uno.
+
 ## Precios
 
 Cada producto guarda **un precio por canal**, y los canales los defines tú: son

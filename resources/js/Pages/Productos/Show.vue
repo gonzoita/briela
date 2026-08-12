@@ -1,12 +1,18 @@
 <script setup>
 import AppLayout from '@/Layouts/AppLayout.vue'
-import { router } from '@inertiajs/vue3'
+import { router, usePage } from '@inertiajs/vue3'
 import { ref, computed } from 'vue'
 
 const props = defineProps({
     producto: Object,
     bodegas:  Array,
 })
+
+// Duplicar lleva al formulario de creación, así que se muestra solo a quien puede crear:
+// un vendedor con productos en solo lectura vería un botón que termina en 403.
+const page = usePage()
+// Misma lista que usa el menú: el administrador la trae completa, no con comodines.
+const puedeCrear = computed(() => (page.props.auth?.permisosLista ?? []).includes('productos.crear'))
 
 const p = computed(() => props.producto)
 
@@ -125,14 +131,26 @@ const fmtFecha = (d) => d ? new Date(d).toLocaleDateString('es-CO', { day: '2-di
                 </svg>
                 Productos
             </a>
-            <a :href="`/productos/crear?tipo=${p.tipo}`"
-                class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium text-white"
-                style="background:var(--marca);">
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
-                </svg>
-                Nuevo {{ p.tipo === 'servicio' ? 'servicio' : 'producto' }}
-            </a>
+            <div class="flex items-center gap-2">
+                <!-- Duplicar: abre el formulario de creación con todo copiado. Es lo que se
+                     necesita cuando el catálogo tiene veinte productos que se diferencian en
+                     dos campos, y volver a escribir precios y comisiones invita al error. -->
+                <a v-if="puedeCrear" :href="`/productos/${p.id}/duplicar`"
+                    class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium text-tinta-600 border border-linea bg-superficie hover:bg-tinta-50 transition-colors">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                    </svg>
+                    Duplicar
+                </a>
+                <a :href="`/productos/crear?tipo=${p.tipo}`"
+                    class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium text-white"
+                    style="background:var(--marca);">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+                    </svg>
+                    Nuevo {{ p.tipo === 'servicio' ? 'servicio' : 'producto' }}
+                </a>
+            </div>
         </div>
 
         <!-- ── Layout: imagen 40% | info 60% en desktop ─────────────────── -->

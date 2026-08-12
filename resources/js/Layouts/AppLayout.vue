@@ -615,11 +615,12 @@ onUnmounted(() => {
             class="hidden md:flex fixed top-0 left-64 right-0 z-30 items-center justify-between px-8 border-b border-linea"
             style="height: 64px; background: var(--velo); backdrop-filter: saturate(180%) blur(20px);"
         >
-            <!-- Título de la página -->
-            <h1 class="text-[17px] font-semibold text-tinta-900 tracking-[-0.01em]">{{ title }}</h1>
+            <!-- Título de la página. Se encoge antes que las acciones: el nombre de un
+                 producto largo no tiene por qué empujar el buscador fuera de la barra. -->
+            <h1 class="text-[17px] font-semibold text-tinta-900 tracking-[-0.01em] truncate min-w-0 mr-4">{{ title }}</h1>
 
             <!-- Acciones topbar -->
-            <div class="flex items-center gap-3">
+            <div class="flex items-center gap-3 shrink-0">
                 <!-- Buscador global -->
                 <BuscadorGlobal />
 
@@ -779,13 +780,13 @@ onUnmounted(() => {
             style="height: calc(3.5rem + env(safe-area-inset-top)); padding-top: env(safe-area-inset-top);"
         >
             <!-- Logo izquierda -->
-            <div class="flex items-center gap-2 min-w-0">
+            <div class="flex items-center gap-2 shrink-0">
                 <img
                     v-if="marca.logo_propio"
                     :src="logoSegunTema"
                     :alt="marca.nombre"
                     class="h-8 w-auto object-contain flex-shrink-0"
-                    style="max-width: 120px;"
+                    style="max-width: 96px;"
                 />
                 <span
                     v-else
@@ -793,9 +794,13 @@ onUnmounted(() => {
                     :style="{ background: 'var(--marca-suave)', color: 'var(--marca)' }"
                 >{{ (marca.nombre || 'B').charAt(0).toUpperCase() }}</span>
             </div>
-            <!-- Título centrado -->
+            <!-- Título: en el hueco que quede, no centrado a la fuerza.
+                 Estaba con `absolute left-1/2`, y eso centra en la pantalla completa sin
+                 saber dónde termina el logo ni dónde empiezan los iconos: un título largo
+                 —el nombre de un producto— se montaba encima de la lupa. Como fila flexible
+                 que se encoge, no puede pisar a nadie. -->
             <span
-                class="absolute left-1/2 -translate-x-1/2 text-tinta-900 font-semibold text-sm truncate max-w-[140px]"
+                class="flex-1 min-w-0 px-2 text-center text-tinta-900 font-semibold text-sm truncate"
             >
                 {{ title }}
             </span>

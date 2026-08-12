@@ -272,6 +272,11 @@ Route::middleware('auth')->group(function () {
         });
 
         Route::get('/crear',       [ProductoController::class, 'create'])->name('create');
+        // Duplicar abre el formulario de creación ya lleno: no crea nada hasta que se guarda,
+        // así que pide el mismo permiso que crear y va antes de /{id} para no confundirse
+        // con un id.
+        Route::get('/{id}/duplicar', [ProductoController::class, 'duplicar'])
+            ->middleware('permiso:productos.crear')->name('duplicar');
         Route::post('/',           [ProductoController::class, 'store'])->name('store');
         Route::get('/{id}',        [ProductoController::class, 'show'])->name('show');
         Route::get('/{id}/editar', [ProductoController::class, 'edit'])->name('edit');
