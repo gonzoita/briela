@@ -615,8 +615,14 @@ class ProductoController extends Controller
             'unidad_medida'       => 'nullable|string|max:30',
             'categoria_id'        => 'nullable|exists:categorias_producto,id',
             'proveedor_id'        => 'nullable|exists:proveedores,id',
-            'descripcion_corta'   => 'nullable|string|max:160',
-            'descripcion_larga'   => 'nullable|string',
+            // 1000 y no 160: es lo que dice el contador de la pantalla y lo que ya
+            // aceptaba `ensambles.descripcion_corta`. Con 160, una ficha generada con IA
+            // —hasta 380 caracteres de introducción— se veía bien y reventaba al guardar.
+            'descripcion_corta'   => 'nullable|string|max:1000',
+            // La columna es TEXT: 65.535 bytes. El tope explícito existe para que pasarse
+            // dé un mensaje claro en vez de un error de base de datos, y va por debajo del
+            // límite real porque un carácter acentuado ocupa más de un byte.
+            'descripcion_larga'   => 'nullable|string|max:60000',
             'es_vendible'         => 'nullable|boolean',
             'es_insumo'           => 'nullable|boolean',
             'es_padre'            => 'nullable|boolean',

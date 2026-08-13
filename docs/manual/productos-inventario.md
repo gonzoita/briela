@@ -63,6 +63,17 @@ sistema dice cuántos productos la están usando.
 
 Administrarla pide permiso de **Configuración → Editar**; usarla, no.
 
+## Las dos descripciones
+
+- **Descripción corta**: hasta 1000 caracteres. Es la que se ve en el catálogo, en
+  las listas y en la ficha del sitio web. Una buena tiene entre 200 y 400.
+- **Descripción larga**: texto con formato —negritas, listas, subtítulos—, para la
+  ficha técnica completa.
+
+> Hasta el 13 ago 2026 la corta aceptaba solo 160 caracteres en la base, aunque la
+> pantalla decía 1000 y el generador con IA produce hasta 380: la ficha se veía bien
+> y reventaba al guardar. Ya son 1000 de verdad, igual que en ensambles.
+
 ## Redactar la ficha con IA
 
 En el formulario, junto a «Descripción corta», está **Ficha técnica con IA**:
