@@ -22,12 +22,60 @@ use Illuminate\Support\Facades\DB;
  */
 class PreciosPorCanalService
 {
-    /** Qué columna vieja le corresponde a cada canal original. */
-    private const COLUMNAS_HEREDADAS = [
+    /**
+     * Qué columna vieja le corresponde a cada canal original, por su clave.
+     *
+     * Sirve para las instalaciones que conservaron los nombres de fábrica. Las que
+     * renombraron o rehicieron sus canales tienen otras claves, y para esas el puente lo
+     * resuelve `columnaDe()` por el PAPEL del canal.
+     */
+    private const COLUMNAS_POR_CLAVE = [
         'mayorista'       => 'mayorista',
         'distribuidor'    => 'distribuidor',
         'cliente_directo' => 'cliente_final',
     ];
+
+    /**
+     * Qué columna vieja le corresponde a un canal.
+     *
+     * **Este método es el arreglo de un error de fondo.** Todo el puente entre las columnas
+     * viejas y los canales configurables estaba atado a tres claves internas escritas aquí:
+     * `mayorista`, `distribuidor`, `cliente_directo`. Funcionaba en una instalación de
+     * fábrica y fallaba en silencio en cuanto la empresa creaba sus propios canales —que es
+     * justamente lo que el sistema le ofrece hacer—: sus claves son otras, ninguna coincidía,
+     * y el resultado era que **los productos se cotizaban en cero** teniendo sus precios a la
+     * vista en la ficha.
+     *
+     * Se resuelve por el papel, que es lo que de verdad significa cada columna:
+     *
+     * - `precio_mayorista` era el piso de utilidad → el **canal base**.
+     * - `precio_cliente_final` era lo que ve un desconocido → el **precio público**.
+     * - `precio_distribuidor` era el canal del medio → el primer canal que no es ninguno de
+     *   los dos anteriores, en el orden que la empresa puso.
+     *
+     * Un cuarto canal no tiene columna: nunca existió una para él. Su precio vive solo en
+     * `canal_precios`, y si está vacío la pantalla lo dice en vez de mostrar cero.
+     */
+    public function columnaDe(SegmentacionOpcion $canal): ?string
+    {
+        if (isset(self::COLUMNAS_POR_CLAVE[$canal->valor])) {
+            return self::COLUMNAS_POR_CLAVE[$canal->valor];
+        }
+
+        if ($canal->es_canal_base) {
+            return 'mayorista';
+        }
+
+        if ($canal->es_precio_publico) {
+            return 'cliente_final';
+        }
+
+        $intermedio = $this->canales->canales()
+            ->reject(fn ($c) => $c->es_canal_base || $c->es_precio_publico)
+            ->first();
+
+        return $intermedio && $intermedio->id === $canal->id ? 'distribuidor' : null;
+    }
 
     public function __construct(private CanalesPrecioService $canales) {}
 
@@ -101,7 +149,7 @@ class PreciosPorCanalService
             return (float) $fila->precio;
         }
 
-        $columna = self::COLUMNAS_HEREDADAS[$canal->valor] ?? null;
+        $columna = $this->columnaDe($canal);
 
         if ($columna && isset($item->{"precio_{$columna}"})) {
             return (float) $item->{"precio_{$columna}"};
@@ -136,7 +184,7 @@ class PreciosPorCanalService
             ];
         }
 
-        $columna = self::COLUMNAS_HEREDADAS[$canal->valor] ?? null;
+        $columna = $this->columnaDe($canal);
 
         if (! $columna) {
             // Un canal que la empresa creó después y al que nadie le puso precio en este
@@ -220,16 +268,21 @@ class PreciosPorCanalService
      */
     private function espejarEnColumnasViejas(Model $item): void
     {
-        $porOpcion = $item->preciosPorCanal()->with('canal')->get()
-            ->keyBy(fn ($p) => $p->canal?->valor);
+        $porCanal = $item->preciosPorCanal()->with('canal')->get()
+            ->keyBy('segmentacion_opcion_id');
 
         $cambios   = [];
         $esProducto = $item instanceof Producto;
 
-        foreach (self::COLUMNAS_HEREDADAS as $valor => $sufijo) {
-            $fila = $porOpcion->get($valor);
+        // Se recorren los canales CONFIGURADOS y se pregunta a cuál columna le toca cada
+        // uno. Antes se recorrían las tres claves de fábrica, así que en una instalación
+        // con canales propios el espejo no escribía nada y las columnas viejas —que la
+        // ficha del producto todavía muestra— se quedaban en cero.
+        foreach ($this->canales->canales() as $canal) {
+            $sufijo = $this->columnaDe($canal);
+            $fila   = $porCanal->get($canal->id);
 
-            if (! $fila) {
+            if (! $sufijo || ! $fila) {
                 continue;
             }
 
@@ -241,8 +294,8 @@ class PreciosPorCanalService
                 $cambios["margen_{$sufijo}"] = $fila->margen_pct;
             }
 
-            // Mayorista nunca tuvo columnas de comisión: es el canal base.
-            if ($valor !== 'mayorista') {
+            // El canal base nunca tuvo columnas de comisión: es el piso de utilidad.
+            if (! $canal->es_canal_base) {
                 $cambios["comision_min_{$sufijo}"] = $fila->comision_min_pct;
                 $cambios["comision_max_{$sufijo}"] = $fila->comision_max_pct;
             }
@@ -268,10 +321,14 @@ class PreciosPorCanalService
     {
         $filas = [];
 
-        foreach (self::COLUMNAS_HEREDADAS as $valor => $sufijo) {
-            $canal = SegmentacionOpcion::canalesDePrecio()->where('valor', $valor)->first();
+        // Por papel y no por clave: una instalación con canales propios no tiene ninguna
+        // opción llamada «mayorista», y esta conversión no creaba ni una fila. Ese era el
+        // motivo real de que guardar un producto desde la pantalla de editar dejara sus
+        // precios solo en las columnas viejas, invisibles para la cotización.
+        foreach ($this->canales->canales() as $canal) {
+            $sufijo = $this->columnaDe($canal);
 
-            if (! $canal) {
+            if (! $sufijo) {
                 continue;
             }
 

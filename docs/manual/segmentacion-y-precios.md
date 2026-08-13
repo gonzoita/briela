@@ -108,6 +108,31 @@ clientes que tuvieran ese tipo se quedan sin precio hasta que les asignes otro.
 Si solo quieres dejar de usarlo sin perder nada, **quítale «define precio»**: los
 precios quedan guardados y vuelven si lo marcas de nuevo.
 
+## Si rehiciste los canales con tus propios nombres
+
+El sistema guarda los precios en dos sitios a la vez: las **filas por canal** —lo nuevo, y
+lo que usa la cotización— y unas **columnas antiguas** por canal, que todavía leen algunas
+pantallas mientras se van cambiando una por una.
+
+El puente entre los dos mundos se decide por el **papel** de cada canal, no por su nombre:
+
+| Columna antigua | A qué canal le corresponde |
+|---|---|
+| `precio_mayorista` | El **canal base** |
+| `precio_cliente_final` | El **precio público** |
+| `precio_distribuidor` | El primer canal que no es ninguno de los dos, en tu orden |
+
+Un cuarto canal —por ejemplo «Precio Especial»— **no tiene columna antigua**, porque nunca
+existió una para él. Su precio vive solo en las filas nuevas, así que hay que cargarlo
+desde el formulario del producto; si está vacío, la cotización lo dice al agregar el ítem
+en vez de mostrar un cero.
+
+> Hasta el 13 ago 2026 ese puente estaba atado a tres nombres internos —`mayorista`,
+> `distribuidor`, `cliente_directo`—. Funcionaba con los canales de fábrica y **fallaba en
+> silencio** en cuanto la empresa creaba los suyos: los productos se cotizaban en cero
+> teniendo sus precios a la vista en la ficha, y guardar desde la pantalla de editar no
+> creaba ninguna fila. Ese era el motivo.
+
 ## El nombre es tuyo; la clave, no
 
 Cada opción tiene una **clave interna** —el texto gris a la derecha— que no
