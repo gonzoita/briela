@@ -132,3 +132,35 @@ php artisan cotizaciones:marcar-vencidas
 
 - Notificación proactiva (no solo visual al entrar a la página) cuando una
   cotización cumple el umbral de días sin respuesta.
+
+## Crear el cliente sin salir de la cotización
+
+Si el cliente no aparece en el buscador, el botón **+ Cliente** abre un formulario
+ahí mismo, con el nombre que ya escribiste. Al guardar queda creado y seleccionado,
+sin perder los ítems ni los precios que ya llevabas.
+
+Pide lo mismo que la pantalla completa de clientes, porque es la misma acción: razón
+social o nombre, identificación, contacto —**obligatorio para empresas**— y el **tipo
+de cliente**. Ese último no es un adorno: de él salen los precios. Si eliges un tipo
+que no define precio, el modal te avisa antes de guardar.
+
+## Las condiciones comerciales
+
+El bloque del final de la cotización se edita en cada cotización, y arranca con el
+texto general de la empresa.
+
+Para cambiar el general, escribe el texto que quieras y usa **«Usar este texto para
+todas las cotizaciones nuevas»**. Pide permiso de configuración, porque cambia cómo
+nacen todas. **Las cotizaciones ya hechas no se tocan:** cada una guardó su texto
+cuando se creó.
+
+## Qué se imprime debajo de cada ítem
+
+El **resumen técnico** del producto, no su ficha completa. Son dos o tres líneas con
+medidas, material y potencia: lo que un cliente necesita leer al lado del precio.
+
+Si un producto todavía no tiene resumen técnico, sale su descripción comercial, que
+también es corta. La ficha técnica completa vive en el catálogo y en el sitio web —
+antes se imprimía entera aquí, y una cotización de tres ítems salía de cuatro páginas.
+
+En un ensamble a medida, además, se le pegan las medidas de esa configuración.

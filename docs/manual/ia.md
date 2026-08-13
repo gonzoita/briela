@@ -106,6 +106,33 @@ corta queda vacía, y la pantalla lo dice con un aviso amarillo en vez de perder
 resultado y cobrar otra llamada. Si pasa seguido, el modelo de texto configurado no
 es bueno siguiendo instrucciones: cámbialo en Configuración → IA.
 
+## Recomendar un producto del catálogo
+
+Al asistente se le puede preguntar con palabras: *«qué producto me recomiendas para
+guardar temperatura, económico, que sirva para congelación y de 1.2 x 2.3»*. Responde
+con productos y ensambles reales del catálogo, citando nombre y referencia.
+
+**Cómo lo hace sin gastar créditos de más.** Lo caro sería mandarle el catálogo
+completo al modelo: con doscientos productos son decenas de miles de tokens por
+pregunta. En cambio:
+
+1. De la pregunta se extraen las palabras con contenido y los números —«congelación»,
+   «1.2», «2.3»—. Esto no usa IA.
+2. Se buscan en la base sobre el **resumen técnico para cotizaciones**, que es donde
+   están las medidas y los materiales en una línea. Esto tampoco usa IA.
+3. Solo los **doce mejores candidatos** van al modelo, con su resumen —nunca la ficha
+   completa— para que elija y explique por qué.
+
+Con la pregunta del ejemplo, lo que el modelo lee pesa menos de mil caracteres. Cuesta
+lo mismo con veinte productos que con mil.
+
+**Las medidas se buscan en varias formas**, porque nadie las escribe igual: «1.2»
+aparece en las fichas como «1.2», «1,2» y como «1200» milímetros.
+
+**No inventa.** Se le dice explícitamente que recomiende solo de la lista y que, si
+ninguno cumple, lo diga y explique qué falta. Si el catálogo no tiene resúmenes
+técnicos cargados, la recomendación va a ser pobre: ese campo es la materia prima.
+
 ## Generar imágenes
 
 Hay dos puntos de entrada, y en los dos se describe lo que se quiere y se elige

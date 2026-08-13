@@ -63,12 +63,19 @@ sistema dice cuántos productos la están usando.
 
 Administrarla pide permiso de **Configuración → Editar**; usarla, no.
 
-## Las dos descripciones
+## Las tres descripciones
 
-- **Descripción corta**: hasta 1000 caracteres. Es la que se ve en el catálogo, en
-  las listas y en la ficha del sitio web. Una buena tiene entre 200 y 400.
-- **Descripción larga**: texto con formato —negritas, listas, subtítulos—, para la
-  ficha técnica completa.
+Cada una tiene un oficio y sale en un sitio distinto:
+
+| Campo | Qué es | Dónde sale |
+|---|---|---|
+| **Descripción corta** | Comercial: qué resuelve, para quién. Hasta 1000 caracteres; una buena tiene entre 200 y 400 | Catálogo y sitio web |
+| **Resumen técnico para cotizaciones** | Solo datos: medidas, material, potencia. Dos o tres líneas, hasta 600 caracteres | **Cotizaciones y órdenes de producción** |
+| **Descripción larga** | La ficha técnica completa, con formato | Catálogo, sitio web y quien la pida |
+
+El **resumen técnico** es además lo que lee la IA para recomendar productos, así que
+vale la pena cargarlo: sin él, ni la cotización se ve bien ni el asistente puede
+recomendar con criterio. Lo genera el mismo modal de «Ficha técnica con IA».
 
 > Hasta el 13 ago 2026 la corta aceptaba solo 160 caracteres en la base, aunque la
 > pantalla decía 1000 y el generador con IA produce hasta 380: la ficha se veía bien
