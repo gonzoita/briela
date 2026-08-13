@@ -70,7 +70,7 @@ class FichaTecnicaService
      * @param  array<string, mixed>  $datos  nombre, referencia, categoria, unidad, tipo,
      *                                       datos_brutos y, para ensambles, variables y
      *                                       componentes.
-     * @return array{descripcion_corta: string, ficha_html: string, aviso: ?string}
+     * @return array{descripcion_corta: string, descripcion_cotizacion: string, ficha_html: string, aviso: ?string}
      */
     public function generar(array $datos): array
     {
@@ -124,10 +124,11 @@ class FichaTecnicaService
           usuario.
 
         FORMATO DE RESPUESTA: devuelve **únicamente** un objeto JSON válido, sin texto antes
-        ni después y sin cercas de código, con exactamente estas dos claves:
+        ni después y sin cercas de código, con exactamente estas tres claves:
 
         {
           "descripcion_corta": "El bloque 3 (introducción persuasiva) en texto plano, máximo 380 caracteres, sin títulos ni viñetas.",
+          "descripcion_cotizacion": "El resumen TÉCNICO para cotizaciones y órdenes de producción: máximo 400 caracteres, texto plano, sin títulos ni viñetas. Solo los datos que un cliente necesita leer al lado del precio —medidas, material, potencia, capacidad— separados por · (punto medio). Nada de lenguaje comercial ni de beneficios: eso ya está en la introducción. Ejemplo: «2400 x 2600 mm · lámina galvanizada cal. 22 · aislamiento poliuretano 40 mm · motor 1.5 kW 220V trifásico · rango -25 °C a 40 °C · IP65».",
           "ficha_html": "Del bloque 4 al 7 en HTML. Usa <h4> para el título de cada bloque y para tus subtítulos, <ul><li> para las viñetas, <p> para párrafos y <strong> para resaltar. Nada de <div>, <span>, <style>, atributos ni clases."
         }
 
@@ -234,7 +235,7 @@ class FichaTecnicaService
      * resultado va a un campo del formulario: si no viene JSON, se aprovecha lo que vino
      * como descripción larga en vez de perder la respuesta y hacer pagar otra llamada.
      *
-     * @return array{descripcion_corta: string, ficha_html: string, aviso: ?string}
+     * @return array{descripcion_corta: string, descripcion_cotizacion: string, ficha_html: string, aviso: ?string}
      */
     private function interpretar(string $bruto): array
     {
@@ -251,15 +252,19 @@ class FichaTecnicaService
 
         if (is_array($json) && (isset($json['ficha_html']) || isset($json['descripcion_corta']))) {
             return [
-                'descripcion_corta' => $this->recortar((string) ($json['descripcion_corta'] ?? ''), 380),
-                'ficha_html'        => $this->limpiarHtml((string) ($json['ficha_html'] ?? '')),
-                'aviso'             => null,
+                'descripcion_corta'      => $this->recortar((string) ($json['descripcion_corta'] ?? ''), 380),
+                // 400 y no 600 —el tope de la columna— para que quepa en una línea o dos
+                // del PDF sin desarmar la tabla de ítems.
+                'descripcion_cotizacion' => $this->recortar((string) ($json['descripcion_cotizacion'] ?? ''), 400),
+                'ficha_html'             => $this->limpiarHtml((string) ($json['ficha_html'] ?? '')),
+                'aviso'                  => null,
             ];
         }
 
         return [
-            'descripcion_corta' => '',
-            'ficha_html'        => $this->comoParrafos($limpio),
+            'descripcion_corta'      => '',
+            'descripcion_cotizacion' => '',
+            'ficha_html'             => $this->comoParrafos($limpio),
             'aviso'             => 'La IA no respondió en el formato esperado, así que la ficha quedó '
                 .'completa en la descripción larga y la corta quedó vacía. Revisa el resultado '
                 .'antes de guardar.',

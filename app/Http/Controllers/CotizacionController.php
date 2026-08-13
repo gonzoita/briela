@@ -389,7 +389,12 @@ class CotizacionController extends Controller
                     'stock_total'          => $p->stockTotal(),
                     'unidad_medida'        => $p->unidad_medida,
                     'descripcion_corta'    => $p->descripcion_corta,
-                    'descripcion_larga'    => $p->descripcion_larga,
+                    // El bloque que se imprime debajo del ítem en la cotización y en la OP
+                    // es el texto TÉCNICO CORTO, no la ficha completa: una cotización de
+                    // tres ítems salía de cuatro páginas con veinte viñetas por producto.
+                    // Si el producto todavía no lo tiene, cae a la descripción comercial,
+                    // que también es corta. La ficha larga sigue en el catálogo y la web.
+                    'descripcion_larga'    => $p->descripcion_cotizacion ?: $p->descripcion_corta,
                     'precio_costo'                => (float) $p->precio_costo,
                     'precio_mayorista'            => (float) $p->precio_mayorista,
                     'precio_distribuidor'         => (float) $p->precio_distribuidor,

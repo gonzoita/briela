@@ -38,6 +38,8 @@ const nombreEditadoManualmente = ref(!!props.ensamble)
 const categoriaId     = ref(props.ensamble?.categoria_id ?? '')
 const descripcionCorta = ref(props.ensamble?.descripcion_corta ?? '')
 const descripcionLarga = ref(props.ensamble?.descripcion_larga ?? '')
+// El técnico corto, el que sale en cotizaciones y órdenes de producción.
+const descripcionCotizacion = ref(props.ensamble?.descripcion_cotizacion ?? '')
 const listaCats        = ref([...(props.categorias ?? [])])
 
 // ── Ficha técnica con IA ──────────────────────────────────────────────────────
@@ -52,8 +54,9 @@ const datosParaFicha = computed(() => ({
     descripcion_corta: descripcionCorta.value,
 }))
 
-function aplicarFicha({ descripcion_corta, descripcion_larga }) {
+function aplicarFicha({ descripcion_corta, descripcion_cotizacion, descripcion_larga }) {
     if (descripcion_corta) descripcionCorta.value = descripcion_corta
+    if (descripcion_cotizacion) descripcionCotizacion.value = descripcion_cotizacion
     if (descripcion_larga) descripcionLarga.value = descripcion_larga
 }
 
@@ -338,6 +341,7 @@ async function guardar() {
         categoria_id:                  categoriaId.value || null,
         descripcion_corta:             descripcionCorta.value || null,
         descripcion_larga:             descripcionLarga.value || null,
+        descripcion_cotizacion:        descripcionCotizacion.value || null,
         comision_pct_minima:           comisionMin.value,
         comision_pct_maxima:           comisionMax.value,
         comision_min_distribuidor:     comisionMinDistribuidor.value,
@@ -401,7 +405,23 @@ onMounted(() => {
                 <h2 class="text-sm font-semibold text-tinta-700 uppercase tracking-[0.12em] mb-4">1. Plantilla y nombre</h2>
 
                 <div class="space-y-4">
-                    <div>
+                                            <div>
+                            <div class="flex items-center justify-between mb-1">
+                                <label class="block text-sm font-medium text-tinta-700">Resumen técnico para cotizaciones</label>
+                                <span class="text-xs" :class="(descripcionCotizacion||'').length > 500 ? 'text-amber-500 font-semibold' : 'text-tinta-300'">
+                                    {{ (descripcionCotizacion||'').length }}/600
+                                </span>
+                            </div>
+                            <textarea v-model="descripcionCotizacion" rows="2" maxlength="600"
+                                class="w-full border border-linea rounded-xl px-3 py-2 text-sm bg-superficie focus:outline-none focus:border-[var(--marca)]"
+                                placeholder="2400 x 2600 mm · lámina galvanizada cal. 22 · motor 1.5 kW 220V · rango -25 °C a 40 °C" />
+                            <p class="text-xs text-tinta-300 mt-1">
+                                Es lo que se imprime debajo del ítem en las cotizaciones y en las órdenes
+                                de producción. Solo datos, sin lenguaje comercial: la ficha completa se
+                                queda en la descripción larga.
+                            </p>
+                        </div>
+<div>
                         <label class="block text-sm font-medium text-tinta-700 mb-1.5">Plantilla <span class="text-red-500">*</span></label>
                         <select v-model="plantillaId" :disabled="esEdicion"
                             class="w-full border border-linea rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-[var(--marca)] disabled:bg-tinta-50">

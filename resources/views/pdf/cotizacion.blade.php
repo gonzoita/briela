@@ -31,7 +31,7 @@
     .condiciones { padding: 12px 20px; }
     .condiciones p { font-size: 8px; color: #6B7280; line-height: 1.5; }
     .footer { padding: 10px 20px; background: #F9FAFB; display: flex; justify-content: space-between; font-size: 8px; color: #9CA3AF; }
-    .descripcion-larga { font-size:8.5px; color:#4B5563; font-style:italic; margin-top:3px; line-height:1.5; }
+    .descripcion-larga { font-size:8.5px; color:#4B5563; margin-top:3px; line-height:1.45; }
     .descripcion-larga p { margin:0 0 2px; }
     .descripcion-larga ul, .descripcion-larga ol { margin:0 0 2px; padding-left:14px; }
     .descripcion-larga li { margin-bottom:1px; }

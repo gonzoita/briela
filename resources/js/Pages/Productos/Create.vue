@@ -60,6 +60,8 @@ const form = useForm({
     referencia:          '',
     unidad_medida:       'unidad',
     descripcion_corta:   '',
+    // El técnico corto, el que sale en cotizaciones y órdenes de producción.
+    descripcion_cotizacion: '',
     descripcion_larga:   '',
     inventariable:       false,
     es_vendible:         false,
@@ -272,8 +274,9 @@ const datosParaFicha = computed(() => ({
     descripcion_corta: form.descripcion_corta,
 }))
 
-function aplicarFicha({ descripcion_corta, descripcion_larga }) {
+function aplicarFicha({ descripcion_corta, descripcion_cotizacion, descripcion_larga }) {
     if (descripcion_corta) form.descripcion_corta = descripcion_corta
+    if (descripcion_cotizacion) form.descripcion_cotizacion = descripcion_cotizacion
     if (descripcion_larga) form.descripcion_larga = descripcion_larga
 }
 
@@ -552,7 +555,23 @@ const badgeStyle = {
                                 />
                             </div>
                         </div>
-                        <div>
+                                                <div>
+                            <div class="flex items-center justify-between mb-1">
+                                <label class="block text-sm font-medium text-tinta-700">Resumen técnico para cotizaciones</label>
+                                <span class="text-xs" :class="(form.descripcion_cotizacion||'').length > 500 ? 'text-amber-500 font-semibold' : 'text-tinta-300'">
+                                    {{ (form.descripcion_cotizacion||'').length }}/600
+                                </span>
+                            </div>
+                            <textarea v-model="form.descripcion_cotizacion" rows="2" maxlength="600"
+                                class="w-full border border-linea rounded-xl px-3 py-2 text-sm bg-superficie focus:outline-none focus:border-[var(--marca)]"
+                                placeholder="2400 x 2600 mm · lámina galvanizada cal. 22 · motor 1.5 kW 220V · rango -25 °C a 40 °C" />
+                            <p class="text-xs text-tinta-300 mt-1">
+                                Es lo que se imprime debajo del ítem en las cotizaciones y en las órdenes
+                                de producción. Solo datos, sin lenguaje comercial: la ficha completa se
+                                queda en la descripción larga.
+                            </p>
+                        </div>
+<div>
                             <div class="flex items-center justify-between mb-1">
                                 <label class="block text-sm font-medium text-tinta-700">Descripción corta</label>
                                 <div class="flex items-center gap-3">

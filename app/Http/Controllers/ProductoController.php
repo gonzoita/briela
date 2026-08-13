@@ -104,7 +104,7 @@ class ProductoController extends Controller
 
         $base = collect($producto->toArray())->only([
             'tipo', 'categoria_id', 'proveedor_id', 'unidad_medida',
-            'descripcion_corta', 'descripcion_larga',
+            'descripcion_corta', 'descripcion_larga', 'descripcion_cotizacion',
             'inventariable', 'es_vendible', 'es_insumo',
             'stock_minimo', 'stock_maximo',
             'precio_costo',
@@ -167,6 +167,7 @@ class ProductoController extends Controller
             'unidad_medida'       => $request->unidad_medida ?? 'unidad',
             'descripcion_corta'   => $request->descripcion_corta,
             'descripcion_larga'   => $request->descripcion_larga,
+            'descripcion_cotizacion' => $request->descripcion_cotizacion,
             'inventariable'       => $tipo === 'producto' ? (bool) $request->inventariable : false,
             'es_vendible'         => (bool) $request->es_vendible,
             'es_insumo'           => (bool) $request->es_insumo,
@@ -358,7 +359,7 @@ class ProductoController extends Controller
 
                     $datosBase = collect($producto->toArray())->only([
                         'tipo', 'categoria_id', 'proveedor_id', 'nombre', 'unidad_medida',
-                        'descripcion_corta', 'descripcion_larga', 'es_vendible', 'es_insumo',
+                        'descripcion_corta', 'descripcion_larga', 'descripcion_cotizacion', 'es_vendible', 'es_insumo',
                         'inventariable', 'stock_minimo', 'stock_maximo',
                         'precio_costo', 'precio_promedio_compra', 'precio_ultimo_compra',
                         'margen_mayorista', 'margen_distribuidor', 'margen_cliente_final',
@@ -393,6 +394,7 @@ class ProductoController extends Controller
                 'unidad_medida'        => $request->unidad_medida ?? 'unidad',
                 'descripcion_corta'    => $request->descripcion_corta,
                 'descripcion_larga'    => $request->descripcion_larga,
+                'descripcion_cotizacion' => $request->descripcion_cotizacion,
                 'inventariable'        => $tipo === 'producto' ? (bool) $request->inventariable : false,
                 'es_vendible'          => (bool) $request->es_vendible,
                 'es_insumo'            => (bool) $request->es_insumo,
@@ -623,6 +625,8 @@ class ProductoController extends Controller
             // dé un mensaje claro en vez de un error de base de datos, y va por debajo del
             // límite real porque un carácter acentuado ocupa más de un byte.
             'descripcion_larga'   => 'nullable|string|max:60000',
+            // El técnico corto: cotizaciones y órdenes de producción.
+            'descripcion_cotizacion' => 'nullable|string|max:600',
             'es_vendible'         => 'nullable|boolean',
             'es_insumo'           => 'nullable|boolean',
             'es_padre'            => 'nullable|boolean',

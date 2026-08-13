@@ -27,6 +27,8 @@ class Producto extends Model
         'unidad_medida',
         'descripcion_corta',
         'descripcion_larga',
+        // El texto técnico corto: cotizaciones y órdenes de producción.
+        'descripcion_cotizacion',
         'inventariable',
         'stock_minimo',
         'stock_maximo',

@@ -129,8 +129,9 @@ async function generar() {
 
 function usar() {
     emit('usar', {
-        descripcion_corta: resultado.value?.descripcion_corta ?? '',
-        descripcion_larga: resultado.value?.ficha_html ?? '',
+        descripcion_corta:      resultado.value?.descripcion_corta ?? '',
+        descripcion_cotizacion: resultado.value?.descripcion_cotizacion ?? '',
+        descripcion_larga:      resultado.value?.ficha_html ?? '',
     })
     abierto.value = false
     resultado.value = null
@@ -230,6 +231,15 @@ function usarEjemplo(casilla) {
                         </div>
 
                         <div>
+                            <p class="text-xs font-semibold text-tinta-400 uppercase tracking-wide mb-1">
+                                Resumen técnico para cotizaciones ({{ (resultado.descripcion_cotizacion || '').length }} caracteres)
+                            </p>
+                            <p class="text-sm text-tinta-700 p-3 rounded-xl" style="background:var(--superficie-2);">
+                                {{ resultado.descripcion_cotizacion || '— vacío —' }}
+                            </p>
+                        </div>
+
+                        <div>
                             <p class="text-xs font-semibold text-tinta-400 uppercase tracking-wide mb-1">Descripción larga</p>
                             <div class="tiptap-content text-sm text-tinta-700 p-3 rounded-xl max-h-72 overflow-y-auto"
                                 style="background:var(--superficie-2);" v-html="resultado.ficha_html"></div>
@@ -247,7 +257,7 @@ function usarEjemplo(casilla) {
                             </button>
                         </div>
                         <p class="text-xs text-tinta-300 text-center">
-                            «Usar esto» reemplaza lo que haya en los dos campos. No guarda el producto.
+                            «Usar esto» reemplaza lo que haya en los tres campos. No guarda el producto.
                         </p>
                     </div>
                 </div>

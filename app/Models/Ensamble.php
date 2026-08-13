@@ -18,6 +18,8 @@ class Ensamble extends Model
         'categoria_id',
         'descripcion_corta',
         'descripcion_larga',
+        // El texto técnico corto: cotizaciones y órdenes de producción.
+        'descripcion_cotizacion',
         'imagen_principal',
         'imagen_principal_drive_id',
         'imagenes_secundarias',
