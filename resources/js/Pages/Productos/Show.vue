@@ -8,6 +8,8 @@ const props = defineProps({
     producto: Object,
     bodegas:  Array,
     web:      { type: Object, default: null },
+    // Los canales configurados con el precio efectivo de este producto en cada uno.
+    canales:  { type: Array, default: () => [] },
 })
 
 // Duplicar lleva al formulario de creación, así que se muestra solo a quien puede crear:
@@ -350,27 +352,48 @@ const fmtFecha = (d) => d ? new Date(d).toLocaleDateString('es-CO', { day: '2-di
                         <div class="tiptap-content text-sm text-tinta-500 leading-relaxed" v-html="p.descripcion_larga"></div>
                     </div>
 
-                    <!-- Lista de precios -->
+                    <!-- Lista de precios.
+                         Sale de los canales que la empresa configuró en Segmentación, con
+                         SUS nombres. Antes eran tres filas escritas aquí —«Mayorista»,
+                         «Distribuidor», «Cliente Final»— leyendo las columnas viejas: en una
+                         instalación con canales propios mostraba nombres que no existen y se
+                         dejaba por fuera cualquier canal que la empresa hubiera creado. -->
                     <div class="border border-linea rounded-xl overflow-hidden mb-4">
-                        <div class="px-3 py-2 bg-tinta-50 border-b border-linea">
+                        <div class="px-3 py-2 bg-tinta-50 border-b border-linea flex items-center justify-between gap-2">
                             <p class="text-xs font-semibold text-tinta-400 uppercase tracking-wide">Lista de precios</p>
+                            <a v-if="puedeEditar" :href="`/productos/${p.id}/editar`"
+                                class="text-xs font-semibold" style="color:var(--marca);">Editar</a>
                         </div>
                         <div class="divide-y divide-gray-50">
                             <div class="flex items-center justify-between px-3 py-2.5">
                                 <span class="text-xs text-tinta-400">Precio Costo</span>
                                 <span class="text-sm font-semibold text-tinta-900">{{ formatCOP(p.precio_costo) }}</span>
                             </div>
-                            <div class="flex items-center justify-between px-3 py-2.5">
-                                <span class="text-xs text-tinta-400">Mayorista</span>
-                                <span class="text-sm font-semibold text-tinta-900">{{ formatCOP(p.precio_mayorista) }}</span>
+
+                            <div v-for="c in (canales ?? [])" :key="c.segmentacion_opcion_id"
+                                class="flex items-center justify-between px-3 py-2.5"
+                                :style="c.es_precio_publico ? 'background:var(--pastel-azul);' : ''">
+                                <span class="text-xs flex items-center gap-1.5 min-w-0">
+                                    <span class="truncate"
+                                        :style="c.es_precio_publico ? 'color:var(--marca); font-weight:600;' : 'color:var(--tinta-400);'">
+                                        {{ c.etiqueta }}
+                                    </span>
+                                    <span v-if="c.es_canal_base"
+                                        class="text-[10px] px-1.5 py-0.5 rounded-full shrink-0"
+                                        style="background:var(--tinta-100); color:var(--tinta-500);">base</span>
+                                </span>
+                                <span class="text-sm font-semibold shrink-0"
+                                    :class="c.precio > 0 ? '' : 'text-amber-600'"
+                                    :style="c.es_precio_publico && c.precio > 0 ? 'color:var(--marca);' : ''">
+                                    {{ c.precio > 0 ? formatCOP(c.precio) : 'sin precio' }}
+                                </span>
                             </div>
-                            <div class="flex items-center justify-between px-3 py-2.5">
-                                <span class="text-xs text-tinta-400">Distribuidor</span>
-                                <span class="text-sm font-semibold text-tinta-900">{{ formatCOP(p.precio_distribuidor) }}</span>
-                            </div>
-                            <div v-if="p.tipo !== 'ensamble'" class="flex items-center justify-between px-3 py-2.5 bg-blue-50">
-                                <span class="text-xs font-semibold" style="color:var(--marca);">Cliente Final</span>
-                                <span class="text-sm font-semibold" style="color:var(--marca);">{{ formatCOP(p.precio_cliente_final) }}</span>
+
+                            <div v-if="!(canales ?? []).length" class="px-3 py-2.5">
+                                <p class="text-xs text-tinta-400">
+                                    No hay canales de precio configurados. Se marcan con «define precio»
+                                    en Configuración → Listas de segmentación.
+                                </p>
                             </div>
                         </div>
                     </div>

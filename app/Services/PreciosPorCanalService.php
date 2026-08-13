@@ -145,7 +145,11 @@ class PreciosPorCanalService
             return null;
         }
 
-        if ($fila = $item->precioDeCanal($canal)) {
+        // Una fila con precio en cero NO es un precio: es una fila que quedó escrita sin
+        // valor —por ejemplo al crear el producto antes de ponerle costo—. Si se toma como
+        // buena, el respaldo a la columna vieja nunca actúa y el ítem se cotiza en cero
+        // teniendo el precio a la vista en la ficha. Ese fue el caso real.
+        if (($fila = $item->precioDeCanal($canal)) && (float) $fila->precio > 0) {
             return (float) $fila->precio;
         }
 
@@ -174,7 +178,10 @@ class PreciosPorCanalService
     {
         $fila = $item->precioDeCanal($canal);
 
-        if ($fila) {
+        // Mismo criterio que en `precioDe`: una fila en cero no es un precio. Se mira la
+        // columna vieja antes de darla por buena, y las comisiones se conservan de la fila
+        // si las tiene —esas sí pueden ser cero legítimamente, el canal base no cobra—.
+        if ($fila && (float) $fila->precio > 0) {
             return [
                 'precio'                => (float) $fila->precio,
                 'comision_min_pct'      => (float) $fila->comision_min_pct,

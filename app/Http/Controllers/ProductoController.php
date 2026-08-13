@@ -286,6 +286,23 @@ class ProductoController extends Controller
             ]),
             'categorias' => CategoriaProducto::where('activa', true)->orderBy('nombre')->get(),
             'bodegas'    => Bodega::where('activa', true)->orderByDesc('es_principal')->orderBy('nombre')->get(),
+            // Los canales configurados con el precio EFECTIVO de este producto en cada
+            // uno: lo guardado o, si falta, lo que haya en la columna vieja. La lista de
+            // precios del visor mostraba tres nombres escritos en la pantalla, así que en
+            // una instalación con canales propios enseñaba nombres que no existen y dejaba
+            // por fuera los canales que la empresa creó.
+            'canales'    => app(\App\Services\CanalesPrecioService::class)->canales()
+                ->map(function ($canal) use ($producto) {
+                    $fila = app(PreciosPorCanalService::class)->filaEfectiva($producto, $canal);
+
+                    return [
+                        'segmentacion_opcion_id' => $canal->id,
+                        'etiqueta'               => $canal->etiqueta,
+                        'es_canal_base'          => (bool) $canal->es_canal_base,
+                        'es_precio_publico'      => (bool) $canal->es_precio_publico,
+                        'precio'                 => $fila['precio'],
+                    ];
+                })->values(),
             // Para el interruptor de publicación: si no hay precio público, la ficha del
             // sitio sale sin cifra, y eso se avisa antes de publicar y no después.
             'web'        => [
