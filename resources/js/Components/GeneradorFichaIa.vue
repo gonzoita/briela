@@ -2,20 +2,24 @@
 /**
  * Genera la ficha técnica con IA y la deja en los dos campos de descripción.
  *
- * Pide los **datos técnicos en bruto** porque son la materia prima: sin ellos la IA solo
- * tiene el nombre y la categoría, y una ficha inventada a partir de un nombre es
- * exactamente lo que el prompt prohíbe. Todo lo demás lo toma del formulario, así que
- * funciona antes de guardar el producto.
+ * **Un campo por bloque de la ficha, no una caja de «datos en bruto».** Con una sola caja,
+ * el modelo tenía que adivinar qué parte del texto era una característica, cuál una ventaja
+ * y cuál un beneficio: adivinaba mal, mezclaba beneficios entre las especificaciones y
+ * repetía la misma idea tres veces. Si quien escribe ya sabe a qué bloque pertenece cada
+ * cosa, decirlo cuesta un rótulo y mejora la ficha completa.
  *
- * Muestra el resultado y espera: nada se escribe en el formulario hasta que se toca «Usar
- * esto», y ni siquiera entonces se guarda —eso sigue siendo el botón Guardar de siempre.
+ * Ningún campo es obligatorio, pero alguno tiene que venir: con solo el nombre, lo único
+ * que puede hacer la IA es inventar, y eso es justo lo que el prompt prohíbe.
+ *
+ * Muestra el resultado y espera: nada se escribe en el formulario hasta «Usar esto», y ni
+ * siquiera entonces se guarda —eso sigue siendo el botón Guardar de siempre.
  */
 import { ref, computed } from 'vue'
 
 const props = defineProps({
-    // Lo que se le manda: nombre, referencia, categoria, unidad, tipo, descripcion_corta.
+    // Lo que ya está en el formulario: nombre, referencia, categoria, unidad, tipo.
     datos:       { type: Object, required: true },
-    // Para un ensamble: sus variables y componentes se leen en el servidor.
+    // Para un ensamble: sus medidas y su receta se leen en el servidor.
     ensambleId:  { type: Number, default: null },
 })
 
@@ -24,15 +28,70 @@ const emit = defineEmits(['usar'])
 const abierto   = ref(false)
 const cargando  = ref(false)
 const error     = ref('')
-const brutos    = ref('')
 const resultado = ref(null)
+
+/** Un campo por bloque, en el orden en que salen en la ficha. */
+const aportes = ref({
+    aporte_descripcion:     '',
+    aporte_caracteristicas: '',
+    aporte_ventajas:        '',
+    aporte_beneficios:      '',
+    aporte_componentes:     '',
+})
+
+const esEnsamble = computed(() => props.datos?.tipo === 'ensamble')
+
+/**
+ * Las casillas, con instrucciones concretas. El texto de ayuda importa tanto como el
+ * campo: es lo que evita que alguien escriba una ventaja donde va una característica.
+ */
+const casillas = computed(() => [
+    {
+        campo: 'aporte_descripcion',
+        titulo: 'Qué es y para qué sirve',
+        ayuda: 'De esto sale la introducción comercial. Qué problema resuelve, dónde se usa, quién lo usa.',
+        ejemplo: 'Puerta rápida para cámara de congelación. Se instala entre el muelle y la cámara, en operaciones con paso continuo de estibas. Evita la pérdida de frío en cada apertura.',
+        filas: 3,
+    },
+    {
+        campo: 'aporte_caracteristicas',
+        titulo: 'Características técnicas',
+        ayuda: 'Medidas, materiales, potencia, voltaje, acabados, normas, temperaturas, capacidades. Como venga, en desorden: la IA las agrupa en subtítulos.',
+        ejemplo: '2400x2600 mm · lámina de acero galvanizado cal. 22 · motor 1.5 kW 220V trifásico · velocidad 1.2 m/s · aislamiento poliuretano 40 mm · rango -25 °C a 40 °C · IP65',
+        filas: 5,
+    },
+    {
+        campo: 'aporte_ventajas',
+        titulo: 'Ventajas frente a otras opciones',
+        ayuda: 'Qué tiene este que no tienen las alternativas del mercado. Si lo dejas vacío, la IA las deduce de las características.',
+        ejemplo: 'Motor con variador incluido, no opcional. Repuestos en el país. Estructura reforzada en el punto donde fallan las importadas.',
+        filas: 3,
+    },
+    {
+        campo: 'aporte_beneficios',
+        titulo: 'Beneficios para el cliente',
+        ayuda: 'El valor operacional: ahorro, tiempos, mermas, seguridad. Vacío también se deduce.',
+        ejemplo: 'Baja el consumo del compresor. Menos producto perdido por rotura de cadena de frío. El operario no baja de la estiba para abrir.',
+        filas: 3,
+    },
+    {
+        campo: 'aporte_componentes',
+        titulo: 'Componentes y accesorios',
+        ayuda: esEnsamble.value
+            ? 'Los de la receta del ensamble ya van solos. Agrega aquí lo que no esté ahí: accesorios, opcionales, elementos de instalación.'
+            : 'Módulos, accesorios o partes que acompañan al producto. Déjalo vacío si no aplica.',
+        ejemplo: 'Botonera de tres posiciones · fotocelda de seguridad · lazo magnético · kit de anclaje',
+        filas: 3,
+    },
+])
+
+const hayAlgo = computed(() => Object.values(aportes.value).some(v => (v || '').trim() !== ''))
+const faltaNombre = computed(() => ! (props.datos?.nombre || '').trim())
 
 const csrf = () => {
     const c = document.cookie.split('; ').find(r => r.startsWith('XSRF-TOKEN='))
     return c ? decodeURIComponent(c.split('=')[1]) : ''
 }
-
-const faltaNombre = computed(() => ! (props.datos?.nombre || '').trim())
 
 async function generar() {
     cargando.value = true
@@ -51,7 +110,7 @@ async function generar() {
             credentials: 'same-origin',
             body: JSON.stringify({
                 ...props.datos,
-                datos_brutos: brutos.value,
+                ...aportes.value,
                 ensamble_id: props.ensambleId,
             }),
         })
@@ -75,6 +134,13 @@ function usar() {
     })
     abierto.value = false
     resultado.value = null
+}
+
+/** Pone el ejemplo en el campo, para que se vea el nivel de detalle que ayuda. */
+function usarEjemplo(casilla) {
+    if (! (aportes.value[casilla.campo] || '').trim()) {
+        aportes.value[casilla.campo] = casilla.ejemplo
+    }
 }
 </script>
 
@@ -108,24 +174,40 @@ function usar() {
                         necesita para saber de qué está escribiendo.
                     </p>
 
-                    <div>
-                        <label class="block text-sm font-medium text-tinta-700 mb-1">
-                            Datos técnicos en bruto
-                        </label>
-                        <textarea v-model="brutos" rows="8"
-                            placeholder="Pega aquí las medidas, materiales, potencia, voltaje, acabados, normas, lo que tengas. Como venga: la IA lo organiza. Lo que no le des, no lo va a inventar."
+                    <p class="text-xs text-tinta-400">
+                        Una casilla por bloque de la ficha. Llena las que tengas: lo que dejes vacío,
+                        la IA lo deduce de las características técnicas — pero solo lo que se pueda
+                        deducir, porque no inventa datos. El nombre, la referencia, la categoría y la
+                        unidad se toman del formulario.
+                        <template v-if="ensambleId">
+                            Las medidas y los componentes de la receta también.
+                        </template>
+                    </p>
+
+                    <!-- Una casilla por bloque -->
+                    <div v-for="c in casillas" :key="c.campo">
+                        <div class="flex items-baseline justify-between gap-2 mb-1">
+                            <label class="block text-sm font-medium text-tinta-700">{{ c.titulo }}</label>
+                            <button type="button" @click="usarEjemplo(c)"
+                                class="text-xs text-tinta-300 hover:text-[var(--marca)] hover:underline shrink-0">
+                                Ver ejemplo
+                            </button>
+                        </div>
+                        <p class="text-xs text-tinta-400 mb-1.5">{{ c.ayuda }}</p>
+                        <textarea v-model="aportes[c.campo]" :rows="c.filas"
                             class="w-full border border-linea rounded-xl px-3 py-2 text-sm bg-superficie focus:outline-none focus:border-[var(--marca)]"></textarea>
-                        <p class="text-xs text-tinta-300 mt-1">
-                            El nombre, la referencia, la categoría y la unidad se toman del formulario.
-                            <template v-if="ensambleId">Las medidas y los componentes de la receta también.</template>
-                        </p>
                     </div>
 
-                    <button type="button" @click="generar" :disabled="cargando || faltaNombre"
+                    <button type="button" @click="generar" :disabled="cargando || faltaNombre || !hayAlgo"
                         class="w-full py-2.5 rounded-xl text-white text-sm font-semibold disabled:opacity-50"
                         style="background:var(--marca);">
                         {{ cargando ? 'Redactando la ficha…' : 'Generar ficha' }}
                     </button>
+
+                    <p v-if="!hayAlgo" class="text-xs text-tinta-300 text-center">
+                        Escribe al menos una casilla. Con solo el nombre, lo único que puede hacer la
+                        IA es inventar.
+                    </p>
 
                     <p v-if="error" class="text-xs px-3 py-2 rounded-xl" style="background:#FEF2F2;color:#B91C1C;">
                         {{ error }}

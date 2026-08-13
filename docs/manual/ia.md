@@ -42,9 +42,30 @@ de crear o editar productos o ensambles.
 
 ## La ficha técnica con IA
 
-Abre una ventana con un campo grande: **datos técnicos en bruto**. Ahí se pega lo
-que se tenga —medidas, materiales, potencia, voltaje, acabados, normas— como
-venga, en desorden. Eso es la materia prima de la ficha.
+Abre una ventana con **una casilla por bloque de la ficha**:
+
+| Casilla | Qué poner | Alimenta |
+|---|---|---|
+| **Qué es y para qué sirve** | Qué problema resuelve, dónde se usa, quién lo usa | La introducción comercial |
+| **Características técnicas** | Medidas, materiales, potencia, voltaje, acabados, normas, temperaturas. Como venga, en desorden | Las especificaciones, agrupadas en subtítulos |
+| **Ventajas frente a otras opciones** | Qué tiene este que no tienen las alternativas | El bloque de ventajas |
+| **Beneficios para el cliente** | Ahorro, tiempos, mermas, seguridad | El bloque de beneficios |
+| **Componentes y accesorios** | Módulos, accesorios, partes | El bloque de componentes |
+
+Cada casilla trae su explicación y un **«Ver ejemplo»** que la llena con un caso
+real, para ver el nivel de detalle que ayuda.
+
+**Es una casilla por bloque a propósito.** Con una sola caja de «datos en bruto»,
+el modelo tenía que adivinar qué parte del texto era una característica, cuál una
+ventaja y cuál un beneficio: mezclaba beneficios entre las especificaciones y
+repetía la misma idea tres veces. Si quien escribe ya sabe a qué bloque pertenece
+cada cosa, decirlo mejora la ficha completa.
+
+**Ninguna casilla es obligatoria, pero alguna tiene que venir.** Lo que dejes vacío
+se deduce de las características técnicas —una ventaja y un beneficio son
+interpretaciones de un dato técnico, y eso sí se puede deducir—; lo que no se puede
+es inventar el dato técnico. Con el nombre solo, el sistema no llama a la IA: te
+dice que llenes algo, en vez de cobrar una llamada y devolver ficción.
 
 El resto lo toma del formulario: nombre, referencia, categoría y unidad. **En un
 ensamble además lee sus medidas y su receta de componentes**, que ya están

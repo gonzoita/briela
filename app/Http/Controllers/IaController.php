@@ -50,7 +50,14 @@ class IaController extends Controller
             'categoria'         => 'nullable|string|max:120',
             'unidad'            => 'nullable|string|max:30',
             'descripcion_corta' => 'nullable|string|max:1000',
-            // Lo que el usuario pega: la fuente principal de la ficha.
+            // Lo que aporta el usuario, un campo por bloque de la ficha. Ninguno es
+            // obligatorio por separado; que venga alguno se comprueba abajo.
+            'aporte_descripcion'     => 'nullable|string|max:4000',
+            'aporte_caracteristicas' => 'nullable|string|max:8000',
+            'aporte_ventajas'        => 'nullable|string|max:4000',
+            'aporte_beneficios'      => 'nullable|string|max:4000',
+            'aporte_componentes'     => 'nullable|string|max:4000',
+            // Cajón de sastre, por si una pantalla manda todo junto.
             'datos_brutos'      => 'nullable|string|max:12000',
             // Para un ensamble, su receta ya calculada.
             'ensamble_id'       => 'nullable|integer',
@@ -65,6 +72,21 @@ class IaController extends Controller
                 $datos['variables']   = (array) $ensamble->variables;
                 $datos['componentes'] = (array) $ensamble->componentes_resultado;
             }
+        }
+
+        // Sin ningún dato del producto —ni lo que aporte el usuario ni la receta de un
+        // ensamble— lo único que puede hacer el modelo es inventar, que es justo lo que el
+        // prompt prohíbe. Vale más decirlo que cobrar una llamada y devolver ficción.
+        $fuentes = ['aporte_descripcion', 'aporte_caracteristicas', 'aporte_ventajas',
+            'aporte_beneficios', 'aporte_componentes', 'datos_brutos', 'variables', 'componentes'];
+
+        $hayFuente = collect($fuentes)->contains(fn ($campo) => filled($datos[$campo] ?? null));
+
+        if (! $hayFuente) {
+            return response()->json([
+                'error' => 'Escribe al menos una de las casillas: sin datos del producto, la ficha '
+                    .'saldría inventada.',
+            ], 422);
         }
 
         try {

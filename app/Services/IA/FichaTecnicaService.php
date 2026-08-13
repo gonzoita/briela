@@ -32,6 +32,20 @@ class FichaTecnicaService
     /** Las etiquetas que el editor de descripción larga sabe mostrar. */
     private const ETIQUETAS_PERMITIDAS = ['p', 'br', 'strong', 'em', 'u', 'ul', 'ol', 'li', 'h3', 'h4'];
 
+    /**
+     * Lo que aporta el usuario, un campo por bloque de la ficha.
+     *
+     * El rótulo viaja en el prompt: es lo que le dice al modelo que ese texto es la fuente
+     * de **ese** bloque y no de otro.
+     */
+    private const APORTES = [
+        'aporte_descripcion'     => 'QUÉ ES Y PARA QUÉ SIRVE (lo escribió el usuario; es la base del bloque 3, la introducción)',
+        'aporte_caracteristicas' => 'CARACTERÍSTICAS TÉCNICAS EN BRUTO (fuente del bloque 4; agrúpalas tú en subtítulos)',
+        'aporte_ventajas'        => 'VENTAJAS QUE SEÑALA EL USUARIO (fuente del bloque 5)',
+        'aporte_beneficios'      => 'BENEFICIOS QUE SEÑALA EL USUARIO (fuente del bloque 6)',
+        'aporte_componentes'     => 'COMPONENTES, ACCESORIOS O MÓDULOS QUE INDICA EL USUARIO (fuente del bloque 7)',
+    ];
+
     public function __construct(private IaService $ia) {}
 
     /**
@@ -96,6 +110,19 @@ class FichaTecnicaService
         - No inventes especificaciones. Si un dato no te lo dieron, no lo menciones.
         - Sin emojis.
 
+        CÓMO LEER LO QUE APORTA EL USUARIO
+        Los datos llegan separados por bloque y con su rótulo. Cada bloque es la fuente de
+        SU sección: lo que está bajo "características" no se convierte en un beneficio, y lo
+        que el usuario puso como ventaja no se repite entre las especificaciones.
+        - Un bloque que llegue vacío no se omite: dedúcelo de las características técnicas
+          que sí tengas, sin inventar datos nuevos. Un beneficio o una ventaja son
+          interpretaciones de un dato técnico, y eso sí puedes hacerlo.
+        - Si el usuario escribió poco en un bloque, respétalo y ordénalo; no lo infles.
+        - No repitas la misma idea en dos bloques con otras palabras.
+        - Los componentes que el sistema ya calculó (la receta de un ensamble) son la fuente
+          más confiable del bloque 7: úsalos tal como están y agrega los que indique el
+          usuario.
+
         FORMATO DE RESPUESTA: devuelve **únicamente** un objeto JSON válido, sin texto antes
         ni después y sin cercas de código, con exactamente estas dos claves:
 
@@ -134,12 +161,25 @@ class FichaTecnicaService
         }
 
         if (filled($datos['componentes'] ?? null)) {
-            $peticion .= "\n\nCOMPONENTES DE LA RECETA\n".$this->comoLineas($datos['componentes']);
+            $peticion .= "\n\nCOMPONENTES DE LA RECETA (calculados por el sistema)\n"
+                .$this->comoLineas($datos['componentes']);
+        }
+
+        // Lo que aporta el usuario, **separado por bloque**.
+        //
+        // Antes era una sola caja de «datos en bruto» y el modelo tenía que adivinar qué
+        // parte de ese texto era una característica, qué era una ventaja y qué un beneficio.
+        // Adivinaba mal: mezclaba beneficios entre las especificaciones y repetía la misma
+        // idea en tres bloques. Si el usuario ya sabe a qué bloque pertenece cada cosa,
+        // decirlo cuesta un rótulo y mejora toda la ficha.
+        foreach (self::APORTES as $campo => $rotulo) {
+            if (filled($datos[$campo] ?? null)) {
+                $peticion .= "\n\n{$rotulo}\n".trim($datos[$campo]);
+            }
         }
 
         if (filled($datos['datos_brutos'] ?? null)) {
-            $peticion .= "\n\nDATOS TÉCNICOS EN BRUTO (los aportó el usuario; son la fuente principal)\n"
-                .$datos['datos_brutos'];
+            $peticion .= "\n\nOTROS DATOS SUELTOS\n".trim($datos['datos_brutos']);
         }
 
         return $peticion;
@@ -151,6 +191,14 @@ class FichaTecnicaService
         return collect($filas)
             ->map(function ($valor, $clave) {
                 if (is_array($valor)) {
+                    // Un componente de la receta se lee mejor como «Lámina cal 22 — 12 m2»
+                    // que como «nombre: Lámina cal 22, cantidad: 12, unidad: m2».
+                    if (filled($valor['nombre'] ?? null)) {
+                        $cantidad = trim(($valor['cantidad'] ?? '').' '.($valor['unidad'] ?? ''));
+
+                        return '- '.$valor['nombre'].($cantidad !== '' ? " — {$cantidad}" : '');
+                    }
+
                     $valor = collect($valor)
                         ->filter(fn ($v) => is_scalar($v) && filled($v))
                         ->map(fn ($v, $k) => is_int($k) ? $v : "{$k}: {$v}")
