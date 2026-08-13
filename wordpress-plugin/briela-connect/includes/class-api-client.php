@@ -39,6 +39,51 @@ class ApiClient
     }
 
     /**
+     * GET contra un endpoint del namespace /api/wp/ del ERP.
+     *
+     * Manda la URL de este sitio en `X-Briela-Sitio` para que el ERP sepa a quién avisar
+     * cuando alguien publique algo: así nadie tiene que escribir la dirección del sitio
+     * dos veces, y si el cliente cambia de dominio se corrige solo en la próxima lectura.
+     *
+     * El tiempo de espera es más largo que en el POST porque el catálogo completo de un
+     * fabricante puede ser de cientos de fichas.
+     */
+    public static function get(string $ruta, int $timeout = 25): array
+    {
+        if (! self::configurado()) {
+            return ['ok' => false, 'datos' => [], 'mensaje' => 'Briela Connect no está conectado a un ERP todavía.'];
+        }
+
+        $respuesta = wp_remote_get(self::url_base() . '/api/wp/' . ltrim($ruta, '/'), [
+            'timeout' => $timeout,
+            'headers' => [
+                'Authorization'   => 'Bearer ' . self::token(),
+                'Accept'          => 'application/json',
+                'X-Briela-Sitio'  => home_url(),
+            ],
+        ]);
+
+        if (is_wp_error($respuesta)) {
+            $mensaje = $respuesta->get_error_message();
+            self::registrar_error($mensaje);
+            return ['ok' => false, 'datos' => [], 'mensaje' => $mensaje];
+        }
+
+        $codigo = wp_remote_retrieve_response_code($respuesta);
+        $cuerpo = json_decode(wp_remote_retrieve_body($respuesta), true) ?: [];
+
+        if ($codigo < 200 || $codigo >= 300) {
+            $mensaje = $cuerpo['mensaje'] ?? ('El ERP respondió con el código ' . $codigo . '.');
+            self::registrar_error($mensaje);
+            return ['ok' => false, 'datos' => $cuerpo, 'mensaje' => $mensaje];
+        }
+
+        update_option(self::OPT_ULTIMO_ERROR, '');
+
+        return ['ok' => true, 'datos' => $cuerpo, 'mensaje' => ''];
+    }
+
+    /**
      * POST genérico contra un endpoint del namespace /api/wp/ del ERP.
      * Devuelve ['ok' => bool, 'datos' => array, 'mensaje' => string].
      */

@@ -1,7 +1,8 @@
 <script setup>
-import { ref, watch } from 'vue'
-import { router } from '@inertiajs/vue3'
+import { ref, computed, watch } from 'vue'
+import { router, usePage } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
+import { usePublicacionWeb } from '@/composables/usePublicacionWeb'
 
 const props = defineProps({
     ensambles:  { type: Object, default: () => ({ data: [] }) },
@@ -9,6 +10,28 @@ const props = defineProps({
     categorias: { type: Array, default: () => [] },
     filters:    { type: Object, default: () => ({}) },
 })
+
+// ── Publicar en el sitio web, varios de una vez ────────────────────────────────
+//
+// Se trabaja sobre una copia local para poder marcar «en la web» sin recargar la
+// pantalla. La prop no se muta nunca.
+const ensamblesLocal = ref([])
+watch(() => props.ensambles, (val) => {
+    ensamblesLocal.value = (val?.data ?? []).map(e => ({ ...e }))
+}, { immediate: true })
+
+const page = usePage()
+const puedeEditarEnsambles = computed(() => (page.props.auth?.permisosLista ?? []).includes('ensambles.editar'))
+
+const {
+    seleccion,
+    publicando,
+    todosMarcados,
+    alternar: alternarSeleccion,
+    alternarTodos,
+    limpiar: limpiarSeleccion,
+    publicar: publicarSeleccion,
+} = usePublicacionWeb('ensamble', ensamblesLocal)
 
 const buscar      = ref(props.filters.buscar ?? '')
 const plantillaId = ref(props.filters.plantilla_id ?? '')
@@ -112,10 +135,20 @@ function inicial(nombre) {
 
             <!-- VISTA LISTA -->
             <div v-else-if="viewMode === 'list'" class="bg-superficie rounded-2xl shadow-sm overflow-hidden">
+                <!-- Seleccionar todos: publicar el catálogo la primera vez es de a uno sin esto -->
+                <div v-if="puedeEditarEnsambles" class="px-4 py-2 border-b border-linea flex items-center gap-2"
+                    style="background:var(--superficie-2);">
+                    <input type="checkbox" :checked="todosMarcados" @change="alternarTodos"
+                        class="w-4 h-4 rounded border-tinta-300 cursor-pointer" />
+                    <span class="text-xs text-tinta-400">Seleccionar todos los de esta página</span>
+                </div>
                 <ul class="divide-y divide-gray-50">
-                    <li v-for="e in ensambles.data" :key="e.id"
+                    <li v-for="e in ensamblesLocal" :key="e.id"
                         class="flex items-center gap-3 px-4 py-3 hover:bg-blue-50/40 transition-colors cursor-pointer"
                         @click="router.visit(`/ensambles/${e.id}`)">
+                        <input v-if="puedeEditarEnsambles" type="checkbox" :checked="seleccion.has(e.id)"
+                            @change="alternarSeleccion(e.id)" @click.stop
+                            class="w-4 h-4 rounded border-tinta-300 cursor-pointer shrink-0" />
                         <div class="w-10 h-10 rounded-xl overflow-hidden shrink-0 shadow-sm">
                             <img v-if="e.imagen_principal" :src="urlImagen(e.imagen_principal)" :alt="e.nombre" class="w-full h-full object-cover"/>
                             <div v-else class="w-full h-full flex items-center justify-center text-white text-sm font-semibold"
@@ -129,6 +162,8 @@ function inicial(nombre) {
                                 <span class="text-xs text-tinta-300 truncate">{{ e.plantilla_nombre }}</span>
                                 <span v-if="e.categoria_nombre" class="inline-block px-1.5 py-0.5 rounded-full text-xs font-semibold text-white leading-none"
                                     :style="`background:${e.categoria_color ?? '#64748B'};`">{{ e.categoria_nombre }}</span>
+                                <span v-if="e.publicado_web" class="inline-block px-1.5 py-0.5 rounded-full text-xs font-medium leading-none"
+                                    style="background:var(--pastel-verde);color:var(--texto-verde);">En la web</span>
                             </div>
                         </div>
                         <div class="hidden sm:flex flex-col items-end shrink-0">
@@ -166,15 +201,22 @@ function inicial(nombre) {
 
             <!-- VISTA GRID -->
             <div v-else class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-                <div v-for="e in ensambles.data" :key="e.id"
+                <div v-for="e in ensamblesLocal" :key="e.id"
                     class="bg-superficie rounded-2xl shadow-sm overflow-hidden cursor-pointer active:scale-[0.98] transition-transform"
                     @click="router.visit(`/ensambles/${e.id}`)">
-                    <div class="aspect-square overflow-hidden" style="background:var(--superficie-2);">
+                    <div class="aspect-square overflow-hidden relative" style="background:var(--superficie-2);">
                         <img v-if="e.imagen_principal" :src="urlImagen(e.imagen_principal)" :alt="e.nombre" class="w-full h-full object-cover"/>
                         <div v-else class="w-full h-full flex items-center justify-center text-white text-3xl font-semibold"
                             :style="`background:${e.categoria_color ?? 'var(--marca)'};`">
                             {{ inicial(e.nombre) }}
                         </div>
+                        <label v-if="puedeEditarEnsambles" class="absolute top-2 right-2 p-1.5 rounded-lg cursor-pointer"
+                            style="background:var(--velo);" @click.stop>
+                            <input type="checkbox" :checked="seleccion.has(e.id)" @change="alternarSeleccion(e.id)"
+                                class="w-4 h-4 rounded border-tinta-300 cursor-pointer block" />
+                        </label>
+                        <span v-if="e.publicado_web" class="absolute bottom-2 left-2 text-xs font-semibold px-2 py-0.5 rounded-full"
+                            style="background:var(--pastel-verde);color:var(--texto-verde);">En la web</span>
                     </div>
                     <div class="p-3">
                         <p class="text-sm font-semibold text-tinta-900 line-clamp-2 mb-1">{{ e.nombre }}</p>
@@ -187,5 +229,30 @@ function inicial(nombre) {
             </div>
 
         </div>
+
+        <!-- Barra de selección. Va por encima del menú inferior del celular. -->
+        <Teleport to="body">
+            <div v-if="seleccion.size" class="fixed left-0 right-0 z-40 px-4"
+                style="bottom: calc(5.5rem + env(safe-area-inset-bottom));">
+                <div class="mx-auto max-w-2xl rounded-2xl shadow-2xl border border-linea bg-superficie p-3
+                    flex items-center gap-3 flex-wrap">
+                    <span class="text-sm font-semibold text-tinta-900">
+                        {{ seleccion.size }} seleccionado{{ seleccion.size === 1 ? '' : 's' }}
+                    </span>
+                    <button type="button" @click="limpiarSeleccion"
+                        class="text-xs text-tinta-400 hover:text-tinta-900 underline">Quitar selección</button>
+                    <div class="flex-1"></div>
+                    <button type="button" @click="publicarSeleccion(false)" :disabled="publicando"
+                        class="px-3 py-2 rounded-xl text-xs font-medium text-tinta-600 border border-linea hover:bg-tinta-50 disabled:opacity-50">
+                        Retirar de la web
+                    </button>
+                    <button type="button" @click="publicarSeleccion(true)" :disabled="publicando"
+                        class="px-3 py-2 rounded-xl text-xs font-medium text-white disabled:opacity-50"
+                        style="background:var(--marca);">
+                        {{ publicando ? 'Publicando...' : 'Publicar en la web' }}
+                    </button>
+                </div>
+            </div>
+        </Teleport>
     </AppLayout>
 </template>

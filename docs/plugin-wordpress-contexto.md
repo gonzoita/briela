@@ -166,13 +166,36 @@ briela-connect/
 
 ## 6. Fases de construcción
 
-| Fase | Contenido |
-|---|---|
-| **A** | Núcleo: token de integración, leads con UTM → CRM |
-| **B** | Schema.org automático + reseñas post-entrega |
-| **C** | Módulo WooCommerce (catálogo + stock bidireccional) |
-| **D** | Módulo Elementor completo (widgets + dynamic tags + acción de formulario) |
-| **E** *(futuro, no en v1)* | Eventos de conversión a Meta/Google Ads, recuperación de cotizaciones sin aprobar, chat de IA embebido |
+| Fase | Contenido | Estado |
+|---|---|---|
+| **A** | Núcleo: token de integración, leads con UTM → CRM | **Hecha** (9 ago 2026) |
+| **C.1** | Publicación de catálogo: marca en el ERP, `GET /api/wp/catalogo`, sincronización del plugin, productos de WooCommerce o fichas propias | **Hecha** (13 ago 2026) |
+| **B** | Schema.org automático + reseñas post-entrega | Pendiente |
+| **C.2** | Vuelta del pedido de WooCommerce → descontar inventario (`POST /api/wp/pedidos`) | Pendiente |
+| **D** | Módulo Elementor completo (widgets + dynamic tags + acción de formulario) | Pendiente |
+| **E** *(futuro, no en v1)* | Eventos de conversión a Meta/Google Ads, recuperación de cotizaciones sin aprobar, chat de IA embebido | Pendiente |
+
+### C.1 — cómo quedó la publicación de catálogo
+
+Se adelantó a la fase B porque es lo que el negocio pidió primero. Las decisiones
+tomadas, todas visibles en el sitio del cliente:
+
+- **La marca vive en el ERP**, no en WordPress: `productos.publicado_web` y
+  `ensambles.publicado_web`. Un ensamble viaja como un producto más, con
+  `precio_es_desde` en verdadero.
+- **El sitio llama al ERP, no al revés.** El aviso inmediato
+  (`POST {sitio}/wp-json/briela/v1/sincronizar`) es un lujo que puede fallar sin
+  consecuencias; la sincronización horaria del plugin es la que garantiza.
+- **Lista completa, no diario de cambios.** `GET /api/wp/catalogo` devuelve todo lo
+  publicado: un aviso perdido no deja el sitio mintiendo para siempre.
+- **Briela manda precio y existencias; el sitio manda texto y fotos** después de la
+  primera vez.
+- **Una ficha por unidad vendible**: las variantes se publican una a una, el padre no.
+- **Retirar pasa a borrador**, nunca borra: el posicionamiento y el texto del sitio
+  valen más que la limpieza.
+- La URL del sitio **se aprende sola** (cabecera `X-Briela-Sitio` en cada lectura).
+
+Detalle funcional en `docs/manual/publicar-en-la-web.md`.
 
 ---
 

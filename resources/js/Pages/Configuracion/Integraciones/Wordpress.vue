@@ -7,6 +7,9 @@ const props = defineProps({
     url_base:      String,
     configurado:   Boolean,
     token_parcial: { type: String, default: null },
+    // Estado del catálogo publicado: cuántos hay, a qué sitio se le avisa y cuándo fue la
+    // última vez que el plugin vino a leer.
+    catalogo:      { type: Object, default: () => ({ conteo: { productos: 0, ensambles: 0 }, sitio: '', ultima_lectura: null }) },
 })
 
 const configurado   = ref(props.configurado)
@@ -169,6 +172,44 @@ function revocarToken() {
                 </div>
             </div>
 
+            <!-- Catálogo publicado -->
+            <div class="bg-superficie rounded-2xl border border-linea p-5">
+                <h2 class="text-sm font-semibold text-tinta-700 mb-1">Catálogo en el sitio</h2>
+                <p class="text-xs text-tinta-400 mb-4">
+                    Qué sale a la web lo decides producto por producto: cada ficha de producto y de
+                    ensamble tiene un interruptor <strong>Sitio web</strong>, y en los listados puedes
+                    marcar varios y publicarlos de un golpe.
+                </p>
+
+                <div class="grid grid-cols-2 gap-3 mb-4">
+                    <div class="p-3 rounded-xl" style="background:var(--superficie-2);">
+                        <p class="text-2xl font-semibold text-tinta-900">{{ catalogo.conteo.productos }}</p>
+                        <p class="text-xs text-tinta-400">producto(s) publicado(s)</p>
+                    </div>
+                    <div class="p-3 rounded-xl" style="background:var(--superficie-2);">
+                        <p class="text-2xl font-semibold text-tinta-900">{{ catalogo.conteo.ensambles }}</p>
+                        <p class="text-xs text-tinta-400">ensamble(s) publicado(s)</p>
+                    </div>
+                </div>
+
+                <dl class="text-xs space-y-2">
+                    <div class="flex justify-between gap-3">
+                        <dt class="text-tinta-400">Sitio detectado</dt>
+                        <dd class="text-tinta-700 truncate">{{ catalogo.sitio || 'Todavía ninguno' }}</dd>
+                    </div>
+                    <div class="flex justify-between gap-3">
+                        <dt class="text-tinta-400">El plugin leyó por última vez</dt>
+                        <dd class="text-tinta-700">{{ catalogo.ultima_lectura || 'Nunca' }}</dd>
+                    </div>
+                </dl>
+
+                <p class="text-xs text-tinta-400 mt-4">
+                    El sitio pregunta por su cuenta cada hora, y Briela le avisa en el momento en que
+                    publicas algo. Si el aviso no llega —el hosting no deja salir peticiones, el sitio
+                    está detrás de un cortafuegos— igual se actualiza en la siguiente pasada.
+                </p>
+            </div>
+
             <!-- Instrucciones -->
             <div class="bg-superficie rounded-2xl border border-linea p-5">
                 <h2 class="text-sm font-semibold text-tinta-700 mb-3">Cómo conectar el plugin</h2>
@@ -177,6 +218,9 @@ function revocarToken() {
                     <li>Entra a <strong>Ajustes → Briela Connect</strong> dentro de WordPress.</li>
                     <li>Pega la URL y el token generados arriba, y guarda.</li>
                     <li>Los leads que lleguen por los formularios del sitio aparecerán en el CRM con su canal de origen (utm_source / utm_medium / utm_campaign).</li>
+                    <li>Publica productos o ensambles desde su ficha, y el sitio crea la suya. Con
+                        WooCommerce instalado se crean como productos de la tienda; sin tienda, como
+                        fichas del catálogo del plugin.</li>
                 </ol>
             </div>
 

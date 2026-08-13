@@ -128,6 +128,11 @@ class EnsambleController extends Controller
                 'categoria_nombre'  => $ensamble->categoria?->nombre,
                 'categoria_color'   => $ensamble->categoria?->color,
             ],
+            // Para el interruptor de publicación en el sitio web: sin precio público, la
+            // ficha del sitio sale sin cifra, y conviene decirlo antes de publicar.
+            'web' => [
+                'sin_precio' => app(\App\Services\PublicacionWebService::class)->precioParaWeb($ensamble) === null,
+            ],
         ]);
     }
 

@@ -80,6 +80,43 @@ class PreciosPorCanalService
     }
 
     /**
+     * El precio de un canal, mirando primero las filas nuevas y después la columna vieja.
+     *
+     * Existe por el período de compatibilidad: los ensambles guardados antes de que
+     * hubiera canales configurables **no tienen filas** en `canal_precios`, solo sus tres
+     * columnas de siempre. Sin este respaldo, un ensamble publicado en la web sale sin
+     * precio y el catálogo público tampoco lo muestra — se veía como un dato faltante
+     * cuando en realidad el precio estaba guardado en la columna de al lado.
+     *
+     * Cuando toda pantalla escriba filas, se borra el segundo `if` y esto queda en una
+     * línea. No antes: al otro lado hay bases de clientes con ensambles viejos.
+     */
+    public function precioDe(Model $item, ?SegmentacionOpcion $canal): ?float
+    {
+        if (! $canal) {
+            return null;
+        }
+
+        if ($fila = $item->precioDeCanal($canal)) {
+            return (float) $fila->precio;
+        }
+
+        $columna = self::COLUMNAS_HEREDADAS[$canal->valor] ?? null;
+
+        if ($columna && isset($item->{"precio_{$columna}"})) {
+            return (float) $item->{"precio_{$columna}"};
+        }
+
+        return null;
+    }
+
+    /** El precio que ve alguien que no ha entrado: el del canal marcado como público. */
+    public function precioPublicoDe(Model $item): ?float
+    {
+        return $this->precioDe($item, $this->canales->publico());
+    }
+
+    /**
      * Guarda los canales que llegan del formulario.
      *
      * Se ignoran los que no correspondan a un canal configurado: si alguien manda un id

@@ -1,8 +1,11 @@
 <script setup>
 import AppLayout from '@/Layouts/AppLayout.vue'
-import { router } from '@inertiajs/vue3'
+import { router, usePage } from '@inertiajs/vue3'
 import { reactive, ref, computed, watch } from 'vue'
 import { colorMarca } from '@/marca'
+import { usePublicacionWeb } from '@/composables/usePublicacionWeb'
+
+const page = usePage()
 
 const props = defineProps({
     productos:  Object,
@@ -58,6 +61,24 @@ async function guardarCosto(item) {
         guardandoCosto.value = s
     }
 }
+
+// ── Publicar en el sitio web, varios de una vez ────────────────────────────────
+//
+// Cargar el catálogo la primera vez son cincuenta fichas. Con el interruptor de la ficha
+// sola, eso es entrar y salir cincuenta veces: por eso la selección vive aquí.
+//
+// Las variantes no se seleccionan: sale el padre y las variantes van con él.
+const puedeEditarProductos = computed(() => (page.props.auth?.permisosLista ?? []).includes('productos.editar'))
+
+const {
+    seleccion,
+    publicando,
+    todosMarcados,
+    alternar: alternarSeleccion,
+    alternarTodos,
+    limpiar: limpiarSeleccion,
+    publicar: publicarSeleccion,
+} = usePublicacionWeb('producto', productosLocal)
 
 // ── Expandir/colapsar padres con variantes ─────────────────────────────────────
 const padresExpandidos = ref(new Set())
@@ -407,6 +428,11 @@ const precioMostrar = (p) => {
             <table class="w-full text-sm">
                 <thead>
                     <tr style="background:var(--superficie-2); border-bottom:1px solid var(--borde);">
+                        <th v-if="puedeEditarProductos" class="px-3 py-3 w-10">
+                            <input type="checkbox" :checked="todosMarcados" @change="alternarTodos"
+                                class="w-4 h-4 rounded border-tinta-300 cursor-pointer"
+                                title="Seleccionar todos los de esta página" />
+                        </th>
                         <th class="text-left px-4 py-3 text-xs font-semibold text-tinta-400 uppercase w-12"></th>
                         <th class="text-left px-4 py-3 text-xs font-semibold text-tinta-400 uppercase">Nombre</th>
                         <th class="hidden sm:table-cell text-left px-3 py-3 text-xs font-semibold text-tinta-400 uppercase">Referencia</th>
@@ -422,6 +448,11 @@ const precioMostrar = (p) => {
                         class="cursor-pointer transition-colors hover:bg-blue-50/40"
                         @click="p.es_padre ? toggleExpandido(p.id) : router.visit(`/productos/${p.id}`)"
                     >
+                        <!-- Selección para publicar en la web -->
+                        <td v-if="puedeEditarProductos" class="px-3 py-2.5" @click.stop>
+                            <input type="checkbox" :checked="seleccion.has(p.id)" @change="alternarSeleccion(p.id)"
+                                class="w-4 h-4 rounded border-tinta-300 cursor-pointer" />
+                        </td>
                         <!-- Imagen / chevron -->
                         <td class="px-4 py-2.5">
                             <div v-if="p.es_padre" class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style="background:var(--superficie-2);">
@@ -454,6 +485,13 @@ const precioMostrar = (p) => {
                                 </span>
                                 <span v-if="p.es_insumo" class="text-xs font-medium px-1.5 py-0.5 rounded-full" style="background:var(--pastel-ambar);color:var(--texto-ambar);">
                                     Insumo
+                                </span>
+                                <span v-if="p.publicado_web" class="text-xs font-medium px-1.5 py-0.5 rounded-full inline-flex items-center gap-1"
+                                    style="background:var(--pastel-verde);color:var(--texto-verde);" title="Publicado en el sitio web">
+                                    <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0zM3.6 9h16.8M3.6 15h16.8M12 3a15 15 0 010 18M12 3a15 15 0 000 18"/>
+                                    </svg>
+                                    En la web
                                 </span>
                                 <button v-if="p.es_padre" @click.stop="router.visit(`/productos/${p.id}/editar`)"
                                     class="text-xs font-medium text-blue-600 hover:text-blue-800 hover:underline">
@@ -505,6 +543,8 @@ const precioMostrar = (p) => {
                         style="background:var(--superficie-2);"
                         @click="router.visit(`/productos/${v.id}`)"
                     >
+                        <!-- Las variantes no se seleccionan: salen a la web con su padre. -->
+                        <td v-if="puedeEditarProductos"></td>
                         <td></td>
                         <td class="px-4 py-2 pl-8">
                             <div class="flex items-center gap-2">
@@ -555,6 +595,17 @@ const precioMostrar = (p) => {
                     <span class="absolute top-2 left-2 text-xs font-semibold px-2 py-0.5 rounded-full"
                         :style="{ background: badgeStyle(p.tipo_color).bg, color: badgeStyle(p.tipo_color).text }">
                         {{ p.tipo_label }}
+                    </span>
+                    <!-- Selección para publicar en la web, y aviso de que ya está publicado -->
+                    <label v-if="puedeEditarProductos" class="absolute top-2 right-2 p-1.5 rounded-lg cursor-pointer"
+                        style="background:var(--velo);" @click.stop>
+                        <input type="checkbox" :checked="seleccion.has(p.id)" @change="alternarSeleccion(p.id)"
+                            class="w-4 h-4 rounded border-tinta-300 cursor-pointer block" />
+                    </label>
+                    <span v-if="p.publicado_web"
+                        class="absolute bottom-2 left-2 text-xs font-semibold px-2 py-0.5 rounded-full"
+                        style="background:var(--pastel-verde);color:var(--texto-verde);">
+                        En la web
                     </span>
                 </div>
                 <div class="p-3">
@@ -620,6 +671,33 @@ const precioMostrar = (p) => {
                 </template>
             </div>
         </div>
+
+        <!-- ── Barra de selección para publicar en la web ──────────────────── -->
+        <!-- Va sobre la barra de navegación de celular: en móvil el menú inferior
+             ocupa la parte de abajo, y una barra pegada al borde queda tapada. -->
+        <Teleport to="body">
+            <div v-if="seleccion.size" class="fixed left-0 right-0 z-40 px-4"
+                style="bottom: calc(5.5rem + env(safe-area-inset-bottom));">
+                <div class="mx-auto max-w-2xl rounded-2xl shadow-2xl border border-linea bg-superficie p-3
+                    flex items-center gap-3 flex-wrap">
+                    <span class="text-sm font-semibold text-tinta-900">
+                        {{ seleccion.size }} seleccionado{{ seleccion.size === 1 ? '' : 's' }}
+                    </span>
+                    <button type="button" @click="limpiarSeleccion"
+                        class="text-xs text-tinta-400 hover:text-tinta-900 underline">Quitar selección</button>
+                    <div class="flex-1"></div>
+                    <button type="button" @click="publicarSeleccion(false)" :disabled="publicando"
+                        class="px-3 py-2 rounded-xl text-xs font-medium text-tinta-600 border border-linea hover:bg-tinta-50 disabled:opacity-50">
+                        Retirar de la web
+                    </button>
+                    <button type="button" @click="publicarSeleccion(true)" :disabled="publicando"
+                        class="px-3 py-2 rounded-xl text-xs font-medium text-white disabled:opacity-50"
+                        style="background:var(--marca);">
+                        {{ publicando ? 'Publicando...' : 'Publicar en la web' }}
+                    </button>
+                </div>
+            </div>
+        </Teleport>
 
     </AppLayout>
 

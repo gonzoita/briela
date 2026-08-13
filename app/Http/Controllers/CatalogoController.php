@@ -47,15 +47,10 @@ class CatalogoController extends Controller
      */
     private function precioPublico(\Illuminate\Database\Eloquent\Model $item): ?float
     {
-        $canal = app(\App\Services\CanalesPrecioService::class)->publico();
-
-        if (! $canal) {
-            return null;
-        }
-
-        $fila = $item->precioDeCanal($canal);
-
-        return $fila ? (float) $fila->precio : null;
+        // Con respaldo a la columna vieja: los ensambles guardados antes de que hubiera
+        // canales configurables no tienen fila en `canal_precios`, y su ficha pública
+        // salía sin precio aunque el precio estuviera guardado.
+        return app(\App\Services\PreciosPorCanalService::class)->precioPublicoDe($item);
     }
 
     public function ensamble(int $id, Request $request)

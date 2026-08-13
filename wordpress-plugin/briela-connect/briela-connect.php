@@ -26,7 +26,9 @@ define('BRIELA_CONNECT_URL', plugin_dir_url(__FILE__));
 require_once BRIELA_CONNECT_PATH . 'includes/class-api-client.php';
 require_once BRIELA_CONNECT_PATH . 'includes/class-settings.php';
 require_once BRIELA_CONNECT_PATH . 'includes/class-utm.php';
+require_once BRIELA_CONNECT_PATH . 'includes/class-catalogo.php';
 require_once BRIELA_CONNECT_PATH . 'includes/integrations/class-forms-bridge.php';
+require_once BRIELA_CONNECT_PATH . 'includes/integrations/class-woocommerce.php';
 
 /**
  * Arranque del plugin. Cada pieza se registra sola; los módulos que
@@ -38,9 +40,27 @@ function briela_connect_init(): void
 {
     BrielaConnect\Settings::registrar();
     BrielaConnect\Utm::registrar();
+    BrielaConnect\Catalogo::registrar();
     BrielaConnect\Integrations\FormsBridge::registrar();
+
+    // El módulo de la tienda se registra solo si WooCommerce existe. Sin tienda, el
+    // catálogo se publica igual como fichas informativas.
+    BrielaConnect\Integrations\WooCommerce::registrar();
 }
 add_action('plugins_loaded', 'briela_connect_init');
+
+/**
+ * Al desactivar el plugin se apaga la sincronización periódica.
+ *
+ * Las fichas ya publicadas se quedan: son entradas de WordPress con su posicionamiento y,
+ * posiblemente, con texto que alguien escribió. Borrarlas al desactivar sería destruir
+ * trabajo ajeno por un clic.
+ */
+function briela_connect_desactivar(): void
+{
+    BrielaConnect\Catalogo::desactivar();
+}
+register_deactivation_hook(__FILE__, 'briela_connect_desactivar');
 
 /**
  * Aviso en el admin si el plugin está activo pero sin token: es fácil

@@ -113,6 +113,45 @@ class Settings
                 </table>
                 <?php submit_button('Guardar conexión'); ?>
             </form>
+
+            <hr />
+
+            <h2>Catálogo</h2>
+            <p>
+                Las fichas las decide el ERP: en Briela, cada producto y cada ensamble tiene un
+                interruptor <strong>Sitio web</strong>. Este sitio pregunta cada hora, y el ERP
+                además avisa en el momento en que alguien publica algo.
+                <?php echo \BrielaConnect\Catalogo::hay_tienda()
+                    ? 'WooCommerce está instalado, así que las fichas se crean como productos de la tienda.'
+                    : 'Sin WooCommerce, las fichas se crean en el catálogo propio del plugin.'; ?>
+            </p>
+
+            <?php if (isset($_GET['sincronizado'])) : ?>
+                <div class="notice notice-success"><p>Sincronización ejecutada.</p></div>
+            <?php endif; ?>
+
+            <table class="form-table" role="presentation">
+                <tr>
+                    <th scope="row">Última sincronización</th>
+                    <td><?php echo esc_html(\BrielaConnect\Catalogo::ultima_sincronizacion() ?: 'Todavía ninguna.'); ?></td>
+                </tr>
+                <tr>
+                    <th scope="row">Resultado</th>
+                    <td><?php echo esc_html(\BrielaConnect\Catalogo::ultimo_resumen() ?: '—'); ?></td>
+                </tr>
+            </table>
+
+            <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
+                <input type="hidden" name="action" value="briela_connect_sincronizar" />
+                <?php wp_nonce_field('briela_connect_sincronizar'); ?>
+                <?php submit_button('Sincronizar ahora', 'secondary'); ?>
+            </form>
+
+            <p class="description">
+                El precio y las existencias los manda Briela y se reescriben en cada sincronización.
+                El título, el texto y las fotos se escriben la primera vez: si los mejoras aquí, no
+                se pierden. Lo que se retire en el ERP pasa a borrador, no se borra.
+            </p>
         </div>
         <?php
     }

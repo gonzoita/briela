@@ -21,4 +21,8 @@ use Illuminate\Support\Facades\Route;
 
 Route::prefix('wp')->middleware('integracion.wordpress')->group(function () {
     Route::post('/leads', [WordpressIntegracionController::class, 'leads'])->name('api.wp.leads');
+
+    // El catálogo publicado, para que el plugin cree o actualice las fichas del sitio.
+    // Productos y ensambles en una sola lista: en WordPress no hay diferencia.
+    Route::get('/catalogo', [WordpressIntegracionController::class, 'catalogo'])->name('api.wp.catalogo');
 });

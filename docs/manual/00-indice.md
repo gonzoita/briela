@@ -29,6 +29,7 @@ está `CLAUDE.md`), sino una guía de uso para quienes operan el sistema día a 
 - [Notificaciones internas (la campanita)](./notificaciones.md)
 - [Hilos internos — comentar sobre un documento](./hilos-internos.md)
 - [Conexiones con servicios externos — índice de todas](./conexiones.md)
+- [Publicar productos y ensambles en el sitio web (plugin Briela Connect)](./publicar-en-la-web.md)
 - [Redes Sociales — programador de publicaciones](./redes-sociales.md)
 - [WhatsApp — conexión y números](./whatsapp.md)
 - [Sedes y numeración de documentos](./sedes.md)

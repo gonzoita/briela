@@ -1,18 +1,22 @@
 <script setup>
 import AppLayout from '@/Layouts/AppLayout.vue'
+import InterruptorWeb from '@/Components/InterruptorWeb.vue'
 import { router, usePage } from '@inertiajs/vue3'
 import { ref, computed } from 'vue'
 
 const props = defineProps({
     producto: Object,
     bodegas:  Array,
+    web:      { type: Object, default: null },
 })
 
 // Duplicar lleva al formulario de creación, así que se muestra solo a quien puede crear:
 // un vendedor con productos en solo lectura vería un botón que termina en 403.
 const page = usePage()
 // Misma lista que usa el menú: el administrador la trae completa, no con comodines.
-const puedeCrear = computed(() => (page.props.auth?.permisosLista ?? []).includes('productos.crear'))
+const permisos   = computed(() => page.props.auth?.permisosLista ?? [])
+const puedeCrear = computed(() => permisos.value.includes('productos.crear'))
+const puedeEditar = computed(() => permisos.value.includes('productos.editar'))
 
 const p = computed(() => props.producto)
 
@@ -271,6 +275,18 @@ const fmtFecha = (d) => d ? new Date(d).toLocaleDateString('es-CO', { day: '2-di
 
             <!-- ── Col derecha: info completa ─────────────────────────────── -->
             <div class="md:col-span-3 space-y-4">
+
+                <!-- Publicar en el sitio web del cliente (plugin Briela Connect).
+                     Solo para quien puede editar el producto: publicar es una decisión
+                     sobre el producto, no una configuración del sistema. -->
+                <InterruptorWeb
+                    v-if="puedeEditar && !p.producto_padre_id"
+                    tipo="producto"
+                    :id="p.id"
+                    :publicado="!!p.publicado_web"
+                    :publicado-at="p.publicado_web_at"
+                    :sin-precio="!!web?.sin_precio"
+                />
 
                 <div class="bg-superficie rounded-2xl shadow-sm p-5">
                     <!-- Nombre y badges -->

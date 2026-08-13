@@ -285,6 +285,11 @@ class ProductoController extends Controller
             ]),
             'categorias' => CategoriaProducto::where('activa', true)->orderBy('nombre')->get(),
             'bodegas'    => Bodega::where('activa', true)->orderByDesc('es_principal')->orderBy('nombre')->get(),
+            // Para el interruptor de publicación: si no hay precio público, la ficha del
+            // sitio sale sin cifra, y eso se avisa antes de publicar y no después.
+            'web'        => [
+                'sin_precio' => app(\App\Services\PublicacionWebService::class)->precioParaWeb($producto) === null,
+            ],
         ]);
     }
 

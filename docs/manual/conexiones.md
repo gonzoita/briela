@@ -14,6 +14,7 @@ dónde está su manual.
 | **LinkedIn** | Publicar en la página de empresa | Marketing → Redes Sociales → Cuentas | **Sí**, LinkedIn |
 | **Google Business Profile** | Publicar novedades en la ficha de Google | Marketing → Redes Sociales → Cuentas | **Sí**, Google (~2 semanas) |
 | **WhatsApp** | Enviar y recibir mensajes | Configuración → Números de WhatsApp | No, pero exige WhatsApp Business **API** |
+| **WordPress** (plugin Briela Connect) | Leads del sitio al CRM y publicar el catálogo en la web | Configuración → Integraciones → WordPress | No |
 | **Google Drive** | *(en retirada)* archivos antiguos | `.env` del servidor | No |
 
 ## Cómo funcionan todas
@@ -38,6 +39,9 @@ obligue a entrar al servidor:
 - **Redes sociales** (Instagram, Facebook, LinkedIn, Google Business) →
   [Redes Sociales](./redes-sociales.md).
 - **WhatsApp** → [WhatsApp](./whatsapp.md).
+- **WordPress** → [Publicar productos y ensambles en el sitio web](./publicar-en-la-web.md).
+  Es la única conexión que **no** depende de un portal ajeno: el token lo genera
+  Briela y se pega en el plugin, y es el sitio el que llama al ERP.
 
 ## Lo que ninguna conexión permite
 

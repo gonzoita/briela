@@ -25,6 +25,36 @@ use Illuminate\Support\Facades\Validator;
 class WordpressIntegracionController extends Controller
 {
     /**
+     * El catálogo que el cliente marcó para publicar en su sitio.
+     *
+     * El plugin llama esto por cron y cuando el ERP le avisa que hubo un cambio. Devuelve
+     * el estado completo, no un diario de cambios: es un catálogo de decenas o cientos de
+     * fichas, cabe en una respuesta, y una lista completa no se puede desincronizar. Con
+     * eventos incrementales, un aviso perdido deja el sitio mintiendo para siempre.
+     *
+     * Un ensamble viaja como un producto más, con `precio_es_desde` en verdadero.
+     */
+    public function catalogo(Request $request): JsonResponse
+    {
+        $servicio = app(\App\Services\PublicacionWebService::class);
+
+        // El plugin se identifica de vuelta para que el ERP pueda avisarle cuando algo
+        // cambie. Así la URL del sitio no se escribe a mano en dos lados.
+        $servicio->recordarSitio($request->header('X-Briela-Sitio'));
+        $servicio->registrarLectura();
+
+        $items = $servicio->catalogo();
+
+        return response()->json([
+            'ok'        => true,
+            'generado'  => now()->toIso8601String(),
+            'moneda'    => 'COP',
+            'total'     => count($items),
+            'catalogo'  => $items,
+        ]);
+    }
+
+    /**
      * Crea un CrmLead a partir de un formulario del sitio del cliente, con
      * la atribución UTM capturada por el plugin al aterrizar.
      */

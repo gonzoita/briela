@@ -25,10 +25,19 @@ class IntegracionWordpressController extends Controller
     {
         $token = Configuracion::get(self::CLAVE, '');
 
+        $publicacion = app(\App\Services\PublicacionWebService::class);
+
         return Inertia::render('Configuracion/Integraciones/Wordpress', [
             'url_base'      => rtrim(config('app.url'), '/'),
             'configurado'   => $token !== '' && $token !== null,
             'token_parcial' => $this->tokenParcial($token),
+            // El estado del catálogo: es lo primero que se pregunta cuando algo «no
+            // aparece en la web», y sin esto la respuesta hay que buscarla en la base.
+            'catalogo'      => [
+                'conteo'         => $publicacion->conteo(),
+                'sitio'          => $publicacion->sitio(),
+                'ultima_lectura' => $publicacion->ultimaLectura(),
+            ],
         ]);
     }
 

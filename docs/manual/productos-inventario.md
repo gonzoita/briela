@@ -47,6 +47,12 @@ Dos reglas que se siguen de eso:
 La referencia de cada variante se genera sola a partir de la del padre más el
 valor de la variante, y el sistema se encarga de que no se repita.
 
+## Publicar en el sitio web
+
+Cada ficha tiene un interruptor **Sitio web**, y en el listado puedes marcar
+varios y publicarlos de un golpe. Ver
+[Publicar productos y ensambles en el sitio web](./publicar-en-la-web.md).
+
 ## Duplicar un producto
 
 En la ficha de cualquier producto está el botón **Duplicar**. Abre el formulario

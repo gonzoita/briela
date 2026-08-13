@@ -50,6 +50,9 @@ class Producto extends Model
         'descuento_max_distribuidor',
         'descuento_max_mayorista',
         'activo',
+        // Si sale al sitio web del cliente. Lo lee el plugin Briela Connect.
+        'publicado_web',
+        'publicado_web_at',
     ];
 
     protected $casts = [
@@ -77,6 +80,8 @@ class Producto extends Model
         'descuento_max_cliente_final'=> 'decimal:2',
         'descuento_max_distribuidor' => 'decimal:2',
         'descuento_max_mayorista'    => 'decimal:2',
+        'publicado_web'              => 'boolean',
+        'publicado_web_at'           => 'datetime',
     ];
 
     // ─── Relaciones ───────────────────────────────────────────────────────────

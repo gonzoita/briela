@@ -30,6 +30,7 @@ use App\Http\Controllers\IdentificacionConfigController;
 use App\Http\Controllers\MarcaController;
 use App\Http\Controllers\NumeracionController;
 use App\Http\Controllers\PublicacionRrssController;
+use App\Http\Controllers\PublicacionWebController;
 use App\Http\Controllers\RolController;
 use App\Http\Controllers\SedeController;
 use App\Http\Controllers\SegmentacionOpcionController;
@@ -338,6 +339,16 @@ Route::middleware('auth')->group(function () {
         Route::post('/{ensamble}/imagenes-secundarias',  [EnsambleController::class, 'agregarImagenSecundaria'])->name('imagenes-secundarias.store');
         Route::delete('/{ensamble}/imagenes-secundarias',[EnsambleController::class, 'eliminarImagenSecundaria'])->name('imagenes-secundarias.destroy');
     });
+    // ─── Publicar en el sitio web (plugin Briela Connect) ────────────────────
+    // El permiso es el de editar el ítem: publicar en la web es una decisión sobre el
+    // producto, no una configuración aparte del sistema.
+    Route::patch('/api/publicacion-web/producto/{id}', [PublicacionWebController::class, 'alternar'])
+        ->defaults('tipo', 'producto')->middleware('permiso:productos.editar')->name('publicacion-web.producto');
+    Route::patch('/api/publicacion-web/ensamble/{id}', [PublicacionWebController::class, 'alternar'])
+        ->defaults('tipo', 'ensamble')->middleware('permiso:ensambles.editar')->name('publicacion-web.ensamble');
+    Route::post('/api/publicacion-web/masivo', [PublicacionWebController::class, 'masivo'])
+        ->middleware('permiso:productos.editar')->name('publicacion-web.masivo');
+
     Route::get('/api/ensambles/buscar',                         [EnsambleController::class, 'buscar'])->name('ensambles.buscar')->middleware('auth');
     Route::post('/api/ensambles/calcular',                      [EnsambleController::class, 'calcular'])->name('ensambles.calcular')->middleware('auth');
     Route::get('/api/ensambles/{ensamble}/variables-instancia', [EnsambleController::class, 'variablesInstancia'])->name('ensambles.variables-instancia')->middleware('auth');

@@ -1,10 +1,17 @@
 <script setup>
-import { router } from '@inertiajs/vue3'
+import { router, usePage } from '@inertiajs/vue3'
+import { computed } from 'vue'
 import AppLayout from '@/Layouts/AppLayout.vue'
+import InterruptorWeb from '@/Components/InterruptorWeb.vue'
 
 const props = defineProps({
     ensamble: { type: Object, required: true },
+    web:      { type: Object, default: null },
 })
+
+// Publicar en la web es una decisión sobre el ensamble: pide el mismo permiso que editarlo.
+const page = usePage()
+const puedeEditar = computed(() => (page.props.auth?.permisosLista ?? []).includes('ensambles.editar'))
 
 const formatCOP = (v) => new Intl.NumberFormat('es-CO', { maximumFractionDigits: 0 }).format(v ?? 0)
 
@@ -89,6 +96,19 @@ const variablesEntries = Object.entries(props.ensamble.variables ?? {})
                         Editar
                     </button>
                 </div>
+            </div>
+
+            <!-- Publicar en el sitio web. En WordPress un ensamble es un producto más;
+                 lo único distinto es que su precio va como «desde», porque el final
+                 depende de las medidas. -->
+            <div v-if="puedeEditar" class="mb-4">
+                <InterruptorWeb
+                    tipo="ensamble"
+                    :id="ensamble.id"
+                    :publicado="!!ensamble.publicado_web"
+                    :publicado-at="ensamble.publicado_web_at"
+                    :sin-precio="!!web?.sin_precio"
+                />
             </div>
 
             <!-- Descripciones -->
