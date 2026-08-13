@@ -391,6 +391,11 @@ Route::middleware('auth')->group(function () {
         // Guardar el texto de condiciones comerciales como el general de la empresa. Pide
         // permiso de configuración: cambia cómo nacen TODAS las cotizaciones nuevas, no
         // solo la que se está escribiendo.
+        // Crear cliente sin salir de la cotización. Mismas reglas y mismo permiso que la
+        // pantalla completa: es la misma acción, solo cambia desde dónde se hace.
+        Route::post('/api/clientes', [ClienteController::class, 'storeApi'])
+            ->middleware('permiso:clientes.crear')->name('clientes.store-api');
+
         Route::post('/api/cotizaciones/condiciones-generales', [CotizacionController::class, 'guardarCondicionesGenerales'])
             ->middleware('permiso:configuracion.editar')->name('cotizaciones.condiciones-generales');
         Route::post('/api/cotizaciones/calcular-ensamble',       [CotizacionController::class, 'calcularEnsamble'])->name('cotizaciones.calcular-ensamble');

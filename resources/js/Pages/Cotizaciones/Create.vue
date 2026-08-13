@@ -4,6 +4,7 @@ import { useForm, router, usePage } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
 import EditorTexto from '@/Components/EditorTexto.vue'
 import ResultadosBuscadorProducto from '@/Components/ResultadosBuscadorProducto.vue'
+import ModalNuevoCliente from '@/Components/ModalNuevoCliente.vue'
 import { useUnsavedChanges } from '@/composables/useUnsavedChanges'
 
 const props = defineProps({
@@ -15,6 +16,8 @@ const props = defineProps({
     lead_preseleccionado:  { type: Object, default: null },
     // Los canales de precio configurados, ya en orden de prioridad.
     canales:               { type: Array, default: () => [] },
+    // Las listas de segmentación, para poder crear un cliente sin salir de aquí.
+    segmentacion_opciones: { type: Object, default: () => ({}) },
 })
 
 const esEdicion = computed(() => !!props.cotizacion)
@@ -259,6 +262,20 @@ function seleccionarCliente(c) {
     contactos.value           = c.contactos ?? []
     clienteResultados.value   = []
 }
+// ── Cliente nuevo sin salir de la cotización ──────────────────────────────────
+// Se abre con lo que el vendedor ya escribió en el buscador: si tecleó el nombre y no
+// apareció, ese nombre es justamente el del cliente que hay que crear.
+const modalCliente = ref(false)
+
+const puedeCrearClientes = computed(() =>
+    (page.props.auth?.permisosLista ?? []).includes('clientes.crear')
+)
+
+function clienteCreado(cliente) {
+    modalCliente.value = false
+    seleccionarCliente(cliente)
+}
+
 function limpiarCliente() {
     clienteSeleccionado.value = null
     form.cliente_id = null; form.contacto_id = null
@@ -723,9 +740,16 @@ function submit() {
                         <div class="md:col-span-2">
                             <label class="block text-xs font-medium text-tinta-500 mb-1.5">Cliente</label>
                             <div class="relative">
-                                <input :value="clienteQuery" @input="buscarCliente($event.target.value)"
-                                    type="text" placeholder="Buscar por nombre o identificación..."
-                                    class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:ring-2 focus:outline-none"/>
+                                <div class="flex gap-2">
+                                    <input :value="clienteQuery" @input="buscarCliente($event.target.value)"
+                                        type="text" placeholder="Buscar por nombre o identificación..."
+                                        class="flex-1 rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:ring-2 focus:outline-none"/>
+                                    <!-- Crear sin salir: irse a la pantalla de clientes con la
+                                         cotización a medio armar es perder los ítems. -->
+                                    <button v-if="puedeCrearClientes" type="button" @click="modalCliente = true"
+                                        class="px-3 py-2 rounded-xl border border-linea text-sm text-tinta-500 hover:bg-tinta-50 shrink-0"
+                                        title="Crear un cliente nuevo">+ Cliente</button>
+                                </div>
                                 <div v-if="clienteResultados.length > 0"
                                     class="absolute top-full left-0 right-0 mt-1 bg-superficie rounded-xl shadow-xl border border-linea z-20 overflow-hidden">
                                     <button v-for="c in clienteResultados" :key="c.id" type="button"
@@ -1349,5 +1373,12 @@ function submit() {
             </div>
         </Teleport>
 
+        <ModalNuevoCliente
+            v-if="modalCliente"
+            :segmentacion="segmentacion_opciones"
+            :nombre-inicial="clienteQuery"
+            @creado="clienteCreado"
+            @cerrar="modalCliente = false"
+        />
     </AppLayout>
 </template>

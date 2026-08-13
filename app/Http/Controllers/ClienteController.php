@@ -8,6 +8,7 @@ use App\Models\ContactoCliente;
 use App\Models\SegmentacionOpcion;
 use App\Services\ConsultaNitService;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
@@ -111,6 +112,37 @@ class ClienteController extends Controller
 
         return redirect("/clientes/{$cliente->id}")
             ->with('success', 'Cliente creado correctamente.');
+    }
+
+    /**
+     * Crea un cliente y lo devuelve en JSON, para el modal de la cotización.
+     *
+     * Existe porque salirse de una cotización a medio armar para crear el cliente es
+     * perder el trabajo: los ítems, los precios calculados y las medidas del ensamble se
+     * quedan en la pantalla que se abandonó.
+     *
+     * Valida con las mismas reglas que la pantalla completa —no una versión recortada, que
+     * es como se cuelan clientes a medio llenar— y devuelve lo que la cotización necesita
+     * para seleccionarlo de una vez, incluida su segmentación: sin tipo de contacto, la
+     * cotización no muestra precios y el usuario se quedaría mirando una pantalla vacía sin
+     * entender por qué.
+     */
+    public function storeApi(Request $request): JsonResponse
+    {
+        $data = $request->validate($this->reglas());
+
+        $this->validarContactos($request);
+
+        $cliente = Cliente::create($data);
+
+        $this->syncContactos($cliente, $request->input('contactos', []), $request);
+
+        return response()->json([
+            'ok'      => true,
+            'cliente' => array_merge($cliente->fresh()->toArray(), [
+                'contactos' => $cliente->contactos()->orderByDesc('es_principal')->orderBy('nombre')->get(),
+            ]),
+        ], 201);
     }
 
     public function show(Cliente $cliente): Response

@@ -104,6 +104,15 @@ class ConsultasDatosService
                 'parametros'  => ['texto' => 'nombre o referencia a buscar (obligatorio)'],
                 'permiso'     => 'productos.ver',
             ],
+            'recomendar_producto' => [
+                'descripcion' => 'Encuentra qué productos o ensambles del catálogo sirven para una '
+                    .'necesidad descrita con palabras: uso, temperatura, medidas, material, presupuesto. '
+                    .'Úsala cuando pregunten "qué me recomiendas para…", "qué sirve para…" o "cuál me '
+                    .'conviene si necesito…". NO la uses para buscar un producto por su nombre exacto: '
+                    .'para eso está buscar_producto.',
+                'parametros'  => ['necesidad' => 'la necesidad tal como la contó el cliente, completa (obligatorio)'],
+                'permiso'     => 'productos.ver',
+            ],
             'estado_op' => [
                 'descripcion' => 'Diagnóstico completo de UNA orden de producción por su número: avance, calidad, saldo por cobrar, remisiones, y si se puede despachar o qué falta. Úsala para "cómo va la OP X" o "puedo entregar la OP X".',
                 'parametros'  => ['numero' => 'número de la OP, ej. OP-0191 o 191 (obligatorio)'],
@@ -150,6 +159,8 @@ class ConsultasDatosService
             'rrhh_resumen'          => $this->rrhhResumen(),
             'productividad'         => $this->productividad($dias ?: 30),
             'buscar_producto'       => $this->buscarProducto((string) ($parametros['texto'] ?? '')),
+            'recomendar_producto'   => app(RecomendadorProductosService::class)
+                                            ->candidatos((string) ($parametros['necesidad'] ?? '')),
             'estado_op'             => $this->estadoOp((string) ($parametros['numero'] ?? '')),
             default                 => null,
         };

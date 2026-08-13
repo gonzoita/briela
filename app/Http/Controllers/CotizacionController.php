@@ -125,6 +125,14 @@ class CotizacionController extends Controller
                     'es_canal_base'     => (bool) $c->es_canal_base,
                     'es_precio_publico' => (bool) $c->es_precio_publico,
                 ])->values(),
+            // Las listas de segmentación, para el modal que crea un cliente sin salir de
+            // aquí. Van con `define_precio` porque el modal advierte si el tipo elegido no
+            // define precio: sin eso, la cotización no mostraría precios y nadie sabría
+            // por qué.
+            'segmentacion_opciones' => \App\Models\SegmentacionOpcion::where('activo', true)
+                ->orderBy('tipo')->orderBy('orden')
+                ->get(['id', 'tipo', 'valor', 'etiqueta', 'color', 'define_precio'])
+                ->groupBy('tipo'),
             'lead_preseleccionado' => $lead ? [
                 'id'      => $lead->id,
                 'titulo'  => $lead->titulo,
@@ -220,6 +228,14 @@ class CotizacionController extends Controller
                     'es_canal_base'     => (bool) $c->es_canal_base,
                     'es_precio_publico' => (bool) $c->es_precio_publico,
                 ])->values(),
+            // Las listas de segmentación, para el modal que crea un cliente sin salir de
+            // aquí. Van con `define_precio` porque el modal advierte si el tipo elegido no
+            // define precio: sin eso, la cotización no mostraría precios y nadie sabría
+            // por qué.
+            'segmentacion_opciones' => \App\Models\SegmentacionOpcion::where('activo', true)
+                ->orderBy('tipo')->orderBy('orden')
+                ->get(['id', 'tipo', 'valor', 'etiqueta', 'color', 'define_precio'])
+                ->groupBy('tipo'),
         ]);
     }
 
