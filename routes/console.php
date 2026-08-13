@@ -49,3 +49,10 @@ Schedule::command('backup:crear')
     ->dailyAt('02:00')
     ->withoutOverlapping()
     ->onFailure(fn () => \Illuminate\Support\Facades\Log::error('El respaldo programado no terminó bien.'));
+
+// Los recados que el panel de Briela dejó en el último latido: hoy, respaldos pedidos
+// desde soporte. Se ejecutan aparte del latido porque un respaldo tarda, y el latido
+// tiene que ser rápido. Media hora después de cada latido, para no coincidir.
+Schedule::command('briela:ordenes')
+    ->cron('37 */6 * * *')
+    ->withoutOverlapping();

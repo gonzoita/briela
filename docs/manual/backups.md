@@ -54,6 +54,20 @@ manuales quedan también en el servidor, marcados distinto en la lista.
 Vale la pena hacer uno antes de una importación masiva, una actualización o un
 cambio grande de configuración.
 
+## Cuando el soporte de Briela pide un respaldo
+
+El soporte puede **pedir** un respaldo desde su panel, por ejemplo antes de revisar
+un problema. No entra a tu servidor: deja el pedido, y tu instalación lo recoge la
+próxima vez que pregunta por su licencia —cada pocas horas—, lo hace con el mismo
+mecanismo de siempre y le informa de vuelta que ya está.
+
+**El archivo queda en tu servidor**, en esta misma lista. Briela recibe el aviso de
+que se hizo y su tamaño; el respaldo no se le manda a nadie.
+
+Si tu servidor no tiene cron, en esta pantalla aparece un aviso azul con el pedido y
+un botón para ejecutarlo a mano. Sin cron no se haría solo, y quedarse esperando sin
+que nadie sepa por qué es peor que pedir un clic.
+
 ## Restaurar
 
 Restaurar **sobrescribe toda la base de datos** con el contenido del archivo.

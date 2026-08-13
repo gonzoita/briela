@@ -9,7 +9,23 @@ const props = defineProps({
     db_size:     { type: String, default: '0 MB' },
     automatico:  { type: Object, default: () => ({ hora: '2:00 a.m.', retencion: 30, ultimo: null }) },
     diagnostico: { type: Object, default: () => ({}) },
+    // Respaldos que pidio el soporte de Briela desde su panel. Normalmente los ejecuta el
+    // cron y esta lista llega vacia; se muestra porque sin cron es la unica forma de que
+    // se hagan.
+    pedidos_briela: { type: Array, default: () => [] },
 })
+
+const ejecutandoPedidos = ref(false)
+
+/** Ejecuta los respaldos que pidio Briela. Para el hosting que no tiene cron. */
+function ejecutarPedidosBriela() {
+    if (! confirm('¿Ejecutar ahora el respaldo que pidió el soporte de Briela?')) return
+
+    ejecutandoPedidos.value = true
+    router.post('/administracion/backup/pedidos-briela', {}, {
+        onFinish: () => { ejecutandoPedidos.value = false },
+    })
+}
 
 // Solo se muestra el diagnóstico si algo está mal. Cuando funciona, esta
 // información no le sirve a nadie y solo ocupa pantalla.
@@ -171,6 +187,24 @@ function eliminarBackup(filename) {
                             Se conservan {{ automatico.retencion }} días. Los más viejos se borran
                             solos, pero nunca queda la carpeta vacía.
                         </p>
+
+                        <!-- Pedido desde el panel de Briela -->
+                        <div v-if="pedidos_briela.length" class="mt-3 rounded-xl p-3"
+                            style="background:var(--pastel-azul); border:1px solid var(--marca);">
+                            <p class="text-xs font-semibold text-tinta-900">
+                                El soporte de Briela pidió {{ pedidos_briela.length }} respaldo(s)
+                            </p>
+                            <p class="text-xs text-tinta-500 mt-1">
+                                Se hacen solos con la tarea programada. Si tu servidor no tiene cron,
+                                ejecútalos aquí: el archivo queda en esta misma lista y Briela recibe
+                                el aviso de que ya está.
+                            </p>
+                            <button type="button" @click="ejecutarPedidosBriela" :disabled="ejecutandoPedidos"
+                                class="mt-2 px-3 py-1.5 rounded-xl text-xs font-medium text-white disabled:opacity-50"
+                                style="background:var(--marca);">
+                                {{ ejecutandoPedidos ? 'Respaldando…' : 'Ejecutar ahora' }}
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>

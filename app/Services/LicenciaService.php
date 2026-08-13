@@ -136,6 +136,11 @@ class LicenciaService
 
             $licencia = $resp->json('licencia');
 
+            // Los recados que Briela dejó viajan en la misma respuesta. Aquí solo se
+            // guardan: ejecutarlos durante una petición web dejaría a alguien mirando una
+            // pantalla en blanco mientras se respalda la base. Los corre `briela:ordenes`.
+            app(OrdenesBrielaService::class)->recibir((array) ($licencia['ordenes'] ?? []));
+
             return $this->guardar([
                 'valido'           => true,
                 'estado'           => $licencia['estado'] ?? 'activa',

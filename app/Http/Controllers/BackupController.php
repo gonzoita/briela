@@ -38,7 +38,35 @@ class BackupController extends Controller
                     'hace_horas' => (int) round((time() - $ultimoAuto['timestamp']) / 3600),
                 ] : null,
             ],
+            // Respaldos que pidió el soporte de Briela desde su panel. Normalmente los
+            // ejecuta el cron y nadie los ve aquí; se muestran porque si el hosting no
+            // tiene cron, esta pantalla es la única forma de que se hagan.
+            'pedidos_briela' => collect(app(\App\Services\OrdenesBrielaService::class)->pendientes())
+                ->map(fn ($o) => [
+                    'tipo'    => $o['tipo'] ?? '',
+                    'recibida' => isset($o['recibida_at'])
+                        ? date('d/m/Y H:i', strtotime($o['recibida_at']))
+                        : null,
+                ])->values(),
         ]);
+    }
+
+    /**
+     * Ejecuta ahora los respaldos que pidió el soporte de Briela.
+     *
+     * Existe para el hosting sin cron: sin esto, un respaldo pedido desde el panel se
+     * quedaría esperando para siempre y nadie sabría por qué. El resultado se le informa
+     * a Briela igual que si lo hubiera hecho la tarea programada.
+     */
+    public function ejecutarPedidos(\App\Services\OrdenesBrielaService $ordenes)
+    {
+        $resultados = $ordenes->ejecutarPendientes();
+
+        if ($resultados === []) {
+            return redirect('/administracion/backup')->with('error', 'No hay respaldos pedidos por Briela.');
+        }
+
+        return redirect('/administracion/backup')->with('success', implode(' · ', $resultados));
     }
 
     /**

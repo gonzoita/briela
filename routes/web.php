@@ -509,6 +509,8 @@ Route::middleware('auth')->group(function () {
             Route::get('/descargar',   [BackupController::class, 'descargar'])->name('backup.descargar');
             Route::post('/restaurar',  [BackupController::class, 'restaurar'])->name('backup.restaurar');
             Route::delete('/eliminar', [BackupController::class, 'eliminarBackup'])->name('backup.eliminar');
+            // Para el hosting sin cron: ejecutar a mano lo que pidió el soporte de Briela.
+            Route::post('/pedidos-briela', [BackupController::class, 'ejecutarPedidos'])->name('backup.pedidos-briela');
         });
 
     // ─── Notificaciones internas (campanita, todos los autenticados) ─────────
