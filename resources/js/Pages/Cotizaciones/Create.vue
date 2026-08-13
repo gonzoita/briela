@@ -1,6 +1,6 @@
 <script setup>
 import { ref, computed, watch, onMounted } from 'vue'
-import { useForm, router } from '@inertiajs/vue3'
+import { useForm, router, usePage } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
 import EditorTexto from '@/Components/EditorTexto.vue'
 import ResultadosBuscadorProducto from '@/Components/ResultadosBuscadorProducto.vue'
@@ -23,6 +23,50 @@ onMounted(() => setOriginal(form.data()))
 
 const hoy   = new Date().toISOString().split('T')[0]
 const hoy30 = new Date(Date.now() + 30 * 86400000).toISOString().split('T')[0]
+
+const page = usePage()
+
+// ── Condiciones comerciales ───────────────────────────────────────────────────
+// El texto de esta cotización se edita arriba. Guardarlo como general cambia con qué
+// texto NACEN las cotizaciones nuevas; las hechas ya guardaron el suyo y no se tocan.
+const guardandoCondiciones = ref(false)
+const avisoCondiciones     = ref('')
+
+const puedeConfigurar = computed(() =>
+    (page.props.auth?.permisosLista ?? []).includes('configuracion.editar')
+)
+
+async function guardarCondicionesGenerales() {
+    guardandoCondiciones.value = true
+    avisoCondiciones.value = ''
+
+    try {
+        const res = await fetch('/api/cotizaciones/condiciones-generales', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                Accept: 'application/json',
+                'X-XSRF-TOKEN': (() => {
+                    const c = document.cookie.split('; ').find(r => r.startsWith('XSRF-TOKEN='))
+                    return c ? decodeURIComponent(c.split('=')[1]) : ''
+                })(),
+                'X-Requested-With': 'XMLHttpRequest',
+            },
+            credentials: 'same-origin',
+            body: JSON.stringify({ condiciones: form.condiciones_comerciales }),
+        })
+
+        const data = await res.json().catch(() => null)
+
+        if (! res.ok || ! data?.ok) throw new Error(data?.mensaje || `No se pudo guardar (${res.status}).`)
+
+        avisoCondiciones.value = data.mensaje
+    } catch (e) {
+        avisoCondiciones.value = e.message
+    } finally {
+        guardandoCondiciones.value = false
+    }
+}
 
 const form = useForm({
     lead_id:                  props.cotizacion?.lead_id ?? props.lead_preseleccionado?.id ?? null,
@@ -972,10 +1016,25 @@ function submit() {
 
                 <!-- ── Condiciones ─────────────────────────────────────────── -->
                 <div class="bg-superficie rounded-2xl border border-linea p-5">
-                    <h2 class="text-sm font-semibold text-tinta-700 mb-3">Condiciones comerciales</h2>
+                    <div class="flex flex-wrap items-baseline justify-between gap-2 mb-3">
+                        <h2 class="text-sm font-semibold text-tinta-700">Condiciones comerciales</h2>
+                        <!-- Se edita donde se ve, y desde aquí mismo se vuelve el texto
+                             general: es el momento en que uno se da cuenta de que hay que
+                             cambiarlo para todas. -->
+                        <button v-if="puedeConfigurar" type="button" @click="guardarCondicionesGenerales"
+                            :disabled="guardandoCondiciones"
+                            class="text-xs font-semibold text-[var(--marca)] hover:underline disabled:opacity-50">
+                            {{ guardandoCondiciones ? 'Guardando…' : 'Usar este texto para todas las cotizaciones nuevas' }}
+                        </button>
+                    </div>
                     <textarea v-model="form.condiciones_comerciales" rows="4"
                         class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:ring-2 focus:outline-none resize-none"
                         placeholder="Condiciones de pago, entrega, validez..."/>
+                    <p v-if="avisoCondiciones" class="mt-2 text-xs text-tinta-500">{{ avisoCondiciones }}</p>
+                    <p v-else class="mt-2 text-xs text-tinta-300">
+                        Este texto es solo de esta cotización. Las que ya están hechas conservan el
+                        suyo, aunque cambies el general.
+                    </p>
                 </div>
 
                 <!-- Errores -->

@@ -387,6 +387,12 @@ Route::middleware('auth')->group(function () {
         // APIs búsqueda cotizador
         Route::get('/api/cotizaciones/clientes',  [CotizacionController::class, 'buscarClientes'])->name('cotizaciones.clientes.buscar');
         Route::get('/api/cotizaciones/productos', [CotizacionController::class, 'buscarProductos'])->name('cotizaciones.productos.buscar');
+
+        // Guardar el texto de condiciones comerciales como el general de la empresa. Pide
+        // permiso de configuración: cambia cómo nacen TODAS las cotizaciones nuevas, no
+        // solo la que se está escribiendo.
+        Route::post('/api/cotizaciones/condiciones-generales', [CotizacionController::class, 'guardarCondicionesGenerales'])
+            ->middleware('permiso:configuracion.editar')->name('cotizaciones.condiciones-generales');
         Route::post('/api/cotizaciones/calcular-ensamble',       [CotizacionController::class, 'calcularEnsamble'])->name('cotizaciones.calcular-ensamble');
         Route::post('/api/cotizaciones/upload-imagen-instancia',  [CotizacionController::class, 'uploadImagenInstancia'])->name('cotizaciones.upload-imagen-instancia');
     });

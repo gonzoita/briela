@@ -111,7 +111,7 @@ class CotizacionController extends Controller
             'responsables'        => User::whereIn('rol', ['administrador', 'jefe_produccion', 'vendedor'])
                 ->where('activo', true)->get(['id', 'name']),
             'usuario_actual'      => auth()->id(),
-            'condiciones_default' => 'Precios en pesos colombianos. Validez 30 días. Anticipo 50% para inicio de producción. Tiempo de entrega: 15 días hábiles.',
+            'condiciones_default' => self::condicionesGenerales(),
             'plantillas'          => PlantillaEnsamble::with('campos')
                 ->where('activo', true)->orderBy('nombre')->get(),
             // Los canales de precio, en orden de prioridad. La pantalla ya no compara
@@ -206,7 +206,7 @@ class CotizacionController extends Controller
             'responsables'        => User::whereIn('rol', ['administrador', 'jefe_produccion', 'vendedor'])
                 ->where('activo', true)->get(['id', 'name']),
             'usuario_actual'      => auth()->id(),
-            'condiciones_default' => 'Precios en pesos colombianos. Validez 30 días. Anticipo 50% para inicio de producción. Tiempo de entrega: 15 días hábiles.',
+            'condiciones_default' => self::condicionesGenerales(),
             'plantillas'          => PlantillaEnsamble::with('campos')
                 ->where('activo', true)->orderBy('nombre')->get(),
             // Los canales de precio, en orden de prioridad. La pantalla ya no compara
@@ -359,6 +359,47 @@ class CotizacionController extends Controller
                 ->take(10)
                 ->get()
         );
+    }
+
+    /**
+     * El texto de condiciones comerciales con el que nace una cotización.
+     *
+     * Estaba escrito dos veces en este controlador, así que cambiar «Validez 30 días»
+     * exigía tocar código —y en un producto instalable, eso significa parchear la
+     * instalación de un cliente—. Ahora lo pone la empresa desde la propia cotización.
+     *
+     * El texto de fábrica se queda como respaldo: una instalación nueva no debería
+     * empezar con el bloque de condiciones en blanco.
+     */
+    public static function condicionesGenerales(): string
+    {
+        $guardado = \App\Models\Configuracion::get('cotizacion_condiciones', '');
+
+        return filled($guardado)
+            ? $guardado
+            : 'Precios en pesos colombianos. Validez 30 días. Anticipo 50% para inicio de producción. '
+                .'Tiempo de entrega: 15 días hábiles.';
+    }
+
+    /**
+     * Guarda el texto de arriba como el general de la empresa.
+     *
+     * Se hace desde la cotización y no desde una pantalla de configuración aparte a
+     * propósito: es donde se ve el texto y donde uno se da cuenta de que hay que
+     * cambiarlo. Las cotizaciones ya hechas no se tocan — cada una guardó el suyo.
+     */
+    public function guardarCondicionesGenerales(Request $request): JsonResponse
+    {
+        $datos = $request->validate([
+            'condiciones' => 'nullable|string|max:4000',
+        ]);
+
+        \App\Models\Configuracion::set('cotizacion_condiciones', trim((string) ($datos['condiciones'] ?? '')));
+
+        return response()->json([
+            'ok'      => true,
+            'mensaje' => 'Guardado. Las cotizaciones nuevas arrancarán con este texto; las que ya existen no se tocan.',
+        ]);
     }
 
     public function buscarProductos(Request $request): JsonResponse
