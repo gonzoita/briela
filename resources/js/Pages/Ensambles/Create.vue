@@ -5,6 +5,7 @@ import AppLayout from '@/Layouts/AppLayout.vue'
 import { useUnsavedChanges } from '@/composables/useUnsavedChanges'
 import CampoInstancia from '@/Components/CampoInstancia.vue'
 import EditorTexto from '@/Components/EditorTexto.vue'
+import GeneradorFichaIa from '@/Components/GeneradorFichaIa.vue'
 import { colorMarca } from '@/marca'
 
 const props = defineProps({
@@ -38,6 +39,23 @@ const categoriaId     = ref(props.ensamble?.categoria_id ?? '')
 const descripcionCorta = ref(props.ensamble?.descripcion_corta ?? '')
 const descripcionLarga = ref(props.ensamble?.descripcion_larga ?? '')
 const listaCats        = ref([...(props.categorias ?? [])])
+
+// ── Ficha técnica con IA ──────────────────────────────────────────────────────
+// Un ensamble se describe con sus medidas: si ya está guardado, el servidor le pasa a la
+// IA sus variables y su receta calculada, y el usuario solo agrega lo que no está ahí.
+const datosParaFicha = computed(() => ({
+    tipo:              'ensamble',
+    nombre:            nombre.value,
+    referencia:        props.ensamble ? `ENS-${props.ensamble.id}` : null,
+    categoria:         listaCats.value.find(c => String(c.id) === String(categoriaId.value))?.nombre ?? null,
+    unidad:            'unidad',
+    descripcion_corta: descripcionCorta.value,
+}))
+
+function aplicarFicha({ descripcion_corta, descripcion_larga }) {
+    if (descripcion_corta) descripcionCorta.value = descripcion_corta
+    if (descripcion_larga) descripcionLarga.value = descripcion_larga
+}
 
 // Comisiones
 const comisionMin             = ref(props.ensamble?.comision_pct_minima ?? 0)
@@ -429,9 +447,15 @@ onMounted(() => {
                 <div class="mb-4">
                     <div class="flex items-center justify-between mb-1">
                         <label class="text-sm font-medium text-tinta-700">Descripción corta</label>
-                        <span class="text-xs" :class="(descripcionCorta ?? '').length > 900 ? 'text-amber-500 font-semibold' : 'text-tinta-300'">
-                            {{ (descripcionCorta ?? '').length }}/1000
-                        </span>
+                        <div class="flex items-center gap-3">
+                            <!-- Al ensamble la IA le puede leer las medidas y los componentes ya
+                                 calculados: son datos técnicos de verdad y no hay que escribirlos. -->
+                            <GeneradorFichaIa :datos="datosParaFicha" :ensamble-id="ensamble?.id ?? null"
+                                @usar="aplicarFicha" />
+                            <span class="text-xs" :class="(descripcionCorta ?? '').length > 900 ? 'text-amber-500 font-semibold' : 'text-tinta-300'">
+                                {{ (descripcionCorta ?? '').length }}/1000
+                            </span>
+                        </div>
                     </div>
                     <textarea v-model="descripcionCorta" rows="2" maxlength="1000"
                         class="w-full border rounded-xl px-3 py-2 text-sm focus:outline-none resize-none"

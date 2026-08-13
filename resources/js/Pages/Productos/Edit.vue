@@ -1,5 +1,7 @@
 ﻿<script setup>
 import AppLayout from '@/Layouts/AppLayout.vue'
+import SelectorUnidad from '@/Components/SelectorUnidad.vue'
+import GeneradorFichaIa from '@/Components/GeneradorFichaIa.vue'
 import EditorTexto from '@/Components/EditorTexto.vue'
 import { useForm, router } from '@inertiajs/vue3'
 import { ref, computed, reactive, watch, onMounted } from 'vue'
@@ -150,10 +152,22 @@ watch(() => form.data(), checkChanges, { deep: true })
 
 const stocksPorBodega = computed(() => p.stocks ?? [])
 
-const unidadesPorTipo = computed(() => {
-    if (p.tipo === 'servicio') return ['unidad', 'hora', 'dia', 'instalacion']
-    return ['unidad', 'ml', 'm2', 'kg', 'mm', 'metros', 'litros', 'docenas', 'pack', 'cajas']
-})
+// La lista de unidades la administra la empresa; la trae `SelectorUnidad`.
+
+// ── Ficha técnica con IA ──────────────────────────────────────────────────────
+const datosParaFicha = computed(() => ({
+    tipo:              p.tipo === 'servicio' ? 'servicio' : 'producto',
+    nombre:            form.nombre,
+    referencia:        form.referencia,
+    categoria:         listaCats.value.find(c => String(c.id) === String(form.categoria_id))?.nombre ?? null,
+    unidad:            form.unidad_medida,
+    descripcion_corta: form.descripcion_corta,
+}))
+
+function aplicarFicha({ descripcion_corta, descripcion_larga }) {
+    if (descripcion_corta) form.descripcion_corta = descripcion_corta
+    if (descripcion_larga) form.descripcion_larga = descripcion_larga
+}
 
 // ── Imágenes existentes ───────────────────────────────────────────────────────
 const imagenesExistentes = ref(p.imagenes || [])
@@ -518,9 +532,11 @@ const badgeStyle = {
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-tinta-700 mb-1">Unidad de medida</label>
-                                <select v-model="form.unidad_medida" :class="ic('unidad_medida')">
-                                    <option v-for="u in unidadesPorTipo" :key="u" :value="u">{{ u }}</option>
-                                </select>
+                                <SelectorUnidad
+                                    v-model="form.unidad_medida"
+                                    :tipo="p.tipo === 'servicio' ? 'servicio' : 'producto'"
+                                    :clase="ic('unidad_medida')"
+                                />
                             </div>
                         </div>
 
@@ -528,10 +544,14 @@ const badgeStyle = {
                         <div>
                             <div class="flex items-center justify-between mb-1">
                                 <label class="block text-sm font-medium text-tinta-700">Descripción corta</label>
-                                <div class="flex items-center gap-2">
+                                <div class="flex items-center gap-3">
+                                    <!-- Dos cosas distintas: «Redactar» escribe una frase suelta;
+                                         «Ficha técnica» arma la ficha completa y llena los dos
+                                         campos a partir de los datos técnicos en bruto. -->
+                                    <GeneradorFichaIa :datos="datosParaFicha" @usar="aplicarFicha" />
                                     <button type="button" @click="generarDescripcion('corta')" :disabled="iaCargando"
                                         class="text-xs font-semibold text-[var(--marca)] hover:underline disabled:opacity-50">
-                                        {{ iaCargando ? 'Redactando…' : 'Redactar con IA' }}
+                                        {{ iaCargando ? 'Redactando…' : 'Redactar' }}
                                     </button>
                                     <span class="text-xs" :class="(form.descripcion_corta||'').length > 900 ? 'text-amber-500 font-semibold' : 'text-tinta-300'">
                                         {{ (form.descripcion_corta||'').length }}/1000

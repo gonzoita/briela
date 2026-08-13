@@ -64,6 +64,13 @@ class PerfilMarcaController extends Controller
                 'priorizar_velocidad' => Configuracion::get('ia_priorizar_velocidad', '1') === '1',
                 'max_tokens' => (int) (Configuracion::get('ia_max_tokens', 0) ?: 3000),
             ],
+            // El prompt con el que la IA redacta las fichas técnicas de productos y
+            // ensambles. Editable porque cada rubro describe distinto: si viviera en el
+            // código, cambiar la estructura de la ficha sería parchear la instalación.
+            'fichaTecnica' => [
+                'prompt'           => app(\App\Services\IA\FichaTecnicaService::class)->prompt(),
+                'prompt_fabrica'   => \App\Services\IA\FichaTecnicaService::promptPorOmision(),
+            ],
             // Voces del catálogo de OpenAI (las que acepta el endpoint de voz).
             'vocesSugeridas' => [
                 'nova'    => 'Nova — mujer, cálida y cercana (recomendada)',
@@ -256,6 +263,25 @@ class PerfilMarcaController extends Controller
         \Cache::forget('ia_modelos_openrouter_v3');
 
         return back()->with('success', 'Configuración de IA guardada.');
+    }
+
+    /**
+     * Guarda el prompt de la ficha técnica.
+     *
+     * Vacío significa «volver al de fábrica», no «ficha sin instrucciones»: dejar el campo
+     * en blanco y quedarse sin prompt daría fichas al azar sin que nadie entienda por qué.
+     */
+    public function guardarPromptFicha(Request $request, \App\Services\IA\FichaTecnicaService $fichas)
+    {
+        $data = $request->validate([
+            'prompt' => 'nullable|string|max:20000',
+        ]);
+
+        $fichas->guardarPrompt($data['prompt'] ?? '');
+
+        return back()->with('success', filled($data['prompt'] ?? '')
+            ? 'Prompt de la ficha técnica guardado.'
+            : 'Prompt restablecido al de fábrica.');
     }
 
     /**

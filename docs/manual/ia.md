@@ -19,8 +19,17 @@ usar el chat en el navegador, no dan acceso por API para un sistema propio.
 
 ## Redactar descripciones
 
-En **Productos → editar**, junto a "Descripción corta", está el botón
-**"Redactar con IA"**. Lee los datos del producto y propone un texto.
+Hay dos botones junto a "Descripción corta", y hacen cosas distintas.
+
+**"Redactar"** —solo al editar un producto— lee los datos del producto y propone
+una frase para la descripción corta. Es lo rápido.
+
+**"Ficha técnica con IA"** —en productos y ensambles, al crear y al editar— arma
+la ficha completa y llena **los dos** campos: la introducción comercial en la
+descripción corta y las especificaciones, ventajas, beneficios y componentes en
+la larga. Ver abajo.
+
+En los dos casos:
 
 - **No guarda nada solo.** Pone el texto en el campo; se guarda cuando le das
   Guardar, como siempre.
@@ -28,7 +37,53 @@ En **Productos → editar**, junto a "Descripción corta", está el botón
   falta, no lo menciona.
 - Español colombiano neutro, sin voseo, sin emojis.
 
-Acceso: permiso **Productos → Editar**.
+Acceso: permiso **Productos → Editar** para el rápido; para la ficha, cualquiera
+de crear o editar productos o ensambles.
+
+## La ficha técnica con IA
+
+Abre una ventana con un campo grande: **datos técnicos en bruto**. Ahí se pega lo
+que se tenga —medidas, materiales, potencia, voltaje, acabados, normas— como
+venga, en desorden. Eso es la materia prima de la ficha.
+
+El resto lo toma del formulario: nombre, referencia, categoría y unidad. **En un
+ensamble además lee sus medidas y su receta de componentes**, que ya están
+calculadas: son datos técnicos de verdad y nadie tiene que volver a escribirlos.
+
+Lo que devuelve se muestra antes de aplicarlo, con «Otra versión» para volver a
+pedirla y «Usar esto» para llenar los campos. Reemplaza lo que hubiera; no guarda
+el producto.
+
+### El prompt es tuyo
+
+Las instrucciones con las que redacta viven en **Configuración → Perfil de marca
+→ Cómo redacta las fichas técnicas**, y se pueden reescribir completas. De fábrica
+viene una ficha de siete bloques —nombre, referencia, introducción, especificaciones
+agrupadas por subtítulos, ventajas, beneficios y componentes—, pero cada rubro
+describe distinto.
+
+Está ahí y no en el código a propósito: si estuviera adentro, cambiar la estructura
+de la ficha sería parchear la instalación de un cliente, y esa instalación ya no se
+podría actualizar.
+
+Tres cosas **no** se pueden cambiar desde ahí porque son del sistema:
+
+- El español colombiano sin voseo.
+- La prohibición de inventar especificaciones.
+- El formato con el que la respuesta llega a los dos campos.
+
+**El tono lo pone tu perfil de marca**, no el prompt. Se le pasan las secciones que
+afectan la redacción —tono y voz, identidad, propuesta de valor, mensaje clave y
+promesa— y no las demás: la DOFA y los KPIs no ayudan a escribir una ficha y se
+pagan en tokens.
+
+### Si la IA responde raro
+
+La respuesta se pide en un formato preciso para poder repartirla en los dos campos.
+Cuando un modelo no lo respeta, la ficha completa queda en la descripción larga, la
+corta queda vacía, y la pantalla lo dice con un aviso amarillo en vez de perder el
+resultado y cobrar otra llamada. Si pasa seguido, el modelo de texto configurado no
+es bueno siguiendo instrucciones: cámbialo en Configuración → IA.
 
 ## Generar imágenes
 

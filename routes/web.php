@@ -31,6 +31,7 @@ use App\Http\Controllers\MarcaController;
 use App\Http\Controllers\NumeracionController;
 use App\Http\Controllers\PublicacionRrssController;
 use App\Http\Controllers\PublicacionWebController;
+use App\Http\Controllers\UnidadMedidaController;
 use App\Http\Controllers\RolController;
 use App\Http\Controllers\SedeController;
 use App\Http\Controllers\SegmentacionOpcionController;
@@ -321,7 +322,17 @@ Route::middleware('auth')->group(function () {
         Route::post('/api/categorias-producto',               [CategoriaProductoController::class, 'store'])->name('categorias-producto.store');
         Route::put('/api/categorias-producto/{categoria}',    [CategoriaProductoController::class, 'update'])->name('categorias-producto.update');
         Route::delete('/api/categorias-producto/{categoria}', [CategoriaProductoController::class, 'destroy'])->name('categorias-producto.destroy');
+
+        // Unidades de medida: estaban escritas en el código de las pantallas de producto.
+        Route::post('/api/unidades-medida',            [UnidadMedidaController::class, 'store'])->name('unidades-medida.store');
+        Route::put('/api/unidades-medida/{unidad}',    [UnidadMedidaController::class, 'update'])->name('unidades-medida.update');
+        Route::delete('/api/unidades-medida/{unidad}', [UnidadMedidaController::class, 'destroy'])->name('unidades-medida.destroy');
+        Route::post('/api/unidades-medida/reordenar',  [UnidadMedidaController::class, 'reordenar'])->name('unidades-medida.reordenar');
     });
+
+    // Leer la lista no pide permiso de configuración: la necesita cualquiera que abra el
+    // formulario de un producto.
+    Route::get('/api/unidades-medida', [UnidadMedidaController::class, 'index'])->name('unidades-medida.index');
 
     // ─── Ensambles ───────────────────────────────────────────────────────────
     Route::middleware('permiso:ensambles.ver')->prefix('ensambles')->name('ensambles.')->group(function () {
@@ -702,6 +713,12 @@ Route::middleware('auth')->group(function () {
         ->middleware('permiso:productos.editar')
         ->name('ia.descripcion');
 
+    // La ficha técnica completa. El permiso no puede ser uno solo: la piden cuatro
+    // pantallas (crear y editar, producto y ensamble) con permisos distintos, así que la
+    // comprobación vive en el controlador. Gastar tokens sí exige permiso de alguno.
+    Route::post('/api/ia/ficha-tecnica', [IaController::class, 'fichaTecnica'])
+        ->name('ia.ficha-tecnica');
+
     // Generar imagen sí guarda el archivo en Multimedia para poder reutilizarlo.
     Route::post('/api/ia/imagen', [IaController::class, 'imagen'])
         ->middleware('permiso:multimedia.crear')
@@ -723,6 +740,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/configuracion/perfil-marca',           [PerfilMarcaController::class, 'guardar'])->name('perfil-marca.guardar');
         Route::post('/configuracion/perfil-marca/asistente', [PerfilMarcaController::class, 'guardarAsistente'])->name('perfil-marca.asistente');
         Route::post('/configuracion/perfil-marca/ia',        [PerfilMarcaController::class, 'guardarIa'])->name('perfil-marca.ia');
+        Route::post('/configuracion/perfil-marca/prompt-ficha', [PerfilMarcaController::class, 'guardarPromptFicha'])->name('perfil-marca.prompt-ficha');
         Route::post('/api/perfil-marca/probar-ia',           [PerfilMarcaController::class, 'probarIa'])->name('perfil-marca.probar-ia');
         Route::post('/api/perfil-marca/probar-voz',          [PerfilMarcaController::class, 'probarVoz'])->name('perfil-marca.probar-voz');
         Route::post('/api/perfil-marca/generar',             [PerfilMarcaController::class, 'generar'])->name('perfil-marca.generar');

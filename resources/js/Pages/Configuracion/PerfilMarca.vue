@@ -10,6 +10,8 @@ const props = defineProps({
     ia:               { type: Object, default: () => ({}) },
     modelosSugeridos: { type: Object, default: () => ({ texto: {}, imagen: {}, voz: {} }) },
     vocesSugeridas:   { type: Object, default: () => ({}) },
+    // El prompt con el que se redactan las fichas técnicas de productos y ensambles.
+    fichaTecnica:     { type: Object, default: () => ({ prompt: '', prompt_fabrica: '' }) },
 })
 
 // ── Voz del asistente ─────────────────────────────────────────────────────────
@@ -112,6 +114,21 @@ function guardarIa() {
         preserveScroll: true,
         onSuccess: () => { iaClave.value = '' },
     })
+}
+
+// ── Prompt de la ficha técnica ────────────────────────────────────────────────
+// Guardar vacío significa volver al de fábrica, así que «Volver al de fábrica» solo pone
+// el texto en pantalla: guardar sigue siendo un acto explícito.
+const promptFicha = ref(props.fichaTecnica?.prompt ?? '')
+
+function guardarPromptFicha() {
+    router.post('/configuracion/perfil-marca/prompt-ficha', { prompt: promptFicha.value }, {
+        preserveScroll: true,
+    })
+}
+
+function restablecerPromptFicha() {
+    promptFicha.value = props.fichaTecnica?.prompt_fabrica ?? ''
 }
 
 async function probarIa() {
@@ -390,6 +407,37 @@ async function importar() {
                         Conexión correcta: la IA respondió.
                     </p>
                     <p v-else-if="resultadoPrueba" class="text-xs text-red-600">{{ resultadoPrueba }}</p>
+                </div>
+            </div>
+
+            <!-- Prompt de la ficha técnica -->
+            <div class="bg-superficie rounded-2xl border border-linea p-5 mb-4">
+                <h2 class="text-sm font-semibold text-tinta-700 mb-1">Cómo redacta las fichas técnicas</h2>
+                <p class="text-xs text-tinta-300 mb-3">
+                    Las instrucciones con las que la IA arma la ficha de un producto o un ensamble,
+                    desde el botón «Ficha técnica con IA» del formulario. Cada rubro describe
+                    distinto: si tu ficha necesita otros bloques, cámbialos aquí.
+                </p>
+
+                <textarea v-model="promptFicha" rows="14"
+                    class="w-full border border-linea rounded-xl px-3 py-2 text-xs font-mono bg-superficie focus:outline-none focus:border-[var(--marca)]"></textarea>
+
+                <p class="text-xs text-tinta-300 mt-2">
+                    Tres cosas no se pueden cambiar desde aquí porque son del sistema: el español sin
+                    voseo, la prohibición de inventar especificaciones, y el formato con el que la
+                    respuesta llega a los dos campos. El tono lo pone tu perfil de marca — no hace
+                    falta describirlo otra vez.
+                </p>
+
+                <div class="flex gap-3 mt-3">
+                    <button @click="restablecerPromptFicha"
+                        class="flex-1 py-2.5 rounded-xl border border-linea text-sm text-tinta-500">
+                        Volver al de fábrica
+                    </button>
+                    <button @click="guardarPromptFicha"
+                        class="flex-1 py-2.5 rounded-xl text-white text-sm font-semibold" style="background:var(--marca);">
+                        Guardar prompt
+                    </button>
                 </div>
             </div>
 

@@ -19,6 +19,62 @@ class IaController extends Controller
     }
 
     /**
+     * Redacta la ficha técnica completa: la introducción para la descripción corta y las
+     * especificaciones, ventajas, beneficios y componentes para la larga.
+     *
+     * **Recibe los datos del formulario, no un id.** El redactor simple de al lado exige un
+     * ítem ya guardado, y por eso solo existía al editar: justo donde menos se necesita.
+     * Así se puede generar la ficha mientras se está creando el producto.
+     *
+     * Devuelve el texto para que el usuario lo revise; no guarda nada.
+     */
+    public function fichaTecnica(Request $request, \App\Services\IA\FichaTecnicaService $fichas): JsonResponse
+    {
+        // La piden cuatro pantallas con permisos distintos —crear y editar, producto y
+        // ensamble—, así que basta con cualquiera de los cuatro. Pero alguno hace falta:
+        // cada ficha cuesta tokens.
+        $permisos = $request->user()->permisos();
+        $puede    = array_intersect(
+            ['productos.crear', 'productos.editar', 'ensambles.crear', 'ensambles.editar'],
+            $permisos
+        );
+
+        if ($puede === []) {
+            return response()->json(['error' => 'No tienes permiso para generar fichas.'], 403);
+        }
+
+        $datos = $request->validate([
+            'tipo'              => 'required|in:producto,servicio,ensamble',
+            'nombre'            => 'required|string|max:200',
+            'referencia'        => 'nullable|string|max:80',
+            'categoria'         => 'nullable|string|max:120',
+            'unidad'            => 'nullable|string|max:30',
+            'descripcion_corta' => 'nullable|string|max:1000',
+            // Lo que el usuario pega: la fuente principal de la ficha.
+            'datos_brutos'      => 'nullable|string|max:12000',
+            // Para un ensamble, su receta ya calculada.
+            'ensamble_id'       => 'nullable|integer',
+        ]);
+
+        // Las medidas y los componentes de un ensamble no se piden escritos a mano: ya están
+        // calculados en la base y son datos técnicos de verdad.
+        if (filled($datos['ensamble_id'] ?? null)) {
+            $ensamble = Ensamble::find($datos['ensamble_id']);
+
+            if ($ensamble) {
+                $datos['variables']   = (array) $ensamble->variables;
+                $datos['componentes'] = (array) $ensamble->componentes_resultado;
+            }
+        }
+
+        try {
+            return response()->json($fichas->generar($datos));
+        } catch (IaException $e) {
+            return response()->json(['error' => $e->getMessage()], 422);
+        }
+    }
+
+    /**
      * Redacta la descripción comercial de un producto o ensamble a partir de
      * sus datos técnicos. Devuelve el texto para que el usuario lo revise y
      * decida si lo usa — nunca guarda nada por su cuenta.

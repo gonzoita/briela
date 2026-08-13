@@ -47,6 +47,28 @@ Dos reglas que se siguen de eso:
 La referencia de cada variante se genera sola a partir de la del padre más el
 valor de la variante, y el sistema se encarga de que no se repita.
 
+## La unidad de medida la defines tú
+
+El selector de unidad sale de una lista que administra la empresa: el **+** que
+está a su lado abre la lista completa para agregar, renombrar, reordenar y borrar.
+Cada unidad dice si sirve para productos, para servicios o para los dos.
+
+Como en las listas de segmentación, **la clave no cambia y la etiqueta sí**. La
+clave es lo que se guarda en el producto y lo que se lee junto a una cantidad
+(«3 rollo»); la etiqueta es lo que se ve en el selector.
+
+Borrar una unidad **no toca los productos que la usaban**: conservan la suya y
+siguen mostrándola. Solo deja de ofrecerse para los nuevos. Antes de borrar, el
+sistema dice cuántos productos la están usando.
+
+Administrarla pide permiso de **Configuración → Editar**; usarla, no.
+
+## Redactar la ficha con IA
+
+En el formulario, junto a «Descripción corta», está **Ficha técnica con IA**:
+se pegan los datos técnicos en bruto y arma la ficha completa con la voz de tu
+marca, llenando las dos descripciones. Ver [Integración de IA](./ia.md).
+
 ## Publicar en el sitio web
 
 Cada ficha tiene un interruptor **Sitio web**, y en el listado puedes marcar

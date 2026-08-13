@@ -1,6 +1,8 @@
 <script setup>
 import AppLayout from '@/Layouts/AppLayout.vue'
 import EditorTexto from '@/Components/EditorTexto.vue'
+import SelectorUnidad from '@/Components/SelectorUnidad.vue'
+import GeneradorFichaIa from '@/Components/GeneradorFichaIa.vue'
 import { useForm, router } from '@inertiajs/vue3'
 import { ref, computed, watch, reactive, onMounted } from 'vue'
 import { useUnsavedChanges } from '@/composables/useUnsavedChanges'
@@ -254,10 +256,26 @@ const stockInicialTotal = computed(() =>
     Object.values(stockInicial.value).reduce((s, v) => s + (Number(v) || 0), 0)
 )
 
-const unidadesPorTipo = computed(() => {
-    if (form.tipo === 'servicio') return ['unidad', 'hora', 'dia', 'instalacion']
-    return ['unidad', 'ml', 'm2', 'kg', 'mm', 'metros', 'litros', 'docenas', 'pack', 'cajas']
-})
+// La lista de unidades ya no vive aquí: la administra la empresa y la trae
+// `SelectorUnidad` desde /api/unidades-medida. Estaba escrita en este archivo y otra vez
+// en el de editar, así que medir en rollos pedía un cambio de código.
+
+// ── Ficha técnica con IA ──────────────────────────────────────────────────────
+// Lo que ya está escrito en el formulario se le pasa a la IA; los datos técnicos en bruto
+// los pega el usuario en el modal. Nada se guarda solo: llena los campos y ya.
+const datosParaFicha = computed(() => ({
+    tipo:              tipoSeleccionado.value || 'producto',
+    nombre:            form.nombre,
+    referencia:        form.referencia,
+    categoria:         listaCats.value.find(c => String(c.id) === String(form.categoria_id))?.nombre ?? null,
+    unidad:            form.unidad_medida,
+    descripcion_corta: form.descripcion_corta,
+}))
+
+function aplicarFicha({ descripcion_corta, descripcion_larga }) {
+    if (descripcion_corta) form.descripcion_corta = descripcion_corta
+    if (descripcion_larga) form.descripcion_larga = descripcion_larga
+}
 
 const formatCOP = (v) =>
     new Intl.NumberFormat('es-CO', { maximumFractionDigits: 0 }).format(Math.round(v ?? 0))
@@ -527,17 +545,24 @@ const badgeStyle = {
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-tinta-700 mb-1">Unidad de medida</label>
-                                <select v-model="form.unidad_medida" :class="ic('unidad_medida')">
-                                    <option v-for="u in unidadesPorTipo" :key="u" :value="u">{{ u }}</option>
-                                </select>
+                                <SelectorUnidad
+                                    v-model="form.unidad_medida"
+                                    :tipo="tipoSeleccionado || 'producto'"
+                                    :clase="ic('unidad_medida')"
+                                />
                             </div>
                         </div>
                         <div>
                             <div class="flex items-center justify-between mb-1">
                                 <label class="block text-sm font-medium text-tinta-700">Descripción corta</label>
-                                <span class="text-xs" :class="(form.descripcion_corta||'').length > 900 ? 'text-amber-500 font-semibold' : 'text-tinta-300'">
-                                    {{ (form.descripcion_corta||'').length }}/1000
-                                </span>
+                                <div class="flex items-center gap-3">
+                                    <!-- Llena las dos descripciones de una vez, desde los datos
+                                         técnicos en bruto y con la voz de la marca. -->
+                                    <GeneradorFichaIa :datos="datosParaFicha" @usar="aplicarFicha" />
+                                    <span class="text-xs" :class="(form.descripcion_corta||'').length > 900 ? 'text-amber-500 font-semibold' : 'text-tinta-300'">
+                                        {{ (form.descripcion_corta||'').length }}/1000
+                                    </span>
+                                </div>
                             </div>
                             <textarea v-model="form.descripcion_corta" rows="2" maxlength="1000" :class="ic('descripcion_corta')" placeholder="Descripción breve para el catálogo..." />
                         </div>
