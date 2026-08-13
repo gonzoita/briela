@@ -121,6 +121,31 @@ const variablesEntries = Object.entries(props.ensamble.variables ?? {})
                 <div v-if="ensamble.descripcion_larga" class="tiptap-content text-sm text-tinta-500 leading-relaxed" v-html="ensamble.descripcion_larga"></div>
             </div>
 
+            <!-- Resumen técnico para cotizaciones. Se muestra aunque falte: es lo que se
+                 imprime en la cotización y lo que lee la IA para recomendar. -->
+            <div class="rounded-2xl shadow-sm p-5 mb-4"
+                :class="ensamble.descripcion_cotizacion ? 'bg-superficie' : ''"
+                :style="ensamble.descripcion_cotizacion ? '' : 'background:var(--pastel-ambar);'">
+                <div class="flex items-center justify-between gap-2 mb-2">
+                    <h2 class="text-xs font-semibold uppercase tracking-[0.12em]"
+                        :style="ensamble.descripcion_cotizacion ? 'color:var(--tinta-400);' : 'color:var(--texto-ambar);'">
+                        Resumen técnico · cotizaciones y OP
+                    </h2>
+                    <button v-if="puedeEditar" type="button" @click="router.visit(`/ensambles/${ensamble.id}/editar`)"
+                        class="text-xs font-semibold shrink-0" style="color:var(--marca);">
+                        {{ ensamble.descripcion_cotizacion ? 'Editar' : 'Generarlo' }}
+                    </button>
+                </div>
+                <p v-if="ensamble.descripcion_cotizacion" class="text-sm text-tinta-700 leading-relaxed">
+                    {{ ensamble.descripcion_cotizacion }}
+                </p>
+                <p v-else class="text-xs leading-relaxed" style="color:var(--texto-ambar);">
+                    Sin cargar. En la cotización va a salir la descripción comercial en su lugar, y el
+                    asistente no tiene con qué recomendar este ensamble. Se genera con «Ficha técnica
+                    con IA» al editarlo.
+                </p>
+            </div>
+
             <!-- Variables configuradas -->
             <div class="bg-superficie rounded-2xl shadow-sm p-5 mb-4">
                 <h2 class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-3">Variables configuradas</h2>

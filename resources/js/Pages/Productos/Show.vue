@@ -314,6 +314,36 @@ const fmtFecha = (d) => d ? new Date(d).toLocaleDateString('es-CO', { day: '2-di
                     <p class="font-mono text-xs text-tinta-300 mb-3">{{ p.referencia }} · {{ p.unidad_medida }}</p>
                     <p v-if="p.descripcion_corta" class="text-sm text-tinta-500 mb-4">{{ p.descripcion_corta }}</p>
 
+                    <!-- Resumen técnico para cotizaciones.
+                         Se muestra incluso cuando falta, y eso es a propósito: es lo que
+                         se imprime en la cotización y lo que lee la IA para recomendar, así
+                         que su ausencia es un pendiente y no un campo vacío cualquiera. -->
+                    <div class="border rounded-xl overflow-hidden mb-4"
+                        :class="p.descripcion_cotizacion ? 'border-linea' : ''"
+                        :style="p.descripcion_cotizacion ? '' : 'border-color:var(--marca);'">
+                        <div class="px-3 py-2 flex items-center justify-between gap-2"
+                            :style="p.descripcion_cotizacion ? 'background:var(--tinta-50);' : 'background:var(--pastel-ambar);'">
+                            <p class="text-xs font-semibold uppercase tracking-wide"
+                                :style="p.descripcion_cotizacion ? 'color:var(--tinta-400);' : 'color:var(--texto-ambar);'">
+                                Resumen técnico · cotizaciones y OP
+                            </p>
+                            <a v-if="puedeEditar" :href="`/productos/${p.id}/editar`"
+                                class="text-xs font-semibold shrink-0" style="color:var(--marca);">
+                                {{ p.descripcion_cotizacion ? 'Editar' : 'Generarlo' }}
+                            </a>
+                        </div>
+                        <div class="px-3 py-2.5">
+                            <p v-if="p.descripcion_cotizacion" class="text-sm text-tinta-700 leading-relaxed">
+                                {{ p.descripcion_cotizacion }}
+                            </p>
+                            <p v-else class="text-xs text-tinta-500 leading-relaxed">
+                                Sin cargar. En la cotización va a salir la descripción comercial en su
+                                lugar, y el asistente no tiene con qué recomendar este producto. Se
+                                genera con «Ficha técnica con IA» al editarlo.
+                            </p>
+                        </div>
+                    </div>
+
                     <!-- Descripción larga (mobile) -->
                     <div v-if="p.descripcion_larga" class="md:hidden mb-4">
                         <h3 class="text-sm font-semibold text-tinta-700 mb-1">Descripción</h3>
