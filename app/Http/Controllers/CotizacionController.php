@@ -16,6 +16,7 @@ use App\Services\FormulaEvaluatorService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
+use App\Services\PreciosPorCanalService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response as HttpResponse;
 use Illuminate\Support\Facades\Storage;
@@ -422,6 +423,10 @@ class CotizacionController extends Controller
     {
         $buscar = $request->get('q', '');
 
+        // Los canales se leen una vez, no una por producto: son los mismos para todos.
+        $precios             = app(PreciosPorCanalService::class);
+        $canalesConfigurados = app(\App\Services\CanalesPrecioService::class)->canales();
+
         return response()->json(
             Producto::with(['padre:id,nombre,atributo_variante', 'preciosPorCanal'])
                 ->seleccionables()
@@ -465,16 +470,26 @@ class CotizacionController extends Controller
                     'descuento_max_cliente_final' => (float) $p->descuento_max_cliente_final,
                     'descuento_max_distribuidor'  => (float) $p->descuento_max_distribuidor,
                     'descuento_max_mayorista'     => (float) $p->descuento_max_mayorista,
-                    // Los canales configurados, con su precio. Los tres campos de arriba
-                    // quedan mientras la pantalla se cambia; esto es lo que sustituye a
-                    // comparar nombres de canal a mano.
-                    'canales' => $p->preciosPorCanal->map(fn ($c) => [
-                        'segmentacion_opcion_id' => $c->segmentacion_opcion_id,
-                        'precio'                 => (float) $c->precio,
-                        'comision_min_pct'       => (float) $c->comision_min_pct,
-                        'comision_max_pct'       => (float) $c->comision_max_pct,
-                        'descuento_max_pct'      => (float) $c->descuento_max_pct,
-                    ])->values(),
+                    // Una fila por canal CONFIGURADO, no solo por canal con fila guardada.
+                    //
+                    // Antes se mandaban únicamente las filas de `canal_precios`, y la
+                    // pantalla busca la del canal del cliente: si el producto no la tenía
+                    // —porque se guardó desde una pantalla que manda las columnas viejas, o
+                    // porque el canal se creó después del producto— el ítem se cotizaba en
+                    // CERO sin decir nada. Un precio en cero que nadie pidió no es un error
+                    // que se note: es un error que se firma.
+                    //
+                    // `filaEfectiva` cae a las columnas de siempre cuando no hay fila, y
+                    // marca `sin_precio` cuando de verdad no hay de dónde sacarlo.
+                    'canales' => $canalesConfigurados->map(function ($canal) use ($p, $precios) {
+                        $fila = $precios->filaEfectiva($p, $canal);
+
+                        return array_merge($fila, [
+                            'segmentacion_opcion_id' => $canal->id,
+                            'etiqueta'               => $canal->etiqueta,
+                            'sin_precio'             => $fila['precio'] <= 0,
+                        ]);
+                    })->values(),
                 ])
         );
     }

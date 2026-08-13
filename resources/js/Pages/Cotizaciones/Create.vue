@@ -315,6 +315,20 @@ function expandirProducto(p) {
 }
 function agregarItemDesdeProducto(prod) {
     const precio = getPrecioSegunCanal(prod)
+
+    // Un precio en cero que nadie pidió no es un error que se note: es un error que se
+    // firma. Se agrega igual —a veces se cotiza algo para ponerle precio a mano— pero
+    // diciendo qué falta y dónde se arregla.
+    if (precio <= 0) {
+        const canal = canalCliente.value?.etiqueta ?? 'el canal de este cliente'
+        alert(
+            `«${prod.nombre}» no tiene precio cargado para ${canal}.
+
+`
+            + 'Se agrega en cero y puedes escribir el precio a mano, pero conviene cargarlo '
+            + 'en el producto para que no vuelva a pasar.'
+        )
+    }
     form.items.push({
         tipo: prod.tipo ?? 'producto', producto_id: prod.id, ensamble_id: null,
         descripcion:       prod.nombre + (prod.referencia ? ` (${prod.referencia})` : ''),

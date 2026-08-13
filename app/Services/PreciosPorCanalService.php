@@ -110,6 +110,54 @@ class PreciosPorCanalService
         return null;
     }
 
+    /**
+     * La fila efectiva de un canal: lo guardado, o lo que se pueda reconstruir.
+     *
+     * Existe porque la cotización leía **solo** las filas nuevas de `canal_precios`, y un
+     * producto sin fila para el canal de ese cliente se cotizaba en **cero sin avisar**:
+     * pasaba con los ítems guardados desde pantallas que todavía mandan las columnas
+     * viejas, y con cualquier canal que la empresa haya creado después del producto.
+     *
+     * Un precio en cero que nadie pidió es peor que un error: se firma.
+     *
+     * @return array{precio: float, comision_min_pct: float, comision_max_pct: float, descuento_max_pct: float, desde_columnas_viejas: bool}
+     */
+    public function filaEfectiva(Model $item, SegmentacionOpcion $canal): array
+    {
+        $fila = $item->precioDeCanal($canal);
+
+        if ($fila) {
+            return [
+                'precio'                => (float) $fila->precio,
+                'comision_min_pct'      => (float) $fila->comision_min_pct,
+                'comision_max_pct'      => (float) $fila->comision_max_pct,
+                'descuento_max_pct'     => (float) $fila->descuento_max_pct,
+                'desde_columnas_viejas' => false,
+            ];
+        }
+
+        $columna = self::COLUMNAS_HEREDADAS[$canal->valor] ?? null;
+
+        if (! $columna) {
+            // Un canal que la empresa creó después y al que nadie le puso precio en este
+            // ítem: no hay de dónde sacarlo. Va en cero, pero marcado, para que la
+            // pantalla lo pueda decir en vez de mostrar «$0» como si fuera un precio.
+            return [
+                'precio' => 0.0, 'comision_min_pct' => 0.0, 'comision_max_pct' => 0.0,
+                'descuento_max_pct' => 0.0, 'desde_columnas_viejas' => false,
+            ];
+        }
+
+        return [
+            'precio'                => (float) ($item->{"precio_{$columna}"} ?? 0),
+            // Mayorista nunca tuvo columnas de comisión: es el canal base y no las paga.
+            'comision_min_pct'      => (float) ($item->{"comision_min_{$columna}"} ?? 0),
+            'comision_max_pct'      => (float) ($item->{"comision_max_{$columna}"} ?? 0),
+            'descuento_max_pct'     => (float) ($item->{"descuento_max_{$columna}"} ?? 0),
+            'desde_columnas_viejas' => true,
+        ];
+    }
+
     /** El precio que ve alguien que no ha entrado: el del canal marcado como público. */
     public function precioPublicoDe(Model $item): ?float
     {
