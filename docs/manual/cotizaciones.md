@@ -164,3 +164,16 @@ también es corta. La ficha técnica completa vive en el catálogo y en el sitio
 antes se imprimía entera aquí, y una cotización de tres ítems salía de cuatro páginas.
 
 En un ensamble a medida, además, se le pegan las medidas de esa configuración.
+
+## Con qué precio se cotiza
+
+Con el del **canal que le corresponde al cliente** por su tipo de contacto. Si tiene
+varios tipos, gana el que esté más arriba en la lista de
+[Segmentación](./segmentacion-y-precios.md).
+
+**Si no le corresponde ninguno, se usa el precio público** y la etiqueta del canal sale
+en ámbar con «por omisión». Nunca se cotiza en cero por falta de segmentación.
+
+Si aun así un ítem entra en cero, es que ese producto no tiene precio cargado para ese
+canal —pasa con canales creados después del producto— y el sistema lo dice al agregarlo,
+con el nombre del canal que falta.

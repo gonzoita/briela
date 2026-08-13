@@ -46,13 +46,19 @@ canal por error.
 Junto al nombre del cliente ves una etiqueta con su canal, para que no haya
 duda de qué precio se está usando.
 
-**Si el cliente no está segmentado, no se muestra ningún precio** y la pantalla
-te dice que le asignes un tipo de contacto. Es a propósito: cotizarle con un
-precio por omisión es la forma de vender mal sin que nadie se entere.
+**Si el cliente no está segmentado, se cotiza con el precio público** y la pantalla
+lo dice: la etiqueta del canal aparece en ámbar con «por omisión», y un aviso explica
+que le asignes un tipo de contacto si le corresponde otro precio.
 
-Lo mismo si el cliente solo tiene tipos que no definen precio — un Prospecto,
-por ejemplo. El aviso lo distingue del caso anterior, porque se arreglan
-distinto: uno se soluciona en la ficha del cliente, el otro en Segmentación.
+Lo mismo si el cliente solo tiene tipos que no definen precio — un Prospecto, por
+ejemplo. El aviso lo distingue del caso anterior, porque se arreglan distinto: uno se
+soluciona en la ficha del cliente, el otro en Segmentación.
+
+> Hasta el 13 ago 2026 no se mostraba ningún precio en esos casos. La idea era evitar
+> vender al precio equivocado sin notarlo, pero en la práctica dejaba **cotizaciones en
+> cero** — y una cotización en cero se firma. El precio público es además el que le
+> corresponde a alguien de quien no se sabe nada. Lo que sí hace falta es decirlo, y eso
+> ahora se ve en pantalla.
 
 ## El orden de la lista decide tres cosas
 

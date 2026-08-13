@@ -132,35 +132,57 @@ const contactos          = ref(props.cotizacion?.cliente?.contactos ?? props.lea
 //
 // Antes esto comparaba tres nombres escritos aquí —mayorista, distribuidor, y si no,
 // cliente final—. Eso significaba que cualquier tipo de contacto que la empresa creara
-// caía en «cliente final» sin que nada lo dijera, y que un cliente sin segmentar recibía
-// precios como si fuera cliente final.
+// caía en «cliente final» sin que nada lo dijera. Ahora los canales llegan del servidor en
+// el orden de prioridad que la empresa controla arrastrando la lista en Segmentación.
 //
-// Ahora los canales llegan del servidor en orden de prioridad, y ese orden lo controla la
-// empresa arrastrando la lista en Segmentación. Sin canal no hay precios: es deliberado —
-// mostrar un precio por omisión es la forma de vender al precio equivocado sin notarlo.
+// **Y si al cliente no le corresponde ninguno, se usa el precio público.** Antes no se
+// mostraba precio: la idea era evitar vender al precio equivocado sin notarlo. En la
+// práctica dejaba cotizaciones en cero, que es peor —una cotización en cero se firma— y
+// además el precio público es exactamente el que le corresponde a alguien de quien no
+// sabemos nada. Lo que sí hace falta es DECIRLO, y eso se ve en pantalla.
 
-/** El canal del cliente, o null si no le corresponde ninguno. */
-const canalCliente = computed(() => {
+/** El canal marcado como precio público, que es el respaldo. */
+const canalPublico = computed(() =>
+    (props.canales || []).find(c => c.es_precio_publico) ?? null
+)
+
+/** El canal que de verdad le corresponde al cliente por su segmentación, o null. */
+const canalPropio = computed(() => {
     const tipos = clienteSeleccionado.value?.tipos_contacto || []
     if (!tipos.length) return null
 
     return (props.canales || []).find(c => tipos.includes(c.valor)) ?? null
 })
 
-/** Por qué no hay precios, en palabras que sirvan en pantalla. */
+/** El canal con el que se cotiza: el suyo, o el público como respaldo. */
+const canalCliente = computed(() => canalPropio.value ?? canalPublico.value)
+
+/** ¿Se está cotizando con el respaldo en vez de con el canal del cliente? */
+const canalEsRespaldo = computed(() =>
+    !! (clienteSeleccionado.value && ! canalPropio.value && canalPublico.value)
+)
+
+/** Qué está pasando con los precios, en palabras que sirvan en pantalla. */
 const motivoSinCanal = computed(() => {
-    if (canalCliente.value) return null
-    if (!clienteSeleccionado.value) return 'Elige un cliente para ver los precios que le corresponden.'
+    if (! clienteSeleccionado.value) return 'Elige un cliente para ver los precios que le corresponden.'
+
+    if (canalPropio.value) return null
 
     const tipos = clienteSeleccionado.value.tipos_contacto || []
 
-    if (!tipos.length) {
-        return 'Este cliente no está segmentado, así que no se le pueden calcular precios. '
-             + 'Asígnale un tipo de contacto en su ficha.'
+    if (! canalPublico.value) {
+        return 'Este cliente no tiene un tipo que defina precio, y tampoco hay ningún canal '
+             + 'marcado como precio público. Marca uno en Segmentación.'
     }
 
-    return 'Ninguno de los tipos de contacto de este cliente tiene lista de precios. '
-         + 'Márcale «define precio» en Segmentación, o cámbiale el tipo de contacto.'
+    if (! tipos.length) {
+        return `Este cliente no está segmentado, así que se está cotizando con ${canalPublico.value.etiqueta} `
+             + '(el precio público). Asígnale un tipo de contacto en su ficha si le corresponde otro precio.';
+    }
+
+    return `Ninguno de los tipos de este cliente define precio, así que se está cotizando con `
+         + `${canalPublico.value.etiqueta} (el precio público). Márcale «define precio» al tipo que `
+         + 'corresponda en Segmentación.'
 })
 
 /** La fila de precios del producto o ensamble para el canal del cliente. */
@@ -790,8 +812,13 @@ function submit() {
                                      nada en pantalla explicara por qué. -->
                                 <span v-if="canalCliente"
                                     class="text-[11px] font-semibold px-2 py-0.5 rounded-full shrink-0"
-                                    :style="`background:${canalCliente.color}1a; color:${canalCliente.color};`">
-                                    {{ canalCliente.etiqueta }}
+                                    :style="canalEsRespaldo
+                                        ? 'background:var(--pastel-ambar); color:var(--texto-ambar);'
+                                        : `background:${canalCliente.color}1a; color:${canalCliente.color};`"
+                                    :title="canalEsRespaldo
+                                        ? 'Este cliente no tiene un tipo que defina precio: se usa el precio público'
+                                        : 'El canal que le corresponde por su segmentación'">
+                                    {{ canalCliente.etiqueta }}{{ canalEsRespaldo ? ' · por omisión' : '' }}
                                 </span>
                                 <button type="button" @click="limpiarCliente" class="text-blue-300 hover:text-blue-500">
                                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
@@ -1244,7 +1271,7 @@ function submit() {
                                             <div class="flex items-center justify-between mb-1">
                                                 <p class="text-xs text-tinta-400">{{ canalCliente.etiqueta }}</p>
                                                 <span class="text-xs px-1.5 py-0.5 rounded-full text-white"
-                                                    :style="`background:${canalCliente.color};`">★ Su canal</span>
+                                                    :style="`background:${canalCliente.color};`">{{ canalEsRespaldo ? '★ Por omisión' : '★ Su canal' }}</span>
                                             </div>
                                             <p class="font-semibold text-tinta-900">${{ formatCOP(getPrecioSegunCanal(e)) }}</p>
                                             <p class="text-xs mt-0.5" :style="`color:${canalCliente.color};`">
@@ -1357,7 +1384,7 @@ function submit() {
                                         <div class="flex items-center justify-between mb-1">
                                             <p class="text-xs text-tinta-400">{{ canalCliente.etiqueta }}</p>
                                             <span class="text-xs px-1.5 py-0.5 rounded-full text-white"
-                                                :style="`background:${canalCliente.color};`">★ Su canal</span>
+                                                :style="`background:${canalCliente.color};`">{{ canalEsRespaldo ? '★ Por omisión' : '★ Su canal' }}</span>
                                         </div>
                                         <p class="font-semibold text-tinta-900">${{ formatCOP(precioCalculadoDelCanal) }}</p>
                                         <p class="text-xs mt-0.5" :style="`color:${canalCliente.color};`">

@@ -1,1 +1,0 @@
-import{J as e,N as t,h as n,n as r,v as i,w as a,x as o}from"./app-DIws3ki7.js";var s={__name:`Index`,setup(s){return(s,c)=>(t(),o(n,null,[a(e(r),{title:`Calculador`}),c[0]||=i(`div`,null,[i(`h1`,null,`Calculador de Producción`)],-1)],64))}};export{s as default};
