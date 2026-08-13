@@ -555,7 +555,22 @@ const badgeStyle = {
                                 />
                             </div>
                         </div>
-                                                <div>
+                                                
+<div>
+                            <div class="flex items-center justify-between mb-1">
+                                <label class="block text-sm font-medium text-tinta-700">Descripción corta</label>
+                                <div class="flex items-center gap-3">
+                                    <!-- Llena las dos descripciones de una vez, desde los datos
+                                         técnicos en bruto y con la voz de la marca. -->
+                                    <GeneradorFichaIa :datos="datosParaFicha" @usar="aplicarFicha" />
+                                    <span class="text-xs" :class="(form.descripcion_corta||'').length > 900 ? 'text-amber-500 font-semibold' : 'text-tinta-300'">
+                                        {{ (form.descripcion_corta||'').length }}/1000
+                                    </span>
+                                </div>
+                            </div>
+                            <textarea v-model="form.descripcion_corta" rows="2" maxlength="1000" :class="ic('descripcion_corta')" placeholder="Descripción breve para el catálogo..." />
+                        </div>
+                        <div>
                             <div class="flex items-center justify-between mb-1">
                                 <label class="block text-sm font-medium text-tinta-700">Resumen técnico para cotizaciones</label>
                                 <span class="text-xs" :class="(form.descripcion_cotizacion||'').length > 500 ? 'text-amber-500 font-semibold' : 'text-tinta-300'">
@@ -571,20 +586,7 @@ const badgeStyle = {
                                 queda en la descripción larga.
                             </p>
                         </div>
-<div>
-                            <div class="flex items-center justify-between mb-1">
-                                <label class="block text-sm font-medium text-tinta-700">Descripción corta</label>
-                                <div class="flex items-center gap-3">
-                                    <!-- Llena las dos descripciones de una vez, desde los datos
-                                         técnicos en bruto y con la voz de la marca. -->
-                                    <GeneradorFichaIa :datos="datosParaFicha" @usar="aplicarFicha" />
-                                    <span class="text-xs" :class="(form.descripcion_corta||'').length > 900 ? 'text-amber-500 font-semibold' : 'text-tinta-300'">
-                                        {{ (form.descripcion_corta||'').length }}/1000
-                                    </span>
-                                </div>
-                            </div>
-                            <textarea v-model="form.descripcion_corta" rows="2" maxlength="1000" :class="ic('descripcion_corta')" placeholder="Descripción breve para el catálogo..." />
-                        </div>
+
                         <div>
                             <div class="flex items-center justify-between mb-1">
                                 <label class="block text-sm font-medium text-tinta-700">Descripción larga</label>

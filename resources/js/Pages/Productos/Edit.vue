@@ -543,22 +543,7 @@ const badgeStyle = {
                         </div>
 
                         <!-- Descripción corta -->
-                                                <div>
-                            <div class="flex items-center justify-between mb-1">
-                                <label class="block text-sm font-medium text-tinta-700">Resumen técnico para cotizaciones</label>
-                                <span class="text-xs" :class="(form.descripcion_cotizacion||'').length > 500 ? 'text-amber-500 font-semibold' : 'text-tinta-300'">
-                                    {{ (form.descripcion_cotizacion||'').length }}/600
-                                </span>
-                            </div>
-                            <textarea v-model="form.descripcion_cotizacion" rows="2" maxlength="600"
-                                class="w-full border border-linea rounded-xl px-3 py-2 text-sm bg-superficie focus:outline-none focus:border-[var(--marca)]"
-                                placeholder="2400 x 2600 mm · lámina galvanizada cal. 22 · motor 1.5 kW 220V · rango -25 °C a 40 °C" />
-                            <p class="text-xs text-tinta-300 mt-1">
-                                Es lo que se imprime debajo del ítem en las cotizaciones y en las órdenes
-                                de producción. Solo datos, sin lenguaje comercial: la ficha completa se
-                                queda en la descripción larga.
-                            </p>
-                        </div>
+                                                
 <div>
                             <div class="flex items-center justify-between mb-1">
                                 <label class="block text-sm font-medium text-tinta-700">Descripción corta</label>
@@ -578,6 +563,23 @@ const badgeStyle = {
                             </div>
                             <textarea v-model="form.descripcion_corta" rows="2" maxlength="1000" :class="ic('descripcion_corta')" />
                             <p v-if="iaError" class="mt-1 text-xs text-red-600">{{ iaError }}</p>
+                        </div>
+
+                        <div>
+                            <div class="flex items-center justify-between mb-1">
+                                <label class="block text-sm font-medium text-tinta-700">Resumen técnico para cotizaciones</label>
+                                <span class="text-xs" :class="(form.descripcion_cotizacion||'').length > 500 ? 'text-amber-500 font-semibold' : 'text-tinta-300'">
+                                    {{ (form.descripcion_cotizacion||'').length }}/600
+                                </span>
+                            </div>
+                            <textarea v-model="form.descripcion_cotizacion" rows="2" maxlength="600"
+                                class="w-full border border-linea rounded-xl px-3 py-2 text-sm bg-superficie focus:outline-none focus:border-[var(--marca)]"
+                                placeholder="2400 x 2600 mm · lámina galvanizada cal. 22 · motor 1.5 kW 220V · rango -25 °C a 40 °C" />
+                            <p class="text-xs text-tinta-300 mt-1">
+                                Es lo que se imprime debajo del ítem en las cotizaciones y en las órdenes
+                                de producción. Solo datos, sin lenguaje comercial: la ficha completa se
+                                queda en la descripción larga.
+                            </p>
                         </div>
 
                         <div>

@@ -405,22 +405,7 @@ onMounted(() => {
                 <h2 class="text-sm font-semibold text-tinta-700 uppercase tracking-[0.12em] mb-4">1. Plantilla y nombre</h2>
 
                 <div class="space-y-4">
-                                            <div>
-                            <div class="flex items-center justify-between mb-1">
-                                <label class="block text-sm font-medium text-tinta-700">Resumen técnico para cotizaciones</label>
-                                <span class="text-xs" :class="(descripcionCotizacion||'').length > 500 ? 'text-amber-500 font-semibold' : 'text-tinta-300'">
-                                    {{ (descripcionCotizacion||'').length }}/600
-                                </span>
-                            </div>
-                            <textarea v-model="descripcionCotizacion" rows="2" maxlength="600"
-                                class="w-full border border-linea rounded-xl px-3 py-2 text-sm bg-superficie focus:outline-none focus:border-[var(--marca)]"
-                                placeholder="2400 x 2600 mm · lámina galvanizada cal. 22 · motor 1.5 kW 220V · rango -25 °C a 40 °C" />
-                            <p class="text-xs text-tinta-300 mt-1">
-                                Es lo que se imprime debajo del ítem en las cotizaciones y en las órdenes
-                                de producción. Solo datos, sin lenguaje comercial: la ficha completa se
-                                queda en la descripción larga.
-                            </p>
-                        </div>
+                                            
 <div>
                         <label class="block text-sm font-medium text-tinta-700 mb-1.5">Plantilla <span class="text-red-500">*</span></label>
                         <select v-model="plantillaId" :disabled="esEdicion"
@@ -447,6 +432,8 @@ onMounted(() => {
 
                 <!-- Categoría + activo -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                    
+
                     <div>
                         <label class="block text-sm font-medium text-tinta-700 mb-1.5">Categoría</label>
                         <div class="flex gap-2">
@@ -483,6 +470,25 @@ onMounted(() => {
                         placeholder="Descripción breve para el catálogo..." />
                     <p v-if="page.props.errors?.descripcion_corta" class="mt-1 text-xs text-red-600">
                         {{ page.props.errors.descripcion_corta }}
+                    </p>
+                </div>
+
+                <!-- Resumen técnico: va entre la comercial y la ficha, porque es lo que
+                     se imprime en la cotización y en la orden de producción. -->
+                <div class="mb-4">
+                    <div class="flex items-center justify-between mb-1">
+                        <label class="text-sm font-medium text-tinta-700">Resumen técnico para cotizaciones</label>
+                        <span class="text-xs" :class="(descripcionCotizacion ?? '').length > 500 ? 'text-amber-500 font-semibold' : 'text-tinta-300'">
+                            {{ (descripcionCotizacion ?? '').length }}/600
+                        </span>
+                    </div>
+                    <textarea v-model="descripcionCotizacion" rows="2" maxlength="600"
+                        class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none resize-none focus:border-[var(--marca)]"
+                        placeholder="2400 x 2600 mm · lámina galvanizada cal. 22 · motor 1.5 kW 220V · rango -25 °C a 40 °C" />
+                    <p class="text-xs text-tinta-300 mt-1">
+                        Es lo que se imprime debajo del ítem en las cotizaciones y en las órdenes de
+                        producción. Solo datos, sin lenguaje comercial: la ficha completa se queda en
+                        la descripción larga.
                     </p>
                 </div>
 
