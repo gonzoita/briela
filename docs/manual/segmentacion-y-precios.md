@@ -155,6 +155,25 @@ es el canal base, el más alto si es el precio público— hasta que las plantil
 puedan llevar un margen por canal. Los productos sí toman el margen exacto que
 le pongas a cada canal.
 
+## Cuando un precio no sale como debe
+
+Hay un comando que imprime de una vez todo lo que hace falta para entenderlo, sin tocar
+nada:
+
+```
+php artisan briela:diagnostico PP-00
+```
+
+Muestra los canales configurados con su clave y su papel, a qué columna antigua mapea cada
+uno, las filas de precio que tiene ese producto, lo que hay en las columnas antiguas, y
+**qué precio recibiría una cotización para cada canal y de dónde sale**. Para un ensamble
+se escribe `ENS-12`.
+
+Y con `--cliente=900123456` dice con qué canal se le cotiza a ese cliente, o por qué se le
+está aplicando el precio público.
+
+Sirve para soporte: es lo que hay que pegar cuando alguien reporta «no me trae el precio».
+
 ## Cargar la segmentación por CSV
 
 El importador de clientes trae las cuatro columnas, y admite varias opciones
