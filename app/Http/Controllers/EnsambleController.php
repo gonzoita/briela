@@ -107,7 +107,13 @@ class EnsambleController extends Controller
 
     public function store(Request $request, FormulaEvaluatorService $svc): RedirectResponse
     {
+        $this->desempacar($request);
+
         $request->validate([
+            // Las imágenes se pueden elegir antes de guardar, igual que en productos: la
+            // primera queda como principal y las demás como secundarias.
+            'imagenes'                  => 'nullable|array|max:10',
+            'imagenes.*'                => 'image|max:5120',
             // Con plantilla se exigen plantilla y variables; directo exige sus líneas. Antes
             // «plantilla_id» era obligatoria siempre, que es lo que impedía armar un ensamble
             // a mano.
@@ -115,7 +121,11 @@ class EnsambleController extends Controller
             'plantilla_id'              => 'required_if:tipo_armado,plantilla|nullable|exists:plantillas_ensamble,id',
             'nombre'                    => 'required|string|max:150',
             'variables'                 => 'required_if:tipo_armado,plantilla|nullable|array',
-            'lineas'                    => 'required_if:tipo_armado,directo|nullable|array|min:1',
+            // Sin `min:1`: la pantalla manda `lineas: []` cuando el ensamble es con
+            // plantilla, y `min:1` lo rechazaba aunque las líneas no vinieran al caso.
+            // `required_if` ya cubre lo que importa — para Laravel un arreglo vacío es
+            // ausente, así que un ensamble directo sin líneas tampoco pasa.
+            'lineas'                    => 'required_if:tipo_armado,directo|nullable|array',
             'lineas.*.producto_id'      => 'nullable|exists:productos,id',
             'lineas.*.concepto'         => 'nullable|string|max:150',
             'lineas.*.cantidad'         => 'required_with:lineas|numeric|min:0',
@@ -183,20 +193,16 @@ class EnsambleController extends Controller
             'precio_distribuidor'       => $request->precio_distribuidor  ?? 0,
             'precio_cliente_final'      => $request->precio_cliente_final ?? 0,
             'margen_aplicado'           => $request->margen_aplicado      ?? 32.5,
-            'comision_pct_minima'         => $request->comision_pct_minima,
-            'comision_pct_maxima'         => $request->comision_pct_maxima,
-            'comision_min_distribuidor'   => $request->comision_min_distribuidor ?? 0,
-            'comision_max_distribuidor'   => $request->comision_max_distribuidor ?? 0,
-            'comision_min_cliente_final'  => $request->comision_min_cliente_final ?? 0,
-            'comision_max_cliente_final'  => $request->comision_max_cliente_final ?? 0,
-            'utilidad_minima_empresa_pct' => $request->utilidad_minima_empresa_pct,
-            'descuento_max_cliente_final' => $request->descuento_max_cliente_final,
-            'descuento_max_distribuidor'  => $request->descuento_max_distribuidor,
-            'descuento_max_mayorista'     => $request->descuento_max_mayorista,
+            'utilidad_minima_empresa_pct' => $request->utilidad_minima_empresa_pct ?? 15,
+            // Las comisiones y los descuentos por canal NO se escriben aquí: los pone
+            // `espejarEnColumnasViejas()` desde las filas por canal, un instante después.
+            // Estaban en esta lista leyendo campos que la pantalla dejó de mandar, así que
+            // llegaban en null a diez columnas NOT NULL y guardar reventaba con un 500.
             'creado_por'                  => auth()->id(),
         ]);
 
         $this->guardarCanales($request, $ensamble);
+        $this->guardarImagenes($request, $ensamble);
 
         return redirect("/ensambles/{$ensamble->id}")->with('success', $esDirecto
             ? 'Ensamble creado con su lista de materiales.'
@@ -279,9 +285,70 @@ class EnsambleController extends Controller
         );
     }
 
+    /**
+     * Deshace el JSON de los campos estructurados cuando el envío trae archivos.
+     *
+     * Con imágenes adjuntas, Inertia manda el formulario como `multipart/form-data`, y ahí
+     * todo viaja como texto: un `true` llega como `'1'` y un número como `'2400'`. Eso
+     * importa porque `variables` se guarda tal cual y la pantalla de editar la vuelve a
+     * leer — un campo de sí/no con `'0'` quedaría marcado, porque `'0'` es una cadena no
+     * vacía y en JavaScript eso es verdadero.
+     *
+     * Así que la pantalla manda esos tres como JSON y aquí se devuelven a su forma antes de
+     * validar. Cuando no hay archivos llegan como arreglos normales y esto no hace nada.
+     */
+    private function desempacar(Request $request): void
+    {
+        foreach (['variables', 'lineas', 'canales'] as $campo) {
+            $valor = $request->input($campo);
+
+            if (is_string($valor)) {
+                $request->merge([$campo => json_decode($valor, true) ?? []]);
+            }
+        }
+    }
+
+    /**
+     * Guarda las imágenes elegidas al crear el ensamble.
+     *
+     * La primera queda como principal y el resto como secundarias, que es el orden en que
+     * las eligió el usuario. Antes solo se podían subir desde la pantalla de editar, así
+     * que había que guardar el ensamble, volver a entrar y subirlas — y el aviso que lo
+     * explicaba era lo único que había.
+     */
+    private function guardarImagenes(Request $request, Ensamble $ensamble): void
+    {
+        $archivos = $request->file('imagenes');
+
+        if (! $archivos) {
+            return;
+        }
+
+        $secundarias = [];
+
+        foreach (array_values($archivos) as $i => $archivo) {
+            $subida = ArchivoServidorService::subir($archivo, 'ensambles');
+
+            // Ruta relativa, no URL completa: las vistas arman el src como
+            // `/storage/{ruta}`, y una URL con dominio quedaría apuntando al sitio
+            // anterior el día que el sistema se monte en otro dominio.
+            if ($i === 0) {
+                $ensamble->imagen_principal          = $subida['ruta'];
+                $ensamble->imagen_principal_drive_id = $subida['id'];
+            } else {
+                $secundarias[] = $subida['ruta'];
+            }
+        }
+
+        $ensamble->imagenes_secundarias = $secundarias;
+        $ensamble->save();
+    }
+
     public function update(Request $request, int $id, FormulaEvaluatorService $svc): RedirectResponse
     {
         $ensamble = Ensamble::findOrFail($id);
+
+        $this->desempacar($request);
 
         $request->validate([
             'nombre'                    => 'required|string|max:150',

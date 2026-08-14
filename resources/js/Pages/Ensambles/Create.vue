@@ -164,6 +164,26 @@ async function crearCategoria() {
     } finally { guardandoCat.value = false }
 }
 
+// ── Imágenes al crear ────────────────────────────────────────────────────────
+// Se quedan en memoria hasta que se guarda: un ensamble sin id todavía no tiene dónde
+// colgarlas. Van dentro del mismo envío y el servidor las guarda al final.
+const imagenesNuevas = ref([])
+
+function elegirImagenes(e) {
+    for (const file of Array.from(e.target.files ?? [])) {
+        const lector = new FileReader()
+        lector.onload = (ev) => imagenesNuevas.value.push({ file, url: ev.target.result })
+        lector.readAsDataURL(file)
+    }
+
+    // Se limpia para que elegir el mismo archivo otra vez vuelva a disparar el evento.
+    e.target.value = ''
+}
+
+function quitarImagenNueva(i) {
+    imagenesNuevas.value.splice(i, 1)
+}
+
 // ── Imágenes (solo en modo edición) ──────────────────────────────────────────
 const imgSubiendo         = ref(false)
 const imagenPrincipal     = ref(props.ensamble?.imagen_principal ?? null)
@@ -390,14 +410,32 @@ async function guardar() {
 
     const onError = (errors) => {
         guardando.value = false
-        if (errors.descripcion_corta) errorMsg.value = errors.descripcion_corta
+        errorMsg.value = Object.values(errors)[0] ?? 'No se pudo guardar. Revisa los datos.'
     }
 
     if (esEdicion.value) {
         router.put(`/ensambles/${props.ensamble.id}`, payload, { onError })
-    } else {
-        router.post('/ensambles', payload, { onError })
+
+        return
     }
+
+    // Con imágenes el envío pasa a multipart, y ahí todo viaja como texto: un `true`
+    // llegaría como `'1'`. Las tres estructuras van como JSON y el servidor las
+    // desempaca — así `variables` se guarda con sus tipos y la pantalla de editar la
+    // vuelve a leer bien.
+    if (imagenesNuevas.value.length) {
+        router.post('/ensambles', {
+            ...payload,
+            variables: JSON.stringify(payload.variables),
+            lineas:    JSON.stringify(payload.lineas),
+            canales:   JSON.stringify(payload.canales),
+            imagenes:  imagenesNuevas.value.map(i => i.file),
+        }, { forceFormData: true, onError })
+
+        return
+    }
+
+    router.post('/ensambles', payload, { onError })
 }
 
 const formatCOP = (v) => new Intl.NumberFormat('es-CO', { maximumFractionDigits: 0 }).format(v ?? 0)
@@ -636,8 +674,33 @@ onMounted(() => {
                         </div>
                     </div>
                 </template>
-                <div v-else class="border-t border-linea pt-3">
-                    <p class="text-xs text-tinta-300">Las imágenes se pueden agregar después de guardar el ensamble.</p>
+                <!-- Imágenes al crear, igual que en productos. Antes aquí solo había un
+                     aviso de que se subían después de guardar: había que guardar, volver a
+                     entrar a editar y subirlas. Las imágenes de un ensamble se guardan
+                     contra su id, así que viajan con el formulario y se guardan al final. -->
+                <div v-else class="border-t border-linea pt-4">
+                    <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1">Imágenes</p>
+                    <p class="text-xs text-tinta-300 mb-3">La primera es la principal. Se pueden cambiar después.</p>
+
+                    <div class="flex flex-wrap gap-3">
+                        <div v-for="(img, i) in imagenesNuevas" :key="i"
+                            class="relative w-24 h-24 rounded-xl overflow-hidden border border-linea shrink-0">
+                            <img :src="img.url" class="w-full h-full object-cover" />
+                            <span v-if="i === 0"
+                                class="absolute bottom-0 inset-x-0 text-[10px] text-white text-center py-0.5"
+                                style="background:var(--marca);">Principal</span>
+                            <button type="button" @click="quitarImagenNueva(i)"
+                                class="absolute top-1 right-1 w-5 h-5 bg-red-500 text-white rounded-full text-xs flex items-center justify-center leading-none">✕</button>
+                        </div>
+
+                        <label class="w-24 h-24 rounded-xl border border-dashed border-linea flex flex-col items-center justify-center gap-1 cursor-pointer hover:bg-tinta-50 shrink-0">
+                            <svg class="w-6 h-6 text-tinta-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+                            </svg>
+                            <span class="text-[10px] text-tinta-400">Agregar</span>
+                            <input type="file" accept="image/*" multiple class="hidden" @change="elegirImagenes" />
+                        </label>
+                    </div>
                 </div>
             </div>
 

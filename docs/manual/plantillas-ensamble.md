@@ -52,6 +52,19 @@ operario pueda escanear su QR y la OP avance sola; se editan en
 
 El modo no se cambia después de creado: sería reescribir la receta completa.
 
+### Imágenes
+
+Se eligen **al crear**, en Información de catálogo: la primera queda como principal
+y las demás como secundarias. Antes ahí solo había un aviso que decía que se subían
+después de guardar, así que había que guardar el ensamble, volver a entrar a editar
+y subirlas una por una.
+
+Cuando el envío lleva imágenes pasa a `multipart/form-data`, y ahí todo viaja como
+texto: un `true` llegaría como `'1'`. Por eso las medidas, las líneas y los canales
+van como JSON y el servidor los desempaca antes de validar — si no, un campo de sí/no
+guardado como `'0'` volvería a la pantalla de editar marcado, porque `'0'` es una
+cadena no vacía.
+
 ### Duplicar un ensamble
 
 Desde la ficha del ensamble, **Duplicar** abre el formulario de crear ya lleno: la
