@@ -3,6 +3,8 @@ import AppLayout from '@/Layouts/AppLayout.vue'
 import EditorTexto from '@/Components/EditorTexto.vue'
 import SelectorUnidad from '@/Components/SelectorUnidad.vue'
 import GeneradorFichaIa from '@/Components/GeneradorFichaIa.vue'
+import PreciosPorCanal from '@/Components/PreciosPorCanal.vue'
+import { usePreciosPorCanal } from '@/composables/usePreciosPorCanal'
 import { useForm, router } from '@inertiajs/vue3'
 import { ref, computed, watch, reactive, onMounted } from 'vue'
 import { useUnsavedChanges } from '@/composables/useUnsavedChanges'
@@ -155,99 +157,12 @@ if (props.base) {
     })
 }
 
-/** El canal base: el piso de utilidad. No lleva comisión. */
-const canalBase = computed(() => form.canales.find(c => c.es_canal_base) ?? null)
-
-/** Los canales que sí pagan comisión, en orden de prioridad. */
-const canalesConComision = computed(() => form.canales.filter(c => !c.es_canal_base))
-
-/**
- * Lo que se vende por encima del canal base, que es sobre lo que se paga comisión.
- *
- * La comisión no se calcula sobre el precio de venta completo: sobre el excedente. Vender
- * al precio del canal base no genera comisión porque no hay excedente que repartir.
- */
-function excedenteDe(canal) {
-    return Math.max(0, (Number(canal.precio) || 0) - (Number(canalBase.value?.precio) || 0))
-}
-
-/**
- * La escalera de incentivos: cada canal debe pagar al menos lo que el anterior.
- *
- * Antes esta regla estaba escrita para dos canales concretos —«la mínima de cliente final
- * debe ser ≥ la máxima de distribuidor»—. Ahora se aplica a la lista completa, en el orden
- * que la empresa haya puesto: mientras más lejos del canal base, más incentivo.
- */
-function minimoExigido(i) {
-    return i > 0 ? (Number(canalesConComision.value[i - 1].comision_max_pct) || 0) : 0
-}
-
-function errorEscalera(i) {
-    const canal = canalesConComision.value[i]
-
-    return (Number(canal.comision_min_pct) || 0) < minimoExigido(i)
-}
-
-const hayErrorDeEscalera = computed(() =>
-    canalesConComision.value.some((c, i) => (Number(c.comision_min_pct) || 0) > 0 && errorEscalera(i))
-)
-
-/**
- * Hasta dónde puede bajar el precio de un canal sin invadir al de abajo.
- *
- * Cada canal puede descontar hasta llegar al precio del canal anterior en la lista, y el
- * primero hasta el canal base. Así un descuento nunca hace que un cliente pague menos que
- * el canal que tiene mejor precio por derecho.
- */
-function descuentoMaxDe(canal) {
-    const i    = form.canales.findIndex(c => c.segmentacion_opcion_id === canal.segmentacion_opcion_id)
-    const piso = i > 0 ? (Number(form.canales[i - 1].precio) || 0) : 0
-    const base = Number(canal.precio) || 0
-
-    if (!base) return 0
-
-    return Math.max(0, parseFloat(((base - piso) / base * 100).toFixed(2)))
-}
-
-/**
- * Propone comisiones que respetan la escalera.
- *
- * Reparte parte del excedente de cada canal, y arranca cada uno donde terminó el anterior.
- * Antes había dos porcentajes escritos para dos canales concretos (65 % y 80 %); ahora es la
- * misma proporción para todos, y el que sea precio público lleva un poco más porque traer un
- * cliente nuevo cuesta más que atender a uno que ya compra.
- */
-function sugerirComisionesPorCanal() {
-    let anterior = 0
-
-    canalesConComision.value.forEach(canal => {
-        const precio    = Number(canal.precio) || 0
-        const excedente = excedenteDe(canal)
-
-        if (!precio || !excedente) {
-            canal.comision_min_pct = anterior
-            canal.comision_max_pct = anterior
-            return
-        }
-
-        const disponible = (excedente / precio) * 100
-        const reparto    = canal.es_precio_publico ? 0.8 : 0.65
-
-        canal.comision_min_pct = anterior
-        canal.comision_max_pct = parseFloat(Math.max(anterior * 1.2, disponible * reparto).toFixed(2))
-
-        anterior = canal.comision_max_pct
-    })
-}
-
-watch(
-    [() => form.precio_costo, () => form.canales.map(c => c.margen_pct).join(',')],
-    () => {
-        form.canales.forEach(c => {
-            c.precio = calcPrecio(form.precio_costo, c.margen_pct)
-        })
-    },
-    { immediate: true }
+// Precios y comisiones por canal: la lógica vive en el composable, y la usan esta pantalla
+// y la de editar. Tener dos copias fue lo que dejó a editar trabajando con tres cajas fijas
+// mientras aquí ya se trabajaba por canales.
+const { hayErrorDeEscalera, aplicarDescuentosMax } = usePreciosPorCanal(
+    computed(() => form.canales),
+    computed(() => Number(form.precio_costo) || 0),
 )
 
 const { hasChanges, setOriginal, checkChanges, markClean } = useUnsavedChanges()
@@ -405,9 +320,7 @@ const submit = () => {
 
     // El descuento máximo de cada canal sale de su distancia con el canal de abajo. El canal
     // base no descuenta: su precio es el piso.
-    form.canales.forEach(canal => {
-        canal.descuento_max_pct = canal.es_canal_base ? 0 : descuentoMaxDe(canal)
-    })
+    aplicarDescuentosMax()
 
     markClean()
 
@@ -763,173 +676,14 @@ const badgeStyle = {
                     </div>
                 </div>
 
-                <!-- Lista de precios -->
-                <div class="bg-superficie rounded-2xl shadow-sm overflow-hidden">
-                    <div class="px-5 py-3 border-b border-linea">
-                        <h3 class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">Lista de precios</h3>
-                    </div>
-                    <div class="p-5 space-y-4">
-                        <!-- Costo base -->
-                        <div>
-                            <label class="block text-xs font-medium text-tinta-500 mb-1">Precio Costo</label>
-                            <div class="relative">
-                                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-tinta-300">$</span>
-                                <input v-model.number="form.precio_costo" type="number" min="0" step="100"
-                                    class="w-full border rounded-xl pl-7 pr-3 py-2 text-sm focus:outline-none border-linea bg-superficie focus:border-[var(--marca)]" />
-                            </div>
-                        </div>
-                        <!-- Una fila por canal configurado en Segmentación.
-                             Antes eran tres cajas fijas: mayorista, distribuidor y cliente
-                             final. Ahora la empresa crea los canales que necesite y esta
-                             pantalla dibuja los que existan. -->
-                        <!-- El nombre del canal va como encabezado de la fila, y los campos se
-                             llaman «Margen %» y «Precio». Antes se componía «Margen {nombre} %»,
-                             y con nombres como «Precio Público» salía «Margen Precio Público %»
-                             y «Precio Precio Público». El nombre lo pone la empresa: la pantalla
-                             no puede asumir cómo empieza. -->
-                        <div v-for="canal in form.canales" :key="canal.segmentacion_opcion_id">
-                            <div class="flex items-center gap-1.5 mb-1.5">
-                                <span class="w-2 h-2 rounded-full shrink-0" :style="`background:${canal.color};`"/>
-                                <span class="text-xs font-semibold text-tinta-600">{{ canal.etiqueta }}</span>
-                                <span v-if="canal.es_canal_base" class="text-[10px] px-1.5 py-0.5 rounded-full bg-blue-50 text-blue-700">canal base</span>
-                                <span v-if="canal.es_precio_publico" class="text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700">precio público</span>
-                            </div>
-                            <div class="grid grid-cols-2 gap-3 items-end">
-                                <div>
-                                    <label class="block text-xs font-medium text-tinta-400 mb-1">Margen %</label>
-                                    <input v-model.number="canal.margen_pct" type="number" min="1" max="99" step="0.5"
-                                        class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[var(--marca)]" />
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-medium text-tinta-400 mb-1">Precio</label>
-                                    <div class="relative">
-                                        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-tinta-300">$</span>
-                                        <input :value="formatCOP(canal.precio)" readonly
-                                            class="w-full border border-linea rounded-xl pl-7 pr-3 py-2 text-sm bg-tinta-50 font-semibold text-tinta-700" />
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- El precio sale del costo: sin costo, todos quedan en cero y no es
-                             evidente por qué. -->
-                        <p v-if="form.canales.length && !form.precio_costo" class="text-xs text-amber-700">
-                            Escribe el precio de costo y los precios de cada canal se calculan solos.
-                        </p>
-
-                        <!-- Sin canales no hay precios que poner, y decirlo aquí evita que
-                             alguien crea que el producto quedó mal guardado. -->
-                        <div v-if="!form.canales.length"
-                            class="rounded-xl bg-amber-50 border border-amber-200 px-3 py-2.5">
-                            <p class="text-xs text-amber-800 leading-relaxed">
-                                No hay canales de precio configurados. Ve a
-                                <button type="button" @click="router.visit('/administracion/segmentacion')"
-                                    class="font-semibold underline underline-offset-2">Segmentación</button>
-                                y márcale «define precio» a los tipos de contacto que deban tener lista de precios.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Comisión Vendedor por Canal -->
-                <div class="bg-superficie rounded-2xl shadow-sm overflow-hidden">
-                    <div class="px-5 py-3 border-b border-linea flex items-center justify-between">
-                        <h3 class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">Comisión Vendedor por Canal</h3>
-                        <button type="button" @click="sugerirComisionesPorCanal"
-                            class="text-xs text-[var(--marca)] border border-[var(--marca)] rounded-lg px-3 py-1.5 hover:bg-blue-50 transition-colors flex items-center gap-1.5">
-                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
-                            </svg>
-                            ▷ Sugerir comisiones
-                        </button>
-                    </div>
-                    <div class="p-5 space-y-4">
-
-                        <!-- Una tarjeta por canal, no tres fijas.
-                             El canal base va primero y sin campos: es el piso de utilidad
-                             de la empresa, no una venta con margen para repartir. -->
-                        <div v-if="canalBase" class="bg-blue-50 border border-blue-100 rounded-lg p-3">
-                            <div class="flex items-center gap-2 flex-wrap">
-                                <span class="text-xs font-semibold text-blue-700 uppercase">{{ canalBase.etiqueta }}</span>
-                                <span class="bg-blue-100 text-blue-600 text-xs px-2 py-0.5 rounded-full">Sin comisión · Precio fijo</span>
-                            </div>
-                            <p class="text-xs text-blue-400 mt-1">
-                                Su margen ({{ canalBase.margen_pct }}%) es la utilidad mínima garantizada de la
-                                empresa. No hay comisión para el vendedor en este canal, y la de los demás se
-                                calcula sobre lo que se venda por encima de {{ formatCOP(canalBase.precio) }}.
-                            </p>
-                        </div>
-
-                        <div v-for="(canal, i) in canalesConComision" :key="canal.segmentacion_opcion_id"
-                            class="border rounded-lg p-3 space-y-3"
-                            :style="`border-color:${canal.color}40; background:${canal.color}0a;`">
-                            <div class="flex items-center justify-between flex-wrap gap-1">
-                                <div class="flex items-center gap-2">
-                                    <span class="text-xs font-semibold uppercase" :style="`color:${canal.color};`">{{ canal.etiqueta }}</span>
-                                    <span v-if="canal.es_precio_publico" class="bg-green-100 text-green-600 text-xs px-2 py-0.5 rounded-full">⭐ Mayor incentivo</span>
-                                </div>
-                                <span class="text-xs text-tinta-400">
-                                    Base: {{ formatCOP(canal.precio) }} · Excedente: {{ formatCOP(excedenteDe(canal)) }} · Desc. máx: {{ descuentoMaxDe(canal) }}%
-                                </span>
-                            </div>
-
-                            <div class="grid grid-cols-2 gap-3">
-                                <div>
-                                    <label class="text-xs text-tinta-400 mb-1 block">
-                                        Comisión mínima (%)
-                                        <span v-if="minimoExigido(i) > 0" class="text-orange-500 ml-1">
-                                            ← mín = máx {{ canalesConComision[i - 1].etiqueta }} ({{ minimoExigido(i) }}%)
-                                        </span>
-                                    </label>
-                                    <div class="flex items-center gap-2">
-                                        <input type="number" step="0.1" :min="minimoExigido(i)" v-model.number="canal.comision_min_pct"
-                                            :class="['w-24 border rounded-lg px-2 py-1.5 text-sm focus:ring-2 focus:outline-none',
-                                                errorEscalera(i) ? 'border-red-400 focus:ring-red-300' : 'border-tinta-200 focus:ring-[var(--marca-suave)]']" />
-                                        <span class="text-xs text-tinta-300">= {{ formatCOP(excedenteDe(canal) * canal.comision_min_pct / 100) }}</span>
-                                    </div>
-                                </div>
-                                <div>
-                                    <label class="text-xs text-tinta-400 mb-1 block">Comisión máxima (%)</label>
-                                    <div class="flex items-center gap-2">
-                                        <input type="number" step="0.1" :min="canal.comision_min_pct" v-model.number="canal.comision_max_pct"
-                                            class="w-24 border border-tinta-200 rounded-lg px-2 py-1.5 text-sm focus:ring-2 focus:ring-[var(--marca-suave)] focus:outline-none" />
-                                        <span class="text-xs text-tinta-300">= {{ formatCOP(excedenteDe(canal) * canal.comision_max_pct / 100) }}</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <p v-if="errorEscalera(i)" class="text-xs text-red-600">
-                                ⚠️ La comisión mínima debe ser mayor o igual a la máxima de
-                                {{ canalesConComision[i - 1].etiqueta }} ({{ minimoExigido(i) }}%): mientras más lejos
-                                del canal base, más incentivo para el vendedor.
-                            </p>
-                            <p v-else-if="canal.comision_min_pct > 0 && canal.comision_max_pct > 0" class="text-xs" :style="`color:${canal.color};`">
-                                ✅ El vendedor gana entre {{ formatCOP(excedenteDe(canal) * canal.comision_min_pct / 100) }}
-                                y {{ formatCOP(excedenteDe(canal) * canal.comision_max_pct / 100) }}
-                            </p>
-                        </div>
-
-                        <!-- Comparativa de incentivos -->
-                        <div v-if="canalesConComision.some(c => c.comision_max_pct > 0)" class="bg-tinta-50 rounded-lg p-3">
-                            <p class="text-xs font-medium text-tinta-500 mb-2">📊 Comparativa de incentivos por canal</p>
-                            <div class="space-y-1.5">
-                                <div v-if="canalBase" class="flex items-center gap-2">
-                                    <span class="text-xs text-tinta-400 w-28 truncate">{{ canalBase.etiqueta }}:</span>
-                                    <div class="flex-1 bg-tinta-200 rounded-full h-1.5"></div>
-                                    <span class="text-xs text-tinta-300 w-20 text-right">Sin comisión</span>
-                                </div>
-                                <div v-for="canal in canalesConComision" :key="'cmp-' + canal.segmentacion_opcion_id" class="flex items-center gap-2">
-                                    <span class="text-xs w-28 truncate" :style="`color:${canal.color};`">{{ canal.etiqueta }}:</span>
-                                    <div class="flex-1 bg-tinta-200 rounded-full h-1.5">
-                                        <div class="h-1.5 rounded-full" :style="`width:${Math.min(canal.comision_max_pct * 5, 100)}%; background:${canal.color};`"></div>
-                                    </div>
-                                    <span class="text-xs w-20 text-right" :style="`color:${canal.color};`">{{ canal.comision_max_pct }}%</span>
-                                </div>
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
+                <!-- ═══ Precios y comisiones por canal ══════════════════════ -->
+                <!-- El mismo componente que usa la pantalla de editar: tener dos copias de
+                     esta lógica fue lo que dejó a editar escribiendo solo las columnas
+                     antiguas mientras crear ya trabajaba por canales. -->
+                <PreciosPorCanal
+                    :canales="form.canales"
+                    v-model:precio-costo="form.precio_costo"
+                />
 
                 <!-- Errores de validación -->
                 <div v-if="Object.keys(form.errors).length" class="bg-red-50 border border-red-200 rounded-xl p-4">

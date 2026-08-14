@@ -2,6 +2,8 @@
 import AppLayout from '@/Layouts/AppLayout.vue'
 import SelectorUnidad from '@/Components/SelectorUnidad.vue'
 import GeneradorFichaIa from '@/Components/GeneradorFichaIa.vue'
+import PreciosPorCanal from '@/Components/PreciosPorCanal.vue'
+import { usePreciosPorCanal } from '@/composables/usePreciosPorCanal'
 import EditorTexto from '@/Components/EditorTexto.vue'
 import { useForm, router } from '@inertiajs/vue3'
 import { ref, computed, reactive, watch, onMounted } from 'vue'
@@ -13,6 +15,8 @@ const props = defineProps({
     categorias:  Array,
     proveedores: Array,
     bodegas:     Array,
+    // Los canales configurados, ya con lo que este producto tenga guardado.
+    canales:     { type: Array, default: () => [] },
 })
 
 const p = props.producto
@@ -131,13 +135,27 @@ const form = useForm({
     descuento_max_distribuidor:   p.descuento_max_distribuidor ?? 5,
     descuento_max_mayorista:      p.descuento_max_mayorista ?? 8,
     imagenes:                    [],
+    // Declarado aquí y no asignado después: `form.data()` de Inertia recorre las claves con
+    // las que nació el formulario, así que un campo agregado más tarde se ve, se edita y no
+    // se envía. Ya pasó una vez con este mismo campo en la pantalla de crear.
+    canales:                     [],
 })
+
+form.canales = (props.canales ?? []).map(c => ({ ...c }))
+
+const { hayErrorDeEscalera, aplicarDescuentosMax } = usePreciosPorCanal(
+    computed(() => form.canales),
+    computed(() => Number(form.precio_costo) || 0),
+)
 
 const calcPrecio = (costo, margenPct) => {
     if (!costo || margenPct >= 100) return 0
     return Math.ceil(costo / (1 - margenPct / 100) / 1000) * 1000
 }
 
+// Los tres campos antiguos ya no se editan en pantalla, pero se siguen enviando: hay código
+// que todavía los lee. De todas formas el servidor los reescribe desde los canales al
+// guardar, así que esto solo evita mandar valores incoherentes en el camino.
 watch(
     [() => form.precio_costo, () => form.margen_mayorista, () => form.margen_distribuidor, () => form.margen_cliente_final],
     ([costo, mm, md, mcf]) => {
@@ -336,15 +354,20 @@ const ic = (field) => [
 ]
 
 const submit = () => {
-    validarComisiones()
-    if (errorComisionClienteFinal.value) {
-        alert('Corrige los rangos de comisión antes de guardar.\n' +
-              'La comisión mínima de cliente final debe ser ≥ comisión máxima de distribuidor.')
+    // La escalera se valida sobre la lista de canales, no sobre dos nombres fijos: antes
+    // decía «la mínima de cliente final debe ser ≥ la máxima de distribuidor», y en una
+    // instalación con canales propios eso no significa nada.
+    if (hayErrorDeEscalera.value) {
+        alert('Corrige los rangos de comisión antes de guardar. '
+            + 'La comisión mínima de cada canal debe ser mayor o igual a la máxima del canal '
+            + 'anterior: mientras más lejos del canal base, más incentivo para el vendedor.')
         return
     }
-    form.descuento_max_mayorista     = 0
-    form.descuento_max_distribuidor  = descuentoMaxRealDistribuidor.value
-    form.descuento_max_cliente_final = descuentoMaxRealClienteFinal.value
+
+    // El descuento máximo de cada canal sale de su distancia con el canal de abajo: se
+    // calcula al guardar y no se pide en pantalla.
+    aplicarDescuentosMax()
+
     markClean()
     form.post(`/productos/${p.id}`, { forceFormData: true })
 }
@@ -703,192 +726,17 @@ const badgeStyle = {
                     </div>
                 </div>
 
-                <!-- ═══ Lista de precios ═══════════════════════════════════ -->
-                <div class="bg-superficie rounded-2xl shadow-sm overflow-hidden">
-                    <div class="px-5 py-3 border-b border-linea">
-                        <h3 class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">Lista de precios</h3>
-                    </div>
-                    <div class="p-5 space-y-4">
-                        <!-- Costo base -->
-                        <div>
-                            <label class="block text-xs font-medium text-tinta-500 mb-1">Precio Costo</label>
-                            <div class="relative">
-                                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-tinta-300">$</span>
-                                <input v-model.number="form.precio_costo" type="number" min="0" step="100"
-                                    class="w-full border border-linea rounded-xl pl-7 pr-3 py-2 text-sm bg-superficie focus:outline-none focus:border-[var(--marca)]" />
-                            </div>
-                        </div>
-                        <!-- Mayorista -->
-                        <div class="grid grid-cols-2 gap-3 items-end">
-                            <div>
-                                <label class="block text-xs font-medium text-tinta-500 mb-1">Margen Mayorista %</label>
-                                <input v-model.number="form.margen_mayorista" type="number" min="1" max="99" step="0.5"
-                                    class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[var(--marca)]" />
-                            </div>
-                            <div>
-                                <label class="block text-xs font-medium text-tinta-500 mb-1">Precio Mayorista</label>
-                                <div class="relative">
-                                    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-tinta-300">$</span>
-                                    <input :value="formatCOP(form.precio_mayorista)" readonly
-                                        class="w-full border border-linea rounded-xl pl-7 pr-3 py-2 text-sm bg-tinta-50 font-semibold text-tinta-700" />
-                                </div>
-                            </div>
-                        </div>
-                        <!-- Distribuidor -->
-                        <div class="grid grid-cols-2 gap-3 items-end">
-                            <div>
-                                <label class="block text-xs font-medium text-tinta-500 mb-1">Margen Distribuidor %</label>
-                                <input v-model.number="form.margen_distribuidor" type="number" min="1" max="99" step="0.5"
-                                    class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[var(--marca)]" />
-                            </div>
-                            <div>
-                                <label class="block text-xs font-medium text-tinta-500 mb-1">Precio Distribuidor</label>
-                                <div class="relative">
-                                    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-tinta-300">$</span>
-                                    <input :value="formatCOP(form.precio_distribuidor)" readonly
-                                        class="w-full border border-linea rounded-xl pl-7 pr-3 py-2 text-sm bg-tinta-50 font-semibold text-tinta-700" />
-                                </div>
-                            </div>
-                        </div>
-                        <!-- Cliente Final -->
-                        <div class="grid grid-cols-2 gap-3 items-end">
-                            <div>
-                                <label class="block text-xs font-medium text-tinta-500 mb-1">Margen Cliente Final %</label>
-                                <input v-model.number="form.margen_cliente_final" type="number" min="1" max="99" step="0.5"
-                                    class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[var(--marca)]" />
-                            </div>
-                            <div>
-                                <label class="block text-xs font-medium text-tinta-500 mb-1">Precio Cliente Final</label>
-                                <div class="relative">
-                                    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-tinta-300">$</span>
-                                    <input :value="formatCOP(form.precio_cliente_final)" readonly
-                                        class="w-full border border-linea rounded-xl pl-7 pr-3 py-2 text-sm bg-tinta-50 font-semibold text-tinta-700" />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Comisión Vendedor por Canal -->
-                <div class="bg-superficie rounded-2xl shadow-sm overflow-hidden">
-                    <div class="px-5 py-3 border-b border-linea flex items-center justify-between">
-                        <h3 class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">Comisión Vendedor por Canal</h3>
-                        <button type="button" @click="sugerirComisiones"
-                            class="text-xs text-[var(--marca)] border border-[var(--marca)] rounded-lg px-3 py-1.5 hover:bg-blue-50 transition-colors flex items-center gap-1.5">
-                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
-                            </svg>
-                            ▷ Sugerir comisiones
-                        </button>
-                    </div>
-                    <div class="p-5 space-y-4">
-
-                        <!-- Mayorista — sin comisión -->
-                        <div class="bg-blue-50 border border-blue-100 rounded-lg p-3">
-                            <div class="flex items-center gap-2">
-                                <span class="text-xs font-semibold text-blue-700 uppercase">Mayorista</span>
-                                <span class="bg-blue-100 text-blue-600 text-xs px-2 py-0.5 rounded-full">Sin comisión · Precio fijo</span>
-                            </div>
-                            <p class="text-xs text-blue-400 mt-1">El margen mayorista ({{ form.margen_mayorista }}%) es la utilidad mínima garantizada de la empresa. No hay comisión para el vendedor en este canal.</p>
-                        </div>
-
-                        <!-- Distribuidor -->
-                        <div class="border border-[var(--marca-borde)] rounded-lg p-3 space-y-3 bg-[var(--marca-suave)]/30">
-                            <div class="flex items-center justify-between flex-wrap gap-1">
-                                <span class="text-xs font-semibold text-[var(--marca)] uppercase">Distribuidor</span>
-                                <span class="text-xs text-[var(--marca)]">Base: {{ formatCOP(form.precio_distribuidor) }} · Mín: {{ formatCOP(form.precio_mayorista) }} · Desc. máx: {{ descuentoMaxRealDistribuidor }}%</span>
-                            </div>
-                            <div class="grid grid-cols-2 gap-3">
-                                <div>
-                                    <label class="text-xs text-tinta-400 mb-1 block">Comisión mínima (%)</label>
-                                    <div class="flex items-center gap-2">
-                                        <input type="number" step="0.1" min="0" v-model.number="form.comision_min_distribuidor" @input="validarComisiones"
-                                            class="w-24 border border-tinta-200 rounded-lg px-2 py-1.5 text-sm focus:ring-2 focus:ring-[var(--marca-suave)] focus:outline-none" />
-                                        <span class="text-xs text-tinta-300">= {{ formatCOP(excedenteDistribuidor * form.comision_min_distribuidor / 100) }}</span>
-                                    </div>
-                                </div>
-                                <div>
-                                    <label class="text-xs text-tinta-400 mb-1 block">Comisión máxima (%)</label>
-                                    <div class="flex items-center gap-2">
-                                        <input type="number" step="0.1" min="0" v-model.number="form.comision_max_distribuidor" @input="validarComisiones"
-                                            class="w-24 border border-tinta-200 rounded-lg px-2 py-1.5 text-sm focus:ring-2 focus:ring-[var(--marca-suave)] focus:outline-none" />
-                                        <span class="text-xs text-tinta-300">= {{ formatCOP(excedenteDistribuidor * form.comision_max_distribuidor / 100) }}</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <p v-if="form.comision_min_distribuidor > 0 && form.comision_max_distribuidor > 0" class="text-xs text-[var(--marca)]">
-                                ✅ Vendedor gana entre {{ formatCOP(excedenteDistribuidor * form.comision_min_distribuidor / 100) }} y {{ formatCOP(excedenteDistribuidor * form.comision_max_distribuidor / 100) }}
-                            </p>
-                        </div>
-
-                        <!-- Cliente Final -->
-                        <div class="border border-green-100 rounded-lg p-3 space-y-3 bg-green-50/30">
-                            <div class="flex items-center justify-between flex-wrap gap-1">
-                                <div class="flex items-center gap-2">
-                                    <span class="text-xs font-semibold text-green-700 uppercase">Cliente Final</span>
-                                    <span class="bg-green-100 text-green-600 text-xs px-2 py-0.5 rounded-full">⭐ Mayor incentivo</span>
-                                </div>
-                                <span class="text-xs text-green-500">Base: {{ formatCOP(form.precio_cliente_final) }} · Desc. máx: {{ descuentoMaxRealClienteFinal }}%</span>
-                            </div>
-                            <div class="grid grid-cols-2 gap-3">
-                                <div>
-                                    <label class="text-xs text-tinta-400 mb-1 block">
-                                        Comisión mínima (%)
-                                        <span class="text-orange-500 ml-1">← mín = máx distribuidor ({{ form.comision_max_distribuidor }}%)</span>
-                                    </label>
-                                    <div class="flex items-center gap-2">
-                                        <input type="number" step="0.1" :min="form.comision_max_distribuidor" v-model.number="form.comision_min_cliente_final" @input="validarComisiones"
-                                            :class="['w-24 border rounded-lg px-2 py-1.5 text-sm focus:ring-2 focus:outline-none',
-                                                errorComisionClienteFinal ? 'border-red-400 focus:ring-red-300' : 'border-tinta-200 focus:ring-green-300']" />
-                                        <span class="text-xs text-tinta-300">= {{ formatCOP(excedenteClienteFinal * form.comision_min_cliente_final / 100) }}</span>
-                                    </div>
-                                </div>
-                                <div>
-                                    <label class="text-xs text-tinta-400 mb-1 block">Comisión máxima (%)</label>
-                                    <div class="flex items-center gap-2">
-                                        <input type="number" step="0.1" :min="form.comision_min_cliente_final" v-model.number="form.comision_max_cliente_final" @input="validarComisiones"
-                                            :class="['w-24 border rounded-lg px-2 py-1.5 text-sm focus:ring-2 focus:outline-none',
-                                                errorComisionClienteFinal ? 'border-red-400 focus:ring-red-300' : 'border-tinta-200 focus:ring-green-300']" />
-                                        <span class="text-xs text-tinta-300">= {{ formatCOP(excedenteClienteFinal * form.comision_max_cliente_final / 100) }}</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <p v-if="errorComisionClienteFinal" class="text-xs text-red-600">
-                                ⚠️ La comisión mínima de cliente final debe ser ≥ comisión máxima de distribuidor ({{ form.comision_max_distribuidor }}%) para incentivar traer clientes nuevos
-                            </p>
-                            <p v-else-if="form.comision_min_cliente_final > 0 && form.comision_max_cliente_final > 0" class="text-xs text-green-600">
-                                ✅ Vendedor gana entre {{ formatCOP(excedenteClienteFinal * form.comision_min_cliente_final / 100) }} y {{ formatCOP(excedenteClienteFinal * form.comision_max_cliente_final / 100) }} (más que en distribuidor ✓)
-                            </p>
-                        </div>
-
-                        <!-- Comparativa -->
-                        <div v-if="form.comision_max_distribuidor > 0 && form.comision_max_cliente_final > 0" class="bg-tinta-50 rounded-lg p-3">
-                            <p class="text-xs font-medium text-tinta-500 mb-2">📊 Comparativa de incentivos por canal</p>
-                            <div class="space-y-1.5">
-                                <div class="flex items-center gap-2">
-                                    <span class="text-xs text-tinta-400 w-28">Mayorista:</span>
-                                    <div class="flex-1 bg-tinta-200 rounded-full h-1.5"></div>
-                                    <span class="text-xs text-tinta-300 w-20 text-right">Sin comisión</span>
-                                </div>
-                                <div class="flex items-center gap-2">
-                                    <span class="text-xs text-[var(--marca)] w-28">Distribuidor:</span>
-                                    <div class="flex-1 bg-tinta-200 rounded-full h-1.5">
-                                        <div class="bg-[var(--marca)] h-1.5 rounded-full" :style="`width: ${Math.min(form.comision_max_distribuidor * 5, 100)}%`"></div>
-                                    </div>
-                                    <span class="text-xs text-[var(--marca)] w-20 text-right font-medium">máx {{ form.comision_max_distribuidor }}%</span>
-                                </div>
-                                <div class="flex items-center gap-2">
-                                    <span class="text-xs text-green-600 w-28">Cliente final:</span>
-                                    <div class="flex-1 bg-tinta-200 rounded-full h-1.5">
-                                        <div class="bg-green-500 h-1.5 rounded-full" :style="`width: ${Math.min(form.comision_max_cliente_final * 5, 100)}%`"></div>
-                                    </div>
-                                    <span class="text-xs text-green-600 w-20 text-right font-medium">máx {{ form.comision_max_cliente_final }}%</span>
-                                </div>
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
+                <!-- ═══ Precios y comisiones por canal ══════════════════════ -->
+                <!-- El mismo componente que usa la pantalla de crear. Antes aquí había tres
+                     cajas fijas —mayorista, distribuidor, cliente final— que escribían solo
+                     las columnas antiguas: un producto con cuatro canales quedaba con datos a
+                     medias al guardarlo desde aquí, y el cuarto canal no tenía forma de
+                     llenarse. Esa diferencia entre las dos pantallas era el problema de
+                     fondo. -->
+                <PreciosPorCanal
+                    :canales="form.canales"
+                    v-model:precio-costo="form.precio_costo"
+                />
 
                 <!-- Error de servidor -->
                 <div v-if="$page.props.errors?.error" class="bg-red-50 border border-red-200 rounded-xl p-4">
