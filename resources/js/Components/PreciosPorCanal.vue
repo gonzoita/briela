@@ -17,6 +17,9 @@ const props = defineProps({
     // Las filas por canal. Se mutan aquí: es el mismo arreglo del formulario del padre.
     canales:     { type: Array,  required: true },
     precioCosto: { type: [Number, String], default: 0 },
+    // En un producto el costo se escribe; en un ensamble sale de la suma de sus
+    // componentes y escribirlo a mano solo lo desincronizaría de la receta.
+    costoEditable: { type: Boolean, default: true },
 })
 
 const emit = defineEmits(['update:precioCosto'])
@@ -44,10 +47,16 @@ const formatCOP = (v) =>
                 <label class="block text-xs font-medium text-tinta-500 mb-1">Precio Costo</label>
                 <div class="relative">
                     <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-tinta-300">$</span>
-                    <input :value="precioCosto" @input="emit('update:precioCosto', Number($event.target.value) || 0)"
+                    <input v-if="costoEditable"
+                        :value="precioCosto" @input="emit('update:precioCosto', Number($event.target.value) || 0)"
                         type="number" min="0" step="100"
                         class="w-full border rounded-xl pl-7 pr-3 py-2 text-sm focus:outline-none border-linea bg-superficie focus:border-[var(--marca)]" />
+                    <input v-else :value="formatCOP(precioCosto)" readonly
+                        class="w-full border border-linea rounded-xl pl-7 pr-3 py-2 text-sm bg-tinta-50 font-semibold text-tinta-700" />
                 </div>
+                <p v-if="! costoEditable" class="text-xs text-tinta-300 mt-1">
+                    Sale de la suma de los componentes.
+                </p>
             </div>
 
             <!-- Una fila por canal configurado en Segmentación. El nombre va como

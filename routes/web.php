@@ -341,6 +341,9 @@ Route::middleware('auth')->group(function () {
         Route::post('/',           [EnsambleController::class, 'store'])->name('store');
         Route::get('/{id}',        [EnsambleController::class, 'show'])->name('show');
         Route::get('/{id}/editar', [EnsambleController::class, 'edit'])->name('edit');
+        // Duplicar abre el formulario ya lleno: crear, no editar.
+        Route::get('/{id}/duplicar', [EnsambleController::class, 'duplicar'])
+            ->middleware('permiso:ensambles.crear')->name('duplicar');
         Route::put('/{id}',        [EnsambleController::class, 'update'])->name('update');
         Route::delete('/{id}',     [EnsambleController::class, 'destroy'])->name('destroy');
         Route::post('/{id}/recalcular', [EnsambleController::class, 'recalcular'])->name('recalcular');

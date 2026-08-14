@@ -27,6 +27,17 @@ por cada unidad de la cantidad pedida. Nadie tiene que acordarse de nada.
 Si la plantilla todavía no tiene pasos cargados, el trabajo se crea igual, vacío.
 Prefiere quedar disponible a no existir.
 
+### Un ensamble directo trae su propio flujo
+
+Un **ensamble directo** (sin plantilla, ver
+[Plantillas de Ensamble](./plantillas-ensamble.md)) tiene los pasos colgados de él
+mismo. Nace con un paso único que pesa el 100% —«Fabricación»— para que el operario
+pueda escanear su QR y la OP avance sola hasta calidad. Se editan como cualquier
+otro flujo en `/produccion/templates`, donde aparece con el nombre del ensamble.
+
+Sin esto, una OP con un ensamble directo nacía con **cero trabajos**: sin QR, sin
+avance, y quieta en `confirmada` sin nada que explicara por qué.
+
 ### Las descripciones se rellenan con las medidas
 
 En la descripción de un paso de la plantilla se pueden escribir variables entre
@@ -136,6 +147,9 @@ fábrica activa.
 ## Nota técnica
 
 - Tablas: `templates_trabajo` y `template_trabajo_pasos` (la plantilla),
+  esta última con `ensamble_id` desde el 14 ago 2026, para el flujo de un ensamble
+  directo. Un template pertenece a una plantilla del cotizador o a un ensamble; las
+  dos columnas admiten nulo.
   `op_item_trabajos` y `op_item_trabajo_pasos` (lo real), más
   `op_item_trabajo_paso_operarios` (quiénes trabajaron cada paso).
 - La generación automática la hace `TrabajoAutoGeneratorService` al crear el

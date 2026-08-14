@@ -15,7 +15,10 @@ class TemplateTrabajoController extends Controller
     public function index(): Response
     {
         $templates = TemplateTrabajo::withCount('pasos')
-            ->with('plantillaEnsamble')
+            // Un flujo cuelga de una plantilla del cotizador o —si el ensamble es directo—
+            // del ensamble mismo. Sin cargar las dos, el de un ensamble directo aparecía en
+            // la lista sin decir a qué pertenece.
+            ->with(['plantillaEnsamble', 'ensamble'])
             ->orderByDesc('id')
             ->get()
             ->map(fn ($t) => [
@@ -23,7 +26,7 @@ class TemplateTrabajoController extends Controller
                 'nombre'            => $t->nombre,
                 'activo'            => $t->activo,
                 'pasos_count'       => $t->pasos_count,
-                'plantilla_nombre'  => $t->plantillaEnsamble?->nombre,
+                'plantilla_nombre'  => $t->plantillaEnsamble?->nombre ?? $t->ensamble?->nombre,
                 'suma_pesos'        => (float) $t->pasos()->sum('peso_porcentaje'),
             ]);
 

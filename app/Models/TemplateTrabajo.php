@@ -15,6 +15,9 @@ class TemplateTrabajo extends Model
 
     protected $fillable = [
         'plantilla_ensamble_id',
+        // Un flujo de trabajo cuelga de una plantilla del cotizador, o —cuando el ensamble
+        // es directo y no tiene plantilla— del ensamble mismo.
+        'ensamble_id',
         'nombre',
         'activo',
     ];
@@ -26,6 +29,11 @@ class TemplateTrabajo extends Model
     public function plantillaEnsamble(): BelongsTo
     {
         return $this->belongsTo(PlantillaEnsamble::class, 'plantilla_ensamble_id');
+    }
+
+    public function ensamble(): BelongsTo
+    {
+        return $this->belongsTo(Ensamble::class, 'ensamble_id');
     }
 
     public function pasos(): HasMany

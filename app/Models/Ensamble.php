@@ -14,6 +14,8 @@ class Ensamble extends Model
 
     protected $fillable = [
         'plantilla_id',
+        // «plantilla» (medidas y fórmulas) o «directo» (líneas con cantidades exactas).
+        'tipo_armado',
         'nombre',
         'categoria_id',
         'descripcion_corta',
@@ -98,6 +100,57 @@ class Ensamble extends Model
      * Los precios por canal. Reemplazan a las columnas fijas por canal, que siguen
      * existiendo durante el período de compatibilidad de la regla 2.
      */
+    /**
+     * ¿Es un ensamble armado a mano, sin plantilla ni fórmulas?
+     *
+     * Se pregunta por el tipo y no por si tiene plantilla: deducirlo de `plantilla_id`
+     * funcionaría hoy y se rompería el día que un ensamble directo se asocie a una plantilla
+     * como referencia.
+     */
+    public function esDirecto(): bool
+    {
+        return ($this->tipo_armado ?? 'plantilla') === 'directo';
+    }
+
+    /**
+     * El flujo de producción propio de un ensamble directo, creándolo si no existe.
+     *
+     * En un ensamble con plantilla, los pasos cuelgan de la plantilla —una por producto que
+     * se fabrica por medidas—. Un ensamble directo no tiene plantilla, así que el flujo cuelga
+     * de él. Nace con un solo paso que pesa el 100%: es lo mínimo para que el operario pueda
+     * escanear su QR, marcar terminado, y que la OP avance sola hasta calidad. El usuario
+     * puede reemplazarlo por los pasos que quiera desde la misma pantalla de pasos.
+     *
+     * Sin esto, una OP con un ensamble directo nacía sin trabajos y se quedaba quieta.
+     */
+    public function obtenerOCrearTemplateTrabajo(): \App\Models\TemplateTrabajo
+    {
+        $template = \App\Models\TemplateTrabajo::firstOrCreate(
+            ['ensamble_id' => $this->id],
+            ['nombre' => $this->nombre, 'activo' => true]
+        );
+
+        if ($template->pasos()->count() === 0) {
+            \App\Models\TemplateTrabajoPaso::create([
+                'template_id'     => $template->id,
+                'nombre'          => 'Fabricación',
+                'descripcion'     => 'Armar el ensamble con los componentes de su lista de materiales.',
+                'peso_porcentaje' => 100,
+                'orden'           => 0,
+                'es_paso_final'   => true,
+            ]);
+        }
+
+        return $template;
+    }
+
+    /** El costo de un ensamble directo: la suma de sus líneas. */
+    public function costoDeLineas(): float
+    {
+        return collect((array) $this->componentes_resultado)
+            ->sum(fn ($c) => (float) ($c['subtotal'] ?? 0));
+    }
+
     public function preciosPorCanal(): \Illuminate\Database\Eloquent\Relations\MorphMany
     {
         return $this->morphMany(\App\Models\CanalPrecio::class, "precionable");

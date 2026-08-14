@@ -1,0 +1,1 @@
+import{N as e,Q as t,j as n,x as r}from"./app-Dk6urjL8.js";var i={__name:`Welcome`,setup(i){return n(()=>t.visit(`/dashboard`)),(t,n)=>(e(),r(`div`))}};export{i as default};

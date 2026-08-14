@@ -23,6 +23,44 @@ Tres conceptos que conviene no confundir:
 | **Ensamble** | Un producto concreto salido de esa receta, con medidas ya fijadas y precio calculado. Vive en el catálogo. |
 | **Ítem de cotización/OP** | El ensamble ya metido en una venta, con sus propias medidas para ese cliente. |
 
+## Dos formas de armar un ensamble
+
+Desde el 14 ago 2026 hay dos, y se eligen al crearlo en `/ensambles/crear`:
+
+| Modo | Cuándo sirve |
+|---|---|
+| **Con plantilla** | Se fabrica por medidas. Se escriben ancho, alto y demás, y las fórmulas calculan los materiales. Es lo que describe el resto de este documento. |
+| **Directo, sin cálculos** | Siempre lleva lo mismo. Se escribe la lista de componentes con cantidades exactas, a mano, sin plantilla y sin fórmulas. |
+
+El **ensamble directo** existe porque escribir una plantilla con fórmulas para un
+kit que siempre lleva dos bisagras, un motor y cuatro metros de perfil es trabajo
+de más. Sus líneas son de dos clases:
+
+- **Material del inventario**: se busca por nombre o referencia, trae su costo, y
+  **descuenta inventario al despachar**, igual que cualquier material de una
+  receta.
+- **Concepto libre** — mano de obra, transporte, instalación —: suma al costo y no
+  descuenta nada, porque no vive en ninguna bodega.
+
+El cliente no ve esta lista: el ensamble se cotiza como un ítem con su resumen
+técnico, igual que uno con plantilla.
+
+Los pasos de producción de un ensamble directo **cuelgan del ensamble**, no de una
+plantilla. Nace con un paso único que pesa el 100% —«Fabricación»— para que el
+operario pueda escanear su QR y la OP avance sola; se editan en
+`/produccion/templates`, donde aparece con el nombre del ensamble.
+
+El modo no se cambia después de creado: sería reescribir la receta completa.
+
+### Duplicar un ensamble
+
+Desde la ficha del ensamble, **Duplicar** abre el formulario de crear ya lleno: la
+receta completa —con plantilla o directa—, las descripciones y los precios por
+canal. El nombre llega con «(copia)» para que dos ensambles no queden con el mismo.
+No se copian las imágenes: se suben contra un ensamble ya guardado, y compartir el
+archivo haría que borrar la foto de uno la borrara del otro. El original no cambia
+hasta que guardes la copia.
+
 ## Las tres partes de una plantilla
 
 ### 1. Campos — lo que se pregunta
@@ -129,18 +167,32 @@ el log y sigue con cero en vez de tumbar la cotización.
 
 ## Del ensamble al precio
 
-Cuando se crea un ensamble a partir de una plantilla, el sistema calcula la
-lista de materiales, la suma, y de ahí salen los precios. A partir del costo y
-de un margen se calculan tres precios en escalera:
+El costo sale de la lista de materiales: calculada por las fórmulas si el
+ensamble tiene plantilla, o sumada de las líneas si es directo. De ahí salen los
+precios.
 
-- **Mayorista**: costo + margen
-- **Distribuidor**: costo + margen + 2,5 puntos
-- **Cliente final**: costo + margen + 5 puntos
+Desde el 14 ago 2026 el ensamble tiene **un precio por cada canal que la empresa
+configuró** en Configuración → Listas de segmentación, con el mismo componente que
+usa un producto. Antes eran tres cajas fijas —mayorista, distribuidor, cliente
+final— que escribían solo las columnas antiguas: una empresa con cuatro canales no
+tenía dónde poner el cuarto, y la cotización lee de los canales. Ver
+[Segmentación y precios](./segmentacion-y-precios.md).
+
+Cuando el ensamble se crea desde una plantilla, los márgenes de la plantilla
+**siembran** los de los canales: el canal base recibe el de mayorista, el que esté
+marcado como precio público el de cliente final, y el primer canal intermedio el de
+distribuidor. Es una siembra, no un tope: se ajustan ensamble por ensamble.
 
 Cada ensamble guarda además sus topes de negocio: comisión mínima y máxima por
-tipo de cliente, utilidad mínima de la empresa, y descuento máximo autorizado
-para cada precio. Eso es lo que después limita hasta dónde puede negociar un
+canal, utilidad mínima de la empresa, y descuento máximo autorizado. El descuento
+máximo no se pide en pantalla: sale de la distancia con el canal de abajo, para que
+un descuento nunca haga que un cliente pague menos que el canal que tiene mejor
+precio por derecho. Eso es lo que después limita hasta dónde puede negociar un
 vendedor sin pedir permiso.
+
+**Recalcular** relee los costos y rearma los precios desde el margen guardado de
+cada canal. En un ensamble directo relee el costo de sus productos; los conceptos
+libres se quedan como están, porque no hay de dónde releerlos.
 
 > La comisión del vendedor se calcula sobre el **excedente por encima del precio
 > mayorista**, no sobre el total de la venta. Ver [Cotizaciones](./cotizaciones.md).
@@ -148,7 +200,23 @@ vendedor sin pedir permiso.
 ## Nota técnica
 
 - Tablas: `plantillas_ensamble`, `plantilla_campos`, `plantilla_componentes`,
-  `plantilla_secciones`, `ensambles`.
+  `plantilla_secciones`, `ensambles`, `canal_precios`.
+- `ensambles.tipo_armado` (`plantilla` | `directo`) dice cómo está armado, y
+  `plantilla_id` admite nulo. Se pregunta por el tipo y no por si tiene plantilla:
+  deducirlo funcionaría hoy y se rompería el día que un ensamble directo se asocie
+  a una plantilla como referencia.
+- `EnsambleDirectoService` escribe las líneas con la **misma forma** que los
+  componentes que calcula `FormulaEvaluatorService` —mismas claves, mismo
+  `cantidad_real`, más un `es_concepto` para lo que no es inventario—. Por eso la
+  orden de producción, el consumo de inventario al despachar, los PDF y la
+  cotización no distinguen un ensamble directo de uno con plantilla: no hubo que
+  tocar ninguno.
+- `templates_trabajo.ensamble_id` deja que el flujo de pasos cuelgue del ensamble
+  cuando no hay plantilla. Sin esa columna, `TrabajoAutoGeneratorService` se
+  devolvía sin crear nada y la OP nacía con cero trabajos, sin nada que explicara
+  por qué no avanzaba.
+- `php artisan briela:diagnostico ENS-12` imprime los canales, las filas guardadas
+  y qué precio recibiría la cotización, con su origen.
 - El motor de fórmulas es `FormulaEvaluatorService`, construido sobre Symfony
   ExpressionLanguage. No es `eval()` de PHP: solo entiende expresiones, no
   ejecuta código arbitrario.

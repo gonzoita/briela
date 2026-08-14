@@ -53,15 +53,82 @@ class EnsambleController extends Controller
                 ->orderBy('nombre')
                 ->get(),
             'categorias' => CategoriaProducto::orderBy('nombre')->get(['id', 'nombre', 'color']),
+            // Los canales configurados, para que el ensamble tenga precio por canal igual que
+            // un producto. Antes tenía tres cajas fijas que escribían solo las columnas
+            // antiguas, invisibles para la cotización.
+            'canales'    => app(\App\Services\PreciosPorCanalService::class)->paraFormulario(null),
+        ]);
+    }
+
+    /**
+     * Abre el formulario de creación ya lleno con los datos de otro ensamble.
+     *
+     * Mismo criterio que en productos: la forma real de crear el segundo ensamble parecido es
+     * copiar el primero y cambiar dos cosas, no escribirlo todo otra vez. Copia la receta
+     * completa —con plantilla o directa—, las descripciones y los precios por canal. **No**
+     * copia las imágenes: se suben contra un ensamble ya guardado, y compartir el archivo
+     * haría que borrar la foto de uno la borrara del otro.
+     */
+    public function duplicar(int $id): Response
+    {
+        $ensamble = Ensamble::with(['plantilla.campos', 'preciosPorCanal'])->findOrFail($id);
+
+        $base = collect($ensamble->toArray())->only([
+            'tipo_armado', 'plantilla_id', 'categoria_id',
+            'descripcion_corta', 'descripcion_larga', 'descripcion_cotizacion',
+            'variables', 'componentes_resultado', 'precio_costo',
+            'margen_aplicado', 'utilidad_minima_empresa_pct',
+        ])->all();
+
+        // Los decimales de MySQL llegan como texto ('50000.00'), y la pantalla hace cuentas
+        // con ellos: un '0.00' es verdadero en JavaScript, y ahí empiezan los márgenes
+        // calculados sobre un costo que la pantalla cree que existe.
+        foreach ($base as $campo => $valor) {
+            if (is_string($valor) && is_numeric($valor)) {
+                $base[$campo] = (float) $valor;
+            }
+        }
+
+        $base['nombre'] = mb_substr($ensamble->nombre.' (copia)', 0, 150);
+
+        return Inertia::render('Ensambles/Create', [
+            'plantillas' => PlantillaEnsamble::with(['campos', 'componentes'])
+                ->where('activo', true)
+                ->orderBy('nombre')
+                ->get(),
+            'categorias' => CategoriaProducto::orderBy('nombre')->get(['id', 'nombre', 'color']),
+            // Los precios por canal del original, incluidos los canales que no tenga
+            // cargados: se copia lo que hay y lo demás queda listo para llenar.
+            'canales'    => app(\App\Services\PreciosPorCanalService::class)->paraFormulario($ensamble),
+            'base'       => $base,
+            'origen'     => ['id' => $ensamble->id, 'nombre' => $ensamble->nombre],
         ]);
     }
 
     public function store(Request $request, FormulaEvaluatorService $svc): RedirectResponse
     {
         $request->validate([
-            'plantilla_id'              => 'required|exists:plantillas_ensamble,id',
+            // Con plantilla se exigen plantilla y variables; directo exige sus líneas. Antes
+            // «plantilla_id» era obligatoria siempre, que es lo que impedía armar un ensamble
+            // a mano.
+            'tipo_armado'               => 'nullable|in:plantilla,directo',
+            'plantilla_id'              => 'required_if:tipo_armado,plantilla|nullable|exists:plantillas_ensamble,id',
             'nombre'                    => 'required|string|max:150',
-            'variables'                 => 'required|array',
+            'variables'                 => 'required_if:tipo_armado,plantilla|nullable|array',
+            'lineas'                    => 'required_if:tipo_armado,directo|nullable|array|min:1',
+            'lineas.*.producto_id'      => 'nullable|exists:productos,id',
+            'lineas.*.concepto'         => 'nullable|string|max:150',
+            'lineas.*.cantidad'         => 'required_with:lineas|numeric|min:0',
+            'lineas.*.precio_unit'      => 'nullable|numeric|min:0',
+            'lineas.*.unidad'           => 'nullable|string|max:30',
+            // Los precios por canal, igual que en productos.
+            'canales'                   => 'nullable|array',
+            'canales.*.segmentacion_opcion_id' => 'required_with:canales|integer',
+            'canales.*.margen_pct'      => 'nullable|numeric|min:0|max:99',
+            'canales.*.precio'          => 'nullable|numeric|min:0',
+            'canales.*.comision_min_pct' => 'nullable|numeric|min:0|max:100',
+            'canales.*.comision_max_pct' => 'nullable|numeric|min:0|max:100',
+            'canales.*.descuento_max_pct' => 'nullable|numeric|min:0|max:100',
             'precio_costo'              => 'nullable|numeric|min:0',
             'precio_mayorista'          => 'nullable|numeric|min:0',
             'precio_distribuidor'       => 'nullable|numeric|min:0',
@@ -83,13 +150,27 @@ class EnsambleController extends Controller
             'descuento_max_mayorista'     => 'nullable|numeric|min:0|max:100',
         ]);
 
-        $plantillaId = (int) $request->plantilla_id;
-        $variables   = $request->variables;
-        $componentes = $svc->calcularPlantilla($plantillaId, $variables);
-        $totalCosto  = $svc->totalCosto($componentes);
+        $esDirecto = $request->input('tipo_armado', 'plantilla') === 'directo';
+
+        if ($esDirecto) {
+            // Sin plantilla y sin fórmulas: las líneas son la receta. Se guardan con la misma
+            // forma que los componentes calculados, y por eso la OP, el consumo de inventario
+            // y los PDF no distinguen un ensamble de otro.
+            $directo     = app(\App\Services\EnsambleDirectoService::class);
+            $componentes = $directo->componentes($request->input('lineas', []));
+            $totalCosto  = $directo->costo($componentes);
+            $plantillaId = null;
+            $variables   = [];
+        } else {
+            $plantillaId = (int) $request->plantilla_id;
+            $variables   = $request->variables;
+            $componentes = $svc->calcularPlantilla($plantillaId, $variables);
+            $totalCosto  = $svc->totalCosto($componentes);
+        }
 
         $ensamble = Ensamble::create([
             'plantilla_id'              => $plantillaId,
+            'tipo_armado'               => $esDirecto ? 'directo' : 'plantilla',
             'nombre'                    => $request->nombre,
             'categoria_id'              => $request->categoria_id,
             'descripcion_corta'         => $request->descripcion_corta,
@@ -115,21 +196,46 @@ class EnsambleController extends Controller
             'creado_por'                  => auth()->id(),
         ]);
 
-        return redirect("/ensambles/{$ensamble->id}")->with('success', 'Ensamble creado correctamente.');
+        $this->guardarCanales($request, $ensamble);
+
+        return redirect("/ensambles/{$ensamble->id}")->with('success', $esDirecto
+            ? 'Ensamble creado con su lista de materiales.'
+            : 'Ensamble creado correctamente.');
     }
 
     public function show(int $id): Response
     {
-        $ensamble = Ensamble::with(['plantilla.campos', 'creadoPor', 'categoria'])->findOrFail($id);
+        $ensamble = Ensamble::with(['plantilla.campos', 'creadoPor', 'categoria', 'preciosPorCanal'])->findOrFail($id);
 
         return Inertia::render('Ensambles/Show', [
             'ensamble' => [
                 ...$ensamble->toArray(),
-                'plantilla_nombre'  => $ensamble->plantilla?->nombre,
+                // Un ensamble directo no tiene plantilla: se dice cómo está armado, en vez
+                // de dejar el subtítulo en blanco.
+                'plantilla_nombre'  => $ensamble->plantilla?->nombre
+                    ?? ($ensamble->esDirecto() ? 'Ensamble directo, sin plantilla' : null),
                 'creado_por_nombre' => $ensamble->creadoPor?->name,
                 'categoria_nombre'  => $ensamble->categoria?->nombre,
                 'categoria_color'   => $ensamble->categoria?->color,
             ],
+            // Los canales configurados con el precio EFECTIVO de este ensamble en cada uno:
+            // lo guardado o, si falta, la columna antigua. La tabla de precios mostraba tres
+            // nombres escritos en la pantalla —mayorista, distribuidor, cliente final—, así
+            // que en una instalación con canales propios enseñaba nombres que no existen y
+            // dejaba por fuera los canales que la empresa creó. Mismo arreglo que en la ficha
+            // del producto.
+            'canales' => app(\App\Services\CanalesPrecioService::class)->canales()
+                ->map(function ($canal) use ($ensamble) {
+                    $fila = app(\App\Services\PreciosPorCanalService::class)->filaEfectiva($ensamble, $canal);
+
+                    return [
+                        'segmentacion_opcion_id' => $canal->id,
+                        'etiqueta'               => $canal->etiqueta,
+                        'es_canal_base'          => (bool) $canal->es_canal_base,
+                        'es_precio_publico'      => (bool) $canal->es_precio_publico,
+                        'precio'                 => $fila['precio'],
+                    ];
+                })->values(),
             // Para el interruptor de publicación en el sitio web: sin precio público, la
             // ficha del sitio sale sin cifra, y conviene decirlo antes de publicar.
             'web' => [
@@ -149,7 +255,28 @@ class EnsambleController extends Controller
                 ->orderBy('nombre')
                 ->get(),
             'categorias' => CategoriaProducto::orderBy('nombre')->get(['id', 'nombre', 'color']),
+            'canales'    => app(\App\Services\PreciosPorCanalService::class)->paraFormulario($ensamble),
         ]);
+    }
+
+    /**
+     * Guarda los precios por canal, en el formato nuevo o en el viejo.
+     *
+     * Mismo criterio que en productos: mientras alguna pantalla siga mandando
+     * `precio_mayorista` y compañía, esos campos tienen que llegar igual a las filas nuevas —
+     * que es de donde lee la cotización.
+     */
+    private function guardarCanales(Request $request, Ensamble $ensamble): void
+    {
+        $servicio = app(\App\Services\PreciosPorCanalService::class);
+        $filas    = $request->input('canales');
+
+        $servicio->guardar(
+            $ensamble,
+            is_array($filas) && $filas !== []
+                ? $filas
+                : $servicio->desdeCamposViejos($request->all())
+        );
     }
 
     public function update(Request $request, int $id, FormulaEvaluatorService $svc): RedirectResponse
@@ -158,7 +285,21 @@ class EnsambleController extends Controller
 
         $request->validate([
             'nombre'                    => 'required|string|max:150',
-            'variables'                 => 'required|array',
+            // Un ensamble directo no tiene variables: tiene líneas.
+            'variables'                 => 'nullable|array',
+            'lineas'                    => 'nullable|array',
+            'lineas.*.producto_id'      => 'nullable|exists:productos,id',
+            'lineas.*.concepto'         => 'nullable|string|max:150',
+            'lineas.*.cantidad'         => 'required_with:lineas|numeric|min:0',
+            'lineas.*.precio_unit'      => 'nullable|numeric|min:0',
+            'lineas.*.unidad'           => 'nullable|string|max:30',
+            'canales'                   => 'nullable|array',
+            'canales.*.segmentacion_opcion_id' => 'required_with:canales|integer',
+            'canales.*.margen_pct'      => 'nullable|numeric|min:0|max:99',
+            'canales.*.precio'          => 'nullable|numeric|min:0',
+            'canales.*.comision_min_pct' => 'nullable|numeric|min:0|max:100',
+            'canales.*.comision_max_pct' => 'nullable|numeric|min:0|max:100',
+            'canales.*.descuento_max_pct' => 'nullable|numeric|min:0|max:100',
             'precio_costo'              => 'nullable|numeric|min:0',
             'precio_mayorista'          => 'nullable|numeric|min:0',
             'precio_distribuidor'       => 'nullable|numeric|min:0',
@@ -180,10 +321,16 @@ class EnsambleController extends Controller
             'descuento_max_mayorista'     => 'nullable|numeric|min:0|max:100',
         ]);
 
-        $plantillaId = $ensamble->plantilla_id;
-        $variables   = $request->variables;
-        $componentes = $svc->calcularPlantilla($plantillaId, $variables);
-        $totalCosto  = $svc->totalCosto($componentes);
+        if ($ensamble->esDirecto()) {
+            $directo     = app(\App\Services\EnsambleDirectoService::class);
+            $componentes = $directo->componentes($request->input('lineas', []));
+            $totalCosto  = $directo->costo($componentes);
+            $variables   = [];
+        } else {
+            $variables   = $request->input('variables', []);
+            $componentes = $svc->calcularPlantilla($ensamble->plantilla_id, $variables);
+            $totalCosto  = $svc->totalCosto($componentes);
+        }
 
         $ensamble->update([
             'nombre'               => $request->nombre,
@@ -210,6 +357,8 @@ class EnsambleController extends Controller
             'descuento_max_mayorista'     => $request->descuento_max_mayorista     ?? $ensamble->descuento_max_mayorista,
         ]);
 
+        $this->guardarCanales($request, $ensamble);
+
         return redirect("/ensambles/{$ensamble->id}")->with('success', 'Ensamble actualizado.');
     }
 
@@ -222,21 +371,44 @@ class EnsambleController extends Controller
 
     public function recalcular(int $id, FormulaEvaluatorService $svc): RedirectResponse
     {
-        $ensamble    = Ensamble::with('plantilla')->findOrFail($id);
-        $componentes = $svc->calcularPlantilla($ensamble->plantilla_id, $ensamble->variables);
-        $totalCosto  = $svc->totalCosto($componentes);
-        $conf        = $ensamble->plantilla?->config_salida ?? [];
-        $mmay        = (float) ($conf['margen_mayorista']    ?? 30);
-        $mdist       = (float) ($conf['margen_distribuidor']  ?? 32.5);
-        $mfinal      = (float) ($conf['margen_cliente_final'] ?? 35);
+        $ensamble = Ensamble::with('plantilla')->findOrFail($id);
+
+        if ($ensamble->esDirecto()) {
+            // Un ensamble directo no tiene fórmulas que volver a correr: lo que se releen son
+            // los costos de sus productos. Los conceptos libres se quedan como están, porque
+            // no hay de dónde releerlos. Sin esta rama, `calcularPlantilla(null, …)` se
+            // llevaba la receta entera.
+            $directo     = app(\App\Services\EnsambleDirectoService::class);
+            $componentes = $directo->recalcular((array) $ensamble->componentes_resultado);
+            $totalCosto  = $directo->costo($componentes);
+        } else {
+            $componentes = $svc->calcularPlantilla($ensamble->plantilla_id, $ensamble->variables);
+            $totalCosto  = $svc->totalCosto($componentes);
+        }
 
         $ensamble->update([
             'componentes_resultado' => $componentes,
             'precio_costo'          => $totalCosto,
-            'precio_mayorista'      => round($totalCosto * (1 + $mmay   / 100), 0),
-            'precio_distribuidor'   => round($totalCosto * (1 + $mdist  / 100), 0),
-            'precio_cliente_final'  => round($totalCosto * (1 + $mfinal / 100), 0),
         ]);
+
+        // Los precios se rearman desde el margen guardado de cada canal, que es de donde lee
+        // la cotización. Antes se escribían solo las tres columnas antiguas —y con
+        // `costo * (1 + margen)`, que no es el margen sobre la venta sino un recargo sobre el
+        // costo: con 35% daba 13.500 donde correspondían 15.000.
+        $precios = app(\App\Services\PreciosPorCanalService::class);
+        $filas   = collect($precios->paraFormulario($ensamble))
+            ->map(function (array $fila) use ($totalCosto) {
+                $margen = (float) $fila['margen_pct'];
+
+                $fila['precio'] = $margen > 0 && $margen < 100
+                    ? ceil($totalCosto / (1 - $margen / 100) / 1000) * 1000
+                    : $fila['precio'];
+
+                return $fila;
+            })
+            ->all();
+
+        $precios->guardar($ensamble, $filas);
 
         return back()->with('success', 'Ensamble recalculado con precios actualizados.');
     }

@@ -6,6 +6,8 @@ import InterruptorWeb from '@/Components/InterruptorWeb.vue'
 
 const props = defineProps({
     ensamble: { type: Object, required: true },
+    // Los canales configurados con el precio efectivo de este ensamble en cada uno.
+    canales:  { type: Array,  default: () => [] },
     web:      { type: Object, default: null },
 })
 
@@ -87,6 +89,15 @@ const variablesEntries = Object.entries(props.ensamble.variables ?? {})
                         </svg>
                         Recalcular
                     </button>
+                    <!-- Duplicar, igual que en productos: la forma real de crear el segundo
+                         ensamble parecido es copiar el primero y cambiar dos cosas. -->
+                    <button @click="router.visit(`/ensambles/${ensamble.id}/duplicar`)"
+                        class="px-3 py-2 rounded-xl border border-linea text-sm text-tinta-500 hover:bg-tinta-50 flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                        </svg>
+                        Duplicar
+                    </button>
                     <button @click="router.visit(`/ensambles/${ensamble.id}/editar`)"
                         class="px-3 py-2 rounded-xl text-sm text-white font-medium flex items-center gap-2"
                         style="background:var(--marca);">
@@ -146,8 +157,9 @@ const variablesEntries = Object.entries(props.ensamble.variables ?? {})
                 </p>
             </div>
 
-            <!-- Variables configuradas -->
-            <div class="bg-superficie rounded-2xl shadow-sm p-5 mb-4">
+            <!-- Variables configuradas. Un ensamble directo no tiene: su receta se escribió
+                 a mano, no salió de medidas, y la tarjeta salía vacía. -->
+            <div v-if="variablesEntries.length" class="bg-superficie rounded-2xl shadow-sm p-5 mb-4">
                 <h2 class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-3">Variables configuradas</h2>
                 <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
                     <div v-for="[k, v] in variablesEntries" :key="k"
@@ -160,7 +172,7 @@ const variablesEntries = Object.entries(props.ensamble.variables ?? {})
 
             <!-- Desglose de componentes -->
             <div class="bg-superficie rounded-2xl shadow-sm p-5 mb-4">
-                <h2 class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-3">Desglose de componentes</h2>
+                <h2 class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-3">{{ variablesEntries.length ? 'Desglose de componentes' : 'Lista de materiales' }}</h2>
                 <div class="overflow-x-auto">
                     <table class="w-full text-sm">
                         <thead>
@@ -191,28 +203,53 @@ const variablesEntries = Object.entries(props.ensamble.variables ?? {})
                 </div>
             </div>
 
-            <!-- Tabla de precios -->
+            <!-- Tabla de precios.
+                 Sale de los canales que la empresa configuró en Segmentación, con SUS
+                 nombres. Antes eran cuatro cajas escritas aquí —costo, mayorista,
+                 distribuidor, cliente final— leyendo las columnas viejas: en una instalación
+                 con canales propios mostraba nombres que no existen y dejaba por fuera
+                 cualquier canal que la empresa hubiera creado. -->
             <div class="bg-superficie rounded-2xl shadow-sm p-5 mb-4">
-                <h2 class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-3">Precios por canal</h2>
-                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                    <div class="p-4 rounded-xl text-center" style="background:var(--superficie-2);">
-                        <p class="text-xs text-tinta-300 mb-1">Costo</p>
-                        <p class="text-lg font-semibold text-tinta-700">${{ formatCOP(ensamble.precio_costo) }}</p>
-                    </div>
-                    <div class="p-4 rounded-xl text-center" style="background:var(--pastel-azul);">
-                        <p class="text-xs text-tinta-300 mb-1">Mayorista</p>
-                        <p class="text-lg font-semibold text-tinta-900">${{ formatCOP(ensamble.precio_mayorista) }}</p>
-                    </div>
-                    <div class="p-4 rounded-xl text-center" style="background:var(--pastel-azul); border:2px solid #93C5FD;">
-                        <p class="text-xs font-medium mb-1" style="color:var(--texto-azul);">Distribuidor</p>
-                        <p class="text-lg font-semibold" style="color:var(--texto-azul);">${{ formatCOP(ensamble.precio_distribuidor) }}</p>
-                    </div>
-                    <div class="p-4 rounded-xl text-center" style="background:var(--pastel-verde);">
-                        <p class="text-xs text-tinta-300 mb-1">Cliente final</p>
-                        <p class="text-lg font-semibold text-tinta-900">${{ formatCOP(ensamble.precio_cliente_final) }}</p>
-                    </div>
+                <div class="flex items-center justify-between gap-2 mb-3">
+                    <h2 class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">Precios por canal</h2>
+                    <a v-if="puedeEditar" :href="`/ensambles/${ensamble.id}/editar`"
+                        class="text-xs font-semibold" style="color:var(--marca);">Editar</a>
                 </div>
 
+                <div class="border border-linea rounded-xl overflow-hidden">
+                    <div class="divide-y divide-gray-50">
+                        <div class="flex items-center justify-between px-3 py-2.5">
+                            <span class="text-xs text-tinta-400">Costo</span>
+                            <span class="text-sm font-semibold text-tinta-900">${{ formatCOP(ensamble.precio_costo) }}</span>
+                        </div>
+
+                        <div v-for="c in (canales ?? [])" :key="c.segmentacion_opcion_id"
+                            class="flex items-center justify-between px-3 py-2.5"
+                            :style="c.es_precio_publico ? 'background:var(--pastel-azul);' : ''">
+                            <span class="text-xs flex items-center gap-1.5 min-w-0">
+                                <span class="truncate"
+                                    :style="c.es_precio_publico ? 'color:var(--marca); font-weight:600;' : 'color:var(--tinta-400);'">
+                                    {{ c.etiqueta }}
+                                </span>
+                                <span v-if="c.es_canal_base"
+                                    class="text-[10px] px-1.5 py-0.5 rounded-full shrink-0"
+                                    style="background:var(--tinta-100); color:var(--tinta-500);">base</span>
+                            </span>
+                            <span class="text-sm font-semibold shrink-0"
+                                :class="c.precio > 0 ? '' : 'text-amber-600'"
+                                :style="c.es_precio_publico && c.precio > 0 ? 'color:var(--marca);' : ''">
+                                {{ c.precio > 0 ? '$' + formatCOP(c.precio) : 'sin precio' }}
+                            </span>
+                        </div>
+
+                        <div v-if="!(canales ?? []).length" class="px-3 py-2.5">
+                            <p class="text-xs text-tinta-400">
+                                No hay canales de precio configurados. Se marcan con «define precio»
+                                en Configuración → Listas de segmentación.
+                            </p>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- Eliminar -->

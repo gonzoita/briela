@@ -6,40 +6,115 @@ import { useUnsavedChanges } from '@/composables/useUnsavedChanges'
 import CampoInstancia from '@/Components/CampoInstancia.vue'
 import EditorTexto from '@/Components/EditorTexto.vue'
 import GeneradorFichaIa from '@/Components/GeneradorFichaIa.vue'
+import PreciosPorCanal from '@/Components/PreciosPorCanal.vue'
+import LineasEnsambleDirecto from '@/Components/LineasEnsambleDirecto.vue'
+import { usePreciosPorCanal } from '@/composables/usePreciosPorCanal'
 import { colorMarca } from '@/marca'
 
 const props = defineProps({
     plantillas: { type: Array, default: () => [] },
     categorias: { type: Array, default: () => [] },
     ensamble:   { type: Object, default: null },
+    // Los canales de precio configurados en Segmentación, ya con lo que el ensamble tenga
+    // guardado. Antes esta pantalla tenía tres cajas fijas que escribían solo las columnas
+    // antiguas —invisibles para la cotización—, igual que le pasaba a la de productos.
+    canales:    { type: Array, default: () => [] },
+    // Duplicar: los datos del ensamble original, sin su id. La pantalla es la misma que
+    // crear, así que todo se lee de `inicial` y `esEdicion` sigue siendo «tiene id».
+    base:       { type: Object, default: null },
+    origen:     { type: Object, default: null },
 })
 
 const esEdicion = computed(() => !!props.ensamble)
+
+// De dónde salen los valores del formulario: el ensamble que se edita, o la copia.
+const inicial = props.ensamble ?? props.base ?? null
 const { hasChanges, setOriginal, checkChanges, markClean } = useUnsavedChanges()
 
 // ── Estado principal ──────────────────────────────────────────────────────────
-const plantillaId              = ref(props.ensamble?.plantilla_id ?? '')
-const nombre                   = ref(props.ensamble?.nombre ?? '')
+// Cómo se arma el ensamble. «plantilla» son medidas y fórmulas —lo que hace falta para
+// fabricar por medida—; «directo» es la receta escrita a mano, con cantidades exactas. En
+// edición no se cambia: sería reescribir la receta completa.
+const tipoArmado               = ref(inicial?.tipo_armado ?? 'plantilla')
+const esDirecto                = computed(() => tipoArmado.value === 'directo')
+const plantillaId              = ref(inicial?.plantilla_id ?? '')
+const nombre                   = ref(inicial?.nombre ?? '')
 const margenesActuales         = ref({ mayorista: 30, distribuidor: 32.5, cliente_final: 35, por_defecto: 'distribuidor' })
 const variables                = reactive({})
-const componentes              = ref(props.ensamble?.componentes_resultado ?? [])
-const totalCosto               = ref(props.ensamble?.precio_costo ?? 0)
+const componentes              = ref(inicial?.componentes_resultado ?? [])
+const totalCosto               = ref(inicial?.precio_costo ?? 0)
 const precioMayor              = ref(props.ensamble?.precio_mayorista ?? 0)
 const precioDist               = ref(props.ensamble?.precio_distribuidor ?? 0)
 const precioFinal              = ref(props.ensamble?.precio_cliente_final ?? 0)
 const page                     = usePage()
-const calculado                = ref(!!props.ensamble)
+const calculado                = ref(!!inicial)
 const calculando               = ref(false)
 const guardando                = ref(false)
 const errorMsg                 = ref('')
-const nombreEditadoManualmente = ref(!!props.ensamble)
+const nombreEditadoManualmente = ref(!!inicial)
+
+// ── Ensamble directo: la receta a mano ────────────────────────────────────────
+// Los componentes guardados tienen la misma forma vengan de una fórmula o de aquí, así que
+// al editar se leen tal cual y se vuelven líneas escribibles.
+const lineas = ref(
+    (inicial?.tipo_armado === 'directo' ? (inicial?.componentes_resultado ?? []) : []).map(c => ({
+        producto_id: c.producto_id ?? null,
+        concepto:    c.nombre ?? '',
+        referencia:  c.referencia ?? null,
+        unidad:      c.unidad ?? 'unidad',
+        cantidad:    Number(c.cantidad) || 0,
+        precio_unit: Number(c.precio_unit) || 0,
+    }))
+)
+
+const costoDeLineas = computed(() =>
+    lineas.value.reduce((s, l) => s + (Number(l.cantidad) || 0) * (Number(l.precio_unit) || 0), 0)
+)
+
+// El costo de un ensamble directo es la suma de su receta, y tiene que llegar al
+// componente de precios para que los márgenes calculen sobre algo.
+watch(costoDeLineas, (v) => { if (esDirecto.value) totalCosto.value = v })
+
+// ── Precios por canal ─────────────────────────────────────────────────────────
+const canales = ref((props.canales ?? []).map(c => ({ ...c })))
+
+const { hayErrorDeEscalera, aplicarDescuentosMax } = usePreciosPorCanal(
+    canales,
+    computed(() => Number(totalCosto.value) || 0),
+)
+
+/**
+ * Siembra los márgenes de los canales con los que trae la plantilla.
+ *
+ * La plantilla guarda margen para los tres canales originales —mayorista, distribuidor,
+ * cliente final—, así que se reparten por el papel de cada canal: el base recibe el de
+ * mayorista, el que sea precio público el de cliente final, y el primer intermedio el de
+ * distribuidor. Los demás conservan el margen sugerido de Segmentación. Es una siembra: el
+ * usuario los ajusta ensamble por ensamble.
+ */
+function sembrarMargenes(conf) {
+    if (! conf) return
+
+    let intermedioUsado = false
+
+    canales.value.forEach(canal => {
+        if (canal.es_canal_base && conf.margen_mayorista != null) {
+            canal.margen_pct = Number(conf.margen_mayorista)
+        } else if (canal.es_precio_publico && conf.margen_cliente_final != null) {
+            canal.margen_pct = Number(conf.margen_cliente_final)
+        } else if (! canal.es_canal_base && ! intermedioUsado && conf.margen_distribuidor != null) {
+            canal.margen_pct = Number(conf.margen_distribuidor)
+            intermedioUsado  = true
+        }
+    })
+}
 
 // ── Estado de catálogo ────────────────────────────────────────────────────────
-const categoriaId     = ref(props.ensamble?.categoria_id ?? '')
-const descripcionCorta = ref(props.ensamble?.descripcion_corta ?? '')
-const descripcionLarga = ref(props.ensamble?.descripcion_larga ?? '')
+const categoriaId     = ref(inicial?.categoria_id ?? '')
+const descripcionCorta = ref(inicial?.descripcion_corta ?? '')
+const descripcionLarga = ref(inicial?.descripcion_larga ?? '')
 // El técnico corto, el que sale en cotizaciones y órdenes de producción.
-const descripcionCotizacion = ref(props.ensamble?.descripcion_cotizacion ?? '')
+const descripcionCotizacion = ref(inicial?.descripcion_cotizacion ?? '')
 const listaCats        = ref([...(props.categorias ?? [])])
 
 // ── Ficha técnica con IA ──────────────────────────────────────────────────────
@@ -60,70 +135,10 @@ function aplicarFicha({ descripcion_corta, descripcion_cotizacion, descripcion_l
     if (descripcion_larga) descripcionLarga.value = descripcion_larga
 }
 
-// Comisiones
-const comisionMin             = ref(props.ensamble?.comision_pct_minima ?? 0)
-const comisionMax             = ref(props.ensamble?.comision_pct_maxima ?? 0)
-const utilidadMinEmpresa      = ref(props.ensamble?.utilidad_minima_empresa_pct ?? 15)
-const descuentoCliente        = ref(props.ensamble?.descuento_max_cliente_final ?? 3)
-const descuentoDistribuidor   = ref(props.ensamble?.descuento_max_distribuidor ?? 5)
-const descuentoMayorista      = ref(props.ensamble?.descuento_max_mayorista ?? 8)
-const comisionMinDistribuidor = ref(props.ensamble?.comision_min_distribuidor ?? 0)
-const comisionMaxDistribuidor = ref(props.ensamble?.comision_max_distribuidor ?? 0)
-const comisionMinClienteFinal = ref(props.ensamble?.comision_min_cliente_final ?? 0)
-const comisionMaxClienteFinal = ref(props.ensamble?.comision_max_cliente_final ?? 0)
-
-const errorComisionClienteFinal = ref(false)
-
-// La comisión se paga sobre el excedente por encima del precio mayorista
-// (utilidad garantizada de la empresa), no sobre el precio de venta
-// completo — mismo criterio que en Cotizaciones/Create.vue.
-const excedenteDistribuidor  = computed(() => Math.max(0, (precioDist.value  || 0) - (precioMayor.value || 0)))
-const excedenteClienteFinal  = computed(() => Math.max(0, (precioFinal.value || 0) - (precioMayor.value || 0)))
-
-const descuentoMaxRealDistribuidor = computed(() => {
-    const base = precioDist.value || 0
-    const min  = precioMayor.value || 0
-    if (!base) return 0
-    return Math.max(0, parseFloat(((base - min) / base * 100).toFixed(2)))
-})
-
-const descuentoMaxRealClienteFinal = computed(() => {
-    const base = precioFinal.value || 0
-    const min  = precioDist.value || 0
-    if (!base) return 0
-    return Math.max(0, parseFloat(((base - min) / base * 100).toFixed(2)))
-})
-
-const validarComisiones = () => {
-    errorComisionClienteFinal.value =
-        comisionMinClienteFinal.value > 0 &&
-        comisionMaxDistribuidor.value > 0 &&
-        comisionMinClienteFinal.value < comisionMaxDistribuidor.value
-}
-
-const sugerirComisionesEnsamble = () => {
-    if (!precioMayor.value || !precioDist.value || !precioFinal.value) {
-        alert('Calcula primero los precios antes de sugerir comisiones')
-        return
-    }
-    const pctDisponibleDistrib = ((precioDist.value - precioMayor.value) / precioDist.value) * 100
-    comisionMinDistribuidor.value = parseFloat((pctDisponibleDistrib * 0.40).toFixed(2))
-    comisionMaxDistribuidor.value = parseFloat((pctDisponibleDistrib * 0.65).toFixed(2))
-    const pctDisponibleFinal = ((precioFinal.value - precioMayor.value) / precioFinal.value) * 100
-    comisionMinClienteFinal.value = comisionMaxDistribuidor.value
-    comisionMaxClienteFinal.value = parseFloat((pctDisponibleFinal * 0.80).toFixed(2))
-    if (comisionMaxClienteFinal.value <= comisionMinClienteFinal.value) {
-        comisionMaxClienteFinal.value = parseFloat((comisionMinClienteFinal.value * 1.5).toFixed(2))
-    }
-    validarComisiones()
-}
-
-watch(comisionMaxDistribuidor, () => {
-    if (comisionMinClienteFinal.value < comisionMaxDistribuidor.value) {
-        comisionMinClienteFinal.value = comisionMaxDistribuidor.value
-    }
-    validarComisiones()
-})
+// Lo único que sobrevive del esquema viejo de comisiones: el piso de utilidad de la
+// empresa. Los rangos por canal los maneja ahora el componente de precios, y las columnas
+// antiguas las escribe el espejo del servidor al guardar.
+const utilidadMinEmpresa = ref(inicial?.utilidad_minima_empresa_pct ?? 15)
 
 // ── Modal nueva categoría ─────────────────────────────────────────────────────
 const showModalCat  = ref(false)
@@ -206,8 +221,8 @@ const plantillaSeleccionada = computed(() =>
     props.plantillas.find(p => p.id == plantillaId.value) ?? null
 )
 
-if (props.ensamble?.variables) {
-    Object.assign(variables, props.ensamble.variables)
+if (inicial?.variables) {
+    Object.assign(variables, inicial.variables)
 }
 
 watch(plantillaId, (nuevoId) => {
@@ -297,7 +312,16 @@ async function calcular() {
         precioMayor.value = calcPrecio(data.total_costo, mmay)
         precioDist.value  = calcPrecio(data.total_costo, mdist)
         precioFinal.value = calcPrecio(data.total_costo, mfin)
-        calculado.value   = true
+
+        // Los precios de verdad son los de los canales: el margen de la plantilla solo
+        // siembra el suyo, y el componente de precios recalcula con el costo nuevo.
+        sembrarMargenes({
+            margen_mayorista:     mmay,
+            margen_distribuidor:  mdist,
+            margen_cliente_final: mfin,
+        })
+
+        calculado.value = true
     } catch {
         errorMsg.value = 'Error al calcular los componentes.'
     } finally {
@@ -307,17 +331,29 @@ async function calcular() {
 
 // ── Guardar ───────────────────────────────────────────────────────────────────
 async function guardar() {
-    if (!plantillaId.value || !nombre.value) {
-        errorMsg.value = 'Selecciona una plantilla y asigna un nombre.'
+    if (!nombre.value) {
+        errorMsg.value = 'Asigna un nombre al ensamble.'
         return
     }
-    if (!calculado.value) {
-        errorMsg.value = 'Primero calcula los componentes.'
-        return
+    if (esDirecto.value) {
+        if (!lineas.value.some(l => (Number(l.cantidad) || 0) > 0 && (l.producto_id || l.concepto?.trim()))) {
+            errorMsg.value = 'Agrega al menos un componente con cantidad.'
+            return
+        }
+    } else {
+        if (!plantillaId.value) {
+            errorMsg.value = 'Selecciona una plantilla.'
+            return
+        }
+        if (!calculado.value) {
+            errorMsg.value = 'Primero calcula los componentes.'
+            return
+        }
     }
-    validarComisiones()
-    if (errorComisionClienteFinal.value) {
-        errorMsg.value = 'Corrige los rangos de comisión antes de guardar. La comisión mínima de cliente final debe ser ≥ comisión máxima de distribuidor.'
+    // La escalera de comisiones se valida sobre la lista de canales, no sobre dos nombres
+    // fijos: la empresa puede tener cuatro.
+    if (hayErrorDeEscalera.value) {
+        errorMsg.value = 'Corrige los rangos de comisión: la mínima de un canal no puede ser menor que la máxima del canal anterior.'
         return
     }
     guardando.value = true
@@ -329,29 +365,27 @@ async function guardar() {
         : def === 'cliente_final' ? margenesActuales.value.cliente_final
         : margenesActuales.value.distribuidor
 
+    // El descuento máximo de cada canal sale de su distancia con el canal de abajo: se
+    // calcula al guardar, no se pide en pantalla.
+    aplicarDescuentosMax()
+
     const payload = {
-        plantilla_id:        plantillaId.value,
+        tipo_armado:         tipoArmado.value,
+        plantilla_id:        esDirecto.value ? null : plantillaId.value,
         nombre:              nombre.value,
-        variables:           { ...variables },
+        variables:           esDirecto.value ? {} : { ...variables },
+        lineas:              esDirecto.value ? lineas.value : [],
+        canales:             canales.value,
         precio_costo:                  totalCosto.value,
-        precio_mayorista:              precioMayor.value,
-        precio_distribuidor:           precioDist.value,
-        precio_cliente_final:          precioFinal.value,
         margen_aplicado:               margenDefault,
         categoria_id:                  categoriaId.value || null,
         descripcion_corta:             descripcionCorta.value || null,
         descripcion_larga:             descripcionLarga.value || null,
         descripcion_cotizacion:        descripcionCotizacion.value || null,
-        comision_pct_minima:           comisionMin.value,
-        comision_pct_maxima:           comisionMax.value,
-        comision_min_distribuidor:     comisionMinDistribuidor.value,
-        comision_max_distribuidor:     comisionMaxDistribuidor.value,
-        comision_min_cliente_final:    comisionMinClienteFinal.value,
-        comision_max_cliente_final:    comisionMaxClienteFinal.value,
         utilidad_minima_empresa_pct:   utilidadMinEmpresa.value,
-        descuento_max_cliente_final:   descuentoMaxRealClienteFinal.value,
-        descuento_max_distribuidor:    descuentoMaxRealDistribuidor.value,
-        descuento_max_mayorista:       0,
+        // Las comisiones y los descuentos por canal viajan dentro de `canales`. Las
+        // columnas antiguas las escribe el espejo del servidor justo después de guardar,
+        // así que mandarlas aquí sería mandar el dato dos veces y en dos formatos.
     }
 
     const onError = (errors) => {
@@ -367,6 +401,9 @@ async function guardar() {
 }
 
 const formatCOP = (v) => new Intl.NumberFormat('es-CO', { maximumFractionDigits: 0 }).format(v ?? 0)
+
+// Un ensamble con plantilla necesita el cálculo hecho; uno directo, su receta escrita.
+const puedeGuardar = computed(() => (esDirecto.value ? lineas.value.length > 0 : calculado.value))
 
 onMounted(() => {
     setOriginal({ plantillaId: plantillaId.value, nombre: nombre.value, variables: { ...variables } })
@@ -394,19 +431,61 @@ onMounted(() => {
                 ● Cambios sin guardar
             </div>
 
+            <!-- Copia de otro ensamble -->
+            <div v-if="origen" class="mb-4 rounded-2xl p-4 flex items-start gap-3"
+                style="background:var(--pastel-azul); border:1px solid var(--marca);">
+                <svg class="w-5 h-5 shrink-0 mt-0.5" style="color:var(--marca);" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                </svg>
+                <div class="min-w-0">
+                    <p class="text-sm font-semibold text-tinta-900">
+                        Copia de <a :href="`/ensambles/${origen.id}`" class="underline">{{ origen.nombre }}</a>
+                    </p>
+                    <p class="text-xs text-tinta-500 mt-1">
+                        Se copiaron la receta, las descripciones y los precios por canal. No se copian
+                        las imágenes. Revisa el nombre antes de guardar: el original sigue igual hasta
+                        que guardes este.
+                    </p>
+                </div>
+            </div>
+
             <!-- Error -->
             <div v-if="errorMsg" class="mb-4 bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-sm text-red-700 flex items-center justify-between">
                 {{ errorMsg }}
                 <button @click="errorMsg = ''" class="text-red-400 ml-3">✕</button>
             </div>
 
-            <!-- ── 1. Plantilla y nombre ────────────────────────────────────── -->
+            <!-- ── 1. Cómo se arma, y nombre ───────────────────────────────── -->
             <div class="bg-superficie rounded-2xl shadow-sm p-5 mb-4">
-                <h2 class="text-sm font-semibold text-tinta-700 uppercase tracking-[0.12em] mb-4">1. Plantilla y nombre</h2>
+                <h2 class="text-sm font-semibold text-tinta-700 uppercase tracking-[0.12em] mb-4">1. Cómo se arma</h2>
 
                 <div class="space-y-4">
-                                            
-<div>
+
+                    <!-- El modo. En edición no se cambia: sería reescribir la receta entera. -->
+                    <div v-if="!esEdicion" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <button type="button" @click="tipoArmado = 'plantilla'"
+                            class="text-left p-3 rounded-xl border-2 transition-all"
+                            :class="!esDirecto ? 'border-[var(--marca)] bg-[var(--marca-suave)]' : 'border-linea hover:border-tinta-200'">
+                            <p class="text-sm font-semibold" :class="!esDirecto ? 'text-[var(--marca)]' : 'text-tinta-700'">Con plantilla</p>
+                            <p class="text-xs text-tinta-400 mt-0.5">
+                                Se escriben las medidas y las fórmulas calculan los materiales. Para fabricar por medida.
+                            </p>
+                        </button>
+                        <button type="button" @click="tipoArmado = 'directo'"
+                            class="text-left p-3 rounded-xl border-2 transition-all"
+                            :class="esDirecto ? 'border-[var(--marca)] bg-[var(--marca-suave)]' : 'border-linea hover:border-tinta-200'">
+                            <p class="text-sm font-semibold" :class="esDirecto ? 'text-[var(--marca)]' : 'text-tinta-700'">Directo, sin cálculos</p>
+                            <p class="text-xs text-tinta-400 mt-0.5">
+                                La lista de componentes con cantidades exactas, escrita a mano. Para lo que siempre lleva lo mismo.
+                            </p>
+                        </button>
+                    </div>
+
+                    <p v-else class="text-xs text-tinta-400">
+                        {{ esDirecto ? 'Ensamble directo: la receta se escribe a mano.' : 'Ensamble con plantilla: los materiales salen de las fórmulas.' }}
+                    </p>
+
+                    <div v-if="!esDirecto">
                         <label class="block text-sm font-medium text-tinta-700 mb-1.5">Plantilla <span class="text-red-500">*</span></label>
                         <select v-model="plantillaId" :disabled="esEdicion"
                             class="w-full border border-linea rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-[var(--marca)] disabled:bg-tinta-50">
@@ -415,13 +494,13 @@ onMounted(() => {
                         </select>
                     </div>
 
-                    <div v-if="plantillaSeleccionada">
+                    <div v-if="plantillaSeleccionada || esDirecto">
                         <label class="block text-sm font-medium text-tinta-700 mb-1.5">Nombre del ensamble <span class="text-red-500">*</span></label>
                         <input v-model="nombre" type="text"
                             class="w-full border border-linea rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-[var(--marca)]"
                             placeholder="Nombre descriptivo..."
                             @input="onNombreInput" />
-                        <p class="text-xs text-tinta-300 mt-1">Se genera automáticamente desde las variables.</p>
+                        <p v-if="!esDirecto" class="text-xs text-tinta-300 mt-1">Se genera automáticamente desde las variables.</p>
                     </div>
                 </div>
             </div>
@@ -562,8 +641,19 @@ onMounted(() => {
                 </div>
             </div>
 
+            <!-- ── 3. Componentes del ensamble directo ─────────────────────── -->
+            <div v-if="esDirecto" class="bg-superficie rounded-2xl shadow-sm p-5 mb-4">
+                <h2 class="text-sm font-semibold text-tinta-700 uppercase tracking-[0.12em] mb-1">3. Componentes</h2>
+                <p class="text-xs text-tinta-400 mb-4">
+                    Cantidades exactas, sin fórmulas. Los materiales del inventario se descuentan al
+                    despachar; los conceptos libres solo suman al costo. El cliente no ve esta lista.
+                </p>
+
+                <LineasEnsambleDirecto :lineas="lineas" />
+            </div>
+
             <!-- ── 3. Configuración ────────────────────────────────────────── -->
-            <div v-if="plantillaSeleccionada" class="bg-superficie rounded-2xl shadow-sm p-5 mb-4">
+            <div v-if="plantillaSeleccionada && !esDirecto" class="bg-superficie rounded-2xl shadow-sm p-5 mb-4">
                 <h2 class="text-sm font-semibold text-tinta-700 uppercase tracking-[0.12em] mb-4">3. Configuración</h2>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -619,7 +709,7 @@ onMounted(() => {
             </div>
 
             <!-- ── 4. Desglose calculado ───────────────────────────────────── -->
-            <div v-if="calculado" class="bg-superficie rounded-2xl shadow-sm p-5 mb-4">
+            <div v-if="calculado && !esDirecto" class="bg-superficie rounded-2xl shadow-sm p-5 mb-4">
                 <h2 class="text-sm font-semibold text-tinta-700 uppercase tracking-[0.12em] mb-4">4. Desglose calculado</h2>
 
                 <div class="overflow-x-auto">
@@ -651,169 +741,19 @@ onMounted(() => {
                     </table>
                 </div>
 
-                <!-- Precios por canal con márgenes de la plantilla -->
-                <div class="mt-4 pt-4 border-t border-linea grid grid-cols-3 gap-3">
-                    <div class="text-center p-3 rounded-xl transition-all"
-                        :style="margenesActuales.por_defecto === 'mayorista'
-                            ? 'background:var(--pastel-azul); border:2px solid #93C5FD;'
-                            : 'background:var(--pastel-azul);'">
-                        <p class="text-xs mb-1"
-                           :style="margenesActuales.por_defecto === 'mayorista' ? 'color:var(--texto-azul); font-weight:500;' : 'color:var(--texto-3);'">
-                            Mayorista ({{ margenesActuales.mayorista }}%)
-                        </p>
-                        <p class="text-base font-semibold"
-                           :style="margenesActuales.por_defecto === 'mayorista' ? 'color:var(--texto-azul);' : 'color:var(--texto);'">
-                            ${{ formatCOP(precioMayor) }}
-                        </p>
-                    </div>
-                    <div class="text-center p-3 rounded-xl transition-all"
-                        :style="margenesActuales.por_defecto === 'distribuidor' || !['mayorista','cliente_final'].includes(margenesActuales.por_defecto)
-                            ? 'background:var(--pastel-azul); border:2px solid #93C5FD;'
-                            : 'background:var(--pastel-azul);'">
-                        <p class="text-xs mb-1"
-                           :style="margenesActuales.por_defecto === 'distribuidor' || !['mayorista','cliente_final'].includes(margenesActuales.por_defecto) ? 'color:var(--texto-azul); font-weight:500;' : 'color:var(--texto-3);'">
-                            Distribuidor ({{ margenesActuales.distribuidor }}%)
-                        </p>
-                        <p class="text-base font-semibold"
-                           :style="margenesActuales.por_defecto === 'distribuidor' || !['mayorista','cliente_final'].includes(margenesActuales.por_defecto) ? 'color:var(--texto-azul);' : 'color:var(--texto);'">
-                            ${{ formatCOP(precioDist) }}
-                        </p>
-                    </div>
-                    <div class="text-center p-3 rounded-xl transition-all"
-                        :style="margenesActuales.por_defecto === 'cliente_final'
-                            ? 'background:var(--pastel-azul); border:2px solid #93C5FD;'
-                            : 'background:var(--pastel-verde);'">
-                        <p class="text-xs mb-1"
-                           :style="margenesActuales.por_defecto === 'cliente_final' ? 'color:var(--texto-azul); font-weight:500;' : 'color:var(--texto-3);'">
-                            Cliente final ({{ margenesActuales.cliente_final }}%)
-                        </p>
-                        <p class="text-base font-semibold"
-                           :style="margenesActuales.por_defecto === 'cliente_final' ? 'color:var(--texto-azul);' : 'color:var(--texto);'">
-                            ${{ formatCOP(precioFinal) }}
-                        </p>
-                    </div>
-                </div>
             </div>
 
-            <!-- Comisión Vendedor por Canal (solo cuando está calculado) -->
-            <div v-if="calculado" class="bg-superficie rounded-2xl shadow-sm overflow-hidden">
-                <div class="px-5 py-3 border-b border-linea flex items-center justify-between">
-                    <h3 class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">Comisión Vendedor por Canal</h3>
-                    <button type="button" @click="sugerirComisionesEnsamble"
-                        class="text-xs text-[var(--marca)] border border-[var(--marca)] rounded-lg px-3 py-1.5 hover:bg-blue-50 transition-colors flex items-center gap-1.5">
-                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
-                        </svg>
-                        ▷ Sugerir comisiones
-                    </button>
-                </div>
-                <div class="p-5 space-y-4">
-
-                    <!-- Mayorista — sin comisión -->
-                    <div class="bg-blue-50 border border-blue-100 rounded-lg p-3">
-                        <div class="flex items-center gap-2">
-                            <span class="text-xs font-semibold text-blue-700 uppercase">Mayorista</span>
-                            <span class="bg-blue-100 text-blue-600 text-xs px-2 py-0.5 rounded-full">Sin comisión · Precio fijo</span>
-                        </div>
-                        <p class="text-xs text-blue-400 mt-1">El precio mayorista (${{ formatCOP(precioMayor) }}) es la utilidad mínima garantizada de la empresa. No hay comisión para el vendedor en este canal.</p>
-                    </div>
-
-                    <!-- Distribuidor -->
-                    <div class="border border-[var(--marca-borde)] rounded-lg p-3 space-y-3 bg-[var(--marca-suave)]/30">
-                        <div class="flex items-center justify-between flex-wrap gap-1">
-                            <span class="text-xs font-semibold text-[var(--marca)] uppercase">Distribuidor</span>
-                            <span class="text-xs text-[var(--marca)]">Base: {{ formatCOP(precioDist) }} · Mín: {{ formatCOP(precioMayor) }} · Desc. máx: {{ descuentoMaxRealDistribuidor }}%</span>
-                        </div>
-                        <div class="grid grid-cols-2 gap-3">
-                            <div>
-                                <label class="text-xs text-tinta-400 mb-1 block">Comisión mínima (%)</label>
-                                <div class="flex items-center gap-2">
-                                    <input type="number" step="0.1" min="0" v-model.number="comisionMinDistribuidor" @input="validarComisiones"
-                                        class="w-24 border border-tinta-200 rounded-lg px-2 py-1.5 text-sm focus:ring-2 focus:ring-[var(--marca-suave)] focus:outline-none" />
-                                    <span class="text-xs text-tinta-300">= {{ formatCOP(excedenteDistribuidor * comisionMinDistribuidor / 100) }}</span>
-                                </div>
-                            </div>
-                            <div>
-                                <label class="text-xs text-tinta-400 mb-1 block">Comisión máxima (%)</label>
-                                <div class="flex items-center gap-2">
-                                    <input type="number" step="0.1" min="0" v-model.number="comisionMaxDistribuidor" @input="validarComisiones"
-                                        class="w-24 border border-tinta-200 rounded-lg px-2 py-1.5 text-sm focus:ring-2 focus:ring-[var(--marca-suave)] focus:outline-none" />
-                                    <span class="text-xs text-tinta-300">= {{ formatCOP(excedenteDistribuidor * comisionMaxDistribuidor / 100) }}</span>
-                                </div>
-                            </div>
-                        </div>
-                        <p v-if="comisionMinDistribuidor > 0 && comisionMaxDistribuidor > 0" class="text-xs text-[var(--marca)]">
-                            ✅ Vendedor gana entre {{ formatCOP(excedenteDistribuidor * comisionMinDistribuidor / 100) }} y {{ formatCOP(excedenteDistribuidor * comisionMaxDistribuidor / 100) }}
-                        </p>
-                    </div>
-
-                    <!-- Cliente Final -->
-                    <div class="border border-green-100 rounded-lg p-3 space-y-3 bg-green-50/30">
-                        <div class="flex items-center justify-between flex-wrap gap-1">
-                            <div class="flex items-center gap-2">
-                                <span class="text-xs font-semibold text-green-700 uppercase">Cliente Final</span>
-                                <span class="bg-green-100 text-green-600 text-xs px-2 py-0.5 rounded-full">⭐ Mayor incentivo</span>
-                            </div>
-                            <span class="text-xs text-green-500">Base: {{ formatCOP(precioFinal) }} · Desc. máx: {{ descuentoMaxRealClienteFinal }}%</span>
-                        </div>
-                        <div class="grid grid-cols-2 gap-3">
-                            <div>
-                                <label class="text-xs text-tinta-400 mb-1 block">
-                                    Comisión mínima (%)
-                                    <span class="text-orange-500 ml-1">← mín = máx distribuidor ({{ comisionMaxDistribuidor }}%)</span>
-                                </label>
-                                <div class="flex items-center gap-2">
-                                    <input type="number" step="0.1" :min="comisionMaxDistribuidor" v-model.number="comisionMinClienteFinal" @input="validarComisiones"
-                                        :class="['w-24 border rounded-lg px-2 py-1.5 text-sm focus:ring-2 focus:outline-none',
-                                            errorComisionClienteFinal ? 'border-red-400 focus:ring-red-300' : 'border-tinta-200 focus:ring-green-300']" />
-                                    <span class="text-xs text-tinta-300">= {{ formatCOP(excedenteClienteFinal * comisionMinClienteFinal / 100) }}</span>
-                                </div>
-                            </div>
-                            <div>
-                                <label class="text-xs text-tinta-400 mb-1 block">Comisión máxima (%)</label>
-                                <div class="flex items-center gap-2">
-                                    <input type="number" step="0.1" :min="comisionMinClienteFinal" v-model.number="comisionMaxClienteFinal" @input="validarComisiones"
-                                        :class="['w-24 border rounded-lg px-2 py-1.5 text-sm focus:ring-2 focus:outline-none',
-                                            errorComisionClienteFinal ? 'border-red-400 focus:ring-red-300' : 'border-tinta-200 focus:ring-green-300']" />
-                                    <span class="text-xs text-tinta-300">= {{ formatCOP(excedenteClienteFinal * comisionMaxClienteFinal / 100) }}</span>
-                                </div>
-                            </div>
-                        </div>
-                        <p v-if="errorComisionClienteFinal" class="text-xs text-red-600">
-                            ⚠️ La comisión mínima de cliente final debe ser ≥ comisión máxima de distribuidor ({{ comisionMaxDistribuidor }}%)
-                        </p>
-                        <p v-else-if="comisionMinClienteFinal > 0 && comisionMaxClienteFinal > 0" class="text-xs text-green-600">
-                            ✅ Vendedor gana entre {{ formatCOP(excedenteClienteFinal * comisionMinClienteFinal / 100) }} y {{ formatCOP(excedenteClienteFinal * comisionMaxClienteFinal / 100) }} (más que en distribuidor ✓)
-                        </p>
-                    </div>
-
-                    <!-- Comparativa -->
-                    <div v-if="comisionMaxDistribuidor > 0 && comisionMaxClienteFinal > 0" class="bg-tinta-50 rounded-lg p-3">
-                        <p class="text-xs font-medium text-tinta-500 mb-2">📊 Comparativa de incentivos por canal</p>
-                        <div class="space-y-1.5">
-                            <div class="flex items-center gap-2">
-                                <span class="text-xs text-tinta-400 w-28">Mayorista:</span>
-                                <div class="flex-1 bg-tinta-200 rounded-full h-1.5"></div>
-                                <span class="text-xs text-tinta-300 w-20 text-right">Sin comisión</span>
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <span class="text-xs text-[var(--marca)] w-28">Distribuidor:</span>
-                                <div class="flex-1 bg-tinta-200 rounded-full h-1.5">
-                                    <div class="bg-[var(--marca)] h-1.5 rounded-full" :style="`width: ${Math.min(comisionMaxDistribuidor * 5, 100)}%`"></div>
-                                </div>
-                                <span class="text-xs text-[var(--marca)] w-20 text-right font-medium">máx {{ comisionMaxDistribuidor }}%</span>
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <span class="text-xs text-green-600 w-28">Cliente final:</span>
-                                <div class="flex-1 bg-tinta-200 rounded-full h-1.5">
-                                    <div class="bg-green-500 h-1.5 rounded-full" :style="`width: ${Math.min(comisionMaxClienteFinal * 5, 100)}%`"></div>
-                                </div>
-                                <span class="text-xs text-green-600 w-20 text-right font-medium">máx {{ comisionMaxClienteFinal }}%</span>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
+            <!-- ═══ Precios y comisiones por canal ════════════════════ -->
+            <!-- El mismo componente que usan crear y editar producto. Antes aquí había tres
+                 cajas fijas —mayorista, distribuidor, cliente final— que escribían solo las
+                 columnas antiguas: una empresa con cuatro canales no tenía dónde poner el
+                 cuarto, y la cotización lee de las filas por canal. -->
+            <div class="space-y-4 mb-4">
+                <PreciosPorCanal
+                    :canales="canales"
+                    :precio-costo="totalCosto"
+                    :costo-editable="false"
+                />
             </div>
 
             <!-- Botones -->
@@ -822,7 +762,7 @@ onMounted(() => {
                     class="flex-1 py-3 rounded-xl border border-linea text-sm font-medium text-tinta-500 hover:bg-tinta-50 transition-colors">
                     Cancelar
                 </button>
-                <button @click="guardar" :disabled="guardando || !calculado"
+                <button @click="guardar" :disabled="guardando || !puedeGuardar"
                     class="flex-1 py-3 rounded-xl text-sm font-semibold text-white disabled:opacity-60 transition-colors"
                     style="background:var(--marca);">
                     {{ guardando ? 'Guardando...' : (esEdicion ? 'Actualizar ensamble' : 'Guardar ensamble') }}

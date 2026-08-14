@@ -35,13 +35,23 @@ class TrabajoAutoGeneratorService
         }
 
         $ensamble = Ensamble::with('plantilla')->find($item->ensamble_id);
-        $plantilla = $ensamble?->plantilla;
 
-        if (! $plantilla) {
+        if (! $ensamble) {
             return;
         }
 
-        $template = $plantilla->obtenerOCrearTemplateTrabajo();
+        // Un ensamble directo no tiene plantilla: su flujo de producción cuelga de él mismo.
+        // Antes esto se devolvía sin hacer nada cuando faltaba la plantilla, y con los
+        // ensambles directos eso dejaría la OP con cero trabajos: sin QR para el operario,
+        // sin avance, y quieta en `confirmada` sin nada que explique por qué.
+        $template = $ensamble->esDirecto()
+            ? $ensamble->obtenerOCrearTemplateTrabajo()
+            : $ensamble->plantilla?->obtenerOCrearTemplateTrabajo();
+
+        if (! $template) {
+            return;
+        }
+
         $pasos = $template->pasos()->orderBy('orden')->get();
 
         $variables = $item->variables_instancia ?? [];

@@ -144,16 +144,23 @@ Consecuencia práctica: la etiqueta y la clave pueden dejar de parecerse, y eso
 está bien. Solo importa en un caso — **el importador de clientes por CSV usa la
 clave, no la etiqueta.**
 
-## Los ensambles a medida
+## Los ensambles
 
-Un ensamble cotizado por medidas no tiene precios guardados: se calculan al
-vuelo desde el costo de sus componentes y el margen de su **plantilla**.
+Desde el 14 ago 2026 **un ensamble tiene precio por canal igual que un producto**:
+la misma tarjeta, los mismos márgenes, las mismas comisiones. Antes tenía tres
+cajas fijas que escribían solo las columnas antiguas, así que un canal creado por
+la empresa no tenía dónde llenarse y la cotización no lo encontraba.
 
-Las plantillas hoy llevan margen para los tres canales originales. Si creas un
-canal nuevo, sus ensambles se calculan con un margen razonable —el más bajo si
-es el canal base, el más alto si es el precio público— hasta que las plantillas
-puedan llevar un margen por canal. Los productos sí toman el margen exacto que
-le pongas a cada canal.
+Al crear un ensamble desde una plantilla, los márgenes de la plantilla **siembran**
+los de los canales: el canal base recibe el de mayorista, el que sea precio público
+el de cliente final, y el primer canal intermedio el de distribuidor. Las
+plantillas todavía llevan margen solo para esos tres papeles; los canales
+adicionales arrancan con el margen sugerido que les pusiste aquí, y se ajustan
+ensamble por ensamble.
+
+Un ensamble cotizado **por medidas** (con variables de instancia) sigue
+calculándose al vuelo: sus materiales dependen de las medidas de ese cliente, así
+que el precio se rearma con el costo de esa instancia.
 
 ## Cuando un precio no sale como debe
 
