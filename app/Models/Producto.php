@@ -195,6 +195,35 @@ class Producto extends Model
         return (float) $this->stocks()->sum('cantidad');
     }
 
+    /**
+     * El stock contando solo ciertas bodegas.
+     *
+     * Lo que hace falta para no mezclar sedes: `stockTotal()` suma todas las bodegas del
+     * sistema, y en una empresa con dos sucursales eso le dice a quien cotiza que hay once
+     * unidades cuando en su bodega hay tres. El inventario ya filtraba así; el buscador de
+     * productos no, y es el que se usa al cotizar.
+     *
+     * Una lista **vacía** significa «no se pudo determinar la sede» —no hay usuario, o no
+     * tiene bodegas asignadas—, y entonces cuenta todas. Devolver cero ahí sería peor que
+     * el total: pintaría todo el catálogo en rojo como si no hubiera nada, y quien cotiza
+     * dejaría de vender lo que sí tiene. Que el número incluya otra sede es la deuda
+     * conocida del filtrado opt-in; decir «no hay» cuando hay es un error nuevo.
+     *
+     * @param  array<int, int>  $bodegaIds
+     */
+    public function stockEnBodegas(array $bodegaIds): float
+    {
+        if ($bodegaIds === []) {
+            return $this->stockTotal();
+        }
+
+        if ($this->es_padre) {
+            return (float) $this->variantes()->get()->sum(fn ($v) => $v->stockEnBodegas($bodegaIds));
+        }
+
+        return (float) $this->stocks()->whereIn('bodega_id', $bodegaIds)->sum('cantidad');
+    }
+
     public function stockEnBodega(int $bodegaId): float
     {
         return (float) ($this->stocks()->where('bodega_id', $bodegaId)->value('cantidad') ?? 0);

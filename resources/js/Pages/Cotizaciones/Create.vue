@@ -4,6 +4,7 @@ import { useForm, router, usePage } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
 import EditorTexto from '@/Components/EditorTexto.vue'
 import ResultadosBuscadorProducto from '@/Components/ResultadosBuscadorProducto.vue'
+import EtiquetaStock from '@/Components/EtiquetaStock.vue'
 import ModalNuevoCliente from '@/Components/ModalNuevoCliente.vue'
 import { useUnsavedChanges } from '@/composables/useUnsavedChanges'
 
@@ -117,6 +118,11 @@ const form = useForm({
         descuento_max_cliente_final: parseFloat(i.producto?.descuento_max_cliente_final  ?? i.ensamble?.descuento_max_cliente_final  ?? 0),
         descuento_max_distribuidor:  parseFloat(i.producto?.descuento_max_distribuidor   ?? i.ensamble?.descuento_max_distribuidor   ?? 0),
         descuento_max_mayorista:     parseFloat(i.producto?.descuento_max_mayorista      ?? i.ensamble?.descuento_max_mayorista      ?? 0),
+        // El stock de hoy, que lo calcula el servidor al abrir. No se guarda en el ítem:
+        // es una ayuda de pantalla, y el inventario de verdad se comprueba al despachar.
+        stock_disponible: i.stock_disponible ?? null,
+        stock_minimo:     Number(i.stock_minimo) || 0,
+        inventariable:    i.inventariable !== false,
     })) ?? [],
 })
 
@@ -373,6 +379,12 @@ function agregarItemDesdeProducto(prod) {
         descuento_max_cliente_final: parseFloat(prod.descuento_max_cliente_final) || 0,
         descuento_max_distribuidor:  parseFloat(prod.descuento_max_distribuidor)  || 0,
         descuento_max_mayorista:     parseFloat(prod.descuento_max_mayorista)     || 0,
+        // El stock que había al elegirlo, para poder avisar si la cantidad cotizada lo
+        // pasa. No se guarda en el ítem: es una ayuda de pantalla, y el inventario de
+        // verdad se comprueba al despachar.
+        stock_disponible: Number(prod.stock_total) || 0,
+        stock_minimo:     Number(prod.stock_minimo) || 0,
+        inventariable:    prod.inventariable !== false,
     })
     cerrarModal()
 }
@@ -964,9 +976,22 @@ function submit() {
 
                                 <div class="grid grid-cols-2 md:grid-cols-4 gap-2 mt-2">
                                     <div>
-                                        <label class="block text-xs text-tinta-400 mb-1">Cantidad</label>
+                                        <div class="flex items-center justify-between gap-1 mb-1">
+                                            <label class="block text-xs text-tinta-400">Cantidad</label>
+                                            <!-- Lo que queda, al lado de lo que se pide: si la
+                                                 cantidad pasa el stock lo dice ahí mismo, sin
+                                                 tener que abrir el inventario en otra pestaña. -->
+                                            <EtiquetaStock
+                                                :stock="item.stock_disponible"
+                                                :minimo="item.stock_minimo"
+                                                :inventariable="item.inventariable"
+                                                :pedida="item.cantidad"
+                                            />
+                                        </div>
                                         <input v-model.number="item.cantidad" type="number" step="0.001" min="0"
-                                            class="w-full rounded-lg border border-tinta-200 px-2 py-1.5 text-sm text-right focus:outline-none"/>
+                                            :class="['w-full rounded-lg border px-2 py-1.5 text-sm text-right focus:outline-none',
+                                                (item.inventariable || Number(item.stock_disponible) !== 0) && item.stock_disponible !== null && Number(item.cantidad) > Number(item.stock_disponible)
+                                                    ? 'border-red-300 bg-red-50' : 'border-tinta-200']"/>
                                     </div>
                                     <div>
                                         <label class="block text-xs text-tinta-400 mb-1">Precio unit.</label>
@@ -1221,6 +1246,17 @@ function submit() {
                                     <div class="text-right shrink-0">
                                         <p class="text-sm font-semibold" style="color:var(--marca)">${{ formatCOP(getPrecioSegunCanal(producto)) }}</p>
                                         <p class="text-xs text-tinta-300">{{ canalCliente?.etiqueta ?? 'sin canal' }}</p>
+                                        <!-- Cuántas quedan. Esta pantalla mostraba solo el
+                                             precio: se cotizaba sin saber si había con qué
+                                             cumplir, y el faltante aparecía en producción. -->
+                                        <div class="mt-1 flex justify-end">
+                                            <EtiquetaStock
+                                                :stock="producto.stock_total"
+                                                :minimo="producto.stock_minimo"
+                                                :inventariable="producto.inventariable !== false"
+                                                completo
+                                            />
+                                        </div>
                                     </div>
                                 </template>
                             </ResultadosBuscadorProducto>

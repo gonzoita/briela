@@ -1,5 +1,6 @@
 <script setup>
 import { computed } from 'vue'
+import EtiquetaStock from '@/Components/EtiquetaStock.vue'
 
 const props = defineProps({
     resultados: { type: Array, default: () => [] },
@@ -51,9 +52,13 @@ const filas = computed(() => {
                         {{ fila.producto.valor_variante }}
                     </span>
                     <slot name="extra" :producto="fila.producto">
-                        <span v-if="fila.producto.stock_total !== undefined" class="text-xs font-semibold text-green-600">
-                            {{ fila.producto.stock_total }}
-                        </span>
+                        <!-- El stock iba siempre en verde, dijera 200 o dijera 1. Un número
+                             verde se lee como «hay». -->
+                        <EtiquetaStock
+                            :stock="fila.producto.stock_total"
+                            :minimo="fila.producto.stock_minimo"
+                            :inventariable="fila.producto.inventariable !== false"
+                        />
                     </slot>
                 </div>
             </button>

@@ -154,6 +154,42 @@ todas las cotizaciones nuevas»**. Pide permiso de configuración, porque cambia
 nacen todas. **Las cotizaciones ya hechas no se tocan:** cada una guardó su texto
 cuando se creó.
 
+## Cuántas unidades quedan *(nuevo 14 ago 2026)*
+
+Al buscar un producto para cotizar, y al lado de la cantidad de cada ítem, sale
+**cuántas unidades hay disponibles**, con color:
+
+| Color | Cuándo |
+|---|---|
+| 🟢 verde | hay existencias por encima del mínimo |
+| 🟡 ámbar | quedan hasta el mínimo definido en el producto |
+| 🔴 rojo | «sin stock»: no hay nada que despachar |
+
+El ámbar solo aparece si el producto tiene un **stock mínimo** puesto: sin mínimo no
+hay forma de saber si cuatro unidades es poco o es lo normal, y el sistema no lo
+inventa. Se pone en el producto, en Inventario.
+
+Si la cantidad que se está cotizando **pasa** lo disponible, la casilla se pinta y
+sale «⚠ no alcanza». No bloquea nada: a veces se cotiza a sabiendas de que hay que
+fabricar o comprar. Solo evita prometerle al cliente unidades que no existen y que el
+faltante aparezca recién en producción.
+
+Antes el buscador mostraba el stock **siempre en verde**, dijera 200 o dijera 1 — y un
+número verde se lee como «hay». En la pantalla de cotizar no se mostraba nada: solo el
+precio.
+
+Dos cosas que conviene saber:
+
+- El número es el de las **bodegas de la sede activa**, igual que el inventario. Si no
+  se puede determinar la sede, cuenta todas: decir «no hay» cuando hay sería peor.
+- Al reabrir una cotización guardada se muestra el stock de **hoy**, no el del día en
+  que se cotizó. El ítem no guarda stock: es una ayuda de pantalla, y el inventario de
+  verdad se comprueba al despachar.
+- Un producto marcado como no inventariable no muestra nada… **salvo que tenga
+  existencias**. El interruptor de inventario del formulario de productos nace apagado,
+  así que hay productos físicos con unidades y la marca en falso; callar ahí escondería
+  el dato justo donde hace falta.
+
 ## Qué se imprime debajo de cada ítem
 
 El **resumen técnico** del producto, no su ficha completa. Son dos o tres líneas con

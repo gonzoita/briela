@@ -211,7 +211,11 @@ class CotizacionController extends Controller
         $cotizacion->load(['cliente.contactos', 'contacto', 'items.producto', 'items.configuracionPuerta', 'items.ensamble']);
 
         return Inertia::render('Cotizaciones/Create', [
-            'cotizacion'          => $cotizacion,
+            // Los ítems van con el stock de HOY, no con el que había cuando se cotizó: una
+            // cotización se reabre días después, y lo que importa entonces es si todavía
+            // hay con qué cumplirla. Los ítems no guardan stock — es una ayuda de pantalla,
+            // y el inventario de verdad se comprueba al despachar.
+            'cotizacion'          => $this->conStockActual($cotizacion),
             'responsables'        => User::whereIn('rol', ['administrador', 'jefe_produccion', 'vendedor'])
                 ->where('activo', true)->get(['id', 'name']),
             'usuario_actual'      => auth()->id(),
@@ -238,6 +242,44 @@ class CotizacionController extends Controller
                 ->get(['id', 'tipo', 'valor', 'etiqueta', 'color', 'define_precio'])
                 ->groupBy('tipo'),
         ]);
+    }
+
+    /**
+     * Agrega a cada ítem el stock actual de su producto, para la etiqueta de disponibles.
+     *
+     * Se hace con una sola consulta para todos los productos del documento: preguntarle el
+     * stock a cada ítem por separado son veinte consultas en una cotización de veinte
+     * líneas, y esta pantalla ya carga bastante.
+     */
+    private function conStockActual(Cotizacion $cotizacion): array
+    {
+        $datos = $cotizacion->toArray();
+
+        $ids = collect($cotizacion->items)->pluck('producto_id')->filter()->unique();
+
+        if ($ids->isEmpty()) {
+            return $datos;
+        }
+
+        $productos = \App\Models\Producto::whereIn('id', $ids)->get(['id', 'stock_minimo', 'inventariable', 'es_padre'])
+            ->keyBy('id');
+
+        // Mismo criterio que el buscador y el inventario: solo las bodegas de esta sede.
+        $bodegas = \App\Support\ContextoSede::idsBodegasVisibles();
+
+        $datos['items'] = collect($datos['items'])->map(function (array $item) use ($productos, $bodegas) {
+            $producto = $item['producto_id'] ? $productos->get($item['producto_id']) : null;
+
+            // Va el dato crudo, sin decidir aquí si se muestra: esa regla vive en
+            // `EtiquetaStock.vue`, y tenerla en dos sitios es tenerla en ninguno.
+            $item['stock_disponible'] = $producto ? $producto->stockEnBodegas($bodegas) : null;
+            $item['stock_minimo']     = (float) ($producto->stock_minimo ?? 0);
+            $item['inventariable']    = (bool) ($producto->inventariable ?? false);
+
+            return $item;
+        })->all();
+
+        return $datos;
     }
 
     public function update(Request $request, Cotizacion $cotizacion): RedirectResponse

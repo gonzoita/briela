@@ -545,6 +545,10 @@ class ProductoController extends Controller
     {
         $q = $request->query('q', '');
 
+        // Solo el stock de las bodegas visibles en la sede activa: el inventario de otra
+        // sede no es el de esta, y quien cotiza necesita saber con qué cuenta él.
+        $bodegas = \App\Support\ContextoSede::idsBodegasVisibles();
+
         $productos = Producto::with(['imagenes', 'padre:id,nombre'])
             ->seleccionables()
             ->where('activo', true)
@@ -558,7 +562,7 @@ class ProductoController extends Controller
             })
             ->limit(20)
             ->get()
-            ->map(function ($p) {
+            ->map(function ($p) use ($bodegas) {
                 $img = $p->imagenes->firstWhere('es_principal', true) ?? $p->imagenes->first();
                 return [
                     'id'                   => $p->id,
@@ -569,7 +573,11 @@ class ProductoController extends Controller
                     'padre_nombre'         => $p->padre?->nombre,
                     'atributo_variante'    => $p->padre?->atributo_variante,
                     'valor_variante'       => $p->valor_variante,
-                    'stock_total'          => $p->stockTotal(),
+                    'stock_total'          => $p->stockEnBodegas($bodegas),
+                    // El mínimo y si lleva inventario: sin los dos, quien cotiza ve un
+                    // número sin saber si es poco. Un servicio no tiene stock que mirar.
+                    'stock_minimo'         => (float) ($p->stock_minimo ?? 0),
+                    'inventariable'        => (bool) $p->inventariable,
                     'precio_costo'                => (float) $p->precio_costo,
                     'precio_mayorista'            => (float) $p->precio_mayorista,
                     'precio_distribuidor'         => (float) $p->precio_distribuidor,
