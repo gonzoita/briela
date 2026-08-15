@@ -162,23 +162,23 @@ async function enviar(texto = null) {
         <div class="max-w-2xl mx-auto flex flex-col" style="height: calc(100vh - 190px);">
 
             <!-- Avisos de configuración -->
-            <div v-if="!iaConfigurada" class="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-3">
-                <p class="text-sm text-amber-800 font-medium">La IA todavía no está configurada.</p>
-                <p class="text-xs text-amber-700 mt-1">
+            <div v-if="!iaConfigurada" class="bg-pastel-ambar border border-borde-aviso-ambar rounded-xl p-4 mb-3">
+                <p class="text-sm text-aviso-ambar font-medium">La IA todavía no está configurada.</p>
+                <p class="text-xs text-aviso-ambar mt-1">
                     Falta la credencial de OpenRouter en el servidor. Mientras tanto el asistente no puede responder.
                 </p>
             </div>
-            <div v-else-if="!tienePerfil" class="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-3">
-                <p class="text-sm text-amber-800 font-medium">El perfil de marca está vacío.</p>
+            <div v-else-if="!tienePerfil" class="bg-pastel-ambar border border-borde-aviso-ambar rounded-xl p-4 mb-3">
+                <p class="text-sm text-aviso-ambar font-medium">El perfil de marca está vacío.</p>
                 <a href="/configuracion/perfil-marca" @click.prevent="router.visit('/configuracion/perfil-marca')"
-                    class="text-xs font-semibold text-amber-900 underline">Llenarlo ahora →</a>
+                    class="text-xs font-semibold text-aviso-ambar underline">Llenarlo ahora →</a>
             </div>
 
             <!-- Barra de la conversación -->
             <div v-if="mensajes.length" class="flex items-center justify-between mb-2">
                 <p class="text-xs text-tinta-300">Conversación guardada</p>
                 <button type="button" @click="limpiar"
-                    class="text-xs font-medium text-tinta-400 hover:text-red-600">
+                    class="text-xs font-medium text-tinta-400 hover:text-aviso-rojo">
                     Borrar conversación
                 </button>
             </div>
@@ -247,7 +247,7 @@ async function enviar(texto = null) {
                     </div>
                 </div>
 
-                <p v-if="error" class="text-xs text-red-600 text-center">{{ error }}</p>
+                <p v-if="error" class="text-xs text-aviso-rojo text-center">{{ error }}</p>
             </div>
 
             <!-- Entrada -->
@@ -256,7 +256,7 @@ async function enviar(texto = null) {
                     <p v-if="dictando" class="text-xs" style="color:var(--marca);">
                         Escuchando… habla y se envía sola al terminar.
                     </p>
-                    <p v-else-if="errorVoz" class="text-xs text-red-600">{{ errorVoz }}</p>
+                    <p v-else-if="errorVoz" class="text-xs text-aviso-rojo">{{ errorVoz }}</p>
                     <span v-else />
 
                     <label v-if="soportaVoz" class="flex items-center gap-1.5 cursor-pointer shrink-0">

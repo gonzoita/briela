@@ -406,7 +406,7 @@ async function eliminarPregunta(pregunta, target = evaluacion) {
                             <button @click="moverModulo(modulo, 1)" :disabled="mIdx === curso.modulos.length - 1" class="w-6 h-6 rounded-lg flex items-center justify-center text-tinta-300 hover:bg-tinta-100 disabled:opacity-30">
                                 <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
                             </button>
-                            <button @click="eliminarModulo(modulo)" class="w-6 h-6 rounded-lg flex items-center justify-center text-tinta-300 hover:text-red-600 hover:bg-red-50">
+                            <button @click="eliminarModulo(modulo)" class="w-6 h-6 rounded-lg flex items-center justify-center text-tinta-300 hover:text-aviso-rojo hover:bg-pastel-rojo">
                                 <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                             </button>
                         </div>
@@ -427,7 +427,7 @@ async function eliminarPregunta(pregunta, target = evaluacion) {
                                     <button @click="moverLeccion(modulo, leccion, 1)" :disabled="lIdx === modulo.lecciones.length - 1" class="w-6 h-6 rounded-lg flex items-center justify-center text-tinta-300 hover:bg-tinta-100 disabled:opacity-30">
                                         <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
                                     </button>
-                                    <button @click="eliminarLeccion(modulo, leccion)" class="w-6 h-6 rounded-lg flex items-center justify-center text-tinta-300 hover:text-red-600 hover:bg-red-50">
+                                    <button @click="eliminarLeccion(modulo, leccion)" class="w-6 h-6 rounded-lg flex items-center justify-center text-tinta-300 hover:text-aviso-rojo hover:bg-pastel-rojo">
                                         <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                                     </button>
                                 </div>
@@ -467,7 +467,7 @@ async function eliminarPregunta(pregunta, target = evaluacion) {
                                 <input v-model="modulo.evalCfg.requiere_revision_manual" type="checkbox" class="rounded" />
                                 Requiere revisión manual (tiene preguntas abiertas)
                             </label>
-                            <p v-if="modulo.errorEvaluacion" class="text-xs text-red-500">{{ modulo.errorEvaluacion }}</p>
+                            <p v-if="modulo.errorEvaluacion" class="text-xs text-aviso-rojo">{{ modulo.errorEvaluacion }}</p>
                             <button @click="guardarEvaluacionModulo(modulo)" :disabled="modulo.guardandoEvaluacion"
                                 class="w-full py-2.5 rounded-xl text-sm font-semibold text-white disabled:opacity-50" style="background:var(--marca);">
                                 {{ modulo.guardandoEvaluacion ? 'Guardando...' : (modulo.evalCfg.id ? 'Actualizar configuración' : 'Crear evaluación de módulo') }}
@@ -483,12 +483,12 @@ async function eliminarPregunta(pregunta, target = evaluacion) {
                                                 {{ pregunta.tipo === 'opcion_multiple' ? 'Opción múltiple' : 'Respuesta abierta (revisión manual)' }}
                                             </p>
                                             <ul v-if="pregunta.tipo === 'opcion_multiple'" class="mt-2 space-y-0.5">
-                                                <li v-for="o in pregunta.opciones" :key="o.id" class="text-xs" :class="o.es_correcta ? 'text-green-700 font-semibold' : 'text-tinta-400'">
+                                                <li v-for="o in pregunta.opciones" :key="o.id" class="text-xs" :class="o.es_correcta ? 'text-aviso-verde font-semibold' : 'text-tinta-400'">
                                                     {{ o.es_correcta ? '✓' : '·' }} {{ o.texto }}
                                                 </li>
                                             </ul>
                                         </div>
-                                        <button @click.stop="eliminarPregunta(pregunta, modulo.evalCfg)" class="w-6 h-6 rounded-lg flex items-center justify-center text-tinta-300 hover:text-red-600 hover:bg-red-50 shrink-0">
+                                        <button @click.stop="eliminarPregunta(pregunta, modulo.evalCfg)" class="w-6 h-6 rounded-lg flex items-center justify-center text-tinta-300 hover:text-aviso-rojo hover:bg-pastel-rojo shrink-0">
                                             <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                                         </button>
                                     </div>
@@ -513,7 +513,7 @@ async function eliminarPregunta(pregunta, target = evaluacion) {
                         + Módulo
                     </button>
                 </div>
-                <p v-if="errorModulo" class="text-xs text-red-500 mt-2">{{ errorModulo }}</p>
+                <p v-if="errorModulo" class="text-xs text-aviso-rojo mt-2">{{ errorModulo }}</p>
             </div>
 
             <!-- Evaluación -->
@@ -546,7 +546,7 @@ async function eliminarPregunta(pregunta, target = evaluacion) {
                     <input v-model="evaluacion.requiere_revision_manual" type="checkbox" class="rounded" />
                     Requiere revisión manual (tiene preguntas abiertas)
                 </label>
-                <p v-if="errorEvaluacion" class="text-xs text-red-500">{{ errorEvaluacion }}</p>
+                <p v-if="errorEvaluacion" class="text-xs text-aviso-rojo">{{ errorEvaluacion }}</p>
                 <button @click="guardarEvaluacion" :disabled="guardandoEvaluacion"
                     class="w-full py-2.5 rounded-xl text-sm font-semibold text-white disabled:opacity-50" style="background:var(--marca);">
                     {{ guardandoEvaluacion ? 'Guardando...' : (evaluacion.id ? 'Actualizar configuración' : 'Crear evaluación') }}
@@ -563,12 +563,12 @@ async function eliminarPregunta(pregunta, target = evaluacion) {
                                 {{ pregunta.tipo === 'opcion_multiple' ? 'Opción múltiple' : 'Respuesta abierta (revisión manual)' }}
                             </p>
                             <ul v-if="pregunta.tipo === 'opcion_multiple'" class="mt-2 space-y-0.5">
-                                <li v-for="o in pregunta.opciones" :key="o.id" class="text-xs" :class="o.es_correcta ? 'text-green-700 font-semibold' : 'text-tinta-400'">
+                                <li v-for="o in pregunta.opciones" :key="o.id" class="text-xs" :class="o.es_correcta ? 'text-aviso-verde font-semibold' : 'text-tinta-400'">
                                     {{ o.es_correcta ? '✓' : '·' }} {{ o.texto }}
                                 </li>
                             </ul>
                         </div>
-                        <button @click.stop="eliminarPregunta(pregunta)" class="w-6 h-6 rounded-lg flex items-center justify-center text-tinta-300 hover:text-red-600 hover:bg-red-50 shrink-0">
+                        <button @click.stop="eliminarPregunta(pregunta)" class="w-6 h-6 rounded-lg flex items-center justify-center text-tinta-300 hover:text-aviso-rojo hover:bg-pastel-rojo shrink-0">
                             <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                         </button>
                     </div>
@@ -641,7 +641,7 @@ async function eliminarPregunta(pregunta, target = evaluacion) {
                             class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[var(--marca)]" />
                     </div>
 
-                    <p v-if="modal.error" class="text-xs text-red-500">{{ modal.error }}</p>
+                    <p v-if="modal.error" class="text-xs text-aviso-rojo">{{ modal.error }}</p>
                 </div>
                 <div class="px-5 py-4 border-t border-linea flex gap-2">
                     <button @click="cerrarModal" class="flex-1 py-2.5 rounded-xl text-sm font-semibold text-tinta-500 border border-linea hover:bg-tinta-50">Cancelar</button>
@@ -682,12 +682,12 @@ async function eliminarPregunta(pregunta, target = evaluacion) {
                             <input type="radio" name="opcion-correcta" :checked="o.es_correcta" @change="marcarCorrecta(idx)" />
                             <input v-model="o.texto" type="text" placeholder="Texto de la opción"
                                 class="flex-1 border border-linea rounded-xl px-3 py-1.5 text-sm focus:outline-none focus:border-[var(--marca)]" />
-                            <button v-if="modalPregunta.form.opciones.length > 2" @click="quitarOpcion(idx)" class="text-tinta-300 hover:text-red-600 text-xs shrink-0">✕</button>
+                            <button v-if="modalPregunta.form.opciones.length > 2" @click="quitarOpcion(idx)" class="text-tinta-300 hover:text-aviso-rojo text-xs shrink-0">✕</button>
                         </div>
                         <button @click="agregarOpcion" class="text-xs font-semibold" style="color:var(--marca);">+ Opción</button>
                     </div>
 
-                    <p v-if="modalPregunta.error" class="text-xs text-red-500">{{ modalPregunta.error }}</p>
+                    <p v-if="modalPregunta.error" class="text-xs text-aviso-rojo">{{ modalPregunta.error }}</p>
                 </div>
                 <div class="px-5 py-4 border-t border-linea flex gap-2">
                     <button @click="cerrarModalPregunta" class="flex-1 py-2.5 rounded-xl text-sm font-semibold text-tinta-500 border border-linea hover:bg-tinta-50">Cancelar</button>

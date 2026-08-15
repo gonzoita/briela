@@ -76,7 +76,7 @@ function submit() {
                 <h1 class="text-xl font-semibold text-tinta-900">Registrar Mantenimiento</h1>
             </div>
 
-            <div v-if="hasChanges" class="mb-3 inline-flex items-center gap-1.5 text-xs font-medium text-amber-700 bg-amber-50 border border-amber-200 rounded-xl px-3 py-1.5">
+            <div v-if="hasChanges" class="mb-3 inline-flex items-center gap-1.5 text-xs font-medium text-aviso-ambar bg-pastel-ambar border border-borde-aviso-ambar rounded-xl px-3 py-1.5">
                 <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
                 Cambios sin guardar
             </div>
@@ -92,7 +92,7 @@ function submit() {
                             {{ e.nombre }} {{ e.ubicacion ? `(${e.ubicacion})` : '' }}
                         </option>
                     </select>
-                    <p v-if="errors.equipo_id" class="text-xs text-red-500 mt-1">{{ errors.equipo_id }}</p>
+                    <p v-if="errors.equipo_id" class="text-xs text-aviso-rojo mt-1">{{ errors.equipo_id }}</p>
                 </div>
 
                 <div class="grid grid-cols-2 gap-3">
@@ -193,7 +193,7 @@ function submit() {
                         <div class="flex items-center justify-between">
                             <span class="text-xs font-semibold text-tinta-300">Ítem {{ idx + 1 }}</span>
                             <button @click="quitarRepuesto(idx)"
-                                class="w-6 h-6 rounded-lg flex items-center justify-center text-red-400 hover:bg-red-50">
+                                class="w-6 h-6 rounded-lg flex items-center justify-center text-red-400 hover:bg-pastel-rojo">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
                                 </svg>
@@ -217,7 +217,7 @@ function submit() {
             </div>
 
             <!-- Resumen costo -->
-            <div class="bg-blue-50 rounded-2xl border border-blue-200 p-4 mb-4">
+            <div class="bg-pastel-azul rounded-2xl border border-borde-aviso-azul p-4 mb-4">
                 <div class="flex justify-between text-sm">
                     <span class="text-tinta-500">Mano de obra</span>
                     <span class="font-medium">${{ fmt(form.costo_mano_obra) }}</span>
@@ -226,7 +226,7 @@ function submit() {
                     <span class="text-tinta-500">Repuestos</span>
                     <span class="font-medium">${{ fmt(costoRepuestos) }}</span>
                 </div>
-                <div class="flex justify-between text-base font-semibold mt-2 pt-2 border-t border-blue-200">
+                <div class="flex justify-between text-base font-semibold mt-2 pt-2 border-t border-borde-aviso-azul">
                     <span>Total</span>
                     <span style="color:var(--marca);">${{ fmt(costoTotal) }}</span>
                 </div>

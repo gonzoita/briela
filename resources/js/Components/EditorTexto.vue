@@ -184,7 +184,7 @@ function toggleLink() {
         <!-- Counter (only when maxLength is set) -->
         <div v-if="maxLength" class="px-3 py-1 border-t border-linea flex justify-end bg-superficie">
             <span class="text-xs tabular-nums"
-                :class="charCount > maxLength ? 'text-red-500 font-semibold' : charCount > maxLength * 0.9 ? 'text-amber-500 font-semibold' : 'text-tinta-300'">
+                :class="charCount > maxLength ? 'text-aviso-rojo font-semibold' : charCount > maxLength * 0.9 ? 'text-aviso-ambar font-semibold' : 'text-tinta-300'">
                 {{ charCount.toLocaleString('es-CO') }}/{{ maxLength.toLocaleString('es-CO') }}
             </span>
         </div>

@@ -151,7 +151,7 @@ async function importar() {
                     existe, se crea nuevo. Puedes reimportar el mismo archivo sin miedo a
                     duplicar.
                 </p>
-                <label class="flex items-center gap-3 border-2 border-dashed border-linea rounded-xl px-4 py-3 cursor-pointer hover:border-blue-300">
+                <label class="flex items-center gap-3 border-2 border-dashed border-linea rounded-xl px-4 py-3 cursor-pointer hover:border-borde-aviso-azul">
                     <svg class="w-5 h-5 text-tinta-300 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
                     </svg>
@@ -163,31 +163,31 @@ async function importar() {
                     style="background:var(--marca);">
                     {{ importando ? 'Importando...' : 'Importar' }}
                 </button>
-                <p v-if="error" class="text-xs text-red-500 mt-2">{{ error }}</p>
+                <p v-if="error" class="text-xs text-aviso-rojo mt-2">{{ error }}</p>
             </div>
 
             <!-- Resultado -->
             <div v-if="resultado" class="bg-superficie rounded-2xl border border-linea shadow-sm p-5 mb-4">
                 <h2 class="text-sm font-semibold text-tinta-900 mb-3">Resultado</h2>
                 <div class="grid grid-cols-3 gap-3 mb-4">
-                    <div class="bg-green-50 rounded-xl p-3 text-center">
-                        <p class="text-xl font-semibold text-green-700">{{ resultado.creados }}</p>
-                        <p class="text-xs text-green-600 mt-0.5">Creados</p>
+                    <div class="bg-pastel-verde rounded-xl p-3 text-center">
+                        <p class="text-xl font-semibold text-aviso-verde">{{ resultado.creados }}</p>
+                        <p class="text-xs text-aviso-verde mt-0.5">Creados</p>
                     </div>
-                    <div class="bg-blue-50 rounded-xl p-3 text-center">
-                        <p class="text-xl font-semibold text-blue-700">{{ resultado.actualizados }}</p>
-                        <p class="text-xs text-blue-600 mt-0.5">Actualizados</p>
+                    <div class="bg-pastel-azul rounded-xl p-3 text-center">
+                        <p class="text-xl font-semibold text-aviso-azul">{{ resultado.actualizados }}</p>
+                        <p class="text-xs text-aviso-azul mt-0.5">Actualizados</p>
                     </div>
-                    <div class="bg-red-50 rounded-xl p-3 text-center">
-                        <p class="text-xl font-semibold text-red-700">{{ resultado.errores.length }}</p>
-                        <p class="text-xs text-red-600 mt-0.5">Con error</p>
+                    <div class="bg-pastel-rojo rounded-xl p-3 text-center">
+                        <p class="text-xl font-semibold text-aviso-rojo">{{ resultado.errores.length }}</p>
+                        <p class="text-xs text-aviso-rojo mt-0.5">Con error</p>
                     </div>
                 </div>
 
                 <div v-if="resultado.errores.length" class="space-y-1.5 mb-3">
                     <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">Filas con error</p>
                     <div v-for="e in resultado.errores" :key="e.fila"
-                        class="bg-red-50 rounded-lg px-3 py-2 text-xs text-red-700">
+                        class="bg-pastel-rojo rounded-lg px-3 py-2 text-xs text-aviso-rojo">
                         Fila {{ e.fila }}: {{ e.motivo }}
                     </div>
                 </div>
@@ -198,7 +198,7 @@ async function importar() {
                         Estas filas se cargaron, pero algo de su segmentación no se reconoció y se omitió.
                     </p>
                     <div v-for="(a, i) in resultado.avisos" :key="i"
-                        class="bg-amber-50 rounded-lg px-3 py-2 text-xs text-amber-800">
+                        class="bg-pastel-ambar rounded-lg px-3 py-2 text-xs text-aviso-ambar">
                         {{ a }}
                     </div>
                 </div>
@@ -210,7 +210,7 @@ async function importar() {
                         agregues una persona de contacto.
                     </p>
                     <div v-for="s in resultado.sin_contacto" :key="s.fila"
-                        class="bg-amber-50 rounded-lg px-3 py-2 text-xs text-amber-800">
+                        class="bg-pastel-ambar rounded-lg px-3 py-2 text-xs text-aviso-ambar">
                         Fila {{ s.fila }}: {{ s.cliente }}
                     </div>
                 </div>
@@ -228,7 +228,7 @@ async function importar() {
                     <div v-for="col in columnas" :key="col" class="py-2 flex items-start gap-3">
                         <span class="shrink-0 font-mono text-xs px-2 py-1 rounded bg-tinta-100 text-tinta-700 w-48 truncate">{{ col }}</span>
                         <div class="flex-1 min-w-0">
-                            <span v-if="descripciones[col]?.obligatoria" class="text-[10px] font-semibold text-red-500 uppercase mr-1">Obligatoria</span>
+                            <span v-if="descripciones[col]?.obligatoria" class="text-[10px] font-semibold text-aviso-rojo uppercase mr-1">Obligatoria</span>
                             <span class="text-xs text-tinta-400">{{ descripciones[col]?.texto ?? '' }}</span>
                         </div>
                     </div>

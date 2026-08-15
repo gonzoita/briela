@@ -250,11 +250,11 @@ const formularioEditando = computed(() => lista.value.find(f => f.id === editand
                                 <div class="flex items-center gap-2 flex-wrap">
                                     <p class="text-sm font-semibold text-tinta-900">{{ f.nombre }}</p>
                                     <span class="text-xs px-2 py-0.5 rounded-full"
-                                        :class="f.activo ? 'bg-green-100 text-green-700' : 'bg-tinta-100 text-tinta-400'">
+                                        :class="f.activo ? 'bg-pastel-verde-2 text-aviso-verde' : 'bg-tinta-100 text-tinta-400'">
                                         {{ f.activo ? 'Activo' : 'Inactivo' }}
                                     </span>
-                                    <span v-if="f.fuente" class="text-xs px-2 py-0.5 rounded-full bg-blue-50 text-blue-600">{{ f.fuente }}</span>
-                                    <span v-if="f.captcha_activo" class="text-xs px-2 py-0.5 rounded-full bg-purple-50 text-purple-600">reCAPTCHA</span>
+                                    <span v-if="f.fuente" class="text-xs px-2 py-0.5 rounded-full bg-pastel-azul text-aviso-azul">{{ f.fuente }}</span>
+                                    <span v-if="f.captcha_activo" class="text-xs px-2 py-0.5 rounded-full bg-pastel-violeta text-aviso-violeta">reCAPTCHA</span>
                                 </div>
                                 <p class="text-xs text-tinta-300 mt-0.5">
                                     Etapa: {{ f.etapa?.nombre ?? 'Primera etapa' }}
@@ -268,9 +268,9 @@ const formularioEditando = computed(() => lista.value.find(f => f.id === editand
                                 <a :href="`/f/${f.slug}`" target="_blank"
                                     class="px-3 py-1.5 rounded-xl border border-linea text-xs text-tinta-500 hover:bg-tinta-50">Ver</a>
                                 <button @click="abrirEditar(f)"
-                                    class="px-3 py-1.5 rounded-xl border border-linea text-xs text-blue-600 hover:bg-realce">Editar</button>
+                                    class="px-3 py-1.5 rounded-xl border border-linea text-xs text-aviso-azul hover:bg-realce">Editar</button>
                                 <button @click="eliminar(f)" :disabled="eliminando === f.id"
-                                    class="px-3 py-1.5 rounded-xl border border-linea text-xs text-red-500 hover:bg-red-50">Eliminar</button>
+                                    class="px-3 py-1.5 rounded-xl border border-linea text-xs text-aviso-rojo hover:bg-pastel-rojo">Eliminar</button>
                             </div>
                         </div>
 
@@ -367,7 +367,7 @@ const formularioEditando = computed(() => lista.value.find(f => f.id === editand
                                         :key="opt[0]"
                                         class="flex-1 flex items-center gap-1.5 border rounded-xl px-3 py-2 cursor-pointer text-sm transition-colors"
                                         :class="form.asignacion_tipo === opt[0]
-                                            ? 'border-blue-500 bg-blue-50 text-blue-700 font-semibold'
+                                            ? 'border-blue-500 bg-pastel-azul text-aviso-azul font-semibold'
                                             : 'border-linea text-tinta-500'">
                                         <input type="radio" v-model="form.asignacion_tipo" :value="opt[0]" class="sr-only"/>
                                         {{ opt[1] }}
@@ -391,7 +391,7 @@ const formularioEditando = computed(() => lista.value.find(f => f.id === editand
                                         <label v-for="u in usuarios" :key="u.id"
                                             class="flex items-center gap-2 px-3 py-2 rounded-xl border cursor-pointer transition-colors"
                                             :class="form.responsables_ids.includes(u.id)
-                                                ? 'border-blue-400 bg-blue-50'
+                                                ? 'border-blue-400 bg-pastel-azul'
                                                 : 'border-linea hover:bg-tinta-50'">
                                             <input type="checkbox"
                                                 :checked="form.responsables_ids.includes(u.id)"
@@ -410,7 +410,7 @@ const formularioEditando = computed(() => lista.value.find(f => f.id === editand
                                         <div v-for="u in usuarios" :key="u.id"
                                             class="flex items-center gap-2 px-3 py-2 rounded-xl border transition-colors"
                                             :class="form.responsables_ids.includes(u.id)
-                                                ? 'border-blue-400 bg-blue-50'
+                                                ? 'border-blue-400 bg-pastel-azul'
                                                 : 'border-linea'">
                                             <input type="checkbox"
                                                 :checked="form.responsables_ids.includes(u.id)"
@@ -463,7 +463,7 @@ const formularioEditando = computed(() => lista.value.find(f => f.id === editand
                                         :key="opt[0]"
                                         class="flex-1 flex items-center gap-1.5 border rounded-xl px-3 py-2 cursor-pointer text-sm transition-colors"
                                         :class="form.gracias_tipo === opt[0]
-                                            ? 'border-blue-500 bg-blue-50 text-blue-700 font-semibold'
+                                            ? 'border-blue-500 bg-pastel-azul text-aviso-azul font-semibold'
                                             : 'border-linea text-tinta-500'">
                                         <input type="radio" v-model="form.gracias_tipo" :value="opt[0]" class="sr-only"/>
                                         {{ opt[1] }}
@@ -487,7 +487,7 @@ const formularioEditando = computed(() => lista.value.find(f => f.id === editand
                             <div class="flex items-center justify-between mb-3">
                                 <p class="text-xs font-semibold text-tinta-300 uppercase tracking-[0.12em]">Campos del formulario</p>
                                 <button @click="agregarCampo"
-                                    class="flex items-center gap-1 text-xs px-3 py-1.5 rounded-xl border border-linea text-blue-600 hover:bg-realce">
+                                    class="flex items-center gap-1 text-xs px-3 py-1.5 rounded-xl border border-linea text-aviso-azul hover:bg-realce">
                                     <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
                                     </svg>
@@ -531,7 +531,7 @@ const formularioEditando = computed(() => lista.value.find(f => f.id === editand
                                                 </svg>
                                             </button>
                                             <button @click="eliminarCampo(idx)" :disabled="form.campos.length <= 1"
-                                                class="p-1 rounded hover:bg-red-100 text-red-400 disabled:opacity-30">
+                                                class="p-1 rounded hover:bg-pastel-rojo-2 text-red-400 disabled:opacity-30">
                                                 <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
                                                     <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
                                                 </svg>

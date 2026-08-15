@@ -73,6 +73,30 @@ un foco; ahora es `#E4E8EE`, que deja 13,3:1 —de sobra, AAA pide 7— y descan
 vista. El texto auxiliar subió de 3,8:1 a 4,8:1, que era el que **sí** estaba por
 debajo del mínimo.
 
+## Los colores de aviso
+
+Un aviso azul informa, uno rojo advierte, uno ámbar pide atención. Ese significado
+tiene que sobrevivir al cambio de tema, y de noche **no** puede ser una caja clara.
+
+Cada familia tiene cuatro tonos, y el sistema los cambia solo:
+
+| | Día | Noche |
+|---|---|---|
+| Fondo de la caja | un pastel claro | un tinte oscuro del mismo color |
+| Fondo de la insignia interior | un paso más saturado | un paso más claro |
+| Borde | un pastel medio | un gris teñido |
+| Texto | oscuro y saturado | claro y saturado |
+
+En los dos temas todos los pares texto/fondo quedan **por encima de 5,4:1**, y casi
+todos por encima de 7 —que es el nivel más exigente de accesibilidad—. La caja se
+distingue de la superficie por poco, a propósito: un aviso tiene que llamar la atención
+por su color, no por su brillo.
+
+Hasta el 15 ago 2026 esto estaba escrito con los colores fijos de Tailwind: `bg-red-50`
+con `text-red-700`, 2.063 veces. De día se veía bien; de noche cada caja de aviso era un
+rectángulo claro con texto oscuro, y era la razón principal de que la pantalla «se viera
+muy blanca».
+
 ## Título de la pestaña
 
 Admite dos comodines:

@@ -29,7 +29,7 @@
                         <svg class="w-12 h-12 text-red-300 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-width="1.5" d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
                         </svg>
-                        <p class="text-red-500 font-medium text-sm">{{ error }}</p>
+                        <p class="text-aviso-rojo font-medium text-sm">{{ error }}</p>
                         <button
                             @click="iniciarScanner"
                             class="mt-3 px-4 py-2 bg-[var(--marca)] text-white rounded-xl text-sm font-medium"
@@ -52,14 +52,14 @@
                     <!-- Resultado -->
                     <div
                         v-if="resultado"
-                        class="mt-4 p-3 bg-green-50 border border-green-200 rounded-xl"
+                        class="mt-4 p-3 bg-pastel-verde border border-borde-aviso-verde rounded-xl"
                     >
-                        <p class="text-xs text-green-600 font-medium mb-1">✓ Código detectado</p>
-                        <p class="text-sm text-green-800 font-mono break-all">{{ resultado }}</p>
+                        <p class="text-xs text-aviso-verde font-medium mb-1">✓ Código detectado</p>
+                        <p class="text-sm text-aviso-verde font-mono break-all">{{ resultado }}</p>
                         <div class="flex gap-2 mt-3">
                             <button
                                 @click="copiar"
-                                class="flex-1 py-2 border border-green-300 text-green-700 rounded-lg text-sm font-medium hover:bg-green-100"
+                                class="flex-1 py-2 border border-borde-aviso-verde text-aviso-verde rounded-lg text-sm font-medium hover:bg-pastel-verde-2"
                             >
                                 Copiar
                             </button>

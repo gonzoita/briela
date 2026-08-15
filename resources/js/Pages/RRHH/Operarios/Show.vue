@@ -138,7 +138,7 @@ function storePermiso() {
                     <p class="text-xs text-tinta-300">{{ operario.documento }} · {{ operario.especialidad ?? 'Sin especialidad' }}</p>
                 </div>
                 <span class="text-xs px-2.5 py-1 rounded-full font-semibold"
-                    :class="operario.estado === 'activo' ? 'bg-green-100 text-green-700' : 'bg-tinta-100 text-tinta-500'">
+                    :class="operario.estado === 'activo' ? 'bg-pastel-verde-2 text-aviso-verde' : 'bg-tinta-100 text-tinta-500'">
                     {{ operario.estado }}
                 </span>
                 <a :href="`/rrhh/operarios/${operario.id}/editar`"
@@ -210,13 +210,13 @@ function storePermiso() {
                                 <span class="text-tinta-400">Extras</span>
                                 <span>${{ Number(bono_mes.extras_valor).toLocaleString('es-CO') }}</span>
                             </div>
-                            <div class="flex justify-between text-red-600">
+                            <div class="flex justify-between text-aviso-rojo">
                                 <span>Penalizaciones</span>
                                 <span>-${{ Number(bono_mes.penalizaciones).toLocaleString('es-CO') }}</span>
                             </div>
                             <div class="flex justify-between font-semibold text-base border-t border-linea pt-2 mt-2">
                                 <span>Total</span>
-                                <span class="text-green-700">${{ Number(bono_mes.total_bono).toLocaleString('es-CO') }}</span>
+                                <span class="text-aviso-verde">${{ Number(bono_mes.total_bono).toLocaleString('es-CO') }}</span>
                             </div>
                         </div>
                         <div v-else class="text-sm text-tinta-300 italic">Sin bono calculado.</div>
@@ -237,7 +237,7 @@ function storePermiso() {
                         <div v-for="b in historial_bonos" :key="b.id"
                             class="flex items-center justify-between px-5 py-3">
                             <span class="text-sm text-tinta-700">{{ mesLabel(b.periodo_mes) }} {{ b.periodo_anio }}</span>
-                            <span class="text-sm font-semibold text-green-700">
+                            <span class="text-sm font-semibold text-aviso-verde">
                                 ${{ Number(b.total_bono).toLocaleString('es-CO') }}
                             </span>
                         </div>
@@ -300,7 +300,7 @@ function storePermiso() {
                                 <p class="text-xs text-tinta-300 mt-0.5">{{ p.created_at }}</p>
                             </div>
                             <span class="font-semibold text-sm shrink-0"
-                                :class="p.puntos > 0 ? 'text-green-600' : 'text-red-500'">
+                                :class="p.puntos > 0 ? 'text-aviso-verde' : 'text-aviso-rojo'">
                                 {{ p.puntos > 0 ? '+' : '' }}{{ p.puntos }}
                             </span>
                         </div>
@@ -354,14 +354,14 @@ function storePermiso() {
                         <h2 class="text-sm font-semibold text-tinta-700">Archivos</h2>
                         <a :href="`/rrhh/operarios/${operario.id}/editar`"
                             @click.prevent="router.visit(`/rrhh/operarios/${operario.id}/editar`)"
-                            class="text-xs text-blue-600 underline">Gestionar</a>
+                            class="text-xs text-aviso-azul underline">Gestionar</a>
                     </div>
                     <div class="divide-y divide-separador">
                         <div v-for="doc in DOCS_LISTA" :key="doc.campo"
                             class="flex items-center justify-between px-5 py-3">
                             <span class="text-sm text-tinta-700">{{ doc.label }}</span>
                             <span v-if="operario[doc.campo]"
-                                class="text-xs text-green-600 font-medium">
+                                class="text-xs text-aviso-verde font-medium">
                                 <a :href="`/storage/${operario[doc.campo]}`" target="_blank" class="underline">Ver</a>
                             </span>
                             <span v-else class="text-xs text-tinta-300">Pendiente</span>
@@ -369,7 +369,7 @@ function storePermiso() {
                         <div v-if="operario.archivo_otros?.length" class="px-5 py-3">
                             <p class="text-sm text-tinta-700 mb-1">Otros documentos</p>
                             <div v-for="(d, i) in operario.archivo_otros" :key="i" class="text-xs">
-                                <a :href="`/storage/${d.path}`" target="_blank" class="text-blue-600 underline">{{ d.nombre }}</a>
+                                <a :href="`/storage/${d.path}`" target="_blank" class="text-aviso-azul underline">{{ d.nombre }}</a>
                             </div>
                         </div>
                     </div>
@@ -380,7 +380,7 @@ function storePermiso() {
                     <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-3">Gamificación</p>
                     <div class="flex items-center gap-4">
                         <div class="text-center">
-                            <p class="text-2xl font-semibold text-blue-600">{{ operario.puntos_totales ?? 0 }}</p>
+                            <p class="text-2xl font-semibold text-aviso-azul">{{ operario.puntos_totales ?? 0 }}</p>
                             <p class="text-xs text-tinta-300">Puntos totales</p>
                         </div>
                         <div class="text-center">
@@ -413,7 +413,7 @@ function storePermiso() {
                                 </div>
                                 <div class="text-right shrink-0">
                                     <p class="text-xs text-tinta-400">{{ formatFecha(paso.completado_at) }}</p>
-                                    <p v-if="paso.tiempo_minutos" class="text-xs text-blue-600 mt-0.5">
+                                    <p v-if="paso.tiempo_minutos" class="text-xs text-aviso-azul mt-0.5">
                                         {{ paso.tiempo_minutos }} min
                                     </p>
                                 </div>
@@ -437,7 +437,7 @@ function storePermiso() {
                                 <div class="flex-1 min-w-0">
                                     <div class="flex items-center gap-2 mb-1">
                                         <span class="text-xs px-2 py-0.5 rounded-full font-semibold"
-                                            :class="d.firmado ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'">
+                                            :class="d.firmado ? 'bg-pastel-verde-2 text-aviso-verde' : 'bg-pastel-rojo-2 text-aviso-rojo'">
                                             {{ d.firmado ? 'Firmado' : 'Pendiente' }}
                                         </span>
                                         <span class="text-xs text-tinta-400">{{ d.tipo_label }}</span>
@@ -514,7 +514,7 @@ function storePermiso() {
                                 <p class="text-xs text-tinta-300">Meta: {{ h.meta_valor }} {{ h.meta_tipo }}</p>
                             </div>
                             <span class="text-xs px-2 py-0.5 rounded-full font-semibold shrink-0"
-                                :class="h.cumplido ? 'bg-green-100 text-green-700' : 'bg-tinta-100 text-tinta-400'">
+                                :class="h.cumplido ? 'bg-pastel-verde-2 text-aviso-verde' : 'bg-tinta-100 text-tinta-400'">
                                 {{ h.cumplido ? 'Cumplido' : 'Pendiente' }}
                             </span>
                             <span class="text-xs font-semibold text-tinta-700 shrink-0">
@@ -634,7 +634,7 @@ function storePermiso() {
                                 </p>
                                 <p v-if="p.motivo" class="text-xs text-tinta-300 truncate mt-0.5">{{ p.motivo }}</p>
                             </div>
-                            <span class="text-xs px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 shrink-0">
+                            <span class="text-xs px-2 py-0.5 rounded-full bg-pastel-azul-2 text-aviso-azul shrink-0">
                                 {{ p.aprobado ? 'Aprobado' : 'Pendiente' }}
                             </span>
                         </div>

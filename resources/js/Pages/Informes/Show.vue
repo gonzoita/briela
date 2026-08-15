@@ -142,7 +142,7 @@ const lineaPuntos = computed(() => {
                 <div class="flex flex-wrap items-start justify-between gap-4">
                     <div>
                         <div class="flex items-center gap-2 mb-1">
-                            <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-blue-100 text-blue-700">
+                            <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-pastel-azul-2 text-aviso-azul">
                                 {{ fuenteLabel[informe.fuente] ?? informe.fuente }}
                             </span>
                             <span v-if="informe.publico"
@@ -191,7 +191,7 @@ const lineaPuntos = computed(() => {
             </div>
 
             <!-- Error -->
-            <div v-if="error" class="bg-red-50 border border-red-200 rounded-2xl px-5 py-4 text-sm text-red-700">
+            <div v-if="error" class="bg-pastel-rojo border border-borde-aviso-rojo rounded-2xl px-5 py-4 text-sm text-aviso-rojo">
                 {{ error }}
             </div>
 

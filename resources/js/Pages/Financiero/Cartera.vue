@@ -58,17 +58,17 @@ const semaforoClass = {
           <div class="text-xs text-tinta-400 mb-1">Total en cartera</div>
           <div class="font-semibold text-tinta-900">${{ fmt(totalCartera) }}</div>
         </div>
-        <div class="bg-red-50 rounded-2xl border border-red-100 p-4 text-center">
+        <div class="bg-pastel-rojo rounded-2xl border border-borde-aviso-rojo p-4 text-center">
           <div class="text-xs text-tinta-400 mb-1">Vencido</div>
-          <div class="font-semibold text-red-700">${{ fmt(totalVencido) }}</div>
+          <div class="font-semibold text-aviso-rojo">${{ fmt(totalVencido) }}</div>
         </div>
         <div class="bg-superficie rounded-2xl border border-linea p-4 text-center">
           <div class="text-xs text-tinta-400 mb-1">Vencidas</div>
-          <div class="font-semibold text-red-600 text-lg">{{ countRojo }}</div>
+          <div class="font-semibold text-aviso-rojo text-lg">{{ countRojo }}</div>
         </div>
         <div class="bg-superficie rounded-2xl border border-linea p-4 text-center">
           <div class="text-xs text-tinta-400 mb-1">Por vencer</div>
-          <div class="font-semibold text-yellow-600 text-lg">{{ countAmarillo }}</div>
+          <div class="font-semibold text-aviso-ambar text-lg">{{ countAmarillo }}</div>
         </div>
       </div>
 
@@ -82,11 +82,11 @@ const semaforoClass = {
           @click="filtro = tab.key"
           class="px-4 py-1.5 rounded-full text-sm font-medium border transition-colors"
           :class="filtro === tab.key
-            ? 'border-[var(--marca)] text-[var(--marca)] bg-blue-50'
+            ? 'border-[var(--marca)] text-[var(--marca)] bg-pastel-azul'
             : 'border-linea text-tinta-400 hover:bg-tinta-50'">
           {{ tab.label }}
-          <span v-if="tab.key === 'vencidas' && countRojo" class="ml-1 bg-red-100 text-red-600 text-xs px-1.5 rounded-full">{{ countRojo }}</span>
-          <span v-if="tab.key === 'por_vencer' && countAmarillo" class="ml-1 bg-yellow-100 text-yellow-600 text-xs px-1.5 rounded-full">{{ countAmarillo }}</span>
+          <span v-if="tab.key === 'vencidas' && countRojo" class="ml-1 bg-pastel-rojo-2 text-aviso-rojo text-xs px-1.5 rounded-full">{{ countRojo }}</span>
+          <span v-if="tab.key === 'por_vencer' && countAmarillo" class="ml-1 bg-pastel-ambar-2 text-aviso-ambar text-xs px-1.5 rounded-full">{{ countAmarillo }}</span>
         </button>
       </div>
 
@@ -122,12 +122,12 @@ const semaforoClass = {
                 </td>
                 <td class="px-3 py-3 text-tinta-500">{{ c.concepto }}</td>
                 <td class="px-3 py-3 text-right text-tinta-700">${{ fmt(c.valor) }}</td>
-                <td class="px-3 py-3 text-right font-semibold" :class="c.semaforo === 'rojo' ? 'text-red-600' : 'text-tinta-900'">${{ fmt(c.saldo) }}</td>
+                <td class="px-3 py-3 text-right font-semibold" :class="c.semaforo === 'rojo' ? 'text-aviso-rojo' : 'text-tinta-900'">${{ fmt(c.saldo) }}</td>
                 <td class="px-3 py-3 text-tinta-400 text-xs">{{ fmtFecha(c.fecha_vencimiento) }}</td>
                 <td class="px-3 py-3">
                   <span class="text-xs px-2 py-0.5 rounded-full font-medium"
                     :class="{
-                      'bg-orange-50 text-orange-600': c.estado === 'parcial',
+                      'bg-pastel-naranja text-aviso-naranja': c.estado === 'parcial',
                       'bg-tinta-100 text-tinta-400': c.estado === 'pendiente',
                     }">
                     {{ c.estado === 'parcial' ? 'Parcial' : 'Pendiente' }}
@@ -167,7 +167,7 @@ const semaforoClass = {
                     <p class="text-xs text-tinta-300">Vence: {{ fmtFecha(c.fecha_vencimiento) }}</p>
                   </div>
                   <div class="text-right">
-                    <p class="text-sm font-semibold" :class="c.semaforo === 'rojo' ? 'text-red-600' : 'text-tinta-900'">${{ fmt(c.saldo) }}</p>
+                    <p class="text-sm font-semibold" :class="c.semaforo === 'rojo' ? 'text-aviso-rojo' : 'text-tinta-900'">${{ fmt(c.saldo) }}</p>
                     <p class="text-xs text-tinta-300">de ${{ fmt(c.valor) }}</p>
                   </div>
                 </div>

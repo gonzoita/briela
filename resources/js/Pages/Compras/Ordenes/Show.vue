@@ -66,11 +66,11 @@ function guardarRecepcion() {
 
 const estados = {
     borrador:         { label: 'Borrador',         bg: 'bg-tinta-100',   text: 'text-tinta-700'   },
-    enviada:          { label: 'Enviada',           bg: 'bg-blue-100',   text: 'text-blue-700'   },
+    enviada:          { label: 'Enviada',           bg: 'bg-pastel-azul-2',   text: 'text-aviso-azul'   },
     confirmada:       { label: 'Confirmada',        bg: 'bg-[var(--marca-suave)]', text: 'text-[var(--marca)]' },
-    recibida_parcial: { label: 'Recib. Parcial',    bg: 'bg-yellow-100', text: 'text-yellow-700' },
-    recibida:         { label: 'Recibida',          bg: 'bg-green-100',  text: 'text-green-700'  },
-    cancelada:        { label: 'Cancelada',         bg: 'bg-red-100',    text: 'text-red-700'    },
+    recibida_parcial: { label: 'Recib. Parcial',    bg: 'bg-pastel-ambar-2', text: 'text-aviso-ambar' },
+    recibida:         { label: 'Recibida',          bg: 'bg-pastel-verde-2',  text: 'text-aviso-verde'  },
+    cancelada:        { label: 'Cancelada',         bg: 'bg-pastel-rojo-2',    text: 'text-aviso-rojo'    },
 }
 
 function estadoBadge(e) {
@@ -178,7 +178,7 @@ const puedeRecibir = computed(() =>
                                 </td>
                                 <td class="px-4 py-3 text-right text-tinta-700">{{ fmt(item.cantidad) }} {{ item.unidad }}</td>
                                 <td class="px-4 py-3 text-right">
-                                    <span :class="['font-semibold', Number(item.cantidad_recibida) >= Number(item.cantidad) ? 'text-green-600' : 'text-orange-500']">
+                                    <span :class="['font-semibold', Number(item.cantidad_recibida) >= Number(item.cantidad) ? 'text-aviso-verde' : 'text-aviso-naranja']">
                                         {{ fmt(item.cantidad_recibida) }}
                                     </span>
                                 </td>
@@ -240,7 +240,7 @@ const puedeRecibir = computed(() =>
                             <div class="flex items-center gap-3 text-sm text-tinta-400 mb-2">
                                 <span>Total: {{ fmt(item.cantidad) }}</span>
                                 <span>Ya recibido: {{ fmt(item.ya_recibida) }}</span>
-                                <span class="text-orange-600">Pendiente: {{ fmt(item.pendiente) }}</span>
+                                <span class="text-aviso-naranja">Pendiente: {{ fmt(item.pendiente) }}</span>
                             </div>
                             <div>
                                 <label class="block text-xs text-tinta-500 mb-1">Cantidad a recibir ahora</label>

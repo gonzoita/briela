@@ -65,9 +65,9 @@ const cantidad = computed(() =>
 )
 
 const clases = computed(() => ({
-    sin:  'bg-red-50 text-red-700',
-    bajo: 'bg-amber-50 text-amber-700',
-    ok:   'bg-emerald-50 text-emerald-700',
+    sin:  'bg-pastel-rojo text-aviso-rojo',
+    bajo: 'bg-pastel-ambar text-aviso-ambar',
+    ok:   'bg-pastel-verde text-aviso-verde',
 }[estado.value]))
 
 const texto = computed(() => {
@@ -84,7 +84,7 @@ const texto = computed(() => {
         </span>
         <!-- El aviso de que no alcanza va aparte del número: el stock puede estar en verde
              —hay 20— y la cantidad cotizada ser 50. Son dos cosas distintas. -->
-        <span v-if="noAlcanza" class="text-xs font-semibold text-red-600 whitespace-nowrap" title="La cantidad cotizada supera lo que hay en inventario">
+        <span v-if="noAlcanza" class="text-xs font-semibold text-aviso-rojo whitespace-nowrap" title="La cantidad cotizada supera lo que hay en inventario">
             ⚠ no alcanza
         </span>
     </span>

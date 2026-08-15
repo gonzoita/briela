@@ -80,7 +80,7 @@ function eliminar(id) {
 
             <!-- Flash -->
             <div v-if="flash?.success"
-                class="mb-4 px-4 py-3 rounded-xl bg-green-50 border border-green-200 text-green-700 text-sm">
+                class="mb-4 px-4 py-3 rounded-xl bg-pastel-verde border border-borde-aviso-verde text-aviso-verde text-sm">
                 {{ flash.success }}
             </div>
 
@@ -160,7 +160,7 @@ function eliminar(id) {
                             </td>
                             <td class="px-4 py-3 text-sm text-tinta-700">
                                 <div>{{ rem.cliente?.nombre ?? '—' }}</div>
-                                <div v-if="rem.op" class="text-xs text-blue-500">{{ rem.op.numero }}</div>
+                                <div v-if="rem.op" class="text-xs text-aviso-azul">{{ rem.op.numero }}</div>
                             </td>
                             <td class="px-3 py-3 text-center text-sm font-medium text-tinta-700">
                                 {{ rem.items?.length ?? 0 }}
@@ -177,12 +177,12 @@ function eliminar(id) {
                             <td class="px-4 py-3">
                                 <div class="flex items-center gap-2 justify-end">
                                     <a :href="`/logistica/remisiones/${rem.id}`"
-                                        class="text-xs text-blue-600 hover:underline">Ver</a>
+                                        class="text-xs text-aviso-azul hover:underline">Ver</a>
                                     <a v-if="rem.estado === 'borrador'" :href="`/logistica/remisiones/${rem.id}/editar`"
                                         class="text-xs text-tinta-500 hover:underline">Editar</a>
                                     <button v-if="!['anulada','entregada'].includes(rem.estado)"
                                         @click="anular(rem.id)"
-                                        class="text-xs text-red-500 hover:underline">Anular</button>
+                                        class="text-xs text-aviso-rojo hover:underline">Anular</button>
                                 </div>
                             </td>
                         </tr>
@@ -205,19 +205,19 @@ function eliminar(id) {
                         </span>
                     </div>
                     <p class="text-sm text-tinta-700 mb-1">{{ rem.cliente?.nombre ?? '—' }}</p>
-                    <p v-if="rem.op" class="text-xs text-blue-500 mb-2">{{ rem.op.numero }}</p>
+                    <p v-if="rem.op" class="text-xs text-aviso-azul mb-2">{{ rem.op.numero }}</p>
                     <div class="flex items-center justify-between text-xs text-tinta-300">
                         <span>{{ rem.items?.length ?? 0 }} ítems · {{ rem.tipo === 'op' ? 'OP' : 'Manual' }}</span>
                         <span>{{ formatFecha(rem.fecha_remision ?? rem.created_at) }}</span>
                     </div>
                     <div class="flex gap-3 mt-3 pt-3 border-t border-linea">
                         <a :href="`/logistica/remisiones/${rem.id}`"
-                            class="text-xs font-medium text-blue-600">Ver detalle →</a>
+                            class="text-xs font-medium text-aviso-azul">Ver detalle →</a>
                         <a v-if="rem.estado === 'borrador'" :href="`/logistica/remisiones/${rem.id}/editar`"
                             class="text-xs font-medium text-tinta-500">Editar</a>
                         <button v-if="!['anulada','entregada'].includes(rem.estado)"
                             @click="anular(rem.id)"
-                            class="text-xs font-medium text-red-500 ml-auto">Anular</button>
+                            class="text-xs font-medium text-aviso-rojo ml-auto">Anular</button>
                     </div>
                 </div>
             </div>

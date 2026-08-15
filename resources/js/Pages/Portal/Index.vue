@@ -115,7 +115,7 @@ const inicial = (t) => (t ?? '?').charAt(0).toUpperCase()
                     <div v-for="insc in completados" :key="insc.id"
                         class="bg-superficie rounded-2xl shadow-sm p-4 flex items-center gap-3">
                         <div class="w-9 h-9 rounded-full flex items-center justify-center shrink-0 cursor-pointer" style="background:var(--pastel-verde);" @click="irACurso(insc.curso.id)">
-                            <svg class="w-5 h-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                            <svg class="w-5 h-5 text-aviso-verde" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
                             </svg>
                         </div>

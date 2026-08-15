@@ -3,7 +3,7 @@
     <div class="bg-superficie w-full max-w-md rounded-t-2xl sm:rounded-2xl p-5">
 
       <div class="flex items-center gap-3 mb-4">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-yellow-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-aviso-ambar flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
           <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
         </svg>
         <h4 class="font-semibold text-tinta-900 text-base">Registrar anticipo para confirmar</h4>
@@ -52,7 +52,7 @@
         </div>
       </div>
 
-      <div v-if="error" class="mt-3 text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">
+      <div v-if="error" class="mt-3 text-sm text-aviso-rojo bg-pastel-rojo rounded-lg px-3 py-2">
         {{ error }}
       </div>
 

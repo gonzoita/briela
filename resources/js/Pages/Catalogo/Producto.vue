@@ -100,7 +100,7 @@ async function compartir() {
                 <div class="space-y-5">
                     <div>
                         <div v-if="producto.categoria_nombre"
-                            class="inline-block text-xs font-medium px-2.5 py-1 rounded-full bg-blue-100 text-blue-700 mb-2">
+                            class="inline-block text-xs font-medium px-2.5 py-1 rounded-full bg-pastel-azul-2 text-aviso-azul mb-2">
                             {{ producto.categoria_nombre }}
                         </div>
                         <h1 class="text-2xl font-semibold text-tinta-900">{{ producto.nombre }}</h1>
@@ -115,12 +115,12 @@ async function compartir() {
                          nombre de una columna. Si nadie marcó ninguno, no se muestra precio:
                          mejor eso que enseñarle el precio mayorista a un desconocido. -->
                     <div v-if="mostrarPrecio && precioPublico > 0"
-                        class="bg-green-50 border border-green-200 rounded-xl p-4">
-                        <p class="text-xs text-green-600 font-medium mb-0.5">Precio de referencia</p>
-                        <p class="text-2xl font-semibold text-green-700">
+                        class="bg-pastel-verde border border-borde-aviso-verde rounded-xl p-4">
+                        <p class="text-xs text-aviso-verde font-medium mb-0.5">Precio de referencia</p>
+                        <p class="text-2xl font-semibold text-aviso-verde">
                             ${{ Number(precioPublico).toLocaleString('es-CO') }}
                         </p>
-                        <p class="text-xs text-green-500 mt-1">IVA no incluido · Precio sujeto a cambio sin aviso</p>
+                        <p class="text-xs text-aviso-verde mt-1">IVA no incluido · Precio sujeto a cambio sin aviso</p>
                     </div>
 
                     <div v-if="producto.descripcion_larga"
@@ -132,7 +132,7 @@ async function compartir() {
                     <div class="border-t border-linea pt-5">
                         <p class="text-xs text-tinta-300 text-center">
                             ¿Tienes preguntas? Contáctanos a través de
-                            <a :href="$page.props.marca.web || '#'" target="_blank" class="text-blue-600 hover:underline">{{ $page.props.marca.web }}</a>
+                            <a :href="$page.props.marca.web || '#'" target="_blank" class="text-aviso-azul hover:underline">{{ $page.props.marca.web }}</a>
                         </p>
                     </div>
                 </div>

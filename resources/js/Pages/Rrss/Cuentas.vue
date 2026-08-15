@@ -141,11 +141,11 @@ function reactivar(c) {
                             <div class="flex items-center gap-2 flex-wrap">
                                 <p class="text-sm font-medium text-tinta-900">{{ r.label }}</p>
                                 <span v-if="estado(r.key).lista"
-                                    class="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-green-100 text-green-700 leading-none">
+                                    class="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-pastel-verde-2 text-aviso-verde leading-none">
                                     Listo para conectar
                                 </span>
                                 <span v-else
-                                    class="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-700 leading-none">
+                                    class="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-pastel-ambar-2 text-aviso-ambar leading-none">
                                     Falta configurar
                                 </span>
                             </div>
@@ -175,7 +175,7 @@ function reactivar(c) {
                         <div v-for="r in redes" :key="r.key" class="rounded-xl bg-tinta-50 p-3">
                             <p class="font-semibold text-tinta-700 mb-1">{{ r.icon }} {{ r.label }}</p>
 
-                            <p v-if="estado(r.key).lista" class="text-green-700">
+                            <p v-if="estado(r.key).lista" class="text-aviso-verde">
                                 Ya tiene sus credenciales cargadas. Solo falta oprimir el botón de arriba.
                             </p>
 
@@ -185,9 +185,9 @@ function reactivar(c) {
                                     <strong>No hace falta entrar al servidor</strong>: se guarda desde esta pantalla.
                                 </p>
 
-                                <div v-if="r.requisitos?.length" class="mb-3 rounded-lg bg-amber-50 border border-amber-100 p-2.5">
-                                    <p class="font-semibold text-amber-800 mb-1">Antes de empezar, asegúrate de:</p>
-                                    <ul class="list-disc list-inside space-y-0.5 text-amber-800">
+                                <div v-if="r.requisitos?.length" class="mb-3 rounded-lg bg-pastel-ambar border border-borde-aviso-ambar p-2.5">
+                                    <p class="font-semibold text-aviso-ambar mb-1">Antes de empezar, asegúrate de:</p>
+                                    <ul class="list-disc list-inside space-y-0.5 text-aviso-ambar">
                                         <li v-for="(req, i) in r.requisitos" :key="i">{{ req }}</li>
                                     </ul>
                                 </div>
@@ -207,7 +207,7 @@ function reactivar(c) {
                                        class="font-semibold underline" style="color:var(--marca);">{{ r.enlace.texto }}</a>
                                 </p>
 
-                                <p v-if="r.aviso" class="mb-3 rounded-lg bg-blue-50 border border-blue-100 p-2.5 text-blue-800">
+                                <p v-if="r.aviso" class="mb-3 rounded-lg bg-pastel-azul border border-borde-aviso-azul p-2.5 text-aviso-azul">
                                     {{ r.aviso }}
                                 </p>
 
@@ -261,16 +261,16 @@ function reactivar(c) {
                                 {{ redLabel[c.red] ?? c.red }}
                                 <span v-if="c.ultima_publicacion_en"> · última pub.: {{ new Date(c.ultima_publicacion_en).toLocaleDateString('es-CO') }}</span>
                             </p>
-                            <p v-if="c.ultimo_error" class="text-xs text-red-500 truncate mt-0.5" :title="c.ultimo_error">
+                            <p v-if="c.ultimo_error" class="text-xs text-aviso-rojo truncate mt-0.5" :title="c.ultimo_error">
                                 ⚠ {{ c.ultimo_error }}
                             </p>
                         </div>
                         <span class="text-xs px-2 py-0.5 rounded-full shrink-0"
-                            :class="c.activa ? 'bg-green-100 text-green-700' : 'bg-tinta-100 text-tinta-400'">
+                            :class="c.activa ? 'bg-pastel-verde-2 text-aviso-verde' : 'bg-tinta-100 text-tinta-400'">
                             {{ c.activa ? 'Activa' : 'Inactiva' }}
                         </span>
-                        <button v-if="c.activa" @click="desconectar(c)" class="text-xs text-red-500 hover:underline shrink-0">Desconectar</button>
-                        <button v-else @click="reactivar(c)" class="text-xs text-blue-600 hover:underline shrink-0">Reactivar</button>
+                        <button v-if="c.activa" @click="desconectar(c)" class="text-xs text-aviso-rojo hover:underline shrink-0">Desconectar</button>
+                        <button v-else @click="reactivar(c)" class="text-xs text-aviso-azul hover:underline shrink-0">Reactivar</button>
                     </div>
                 </div>
             </div>

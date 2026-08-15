@@ -121,42 +121,42 @@ function eliminarBackup(filename) {
         <div class="max-w-2xl mx-auto space-y-5 py-2">
 
             <!-- ── INFO ─────────────────────────────────────────────────────── -->
-            <div class="rounded-2xl border border-blue-200 p-5 space-y-3" style="background:var(--pastel-azul);">
+            <div class="rounded-2xl border border-borde-aviso-azul p-5 space-y-3" style="background:var(--pastel-azul);">
                 <div class="flex items-center gap-2 mb-1">
                     <svg class="w-4 h-4 shrink-0" style="color:var(--marca);" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                     </svg>
                     <p class="text-sm font-semibold" style="color:var(--marca);">¿Cómo funciona el sistema de backup?</p>
                 </div>
-                <ul class="space-y-2 text-sm text-blue-900">
+                <ul class="space-y-2 text-sm text-aviso-azul">
                     <li class="flex gap-2">
                         <span class="shrink-0 font-semibold">•</span>
-                        <span><strong>Backup / Descargar:</strong> genera un archivo <code class="font-mono text-xs bg-blue-100 px-1 rounded">.sql</code> con toda la base de datos MySQL en este momento y lo descarga a tu equipo. Guárdalo en Google Drive, USB o correo.</span>
+                        <span><strong>Backup / Descargar:</strong> genera un archivo <code class="font-mono text-xs bg-pastel-azul-2 px-1 rounded">.sql</code> con toda la base de datos MySQL en este momento y lo descarga a tu equipo. Guárdalo en Google Drive, USB o correo.</span>
                     </li>
                     <li class="flex gap-2">
                         <span class="shrink-0 font-semibold">•</span>
-                        <span><strong>Backups en servidor:</strong> muestra los archivos <code class="font-mono text-xs bg-blue-100 px-1 rounded">.sql</code> generados anteriormente que siguen almacenados en el servidor. Puedes descargarlos individualmente o eliminarlos para liberar espacio.</span>
+                        <span><strong>Backups en servidor:</strong> muestra los archivos <code class="font-mono text-xs bg-pastel-azul-2 px-1 rounded">.sql</code> generados anteriormente que siguen almacenados en el servidor. Puedes descargarlos individualmente o eliminarlos para liberar espacio.</span>
                     </li>
                     <li class="flex gap-2">
                         <span class="shrink-0 font-semibold">•</span>
-                        <span><strong>Restaurar:</strong> reemplaza <em>todos</em> los datos actuales con los del archivo <code class="font-mono text-xs bg-blue-100 px-1 rounded">.sql</code> que subas. Úsalo solo para recuperar datos perdidos o revertir un error grave.</span>
+                        <span><strong>Restaurar:</strong> reemplaza <em>todos</em> los datos actuales con los del archivo <code class="font-mono text-xs bg-pastel-azul-2 px-1 rounded">.sql</code> que subas. Úsalo solo para recuperar datos perdidos o revertir un error grave.</span>
                     </li>
                 </ul>
                 <div class="flex gap-2 p-3 rounded-xl" style="background:var(--pastel-ambar); border:1px solid #FDE68A;">
-                    <svg class="w-4 h-4 text-amber-600 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
+                    <svg class="w-4 h-4 text-aviso-ambar shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
                     </svg>
-                    <p class="text-xs text-amber-800"><strong>Recomendación:</strong> genera un backup antes de cualquier importación masiva de datos, actualización del sistema o cambio importante en la configuración.</p>
+                    <p class="text-xs text-aviso-ambar"><strong>Recomendación:</strong> genera un backup antes de cualquier importación masiva de datos, actualización del sistema o cambio importante en la configuración.</p>
                 </div>
             </div>
 
             <!-- ── RESPALDO AUTOMÁTICO ──────────────────────────────────────── -->
             <div class="bg-superficie rounded-2xl shadow-sm border p-5"
-                :class="autoSaludable ? 'border-green-200' : 'border-amber-200'">
+                :class="autoSaludable ? 'border-borde-aviso-verde' : 'border-borde-aviso-ambar'">
                 <div class="flex items-start gap-3">
                     <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
-                        :class="autoSaludable ? 'bg-green-100' : 'bg-amber-100'">
-                        <svg class="w-5 h-5" :class="autoSaludable ? 'text-green-600' : 'text-amber-600'"
+                        :class="autoSaludable ? 'bg-pastel-verde-2' : 'bg-pastel-ambar-2'">
+                        <svg class="w-5 h-5" :class="autoSaludable ? 'text-aviso-verde' : 'text-aviso-ambar'"
                             fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                             <path stroke-linecap="round" stroke-linejoin="round"
                                 d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
@@ -168,17 +168,17 @@ function eliminarBackup(filename) {
                         </p>
 
                         <p v-if="automatico.ultimo" class="text-xs mt-1"
-                            :class="autoSaludable ? 'text-green-700' : 'text-amber-700'">
+                            :class="autoSaludable ? 'text-aviso-verde' : 'text-aviso-ambar'">
                             Último: {{ automatico.ultimo.fecha }}
                             <span class="opacity-70">(hace {{ automatico.ultimo.hace_horas }} h)</span>
                         </p>
-                        <p v-else class="text-xs text-amber-700 mt-1">
+                        <p v-else class="text-xs text-aviso-ambar mt-1">
                             Todavía no se ha ejecutado ninguno. Si ya pasó de las
                             {{ automatico.hora }} y sigue así, es probable que falte el cron en el
                             servidor.
                         </p>
 
-                        <p v-if="automatico.ultimo && !autoSaludable" class="text-xs text-amber-700 mt-1">
+                        <p v-if="automatico.ultimo && !autoSaludable" class="text-xs text-aviso-ambar mt-1">
                             Pasaron más de 48 horas desde el último. Revisa que el cron siga
                             corriendo.
                         </p>
@@ -230,13 +230,13 @@ function eliminarBackup(filename) {
 
             <!-- ── ERROR AL GENERAR ─────────────────────────────────────────── -->
             <div v-if="$page.props.flash?.error"
-                class="bg-red-50 border border-red-200 rounded-2xl p-5">
-                <p class="text-sm font-semibold text-red-800">No se pudo generar el respaldo</p>
-                <p class="text-xs text-red-700 mt-1">{{ $page.props.flash.error }}</p>
+                class="bg-pastel-rojo border border-borde-aviso-rojo rounded-2xl p-5">
+                <p class="text-sm font-semibold text-aviso-rojo">No se pudo generar el respaldo</p>
+                <p class="text-xs text-aviso-rojo mt-1">{{ $page.props.flash.error }}</p>
             </div>
 
             <!-- ── DIAGNÓSTICO (solo si algo falla) ─────────────────────────── -->
-            <div v-if="hayProblema" class="bg-superficie rounded-2xl shadow-sm border border-amber-200 p-5">
+            <div v-if="hayProblema" class="bg-superficie rounded-2xl shadow-sm border border-borde-aviso-ambar p-5">
                 <h2 class="text-sm font-semibold text-tinta-400 uppercase tracking-wide mb-1">Diagnóstico del servidor</h2>
                 <p class="text-xs text-tinta-400 mb-3">
                     Algo de la configuración del hosting está limitando los respaldos.
@@ -245,7 +245,7 @@ function eliminarBackup(filename) {
                     <div v-for="(d, clave) in diagnostico" :key="clave"
                         class="flex items-start gap-2 text-xs">
                         <span class="mt-0.5 shrink-0 w-4 h-4 rounded-full flex items-center justify-center"
-                            :class="d.ok ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'">
+                            :class="d.ok ? 'bg-pastel-verde-2 text-aviso-verde' : 'bg-pastel-ambar-2 text-aviso-ambar'">
                             {{ d.ok ? '✓' : '!' }}
                         </span>
                         <div class="flex-1 min-w-0">
@@ -281,15 +281,15 @@ function eliminarBackup(filename) {
             </div>
 
             <!-- ── RESTAURAR ─────────────────────────────────────────────────── -->
-            <div class="bg-superficie rounded-2xl shadow-sm border border-orange-100 p-5">
+            <div class="bg-superficie rounded-2xl shadow-sm border border-borde-aviso-naranja p-5">
                 <h2 class="text-sm font-semibold text-tinta-400 uppercase tracking-wide mb-3">Restaurar</h2>
 
                 <!-- Advertencia -->
                 <div class="flex gap-3 p-3 rounded-xl mb-4" style="background: var(--pastel-naranja); border: 1px solid #FED7AA;">
-                    <svg class="w-5 h-5 text-orange-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
+                    <svg class="w-5 h-5 text-aviso-naranja shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                     </svg>
-                    <p class="text-sm text-orange-800">
+                    <p class="text-sm text-aviso-naranja">
                         <strong>ATENCIÓN:</strong> Restaurar sobreescribe <strong>TODOS</strong> los datos actuales.
                         Esta acción <strong>NO se puede deshacer</strong>.
                     </p>
@@ -299,12 +299,12 @@ function eliminarBackup(filename) {
                 <label class="block">
                     <div
                         class="flex items-center gap-3 px-4 py-3 rounded-xl border-2 border-dashed cursor-pointer transition-colors"
-                        :class="nombreArchivo ? 'border-green-400 bg-green-50' : 'border-linea hover:border-tinta-200'"
+                        :class="nombreArchivo ? 'border-green-400 bg-pastel-verde' : 'border-linea hover:border-tinta-200'"
                     >
-                        <svg class="w-5 h-5 shrink-0" :class="nombreArchivo ? 'text-green-600' : 'text-tinta-300'" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
+                        <svg class="w-5 h-5 shrink-0" :class="nombreArchivo ? 'text-aviso-verde' : 'text-tinta-300'" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                         </svg>
-                        <span class="text-sm" :class="nombreArchivo ? 'text-green-800 font-medium' : 'text-tinta-300'">
+                        <span class="text-sm" :class="nombreArchivo ? 'text-aviso-verde font-medium' : 'text-tinta-300'">
                             {{ nombreArchivo || 'Seleccionar archivo .sql' }}
                         </span>
                     </div>
@@ -312,7 +312,7 @@ function eliminarBackup(filename) {
                 </label>
 
                 <!-- Error de validación -->
-                <p v-if="formRestaurar.errors.archivo" class="mt-2 text-sm text-red-600">
+                <p v-if="formRestaurar.errors.archivo" class="mt-2 text-sm text-aviso-rojo">
                     {{ formRestaurar.errors.archivo }}
                 </p>
 
@@ -357,7 +357,7 @@ function eliminarBackup(filename) {
                         </div>
                         <button
                             @click="eliminarBackup(backup.filename)"
-                            class="w-8 h-8 flex items-center justify-center rounded-lg text-tinta-300 hover:text-red-500 hover:bg-red-50 transition-colors shrink-0"
+                            class="w-8 h-8 flex items-center justify-center rounded-lg text-tinta-300 hover:text-aviso-rojo hover:bg-pastel-rojo transition-colors shrink-0"
                             title="Eliminar backup"
                         >
                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
@@ -385,7 +385,7 @@ function eliminarBackup(filename) {
                     <div class="px-6 pt-6 pb-4">
                         <div class="flex items-center gap-3 mb-4">
                             <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style="background: var(--pastel-ambar);">
-                                <svg class="w-6 h-6 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
+                                <svg class="w-6 h-6 text-aviso-naranja" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                                 </svg>
                             </div>
@@ -413,7 +413,7 @@ function eliminarBackup(filename) {
                                 placeholder="CONFIRMAR"
                                 class="w-full px-3 py-2.5 rounded-xl border text-sm transition-colors outline-none"
                                 :class="confirmOk
-                                    ? 'border-green-400 bg-green-50 text-green-800'
+                                    ? 'border-green-400 bg-pastel-verde text-aviso-verde'
                                     : 'border-linea focus:border-orange-400'"
                                 autocomplete="off"
                             />

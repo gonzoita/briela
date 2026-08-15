@@ -148,7 +148,7 @@ const formatCOP = (v) =>
 
         <div v-for="(f, i) in filas" :key="i"
             class="border rounded-xl p-3 space-y-3"
-            :class="masBarato && f === masBarato && filas.length > 1 ? 'border-emerald-300 bg-emerald-50/40' : 'border-linea'">
+            :class="masBarato && f === masBarato && filas.length > 1 ? 'border-borde-aviso-verde bg-pastel-verde/40' : 'border-linea'">
 
             <div class="flex items-center gap-2 flex-wrap">
                 <select v-model="f.proveedor_id"
@@ -158,7 +158,7 @@ const formatCOP = (v) =>
                 </select>
 
                 <span v-if="masBarato && f === masBarato && filas.length > 1"
-                    class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 shrink-0">
+                    class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-pastel-verde-2 text-aviso-verde shrink-0">
                     más barato
                 </span>
 
@@ -169,7 +169,7 @@ const formatCOP = (v) =>
                     {{ f.es_preferido ? '★ preferido' : '☆ preferido' }}
                 </button>
 
-                <button type="button" @click="quitar(i)" class="text-tinta-300 hover:text-red-500 shrink-0" title="Quitar">
+                <button type="button" @click="quitar(i)" class="text-tinta-300 hover:text-aviso-rojo shrink-0" title="Quitar">
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
                     </svg>
@@ -211,13 +211,13 @@ const formatCOP = (v) =>
 
             <!-- Los avisos. Un precio marcado como el más barato sin decir que es de hace
                  ocho meses es peor que no marcar nada. -->
-            <p v-if="esViejo(f)" class="text-xs text-amber-700">
+            <p v-if="esViejo(f)" class="text-xs text-aviso-ambar">
                 ⚠ Este precio tiene {{ diasDesde(f.actualizado_el) }} días. Conviene confirmarlo antes de decidir.
             </p>
             <p v-else-if="sinFecha(f)" class="text-xs text-tinta-400">
                 Sin fecha: no se sabe de cuándo es este precio.
             </p>
-            <p v-if="minimoNoCuadra(f)" class="text-xs text-amber-700">
+            <p v-if="minimoNoCuadra(f)" class="text-xs text-aviso-ambar">
                 ⚠ Exige comprar {{ f.minimo_compra }} y normalmente se compran {{ cantidadHabitual }}.
             </p>
         </div>

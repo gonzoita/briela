@@ -30,11 +30,11 @@ function aplicarFiltro() {
 
 const estados = {
     borrador:   { label: 'Borrador',   bg: 'bg-tinta-100',   text: 'text-tinta-500'  },
-    programada: { label: 'Programada', bg: 'bg-blue-100',   text: 'text-blue-700'  },
-    publicando: { label: 'Publicando', bg: 'bg-yellow-100', text: 'text-yellow-700'},
-    publicada:  { label: 'Publicada',  bg: 'bg-green-100',  text: 'text-green-700' },
-    parcial:    { label: 'Parcial',    bg: 'bg-orange-100', text: 'text-orange-700'},
-    fallida:    { label: 'Fallida',    bg: 'bg-red-100',    text: 'text-red-700'   },
+    programada: { label: 'Programada', bg: 'bg-pastel-azul-2',   text: 'text-aviso-azul'  },
+    publicando: { label: 'Publicando', bg: 'bg-pastel-ambar-2', text: 'text-aviso-ambar'},
+    publicada:  { label: 'Publicada',  bg: 'bg-pastel-verde-2',  text: 'text-aviso-verde' },
+    parcial:    { label: 'Parcial',    bg: 'bg-pastel-naranja-2', text: 'text-aviso-naranja'},
+    fallida:    { label: 'Fallida',    bg: 'bg-pastel-rojo-2',    text: 'text-aviso-rojo'   },
 }
 
 const redIcono = {
@@ -83,11 +83,11 @@ function publicarAhora(p) {
             </div>
 
             <!-- Aviso si no hay cuentas conectadas -->
-            <div v-if="!cuentasActivas" class="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-4">
-                <p class="text-sm text-amber-800 font-medium">Todavía no tienes cuentas conectadas.</p>
-                <p class="text-xs text-amber-700 mt-1">Conecta Instagram, Facebook, LinkedIn o Google Business Profile para poder programar publicaciones.</p>
+            <div v-if="!cuentasActivas" class="bg-pastel-ambar border border-borde-aviso-ambar rounded-xl p-4 mb-4">
+                <p class="text-sm text-aviso-ambar font-medium">Todavía no tienes cuentas conectadas.</p>
+                <p class="text-xs text-aviso-ambar mt-1">Conecta Instagram, Facebook, LinkedIn o Google Business Profile para poder programar publicaciones.</p>
                 <a href="/rrss/cuentas" @click.prevent="router.visit('/rrss/cuentas')"
-                    class="inline-block mt-2 text-xs font-semibold text-amber-900 underline">Conectar cuentas →</a>
+                    class="inline-block mt-2 text-xs font-semibold text-aviso-ambar underline">Conectar cuentas →</a>
             </div>
 
             <!-- Acceso a cuentas -->
@@ -124,7 +124,7 @@ function publicarAhora(p) {
                             <div class="flex items-center gap-1.5 mt-2 flex-wrap">
                                 <span v-for="c in p.cuentas" :key="c.id"
                                     class="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full"
-                                    :class="c.estado === 'publicada' ? 'bg-green-50 text-green-700' : c.estado === 'fallida' ? 'bg-red-50 text-red-700' : 'bg-tinta-50 text-tinta-400'"
+                                    :class="c.estado === 'publicada' ? 'bg-pastel-verde text-aviso-verde' : c.estado === 'fallida' ? 'bg-pastel-rojo text-aviso-rojo' : 'bg-tinta-50 text-tinta-400'"
                                     :title="c.error || ''">
                                     {{ redIcono[c.red] ?? '' }} {{ c.nombre }}
                                 </span>
@@ -140,8 +140,8 @@ function publicarAhora(p) {
                         </button>
                         <a v-if="!['publicada','publicando'].includes(p.estado)" :href="`/rrss/${p.id}/editar`"
                             @click.prevent="router.visit(`/rrss/${p.id}/editar`)"
-                            class="text-xs text-blue-600 hover:underline">Editar</a>
-                        <button @click="eliminar(p)" class="text-xs text-red-500 hover:underline ml-auto">Eliminar</button>
+                            class="text-xs text-aviso-azul hover:underline">Editar</a>
+                        <button @click="eliminar(p)" class="text-xs text-aviso-rojo hover:underline ml-auto">Eliminar</button>
                     </div>
                 </div>
             </div>

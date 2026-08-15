@@ -60,6 +60,43 @@ export default {
                 // El realce del puntero sobre una fila. Un azul fijo funcionaba de día y
                 // encendía la pantalla de noche.
                 realce: 'var(--realce)',
+                // Las familias de aviso. Cada una tiene fondo, fondo-2 (para la insignia que
+                // va dentro de la caja), borde y texto, y las cuatro cambian con el tema: de
+                // noche el pastel se vuelve un tinte oscuro y el texto se aclara.
+                //
+                // Antes esto se escribía con los colores fijos de Tailwind —`bg-red-50`
+                // con `text-red-700`— y en modo noche eso daba una caja clara con texto
+                // oscuro, o al revés: ilegible de las dos maneras.
+                pastel: {
+                    azul:    'var(--pastel-azul)',
+                    'azul-2':    'var(--pastel-azul-2)',
+                    verde:   'var(--pastel-verde)',
+                    'verde-2':   'var(--pastel-verde-2)',
+                    ambar:   'var(--pastel-ambar)',
+                    'ambar-2':   'var(--pastel-ambar-2)',
+                    rojo:    'var(--pastel-rojo)',
+                    'rojo-2':    'var(--pastel-rojo-2)',
+                    violeta: 'var(--pastel-violeta)',
+                    'violeta-2': 'var(--pastel-violeta-2)',
+                    naranja: 'var(--pastel-naranja)',
+                    'naranja-2': 'var(--pastel-naranja-2)',
+                },
+                aviso: {
+                    azul:    'var(--texto-azul)',
+                    verde:   'var(--texto-verde)',
+                    ambar:   'var(--texto-ambar)',
+                    rojo:    'var(--texto-rojo)',
+                    violeta: 'var(--texto-violeta)',
+                    naranja: 'var(--texto-naranja)',
+                },
+                'borde-aviso': {
+                    azul:    'var(--borde-azul)',
+                    verde:   'var(--borde-verde)',
+                    ambar:   'var(--borde-ambar)',
+                    rojo:    'var(--borde-rojo)',
+                    violeta: 'var(--borde-violeta)',
+                    naranja: 'var(--borde-naranja)',
+                },
                 lienzo: 'var(--fondo)',
                 // Las superficies: lo que en modo día es blanco y de noche es un
                 // gris muy oscuro. `text-white` se deja como blanco real, porque

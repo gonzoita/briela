@@ -20,9 +20,9 @@ const camposOrden = [
 ]
 
 const rolConfig = {
-    administrador:   { label: 'Administrador',     class: 'bg-blue-100 text-blue-800' },
-    jefe_produccion: { label: 'Jefe de Producción', class: 'bg-purple-100 text-purple-800' },
-    vendedor:        { label: 'Vendedor',           class: 'bg-green-100 text-green-800' },
+    administrador:   { label: 'Administrador',     class: 'bg-pastel-azul-2 text-aviso-azul' },
+    jefe_produccion: { label: 'Jefe de Producción', class: 'bg-pastel-violeta-2 text-aviso-violeta' },
+    vendedor:        { label: 'Vendedor',           class: 'bg-pastel-verde-2 text-aviso-verde' },
     operario:        { label: 'Operario',           class: 'bg-tinta-100 text-tinta-700' },
 }
 
@@ -94,7 +94,7 @@ const toggleActivo = (usuario) => {
                             <td class="px-6 py-4 text-center">
                                 <span
                                     class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
-                                    :class="u.activo ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-700'"
+                                    :class="u.activo ? 'bg-pastel-verde-2 text-aviso-verde' : 'bg-pastel-rojo-2 text-aviso-rojo'"
                                 >
                                     {{ u.activo ? 'Activo' : 'Inactivo' }}
                                 </span>
@@ -111,7 +111,7 @@ const toggleActivo = (usuario) => {
                                     <button
                                         v-if="u.activo"
                                         @click="toggleActivo(u)"
-                                        class="text-xs font-medium text-red-600 hover:underline"
+                                        class="text-xs font-medium text-aviso-rojo hover:underline"
                                     >
                                         Desactivar
                                     </button>

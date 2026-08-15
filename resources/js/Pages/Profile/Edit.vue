@@ -81,23 +81,23 @@ function ic(extra = '') {
                 <div>
                     <label class="block text-xs font-medium text-tinta-700 mb-1">Nombre</label>
                     <input v-model="formDatos.name" type="text" :class="ic()" required autocomplete="name"/>
-                    <p v-if="formDatos.errors.name" class="text-red-500 text-xs mt-1">{{ formDatos.errors.name }}</p>
+                    <p v-if="formDatos.errors.name" class="text-aviso-rojo text-xs mt-1">{{ formDatos.errors.name }}</p>
                 </div>
 
                 <div>
                     <label class="block text-xs font-medium text-tinta-700 mb-1">Correo</label>
                     <input v-model="formDatos.email" type="email" :class="ic()" required autocomplete="username"/>
-                    <p v-if="formDatos.errors.email" class="text-red-500 text-xs mt-1">{{ formDatos.errors.email }}</p>
+                    <p v-if="formDatos.errors.email" class="text-aviso-rojo text-xs mt-1">{{ formDatos.errors.email }}</p>
                 </div>
 
                 <div v-if="mustVerifyEmail && user.email_verified_at === null"
-                    class="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
+                    class="rounded-lg border border-borde-aviso-ambar bg-pastel-ambar px-3 py-2 text-xs text-aviso-ambar">
                     <p>Tu correo todavía no está verificado.</p>
                     <Link href="/email/verification-notification" method="post" as="button"
                         class="mt-1 font-semibold underline hover:no-underline">
                         Reenviar el correo de verificación
                     </Link>
-                    <p v-if="status === 'verification-link-sent'" class="mt-1 font-semibold text-green-700">
+                    <p v-if="status === 'verification-link-sent'" class="mt-1 font-semibold text-aviso-verde">
                         Te enviamos un enlace nuevo.
                     </p>
                 </div>
@@ -109,7 +109,7 @@ function ic(extra = '') {
                     </button>
                     <Transition enter-active-class="transition" enter-from-class="opacity-0"
                         leave-active-class="transition" leave-to-class="opacity-0">
-                        <p v-if="formDatos.recentlySuccessful" class="text-xs text-green-600 font-medium">Guardado.</p>
+                        <p v-if="formDatos.recentlySuccessful" class="text-xs text-aviso-verde font-medium">Guardado.</p>
                     </Transition>
                 </div>
             </form>
@@ -124,19 +124,19 @@ function ic(extra = '') {
                 <div>
                     <label class="block text-xs font-medium text-tinta-700 mb-1">Contraseña actual</label>
                     <input v-model="formClave.current_password" type="password" :class="ic()" autocomplete="current-password"/>
-                    <p v-if="formClave.errors.current_password" class="text-red-500 text-xs mt-1">{{ formClave.errors.current_password }}</p>
+                    <p v-if="formClave.errors.current_password" class="text-aviso-rojo text-xs mt-1">{{ formClave.errors.current_password }}</p>
                 </div>
 
                 <div>
                     <label class="block text-xs font-medium text-tinta-700 mb-1">Contraseña nueva</label>
                     <input v-model="formClave.password" type="password" :class="ic()" autocomplete="new-password"/>
-                    <p v-if="formClave.errors.password" class="text-red-500 text-xs mt-1">{{ formClave.errors.password }}</p>
+                    <p v-if="formClave.errors.password" class="text-aviso-rojo text-xs mt-1">{{ formClave.errors.password }}</p>
                 </div>
 
                 <div>
                     <label class="block text-xs font-medium text-tinta-700 mb-1">Repite la contraseña nueva</label>
                     <input v-model="formClave.password_confirmation" type="password" :class="ic()" autocomplete="new-password"/>
-                    <p v-if="formClave.errors.password_confirmation" class="text-red-500 text-xs mt-1">{{ formClave.errors.password_confirmation }}</p>
+                    <p v-if="formClave.errors.password_confirmation" class="text-aviso-rojo text-xs mt-1">{{ formClave.errors.password_confirmation }}</p>
                 </div>
 
                 <div class="flex items-center gap-3">
@@ -146,15 +146,15 @@ function ic(extra = '') {
                     </button>
                     <Transition enter-active-class="transition" enter-from-class="opacity-0"
                         leave-active-class="transition" leave-to-class="opacity-0">
-                        <p v-if="formClave.recentlySuccessful" class="text-xs text-green-600 font-medium">Contraseña actualizada.</p>
+                        <p v-if="formClave.recentlySuccessful" class="text-xs text-aviso-verde font-medium">Contraseña actualizada.</p>
                     </Transition>
                 </div>
             </form>
 
             <!-- Eliminar cuenta -->
-            <div class="bg-superficie rounded-xl border border-red-200 p-4 space-y-3">
+            <div class="bg-superficie rounded-xl border border-borde-aviso-rojo p-4 space-y-3">
                 <div>
-                    <p class="text-xs font-semibold text-red-600 uppercase tracking-[0.12em]">Eliminar mi cuenta</p>
+                    <p class="text-xs font-semibold text-aviso-rojo uppercase tracking-[0.12em]">Eliminar mi cuenta</p>
                     <p class="text-xs text-tinta-400 mt-1">
                         Se borra tu acceso y tus datos personales de forma permanente. Antes de
                         hacerlo, descarga lo que necesites conservar.
@@ -162,19 +162,19 @@ function ic(extra = '') {
                 </div>
 
                 <button v-if="!confirmandoBorrado" type="button" @click="confirmandoBorrado = true"
-                    class="rounded-lg border border-red-300 px-4 py-2 text-sm font-semibold text-red-600 hover:bg-red-50">
+                    class="rounded-lg border border-borde-aviso-rojo px-4 py-2 text-sm font-semibold text-aviso-rojo hover:bg-pastel-rojo">
                     Eliminar mi cuenta
                 </button>
 
                 <div v-else class="space-y-3">
-                    <div class="rounded-lg border border-red-200 bg-red-50 px-3 py-2.5 text-xs text-red-800">
+                    <div class="rounded-lg border border-borde-aviso-rojo bg-pastel-rojo px-3 py-2.5 text-xs text-aviso-rojo">
                         <p class="font-semibold">Esto no se puede deshacer.</p>
                         <p>Escribe tu contraseña para confirmar.</p>
                     </div>
                     <div>
                         <input v-model="formBorrar.password" type="password" :class="ic()"
                             placeholder="Tu contraseña" @keyup.enter="borrarCuenta"/>
-                        <p v-if="formBorrar.errors.password" class="text-red-500 text-xs mt-1">{{ formBorrar.errors.password }}</p>
+                        <p v-if="formBorrar.errors.password" class="text-aviso-rojo text-xs mt-1">{{ formBorrar.errors.password }}</p>
                     </div>
                     <div class="flex gap-2">
                         <button type="button" @click="confirmandoBorrado = false; formBorrar.reset()"

@@ -106,9 +106,9 @@ const hayFiltros = computed(() =>
                 <div>
                     <h1 class="text-xl font-semibold text-tinta-900">Movimientos de Inventario</h1>
                     <p class="text-sm text-tinta-400">
-                        <a href="/inventario" class="text-blue-600 hover:underline">Stock &amp; Materiales</a>
+                        <a href="/inventario" class="text-aviso-azul hover:underline">Stock &amp; Materiales</a>
                         <span class="mx-1">·</span>
-                        <a href="/inventario/dashboard" class="text-blue-600 hover:underline">Dashboard</a>
+                        <a href="/inventario/dashboard" class="text-aviso-azul hover:underline">Dashboard</a>
                     </p>
                 </div>
                 <button disabled

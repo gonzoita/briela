@@ -107,7 +107,7 @@ function revocarToken() {
                 <div class="flex items-center justify-between mb-3">
                     <h2 class="text-sm font-semibold text-tinta-700">Estado de la conexión</h2>
                     <span class="text-xs px-2 py-0.5 rounded-full"
-                        :class="configurado ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'">
+                        :class="configurado ? 'bg-pastel-verde-2 text-aviso-verde' : 'bg-pastel-ambar-2 text-aviso-ambar'">
                         {{ configurado ? 'Token activo' : 'Sin configurar' }}
                     </span>
                 </div>
@@ -136,13 +136,13 @@ function revocarToken() {
                         <div v-if="tokenCompleto" class="space-y-2">
                             <div class="flex gap-2">
                                 <input :value="tokenCompleto" readonly
-                                    class="flex-1 min-w-0 px-3 py-2.5 rounded-xl border border-amber-300 bg-amber-50 text-sm font-mono text-tinta-900" />
+                                    class="flex-1 min-w-0 px-3 py-2.5 rounded-xl border border-borde-aviso-ambar bg-pastel-ambar text-sm font-mono text-tinta-900" />
                                 <button @click="copiar(tokenCompleto, 'token')"
                                     class="px-3 rounded-xl border border-linea text-xs font-semibold text-tinta-500 hover:bg-tinta-50 shrink-0">
                                     {{ copiado === 'token' ? 'Copiado' : 'Copiar' }}
                                 </button>
                             </div>
-                            <p class="text-xs text-amber-600">
+                            <p class="text-xs text-aviso-ambar">
                                 Cópialo y pégalo en el plugin ahora — al salir de esta pantalla no se vuelve a mostrar completo.
                             </p>
                         </div>
@@ -156,7 +156,7 @@ function revocarToken() {
                         <p v-else class="text-xs text-tinta-300">Todavía no se ha generado un token.</p>
                     </div>
 
-                    <p v-if="error" class="text-xs text-red-600">{{ error }}</p>
+                    <p v-if="error" class="text-xs text-aviso-rojo">{{ error }}</p>
 
                     <div class="flex gap-3 pt-1">
                         <button @click="generarToken" :disabled="generando"

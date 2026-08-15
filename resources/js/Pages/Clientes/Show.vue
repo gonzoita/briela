@@ -45,8 +45,8 @@ function tipoLabel(t) {
 
 function tipoColor(t) {
     return t === 'persona'
-        ? 'bg-blue-100 text-blue-700'
-        : 'bg-purple-100 text-purple-700'
+        ? 'bg-pastel-azul-2 text-aviso-azul'
+        : 'bg-pastel-violeta-2 text-aviso-violeta'
 }
 
 function iniciales(c) {
@@ -82,7 +82,7 @@ function eliminar() {
                         Editar
                     </a>
                     <button @click="eliminar"
-                            class="px-3 py-1.5 rounded-lg text-xs font-medium text-red-600 border border-red-200 hover:bg-red-50">
+                            class="px-3 py-1.5 rounded-lg text-xs font-medium text-aviso-rojo border border-borde-aviso-rojo hover:bg-pastel-rojo">
                         Eliminar
                     </button>
                 </div>
@@ -114,11 +114,11 @@ function eliminar() {
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div v-if="cliente.email">
                         <p class="text-xs font-medium text-tinta-400 mb-0.5">Email</p>
-                        <a :href="`mailto:${cliente.email}`" class="text-sm text-blue-600 hover:underline">{{ cliente.email }}</a>
+                        <a :href="`mailto:${cliente.email}`" class="text-sm text-aviso-azul hover:underline">{{ cliente.email }}</a>
                     </div>
                     <div v-if="cliente.celular">
                         <p class="text-xs font-medium text-tinta-400 mb-0.5">Celular</p>
-                        <a :href="`tel:${cliente.celular}`" class="text-sm text-tinta-900 hover:text-blue-600">{{ cliente.celular }}</a>
+                        <a :href="`tel:${cliente.celular}`" class="text-sm text-tinta-900 hover:text-aviso-azul">{{ cliente.celular }}</a>
                     </div>
                     <div v-if="cliente.telefono">
                         <p class="text-xs font-medium text-tinta-400 mb-0.5">Teléfono fijo</p>
@@ -146,7 +146,7 @@ function eliminar() {
                 <div class="flex items-center justify-between mb-3">
                     <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">Contactos</p>
                     <a :href="`/clientes/${cliente.id}/edit`"
-                       class="text-xs font-medium px-2 py-1 rounded text-blue-600 hover:bg-realce">
+                       class="text-xs font-medium px-2 py-1 rounded text-aviso-azul hover:bg-realce">
                         Gestionar
                     </a>
                 </div>
@@ -170,7 +170,7 @@ function eliminar() {
                             </div>
                             <p v-if="c.cargo" class="text-xs text-tinta-400 mt-0.5">{{ c.cargo }}</p>
                             <div class="flex flex-wrap gap-x-4 gap-y-1 mt-1">
-                                <a v-if="c.email" :href="`mailto:${c.email}`" class="text-xs text-blue-600 hover:underline">{{ c.email }}</a>
+                                <a v-if="c.email" :href="`mailto:${c.email}`" class="text-xs text-aviso-azul hover:underline">{{ c.email }}</a>
                                 <a v-if="c.celular" :href="`tel:${c.celular}`" class="text-xs text-tinta-500">{{ c.celular }}</a>
                                 <span v-if="c.telefono" class="text-xs text-tinta-500">{{ c.telefono }}</span>
                             </div>
@@ -186,7 +186,7 @@ function eliminar() {
                 <div class="flex items-center justify-between mb-3">
                     <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">Documentos</p>
                     <a :href="`/clientes/${cliente.id}/edit`"
-                       class="text-xs font-medium px-2 py-1 rounded text-blue-600 hover:bg-realce">
+                       class="text-xs font-medium px-2 py-1 rounded text-aviso-azul hover:bg-realce">
                         Gestionar
                     </a>
                 </div>
@@ -222,7 +222,7 @@ function eliminar() {
                         <span v-if="b.items.length" class="ml-1 text-tinta-200">{{ b.items.length }}</span>
                     </p>
                     <a v-if="b.items.length" :href="b.verTodos"
-                       class="text-xs font-medium px-2 py-1 rounded text-blue-600 hover:bg-realce">
+                       class="text-xs font-medium px-2 py-1 rounded text-aviso-azul hover:bg-realce">
                         Ver todas
                     </a>
                 </div>

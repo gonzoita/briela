@@ -63,7 +63,7 @@ const TIPOS = ['compresor', 'evaporador', 'condensador', 'puerta', 'panel', 'mot
                 <h1 class="text-xl font-semibold text-tinta-900">Nuevo Equipo</h1>
             </div>
 
-            <div v-if="hasChanges" class="mb-3 inline-flex items-center gap-1.5 text-xs font-medium text-amber-700 bg-amber-50 border border-amber-200 rounded-xl px-3 py-1.5">
+            <div v-if="hasChanges" class="mb-3 inline-flex items-center gap-1.5 text-xs font-medium text-aviso-ambar bg-pastel-ambar border border-borde-aviso-ambar rounded-xl px-3 py-1.5">
                 <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
                 Cambios sin guardar
             </div>
@@ -75,7 +75,7 @@ const TIPOS = ['compresor', 'evaporador', 'condensador', 'puerta', 'panel', 'mot
                         <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1.5">Nombre *</label>
                         <input v-model="form.nombre" type="text"
                             class="w-full rounded-xl border border-tinta-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2" />
-                        <p v-if="errors.nombre" class="text-xs text-red-500 mt-1">{{ errors.nombre }}</p>
+                        <p v-if="errors.nombre" class="text-xs text-aviso-rojo mt-1">{{ errors.nombre }}</p>
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1.5">Código</label>
@@ -169,7 +169,7 @@ const TIPOS = ['compresor', 'evaporador', 'condensador', 'puerta', 'panel', 'mot
                         <div class="flex items-center justify-between">
                             <span class="text-xs font-semibold text-tinta-300">Componente {{ idx + 1 }}</span>
                             <button @click="quitarComponente(idx)"
-                                class="w-6 h-6 rounded-lg flex items-center justify-center text-red-400 hover:bg-red-50">
+                                class="w-6 h-6 rounded-lg flex items-center justify-center text-red-400 hover:bg-pastel-rojo">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
                                 </svg>

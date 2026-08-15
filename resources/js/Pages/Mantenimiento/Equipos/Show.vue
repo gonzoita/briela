@@ -10,15 +10,15 @@ const props = defineProps({
 const tab = ref('info')
 
 const estadoBadge = {
-    activo:          { label: 'Activo',           class: 'bg-green-100 text-green-700' },
-    en_mantenimiento:{ label: 'En mantenimiento',  class: 'bg-amber-100 text-amber-700' },
-    fuera_servicio:  { label: 'Fuera de servicio', class: 'bg-red-100 text-red-700'    },
+    activo:          { label: 'Activo',           class: 'bg-pastel-verde-2 text-aviso-verde' },
+    en_mantenimiento:{ label: 'En mantenimiento',  class: 'bg-pastel-ambar-2 text-aviso-ambar' },
+    fuera_servicio:  { label: 'Fuera de servicio', class: 'bg-pastel-rojo-2 text-aviso-rojo'    },
 }
 
 const tipoBadge = {
-    preventivo: 'bg-blue-100 text-blue-700',
-    correctivo: 'bg-red-100 text-red-700',
-    predictivo: 'bg-purple-100 text-purple-700',
+    preventivo: 'bg-pastel-azul-2 text-aviso-azul',
+    correctivo: 'bg-pastel-rojo-2 text-aviso-rojo',
+    predictivo: 'bg-pastel-violeta-2 text-aviso-violeta',
 }
 
 const fmt = (n) => Number(n || 0).toLocaleString('es-CO')
@@ -92,7 +92,7 @@ function nuevo() {
                                 :style="{ background: equipo.estacion.color }"></div>
                             <span class="text-sm font-medium text-tinta-900">{{ equipo.estacion.nombre }}</span>
                             <span class="text-xs px-2 py-0.5 rounded-full"
-                                :class="equipo.estacion.activa ? 'bg-green-100 text-green-700' : 'bg-tinta-100 text-tinta-400'">
+                                :class="equipo.estacion.activa ? 'bg-pastel-verde-2 text-aviso-verde' : 'bg-tinta-100 text-tinta-400'">
                                 {{ equipo.estacion.activa ? 'Activa' : 'Inactiva' }}
                             </span>
                         </div>
@@ -148,7 +148,7 @@ function nuevo() {
 
                 <div v-else class="space-y-3">
                     <div v-for="m in equipo.mantenimientos" :key="m.id"
-                        class="bg-superficie rounded-2xl border border-linea p-4 hover:border-blue-200 cursor-pointer"
+                        class="bg-superficie rounded-2xl border border-linea p-4 hover:border-borde-aviso-azul cursor-pointer"
                         @click="router.visit(`/mantenimiento/mantenimientos/${m.id}`)">
                         <div class="flex items-center gap-3 mb-2">
                             <span class="text-xs px-2 py-0.5 rounded-full font-medium"
@@ -156,8 +156,8 @@ function nuevo() {
                                 {{ m.tipo }}
                             </span>
                             <span class="text-xs px-2 py-0.5 rounded-full font-medium"
-                                :class="m.estado === 'completado' ? 'bg-green-100 text-green-700'
-                                    : m.estado === 'en_proceso' ? 'bg-blue-100 text-blue-700'
+                                :class="m.estado === 'completado' ? 'bg-pastel-verde-2 text-aviso-verde'
+                                    : m.estado === 'en_proceso' ? 'bg-pastel-azul-2 text-aviso-azul'
                                     : 'bg-tinta-100 text-tinta-400'">
                                 {{ m.estado }}
                             </span>

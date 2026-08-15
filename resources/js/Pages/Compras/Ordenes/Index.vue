@@ -41,11 +41,11 @@ function aplicarFiltros() {
 
 const estados = {
     borrador:          { label: 'Borrador',          bg: 'bg-tinta-100',    text: 'text-tinta-700'   },
-    enviada:           { label: 'Enviada',            bg: 'bg-blue-100',    text: 'text-blue-700'   },
+    enviada:           { label: 'Enviada',            bg: 'bg-pastel-azul-2',    text: 'text-aviso-azul'   },
     confirmada:        { label: 'Confirmada',         bg: 'bg-[var(--marca-suave)]',  text: 'text-[var(--marca)]' },
-    recibida_parcial:  { label: 'Recib. Parcial',     bg: 'bg-yellow-100',  text: 'text-yellow-700' },
-    recibida:          { label: 'Recibida',           bg: 'bg-green-100',   text: 'text-green-700'  },
-    cancelada:         { label: 'Cancelada',          bg: 'bg-red-100',     text: 'text-red-700'    },
+    recibida_parcial:  { label: 'Recib. Parcial',     bg: 'bg-pastel-ambar-2',  text: 'text-aviso-ambar' },
+    recibida:          { label: 'Recibida',           bg: 'bg-pastel-verde-2',   text: 'text-aviso-verde'  },
+    cancelada:         { label: 'Cancelada',          bg: 'bg-pastel-rojo-2',     text: 'text-aviso-rojo'    },
 }
 
 function estadoBadge(e) {
@@ -101,7 +101,7 @@ function fmtMoney(n) {
             <div class="space-y-2">
                 <a v-for="o in ordenes.data" :key="o.id"
                     :href="`/compras/ordenes/${o.id}`"
-                    class="block bg-superficie rounded-xl border border-linea p-4 hover:border-blue-300 transition-colors">
+                    class="block bg-superficie rounded-xl border border-linea p-4 hover:border-borde-aviso-azul transition-colors">
                     <div class="flex items-start justify-between">
                         <div>
                             <div class="flex items-center gap-2 mb-1">

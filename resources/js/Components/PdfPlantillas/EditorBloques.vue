@@ -12,19 +12,19 @@ const emit = defineEmits(['update:bloques'])
 
 // ─── Tipos de bloque ──────────────────────────────────────────────────────────
 const TIPOS = {
-    texto:       { label: 'Texto',       icono: 'T',  color: 'bg-blue-100 text-blue-700' },
+    texto:       { label: 'Texto',       icono: 'T',  color: 'bg-pastel-azul-2 text-aviso-azul' },
     titulo:      { label: 'Título',      icono: 'H',  color: 'bg-[var(--marca-suave)] text-[var(--marca)]' },
-    imagen:      { label: 'Imagen',      icono: '🖼',  color: 'bg-green-100 text-green-700' },
+    imagen:      { label: 'Imagen',      icono: '🖼',  color: 'bg-pastel-verde-2 text-aviso-verde' },
     separador:   { label: 'Separador',   icono: '─',  color: 'bg-tinta-100 text-tinta-500' },
     spacer:      { label: 'Espacio',     icono: '□',  color: 'bg-tinta-50 text-tinta-300' },
-    variable:    { label: 'Variable',    icono: '⚡',  color: 'bg-yellow-100 text-yellow-700' },
-    columnas:    { label: 'Columnas',    icono: '▦',  color: 'bg-cyan-100 text-cyan-700' },
-    tabla:       { label: 'Tabla',       icono: '⊞',  color: 'bg-purple-100 text-purple-700' },
-    totales:     { label: 'Totales',     icono: '$',  color: 'bg-emerald-100 text-emerald-700' },
-    qr:          { label: 'QR',          icono: '▣',  color: 'bg-orange-100 text-orange-700' },
+    variable:    { label: 'Variable',    icono: '⚡',  color: 'bg-pastel-ambar-2 text-aviso-ambar' },
+    columnas:    { label: 'Columnas',    icono: '▦',  color: 'bg-pastel-azul-2 text-aviso-azul' },
+    tabla:       { label: 'Tabla',       icono: '⊞',  color: 'bg-pastel-violeta-2 text-aviso-violeta' },
+    totales:     { label: 'Totales',     icono: '$',  color: 'bg-pastel-verde-2 text-aviso-verde' },
+    qr:          { label: 'QR',          icono: '▣',  color: 'bg-pastel-naranja-2 text-aviso-naranja' },
     firma:       { label: 'Firma',       icono: '✍',  color: 'bg-pink-100 text-pink-700' },
-    sello:       { label: 'Sello',       icono: '●',  color: 'bg-red-100 text-red-700' },
-    lista_items: { label: 'Lista items', icono: '☰',  color: 'bg-violet-100 text-violet-700' },
+    sello:       { label: 'Sello',       icono: '●',  color: 'bg-pastel-rojo-2 text-aviso-rojo' },
+    lista_items: { label: 'Lista items', icono: '☰',  color: 'bg-pastel-violeta-2 text-aviso-violeta' },
 }
 
 // ─── Estado ───────────────────────────────────────────────────────────────────
@@ -293,7 +293,7 @@ function onColDragEnd() {
                     class="group flex items-center gap-2 px-2.5 py-2 cursor-pointer border-b border-linea transition-colors select-none"
                     :class="[
                         bloqueSeleccionadoId === bloque.id
-                            ? 'bg-blue-50 border-l-2 border-l-[var(--marca)]'
+                            ? 'bg-pastel-azul border-l-2 border-l-[var(--marca)]'
                             : 'hover:bg-superficie',
                         dragFromIdx === idx ? 'opacity-30' : ''
                     ]"
@@ -323,7 +323,7 @@ function onColDragEnd() {
                         >↓</button>
                         <button
                             @click.stop="eliminarBloque(bloque.id)"
-                            class="p-0.5 rounded hover:bg-red-100 text-red-400 text-xs"
+                            class="p-0.5 rounded hover:bg-pastel-rojo-2 text-red-400 text-xs"
                         >×</button>
                     </div>
                 </div>
@@ -672,7 +672,7 @@ function onColDragEnd() {
                                     class="w-14 border border-linea rounded px-1 py-1 text-xs shrink-0"
                                     title="Ancho en px (vacío = auto)" />
                                 <button @click="eliminarColTabla(bloqueSeleccionado, idx)"
-                                    class="text-red-400 hover:text-red-600 shrink-0">
+                                    class="text-red-400 hover:text-aviso-rojo shrink-0">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none"
                                         viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
@@ -712,7 +712,7 @@ function onColDragEnd() {
                                     :class="fila.destacado ? 'bg-[var(--marca)] text-white border-[var(--marca)]' : 'border-linea text-tinta-300'"
                                     title="Destacado">★</button>
                                 <button @click="eliminarFilaTotales(bloqueSeleccionado, idx)"
-                                    class="text-red-400 hover:text-red-600 text-sm shrink-0">×</button>
+                                    class="text-red-400 hover:text-aviso-rojo text-sm shrink-0">×</button>
                             </div>
                             <button @click="agregarFilaTotales(bloqueSeleccionado)"
                                 class="w-full py-1.5 text-xs rounded-lg border border-dashed border-tinta-200 text-tinta-400 hover:bg-tinta-50 transition-colors">
@@ -808,10 +808,10 @@ function onColDragEnd() {
 
                     <!-- ══ LISTA ITEMS ════════════════════════════════════════ -->
                     <template v-else-if="bloqueSeleccionado.tipo === 'lista_items'">
-                        <div class="bg-blue-50 rounded-xl p-3">
-                            <p class="text-xs text-blue-700 leading-relaxed">
+                        <div class="bg-pastel-azul rounded-xl p-3">
+                            <p class="text-xs text-aviso-azul leading-relaxed">
                                 Este bloque genera automáticamente una lista con todos los items usando
-                                <code class="bg-blue-100 px-1 rounded">&#123;&#123;#items&#125;&#125;…&#123;&#123;/items&#125;&#125;</code>.
+                                <code class="bg-pastel-azul-2 px-1 rounded">&#123;&#123;#items&#125;&#125;…&#123;&#123;/items&#125;&#125;</code>.
                                 No requiere configuración adicional.
                             </p>
                         </div>

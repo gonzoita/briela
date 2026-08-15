@@ -137,7 +137,7 @@ function calcularTotal(item) {
                         </div>
                         <div class="flex justify-between">
                             <span class="text-tinta-400">Válida hasta</span>
-                            <span :class="estadoActual === 'vencida' ? 'text-red-500 font-semibold' : ''">
+                            <span :class="estadoActual === 'vencida' ? 'text-aviso-rojo font-semibold' : ''">
                                 {{ formatFecha(cot.fecha_validez) }}
                             </span>
                         </div>
@@ -222,7 +222,7 @@ function calcularTotal(item) {
                         </div>
                         <div v-if="parseFloat(cot.descuento_total) > 0" class="flex justify-between text-sm text-tinta-500">
                             <span>Descuento</span>
-                            <span class="text-red-500">-${{ formatCOP(cot.descuento_total) }}</span>
+                            <span class="text-aviso-rojo">-${{ formatCOP(cot.descuento_total) }}</span>
                         </div>
                         <div v-if="parseFloat(cot.impuesto_total) > 0" class="flex justify-between text-sm text-tinta-500">
                             <span>IVA</span>
@@ -277,7 +277,7 @@ function calcularTotal(item) {
                        'Esta cotización ha vencido' }}
                 </p>
                 <p v-if="estadoActual === 'rechazada' && motivoRechazoActual"
-                    class="text-xs text-red-600 mt-2 whitespace-pre-line">
+                    class="text-xs text-aviso-rojo mt-2 whitespace-pre-line">
                     Motivo: {{ motivoRechazoActual }}
                 </p>
             </div>

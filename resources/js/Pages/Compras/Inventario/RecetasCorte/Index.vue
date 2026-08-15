@@ -98,7 +98,7 @@ function fmt(n) {
             <div class="flex items-center justify-between mb-4">
                 <div>
                     <h1 class="text-xl font-semibold text-tinta-900">Recetas de corte</h1>
-                    <a href="/inventario" class="text-sm text-blue-600 underline">Volver a inventario</a>
+                    <a href="/inventario" class="text-sm text-aviso-azul underline">Volver a inventario</a>
                 </div>
                 <button @click="abrirCrear"
                     class="inline-flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-medium text-white"
@@ -147,7 +147,7 @@ function fmt(n) {
                             Construir
                         </button>
                         <button @click="abrirEditar(receta)" class="text-sm text-tinta-500 font-medium">Editar</button>
-                        <button @click="eliminarReceta(receta)" class="text-sm text-red-600 font-medium">Eliminar</button>
+                        <button @click="eliminarReceta(receta)" class="text-sm text-aviso-rojo font-medium">Eliminar</button>
                     </div>
                 </div>
 

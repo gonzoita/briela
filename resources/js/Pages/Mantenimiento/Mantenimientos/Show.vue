@@ -9,15 +9,15 @@ const props = defineProps({
 const fmt = (n) => Number(n || 0).toLocaleString('es-CO')
 
 const tipoBadge = {
-    preventivo: 'bg-blue-100 text-blue-700',
-    correctivo: 'bg-red-100 text-red-700',
-    predictivo: 'bg-purple-100 text-purple-700',
+    preventivo: 'bg-pastel-azul-2 text-aviso-azul',
+    correctivo: 'bg-pastel-rojo-2 text-aviso-rojo',
+    predictivo: 'bg-pastel-violeta-2 text-aviso-violeta',
 }
 const estadoBadge = {
     programado: 'bg-tinta-100 text-tinta-500',
-    en_proceso: 'bg-blue-100 text-blue-700',
-    completado: 'bg-green-100 text-green-700',
-    cancelado:  'bg-red-100 text-red-500',
+    en_proceso: 'bg-pastel-azul-2 text-aviso-azul',
+    completado: 'bg-pastel-verde-2 text-aviso-verde',
+    cancelado:  'bg-pastel-rojo-2 text-aviso-rojo',
 }
 </script>
 

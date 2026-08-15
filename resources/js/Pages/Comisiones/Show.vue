@@ -11,9 +11,9 @@ const props = defineProps({
 
 const badgeEstado = (estado) => {
     const map = {
-        proyectada: 'bg-blue-100 text-blue-700',
-        confirmada: 'bg-yellow-100 text-yellow-700',
-        ejecutada:  'bg-green-100 text-green-700',
+        proyectada: 'bg-pastel-azul-2 text-aviso-azul',
+        confirmada: 'bg-pastel-ambar-2 text-aviso-ambar',
+        ejecutada:  'bg-pastel-verde-2 text-aviso-verde',
         liquidada:  'bg-tinta-100 text-tinta-500',
     }
     return map[estado] || 'bg-tinta-100 text-tinta-500'
@@ -95,7 +95,7 @@ const liquidar = () => {
                             {{ labelEstado(comision.estado) }}
                         </span>
                         <span v-if="bloqueada"
-                              class="ml-2 text-xs text-red-500 font-medium">
+                              class="ml-2 text-xs text-aviso-rojo font-medium">
                             🔒 Liquidada — no modificable
                         </span>
                     </div>
@@ -201,8 +201,8 @@ const liquidar = () => {
                                         <p class="font-medium text-tinta-900">{{ item.descripcion }}</p>
                                         <span class="text-xs px-2 py-0.5 rounded-full"
                                               :class="item.tipo === 'ensamble'
-                                                ? 'bg-orange-100 text-orange-600'
-                                                : 'bg-blue-100 text-blue-600'">
+                                                ? 'bg-pastel-naranja-2 text-aviso-naranja'
+                                                : 'bg-pastel-azul-2 text-aviso-azul'">
                                             {{ item.tipo }}
                                         </span>
                                     </td>
@@ -214,7 +214,7 @@ const liquidar = () => {
                                         {{ item.descuento_pct > 0 ? item.descuento_pct + '%' : '—' }}
                                     </td>
                                     <td class="px-3 py-3 text-right">
-                                        <span class="font-medium text-amber-600">{{ item.comision_pct }}%</span>
+                                        <span class="font-medium text-aviso-ambar">{{ item.comision_pct }}%</span>
                                     </td>
                                     <td class="px-5 py-3 text-right">
                                         <span class="font-semibold text-tinta-900">
@@ -230,14 +230,14 @@ const liquidar = () => {
                                     </td>
                                 </tr>
                             </tbody>
-                            <tfoot class="bg-amber-50 border-t-2 border-amber-200">
+                            <tfoot class="bg-pastel-ambar border-t-2 border-borde-aviso-ambar">
                                 <tr>
                                     <td colspan="5"
-                                        class="px-5 py-3 text-sm font-semibold text-amber-700 text-right">
+                                        class="px-5 py-3 text-sm font-semibold text-aviso-ambar text-right">
                                         TOTAL COMISIÓN
                                     </td>
                                     <td class="px-5 py-3 text-right">
-                                        <span class="text-lg font-semibold text-amber-800">
+                                        <span class="text-lg font-semibold text-aviso-ambar">
                                             {{ formatCOP(comision.total_comision) }}
                                         </span>
                                     </td>
@@ -258,8 +258,8 @@ const liquidar = () => {
                                     <p class="font-medium text-tinta-900 text-sm">{{ item.descripcion }}</p>
                                     <span class="text-xs px-2 py-0.5 rounded-full"
                                           :class="item.tipo === 'ensamble'
-                                            ? 'bg-orange-100 text-orange-600'
-                                            : 'bg-blue-100 text-blue-600'">
+                                            ? 'bg-pastel-naranja-2 text-aviso-naranja'
+                                            : 'bg-pastel-azul-2 text-aviso-azul'">
                                         {{ item.tipo }}
                                     </span>
                                 </div>
@@ -271,13 +271,13 @@ const liquidar = () => {
                                 <span>{{ item.cantidad }} u.</span>
                                 <span>{{ formatCOP(item.precio_unitario) }}</span>
                                 <span v-if="item.descuento_pct > 0">-{{ item.descuento_pct }}%</span>
-                                <span class="text-amber-600 font-medium">Com: {{ item.comision_pct }}%</span>
+                                <span class="text-aviso-ambar font-medium">Com: {{ item.comision_pct }}%</span>
                             </div>
                         </div>
-                        <div class="bg-amber-50 px-4 py-3 flex justify-between items-center
-                                    border-t-2 border-amber-200">
-                            <span class="text-sm font-semibold text-amber-700">TOTAL COMISIÓN</span>
-                            <span class="text-lg font-semibold text-amber-800">
+                        <div class="bg-pastel-ambar px-4 py-3 flex justify-between items-center
+                                    border-t-2 border-borde-aviso-ambar">
+                            <span class="text-sm font-semibold text-aviso-ambar">TOTAL COMISIÓN</span>
+                            <span class="text-lg font-semibold text-aviso-ambar">
                                 {{ formatCOP(comision.total_comision) }}
                             </span>
                         </div>

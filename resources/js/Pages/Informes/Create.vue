@@ -27,32 +27,32 @@ const fuentes = [
         key: 'ops',
         label: 'Órdenes de Producción',
         desc: 'Analiza el estado y avance de las OPs',
-        color: 'border-blue-200 bg-blue-50',
-        colorActivo: 'border-blue-500 bg-blue-50',
+        color: 'border-borde-aviso-azul bg-pastel-azul',
+        colorActivo: 'border-blue-500 bg-pastel-azul',
         icon: 'clipboard',
     },
     {
         key: 'colaboradores',
         label: 'Colaboradores',
         desc: 'Puntos, niveles y tipos de colaboradores',
-        color: 'border-green-200 bg-green-50',
-        colorActivo: 'border-green-500 bg-green-50',
+        color: 'border-borde-aviso-verde bg-pastel-verde',
+        colorActivo: 'border-green-500 bg-pastel-verde',
         icon: 'workers',
     },
     {
         key: 'cotizaciones',
         label: 'Cotizaciones',
         desc: 'Cotizaciones por estado, vendedor y total',
-        color: 'border-orange-200 bg-orange-50',
-        colorActivo: 'border-orange-500 bg-orange-50',
+        color: 'border-borde-aviso-naranja bg-pastel-naranja',
+        colorActivo: 'border-orange-500 bg-pastel-naranja',
         icon: 'cotizacion',
     },
     {
         key: 'pasos',
         label: 'Pasos de Trabajo',
         desc: 'Pasos programados por estación y colaborador',
-        color: 'border-purple-200 bg-purple-50',
-        colorActivo: 'border-purple-500 bg-purple-50',
+        color: 'border-borde-aviso-violeta bg-pastel-violeta',
+        colorActivo: 'border-purple-500 bg-pastel-violeta',
         icon: 'trabajos',
     },
 ]
@@ -214,7 +214,7 @@ function guardar() {
                         :key="campo.key"
                         class="flex items-center gap-3 p-3.5 rounded-xl border cursor-pointer transition-colors"
                         :class="camposSelec.includes(campo.key)
-                            ? 'border-blue-300 bg-blue-50'
+                            ? 'border-borde-aviso-azul bg-pastel-azul'
                             : 'border-linea bg-superficie hover:border-tinta-200'"
                     >
                         <input
@@ -229,7 +229,7 @@ function guardar() {
                     </label>
                 </div>
 
-                <p v-if="!camposSelec.length" class="text-xs text-red-500 mt-2">Selecciona al menos un campo.</p>
+                <p v-if="!camposSelec.length" class="text-xs text-aviso-rojo mt-2">Selecciona al menos un campo.</p>
 
                 <div class="flex items-center justify-between mt-6">
                     <button @click="anteriorPaso" class="px-5 py-2.5 rounded-xl text-sm font-medium text-tinta-500 hover:bg-tinta-100">
@@ -323,7 +323,7 @@ function guardar() {
                             type="text"
                             placeholder="Ej: OPs en producción — Junio 2026"
                             class="w-full rounded-xl border border-linea px-3 py-2.5 text-sm text-tinta-900 focus:outline-none focus:border-[var(--marca)]"
-                            :class="!nombre && 'border-red-300'"
+                            :class="!nombre && 'border-borde-aviso-rojo'"
                         />
                     </div>
 

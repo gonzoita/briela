@@ -93,11 +93,22 @@ renglón del puntero. Los tres cambian con el tema. **Prohibido** `divide-gray-5
 casi blancas —15,6:1 contra la superficie— y hovers que destellan. Ver
 `docs/manual/marca.md`.
 
-Los fondos de aviso van con los pasteles del tema (`--pastel-azul`, `-verde`, `-ambar`,
-`-rojo`, `-violeta`, `-naranja`) y su texto con `--texto-azul` y compañía: en modo noche
-el pastel se vuelve un tinte oscuro y el texto se aclara. Un `bg-blue-50` con
-`text-blue-700` escritos a mano quedan claro sobre claro de día y oscuro sobre oscuro de
-noche. Quedan 371 sitios con esa deuda; al tocar una pantalla, corregir los suyos.
+Los fondos de aviso van con las familias del tema, **nunca con un color fijo**. Cada
+familia —azul, verde, ámbar, rojo, violeta, naranja— tiene cuatro clases y las cuatro se
+necesitan:
+
+| Clase | Para qué |
+|---|---|
+| `bg-pastel-rojo` | El fondo de la caja |
+| `bg-pastel-rojo-2` | El fondo de la insignia que va **dentro** de la caja |
+| `border-borde-aviso-rojo` | Su borde |
+| `text-aviso-rojo` | Su texto |
+
+Un `bg-red-50` con `text-red-700` escritos a mano quedan claro sobre claro de día y
+oscuro sobre oscuro de noche: ilegibles de las dos maneras. El 15 ago 2026 se cambiaron
+596 fondos, 1.188 textos y 279 bordes; ya no queda ninguno fijo, y hay que mantenerlo
+así. Los fondos **saturados** (`bg-red-500` de un botón, con `text-white`) sí se quedan:
+funcionan igual en los dos temas.
 
 ## Listas: el orden lo pide la pantalla
 

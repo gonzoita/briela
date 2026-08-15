@@ -37,20 +37,20 @@ const emit = defineEmits(['usar-rues'])
                 casi siempre significa que se equivocó digitando el NIT.
             -->
             <div v-if="resultado.dv_aviso"
-                class="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
+                class="rounded-lg border border-borde-aviso-ambar bg-pastel-ambar px-3 py-2 text-xs text-aviso-ambar">
                 {{ resultado.dv_aviso }} Lo corregimos, pero revisa que el número esté bien.
             </div>
 
             <!-- Cliente duplicado: lo más importante de todo el panel -->
             <div v-if="resultado.duplicado"
-                class="rounded-lg border border-red-200 bg-red-50 px-3 py-2.5 text-xs text-red-800">
+                class="rounded-lg border border-borde-aviso-rojo bg-pastel-rojo px-3 py-2.5 text-xs text-aviso-rojo">
                 <p class="font-semibold mb-0.5">Este cliente ya existe</p>
                 <p>
                     {{ resultado.duplicado.nombre }}
-                    <span v-if="resultado.duplicado.sede" class="text-red-600">
+                    <span v-if="resultado.duplicado.sede" class="text-aviso-rojo">
                         · sede {{ resultado.duplicado.sede }}
                     </span>
-                    <span v-if="!resultado.duplicado.activo" class="text-red-600">· inactivo</span>
+                    <span v-if="!resultado.duplicado.activo" class="text-aviso-rojo">· inactivo</span>
                 </p>
                 <a :href="resultado.duplicado.url"
                     class="inline-block mt-1.5 font-semibold underline hover:no-underline">
@@ -60,27 +60,27 @@ const emit = defineEmits(['usar-rues'])
 
             <!-- Datos encontrados en el RUES -->
             <div v-if="resultado.rues"
-                class="rounded-lg border border-green-200 bg-green-50 px-3 py-2.5 text-xs text-green-900">
+                class="rounded-lg border border-borde-aviso-verde bg-pastel-verde px-3 py-2.5 text-xs text-aviso-verde">
                 <p class="font-semibold mb-1">Encontrado en el registro mercantil</p>
                 <p class="font-medium">{{ resultado.rues.razon_social }}</p>
-                <p v-if="resultado.rues.sigla" class="text-green-700">
+                <p v-if="resultado.rues.sigla" class="text-aviso-verde">
                     Sigla: {{ resultado.rues.sigla }}
                 </p>
-                <p v-if="resultado.rues.organizacion" class="text-green-700">
+                <p v-if="resultado.rues.organizacion" class="text-aviso-verde">
                     {{ resultado.rues.organizacion }}
                 </p>
-                <p v-if="resultado.rues.camara_comercio" class="text-green-700">
+                <p v-if="resultado.rues.camara_comercio" class="text-aviso-verde">
                     Cámara de Comercio de {{ resultado.rues.camara_comercio }}
                 </p>
-                <p v-if="resultado.rues.representante" class="text-green-700">
+                <p v-if="resultado.rues.representante" class="text-aviso-verde">
                     Representante legal: {{ resultado.rues.representante }}
                 </p>
 
                 <!-- La matrícula cancelada o inactiva es una señal de negocio -->
                 <p v-if="resultado.rues.estado_matricula"
                     :class="resultado.rues.estado_matricula === 'ACTIVA'
-                        ? 'text-green-700 mt-1'
-                        : 'mt-1.5 rounded bg-amber-100 text-amber-900 px-2 py-1 font-semibold'">
+                        ? 'text-aviso-verde mt-1'
+                        : 'mt-1.5 rounded bg-pastel-ambar-2 text-aviso-ambar px-2 py-1 font-semibold'">
                     Matrícula: {{ resultado.rues.estado_matricula }}
                     <span v-if="resultado.rues.ultimo_renovado" class="font-normal">
                         · renovada en {{ resultado.rues.ultimo_renovado }}
@@ -91,7 +91,7 @@ const emit = defineEmits(['usar-rues'])
                     class="mt-2 rounded-lg bg-green-600 px-3 py-1.5 font-semibold text-white hover:bg-green-700">
                     Usar la razón social
                 </button>
-                <p class="mt-1.5 text-green-600">
+                <p class="mt-1.5 text-aviso-verde">
                     El registro no publica correo, teléfono ni dirección: eso toca escribirlo.
                 </p>
             </div>

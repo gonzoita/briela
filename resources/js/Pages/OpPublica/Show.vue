@@ -56,7 +56,7 @@ const badgeItem = (e) => ESTADOS_ITEM[e] ?? ESTADOS_ITEM.pendiente
                     </div>
                     <div v-if="op.fecha_entrega" class="flex justify-between">
                         <span class="text-tinta-400">Entrega estimada</span>
-                        <span class="text-amber-600 font-medium">{{ op.fecha_entrega }}</span>
+                        <span class="text-aviso-ambar font-medium">{{ op.fecha_entrega }}</span>
                     </div>
                 </div>
             </div>

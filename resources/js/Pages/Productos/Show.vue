@@ -277,7 +277,7 @@ const fmtFecha = (d) => d ? new Date(d).toLocaleDateString('es-CO', { day: '2-di
                                 <div class="flex justify-between px-3 py-2"><span class="text-xs text-tinta-400">Costo</span><span class="text-xs font-semibold text-tinta-900">{{ formatCOP(p.configuracion_puerta.costo) }}</span></div>
                                 <div class="flex justify-between px-3 py-2"><span class="text-xs text-tinta-400">Mayorista</span><span class="text-xs font-semibold text-tinta-900">{{ formatCOP(p.configuracion_puerta.mayorista) }}</span></div>
                                 <div class="flex justify-between px-3 py-2"><span class="text-xs text-tinta-400">Distribuidor</span><span class="text-xs font-semibold text-tinta-900">{{ formatCOP(p.configuracion_puerta.distribuidor) }}</span></div>
-                                <div class="flex justify-between px-3 py-2 bg-blue-50"><span class="text-xs font-semibold" style="color:var(--marca);">Cliente Final</span><span class="text-xs font-semibold" style="color:var(--marca);">{{ formatCOP(p.configuracion_puerta.cliente_final) }}</span></div>
+                                <div class="flex justify-between px-3 py-2 bg-pastel-azul"><span class="text-xs font-semibold" style="color:var(--marca);">Cliente Final</span><span class="text-xs font-semibold" style="color:var(--marca);">{{ formatCOP(p.configuracion_puerta.cliente_final) }}</span></div>
                             </div>
                         </div>
                     </div>
@@ -392,7 +392,7 @@ const fmtFecha = (d) => d ? new Date(d).toLocaleDateString('es-CO', { day: '2-di
                                         style="background:var(--tinta-100); color:var(--tinta-500);">base</span>
                                 </span>
                                 <span class="text-sm font-semibold shrink-0"
-                                    :class="c.precio > 0 ? '' : 'text-amber-600'"
+                                    :class="c.precio > 0 ? '' : 'text-aviso-ambar'"
                                     :style="c.es_precio_publico && c.precio > 0 ? 'color:var(--marca);' : ''">
                                     {{ c.precio > 0 ? formatCOP(c.precio) : 'sin precio' }}
                                 </span>
@@ -444,14 +444,14 @@ const fmtFecha = (d) => d ? new Date(d).toLocaleDateString('es-CO', { day: '2-di
                                     </div>
                                     <div class="text-right shrink-0">
                                         <p class="text-sm font-semibold"
-                                            :class="pv.proveedor_id === masBaratoId && proveedoresOrdenados.length > 1 ? 'text-emerald-600' : 'text-tinta-900'">
+                                            :class="pv.proveedor_id === masBaratoId && proveedoresOrdenados.length > 1 ? 'text-aviso-verde' : 'text-tinta-900'">
                                             {{ formatCOP(pv.precio) }}
                                         </p>
                                         <p v-if="pv.proveedor_id === masBaratoId && proveedoresOrdenados.length > 1"
-                                            class="text-[10px] font-semibold text-emerald-600">más barato</p>
+                                            class="text-[10px] font-semibold text-aviso-verde">más barato</p>
                                     </div>
                                 </div>
-                                <p v-if="pv.dias_desde !== null && pv.dias_desde > 90" class="text-xs text-amber-700 mt-1">
+                                <p v-if="pv.dias_desde !== null && pv.dias_desde > 90" class="text-xs text-aviso-ambar mt-1">
                                     ⚠ Precio de hace {{ pv.dias_desde }} días. Conviene confirmarlo.
                                 </p>
                                 <p v-else-if="!pv.actualizado_el" class="text-xs text-tinta-300 mt-1">
@@ -480,7 +480,7 @@ const fmtFecha = (d) => d ? new Date(d).toLocaleDateString('es-CO', { day: '2-di
                                 </div>
                                 <div class="flex items-center gap-2">
                                     <span class="text-xs font-medium px-2 py-0.5 rounded-full" style="background:var(--pastel-violeta);color:var(--texto-violeta);">{{ v.valor_variante }}</span>
-                                    <span class="text-xs font-semibold text-green-600">{{ v.stock_total }}</span>
+                                    <span class="text-xs font-semibold text-aviso-verde">{{ v.stock_total }}</span>
                                 </div>
                             </div>
                             <p v-if="!p.variantes?.length" class="text-xs text-tinta-300 text-center py-3">Sin variantes.</p>
@@ -567,7 +567,7 @@ const fmtFecha = (d) => d ? new Date(d).toLocaleDateString('es-CO', { day: '2-di
                             Editar
                         </button>
                         <button @click="confirmarEliminar = true"
-                            class="px-4 py-3 rounded-xl border border-red-200 text-red-500 text-sm font-medium hover:bg-red-50">
+                            class="px-4 py-3 rounded-xl border border-borde-aviso-rojo text-aviso-rojo text-sm font-medium hover:bg-pastel-rojo">
                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                             </svg>

@@ -369,7 +369,7 @@ const seccionesTabs = [
 
                     <!-- Estado + Guardar -->
                     <div class="flex items-center gap-2 shrink-0">
-                        <span class="text-xs hidden sm:inline" :class="guardado ? 'text-green-600' : sinGuardar ? 'text-amber-500' : 'text-tinta-300'">
+                        <span class="text-xs hidden sm:inline" :class="guardado ? 'text-aviso-verde' : sinGuardar ? 'text-aviso-ambar' : 'text-tinta-300'">
                             {{ guardado ? '✓ Guardado' : sinGuardar ? '● Sin guardar' : '' }}
                         </span>
                         <button
@@ -488,7 +488,7 @@ const seccionesTabs = [
                             <button
                                 @click="mostrarVars = !mostrarVars"
                                 class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border transition-colors"
-                                :class="mostrarVars ? 'bg-blue-50 border-[var(--marca)] text-[var(--marca)]' : 'border-linea text-tinta-700 hover:bg-tinta-50'"
+                                :class="mostrarVars ? 'bg-pastel-azul border-[var(--marca)] text-[var(--marca)]' : 'border-linea text-tinta-700 hover:bg-tinta-50'"
                             >
                                 <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h8m-8 6h16"/>
@@ -507,7 +507,7 @@ const seccionesTabs = [
                             @click="seccionActiva = sec.key"
                             class="flex-1 px-3 py-2.5 text-xs font-medium transition-colors border-b-2"
                             :class="seccionActiva === sec.key
-                                ? 'border-[var(--marca)] text-[var(--marca)] bg-blue-50'
+                                ? 'border-[var(--marca)] text-[var(--marca)] bg-pastel-azul'
                                 : 'border-transparent text-tinta-400 hover:text-tinta-700 hover:bg-tinta-50'"
                         >
                             {{ sec.label }}
@@ -565,7 +565,7 @@ const seccionesTabs = [
                                                     <button
                                                         @click="copiarVariable(v.var)"
                                                         class="shrink-0 text-xs px-1.5 py-0.5 rounded-lg transition-colors opacity-0 group-hover:opacity-100"
-                                                        :class="copiadoVar === v.var ? 'bg-green-100 text-green-700' : 'bg-tinta-100 text-tinta-400'">
+                                                        :class="copiadoVar === v.var ? 'bg-pastel-verde-2 text-aviso-verde' : 'bg-tinta-100 text-tinta-400'">
                                                         {{ copiadoVar === v.var ? '✓' : 'Copiar' }}
                                                     </button>
                                                 </div>

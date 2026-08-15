@@ -60,7 +60,7 @@ function eliminar(curso) {
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422A12.083 12.083 0 0121 15.5V17a2 2 0 01-2 2H5a2 2 0 01-2-2v-1.5c0-.994.212-1.964.582-2.858L12 14z"/>
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 14v7"/>
                 </svg>
-                <p class="text-sm">Sin cursos. <a href="/capacitacion/cursos/crear" class="text-blue-600 hover:underline" @click.prevent="router.visit('/capacitacion/cursos/crear')">Crea el primero</a>.</p>
+                <p class="text-sm">Sin cursos. <a href="/capacitacion/cursos/crear" class="text-aviso-azul hover:underline" @click.prevent="router.visit('/capacitacion/cursos/crear')">Crea el primero</a>.</p>
             </div>
 
             <!-- Grid de tarjetas -->
@@ -91,7 +91,7 @@ function eliminar(curso) {
                                 <span class="inline-block h-4 w-4 transform rounded-full bg-superficie transition-transform"
                                     :style="c.activo ? 'transform:translateX(18px);' : 'transform:translateX(2px);'"/>
                             </button>
-                            <button @click="eliminar(c)" class="w-7 h-7 rounded-lg flex items-center justify-center text-tinta-300 hover:text-red-600 hover:bg-red-50 transition-colors">
+                            <button @click="eliminar(c)" class="w-7 h-7 rounded-lg flex items-center justify-center text-tinta-300 hover:text-aviso-rojo hover:bg-pastel-rojo transition-colors">
                                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                                 </svg>

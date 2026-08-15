@@ -289,12 +289,12 @@ const faltaConfigurar = computed(() => {
                         <!-- Lo que falta para que los precios funcionen. Va arriba y en rojo
                              porque nada de esto da error en pantalla: se descubre cobrando. -->
                         <div v-if="tipo.key === 'tipo_contacto' && faltaConfigurar.length"
-                            class="mb-3 px-3 py-2.5 rounded-xl bg-red-50 border border-red-200">
-                            <p class="text-xs font-semibold text-red-700 mb-1">Falta configurar</p>
+                            class="mb-3 px-3 py-2.5 rounded-xl bg-pastel-rojo border border-borde-aviso-rojo">
+                            <p class="text-xs font-semibold text-aviso-rojo mb-1">Falta configurar</p>
                             <ul class="space-y-0.5">
-                                <li v-for="f in faltaConfigurar" :key="f" class="text-xs text-red-700 leading-relaxed">· {{ f }}</li>
+                                <li v-for="f in faltaConfigurar" :key="f" class="text-xs text-aviso-rojo leading-relaxed">· {{ f }}</li>
                             </ul>
-                            <p class="text-xs text-red-600 mt-1.5">
+                            <p class="text-xs text-aviso-rojo mt-1.5">
                                 Toca «canal base» o «precio público» en la opción que deba serlo. Se marca de una,
                                 sin tener que darle «define precio» antes.
                             </p>
@@ -370,14 +370,14 @@ const faltaConfigurar = computed(() => {
                                         <span class="text-xs text-tinta-300 font-mono hidden sm:block shrink-0">{{ op.valor }}</span>
                                         <div class="flex gap-1 shrink-0">
                                             <button type="button" @click="iniciarEdicion(op)"
-                                                class="text-xs px-2 py-1 rounded text-blue-600 hover:bg-realce">Editar</button>
+                                                class="text-xs px-2 py-1 rounded text-aviso-azul hover:bg-realce">Editar</button>
                                             <button type="button"
                                                 :disabled="op.atada_a_precios"
                                                 @click="op.atada_a_precios ? avisarNoBorrable(op) : eliminar(op.id, op)"
                                                 class="text-xs px-2 py-1 rounded"
                                                 :class="op.atada_a_precios
                                                     ? 'text-tinta-300 cursor-help'
-                                                    : 'text-red-500 hover:bg-red-50'"
+                                                    : 'text-aviso-rojo hover:bg-pastel-rojo'"
                                                 :title="op.atada_a_precios
                                                     ? 'Define precio, así que no se puede eliminar. Toca para saber por qué.'
                                                     : 'Eliminar esta opción'">
@@ -401,8 +401,8 @@ const faltaConfigurar = computed(() => {
                                         <button type="button" @click="cambiarMarca(op, 'define_precio')"
                                             class="flex items-center gap-1 text-[11px] px-2 py-1 rounded-lg border cursor-pointer transition-colors"
                                             :class="op.define_precio
-                                                ? 'bg-amber-50 text-amber-700 border-amber-200'
-                                                : 'bg-superficie text-tinta-400 border-tinta-200 hover:border-amber-300 hover:text-amber-700'"
+                                                ? 'bg-pastel-ambar text-aviso-ambar border-borde-aviso-ambar'
+                                                : 'bg-superficie text-tinta-400 border-tinta-200 hover:border-borde-aviso-ambar hover:text-aviso-ambar'"
                                             :title="op.define_precio
                                                 ? 'Tiene su propia lista de precios en productos y ensambles. Toca para quitarlo.'
                                                 : 'Toca para darle su propia lista de precios: aparecerá en cada producto y ensamble.'">
@@ -418,8 +418,8 @@ const faltaConfigurar = computed(() => {
                                         <button type="button" @click="cambiarMarca(op, 'es_canal_base')"
                                             class="flex items-center gap-1 text-[11px] px-2 py-1 rounded-lg border cursor-pointer transition-colors"
                                             :class="op.es_canal_base
-                                                ? 'bg-blue-50 text-blue-700 border-blue-200'
-                                                : 'bg-superficie text-tinta-400 border-tinta-200 hover:border-blue-300 hover:text-blue-700'"
+                                                ? 'bg-pastel-azul text-aviso-azul border-borde-aviso-azul'
+                                                : 'bg-superficie text-tinta-400 border-tinta-200 hover:border-borde-aviso-azul hover:text-aviso-azul'"
                                             title="El piso de utilidad de la empresa: no paga comisión al vendedor, y la comisión de los demás canales se calcula contra su precio. Solo uno puede serlo.">
                                             <span class="w-3 h-3 rounded-sm border flex items-center justify-center shrink-0"
                                                 :class="op.es_canal_base ? 'bg-blue-600 border-blue-600' : 'border-tinta-300'">
@@ -433,8 +433,8 @@ const faltaConfigurar = computed(() => {
                                         <button type="button" @click="cambiarMarca(op, 'es_precio_publico')"
                                             class="flex items-center gap-1 text-[11px] px-2 py-1 rounded-lg border cursor-pointer transition-colors"
                                             :class="op.es_precio_publico
-                                                ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                                                : 'bg-superficie text-tinta-400 border-tinta-200 hover:border-emerald-300 hover:text-emerald-700'"
+                                                ? 'bg-pastel-verde text-aviso-verde border-borde-aviso-verde'
+                                                : 'bg-superficie text-tinta-400 border-tinta-200 hover:border-borde-aviso-verde hover:text-aviso-verde'"
                                             title="El precio que ve alguien que no ha entrado al sistema, en el catálogo público. Solo uno puede serlo.">
                                             <span class="w-3 h-3 rounded-sm border flex items-center justify-center shrink-0"
                                                 :class="op.es_precio_publico ? 'bg-emerald-600 border-emerald-600' : 'border-tinta-300'">
@@ -483,7 +483,7 @@ const faltaConfigurar = computed(() => {
                         </div>
 
                         <button v-else type="button" @click="iniciarNuevo(tipo.key)"
-                            class="w-full mt-1 text-sm py-2 rounded-lg border border-dashed border-tinta-200 text-tinta-300 hover:border-blue-400 hover:text-blue-600 transition-colors">
+                            class="w-full mt-1 text-sm py-2 rounded-lg border border-dashed border-tinta-200 text-tinta-300 hover:border-blue-400 hover:text-aviso-azul transition-colors">
                             + Agregar opción
                         </button>
                     </div>

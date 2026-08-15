@@ -471,7 +471,7 @@ onMounted(() => {
 
             <!-- Badge cambios sin guardar -->
             <div v-if="hasChanges"
-                class="mb-3 inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold text-orange-700"
+                class="mb-3 inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold text-aviso-naranja"
                 style="background:var(--pastel-ambar); border:1px solid #F59E0B;">
                 ● Cambios sin guardar
             </div>
@@ -495,7 +495,7 @@ onMounted(() => {
             </div>
 
             <!-- Error -->
-            <div v-if="errorMsg" class="mb-4 bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-sm text-red-700 flex items-center justify-between">
+            <div v-if="errorMsg" class="mb-4 bg-pastel-rojo border border-borde-aviso-rojo rounded-xl px-4 py-3 text-sm text-aviso-rojo flex items-center justify-between">
                 {{ errorMsg }}
                 <button @click="errorMsg = ''" class="text-red-400 ml-3">✕</button>
             </div>
@@ -531,7 +531,7 @@ onMounted(() => {
                     </p>
 
                     <div v-if="!esDirecto">
-                        <label class="block text-sm font-medium text-tinta-700 mb-1.5">Plantilla <span class="text-red-500">*</span></label>
+                        <label class="block text-sm font-medium text-tinta-700 mb-1.5">Plantilla <span class="text-aviso-rojo">*</span></label>
                         <select v-model="plantillaId" :disabled="esEdicion"
                             class="w-full border border-linea rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-[var(--marca)] disabled:bg-tinta-50">
                             <option value="">— Seleccionar plantilla —</option>
@@ -540,7 +540,7 @@ onMounted(() => {
                     </div>
 
                     <div v-if="plantillaSeleccionada || esDirecto">
-                        <label class="block text-sm font-medium text-tinta-700 mb-1.5">Nombre del ensamble <span class="text-red-500">*</span></label>
+                        <label class="block text-sm font-medium text-tinta-700 mb-1.5">Nombre del ensamble <span class="text-aviso-rojo">*</span></label>
                         <input v-model="nombre" type="text"
                             class="w-full border border-linea rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-[var(--marca)]"
                             placeholder="Nombre descriptivo..."
@@ -601,7 +601,7 @@ onMounted(() => {
                                  calculados: son datos técnicos de verdad y no hay que escribirlos. -->
                             <GeneradorFichaIa :datos="datosParaFicha" :ensamble-id="ensamble?.id ?? null"
                                 @usar="aplicarFicha" />
-                            <span class="text-xs" :class="(descripcionCorta ?? '').length > 900 ? 'text-amber-500 font-semibold' : 'text-tinta-300'">
+                            <span class="text-xs" :class="(descripcionCorta ?? '').length > 900 ? 'text-aviso-ambar font-semibold' : 'text-tinta-300'">
                                 {{ (descripcionCorta ?? '').length }}/1000
                             </span>
                         </div>
@@ -610,7 +610,7 @@ onMounted(() => {
                         class="w-full border rounded-xl px-3 py-2 text-sm focus:outline-none resize-none"
                         :class="page.props.errors?.descripcion_corta ? 'border-red-400 focus:border-red-400' : 'border-linea focus:border-[var(--marca)]'"
                         placeholder="Descripción breve para el catálogo..." />
-                    <p v-if="page.props.errors?.descripcion_corta" class="mt-1 text-xs text-red-600">
+                    <p v-if="page.props.errors?.descripcion_corta" class="mt-1 text-xs text-aviso-rojo">
                         {{ page.props.errors.descripcion_corta }}
                     </p>
                 </div>
@@ -620,7 +620,7 @@ onMounted(() => {
                 <div class="mb-4">
                     <div class="flex items-center justify-between mb-1">
                         <label class="text-sm font-medium text-tinta-700">Resumen técnico para cotizaciones</label>
-                        <span class="text-xs" :class="(descripcionCotizacion ?? '').length > 500 ? 'text-amber-500 font-semibold' : 'text-tinta-300'">
+                        <span class="text-xs" :class="(descripcionCotizacion ?? '').length > 500 ? 'text-aviso-ambar font-semibold' : 'text-tinta-300'">
                             {{ (descripcionCotizacion ?? '').length }}/600
                         </span>
                     </div>
@@ -638,7 +638,7 @@ onMounted(() => {
                 <div class="mb-4">
                     <div class="flex items-center justify-between mb-1.5">
                         <label class="text-sm font-medium text-tinta-700">Descripción larga</label>
-                        <span class="text-xs" :class="(descripcionLarga ?? '').replace(/<[^>]*>/g, '').length > 9000 ? 'text-amber-500 font-semibold' : 'text-tinta-300'">
+                        <span class="text-xs" :class="(descripcionLarga ?? '').replace(/<[^>]*>/g, '').length > 9000 ? 'text-aviso-ambar font-semibold' : 'text-tinta-300'">
                             {{ (descripcionLarga ?? '').replace(/<[^>]*>/g, '').length }}/10000
                         </span>
                     </div>
@@ -689,7 +689,7 @@ onMounted(() => {
                                     <button @click="quitarImagenSecundaria(ruta)"
                                         class="absolute top-0.5 right-0.5 w-4 h-4 bg-red-500 text-white rounded-full text-xs flex items-center justify-center leading-none">✕</button>
                                 </div>
-                                <label class="w-20 h-20 rounded-xl border-2 border-dashed border-linea flex items-center justify-center cursor-pointer hover:border-blue-300 text-tinta-200 hover:text-blue-400 transition-colors">
+                                <label class="w-20 h-20 rounded-xl border-2 border-dashed border-linea flex items-center justify-center cursor-pointer hover:border-borde-aviso-azul text-tinta-200 hover:text-blue-400 transition-colors">
                                     <input type="file" accept="image/*" class="hidden" @change="subirImagenSecundaria" />
                                     <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
@@ -757,7 +757,7 @@ onMounted(() => {
                         <div v-else :class="campo.tipo === 'checkbox' || campo.tipo === 'boolean' ? 'flex items-center gap-3' : ''">
                             <label :class="['text-sm font-medium text-tinta-700', campo.tipo !== 'checkbox' && campo.tipo !== 'boolean' ? 'block mb-1.5' : '']">
                                 {{ campo.etiqueta }}
-                                <span v-if="campo.requerido && campo.tipo !== 'checkbox'" class="text-red-500">*</span>
+                                <span v-if="campo.requerido && campo.tipo !== 'checkbox'" class="text-aviso-rojo">*</span>
                             </label>
                             <select v-if="campo.tipo === 'select'" v-model="variables[campo.nombre]"
                                 class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[var(--marca)]">
@@ -771,7 +771,7 @@ onMounted(() => {
                             <input v-else-if="campo.tipo === 'boolean' || campo.tipo === 'checkbox'"
                                 v-model="variables[campo.nombre]"
                                 type="checkbox"
-                                class="w-4 h-4 rounded text-blue-600" />
+                                class="w-4 h-4 rounded text-aviso-azul" />
                             <input v-else
                                 v-model="variables[campo.nombre]"
                                 type="text"

@@ -165,7 +165,7 @@ const ic = (extra = '') =>
                                                     autofocus
                                                 />
                                                 <button @click="guardarPrecio(item)"
-                                                    class="w-6 h-6 rounded flex items-center justify-center text-green-600 hover:bg-green-50">
+                                                    class="w-6 h-6 rounded flex items-center justify-center text-aviso-verde hover:bg-pastel-verde">
                                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.6">
                                                         <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
                                                     </svg>
@@ -182,7 +182,7 @@ const ic = (extra = '') =>
                                                     ${{ formatCOP(item.precio_costo) }}
                                                 </span>
                                                 <button v-if="esAdmin" @click="iniciarEdicion(item)"
-                                                    class="w-5 h-5 rounded flex items-center justify-center text-tinta-200 hover:text-blue-500"
+                                                    class="w-5 h-5 rounded flex items-center justify-center text-tinta-200 hover:text-aviso-azul"
                                                     title="Editar precio">
                                                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.6">
                                                         <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
@@ -192,7 +192,7 @@ const ic = (extra = '') =>
                                         </td>
                                         <td v-if="esAdmin" class="px-3 py-2.5 text-center">
                                             <button v-if="item.activo" @click="desactivar(item)"
-                                                class="text-xs text-red-400 hover:text-red-600 hover:bg-red-50 px-2 py-1 rounded">
+                                                class="text-xs text-red-400 hover:text-aviso-rojo hover:bg-pastel-rojo px-2 py-1 rounded">
                                                 Desactivar
                                             </button>
                                         </td>
@@ -215,12 +215,12 @@ const ic = (extra = '') =>
                         <div>
                             <label class="block text-xs font-medium text-tinta-700 mb-1">Categoría *</label>
                             <input v-model="formNuevo.categoria" type="text" :class="ic()" placeholder="Ej: Empaques y Sellos"/>
-                            <p v-if="formNuevo.errors.categoria" class="text-red-500 text-xs mt-1">{{ formNuevo.errors.categoria }}</p>
+                            <p v-if="formNuevo.errors.categoria" class="text-aviso-rojo text-xs mt-1">{{ formNuevo.errors.categoria }}</p>
                         </div>
                         <div>
                             <label class="block text-xs font-medium text-tinta-700 mb-1">Nombre *</label>
                             <input v-model="formNuevo.nombre" type="text" :class="ic()" placeholder="Nombre del insumo"/>
-                            <p v-if="formNuevo.errors.nombre" class="text-red-500 text-xs mt-1">{{ formNuevo.errors.nombre }}</p>
+                            <p v-if="formNuevo.errors.nombre" class="text-aviso-rojo text-xs mt-1">{{ formNuevo.errors.nombre }}</p>
                         </div>
                         <div class="grid grid-cols-2 gap-3">
                             <div>
@@ -232,7 +232,7 @@ const ic = (extra = '') =>
                             <div>
                                 <label class="block text-xs font-medium text-tinta-700 mb-1">Precio costo *</label>
                                 <input v-model="formNuevo.precio_costo" type="number" :class="ic()" min="0" step="0.01"/>
-                                <p v-if="formNuevo.errors.precio_costo" class="text-red-500 text-xs mt-1">{{ formNuevo.errors.precio_costo }}</p>
+                                <p v-if="formNuevo.errors.precio_costo" class="text-aviso-rojo text-xs mt-1">{{ formNuevo.errors.precio_costo }}</p>
                             </div>
                         </div>
                     </div>

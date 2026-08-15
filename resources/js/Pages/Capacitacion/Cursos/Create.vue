@@ -46,7 +46,7 @@ function submit() {
                         <input v-model="form.titulo" type="text" maxlength="200"
                             class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[var(--marca)]"
                             :class="{ 'border-red-400': form.errors.titulo }" placeholder="Ej. Manejo seguro de herramientas" />
-                        <p v-if="form.errors.titulo" class="text-xs text-red-500 mt-1">{{ form.errors.titulo }}</p>
+                        <p v-if="form.errors.titulo" class="text-xs text-aviso-rojo mt-1">{{ form.errors.titulo }}</p>
                     </div>
 
                     <div>

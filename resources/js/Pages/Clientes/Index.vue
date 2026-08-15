@@ -52,8 +52,8 @@ function tipoLabel(t) {
 
 function tipoColor(t) {
     return t === 'persona'
-        ? 'bg-blue-100 text-blue-700'
-        : 'bg-purple-100 text-purple-700'
+        ? 'bg-pastel-azul-2 text-aviso-azul'
+        : 'bg-pastel-violeta-2 text-aviso-violeta'
 }
 
 function iniciales(c) {
@@ -152,7 +152,7 @@ function iniciales(c) {
                     v-for="c in clientes.data"
                     :key="c.id"
                     :href="`/clientes/${c.id}`"
-                    class="flex items-center gap-3 bg-superficie rounded-xl border border-linea px-4 py-3 hover:border-blue-300 hover:shadow-sm transition-all"
+                    class="flex items-center gap-3 bg-superficie rounded-xl border border-linea px-4 py-3 hover:border-borde-aviso-azul hover:shadow-sm transition-all"
                 >
                     <!-- Avatar -->
                     <div class="w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold text-white flex-shrink-0"

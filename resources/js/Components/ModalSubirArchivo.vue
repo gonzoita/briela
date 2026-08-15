@@ -25,7 +25,7 @@
                     <!-- Zona drag & drop -->
                     <div
                         class="border-2 border-dashed rounded-2xl p-8 text-center cursor-pointer transition-colors"
-                        :class="archivoSeleccionado ? 'border-[var(--marca)] bg-blue-50' : 'border-linea hover:border-[var(--marca)] hover:bg-realce'"
+                        :class="archivoSeleccionado ? 'border-[var(--marca)] bg-pastel-azul' : 'border-linea hover:border-[var(--marca)] hover:bg-realce'"
                         @dragover.prevent
                         @drop.prevent="onDrop"
                         @click="$refs.inputArchivo.click()"
@@ -41,15 +41,15 @@
                         </div>
 
                         <div v-else class="flex items-center gap-3">
-                            <div class="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center shrink-0">
+                            <div class="w-12 h-12 rounded-xl bg-pastel-azul-2 flex items-center justify-center shrink-0">
                                 <img v-if="previewUrl" :src="previewUrl" class="w-12 h-12 rounded-xl object-cover"/>
-                                <span v-else class="text-xs font-semibold text-blue-600 uppercase">{{ extension }}</span>
+                                <span v-else class="text-xs font-semibold text-aviso-azul uppercase">{{ extension }}</span>
                             </div>
                             <div class="flex-1 min-w-0 text-left">
                                 <p class="text-sm font-medium text-tinta-900 truncate">{{ archivoSeleccionado.name }}</p>
                                 <p class="text-xs text-tinta-300">{{ tamanoFormateado }}</p>
                             </div>
-                            <button @click.stop="limpiar" class="text-tinta-300 hover:text-red-500 transition-colors">
+                            <button @click.stop="limpiar" class="text-tinta-300 hover:text-aviso-rojo transition-colors">
                                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                     <path d="M6 18L18 6M6 6l12 12"/>
                                 </svg>
@@ -94,7 +94,7 @@
                     </div>
 
                     <!-- Error -->
-                    <p v-if="errorMsg" class="text-sm text-red-600 bg-red-50 rounded-xl px-3 py-2">{{ errorMsg }}</p>
+                    <p v-if="errorMsg" class="text-sm text-aviso-rojo bg-pastel-rojo rounded-xl px-3 py-2">{{ errorMsg }}</p>
 
                 </div>
 

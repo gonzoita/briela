@@ -304,7 +304,7 @@ watch(() => form.comision_max_distribuidor, () => {
 // ── Submit ────────────────────────────────────────────────────────────────────
 const ic = (field) => [
     'w-full border rounded-xl px-3 py-2 text-sm focus:outline-none transition-colors',
-    form.errors[field] ? 'border-red-400 bg-red-50' : 'border-linea bg-superficie focus:border-[var(--marca)]',
+    form.errors[field] ? 'border-red-400 bg-pastel-rojo' : 'border-linea bg-superficie focus:border-[var(--marca)]',
 ]
 
 const puedeGuardar = computed(() => !esPadre.value || variantes.value.length > 0)
@@ -399,7 +399,7 @@ const badgeStyle = {
             </div>
 
             <!-- Alerta cambios sin guardar -->
-            <div v-if="hasChanges && tipoSeleccionado" class="mb-3 inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold text-orange-700" style="background:var(--pastel-ambar); border:1px solid #F59E0B;">
+            <div v-if="hasChanges && tipoSeleccionado" class="mb-3 inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold text-aviso-naranja" style="background:var(--pastel-ambar); border:1px solid #F59E0B;">
                 ● Cambios sin guardar
             </div>
 
@@ -437,20 +437,20 @@ const badgeStyle = {
                     <div class="p-5 space-y-3">
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             <div>
-                                <label class="block text-sm font-medium text-tinta-700 mb-1">Nombre <span class="text-red-500">*</span></label>
+                                <label class="block text-sm font-medium text-tinta-700 mb-1">Nombre <span class="text-aviso-rojo">*</span></label>
                                 <input v-model="form.nombre" type="text" :class="ic('nombre')" placeholder="Ej: Puerta frigorífica 90x200cm" />
-                                <p v-if="form.errors.nombre" class="mt-1 text-xs text-red-600">{{ form.errors.nombre }}</p>
+                                <p v-if="form.errors.nombre" class="mt-1 text-xs text-aviso-rojo">{{ form.errors.nombre }}</p>
                             </div>
                             <div>
-                                <label class="block text-sm font-medium text-tinta-700 mb-1">Referencia <span class="text-red-500">*</span></label>
+                                <label class="block text-sm font-medium text-tinta-700 mb-1">Referencia <span class="text-aviso-rojo">*</span></label>
                                 <input v-model="form.referencia" type="text" :class="ic('referencia')" placeholder="Auto-generada si se deja vacío" />
-                                <p v-if="form.errors.referencia" class="mt-1 text-xs text-red-600">{{ form.errors.referencia }}</p>
+                                <p v-if="form.errors.referencia" class="mt-1 text-xs text-aviso-rojo">{{ form.errors.referencia }}</p>
                             </div>
                         </div>
                         <div v-if="esPadre">
-                            <label class="block text-sm font-medium text-tinta-700 mb-1">Atributo de variante <span class="text-red-500">*</span></label>
+                            <label class="block text-sm font-medium text-tinta-700 mb-1">Atributo de variante <span class="text-aviso-rojo">*</span></label>
                             <input v-model="form.atributo_variante" type="text" :class="ic('atributo_variante')" placeholder="Ej: Longitud" />
-                            <p v-if="form.errors.atributo_variante" class="mt-1 text-xs text-red-600">{{ form.errors.atributo_variante }}</p>
+                            <p v-if="form.errors.atributo_variante" class="mt-1 text-xs text-aviso-rojo">{{ form.errors.atributo_variante }}</p>
                         </div>
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             <div>
@@ -480,7 +480,7 @@ const badgeStyle = {
                                     <!-- Llena las dos descripciones de una vez, desde los datos
                                          técnicos en bruto y con la voz de la marca. -->
                                     <GeneradorFichaIa :datos="datosParaFicha" @usar="aplicarFicha" />
-                                    <span class="text-xs" :class="(form.descripcion_corta||'').length > 900 ? 'text-amber-500 font-semibold' : 'text-tinta-300'">
+                                    <span class="text-xs" :class="(form.descripcion_corta||'').length > 900 ? 'text-aviso-ambar font-semibold' : 'text-tinta-300'">
                                         {{ (form.descripcion_corta||'').length }}/1000
                                     </span>
                                 </div>
@@ -490,7 +490,7 @@ const badgeStyle = {
                         <div>
                             <div class="flex items-center justify-between mb-1">
                                 <label class="block text-sm font-medium text-tinta-700">Resumen técnico para cotizaciones</label>
-                                <span class="text-xs" :class="(form.descripcion_cotizacion||'').length > 500 ? 'text-amber-500 font-semibold' : 'text-tinta-300'">
+                                <span class="text-xs" :class="(form.descripcion_cotizacion||'').length > 500 ? 'text-aviso-ambar font-semibold' : 'text-tinta-300'">
                                     {{ (form.descripcion_cotizacion||'').length }}/600
                                 </span>
                             </div>
@@ -507,7 +507,7 @@ const badgeStyle = {
                         <div>
                             <div class="flex items-center justify-between mb-1">
                                 <label class="block text-sm font-medium text-tinta-700">Descripción larga</label>
-                                <span class="text-xs" :class="(form.descripcion_larga||'').replace(/<[^>]*>/g, '').length > 9000 ? 'text-amber-500 font-semibold' : 'text-tinta-300'">
+                                <span class="text-xs" :class="(form.descripcion_larga||'').replace(/<[^>]*>/g, '').length > 9000 ? 'text-aviso-ambar font-semibold' : 'text-tinta-300'">
                                     {{ (form.descripcion_larga||'').replace(/<[^>]*>/g, '').length }}/10000
                                 </span>
                             </div>
@@ -602,7 +602,7 @@ const badgeStyle = {
                         </label>
                     </div>
                     <div v-if="form.inventariable" class="p-5 space-y-3">
-                        <p v-if="form.es_insumo" class="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+                        <p v-if="form.es_insumo" class="text-xs text-aviso-ambar bg-pastel-ambar border border-borde-aviso-ambar rounded-lg px-3 py-2">
                             El mínimo y máximo de stock se configuran desde
                             <a href="/inventario" class="underline font-medium" style="color:var(--marca);">Stock &amp; Materiales</a>
                         </p>
@@ -613,7 +613,7 @@ const badgeStyle = {
                                 <div v-for="b in props.bodegas" :key="b.id" class="flex items-center gap-3">
                                     <span class="text-xs text-tinta-500 w-32 shrink-0">
                                         {{ b.nombre }}
-                                        <span v-if="b.es_principal" class="text-blue-500 ml-1">(principal)</span>
+                                        <span v-if="b.es_principal" class="text-aviso-azul ml-1">(principal)</span>
                                     </span>
                                     <input
                                         v-model.number="stockInicial[b.id]"
@@ -623,7 +623,7 @@ const badgeStyle = {
                                     />
                                 </div>
                             </div>
-                            <div v-if="stockInicialTotal > 0" class="mt-2 text-xs text-green-700 font-semibold">
+                            <div v-if="stockInicialTotal > 0" class="mt-2 text-xs text-aviso-verde font-semibold">
                                 Total inicial: {{ stockInicialTotal }} {{ form.unidad_medida }}
                             </div>
                         </div>
@@ -649,12 +649,12 @@ const badgeStyle = {
                         <div v-for="(v, idx) in variantes" :key="idx" class="border border-linea rounded-xl p-4 space-y-3" style="background:var(--superficie-2);">
                             <div class="flex items-center justify-between">
                                 <p class="text-xs font-semibold text-tinta-400 uppercase tracking-wide">Variante {{ idx + 1 }}</p>
-                                <button type="button" @click="quitarVariante(idx)" class="text-xs text-red-500 hover:underline">Quitar</button>
+                                <button type="button" @click="quitarVariante(idx)" class="text-xs text-aviso-rojo hover:underline">Quitar</button>
                             </div>
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                 <div>
                                     <label class="block text-xs font-medium text-tinta-500 mb-1">
-                                        Valor ({{ form.atributo_variante || 'Ej: Longitud' }}) <span class="text-red-500">*</span>
+                                        Valor ({{ form.atributo_variante || 'Ej: Longitud' }}) <span class="text-aviso-rojo">*</span>
                                     </label>
                                     <input v-model="v.valor_variante" type="text" placeholder="Ej: 3m"
                                         class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none bg-superficie focus:border-[var(--marca)]" />
@@ -671,7 +671,7 @@ const badgeStyle = {
                                     <div v-for="b in props.bodegas" :key="b.id" class="flex items-center gap-3">
                                         <span class="text-xs text-tinta-500 w-32 shrink-0">
                                             {{ b.nombre }}
-                                            <span v-if="b.es_principal" class="text-blue-500 ml-1">(principal)</span>
+                                            <span v-if="b.es_principal" class="text-aviso-azul ml-1">(principal)</span>
                                         </span>
                                         <input
                                             v-model.number="v.stock_inicial[b.id]"
@@ -696,10 +696,10 @@ const badgeStyle = {
                 />
 
                 <!-- Errores de validación -->
-                <div v-if="Object.keys(form.errors).length" class="bg-red-50 border border-red-200 rounded-xl p-4">
-                    <p class="text-sm font-semibold text-red-700 mb-2">Corrige los siguientes errores:</p>
+                <div v-if="Object.keys(form.errors).length" class="bg-pastel-rojo border border-borde-aviso-rojo rounded-xl p-4">
+                    <p class="text-sm font-semibold text-aviso-rojo mb-2">Corrige los siguientes errores:</p>
                     <ul class="list-disc list-inside space-y-1">
-                        <li v-for="(msg, field) in form.errors" :key="field" class="text-xs text-red-600">{{ msg }}</li>
+                        <li v-for="(msg, field) in form.errors" :key="field" class="text-xs text-aviso-rojo">{{ msg }}</li>
                     </ul>
                 </div>
 

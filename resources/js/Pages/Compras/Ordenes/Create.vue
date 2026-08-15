@@ -99,7 +99,7 @@ function fmtMoney(n) {
                         <option value="">Seleccionar proveedor...</option>
                         <option v-for="p in proveedores" :key="p.id" :value="p.id">{{ p.nombre }}</option>
                     </select>
-                    <p v-if="errores.proveedor_id" class="text-red-500 text-xs mt-1">{{ errores.proveedor_id }}</p>
+                    <p v-if="errores.proveedor_id" class="text-aviso-rojo text-xs mt-1">{{ errores.proveedor_id }}</p>
                 </div>
                 <div class="grid grid-cols-2 gap-3">
                     <div>
@@ -146,7 +146,7 @@ function fmtMoney(n) {
                             <span class="text-xs font-medium text-tinta-400">
                                 {{ item._codigo_item ?? 'Manual' }}
                             </span>
-                            <button @click="quitarItem(idx)" class="text-red-400 hover:text-red-600">
+                            <button @click="quitarItem(idx)" class="text-red-400 hover:text-aviso-rojo">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M6 18L18 6M6 6l12 12"/>
                                 </svg>
@@ -192,7 +192,7 @@ function fmtMoney(n) {
                 </div>
 
                 <button @click="agregarItemManual"
-                    class="w-full py-2 rounded-lg border-2 border-dashed border-tinta-200 text-sm text-tinta-400 hover:border-blue-400 hover:text-blue-600 transition-colors">
+                    class="w-full py-2 rounded-lg border-2 border-dashed border-tinta-200 text-sm text-tinta-400 hover:border-blue-400 hover:text-aviso-azul transition-colors">
                     + Agregar ítem manual
                 </button>
 
@@ -202,9 +202,9 @@ function fmtMoney(n) {
             </div>
 
             <!-- Errores -->
-            <div v-if="Object.keys(errores).length" class="bg-red-50 border border-red-200 rounded-xl p-4 mb-4">
-                <p class="text-sm font-semibold text-red-700 mb-1">Errores:</p>
-                <ul class="text-sm text-red-600 list-disc list-inside space-y-0.5">
+            <div v-if="Object.keys(errores).length" class="bg-pastel-rojo border border-borde-aviso-rojo rounded-xl p-4 mb-4">
+                <p class="text-sm font-semibold text-aviso-rojo mb-1">Errores:</p>
+                <ul class="text-sm text-aviso-rojo list-disc list-inside space-y-0.5">
                     <li v-for="(msg, key) in errores" :key="key">{{ msg }}</li>
                 </ul>
             </div>

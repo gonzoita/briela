@@ -56,7 +56,7 @@ const submit = () => {
                     <p class="text-sm text-tinta-400 mt-1.5">Entra con tu cuenta para continuar</p>
                 </div>
 
-                <div v-if="status" class="mb-5 text-sm rounded-lg px-4 py-3 bg-emerald-50 text-emerald-800 border border-emerald-100">
+                <div v-if="status" class="mb-5 text-sm rounded-lg px-4 py-3 bg-pastel-verde text-aviso-verde border border-borde-aviso-verde">
                     {{ status }}
                 </div>
 
@@ -73,10 +73,10 @@ const submit = () => {
                             placeholder="tu@empresa.com"
                             class="w-full px-3.5 py-3 rounded-lg border bg-superficie text-base text-tinta-900 placeholder:text-tinta-300 transition-shadow focus:outline-none focus:ring-4"
                             :class="form.errors.email
-                                ? 'border-red-300 focus:ring-red-100'
+                                ? 'border-borde-aviso-rojo focus:ring-red-100'
                                 : 'border-tinta-200 focus:border-[var(--marca)] focus:ring-[var(--marca-suave)]'"
                         />
-                        <p v-if="form.errors.email" class="mt-1.5 text-xs text-red-600">{{ form.errors.email }}</p>
+                        <p v-if="form.errors.email" class="mt-1.5 text-xs text-aviso-rojo">{{ form.errors.email }}</p>
                     </div>
 
                     <div>
@@ -98,7 +98,7 @@ const submit = () => {
                                 placeholder="••••••••"
                                 class="w-full pl-3.5 pr-11 py-3 rounded-lg border bg-superficie text-base text-tinta-900 placeholder:text-tinta-300 transition-shadow focus:outline-none focus:ring-4"
                                 :class="form.errors.password
-                                    ? 'border-red-300 focus:ring-red-100'
+                                    ? 'border-borde-aviso-rojo focus:ring-red-100'
                                     : 'border-tinta-200 focus:border-[var(--marca)] focus:ring-[var(--marca-suave)]'"
                             />
                             <button
@@ -116,7 +116,7 @@ const submit = () => {
                                 </svg>
                             </button>
                         </div>
-                        <p v-if="form.errors.password" class="mt-1.5 text-xs text-red-600">{{ form.errors.password }}</p>
+                        <p v-if="form.errors.password" class="mt-1.5 text-xs text-aviso-rojo">{{ form.errors.password }}</p>
                     </div>
 
                     <label class="flex items-center gap-2.5 pt-1 cursor-pointer select-none">

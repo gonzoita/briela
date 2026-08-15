@@ -95,7 +95,7 @@ function eliminar(s) {
                     <div v-for="s in sedes" :key="s.id" class="px-4 py-3">
                         <div class="flex items-center gap-3">
                             <div class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
-                                :class="s.activa ? 'bg-blue-50' : 'bg-tinta-100'">
+                                :class="s.activa ? 'bg-pastel-azul' : 'bg-tinta-100'">
                                 <svg class="w-4 h-4" :class="s.activa ? 'text-[var(--marca)]' : 'text-tinta-300'"
                                     fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                     <path stroke-linecap="round" stroke-linejoin="round"
@@ -122,15 +122,15 @@ function eliminar(s) {
                                 Principal
                             </span>
                             <span class="text-xs px-2 py-0.5 rounded-full shrink-0"
-                                :class="s.activa ? 'bg-green-100 text-green-700' : 'bg-tinta-100 text-tinta-400'">
+                                :class="s.activa ? 'bg-pastel-verde-2 text-aviso-verde' : 'bg-tinta-100 text-tinta-400'">
                                 {{ s.activa ? 'Activa' : 'Inactiva' }}
                             </span>
                         </div>
 
                         <div class="flex items-center gap-3 mt-2 pl-12">
-                            <button @click="editar(s)" class="text-xs text-blue-600 hover:underline">Editar</button>
+                            <button @click="editar(s)" class="text-xs text-aviso-azul hover:underline">Editar</button>
                             <button v-if="!s.es_principal" @click="eliminar(s)"
-                                class="text-xs text-red-500 hover:underline">Eliminar</button>
+                                class="text-xs text-aviso-rojo hover:underline">Eliminar</button>
                         </div>
                     </div>
                 </div>

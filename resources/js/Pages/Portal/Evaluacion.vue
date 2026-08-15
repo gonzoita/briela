@@ -65,7 +65,7 @@ function reintentar() {
             <!-- Ya aprobado previamente -->
             <div v-if="yaAprobado && !resultado" class="bg-superficie rounded-2xl shadow-sm py-10 px-6 text-center">
                 <div class="w-16 h-16 rounded-full mx-auto mb-3 flex items-center justify-center" style="background:var(--pastel-verde);">
-                    <svg class="w-8 h-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                    <svg class="w-8 h-8 text-aviso-verde" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
                     </svg>
                 </div>
@@ -93,7 +93,7 @@ function reintentar() {
             <div v-else-if="resultado?.aprobado" class="bg-superficie rounded-2xl shadow-sm py-10 px-6 text-center">
                 <p class="text-4xl mb-2">🎉</p>
                 <div class="w-16 h-16 rounded-full mx-auto mb-3 flex items-center justify-center" style="background:var(--pastel-verde);">
-                    <svg class="w-8 h-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                    <svg class="w-8 h-8 text-aviso-verde" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
                     </svg>
                 </div>
@@ -107,7 +107,7 @@ function reintentar() {
             <!-- Reprobado -->
             <div v-else-if="resultado && resultado.aprobado === false" class="bg-superficie rounded-2xl shadow-sm py-10 px-6 text-center">
                 <div class="w-16 h-16 rounded-full mx-auto mb-3 flex items-center justify-center" style="background:var(--pastel-rojo);">
-                    <svg class="w-8 h-8 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                    <svg class="w-8 h-8 text-aviso-rojo" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
                     </svg>
                 </div>
@@ -140,7 +140,7 @@ function reintentar() {
                     <div v-if="pregunta.tipo === 'opcion_multiple'" class="space-y-2">
                         <label v-for="o in pregunta.opciones" :key="o.id"
                             class="flex items-center gap-2.5 px-3 py-2.5 rounded-xl border cursor-pointer transition-colors"
-                            :class="respuestas[pregunta.id] === o.id ? 'border-blue-400 bg-blue-50' : 'border-linea'">
+                            :class="respuestas[pregunta.id] === o.id ? 'border-blue-400 bg-pastel-azul' : 'border-linea'">
                             <input type="radio" :name="`pregunta-${pregunta.id}`" :value="o.id" v-model="respuestas[pregunta.id]" />
                             <span class="text-sm text-tinta-900">{{ o.texto }}</span>
                         </label>
@@ -150,7 +150,7 @@ function reintentar() {
                         class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[var(--marca)]"></textarea>
                 </div>
 
-                <p v-if="error" class="text-xs text-red-500">{{ error }}</p>
+                <p v-if="error" class="text-xs text-aviso-rojo">{{ error }}</p>
 
                 <button @click="enviar" :disabled="!todasRespondidas || enviando"
                     class="w-full py-3 rounded-xl text-sm font-semibold text-white disabled:opacity-50" style="background:var(--marca);">

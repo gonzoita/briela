@@ -32,33 +32,33 @@ const fmt = (n) => Number(n).toLocaleString('es-CO')
                     <p class="text-2xl font-semibold text-tinta-900">{{ stats.total_equipos }}</p>
                     <p class="text-xs text-tinta-400 mt-0.5">Equipos</p>
                 </div>
-                <div class="bg-green-50 rounded-2xl border border-green-200 p-4 text-center">
-                    <p class="text-2xl font-semibold text-green-700">{{ stats.activos }}</p>
-                    <p class="text-xs text-green-600 mt-0.5">Activos</p>
+                <div class="bg-pastel-verde rounded-2xl border border-borde-aviso-verde p-4 text-center">
+                    <p class="text-2xl font-semibold text-aviso-verde">{{ stats.activos }}</p>
+                    <p class="text-xs text-aviso-verde mt-0.5">Activos</p>
                 </div>
-                <div class="bg-amber-50 rounded-2xl border border-amber-200 p-4 text-center">
-                    <p class="text-2xl font-semibold text-amber-700">{{ stats.en_mantenimiento }}</p>
-                    <p class="text-xs text-amber-600 mt-0.5">En mant.</p>
+                <div class="bg-pastel-ambar rounded-2xl border border-borde-aviso-ambar p-4 text-center">
+                    <p class="text-2xl font-semibold text-aviso-ambar">{{ stats.en_mantenimiento }}</p>
+                    <p class="text-xs text-aviso-ambar mt-0.5">En mant.</p>
                 </div>
-                <div class="bg-blue-50 rounded-2xl border border-blue-200 p-4 text-center">
-                    <p class="text-2xl font-semibold text-blue-700">{{ stats.completados_mes }}</p>
-                    <p class="text-xs text-blue-600 mt-0.5">Completados mes</p>
+                <div class="bg-pastel-azul rounded-2xl border border-borde-aviso-azul p-4 text-center">
+                    <p class="text-2xl font-semibold text-aviso-azul">{{ stats.completados_mes }}</p>
+                    <p class="text-xs text-aviso-azul mt-0.5">Completados mes</p>
                 </div>
             </div>
 
             <!-- Alertas vencidas -->
-            <div v-if="alertas.length" class="bg-red-50 rounded-2xl border border-red-200 p-4">
-                <p class="text-sm font-semibold text-red-700 mb-3">
+            <div v-if="alertas.length" class="bg-pastel-rojo rounded-2xl border border-borde-aviso-rojo p-4">
+                <p class="text-sm font-semibold text-aviso-rojo mb-3">
                     <span class="inline-block w-2 h-2 bg-red-500 rounded-full mr-1.5"></span>
                     {{ alertas.length }} equipo(s) con revisión vencida
                 </p>
                 <div class="space-y-2">
                     <div v-for="e in alertas" :key="e.id"
-                        class="flex items-center justify-between bg-superficie rounded-xl p-3 border border-red-100 cursor-pointer hover:bg-red-50"
+                        class="flex items-center justify-between bg-superficie rounded-xl p-3 border border-borde-aviso-rojo cursor-pointer hover:bg-pastel-rojo"
                         @click="router.visit(`/mantenimiento/equipos/${e.id}`)">
                         <div>
                             <p class="text-sm font-medium text-tinta-900">{{ e.nombre }}</p>
-                            <p class="text-xs text-red-500">Venció: {{ e.proxima_revision }}</p>
+                            <p class="text-xs text-aviso-rojo">Venció: {{ e.proxima_revision }}</p>
                         </div>
                         <svg class="w-4 h-4 text-tinta-300" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
@@ -68,15 +68,15 @@ const fmt = (n) => Number(n).toLocaleString('es-CO')
             </div>
 
             <!-- Próximos 7 días -->
-            <div v-if="proximos.length" class="bg-amber-50 rounded-2xl border border-amber-200 p-4">
-                <p class="text-sm font-semibold text-amber-700 mb-3">Revisiones en los próximos 7 días</p>
+            <div v-if="proximos.length" class="bg-pastel-ambar rounded-2xl border border-borde-aviso-ambar p-4">
+                <p class="text-sm font-semibold text-aviso-ambar mb-3">Revisiones en los próximos 7 días</p>
                 <div class="space-y-2">
                     <div v-for="e in proximos" :key="e.id"
-                        class="flex items-center justify-between bg-superficie rounded-xl p-3 border border-amber-100 cursor-pointer hover:bg-amber-50"
+                        class="flex items-center justify-between bg-superficie rounded-xl p-3 border border-borde-aviso-ambar cursor-pointer hover:bg-pastel-ambar"
                         @click="router.visit(`/mantenimiento/equipos/${e.id}`)">
                         <div>
                             <p class="text-sm font-medium text-tinta-900">{{ e.nombre }}</p>
-                            <p class="text-xs text-amber-600">Próxima revisión: {{ e.proxima_revision }}</p>
+                            <p class="text-xs text-aviso-ambar">Próxima revisión: {{ e.proxima_revision }}</p>
                         </div>
                         <svg class="w-4 h-4 text-tinta-300" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
@@ -99,7 +99,7 @@ const fmt = (n) => Number(n).toLocaleString('es-CO')
                             <p class="text-sm font-medium text-tinta-900">{{ m.equipo?.nombre }}</p>
                             <p class="text-xs text-tinta-300">{{ m.tipo }} · {{ m.ejecutor_nombre ?? 'Sin ejecutor' }}</p>
                         </div>
-                        <span class="text-xs px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 font-medium shrink-0">En proceso</span>
+                        <span class="text-xs px-2 py-0.5 rounded-full bg-pastel-azul-2 text-aviso-azul font-medium shrink-0">En proceso</span>
                     </div>
                 </div>
             </div>

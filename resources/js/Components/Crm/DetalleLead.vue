@@ -274,14 +274,14 @@ function formatFecha(fecha) {
                                 {{ lead.empresa_contacto }}
                             </div>
                             <a v-if="lead.email_contacto" :href="`mailto:${lead.email_contacto}`"
-                                class="flex items-center gap-2 text-sm text-blue-600 hover:underline">
+                                class="flex items-center gap-2 text-sm text-aviso-azul hover:underline">
                                 <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
                                 </svg>
                                 {{ lead.email_contacto }}
                             </a>
                             <a v-if="lead.telefono_contacto" :href="`tel:${lead.telefono_contacto}`"
-                                class="flex items-center gap-2 text-sm text-blue-600 hover:underline">
+                                class="flex items-center gap-2 text-sm text-aviso-azul hover:underline">
                                 <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
                                 </svg>
@@ -300,10 +300,10 @@ function formatFecha(fecha) {
                                 Responsable: <span class="font-medium">{{ lead.responsable.name }}</span>
                             </div>
                             <div v-if="lead.cliente" class="flex items-center gap-2 text-sm text-tinta-700">
-                                <svg class="w-4 h-4 text-green-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
+                                <svg class="w-4 h-4 text-aviso-verde shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                                 </svg>
-                                Cliente: <a :href="`/clientes/${lead.cliente.id}`" class="text-blue-600 font-medium hover:underline">{{ lead.cliente.nombre }}</a>
+                                Cliente: <a :href="`/clientes/${lead.cliente.id}`" class="text-aviso-azul font-medium hover:underline">{{ lead.cliente.nombre }}</a>
                             </div>
 
                             <!-- Convertir / vincular cliente -->
@@ -323,7 +323,7 @@ function formatFecha(fecha) {
                                 </button>
 
                                 <!-- Form nuevo cliente -->
-                                <div v-if="mostrarFormConvertir" class="bg-blue-50 rounded-xl p-3 space-y-2">
+                                <div v-if="mostrarFormConvertir" class="bg-pastel-azul rounded-xl p-3 space-y-2">
                                     <p class="text-xs font-semibold text-tinta-700">Nuevo cliente</p>
                                     <div class="grid grid-cols-2 gap-2">
                                         <div>
@@ -357,7 +357,7 @@ function formatFecha(fecha) {
                                         <input v-model="formConvertir.ciudad"
                                             class="w-full border border-tinta-200 rounded-lg px-2 py-1.5 text-sm"/>
                                     </div>
-                                    <p v-if="errorConvertir" class="text-xs text-red-600 bg-red-50 rounded px-2 py-1">
+                                    <p v-if="errorConvertir" class="text-xs text-aviso-rojo bg-pastel-rojo rounded px-2 py-1">
                                         {{ errorConvertir }}
                                     </p>
                                     <div class="flex gap-2 pt-1">
@@ -411,7 +411,7 @@ function formatFecha(fecha) {
                         </div>
 
                         <!-- Form nueva tarea -->
-                        <div v-if="mostrarFormTarea" class="bg-blue-50 rounded-xl p-3 mb-3 space-y-2">
+                        <div v-if="mostrarFormTarea" class="bg-pastel-azul rounded-xl p-3 mb-3 space-y-2">
                             <input v-model="formTarea.titulo" type="text" placeholder="Título de la tarea"
                                 class="w-full border border-linea rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)] bg-superficie"/>
                             <div class="grid grid-cols-2 gap-2">
@@ -448,7 +448,7 @@ function formatFecha(fecha) {
                         <div v-if="lead.tareas.length" class="space-y-2">
                             <div v-for="tarea in lead.tareas" :key="tarea.id"
                                 class="flex items-start gap-2 p-2.5 rounded-xl"
-                                :class="esTareaVencida(tarea) ? 'bg-red-50 border border-red-100' : 'bg-tinta-50'">
+                                :class="esTareaVencida(tarea) ? 'bg-pastel-rojo border border-borde-aviso-rojo' : 'bg-tinta-50'">
                                 <button @click="toggleTarea(tarea)"
                                     class="mt-0.5 w-4 h-4 rounded border-2 shrink-0 flex items-center justify-center transition-colors"
                                     :class="tarea.completada ? 'border-green-500 bg-green-500' : 'border-tinta-200 hover:border-separador0'">
@@ -468,7 +468,7 @@ function formatFecha(fecha) {
                                         </span>
                                         <span v-if="tarea.fecha_vencimiento"
                                             class="text-xs"
-                                            :class="esTareaVencida(tarea) ? 'text-red-600 font-semibold' : 'text-tinta-300'">
+                                            :class="esTareaVencida(tarea) ? 'text-aviso-rojo font-semibold' : 'text-tinta-300'">
                                             {{ formatFecha(tarea.fecha_vencimiento) }}
                                         </span>
                                         <span v-if="tarea.responsable" class="text-xs text-tinta-300">
@@ -494,19 +494,19 @@ function formatFecha(fecha) {
                             <div v-for="act in lead.actividades" :key="act.id" class="flex items-start gap-2">
                                 <span class="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5"
                                     :class="{
-                                        'bg-blue-100':   act.tipo === 'etapa',
-                                        'bg-green-100':  act.tipo === 'tarea' || act.tipo === 'conversion',
-                                        'bg-yellow-100': act.tipo === 'nota',
+                                        'bg-pastel-azul-2':   act.tipo === 'etapa',
+                                        'bg-pastel-verde-2':  act.tipo === 'tarea' || act.tipo === 'conversion',
+                                        'bg-pastel-ambar-2': act.tipo === 'nota',
                                         'bg-tinta-100':   act.tipo === 'creacion',
-                                        'bg-red-100':    act.tipo === 'cierre',
+                                        'bg-pastel-rojo-2':    act.tipo === 'cierre',
                                     }">
-                                    <svg v-if="act.tipo === 'etapa'" xmlns="http://www.w3.org/2000/svg" class="w-3 h-3 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
+                                    <svg v-if="act.tipo === 'etapa'" xmlns="http://www.w3.org/2000/svg" class="w-3 h-3 text-aviso-azul" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
                                     </svg>
-                                    <svg v-else-if="act.tipo === 'tarea'" xmlns="http://www.w3.org/2000/svg" class="w-3 h-3 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
+                                    <svg v-else-if="act.tipo === 'tarea'" xmlns="http://www.w3.org/2000/svg" class="w-3 h-3 text-aviso-verde" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
                                     </svg>
-                                    <svg v-else-if="act.tipo === 'nota'" xmlns="http://www.w3.org/2000/svg" class="w-3 h-3 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
+                                    <svg v-else-if="act.tipo === 'nota'" xmlns="http://www.w3.org/2000/svg" class="w-3 h-3 text-aviso-ambar" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                                     </svg>
                                     <svg v-else xmlns="http://www.w3.org/2000/svg" class="w-3 h-3 text-tinta-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
@@ -568,7 +568,7 @@ function formatFecha(fecha) {
                 <!-- ── E) Footer acciones ───────────────────────────────── -->
                 <div class="px-5 py-4 border-t border-linea shrink-0 flex gap-3">
                     <button @click="abrirCierre('perdido')"
-                        class="flex-1 py-2.5 rounded-xl text-sm font-semibold text-red-600 border border-red-200 hover:bg-red-50 transition-colors">
+                        class="flex-1 py-2.5 rounded-xl text-sm font-semibold text-aviso-rojo border border-borde-aviso-rojo hover:bg-pastel-rojo transition-colors">
                         Marcar perdido
                     </button>
                     <button @click="abrirCierre('ganado')"

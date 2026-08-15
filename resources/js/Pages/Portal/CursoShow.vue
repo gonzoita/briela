@@ -130,15 +130,15 @@ const tipoLabel = (v) => ({ video_drive: 'Video', video_externo: 'Video', texto:
                                 <li v-for="leccion in modulo.lecciones" :key="leccion.id">
                                     <button @click="seleccionarLeccion(leccion, modulo)"
                                         class="w-full flex items-center gap-2.5 px-4 py-2.5 text-left transition-colors"
-                                        :class="leccionActual?.id === leccion.id ? 'bg-blue-50' : 'hover:bg-tinta-50'">
+                                        :class="leccionActual?.id === leccion.id ? 'bg-pastel-azul' : 'hover:bg-tinta-50'">
                                         <div class="w-5 h-5 rounded-full flex items-center justify-center shrink-0"
                                             :style="completadas[leccion.id] ? 'background:var(--pastel-verde);' : 'background:var(--superficie-2);'">
-                                            <svg v-if="completadas[leccion.id]" class="w-3 h-3 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+                                            <svg v-if="completadas[leccion.id]" class="w-3 h-3 text-aviso-verde" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
                                             </svg>
                                         </div>
                                         <div class="min-w-0 flex-1">
-                                            <p class="text-xs font-medium truncate" :class="leccionActual?.id === leccion.id ? 'text-blue-900' : 'text-tinta-700'">{{ leccion.nombre }}</p>
+                                            <p class="text-xs font-medium truncate" :class="leccionActual?.id === leccion.id ? 'text-aviso-azul' : 'text-tinta-700'">{{ leccion.nombre }}</p>
                                             <p class="text-[11px] text-tinta-300">{{ tipoLabel(leccion.tipo) }}<span v-if="leccion.duracion_minutos"> · {{ leccion.duracion_minutos }} min</span></p>
                                         </div>
                                     </button>
@@ -175,7 +175,7 @@ const tipoLabel = (v) => ({ video_drive: 'Video', video_externo: 'Video', texto:
                                     class="flex-1 py-2.5 rounded-xl text-sm font-semibold text-white disabled:opacity-50" style="background:var(--marca);">
                                     {{ marcando ? 'Guardando...' : 'Marcar como completada' }}
                                 </button>
-                                <button v-else class="flex-1 py-2.5 rounded-xl text-sm font-semibold text-green-700 bg-green-50 cursor-default">
+                                <button v-else class="flex-1 py-2.5 rounded-xl text-sm font-semibold text-aviso-verde bg-pastel-verde cursor-default">
                                     ✓ Completada
                                 </button>
                                 <button v-if="leccionesDisponibles.findIndex(l => l.id === leccionActual.id) < leccionesDisponibles.length - 1"

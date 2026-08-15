@@ -252,13 +252,29 @@ class Marca
                 'sombra-barra' => 'rgba(16,24,40,.08)',
                 // Los fondos suaves de aviso. Son 505 sitios en el sistema que los
                 // usan como fondo de cajas informativas, etiquetas y alertas.
+                //
+                // Cada familia tiene tres tonos y un texto, y los cuatro se necesitan para
+                // que una caja de aviso funcione: el fondo, el fondo de la insignia que va
+                // DENTRO de la caja —si es el mismo tono, la insignia desaparece—, el borde,
+                // y el color del texto.
                 'pastel-azul'    => '#EFF8FF',
                 'pastel-azul-2'  => '#D1E9FF',
                 'pastel-verde'   => '#ECFDF3',
+                'pastel-verde-2' => '#D1FADF',
                 'pastel-ambar'   => '#FFFAEB',
+                'pastel-ambar-2' => '#FEF0C7',
                 'pastel-rojo'    => '#FEF3F2',
+                'pastel-rojo-2'  => '#FEE4E2',
                 'pastel-violeta' => '#F4F3FF',
+                'pastel-violeta-2' => '#EBE9FE',
                 'pastel-naranja' => '#FEF6EE',
+                'pastel-naranja-2' => '#FDEAD7',
+                'borde-azul'     => '#B2DDFF',
+                'borde-verde'    => '#A6F4C5',
+                'borde-ambar'    => '#FEDF89',
+                'borde-rojo'     => '#FECDCA',
+                'borde-violeta'  => '#D9D6FE',
+                'borde-naranja'  => '#F9DBAF',
                 // Texto de color. En el modo de noche se aclara: un azul oscuro
                 // sobre fondo oscuro se lee con esfuerzo, y en un sistema de
                 // trabajo eso cansa en media hora.
@@ -267,6 +283,7 @@ class Marca
                 'texto-ambar'   => '#93370D',
                 'texto-rojo'    => '#B42318',
                 'texto-violeta' => '#5925DC',
+                'texto-naranja' => '#9C2A10',
                 // El velo de las barras fijas, que van translúcidas con desenfoque.
                 // Tiene que teñir del color del tema: un velo blanco sobre el fondo
                 // de noche deja una banda clara arriba de la pantalla.
@@ -317,15 +334,31 @@ class Marca
                 'pastel-azul'    => '#182A45',
                 'pastel-azul-2'  => '#1E3A5F',
                 'pastel-verde'   => '#14302A',
+                'pastel-verde-2' => '#1B4038',
                 'pastel-ambar'   => '#33280F',
-                'pastel-rojo'    => '#3A1D1D',
-                'pastel-violeta' => '#251F41',
+                'pastel-ambar-2' => '#453413',
+                // El rojo y el violeta iban tan cerca de la superficie que la caja no se
+                // leía como caja: menos visibles que una línea entre filas. Suben lo justo.
+                'pastel-rojo'    => '#412120',
+                'pastel-rojo-2'  => '#4E2624',
+                'pastel-violeta' => '#2B2449',
+                'pastel-violeta-2' => '#322A55',
                 'pastel-naranja' => '#37220F',
+                'pastel-naranja-2' => '#4A2E14',
+                // Los bordes de aviso: un paso por encima de su pastel, para que el borde
+                // exista sin encender la caja.
+                'borde-azul'     => '#2C4A70',
+                'borde-verde'    => '#235248',
+                'borde-ambar'    => '#5A4418',
+                'borde-rojo'     => '#63302D',
+                'borde-violeta'  => '#3F356B',
+                'borde-naranja'  => '#5C3A19',
                 'texto-azul'    => '#84CAFF',
                 'texto-verde'   => '#6CE9A6',
                 'texto-ambar'   => '#FEC84B',
                 'texto-rojo'    => '#FDA29B',
                 'texto-violeta' => '#BDB4FE',
+                'texto-naranja' => '#FDBA74',
                 'velo'         => 'rgba(28,32,41,.85)',
                 'scroll'       => '#3B4454',
                 'scroll-hover' => '#55617A',

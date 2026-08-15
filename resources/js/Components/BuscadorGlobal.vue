@@ -28,11 +28,11 @@ let peticion     = 0
 const abrirAsistente = inject('abrirAsistente', null)
 
 const colores = {
-    azul:   'bg-blue-50 text-blue-700',
+    azul:   'bg-pastel-azul text-aviso-azul',
     marca: 'bg-[var(--marca-suave)] text-[var(--marca)]',
-    morado: 'bg-violet-50 text-violet-700',
-    verde:  'bg-green-50 text-green-700',
-    ambar:  'bg-amber-50 text-amber-700',
+    morado: 'bg-pastel-violeta text-aviso-violeta',
+    verde:  'bg-pastel-verde text-aviso-verde',
+    ambar:  'bg-pastel-ambar text-aviso-ambar',
     gris:   'bg-tinta-100 text-tinta-500',
 }
 
@@ -244,7 +244,7 @@ function indicePlano(gi, ri) {
                         <!-- Falla del servidor: se muestra tal cual, no se
                              disfraza de "sin resultados" -->
                         <div v-if="error" class="px-4 py-6 text-center">
-                            <p class="text-sm text-red-600">{{ error }}</p>
+                            <p class="text-sm text-aviso-rojo">{{ error }}</p>
                         </div>
 
                         <!-- Nada encontrado: aquí entra la IA -->

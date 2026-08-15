@@ -128,7 +128,7 @@ function enviar(accion) {
                     <textarea v-model="form.contenido" rows="5" maxlength="3000"
                         class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]"></textarea>
                     <p class="text-xs text-tinta-300 mt-1 text-right">{{ form.contenido.length }}/3000</p>
-                    <p v-if="form.errors.contenido" class="text-xs text-red-500 mt-1">{{ form.errors.contenido }}</p>
+                    <p v-if="form.errors.contenido" class="text-xs text-aviso-rojo mt-1">{{ form.errors.contenido }}</p>
                 </div>
 
                 <div>
@@ -160,7 +160,7 @@ function enviar(accion) {
                             style="background:var(--marca);">
                             {{ iaCargando ? 'Generando…' : 'Generar imagen' }}
                         </button>
-                        <p v-if="iaError" class="text-xs text-red-600">{{ iaError }}</p>
+                        <p v-if="iaError" class="text-xs text-aviso-rojo">{{ iaError }}</p>
                         <p class="text-xs text-tinta-300">
                             La imagen se guarda también en Multimedia para reutilizarla después.
                         </p>
@@ -174,7 +174,7 @@ function enviar(accion) {
                     <input type="file" accept="image/*" @change="onImagen"
                         class="w-full text-sm text-tinta-500 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:bg-tinta-100 file:text-sm" />
                     <img v-if="previewImagen" :src="previewImagen" class="mt-2 w-28 h-28 rounded-lg object-cover" />
-                    <p v-if="seleccionoInstagram && !previewImagen" class="text-xs text-amber-600 mt-1">
+                    <p v-if="seleccionoInstagram && !previewImagen" class="text-xs text-aviso-ambar mt-1">
                         Instagram exige al menos una imagen para publicar.
                     </p>
                 </div>
@@ -183,7 +183,7 @@ function enviar(accion) {
                     <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1.5">Fecha y hora *</label>
                     <input v-model="form.fecha_programada" type="datetime-local"
                         class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]" />
-                    <p v-if="form.errors.fecha_programada" class="text-xs text-red-500 mt-1">{{ form.errors.fecha_programada }}</p>
+                    <p v-if="form.errors.fecha_programada" class="text-xs text-aviso-rojo mt-1">{{ form.errors.fecha_programada }}</p>
                 </div>
 
                 <div>
@@ -196,7 +196,7 @@ function enviar(accion) {
                             <span class="text-sm text-tinta-700">{{ c.nombre_cuenta }}</span>
                         </label>
                     </div>
-                    <p v-if="form.errors.cuentas" class="text-xs text-red-500 mt-1">{{ form.errors.cuentas }}</p>
+                    <p v-if="form.errors.cuentas" class="text-xs text-aviso-rojo mt-1">{{ form.errors.cuentas }}</p>
                 </div>
 
                 <div class="flex gap-3 pt-2">

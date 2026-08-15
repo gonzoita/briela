@@ -7,10 +7,10 @@ const props = defineProps({
 })
 
 const fuenteConfig = {
-    ops:           { label: 'OPs',            color: 'bg-blue-100 text-blue-700' },
-    colaboradores: { label: 'Colaboradores',  color: 'bg-green-100 text-green-700' },
-    cotizaciones:  { label: 'Cotizaciones',   color: 'bg-orange-100 text-orange-700' },
-    pasos:         { label: 'Pasos',          color: 'bg-purple-100 text-purple-700' },
+    ops:           { label: 'OPs',            color: 'bg-pastel-azul-2 text-aviso-azul' },
+    colaboradores: { label: 'Colaboradores',  color: 'bg-pastel-verde-2 text-aviso-verde' },
+    cotizaciones:  { label: 'Cotizaciones',   color: 'bg-pastel-naranja-2 text-aviso-naranja' },
+    pasos:         { label: 'Pasos',          color: 'bg-pastel-violeta-2 text-aviso-violeta' },
 }
 
 function eliminar(informe) {
@@ -129,7 +129,7 @@ function eliminar(informe) {
                             <button
                                 v-if="informe.es_mio"
                                 @click="eliminar(informe)"
-                                class="p-1.5 rounded-lg text-red-400 hover:bg-red-50 transition-colors"
+                                class="p-1.5 rounded-lg text-red-400 hover:bg-pastel-rojo transition-colors"
                                 title="Eliminar"
                             >
                                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">

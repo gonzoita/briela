@@ -49,7 +49,7 @@ const submit = () => {
             <div class="bg-superficie rounded-xl shadow-sm p-6">
                 <h2 class="font-semibold text-tinta-900 mb-4">Crear nuevo usuario</h2>
 
-                <div v-if="hasChanges" class="mb-4 inline-flex items-center gap-1.5 text-xs font-medium text-amber-700 bg-amber-50 border border-amber-200 rounded-xl px-3 py-1.5">
+                <div v-if="hasChanges" class="mb-4 inline-flex items-center gap-1.5 text-xs font-medium text-aviso-ambar bg-pastel-ambar border border-borde-aviso-ambar rounded-xl px-3 py-1.5">
                     <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
                     Cambios sin guardar
                 </div>
@@ -66,7 +66,7 @@ const submit = () => {
                             class="w-full px-3 py-2.5 border rounded-lg text-sm focus:outline-none focus:ring-2"
                             :class="form.errors.name ? 'border-red-400 focus:ring-red-200' : 'border-tinta-200 focus:ring-[var(--marca-suave)]'"
                         />
-                        <p v-if="form.errors.name" class="mt-1 text-xs text-red-600">{{ form.errors.name }}</p>
+                        <p v-if="form.errors.name" class="mt-1 text-xs text-aviso-rojo">{{ form.errors.name }}</p>
                     </div>
 
                     <!-- Email -->
@@ -79,7 +79,7 @@ const submit = () => {
                             class="w-full px-3 py-2.5 border rounded-lg text-sm focus:outline-none focus:ring-2"
                             :class="form.errors.email ? 'border-red-400 focus:ring-red-200' : 'border-tinta-200 focus:ring-[var(--marca-suave)]'"
                         />
-                        <p v-if="form.errors.email" class="mt-1 text-xs text-red-600">{{ form.errors.email }}</p>
+                        <p v-if="form.errors.email" class="mt-1 text-xs text-aviso-rojo">{{ form.errors.email }}</p>
                     </div>
 
                     <!-- Teléfono -->
@@ -92,7 +92,7 @@ const submit = () => {
                             class="w-full px-3 py-2.5 border rounded-lg text-sm focus:outline-none focus:ring-2"
                             :class="form.errors.telefono ? 'border-red-400 focus:ring-red-200' : 'border-tinta-200 focus:ring-[var(--marca-suave)]'"
                         />
-                        <p v-if="form.errors.telefono" class="mt-1 text-xs text-red-600">{{ form.errors.telefono }}</p>
+                        <p v-if="form.errors.telefono" class="mt-1 text-xs text-aviso-rojo">{{ form.errors.telefono }}</p>
                     </div>
 
                     <!-- Password -->
@@ -105,7 +105,7 @@ const submit = () => {
                             class="w-full px-3 py-2.5 border rounded-lg text-sm focus:outline-none focus:ring-2"
                             :class="form.errors.password ? 'border-red-400 focus:ring-red-200' : 'border-tinta-200 focus:ring-[var(--marca-suave)]'"
                         />
-                        <p v-if="form.errors.password" class="mt-1 text-xs text-red-600">{{ form.errors.password }}</p>
+                        <p v-if="form.errors.password" class="mt-1 text-xs text-aviso-rojo">{{ form.errors.password }}</p>
                     </div>
 
                     <!-- Confirmación password -->
@@ -129,7 +129,7 @@ const submit = () => {
                         >
                             <option v-for="r in roles" :key="r.id" :value="r.id">{{ r.nombre }}</option>
                         </select>
-                        <p v-if="form.errors.rol_id" class="mt-1 text-xs text-red-600">{{ form.errors.rol_id }}</p>
+                        <p v-if="form.errors.rol_id" class="mt-1 text-xs text-aviso-rojo">{{ form.errors.rol_id }}</p>
                         <p class="mt-1 text-xs text-tinta-300">
                             Los roles se crean en Configuración → Roles y permisos.
                         </p>
@@ -145,7 +145,7 @@ const submit = () => {
                         >
                             <option v-for="s in sedes" :key="s.id" :value="s.id">{{ s.nombre }} ({{ s.codigo }})</option>
                         </select>
-                        <p v-if="form.errors.sede_id" class="mt-1 text-xs text-red-600">{{ form.errors.sede_id }}</p>
+                        <p v-if="form.errors.sede_id" class="mt-1 text-xs text-aviso-rojo">{{ form.errors.sede_id }}</p>
                     </div>
 
                     <!-- Sedes adicionales -->
@@ -160,8 +160,8 @@ const submit = () => {
                         </div>
                         <p class="mt-1 text-xs text-tinta-300">Si no marcas ninguna, queda con su sede principal.</p>
                     </div>
-                    <div v-else class="rounded-lg bg-blue-50 border border-blue-200 p-3">
-                        <p class="text-xs text-blue-800">Este rol tiene acceso a todas las sedes.</p>
+                    <div v-else class="rounded-lg bg-pastel-azul border border-borde-aviso-azul p-3">
+                        <p class="text-xs text-aviso-azul">Este rol tiene acceso a todas las sedes.</p>
                     </div>
 
                     <!-- Almacenes -->

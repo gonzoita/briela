@@ -67,8 +67,8 @@ const formatCOP = (v) =>
                 <div class="flex items-center gap-1.5 mb-1.5 flex-wrap">
                     <span class="w-2 h-2 rounded-full shrink-0" :style="`background:${canal.color};`"/>
                     <span class="text-xs font-semibold text-tinta-600">{{ canal.etiqueta }}</span>
-                    <span v-if="canal.es_canal_base" class="text-[10px] px-1.5 py-0.5 rounded-full bg-blue-50 text-blue-700">canal base</span>
-                    <span v-if="canal.es_precio_publico" class="text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700">precio público</span>
+                    <span v-if="canal.es_canal_base" class="text-[10px] px-1.5 py-0.5 rounded-full bg-pastel-azul text-aviso-azul">canal base</span>
+                    <span v-if="canal.es_precio_publico" class="text-[10px] px-1.5 py-0.5 rounded-full bg-pastel-verde text-aviso-verde">precio público</span>
                 </div>
                 <div class="grid grid-cols-2 gap-3 items-end">
                     <div>
@@ -87,12 +87,12 @@ const formatCOP = (v) =>
                 </div>
             </div>
 
-            <p v-if="canales.length && !Number(precioCosto)" class="text-xs text-amber-700">
+            <p v-if="canales.length && !Number(precioCosto)" class="text-xs text-aviso-ambar">
                 Escribe el precio de costo y los precios de cada canal se calculan solos.
             </p>
 
-            <div v-if="!canales.length" class="rounded-xl bg-amber-50 border border-amber-200 px-3 py-2.5">
-                <p class="text-xs text-amber-800 leading-relaxed">
+            <div v-if="!canales.length" class="rounded-xl bg-pastel-ambar border border-borde-aviso-ambar px-3 py-2.5">
+                <p class="text-xs text-aviso-ambar leading-relaxed">
                     No hay canales de precio configurados. Ve a
                     <button type="button" @click="router.visit('/administracion/segmentacion')"
                         class="font-semibold underline underline-offset-2">Segmentación</button>
@@ -114,10 +114,10 @@ const formatCOP = (v) =>
         <div class="p-5 space-y-4">
             <!-- El canal base va primero y sin campos: es el piso de utilidad de la empresa,
                  no una venta con margen para repartir. -->
-            <div v-if="canalBase" class="bg-blue-50 border border-blue-100 rounded-lg p-3">
+            <div v-if="canalBase" class="bg-pastel-azul border border-borde-aviso-azul rounded-lg p-3">
                 <div class="flex items-center gap-2 flex-wrap">
-                    <span class="text-xs font-semibold text-blue-700 uppercase">{{ canalBase.etiqueta }}</span>
-                    <span class="bg-blue-100 text-blue-600 text-xs px-2 py-0.5 rounded-full">Sin comisión · Precio fijo</span>
+                    <span class="text-xs font-semibold text-aviso-azul uppercase">{{ canalBase.etiqueta }}</span>
+                    <span class="bg-pastel-azul-2 text-aviso-azul text-xs px-2 py-0.5 rounded-full">Sin comisión · Precio fijo</span>
                 </div>
                 <p class="text-xs text-blue-400 mt-1">
                     Su margen ({{ canalBase.margen_pct }}%) es la utilidad mínima garantizada de la empresa.
@@ -132,7 +132,7 @@ const formatCOP = (v) =>
                 <div class="flex items-center justify-between flex-wrap gap-1">
                     <div class="flex items-center gap-2">
                         <span class="text-xs font-semibold uppercase" :style="`color:${canal.color};`">{{ canal.etiqueta }}</span>
-                        <span v-if="canal.es_precio_publico" class="bg-green-100 text-green-600 text-xs px-2 py-0.5 rounded-full">★ Mayor incentivo</span>
+                        <span v-if="canal.es_precio_publico" class="bg-pastel-verde-2 text-aviso-verde text-xs px-2 py-0.5 rounded-full">★ Mayor incentivo</span>
                     </div>
                     <span class="text-xs text-tinta-400">
                         Base: {{ formatCOP(canal.precio) }} · Excedente: {{ formatCOP(excedenteDe(canal)) }} ·
@@ -144,7 +144,7 @@ const formatCOP = (v) =>
                     <div>
                         <label class="text-xs text-tinta-400 mb-1 block">
                             Comisión mínima (%)
-                            <span v-if="minimoExigido(i) > 0" class="text-orange-500 ml-1">
+                            <span v-if="minimoExigido(i) > 0" class="text-aviso-naranja ml-1">
                                 ← mín = máx {{ canalesConComision[i - 1].etiqueta }} ({{ minimoExigido(i) }}%)
                             </span>
                         </label>
@@ -165,7 +165,7 @@ const formatCOP = (v) =>
                     </div>
                 </div>
 
-                <p v-if="errorEscalera(i)" class="text-xs text-red-600">
+                <p v-if="errorEscalera(i)" class="text-xs text-aviso-rojo">
                     La comisión mínima debe ser mayor o igual a la máxima de
                     {{ canalesConComision[i - 1].etiqueta }} ({{ minimoExigido(i) }}%): mientras más lejos del
                     canal base, más incentivo para el vendedor.

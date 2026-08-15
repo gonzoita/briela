@@ -128,21 +128,21 @@ function desmarcarPaso(paso) {
 
             <!-- Variables del producto -->
             <div v-if="trabajo.variables_instancia && Object.keys(trabajo.variables_instancia).length"
-                class="bg-superficie rounded-2xl border border-amber-200 overflow-hidden">
-                <div class="px-4 py-3 border-b border-amber-100 bg-amber-50">
-                    <p class="text-xs font-semibold text-amber-700 uppercase tracking-[0.12em]">Variables del producto</p>
+                class="bg-superficie rounded-2xl border border-borde-aviso-ambar overflow-hidden">
+                <div class="px-4 py-3 border-b border-borde-aviso-ambar bg-pastel-ambar">
+                    <p class="text-xs font-semibold text-aviso-ambar uppercase tracking-[0.12em]">Variables del producto</p>
                 </div>
                 <div class="p-4 space-y-3">
                     <div v-if="trabajo.campos_plantilla?.some(c => c.imagen_referencia)"
                         class="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-3">
                         <div v-for="campo in trabajo.campos_plantilla.filter(c => c.imagen_referencia)"
                             :key="campo.nombre"
-                            class="rounded-xl overflow-hidden border border-amber-200 bg-amber-50">
+                            class="rounded-xl overflow-hidden border border-borde-aviso-ambar bg-pastel-ambar">
                             <a :href="campo.imagen_referencia" target="_blank" rel="noopener">
                                 <img :src="campo.imagen_referencia"
                                     class="w-full h-32 object-contain bg-superficie hover:opacity-90 transition-opacity" />
                             </a>
-                            <p class="text-xs text-amber-700 px-2 py-1.5">
+                            <p class="text-xs text-aviso-ambar px-2 py-1.5">
                                 {{ campo.etiqueta }}
                                 <strong v-if="trabajo.variables_instancia[campo.nombre] !== undefined">
                                     = {{ trabajo.variables_instancia[campo.nombre] }}
@@ -152,7 +152,7 @@ function desmarcarPaso(paso) {
                     </div>
                     <div class="flex flex-wrap gap-2">
                         <span v-for="(val, key) in trabajo.variables_instancia" :key="key"
-                            class="text-xs px-3 py-1.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 font-medium">
+                            class="text-xs px-3 py-1.5 rounded-xl bg-pastel-ambar border border-borde-aviso-ambar text-aviso-ambar font-medium">
                             {{ key }}: <strong>{{ val }}</strong>
                         </span>
                     </div>
@@ -185,7 +185,7 @@ function desmarcarPaso(paso) {
                 <div class="divide-y divide-separador">
                     <div v-for="paso in trabajo.pasos" :key="paso.id"
                         class="px-4 py-3 transition-colors"
-                        :class="paso.completado ? 'bg-green-50' : 'hover:bg-tinta-50'">
+                        :class="paso.completado ? 'bg-pastel-verde' : 'hover:bg-tinta-50'">
                         <div class="flex items-start gap-3">
                             <!-- Checkbox / estado -->
                             <button
@@ -202,19 +202,19 @@ function desmarcarPaso(paso) {
                             <div class="flex-1 min-w-0">
                                 <div class="flex items-center gap-2 flex-wrap">
                                     <span class="text-sm font-medium"
-                                        :class="paso.completado ? 'text-green-700 line-through' : 'text-tinta-900'">
+                                        :class="paso.completado ? 'text-aviso-verde line-through' : 'text-tinta-900'">
                                         {{ paso.nombre }}
                                     </span>
                                     <span class="text-xs text-tinta-300">{{ paso.peso_porcentaje }}%</span>
                                     <span v-if="paso.es_extra"
-                                        class="text-xs px-1.5 py-0.5 rounded-full bg-blue-50 text-blue-600">Extra</span>
+                                        class="text-xs px-1.5 py-0.5 rounded-full bg-pastel-azul text-aviso-azul">Extra</span>
                                 </div>
                                 <p v-if="paso.descripcion_resuelta" class="text-xs text-tinta-400 mt-0.5">
                                     {{ paso.descripcion_resuelta }}
                                 </p>
                                 <!-- Completado info -->
                                 <div v-if="paso.completado" class="mt-1.5 space-y-0.5">
-                                    <p class="text-xs text-green-600 font-medium">
+                                    <p class="text-xs text-aviso-verde font-medium">
                                         ✓ Completado {{ paso.completado_at }}
                                     </p>
                                     <div v-for="op_pivot in paso.operarios_pivot" :key="op_pivot.operario_id"
@@ -239,7 +239,7 @@ function desmarcarPaso(paso) {
             <!-- PDF link -->
             <div class="pb-4">
                 <a :href="`/produccion/trabajos/${trabajo.id}/pdf`" target="_blank"
-                    class="inline-flex items-center gap-1.5 text-xs px-3 py-2 rounded-xl border border-red-200 text-red-600 hover:bg-red-50 font-medium">
+                    class="inline-flex items-center gap-1.5 text-xs px-3 py-2 rounded-xl border border-borde-aviso-rojo text-aviso-rojo hover:bg-pastel-rojo font-medium">
                     <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
                     </svg>
@@ -270,7 +270,7 @@ function desmarcarPaso(paso) {
                             <div class="flex items-center justify-between">
                                 <span class="text-xs font-semibold text-tinta-500">Operario {{ idx + 1 }}</span>
                                 <button v-if="operariosModal.length > 1" @click="quitarOperario(idx)"
-                                    class="text-red-400 hover:text-red-600">
+                                    class="text-red-400 hover:text-aviso-rojo">
                                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
                                     </svg>
@@ -299,7 +299,7 @@ function desmarcarPaso(paso) {
                         </div>
 
                         <button @click="agregarOperario"
-                            class="text-xs text-blue-600 hover:text-blue-800 font-medium flex items-center gap-1">
+                            class="text-xs text-aviso-azul hover:text-aviso-azul font-medium flex items-center gap-1">
                             <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
                             </svg>

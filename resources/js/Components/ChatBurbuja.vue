@@ -344,7 +344,7 @@ const etiquetaTipo = { solicitud: 'Solicitud', tarea: 'Tarea' }
                                 <div class="flex flex-wrap gap-1">
                                     <label v-for="u in usuarios" :key="'g'+u.id"
                                         class="inline-flex items-center gap-1 px-2 py-1 rounded-lg border cursor-pointer text-[11px]"
-                                        :class="grupoNuevo.miembros.includes(u.id) ? 'border-teal-300 bg-teal-50 text-teal-800' : 'border-linea text-tinta-500'">
+                                        :class="grupoNuevo.miembros.includes(u.id) ? 'border-borde-aviso-verde bg-pastel-verde text-aviso-verde' : 'border-linea text-tinta-500'">
                                         <input type="checkbox" :value="u.id" v-model="grupoNuevo.miembros" class="hidden" />
                                         {{ u.name }}
                                     </label>
@@ -411,7 +411,7 @@ const etiquetaTipo = { solicitud: 'Solicitud', tarea: 'Tarea' }
                                     <p class="text-sm whitespace-pre-line">{{ m.contenido }}</p>
                                     <a v-if="m.referencia" :href="m.referencia.url"
                                         class="mt-1 block text-[11px] underline"
-                                        :class="m.mio ? 'text-white/90' : 'text-blue-600'">
+                                        :class="m.mio ? 'text-white/90' : 'text-aviso-azul'">
                                         📎 {{ m.referencia.etiqueta }}
                                     </a>
 
@@ -424,7 +424,7 @@ const etiquetaTipo = { solicitud: 'Solicitud', tarea: 'Tarea' }
                                             </a>
                                             <a v-else :href="a.url" target="_blank" rel="noopener"
                                                 class="block text-[11px] underline truncate"
-                                                :class="m.mio ? 'text-white/90' : 'text-blue-600'">
+                                                :class="m.mio ? 'text-white/90' : 'text-aviso-azul'">
                                                 📄 {{ a.nombre }}
                                             </a>
                                         </template>
@@ -460,9 +460,9 @@ const etiquetaTipo = { solicitud: 'Solicitud', tarea: 'Tarea' }
                             <!-- Adjuntos listos para enviar -->
                             <div v-if="refAdjunta || archivos.length" class="flex flex-wrap gap-1.5">
                                 <span v-if="refAdjunta"
-                                    class="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-teal-50 border border-teal-200 text-[11px] text-teal-800">
+                                    class="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-pastel-verde border border-borde-aviso-verde text-[11px] text-aviso-verde">
                                     📎 {{ refAdjunta.titulo }}
-                                    <button @click="refAdjunta = null" class="text-teal-600 hover:text-teal-900">✕</button>
+                                    <button @click="refAdjunta = null" class="text-aviso-verde hover:text-aviso-verde">✕</button>
                                 </span>
                                 <span v-for="(a, i) in archivos" :key="i"
                                     class="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-tinta-100 border border-linea text-[11px] text-tinta-700">
@@ -559,9 +559,9 @@ const etiquetaTipo = { solicitud: 'Solicitud', tarea: 'Tarea' }
                             <ul class="space-y-2">
                             <li v-for="p in pendientes" :key="p.id">
                                 <button @click="ir(p.url)"
-                                    class="w-full text-left rounded-xl border border-amber-200 bg-amber-50/50 p-3 hover:bg-amber-50 transition-colors">
+                                    class="w-full text-left rounded-xl border border-borde-aviso-ambar bg-pastel-ambar/50 p-3 hover:bg-pastel-ambar transition-colors">
                                     <div class="flex items-center gap-2 flex-wrap mb-1">
-                                        <span class="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-700 leading-none">
+                                        <span class="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-pastel-ambar-2 text-aviso-ambar leading-none">
                                             {{ etiquetaTipo[p.tipo] }}
                                         </span>
                                         <span class="text-[11px] text-tinta-400">{{ p.documento }}</span>

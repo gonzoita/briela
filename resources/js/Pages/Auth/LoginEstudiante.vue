@@ -43,7 +43,7 @@ const submit = () => {
                             class="w-full px-3 py-2.5 border rounded-lg text-sm focus:outline-none focus:ring-2 transition-colors"
                             :class="form.errors.email ? 'border-red-400 focus:ring-red-200' : 'border-tinta-200 focus:ring-[var(--marca-suave)] focus:border-[var(--marca)]'"
                             placeholder="tucorreo@ejemplo.com" />
-                        <p v-if="form.errors.email" class="mt-1 text-xs text-red-600">{{ form.errors.email }}</p>
+                        <p v-if="form.errors.email" class="mt-1 text-xs text-aviso-rojo">{{ form.errors.email }}</p>
                     </div>
 
                     <div>
@@ -62,12 +62,12 @@ const submit = () => {
                                 </svg>
                             </button>
                         </div>
-                        <p v-if="form.errors.password" class="mt-1 text-xs text-red-600">{{ form.errors.password }}</p>
+                        <p v-if="form.errors.password" class="mt-1 text-xs text-aviso-rojo">{{ form.errors.password }}</p>
                     </div>
 
                     <div class="flex items-center">
                         <input id="remember" v-model="form.remember" type="checkbox"
-                            class="w-4 h-4 rounded border-tinta-200 text-blue-600 focus:ring-[var(--marca-suave)]" />
+                            class="w-4 h-4 rounded border-tinta-200 text-aviso-azul focus:ring-[var(--marca-suave)]" />
                         <label for="remember" class="ml-2 text-sm text-tinta-500">Recordarme</label>
                     </div>
 

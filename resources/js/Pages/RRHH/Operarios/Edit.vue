@@ -121,7 +121,7 @@ async function subirArchivo(event, tipo) {
                 <h1 class="text-xl font-semibold text-tinta-900">Editar Colaborador</h1>
             </div>
 
-            <div v-if="hasChanges" class="mb-3 inline-flex items-center gap-1.5 text-xs font-medium text-amber-700 bg-amber-50 border border-amber-200 rounded-xl px-3 py-1.5">
+            <div v-if="hasChanges" class="mb-3 inline-flex items-center gap-1.5 text-xs font-medium text-aviso-ambar bg-pastel-ambar border border-borde-aviso-ambar rounded-xl px-3 py-1.5">
                 <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
                 Cambios sin guardar
             </div>
@@ -143,7 +143,7 @@ async function subirArchivo(event, tipo) {
                     <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1.5">Nombre *</label>
                     <input v-model="form.nombre" type="text"
                         class="w-full rounded-xl border border-tinta-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2" />
-                    <p v-if="errors.nombre" class="text-xs text-red-500 mt-1">{{ errors.nombre }}</p>
+                    <p v-if="errors.nombre" class="text-xs text-aviso-rojo mt-1">{{ errors.nombre }}</p>
                 </div>
 
                 <div v-if="tipos_colaborador?.length">
@@ -165,7 +165,7 @@ async function subirArchivo(event, tipo) {
                     <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1.5">Documento *</label>
                     <input v-model="form.documento" type="text"
                         class="w-full rounded-xl border border-tinta-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2" />
-                    <p v-if="errors.documento" class="text-xs text-red-500 mt-1">{{ errors.documento }}</p>
+                    <p v-if="errors.documento" class="text-xs text-aviso-rojo mt-1">{{ errors.documento }}</p>
                 </div>
 
                 <div>
@@ -178,7 +178,7 @@ async function subirArchivo(event, tipo) {
                     <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1.5">Email</label>
                     <input v-model="form.email" type="email"
                         class="w-full rounded-xl border border-tinta-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2" />
-                    <p v-if="errors.email" class="text-xs text-red-500 mt-1">{{ errors.email }}</p>
+                    <p v-if="errors.email" class="text-xs text-aviso-rojo mt-1">{{ errors.email }}</p>
                 </div>
 
                 <div class="grid grid-cols-2 gap-3">
@@ -241,7 +241,7 @@ async function subirArchivo(event, tipo) {
                         <div class="flex items-center gap-3 p-3 rounded-lg border border-linea">
                             <div class="flex-1">
                                 <p class="text-sm font-medium text-tinta-700">Documento EPS</p>
-                                <p v-if="archivos.archivo_eps" class="text-xs text-green-600 mt-0.5">
+                                <p v-if="archivos.archivo_eps" class="text-xs text-aviso-verde mt-0.5">
                                     Cargado
                                     <a :href="`/storage/${archivos.archivo_eps}`" target="_blank" class="underline ml-1">Ver</a>
                                 </p>
@@ -272,7 +272,7 @@ async function subirArchivo(event, tipo) {
                         <div class="flex items-center gap-3 p-3 rounded-lg border border-linea">
                             <div class="flex-1">
                                 <p class="text-sm font-medium text-tinta-700">Documento pensión</p>
-                                <p v-if="archivos.archivo_pension" class="text-xs text-green-600 mt-0.5">
+                                <p v-if="archivos.archivo_pension" class="text-xs text-aviso-verde mt-0.5">
                                     Cargado
                                     <a :href="`/storage/${archivos.archivo_pension}`" target="_blank" class="underline ml-1">Ver</a>
                                 </p>
@@ -315,7 +315,7 @@ async function subirArchivo(event, tipo) {
                 <div class="flex items-center gap-3 p-3 rounded-lg border border-linea">
                     <div class="flex-1">
                         <p class="text-sm font-medium text-tinta-700">Certificación bancaria</p>
-                        <p v-if="archivos.archivo_certificacion_bancaria" class="text-xs text-green-600 mt-0.5">
+                        <p v-if="archivos.archivo_certificacion_bancaria" class="text-xs text-aviso-verde mt-0.5">
                             Cargado
                             <a :href="`/storage/${archivos.archivo_certificacion_bancaria}`" target="_blank" class="underline ml-1">Ver</a>
                         </p>
@@ -336,7 +336,7 @@ async function subirArchivo(event, tipo) {
                     class="flex items-center gap-3 p-3 rounded-lg border border-linea">
                     <div class="flex-1">
                         <p class="text-sm font-medium text-tinta-700">{{ doc.label }}</p>
-                        <p v-if="archivos[doc.campo]" class="text-xs text-green-600 mt-0.5">
+                        <p v-if="archivos[doc.campo]" class="text-xs text-aviso-verde mt-0.5">
                             Cargado
                             <a :href="`/storage/${archivos[doc.campo]}`" target="_blank" class="underline ml-1">Ver</a>
                         </p>
@@ -357,7 +357,7 @@ async function subirArchivo(event, tipo) {
                             class="flex items-center gap-2 text-xs text-tinta-500">
                             <span class="truncate flex-1">{{ doc.nombre }}</span>
                             <a :href="`/storage/${doc.path}`" target="_blank"
-                                class="underline text-blue-600 shrink-0">Ver</a>
+                                class="underline text-aviso-azul shrink-0">Ver</a>
                         </div>
                     </div>
                     <label class="cursor-pointer inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium text-white" style="background:var(--marca)">
@@ -376,26 +376,26 @@ async function subirArchivo(event, tipo) {
                     <button type="button"
                         @click="form.crear_usuario = false; form.usuario_email = ''; form.usuario_password = ''; form.usuario_name = ''"
                         class="flex-1 py-2 rounded-xl text-xs font-medium border transition-colors"
-                        :class="!form.crear_usuario ? 'bg-blue-50 border-blue-400 text-blue-700' : 'border-linea text-tinta-400 hover:bg-tinta-50'">
+                        :class="!form.crear_usuario ? 'bg-pastel-azul border-blue-400 text-aviso-azul' : 'border-linea text-tinta-400 hover:bg-tinta-50'">
                         Vincular usuario existente
                     </button>
                     <button type="button"
                         @click="form.crear_usuario = true; form.user_id = ''; form.usuario_name = form.nombre"
                         class="flex-1 py-2 rounded-xl text-xs font-medium border transition-colors"
-                        :class="form.crear_usuario ? 'bg-green-50 border-green-400 text-green-700' : 'border-linea text-tinta-400 hover:bg-tinta-50'">
+                        :class="form.crear_usuario ? 'bg-pastel-verde border-green-400 text-aviso-verde' : 'border-linea text-tinta-400 hover:bg-tinta-50'">
                         Crear usuario nuevo
                     </button>
                 </div>
 
                 <div v-if="!form.crear_usuario">
                     <div v-if="operario.user_id && form.user_id"
-                        class="bg-green-50 border border-green-200 rounded-xl px-4 py-3 flex items-center justify-between">
+                        class="bg-pastel-verde border border-borde-aviso-verde rounded-xl px-4 py-3 flex items-center justify-between">
                         <div>
-                            <p class="text-xs font-semibold text-green-700">Usuario vinculado</p>
-                            <p class="text-sm text-green-800">{{ operario.usuario_nombre ?? 'Usuario activo' }}</p>
+                            <p class="text-xs font-semibold text-aviso-verde">Usuario vinculado</p>
+                            <p class="text-sm text-aviso-verde">{{ operario.usuario_nombre ?? 'Usuario activo' }}</p>
                         </div>
                         <button type="button" @click="form.user_id = ''"
-                            class="text-xs text-red-500 hover:text-red-700 underline">
+                            class="text-xs text-aviso-rojo hover:text-aviso-rojo underline">
                             Desvincular
                         </button>
                     </div>
@@ -417,21 +417,21 @@ async function subirArchivo(event, tipo) {
                         <label class="block text-xs font-medium text-tinta-400 mb-1.5">Nombre de usuario *</label>
                         <input v-model="form.usuario_name" type="text" placeholder="Nombre completo"
                             class="w-full rounded-xl border border-tinta-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2" />
-                        <p v-if="errors.usuario_name" class="text-xs text-red-500 mt-1">{{ errors.usuario_name }}</p>
+                        <p v-if="errors.usuario_name" class="text-xs text-aviso-rojo mt-1">{{ errors.usuario_name }}</p>
                     </div>
                     <div>
                         <label class="block text-xs font-medium text-tinta-400 mb-1.5">Correo electrónico *</label>
                         <input v-model="form.usuario_email" type="email" placeholder="colaborador@empresa.com"
                             class="w-full rounded-xl border border-tinta-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2" />
-                        <p v-if="errors.usuario_email" class="text-xs text-red-500 mt-1">{{ errors.usuario_email }}</p>
+                        <p v-if="errors.usuario_email" class="text-xs text-aviso-rojo mt-1">{{ errors.usuario_email }}</p>
                     </div>
                     <div>
                         <label class="block text-xs font-medium text-tinta-400 mb-1.5">Contraseña *</label>
                         <input v-model="form.usuario_password" type="password" placeholder="Mínimo 8 caracteres"
                             class="w-full rounded-xl border border-tinta-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2" />
-                        <p v-if="errors.usuario_password" class="text-xs text-red-500 mt-1">{{ errors.usuario_password }}</p>
+                        <p v-if="errors.usuario_password" class="text-xs text-aviso-rojo mt-1">{{ errors.usuario_password }}</p>
                     </div>
-                    <div class="bg-blue-50 rounded-xl px-3 py-2 text-xs text-blue-700">
+                    <div class="bg-pastel-azul rounded-xl px-3 py-2 text-xs text-aviso-azul">
                         Se creará un usuario con rol <strong>operario</strong> que podrá acceder
                         a Mi Panel y ver sus trabajos asignados.
                     </div>

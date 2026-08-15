@@ -29,8 +29,8 @@ const fechaHoy = computed(() =>
 
 // ─── Tonos del bloque de atención ───────────────────────────────────────────
 const tonos = {
-    rojo:  { caja: 'border-red-200 bg-red-50',     numero: 'text-red-700',   texto: 'text-red-600',   icono: 'bg-red-100 text-red-600' },
-    ambar: { caja: 'border-amber-200 bg-amber-50', numero: 'text-amber-700', texto: 'text-amber-600', icono: 'bg-amber-100 text-amber-600' },
+    rojo:  { caja: 'border-borde-aviso-rojo bg-pastel-rojo',     numero: 'text-aviso-rojo',   texto: 'text-aviso-rojo',   icono: 'bg-pastel-rojo-2 text-aviso-rojo' },
+    ambar: { caja: 'border-borde-aviso-ambar bg-pastel-ambar', numero: 'text-aviso-ambar', texto: 'text-aviso-ambar', icono: 'bg-pastel-ambar-2 text-aviso-ambar' },
 }
 
 // ─── Pull-to-refresh ────────────────────────────────────────────────────────
@@ -85,11 +85,11 @@ const hayAlertasMant = computed(() =>
 // ─── Badge estado OP ────────────────────────────────────────────────────────
 const badgeClass = (estado) => ({
     borrador:      'bg-tinta-100 text-tinta-500',
-    confirmada:    'bg-blue-100 text-blue-800',
-    en_produccion: 'bg-yellow-100 text-yellow-800',
-    calidad:       'bg-violet-100 text-violet-800',
-    reproceso:     'bg-orange-100 text-orange-800',
-    despachada:    'bg-green-100 text-green-800',
+    confirmada:    'bg-pastel-azul-2 text-aviso-azul',
+    en_produccion: 'bg-pastel-ambar-2 text-aviso-ambar',
+    calidad:       'bg-pastel-violeta-2 text-aviso-violeta',
+    reproceso:     'bg-pastel-naranja-2 text-aviso-naranja',
+    despachada:    'bg-pastel-verde-2 text-aviso-verde',
 }[estado] ?? 'bg-tinta-100 text-tinta-500')
 </script>
 
@@ -102,7 +102,7 @@ const badgeClass = (estado) => ({
             :style="{ height: refreshing ? '48px' : pullDelta > 8 ? `${Math.min(pullDelta, 48)}px` : '0px' }"
         >
             <div
-                class="w-7 h-7 rounded-full border-2 border-blue-200 border-t-blue-600 transition-opacity"
+                class="w-7 h-7 rounded-full border-2 border-borde-aviso-azul border-t-blue-600 transition-opacity"
                 :class="refreshing ? 'animate-spin opacity-100' : pullDelta >= PULL_THRESHOLD ? 'opacity-100' : 'opacity-40'"
             ></div>
         </div>
@@ -224,31 +224,31 @@ const badgeClass = (estado) => ({
                     <Link
                         v-if="(metricas?.mant_vencidos ?? 0) > 0"
                         href="/mantenimiento/equipos"
-                        class="bg-red-50 border border-red-200 rounded-2xl p-4 flex flex-col gap-2 active:scale-95 transition-transform no-underline"
+                        class="bg-pastel-rojo border border-borde-aviso-rojo rounded-2xl p-4 flex flex-col gap-2 active:scale-95 transition-transform no-underline"
                     >
-                        <div class="w-10 h-10 rounded-xl bg-red-100 flex items-center justify-center">
-                            <svg class="w-5 h-5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
+                        <div class="w-10 h-10 rounded-xl bg-pastel-rojo-2 flex items-center justify-center">
+                            <svg class="w-5 h-5 text-aviso-rojo" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
                             </svg>
                         </div>
                         <div>
-                            <p class="text-2xl font-semibold text-red-700 leading-none">{{ metricas?.mant_vencidos }}</p>
-                            <p class="text-xs text-red-500 mt-1">Equipos vencidos</p>
+                            <p class="text-2xl font-semibold text-aviso-rojo leading-none">{{ metricas?.mant_vencidos }}</p>
+                            <p class="text-xs text-aviso-rojo mt-1">Equipos vencidos</p>
                         </div>
                     </Link>
                     <Link
                         v-if="(metricas?.mant_proximos ?? 0) > 0"
                         href="/mantenimiento/equipos"
-                        class="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex flex-col gap-2 active:scale-95 transition-transform no-underline"
+                        class="bg-pastel-ambar border border-borde-aviso-ambar rounded-2xl p-4 flex flex-col gap-2 active:scale-95 transition-transform no-underline"
                     >
-                        <div class="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center">
-                            <svg class="w-5 h-5 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
+                        <div class="w-10 h-10 rounded-xl bg-pastel-ambar-2 flex items-center justify-center">
+                            <svg class="w-5 h-5 text-aviso-ambar" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
                             </svg>
                         </div>
                         <div>
-                            <p class="text-2xl font-semibold text-amber-700 leading-none">{{ metricas?.mant_proximos }}</p>
-                            <p class="text-xs text-amber-600 mt-1">Próximos 7 días</p>
+                            <p class="text-2xl font-semibold text-aviso-ambar leading-none">{{ metricas?.mant_proximos }}</p>
+                            <p class="text-xs text-aviso-ambar mt-1">Próximos 7 días</p>
                         </div>
                     </Link>
                 </div>
@@ -271,7 +271,7 @@ const badgeClass = (estado) => ({
                 <Link
                     v-if="permisos?.puedeVerificarOps"
                     href="/produccion/ops?estado=borrador"
-                    class="flex items-center gap-2 shrink-0 px-5 py-3 rounded-xl text-sm font-semibold border-2 bg-superficie active:bg-yellow-50 transition-colors"
+                    class="flex items-center gap-2 shrink-0 px-5 py-3 rounded-xl text-sm font-semibold border-2 bg-superficie active:bg-pastel-ambar transition-colors"
                     style="border-color: #D97706; color: #D97706;"
                 >
                     <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
@@ -283,7 +283,7 @@ const badgeClass = (estado) => ({
                 <Link
                     v-if="permisos?.esCotizador"
                     href="/cotizaciones/crear"
-                    class="flex items-center gap-2 shrink-0 px-5 py-3 rounded-xl text-sm font-semibold border-2 bg-superficie active:bg-blue-50 transition-colors"
+                    class="flex items-center gap-2 shrink-0 px-5 py-3 rounded-xl text-sm font-semibold border-2 bg-superficie active:bg-pastel-azul transition-colors"
                     style="border-color: #1D4ED8; color: var(--texto-azul);"
                 >
                     <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">

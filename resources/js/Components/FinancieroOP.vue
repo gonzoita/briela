@@ -13,13 +13,13 @@
         <div class="text-xs text-tinta-400 mb-1">Total OP</div>
         <div class="font-semibold text-tinta-900 text-sm">${{ fmt(totalOp) }}</div>
       </div>
-      <div class="bg-green-50 rounded-lg p-3 text-center">
+      <div class="bg-pastel-verde rounded-lg p-3 text-center">
         <div class="text-xs text-tinta-400 mb-1">Pagado</div>
-        <div class="font-semibold text-green-700 text-sm">${{ fmt(totalPagadoLocal) }}</div>
+        <div class="font-semibold text-aviso-verde text-sm">${{ fmt(totalPagadoLocal) }}</div>
       </div>
-      <div class="bg-red-50 rounded-lg p-3 text-center">
+      <div class="bg-pastel-rojo rounded-lg p-3 text-center">
         <div class="text-xs text-tinta-400 mb-1">Saldo</div>
-        <div class="font-semibold text-red-700 text-sm">${{ fmt(saldoPendienteLocal) }}</div>
+        <div class="font-semibold text-aviso-rojo text-sm">${{ fmt(saldoPendienteLocal) }}</div>
       </div>
     </div>
 
@@ -37,7 +37,7 @@
       </div>
 
       <!-- Formulario nueva cuota -->
-      <div v-if="mostrarFormCuota" class="bg-blue-50 rounded-lg p-3 mb-3 space-y-2">
+      <div v-if="mostrarFormCuota" class="bg-pastel-azul rounded-lg p-3 mb-3 space-y-2">
         <input v-model="formCuota.concepto" placeholder="Concepto (ej: Anticipo 50%)"
           class="w-full border border-tinta-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300" />
         <div class="grid grid-cols-2 gap-2">
@@ -91,7 +91,7 @@
         </div>
         <div class="text-right ml-2 flex-shrink-0">
           <div class="text-sm font-semibold text-tinta-900">${{ fmt(cuota.valor) }}</div>
-          <div class="text-xs" :class="cuota.estado === 'pagado' ? 'text-green-600' : 'text-orange-500'">
+          <div class="text-xs" :class="cuota.estado === 'pagado' ? 'text-aviso-verde' : 'text-aviso-naranja'">
             {{ cuota.estado === 'pagado' ? '✓ Pagado' : `Saldo $${fmt(cuota.saldo)}` }}
           </div>
         </div>
@@ -142,7 +142,7 @@
                 class="w-full border border-tinta-200 rounded-lg px-3 py-2 text-sm focus:outline-none resize-none"></textarea>
             </div>
           </div>
-          <p v-if="errorPago" class="text-red-500 text-xs mt-2">{{ errorPago }}</p>
+          <p v-if="errorPago" class="text-aviso-rojo text-xs mt-2">{{ errorPago }}</p>
           <div class="flex gap-2 mt-4">
             <button @click="registrarPago" :disabled="guardandoPago"
               class="flex-1 bg-[var(--marca)] text-white py-2.5 rounded-lg font-medium text-sm disabled:opacity-50">
@@ -167,7 +167,7 @@
           <div class="text-xs text-tinta-300">{{ fmtFecha(pago.fecha_pago) }} · {{ pago.medio_pago }}</div>
         </div>
         <div class="flex items-center gap-2 ml-2 flex-shrink-0">
-          <span class="text-sm font-semibold text-green-700">${{ fmt(pago.valor) }}</span>
+          <span class="text-sm font-semibold text-aviso-verde">${{ fmt(pago.valor) }}</span>
           <a :href="`/financiero/pagos/${pago.id}/pdf`" target="_blank"
             class="text-[var(--marca)] text-xs flex items-center gap-1 hover:underline">
             <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">

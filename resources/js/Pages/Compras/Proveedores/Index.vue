@@ -86,9 +86,9 @@ function tipoLabel(t) {
 
 function tipoColor(t) {
     return {
-        materia_prima: 'bg-orange-100 text-orange-700',
-        insumos:       'bg-blue-100 text-blue-700',
-        mixto:         'bg-purple-100 text-purple-700',
+        materia_prima: 'bg-pastel-naranja-2 text-aviso-naranja',
+        insumos:       'bg-pastel-azul-2 text-aviso-azul',
+        mixto:         'bg-pastel-violeta-2 text-aviso-violeta',
     }[t] ?? 'bg-tinta-100 text-tinta-700'
 }
 </script>
@@ -151,12 +151,12 @@ function tipoColor(t) {
                         </div>
                         <div class="flex flex-col items-end gap-1">
                             <span :class="['text-xs px-2 py-0.5 rounded-full font-medium', tipoColor(p.tipo)]">{{ tipoLabel(p.tipo) }}</span>
-                            <span v-if="!p.activo" class="text-xs px-2 py-0.5 rounded-full bg-red-100 text-red-700">Inactivo</span>
+                            <span v-if="!p.activo" class="text-xs px-2 py-0.5 rounded-full bg-pastel-rojo-2 text-aviso-rojo">Inactivo</span>
                         </div>
                     </div>
                     <div class="flex gap-2 mt-3">
-                        <button @click="abrirEditar(p)" class="text-sm text-blue-600 font-medium">Editar</button>
-                        <button v-if="p.activo" @click="desactivar(p)" class="text-sm text-red-500 font-medium">Desactivar</button>
+                        <button @click="abrirEditar(p)" class="text-sm text-aviso-azul font-medium">Editar</button>
+                        <button v-if="p.activo" @click="desactivar(p)" class="text-sm text-aviso-rojo font-medium">Desactivar</button>
                     </div>
                 </div>
                 <div v-if="!proveedores.data?.length" class="text-center py-8 text-tinta-300">
@@ -188,13 +188,13 @@ function tipoColor(t) {
                             <td class="px-4 py-3 text-tinta-400">{{ p.telefono ?? '—' }}</td>
                             <td class="px-4 py-3 text-tinta-400">{{ p.email ?? '—' }}</td>
                             <td class="px-4 py-3">
-                                <span v-if="p.activo" class="text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-700">Activo</span>
-                                <span v-else class="text-xs px-2 py-0.5 rounded-full bg-red-100 text-red-700">Inactivo</span>
+                                <span v-if="p.activo" class="text-xs px-2 py-0.5 rounded-full bg-pastel-verde-2 text-aviso-verde">Activo</span>
+                                <span v-else class="text-xs px-2 py-0.5 rounded-full bg-pastel-rojo-2 text-aviso-rojo">Inactivo</span>
                             </td>
                             <td class="px-4 py-3">
                                 <div class="flex items-center gap-3 justify-end">
-                                    <button @click="abrirEditar(p)" class="text-blue-600 hover:text-blue-800 text-sm font-medium">Editar</button>
-                                    <button v-if="p.activo" @click="desactivar(p)" class="text-red-500 hover:text-red-700 text-sm font-medium">Desactivar</button>
+                                    <button @click="abrirEditar(p)" class="text-aviso-azul hover:text-aviso-azul text-sm font-medium">Editar</button>
+                                    <button v-if="p.activo" @click="desactivar(p)" class="text-aviso-rojo hover:text-aviso-rojo text-sm font-medium">Desactivar</button>
                                 </div>
                             </td>
                         </tr>

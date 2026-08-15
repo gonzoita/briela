@@ -101,7 +101,7 @@ onMounted(cargar)
     <div :class="embebido ? '' : 'bg-superficie rounded-2xl border border-linea overflow-hidden'">
         <div v-if="!embebido" class="px-5 py-3 border-b border-linea flex items-center gap-2 flex-wrap">
             <h2 class="text-sm font-semibold text-tinta-700">Hilo interno</h2>
-            <span v-if="abiertos" class="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-700 leading-none">
+            <span v-if="abiertos" class="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-pastel-ambar-2 text-aviso-ambar leading-none">
                 {{ abiertos }} sin resolver
             </span>
             <span class="text-xs text-tinta-300 ml-auto">Solo lo ve el equipo, nunca el cliente.</span>
@@ -117,13 +117,13 @@ onMounted(cargar)
             <div v-for="c in comentarios" :key="c.id"
                 class="rounded-xl border p-3"
                 :class="c.tipo !== 'comentario' && c.estado === 'pendiente'
-                    ? 'border-amber-200 bg-amber-50/40' : 'border-linea'">
+                    ? 'border-borde-aviso-ambar bg-pastel-ambar/40' : 'border-linea'">
                 <div class="flex items-center gap-2 flex-wrap mb-1">
                     <span class="text-xs font-semibold text-tinta-700">{{ c.autor?.name }}</span>
                     <span v-if="c.tipo !== 'comentario'"
                         class="text-[10px] font-semibold px-1.5 py-0.5 rounded-full leading-none"
-                        :class="c.estado === 'pendiente' ? 'bg-amber-100 text-amber-700'
-                              : c.estado === 'resuelta' ? 'bg-green-100 text-green-700' : 'bg-tinta-200 text-tinta-500'">
+                        :class="c.estado === 'pendiente' ? 'bg-pastel-ambar-2 text-aviso-ambar'
+                              : c.estado === 'resuelta' ? 'bg-pastel-verde-2 text-aviso-verde' : 'bg-tinta-200 text-tinta-500'">
                         {{ etiqueta[c.tipo] }}<template v-if="c.estado !== 'pendiente'"> · {{ c.estado }}</template>
                     </span>
                     <span v-if="c.asignado" class="text-[11px] text-tinta-400">para {{ c.asignado.name }}</span>
@@ -136,7 +136,7 @@ onMounted(cargar)
                 <div class="flex items-center gap-2 mt-2 flex-wrap">
                     <template v-if="c.tipo !== 'comentario' && c.estado === 'pendiente'">
                         <button @click="resolver(c, 'resuelta')"
-                            class="px-2 py-1 rounded-lg text-[11px] font-semibold text-green-700 border border-green-200 hover:bg-green-50">
+                            class="px-2 py-1 rounded-lg text-[11px] font-semibold text-aviso-verde border border-borde-aviso-verde hover:bg-pastel-verde">
                             Marcar resuelta
                         </button>
                         <button @click="resolver(c, 'rechazada')"
@@ -181,7 +181,7 @@ onMounted(cargar)
                     </button>
                 </div>
 
-                <p v-if="error" class="text-xs text-red-600">{{ error }}</p>
+                <p v-if="error" class="text-xs text-aviso-rojo">{{ error }}</p>
             </div>
         </div>
     </div>

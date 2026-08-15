@@ -175,7 +175,7 @@ const variablesEntries = Object.entries(props.ensamble.variables ?? {})
 
                 <div class="flex items-baseline gap-2 flex-wrap">
                     <span class="text-3xl font-semibold"
-                        :class="disponibilidad.unidades > 0 ? 'text-emerald-600' : 'text-red-600'">
+                        :class="disponibilidad.unidades > 0 ? 'text-aviso-verde' : 'text-aviso-rojo'">
                         {{ disponibilidad.unidades }}
                     </span>
                     <span class="text-sm text-tinta-400">
@@ -189,14 +189,14 @@ const variablesEntries = Object.entries(props.ensamble.variables ?? {})
 
                 <!-- Qué falta y cuánto: es lo que se lleva a una solicitud de compra. -->
                 <div v-if="disponibilidad.faltantes.length" class="mt-3 border-t border-linea pt-3">
-                    <p class="text-xs font-semibold text-amber-700 mb-2">Falta material para armar una sola unidad</p>
+                    <p class="text-xs font-semibold text-aviso-ambar mb-2">Falta material para armar una sola unidad</p>
                     <div class="space-y-1">
                         <div v-for="(f, i) in disponibilidad.faltantes" :key="i"
                             class="flex items-center justify-between gap-2 text-xs">
                             <span class="text-tinta-600 truncate">{{ f.nombre }}</span>
                             <span class="text-tinta-400 shrink-0">
                                 hay {{ f.hay }} · pide {{ f.necesita }} {{ f.unidad }} ·
-                                <span class="text-red-600 font-semibold">falta {{ f.falta }}</span>
+                                <span class="text-aviso-rojo font-semibold">falta {{ f.falta }}</span>
                             </span>
                         </div>
                     </div>
@@ -282,7 +282,7 @@ const variablesEntries = Object.entries(props.ensamble.variables ?? {})
                                     style="background:var(--tinta-100); color:var(--tinta-500);">base</span>
                             </span>
                             <span class="text-sm font-semibold shrink-0"
-                                :class="c.precio > 0 ? '' : 'text-amber-600'"
+                                :class="c.precio > 0 ? '' : 'text-aviso-ambar'"
                                 :style="c.es_precio_publico && c.precio > 0 ? 'color:var(--marca);' : ''">
                                 {{ c.precio > 0 ? '$' + formatCOP(c.precio) : 'sin precio' }}
                             </span>
@@ -301,7 +301,7 @@ const variablesEntries = Object.entries(props.ensamble.variables ?? {})
             <!-- Eliminar -->
             <div class="flex justify-end">
                 <button @click="eliminar"
-                    class="px-4 py-2 rounded-xl text-sm text-red-600 hover:bg-red-50 border border-red-200 transition-colors">
+                    class="px-4 py-2 rounded-xl text-sm text-aviso-rojo hover:bg-pastel-rojo border border-borde-aviso-rojo transition-colors">
                     Eliminar ensamble
                 </button>
             </div>

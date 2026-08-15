@@ -186,11 +186,11 @@ function ic(extra = '') {
                         class="h-11 w-14 shrink-0 cursor-pointer rounded-lg border border-tinta-200 bg-superficie p-1"/>
                     <input v-model="form.color" type="text" :class="ic('font-mono uppercase')" maxlength="7"/>
                     <button type="button" @click="restaurarColor"
-                        class="shrink-0 text-xs text-blue-600 font-medium hover:underline">
+                        class="shrink-0 text-xs text-aviso-azul font-medium hover:underline">
                         Restaurar
                     </button>
                 </div>
-                <p v-if="form.errors.color" class="text-red-500 text-xs">{{ form.errors.color }}</p>
+                <p v-if="form.errors.color" class="text-aviso-rojo text-xs">{{ form.errors.color }}</p>
 
                 <!-- Paleta derivada -->
                 <div class="grid grid-cols-5 gap-2">
@@ -263,7 +263,7 @@ function ic(extra = '') {
                 </div>
 
                 <input v-model="form.titulo" type="text" :class="ic()"/>
-                <p v-if="form.errors.titulo" class="text-red-500 text-xs">{{ form.errors.titulo }}</p>
+                <p v-if="form.errors.titulo" class="text-aviso-rojo text-xs">{{ form.errors.titulo }}</p>
 
                 <div class="text-xs text-tinta-400 space-y-1">
                     <p>
@@ -314,7 +314,7 @@ function ic(extra = '') {
                         </label>
                     </div>
 
-                    <p v-if="form.errors.fuente" class="text-red-500 text-xs mt-2">{{ form.errors.fuente }}</p>
+                    <p v-if="form.errors.fuente" class="text-aviso-rojo text-xs mt-2">{{ form.errors.fuente }}</p>
                 </div>
 
                 <div class="flex items-center gap-3 pt-1">
@@ -324,7 +324,7 @@ function ic(extra = '') {
                     </button>
                     <Transition enter-active-class="transition" enter-from-class="opacity-0"
                         leave-active-class="transition" leave-to-class="opacity-0">
-                        <p v-if="form.recentlySuccessful" class="text-xs text-green-600 font-medium">
+                        <p v-if="form.recentlySuccessful" class="text-xs text-aviso-verde font-medium">
                             Guardado. Recarga para verlo aplicado.
                         </p>
                     </Transition>
@@ -353,7 +353,7 @@ function ic(extra = '') {
                             {{ subiendo.favicon ? 'Subiendo...' : 'Subir imagen' }}
                         </button>
                         <button v-if="faviconUrl" type="button" @click="quitarImagen('favicon')"
-                            class="rounded-lg px-4 py-2 text-sm font-semibold text-red-600 hover:bg-red-50">
+                            class="rounded-lg px-4 py-2 text-sm font-semibold text-aviso-rojo hover:bg-pastel-rojo">
                             Quitar
                         </button>
                     </div>
@@ -363,7 +363,7 @@ function ic(extra = '') {
                         @change="e => subirImagen(e, 'favicon')"/>
                 </div>
 
-                <p v-if="errores.favicon" class="text-red-500 text-xs">{{ errores.favicon }}</p>
+                <p v-if="errores.favicon" class="text-aviso-rojo text-xs">{{ errores.favicon }}</p>
 
                 <p class="text-xs text-tinta-300">
                     El archivo se guarda con un nombre distinto en cada subida, así que el
@@ -397,7 +397,7 @@ function ic(extra = '') {
                             {{ subiendo.logo ? 'Subiendo...' : 'Subir logo' }}
                         </button>
                         <button v-if="logoUrl" type="button" @click="quitarImagen('logo')"
-                            class="rounded-lg px-4 py-2 text-sm font-semibold text-red-600 hover:bg-red-50">
+                            class="rounded-lg px-4 py-2 text-sm font-semibold text-aviso-rojo hover:bg-pastel-rojo">
                             Quitar
                         </button>
                     </div>
@@ -407,7 +407,7 @@ function ic(extra = '') {
                         @change="e => subirImagen(e, 'logo')"/>
                 </div>
 
-                <p v-if="errores.logo" class="text-red-500 text-xs">{{ errores.logo }}</p>
+                <p v-if="errores.logo" class="text-aviso-rojo text-xs">{{ errores.logo }}</p>
             </div>
 
             <!-- ── Versiones para el modo de noche ────────────────────────── -->
@@ -441,11 +441,11 @@ function ic(extra = '') {
                                 {{ subiendo[cual] ? 'Subiendo…' : 'Subir' }}
                             </button>
                             <button v-if="urls[cual].value" type="button" @click="quitarImagen(cual)"
-                                class="rounded-lg px-3 py-1.5 text-sm font-semibold text-red-600 hover:bg-red-50">
+                                class="rounded-lg px-3 py-1.5 text-sm font-semibold text-aviso-rojo hover:bg-pastel-rojo">
                                 Quitar
                             </button>
                         </div>
-                        <p v-if="errores[cual]" class="text-red-500 text-xs mt-1">{{ errores[cual] }}</p>
+                        <p v-if="errores[cual]" class="text-aviso-rojo text-xs mt-1">{{ errores[cual] }}</p>
                     </div>
 
                     <input :id="`input-${cual}`" type="file" class="hidden"

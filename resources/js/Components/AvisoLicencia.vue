@@ -78,10 +78,10 @@ function posponer() {
         v-if="visible"
         class="flex items-start gap-3 px-4 py-2.5 text-sm border-b"
         :class="tipo === 'actualizacion' && !licencia.actualizacion.obligatoria
-            ? 'bg-blue-50 border-blue-200 text-blue-800'
+            ? 'bg-pastel-azul border-borde-aviso-azul text-aviso-azul'
             : tipo === 'por_vencer'
-                ? 'bg-amber-50 border-amber-200 text-amber-800'
-                : 'bg-red-50 border-red-200 text-red-700'"
+                ? 'bg-pastel-ambar border-borde-aviso-ambar text-aviso-ambar'
+                : 'bg-pastel-rojo border-borde-aviso-rojo text-aviso-rojo'"
     >
         <svg v-if="tipo === 'actualizacion'" class="w-4 h-4 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v12m0 0l-4-4m4 4l4-4M4 18v1a1 1 0 001 1h14a1 1 0 001-1v-1"/>

@@ -150,15 +150,15 @@ const mesActual = MESES[new Date().getMonth()]
                     <p class="text-xs text-tinta-400 mt-1">Activos</p>
                 </div>
                 <div class="bg-superficie rounded-2xl border border-linea p-4 text-center">
-                    <p class="text-2xl font-semibold text-blue-600">{{ metricas.bonos_calculados_mes }}</p>
+                    <p class="text-2xl font-semibold text-aviso-azul">{{ metricas.bonos_calculados_mes }}</p>
                     <p class="text-xs text-tinta-400 mt-1">Bonos {{ mesActual }}</p>
                 </div>
                 <div class="bg-superficie rounded-2xl border border-linea p-4 text-center">
-                    <p class="text-2xl font-semibold text-red-500">{{ metricas.disciplinas_pendientes }}</p>
+                    <p class="text-2xl font-semibold text-aviso-rojo">{{ metricas.disciplinas_pendientes }}</p>
                     <p class="text-xs text-tinta-400 mt-1">Disciplinas pend.</p>
                 </div>
                 <div class="bg-superficie rounded-2xl border border-linea p-4 text-center">
-                    <p class="text-2xl font-semibold text-amber-600">{{ metricas.horas_extras_mes }}</p>
+                    <p class="text-2xl font-semibold text-aviso-ambar">{{ metricas.horas_extras_mes }}</p>
                     <p class="text-xs text-tinta-400 mt-1">Horas extras {{ mesActual }}</p>
                 </div>
             </div>
@@ -230,7 +230,7 @@ const mesActual = MESES[new Date().getMonth()]
                 <a v-for="op in operarios" :key="op.id"
                     :href="`/rrhh/operarios/${op.id}`"
                     @click.prevent="router.visit(`/rrhh/operarios/${op.id}`)"
-                    class="flex items-start gap-3 bg-superficie rounded-xl border border-linea px-4 py-3 hover:border-blue-300 hover:shadow-sm transition-all cursor-pointer">
+                    class="flex items-start gap-3 bg-superficie rounded-xl border border-linea px-4 py-3 hover:border-borde-aviso-azul hover:shadow-sm transition-all cursor-pointer">
 
                     <!-- Avatar con inicial -->
                     <div class="w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold text-white flex-shrink-0"
@@ -248,11 +248,11 @@ const mesActual = MESES[new Date().getMonth()]
                                 {{ op.tipo_colaborador }}
                             </span>
                             <span v-if="op.tiene_usuario"
-                                class="text-xs px-1.5 py-0.5 rounded bg-green-100 text-green-700">
+                                class="text-xs px-1.5 py-0.5 rounded bg-pastel-verde-2 text-aviso-verde">
                                 Acceso
                             </span>
                             <span v-if="op.disciplinas_pendientes > 0"
-                                class="text-xs px-2 py-0.5 rounded-full font-semibold bg-red-100 text-red-700">
+                                class="text-xs px-2 py-0.5 rounded-full font-semibold bg-pastel-rojo-2 text-aviso-rojo">
                                 {{ op.disciplinas_pendientes }} disciplina(s)
                             </span>
                         </div>
@@ -272,13 +272,13 @@ const mesActual = MESES[new Date().getMonth()]
                                 Desde {{ formatFecha(op.fecha_ingreso) }}
                             </span>
                             <span :class="op.estado === 'activo'
-                                    ? 'bg-green-100 text-green-700'
+                                    ? 'bg-pastel-verde-2 text-aviso-verde'
                                     : 'bg-tinta-100 text-tinta-400'"
                                 class="text-xs px-2 py-0.5 rounded-full">
                                 {{ op.estado }}
                             </span>
                             <span v-if="op.bono_mes > 0"
-                                class="text-xs font-semibold text-green-700 hidden sm:inline">
+                                class="text-xs font-semibold text-aviso-verde hidden sm:inline">
                                 ${{ Number(op.bono_mes).toLocaleString('es-CO') }} bono {{ mesActual }}
                             </span>
                         </div>

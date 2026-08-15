@@ -187,11 +187,11 @@ onUnmounted(() => {
                 <div class="flex items-center gap-1.5 text-xs text-tinta-300 ml-1">
                     <div class="w-2 h-2 rounded-full animate-pulse"
                          :class="hayNuevos ? 'bg-green-500' : 'bg-blue-400'"></div>
-                    <span v-if="hayNuevos" class="text-green-600 font-medium">✓ Actualizado</span>
+                    <span v-if="hayNuevos" class="text-aviso-verde font-medium">✓ Actualizado</span>
                     <template v-else>
                         <span class="hidden sm:inline">{{ ultimaActualizacion }}</span>
                         <button @click="refrescarDatos"
-                                class="text-tinta-300 hover:text-blue-600 transition-colors"
+                                class="text-tinta-300 hover:text-aviso-azul transition-colors"
                                 title="Actualizar ahora">
                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6"
@@ -251,7 +251,7 @@ onUnmounted(() => {
                     <!-- Info del paso -->
                     <p class="text-sm font-semibold text-tinta-900 leading-snug">{{ paso.nombre }}</p>
                     <div class="flex items-center gap-1.5 mt-1 flex-wrap">
-                        <span class="text-xs font-mono font-semibold text-blue-700" style="color:var(--marca);">
+                        <span class="text-xs font-mono font-semibold text-aviso-azul" style="color:var(--marca);">
                             {{ opNumero(paso) }}
                         </span>
                         <span class="text-xs text-tinta-300">·</span>
@@ -267,7 +267,7 @@ onUnmounted(() => {
                         <span
                             v-for="(val, key) in variablesInstancia(paso)"
                             :key="key"
-                            class="text-xs px-2 py-0.5 rounded-full bg-amber-100 text-amber-700"
+                            class="text-xs px-2 py-0.5 rounded-full bg-pastel-ambar-2 text-aviso-ambar"
                         >
                             {{ key }}: {{ val }}
                         </span>
@@ -359,7 +359,7 @@ onUnmounted(() => {
                     class="bg-superficie rounded-2xl border border-linea py-12 text-center text-sm text-tinta-300">
                     No hay estaciones de trabajo activas. Configúralas en
                     <a href="/configuracion" @click.prevent="router.visit('/configuracion')"
-                        class="text-blue-600 hover:underline">Configuración</a>.
+                        class="text-aviso-azul hover:underline">Configuración</a>.
                 </div>
 
                 <div v-else class="flex gap-3" style="min-width: max-content;">
@@ -383,7 +383,7 @@ onUnmounted(() => {
                         <!-- Alerta equipos en mantenimiento -->
                         <div
                             v-if="tieneEquipoEnMantenimiento(est)"
-                            class="flex items-center gap-1.5 px-3 py-1.5 bg-red-50 border-x border-red-200 text-red-700 text-xs font-medium"
+                            class="flex items-center gap-1.5 px-3 py-1.5 bg-pastel-rojo border-x border-borde-aviso-rojo text-aviso-rojo text-xs font-medium"
                         >
                             <svg class="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
@@ -409,14 +409,14 @@ onUnmounted(() => {
                                 v-for="paso in kanbanPorEstacion[est.id] ?? []"
                                 :key="paso.id"
                                 class="bg-superficie rounded-xl border shadow-sm p-3"
-                                :class="paso.completado ? 'border-green-200 bg-green-50' : 'border-linea'"
+                                :class="paso.completado ? 'border-borde-aviso-verde bg-pastel-verde' : 'border-linea'"
                             >
                                 <!-- Estado badge + botón desprogramar -->
                                 <div class="flex items-start justify-between gap-2 mb-1.5">
                                     <span
                                         class="text-xs px-1.5 py-0.5 rounded-full font-medium shrink-0"
                                         :class="paso.completado
-                                            ? 'bg-green-100 text-green-700'
+                                            ? 'bg-pastel-verde-2 text-aviso-verde'
                                             : 'bg-tinta-100 text-tinta-400'"
                                     >
                                         {{ paso.completado ? '✓ Completado' : 'Pendiente' }}
@@ -424,7 +424,7 @@ onUnmounted(() => {
                                     <button
                                         v-if="!paso.completado"
                                         @click="desprogramar(paso.id)"
-                                        class="w-5 h-5 flex items-center justify-center rounded-full text-tinta-300 hover:bg-red-100 hover:text-red-600 transition-colors shrink-0"
+                                        class="w-5 h-5 flex items-center justify-center rounded-full text-tinta-300 hover:bg-pastel-rojo-2 hover:text-aviso-rojo transition-colors shrink-0"
                                         title="Desprogramar"
                                     >
                                         <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">

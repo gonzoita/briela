@@ -149,7 +149,7 @@ const claseCampo = (campo) => [
                                 {{ esPersona ? 'Nombre' : 'Razón social' }} *
                             </label>
                             <input v-model="form.nombre" :class="claseCampo('nombre')" />
-                            <p v-if="errores.nombre" class="mt-1 text-xs text-red-600">{{ errores.nombre[0] }}</p>
+                            <p v-if="errores.nombre" class="mt-1 text-xs text-aviso-rojo">{{ errores.nombre[0] }}</p>
                         </div>
                         <div v-if="esPersona">
                             <label class="block text-xs font-medium text-tinta-700 mb-1">Apellido</label>
@@ -168,14 +168,14 @@ const claseCampo = (campo) => [
                         <div>
                             <label class="block text-xs font-medium text-tinta-700 mb-1">Número</label>
                             <input v-model="form.numero_identificacion" :class="claseCampo('numero_identificacion')" />
-                            <p v-if="errores.numero_identificacion" class="mt-1 text-xs text-red-600">
+                            <p v-if="errores.numero_identificacion" class="mt-1 text-xs text-aviso-rojo">
                                 {{ errores.numero_identificacion[0] }}
                             </p>
                         </div>
                         <div>
                             <label class="block text-xs font-medium text-tinta-700 mb-1">Correo</label>
                             <input v-model="form.email" type="email" :class="claseCampo('email')" />
-                            <p v-if="errores.email" class="mt-1 text-xs text-red-600">{{ errores.email[0] }}</p>
+                            <p v-if="errores.email" class="mt-1 text-xs text-aviso-rojo">{{ errores.email[0] }}</p>
                         </div>
                         <div>
                             <label class="block text-xs font-medium text-tinta-700 mb-1">Celular</label>
@@ -235,7 +235,7 @@ const claseCampo = (campo) => [
                             <input v-model="form.contactos[0].celular" placeholder="Celular"
                                 :class="claseCampo('contactos.0.celular')" />
                         </div>
-                        <p v-if="errores.contactos" class="mt-1 text-xs text-red-600">{{ errores.contactos[0] }}</p>
+                        <p v-if="errores.contactos" class="mt-1 text-xs text-aviso-rojo">{{ errores.contactos[0] }}</p>
                     </div>
 
                     <div>

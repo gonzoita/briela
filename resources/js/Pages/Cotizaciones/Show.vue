@@ -199,7 +199,7 @@ function marcarEnviada() {
                     </button>
                     <button v-if="cot.token_publico" @click="copiarLink"
                         class="px-3 py-1.5 rounded-xl border text-xs font-medium transition-colors flex items-center gap-1.5"
-                        :class="copiado ? 'border-green-300 text-green-700 bg-green-50' : 'border-tinta-200 text-tinta-700 hover:bg-tinta-50'">
+                        :class="copiado ? 'border-borde-aviso-verde text-aviso-verde bg-pastel-verde' : 'border-tinta-200 text-tinta-700 hover:bg-tinta-50'">
                         <svg v-if="!copiado" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/>
                         </svg>
@@ -252,21 +252,21 @@ function marcarEnviada() {
 
             <!-- Banner en producción -->
             <div v-if="cot.en_produccion"
-                class="bg-blue-50 border border-blue-200 rounded-2xl px-5 py-4 mb-5 flex items-center gap-3">
-                <svg class="w-5 h-5 text-blue-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
+                class="bg-pastel-azul border border-borde-aviso-azul rounded-2xl px-5 py-4 mb-5 flex items-center gap-3">
+                <svg class="w-5 h-5 text-aviso-azul shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
                 </svg>
                 <div>
-                    <p class="text-sm font-semibold text-blue-800">Cotización en producción</p>
-                    <p class="text-xs text-blue-600 mt-0.5">Esta cotización tiene una Orden de Producción activa y no puede modificarse.</p>
+                    <p class="text-sm font-semibold text-aviso-azul">Cotización en producción</p>
+                    <p class="text-xs text-aviso-azul mt-0.5">Esta cotización tiene una Orden de Producción activa y no puede modificarse.</p>
                 </div>
             </div>
 
             <!-- Panel motivo rechazo -->
             <div v-if="estadoActual === 'rechazada' && cot.motivo_rechazo"
-                class="bg-red-50 border border-red-200 rounded-2xl px-5 py-4 mb-5">
-                <p class="text-xs font-semibold text-red-600 uppercase tracking-[0.12em] mb-1">Motivo de rechazo</p>
-                <p class="text-sm text-red-700 whitespace-pre-line">{{ cot.motivo_rechazo }}</p>
+                class="bg-pastel-rojo border border-borde-aviso-rojo rounded-2xl px-5 py-4 mb-5">
+                <p class="text-xs font-semibold text-aviso-rojo uppercase tracking-[0.12em] mb-1">Motivo de rechazo</p>
+                <p class="text-sm text-aviso-rojo whitespace-pre-line">{{ cot.motivo_rechazo }}</p>
             </div>
 
             <!-- Ficha cliente + detalles -->
@@ -353,7 +353,7 @@ function marcarEnviada() {
                         </div>
                         <div v-if="parseFloat(cot.descuento_total) > 0" class="flex justify-between text-sm text-tinta-500">
                             <span>Descuento</span>
-                            <span class="text-red-500">-${{ formatCOP(cot.descuento_total) }}</span>
+                            <span class="text-aviso-rojo">-${{ formatCOP(cot.descuento_total) }}</span>
                         </div>
                         <div v-if="parseFloat(cot.impuesto_total) > 0" class="flex justify-between text-sm text-tinta-500">
                             <span>IVA</span>
@@ -411,7 +411,7 @@ function marcarEnviada() {
 
             <!-- Eliminar -->
             <div class="pb-4">
-                <button @click="eliminar" class="text-xs text-red-400 hover:text-red-600 hover:underline">
+                <button @click="eliminar" class="text-xs text-red-400 hover:text-aviso-rojo hover:underline">
                     Eliminar esta cotización
                 </button>
             </div>
@@ -524,7 +524,7 @@ function marcarEnviada() {
                         <span class="text-xs text-tinta-500 flex-1 truncate font-mono">{{ linkPublico }}</span>
                         <button @click="copiarLinkEnviar"
                             class="shrink-0 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors"
-                            :class="copiadoEnviar ? 'bg-green-100 text-green-700' : 'bg-tinta-200 text-tinta-700 hover:bg-gray-300'">
+                            :class="copiadoEnviar ? 'bg-pastel-verde-2 text-aviso-verde' : 'bg-tinta-200 text-tinta-700 hover:bg-gray-300'">
                             {{ copiadoEnviar ? '¡Copiado!' : 'Copiar' }}
                         </button>
                     </div>

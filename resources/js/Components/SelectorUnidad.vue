@@ -255,7 +255,7 @@ const etiquetaTipo = { producto: 'Producto', servicio: 'Servicio', ambos: 'Ambos
                             <button type="button" @click="editando[u.id] = u.etiqueta"
                                 class="text-xs text-tinta-400 hover:text-tinta-900 underline shrink-0">Editar</button>
                             <button type="button" @click="eliminar(u)"
-                                class="text-xs text-red-500 hover:text-red-700 underline shrink-0">Eliminar</button>
+                                class="text-xs text-aviso-rojo hover:text-aviso-rojo underline shrink-0">Eliminar</button>
                         </li>
                     </ul>
                 </div>

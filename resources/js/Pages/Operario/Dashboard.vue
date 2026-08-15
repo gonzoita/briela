@@ -46,8 +46,8 @@ function nivelEmoji(nombre) {
 
         <!-- ── Sin perfil ──────────────────────────────────────────────────── -->
         <div v-if="sin_perfil" class="flex flex-col items-center justify-center min-h-[60vh] gap-4 text-center px-4">
-            <div class="w-16 h-16 rounded-full bg-orange-100 flex items-center justify-center">
-                <svg class="w-8 h-8 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
+            <div class="w-16 h-16 rounded-full bg-pastel-naranja-2 flex items-center justify-center">
+                <svg class="w-8 h-8 text-aviso-naranja" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
                 </svg>
             </div>
@@ -124,7 +124,7 @@ function nivelEmoji(nombre) {
                 <p class="text-sm font-semibold text-tinta-700 mb-3">📋 Mis trabajos de hoy</p>
                 <div class="space-y-2">
                     <div v-for="(t, idx) in trabajos_hoy" :key="idx"
-                         class="flex items-center gap-3 p-3 rounded-xl bg-blue-50 border border-blue-100">
+                         class="flex items-center gap-3 p-3 rounded-xl bg-pastel-azul border border-borde-aviso-azul">
                         <div class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold text-white shrink-0"
                              style="background:var(--marca)">
                             {{ idx + 1 }}
@@ -137,7 +137,7 @@ function nivelEmoji(nombre) {
                                 <span v-if="t.tiempo"> · {{ t.tiempo }} min</span>
                             </p>
                         </div>
-                        <span class="text-xs px-2 py-1 rounded-full bg-blue-100 text-blue-700 font-medium shrink-0">
+                        <span class="text-xs px-2 py-1 rounded-full bg-pastel-azul-2 text-aviso-azul font-medium shrink-0">
                             Pendiente
                         </span>
                     </div>
@@ -155,7 +155,7 @@ function nivelEmoji(nombre) {
                             <p class="text-xs text-tinta-300">{{ p.created_at }}</p>
                         </div>
                         <span class="font-semibold text-sm px-2 py-0.5 rounded-full shrink-0 ml-3"
-                              :class="p.puntos > 0 ? 'text-green-600 bg-green-50' : 'text-red-500 bg-red-50'">
+                              :class="p.puntos > 0 ? 'text-aviso-verde bg-pastel-verde' : 'text-aviso-rojo bg-pastel-rojo'">
                             {{ p.puntos > 0 ? '+' : '' }}{{ p.puntos }}
                         </span>
                     </div>
@@ -178,13 +178,13 @@ function nivelEmoji(nombre) {
                 </div>
                 <div class="bg-superficie rounded-2xl border border-linea p-4 shadow-sm">
                     <p class="text-xs text-tinta-400 font-medium">Trabajos activos</p>
-                    <p class="text-2xl font-semibold mt-1 text-amber-600">
+                    <p class="text-2xl font-semibold mt-1 text-aviso-ambar">
                         {{ metricas?.trabajos_activos ?? 0 }}
                     </p>
                 </div>
                 <div class="bg-superficie rounded-2xl border border-linea p-4 shadow-sm">
                     <p class="text-xs text-tinta-400 font-medium">Terminados</p>
-                    <p class="text-2xl font-semibold mt-1 text-green-600">
+                    <p class="text-2xl font-semibold mt-1 text-aviso-verde">
                         {{ metricas?.trabajos_terminados ?? 0 }}
                     </p>
                 </div>
@@ -261,7 +261,7 @@ function nivelEmoji(nombre) {
                                     {{ t.item_descripcion }}
                                 </p>
                             </div>
-                            <span class="text-xs text-green-600 font-semibold shrink-0">Completo</span>
+                            <span class="text-xs text-aviso-verde font-semibold shrink-0">Completo</span>
                         </div>
                     </button>
                 </div>

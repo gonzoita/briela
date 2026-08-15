@@ -365,8 +365,8 @@ async function copiarPrompt(texto) {
             <!-- Header -->
             <div class="flex items-center justify-between px-5 py-4 border-b border-linea shrink-0">
                 <div class="flex items-center gap-3">
-                    <div class="w-8 h-8 rounded-lg bg-purple-100 flex items-center justify-center shrink-0">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
+                    <div class="w-8 h-8 rounded-lg bg-pastel-violeta-2 flex items-center justify-center shrink-0">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-aviso-violeta" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.347.347a3.75 3.75 0 01-5.303 0l-.347-.347z"/>
                         </svg>
                     </div>
@@ -500,7 +500,7 @@ async function copiarPrompt(texto) {
                                     @click="diseno.logoPosicion = pos"
                                     class="flex-1 py-1.5 text-xs font-medium rounded-lg border transition-colors capitalize"
                                     :class="diseno.logoPosicion === pos
-                                        ? 'bg-purple-100 text-purple-700 border-purple-300'
+                                        ? 'bg-pastel-violeta-2 text-aviso-violeta border-borde-aviso-violeta'
                                         : 'border-linea text-tinta-500 hover:bg-tinta-50'"
                                 >{{ pos }}</button>
                             </div>
@@ -522,8 +522,8 @@ async function copiarPrompt(texto) {
                                     @error="diseno.logo_url_error = true"
                                     @load="diseno.logo_url_error = false"
                                 />
-                                <span v-if="!diseno.logo_url_error" class="text-xs text-green-600">✓ Logo válido</span>
-                                <span v-else class="text-xs text-red-500">✗ No se puede cargar</span>
+                                <span v-if="!diseno.logo_url_error" class="text-xs text-aviso-verde">✓ Logo válido</span>
+                                <span v-else class="text-xs text-aviso-rojo">✗ No se puede cargar</span>
                             </div>
                             <!-- Ancho del logo -->
                             <div class="flex items-center gap-2">
@@ -544,7 +544,7 @@ async function copiarPrompt(texto) {
                                 @click="seccionGeneracion = opt.value"
                                 class="p-2.5 rounded-xl border text-left transition-colors"
                                 :class="seccionGeneracion === opt.value
-                                    ? 'bg-purple-50 border-purple-300 text-purple-800'
+                                    ? 'bg-pastel-violeta border-borde-aviso-violeta text-aviso-violeta'
                                     : 'border-linea text-tinta-500 hover:bg-tinta-50'"
                             >
                                 <p class="text-xs font-semibold">{{ opt.label }}</p>
@@ -574,7 +574,7 @@ async function copiarPrompt(texto) {
                     <div v-for="grupo in gruposRegulares" :key="grupo.grupo" class="mb-5">
                         <div class="flex items-center justify-between mb-1.5">
                             <span class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">{{ grupo.grupo }}</span>
-                            <button @click="toggleGrupo(grupo.grupo)" class="text-xs text-purple-600 hover:text-purple-800 font-medium transition-colors">
+                            <button @click="toggleGrupo(grupo.grupo)" class="text-xs text-aviso-violeta hover:text-aviso-violeta font-medium transition-colors">
                                 {{ grupoTodo(grupo.grupo) ? 'Quitar todos' : 'Seleccionar todos' }}
                             </button>
                         </div>
@@ -602,7 +602,7 @@ async function copiarPrompt(texto) {
                     <div v-if="grupoTabla.length > 0" class="mb-5">
                         <div class="flex items-center justify-between mb-1.5">
                             <span class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">Columnas de la tabla</span>
-                            <button @click="toggleTodasTabla" class="text-xs text-purple-600 hover:text-purple-800 font-medium transition-colors">
+                            <button @click="toggleTodasTabla" class="text-xs text-aviso-violeta hover:text-aviso-violeta font-medium transition-colors">
                                 {{ tablasTodo() ? 'Quitar todas' : 'Seleccionar todas' }}
                             </button>
                         </div>
@@ -659,7 +659,7 @@ async function copiarPrompt(texto) {
                                 :key="s.key"
                                 @click="tabPrompt = s.key"
                                 class="flex-1 py-1.5 text-xs font-medium rounded-lg transition-all"
-                                :class="tabPrompt === s.key ? 'bg-superficie text-purple-700 shadow-sm' : 'text-tinta-400 hover:text-tinta-700'">
+                                :class="tabPrompt === s.key ? 'bg-superficie text-aviso-violeta shadow-sm' : 'text-tinta-400 hover:text-tinta-700'">
                                 {{ s.label }}
                             </button>
                         </div>
@@ -673,7 +673,7 @@ async function copiarPrompt(texto) {
                         <div class="flex flex-wrap gap-2 mt-3">
                             <button @click="copiarPrompt(promptsMultiple[tabPrompt])"
                                 class="flex items-center gap-1.5 px-4 py-2 text-sm font-semibold rounded-xl transition-all duration-200"
-                                :class="copiado ? 'bg-green-100 text-green-700 border border-green-200' : 'bg-gray-900 text-white hover:bg-gray-700'">
+                                :class="copiado ? 'bg-pastel-verde-2 text-aviso-verde border border-borde-aviso-verde' : 'bg-gray-900 text-white hover:bg-gray-700'">
                                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                     <path v-if="!copiado" stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
                                     <path v-else stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
@@ -695,7 +695,7 @@ async function copiarPrompt(texto) {
                         <div class="flex flex-wrap gap-2 mt-3">
                             <button @click="copiarPrompt()"
                                 class="flex items-center gap-1.5 px-4 py-2 text-sm font-semibold rounded-xl transition-all duration-200"
-                                :class="copiado ? 'bg-green-100 text-green-700 border border-green-200' : 'bg-gray-900 text-white hover:bg-gray-700'">
+                                :class="copiado ? 'bg-pastel-verde-2 text-aviso-verde border border-borde-aviso-verde' : 'bg-gray-900 text-white hover:bg-gray-700'">
                                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                     <path v-if="!copiado" stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
                                     <path v-else stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
@@ -720,8 +720,8 @@ async function copiarPrompt(texto) {
                     </template>
 
                     <!-- Instrucción -->
-                    <div class="mt-4 bg-purple-50 border border-purple-100 rounded-xl p-3">
-                        <p class="text-xs text-purple-700 font-medium leading-relaxed">
+                    <div class="mt-4 bg-pastel-violeta border border-borde-aviso-violeta rounded-xl p-3">
+                        <p class="text-xs text-aviso-violeta font-medium leading-relaxed">
                             <span class="font-semibold">1.</span> Copia el prompt →
                             <span class="font-semibold">2.</span> Abre Gemini o Claude →
                             <span class="font-semibold">3.</span> Pega y genera →

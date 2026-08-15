@@ -124,7 +124,7 @@ function submit() {
 
             <!-- Badge cambios sin guardar -->
             <div v-if="hasChanges"
-                class="mb-3 inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold text-orange-700"
+                class="mb-3 inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold text-aviso-naranja"
                 style="background:var(--pastel-ambar); border:1px solid #F59E0B;">
                 ● Cambios sin guardar
             </div>
@@ -147,12 +147,12 @@ function submit() {
                     <div class="grid grid-cols-2 gap-2">
                         <button type="button" @click="setTipo('empresa')"
                             :class="['rounded-lg border-2 px-4 py-2.5 text-sm font-medium transition-colors',
-                                form.tipo === 'empresa' ? 'border-blue-600 bg-blue-50 text-blue-700' : 'border-linea text-tinta-500 hover:border-tinta-200']">
+                                form.tipo === 'empresa' ? 'border-blue-600 bg-pastel-azul text-aviso-azul' : 'border-linea text-tinta-500 hover:border-tinta-200']">
                             Empresa
                         </button>
                         <button type="button" @click="setTipo('persona')"
                             :class="['rounded-lg border-2 px-4 py-2.5 text-sm font-medium transition-colors',
-                                form.tipo === 'persona' ? 'border-blue-600 bg-blue-50 text-blue-700' : 'border-linea text-tinta-500 hover:border-tinta-200']">
+                                form.tipo === 'persona' ? 'border-blue-600 bg-pastel-azul text-aviso-azul' : 'border-linea text-tinta-500 hover:border-tinta-200']">
                             Persona natural
                         </button>
                     </div>
@@ -167,7 +167,7 @@ function submit() {
                             <select v-model="form.tipo_identificacion" :class="ic()">
                                 <option v-for="t in tiposId" :key="t" :value="t">{{ t }}</option>
                             </select>
-                            <p v-if="form.errors.tipo_identificacion" class="text-red-500 text-xs mt-1">{{ form.errors.tipo_identificacion }}</p>
+                            <p v-if="form.errors.tipo_identificacion" class="text-aviso-rojo text-xs mt-1">{{ form.errors.tipo_identificacion }}</p>
                         </div>
                         <div>
                             <label class="block text-xs font-medium text-tinta-700 mb-1">Número</label>
@@ -183,7 +183,7 @@ function submit() {
                                 </span>
                             </div>
                             <p class="text-xs text-tinta-300 mt-1">El dígito de verificación se calcula solo.</p>
-                            <p v-if="form.errors.numero_identificacion" class="text-red-500 text-xs mt-1">{{ form.errors.numero_identificacion }}</p>
+                            <p v-if="form.errors.numero_identificacion" class="text-aviso-rojo text-xs mt-1">{{ form.errors.numero_identificacion }}</p>
                         </div>
                     </div>
 
@@ -203,7 +203,7 @@ function submit() {
                                 {{ esPersona ? 'Nombre *' : 'Razón social *' }}
                             </label>
                             <input v-model="form.nombre" type="text" :class="ic()" :placeholder="esPersona ? 'Nombre' : 'Razón social'" required/>
-                            <p v-if="form.errors.nombre" class="text-red-500 text-xs mt-1">{{ form.errors.nombre }}</p>
+                            <p v-if="form.errors.nombre" class="text-aviso-rojo text-xs mt-1">{{ form.errors.nombre }}</p>
                         </div>
                         <div v-if="esPersona">
                             <label class="block text-xs font-medium text-tinta-700 mb-1">Apellido</label>
@@ -243,7 +243,7 @@ function submit() {
                         </button>
                     </div>
 
-                    <p v-if="form.errors.contactos" class="text-red-500 text-xs mb-3 bg-red-50 px-3 py-2 rounded-lg">
+                    <p v-if="form.errors.contactos" class="text-aviso-rojo text-xs mb-3 bg-pastel-rojo px-3 py-2 rounded-lg">
                         {{ form.errors.contactos }}
                     </p>
 
@@ -262,10 +262,10 @@ function submit() {
                             </div>
                             <div class="flex items-center gap-1 shrink-0">
                                 <button v-if="!c.es_principal" type="button" @click="setPrincipal(idx)"
-                                    class="text-xs px-2 py-1 rounded text-tinta-400 hover:text-blue-600 hover:bg-realce"
+                                    class="text-xs px-2 py-1 rounded text-tinta-400 hover:text-aviso-azul hover:bg-realce"
                                     title="Marcar como principal">★</button>
                                 <button type="button" @click="eliminarContacto(idx)"
-                                    class="text-xs px-2 py-1 rounded text-tinta-300 hover:text-red-600 hover:bg-red-50">
+                                    class="text-xs px-2 py-1 rounded text-tinta-300 hover:text-aviso-rojo hover:bg-pastel-rojo">
                                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M6 18L18 6M6 6l12 12"/>
                                     </svg>

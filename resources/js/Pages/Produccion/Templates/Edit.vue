@@ -38,7 +38,7 @@ const sumValida = computed(() =>
 )
 
 const labelDificultad = ['', 'Fácil', 'Normal', 'Moderado', 'Difícil', 'Muy difícil']
-const colorDificultad  = ['', 'text-green-600', 'text-lime-500', 'text-yellow-500', 'text-orange-500', 'text-red-500']
+const colorDificultad  = ['', 'text-aviso-verde', 'text-aviso-verde', 'text-aviso-ambar', 'text-aviso-naranja', 'text-aviso-rojo']
 
 function recalcularPesos() {
     const pasos = form.value.pasos
@@ -173,7 +173,7 @@ function submit() {
             </div>
 
             <div v-if="hasChanges"
-                class="mb-4 inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold text-orange-700"
+                class="mb-4 inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold text-aviso-naranja"
                 style="background:var(--pastel-ambar); border:1px solid #F59E0B;">
                 ● Cambios sin guardar
             </div>
@@ -187,7 +187,7 @@ function submit() {
                         <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1.5">Nombre *</label>
                         <input v-model="form.nombre" type="text"
                             class="w-full rounded-xl border border-tinta-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2" />
-                        <p v-if="errors.nombre" class="text-xs text-red-500 mt-1">{{ errors.nombre }}</p>
+                        <p v-if="errors.nombre" class="text-xs text-aviso-rojo mt-1">{{ errors.nombre }}</p>
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1.5">Plantilla de Ensamble</label>
@@ -217,17 +217,17 @@ function submit() {
                             + Paso
                         </button>
                     </div>
-                    <p v-if="errors.pasos" class="text-xs text-red-500 px-5 pt-3">{{ errors.pasos }}</p>
+                    <p v-if="errors.pasos" class="text-xs text-aviso-rojo px-5 pt-3">{{ errors.pasos }}</p>
                     <div v-if="!form.pasos.length" class="py-8 text-center text-sm text-tinta-300">
                         Sin pasos. Agrega al menos uno.
                     </div>
                     <div class="divide-y divide-separador">
                         <div v-for="(paso, idx) in form.pasos" :key="idx"
-                            :class="['p-4 space-y-3', paso.es_paso_final ? 'border-l-4 border-purple-400 bg-purple-50/20' : '']">
+                            :class="['p-4 space-y-3', paso.es_paso_final ? 'border-l-4 border-purple-400 bg-pastel-violeta/20' : '']">
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center gap-2">
                                     <span class="text-xs font-semibold text-tinta-300">Paso {{ idx + 1 }}</span>
-                                    <span v-if="paso.es_paso_final" class="text-xs font-semibold text-purple-600">★ Final</span>
+                                    <span v-if="paso.es_paso_final" class="text-xs font-semibold text-aviso-violeta">★ Final</span>
                                     <span v-else class="text-xs font-medium" :class="colorDificultad[paso.nivel_dificultad]">
                                         {{ labelDificultad[paso.nivel_dificultad] }}
                                     </span>
@@ -242,7 +242,7 @@ function submit() {
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
                                     </button>
                                     <button @click="quitarPaso(idx)" type="button"
-                                        class="w-7 h-7 rounded-lg flex items-center justify-center text-red-400 hover:bg-red-50">
+                                        class="w-7 h-7 rounded-lg flex items-center justify-center text-red-400 hover:bg-pastel-rojo">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
                                     </button>
                                 </div>
@@ -275,7 +275,7 @@ function submit() {
                             <label class="flex items-center gap-2 cursor-pointer">
                                 <input type="checkbox" v-model="paso.es_paso_final"
                                     @change="marcarPasoFinal(idx)" class="rounded accent-purple-600" />
-                                <span class="text-xs font-semibold text-purple-700">Paso final</span>
+                                <span class="text-xs font-semibold text-aviso-violeta">Paso final</span>
                                 <span class="text-xs text-tinta-300">(cierra el trabajo)</span>
                             </label>
                             <!-- Dependencias -->
@@ -297,11 +297,11 @@ function submit() {
                 </div>
 
                 <!-- Variables mobile -->
-                <div v-if="variablesEncontradas.length" class="bg-amber-50 rounded-2xl border border-amber-200 p-4 mb-4">
-                    <p class="text-xs font-semibold text-amber-700 mb-2">Variables detectadas:</p>
+                <div v-if="variablesEncontradas.length" class="bg-pastel-ambar rounded-2xl border border-borde-aviso-ambar p-4 mb-4">
+                    <p class="text-xs font-semibold text-aviso-ambar mb-2">Variables detectadas:</p>
                     <div class="flex flex-wrap gap-2">
                         <span v-for="v in variablesEncontradas" :key="v"
-                            class="text-xs px-2 py-1 rounded-lg bg-amber-100 border border-amber-300 text-amber-800 font-mono">{{ v }}</span>
+                            class="text-xs px-2 py-1 rounded-lg bg-pastel-ambar-2 border border-borde-aviso-ambar text-aviso-ambar font-mono">{{ v }}</span>
                     </div>
                 </div>
 
@@ -332,7 +332,7 @@ function submit() {
                             <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1.5">Nombre *</label>
                             <input v-model="form.nombre" type="text"
                                 class="w-full rounded-xl border border-tinta-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2" />
-                            <p v-if="errors.nombre" class="text-xs text-red-500 mt-1">{{ errors.nombre }}</p>
+                            <p v-if="errors.nombre" class="text-xs text-aviso-rojo mt-1">{{ errors.nombre }}</p>
                         </div>
                         <div>
                             <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1.5">Plantilla de Ensamble</label>
@@ -355,20 +355,20 @@ function submit() {
                         <div v-for="(paso, idx) in form.pasos" :key="idx"
                             @click="pasoActivo = idx"
                             :class="['flex items-center gap-2 px-2 py-1.5 rounded-lg cursor-pointer transition-colors',
-                                pasoActivo === idx ? 'bg-blue-50 text-blue-700' : 'hover:bg-tinta-50 text-tinta-700']">
+                                pasoActivo === idx ? 'bg-pastel-azul text-aviso-azul' : 'hover:bg-tinta-50 text-tinta-700']">
                             <span class="font-mono text-xs w-5 shrink-0 text-tinta-300">{{ idx + 1 }}</span>
                             <span class="flex-1 truncate text-sm">{{ paso.nombre || 'Sin nombre' }}</span>
-                            <span v-if="paso.es_paso_final" class="shrink-0 text-purple-500 text-xs font-semibold">★</span>
+                            <span v-if="paso.es_paso_final" class="shrink-0 text-aviso-violeta text-xs font-semibold">★</span>
                             <span v-else-if="paso.depende_de?.length" class="shrink-0 text-tinta-300 text-xs">→{{ paso.depende_de.length }}</span>
-                            <span class="text-xs font-mono shrink-0" :class="pasoActivo === idx ? 'text-blue-500' : 'text-tinta-300'">
+                            <span class="text-xs font-mono shrink-0" :class="pasoActivo === idx ? 'text-aviso-azul' : 'text-tinta-300'">
                                 {{ formatPct(paso.peso_porcentaje) }}%
                             </span>
                         </div>
                         <button @click="agregarPaso" type="button"
-                            class="w-full mt-2 py-1.5 text-sm text-blue-600 hover:bg-realce rounded-lg transition-colors">
+                            class="w-full mt-2 py-1.5 text-sm text-aviso-azul hover:bg-realce rounded-lg transition-colors">
                             + Paso
                         </button>
-                        <p v-if="errors.pasos" class="text-xs text-red-500 mt-2 px-2">{{ errors.pasos }}</p>
+                        <p v-if="errors.pasos" class="text-xs text-aviso-rojo mt-2 px-2">{{ errors.pasos }}</p>
                     </div>
 
                     <!-- Botones desktop -->
@@ -395,12 +395,12 @@ function submit() {
 
                     <div v-else-if="form.pasos[pasoActivo]"
                         :class="['bg-superficie rounded-xl border p-5 space-y-4',
-                            form.pasos[pasoActivo].es_paso_final ? 'border-purple-300' : 'border-linea']">
+                            form.pasos[pasoActivo].es_paso_final ? 'border-borde-aviso-violeta' : 'border-linea']">
                         <!-- Encabezado paso activo -->
                         <div class="flex items-center justify-between">
                             <div class="flex items-center gap-2">
                                 <span class="text-sm font-semibold text-tinta-400">Paso {{ pasoActivo + 1 }}</span>
-                                <span v-if="form.pasos[pasoActivo].es_paso_final" class="text-xs font-semibold text-purple-600">★ Final</span>
+                                <span v-if="form.pasos[pasoActivo].es_paso_final" class="text-xs font-semibold text-aviso-violeta">★ Final</span>
                                 <span v-else class="text-xs font-medium" :class="colorDificultad[form.pasos[pasoActivo].nivel_dificultad]">
                                     {{ labelDificultad[form.pasos[pasoActivo].nivel_dificultad] }}
                                 </span>
@@ -419,7 +419,7 @@ function submit() {
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
                                 </button>
                                 <button type="button" @click="quitarPaso(pasoActivo)"
-                                    class="w-7 h-7 rounded-lg flex items-center justify-center text-red-400 hover:bg-red-50">
+                                    class="w-7 h-7 rounded-lg flex items-center justify-center text-red-400 hover:bg-pastel-rojo">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
                                 </button>
                             </div>
@@ -458,7 +458,7 @@ function submit() {
                         <label class="flex items-center gap-2 cursor-pointer">
                             <input type="checkbox" v-model="form.pasos[pasoActivo].es_paso_final"
                                 @change="marcarPasoFinal(pasoActivo)" class="rounded accent-purple-600" />
-                            <span class="text-sm font-semibold text-purple-700">Paso final</span>
+                            <span class="text-sm font-semibold text-aviso-violeta">Paso final</span>
                             <span class="text-xs text-tinta-300">(cierra el trabajo al completarse)</span>
                         </label>
 
@@ -480,11 +480,11 @@ function submit() {
                     </div>
 
                     <!-- Variables (panel derecho desktop) -->
-                    <div v-if="variablesEncontradas.length" class="mt-4 bg-amber-50 rounded-xl border border-amber-200 p-4">
-                        <p class="text-xs font-semibold text-amber-700 mb-2">Variables detectadas:</p>
+                    <div v-if="variablesEncontradas.length" class="mt-4 bg-pastel-ambar rounded-xl border border-borde-aviso-ambar p-4">
+                        <p class="text-xs font-semibold text-aviso-ambar mb-2">Variables detectadas:</p>
                         <div class="flex flex-wrap gap-2">
                             <span v-for="v in variablesEncontradas" :key="v"
-                                class="text-xs px-2 py-1 rounded-lg bg-amber-100 border border-amber-300 text-amber-800 font-mono">{{ v }}</span>
+                                class="text-xs px-2 py-1 rounded-lg bg-pastel-ambar-2 border border-borde-aviso-ambar text-aviso-ambar font-mono">{{ v }}</span>
                         </div>
                     </div>
                 </div>

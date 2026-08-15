@@ -48,11 +48,11 @@ function rechazar(s) {
 
 const estados = {
     borrador:   { label: 'Borrador',    bg: 'bg-tinta-100',   text: 'text-tinta-700'  },
-    pendiente:  { label: 'Pendiente',   bg: 'bg-yellow-100', text: 'text-yellow-700'},
-    aprobada:   { label: 'Aprobada',    bg: 'bg-green-100',  text: 'text-green-700' },
-    rechazada:  { label: 'Rechazada',   bg: 'bg-red-100',    text: 'text-red-700'   },
-    en_proceso: { label: 'En proceso',  bg: 'bg-blue-100',   text: 'text-blue-700'  },
-    completada: { label: 'Completada',  bg: 'bg-emerald-100',text: 'text-emerald-700'},
+    pendiente:  { label: 'Pendiente',   bg: 'bg-pastel-ambar-2', text: 'text-aviso-ambar'},
+    aprobada:   { label: 'Aprobada',    bg: 'bg-pastel-verde-2',  text: 'text-aviso-verde' },
+    rechazada:  { label: 'Rechazada',   bg: 'bg-pastel-rojo-2',    text: 'text-aviso-rojo'   },
+    en_proceso: { label: 'En proceso',  bg: 'bg-pastel-azul-2',   text: 'text-aviso-azul'  },
+    completada: { label: 'Completada',  bg: 'bg-pastel-verde-2',text: 'text-aviso-verde'},
     cancelada:  { label: 'Cancelada',   bg: 'bg-tinta-200',   text: 'text-tinta-400'  },
 }
 
@@ -123,9 +123,9 @@ function estadoBadge(e) {
 
                     <div class="flex gap-3 mt-3 flex-wrap">
                         <button v-if="s.estado === 'pendiente'" @click="aprobar(s)"
-                            class="text-sm text-green-600 font-medium">✓ Aprobar</button>
+                            class="text-sm text-aviso-verde font-medium">✓ Aprobar</button>
                         <button v-if="s.estado === 'pendiente'" @click="rechazar(s)"
-                            class="text-sm text-red-500 font-medium">✗ Rechazar</button>
+                            class="text-sm text-aviso-rojo font-medium">✗ Rechazar</button>
                         <span v-if="s.aprobado_por" class="text-xs text-tinta-300">
                             Aprobado por {{ s.aprobado_por.name }}
                         </span>

@@ -112,11 +112,11 @@ function fmt(v) { return Number(v || 0).toLocaleString('es-CO') }
         <div class="grid grid-cols-2 md:grid-cols-5 gap-3 mb-4">
             <button v-for="card in [
                 { key: 'borrador',      label: 'Borrador',      color: 'text-tinta-500',   border: 'border-linea',   ring: 'ring-gray-300'   },
-                { key: 'confirmada',    label: 'Confirmada',    color: 'text-blue-700',   border: 'border-blue-100',   ring: 'ring-blue-300'   },
-                { key: 'en_produccion', label: 'En producción', color: 'text-yellow-700', border: 'border-yellow-100', ring: 'ring-yellow-300' },
-                { key: 'calidad',       label: 'Calidad',       color: 'text-purple-700', border: 'border-purple-100', ring: 'ring-purple-300' },
-                { key: 'reproceso',     label: 'Reproceso',     color: 'text-orange-700', border: 'border-orange-100', ring: 'ring-orange-300' },
-                { key: 'despachada',    label: 'Despachada',    color: 'text-green-700',  border: 'border-green-100',  ring: 'ring-green-300'  },
+                { key: 'confirmada',    label: 'Confirmada',    color: 'text-aviso-azul',   border: 'border-borde-aviso-azul',   ring: 'ring-blue-300'   },
+                { key: 'en_produccion', label: 'En producción', color: 'text-aviso-ambar', border: 'border-borde-aviso-ambar', ring: 'ring-yellow-300' },
+                { key: 'calidad',       label: 'Calidad',       color: 'text-aviso-violeta', border: 'border-borde-aviso-violeta', ring: 'ring-purple-300' },
+                { key: 'reproceso',     label: 'Reproceso',     color: 'text-aviso-naranja', border: 'border-borde-aviso-naranja', ring: 'ring-orange-300' },
+                { key: 'despachada',    label: 'Despachada',    color: 'text-aviso-verde',  border: 'border-borde-aviso-verde',  ring: 'ring-green-300'  },
             ]" :key="card.key"
                 @click="filters.estado = filters.estado === card.key ? '' : card.key"
                 class="bg-superficie rounded-2xl border shadow-sm px-4 py-4 text-center transition-all hover:shadow-md w-full"
@@ -148,7 +148,7 @@ function fmt(v) { return Number(v || 0).toLocaleString('es-CO') }
             <div v-if="filters.buscar || filters.estado || filters.responsable_id || filters.desde || filters.hasta"
                  class="flex justify-end">
                 <button @click="limpiar"
-                    class="text-xs text-red-500 hover:text-red-700 font-medium flex items-center gap-1">
+                    class="text-xs text-aviso-rojo hover:text-aviso-rojo font-medium flex items-center gap-1">
                     <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
                     </svg>
@@ -171,15 +171,15 @@ function fmt(v) { return Number(v || 0).toLocaleString('es-CO') }
                                     :style="`background:${badgeStyle(op.estado).bg};color:${badgeStyle(op.estado).text};`">
                                     {{ badgeLabel(op.estado) }}
                                 </span>
-                                <span v-if="op.cotizacion_id" class="text-xs px-2 py-0.5 rounded-full bg-blue-50 text-blue-600 font-medium">
+                                <span v-if="op.cotizacion_id" class="text-xs px-2 py-0.5 rounded-full bg-pastel-azul text-aviso-azul font-medium">
                                     Desde cotización
                                 </span>
                                 <span v-if="op.alerta_entrega === 'rojo'"
-                                    class="text-xs px-2 py-0.5 rounded-full font-semibold bg-red-100 text-red-700">
+                                    class="text-xs px-2 py-0.5 rounded-full font-semibold bg-pastel-rojo-2 text-aviso-rojo">
                                     ⚠ Entrega hoy
                                 </span>
                                 <span v-else-if="op.alerta_entrega === 'amarillo'"
-                                    class="text-xs px-2 py-0.5 rounded-full font-semibold bg-yellow-100 text-yellow-700">
+                                    class="text-xs px-2 py-0.5 rounded-full font-semibold bg-pastel-ambar-2 text-aviso-ambar">
                                     ⏰ {{ op.dias_para_entrega }} día{{ op.dias_para_entrega !== 1 ? 's' : '' }}
                                 </span>
                             </div>
@@ -198,7 +198,7 @@ function fmt(v) { return Number(v || 0).toLocaleString('es-CO') }
                                             :style="`width:${Math.min(op.porcentaje_avance, 100)}%; background:var(--marca);`">
                                         </div>
                                     </div>
-                                    <span class="text-xs font-semibold text-blue-700 shrink-0">
+                                    <span class="text-xs font-semibold text-aviso-azul shrink-0">
                                         {{ Math.round(op.porcentaje_avance) }}%
                                     </span>
                                 </div>
@@ -206,7 +206,7 @@ function fmt(v) { return Number(v || 0).toLocaleString('es-CO') }
                         </div>
                         <div class="hidden sm:flex flex-col items-end shrink-0 gap-1">
                             <p class="text-xs text-tinta-400">{{ formatFecha(op.fecha_creacion) }}</p>
-                            <p v-if="op.fecha_entrega_estimada" class="text-xs text-amber-600 font-medium">
+                            <p v-if="op.fecha_entrega_estimada" class="text-xs text-aviso-ambar font-medium">
                                 Entrega: {{ formatFecha(op.fecha_entrega_estimada) }}
                             </p>
                             <!-- Saldo financiero -->
@@ -214,7 +214,7 @@ function fmt(v) { return Number(v || 0).toLocaleString('es-CO') }
                                 class="flex flex-col items-end">
                                 <div class="flex items-center gap-1.5">
                                     <span class="w-2 h-2 rounded-full bg-green-500"></span>
-                                    <span class="text-xs font-semibold text-green-600">Pagado</span>
+                                    <span class="text-xs font-semibold text-aviso-verde">Pagado</span>
                                 </div>
                                 <span class="text-xs text-tinta-300 mt-0.5">Saldo</span>
                             </div>
@@ -222,7 +222,7 @@ function fmt(v) { return Number(v || 0).toLocaleString('es-CO') }
                                 class="flex flex-col items-end">
                                 <div class="flex items-center gap-1.5">
                                     <span class="w-2 h-2 rounded-full bg-red-500"></span>
-                                    <span class="text-xs font-semibold text-red-600">
+                                    <span class="text-xs font-semibold text-aviso-rojo">
                                         ${{ fmt(saldoPendiente(op)) }}
                                     </span>
                                 </div>
@@ -232,7 +232,7 @@ function fmt(v) { return Number(v || 0).toLocaleString('es-CO') }
                                 class="flex flex-col items-end">
                                 <div class="flex items-center gap-1.5">
                                     <span class="w-2 h-2 rounded-full bg-yellow-400"></span>
-                                    <span class="text-xs font-semibold text-yellow-600">
+                                    <span class="text-xs font-semibold text-aviso-ambar">
                                         ${{ fmt(saldoPendiente(op)) }}
                                     </span>
                                 </div>
@@ -253,14 +253,14 @@ function fmt(v) { return Number(v || 0).toLocaleString('es-CO') }
                     <div class="sm:hidden px-5 pb-3 flex items-center justify-between">
                         <span class="text-xs text-tinta-300">{{ formatFecha(op.fecha_creacion) }}</span>
                         <div class="flex items-center gap-3">
-                            <span v-if="op.fecha_entrega_estimada" class="text-xs text-amber-600 font-medium">
+                            <span v-if="op.fecha_entrega_estimada" class="text-xs text-aviso-ambar font-medium">
                                 Entrega: {{ formatFecha(op.fecha_entrega_estimada) }}
                             </span>
                             <div v-if="saldoPendiente(op) <= 0 && (op.total ?? 0) > 0"
                                 class="flex flex-col items-end">
                                 <div class="flex items-center gap-1">
                                     <span class="w-2 h-2 rounded-full bg-green-500"></span>
-                                    <span class="text-xs font-semibold text-green-600">Pagado</span>
+                                    <span class="text-xs font-semibold text-aviso-verde">Pagado</span>
                                 </div>
                                 <span class="text-xs text-tinta-300 mt-0.5">Saldo</span>
                             </div>
@@ -268,7 +268,7 @@ function fmt(v) { return Number(v || 0).toLocaleString('es-CO') }
                                 class="flex flex-col items-end">
                                 <div class="flex items-center gap-1">
                                     <span class="w-2 h-2 rounded-full bg-red-500"></span>
-                                    <span class="text-xs font-semibold text-red-600">
+                                    <span class="text-xs font-semibold text-aviso-rojo">
                                         ${{ fmt(saldoPendiente(op)) }}
                                     </span>
                                 </div>
@@ -278,7 +278,7 @@ function fmt(v) { return Number(v || 0).toLocaleString('es-CO') }
                                 class="flex flex-col items-end">
                                 <div class="flex items-center gap-1">
                                     <span class="w-2 h-2 rounded-full bg-yellow-400"></span>
-                                    <span class="text-xs font-semibold text-yellow-600">
+                                    <span class="text-xs font-semibold text-aviso-ambar">
                                         ${{ fmt(saldoPendiente(op)) }}
                                     </span>
                                 </div>

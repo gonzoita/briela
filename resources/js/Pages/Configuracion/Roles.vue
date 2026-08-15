@@ -105,19 +105,19 @@ function eliminar(r) {
                 habría que crear "Comercial Bogotá", "Comercial Cali", etc., y
                 el número de roles se multiplicaría por cada sede nueva.
             -->
-            <div class="mb-5 rounded-xl border border-blue-200 bg-blue-50 p-4">
-                <p class="text-sm font-semibold text-blue-900">El rol define QUÉ; el usuario define DÓNDE.</p>
-                <p class="text-xs text-blue-800 mt-1.5">
+            <div class="mb-5 rounded-xl border border-borde-aviso-azul bg-pastel-azul p-4">
+                <p class="text-sm font-semibold text-aviso-azul">El rol define QUÉ; el usuario define DÓNDE.</p>
+                <p class="text-xs text-aviso-azul mt-1.5">
                     Aquí eliges qué puede hacer un rol (ver clientes, crear cotizaciones,
                     aprobar OPs). Las <strong>sedes y bodegas</strong> se asignan a cada persona
                     en <strong>Usuarios</strong>, no al rol.
                 </p>
-                <p class="text-xs text-blue-800 mt-1.5">
+                <p class="text-xs text-aviso-azul mt-1.5">
                     Así un solo rol "Comercial" sirve para Bogotá, Cali y Cúcuta: cada vendedor
                     lo usa dentro de las sedes que le marcaste.
                 </p>
                 <a href="/usuarios" @click.prevent="router.visit('/usuarios')"
-                    class="inline-block mt-2 text-xs font-semibold text-blue-900 underline hover:no-underline">
+                    class="inline-block mt-2 text-xs font-semibold text-aviso-azul underline hover:no-underline">
                     Ir a Usuarios para asignar sedes →
                 </a>
             </div>
@@ -150,14 +150,14 @@ function eliminar(r) {
                                 <p v-if="r.descripcion" class="text-xs text-tinta-300 mt-0.5">{{ r.descripcion }}</p>
                             </div>
                             <span class="text-xs px-2 py-0.5 rounded-full shrink-0"
-                                :class="r.activo ? 'bg-green-100 text-green-700' : 'bg-tinta-100 text-tinta-400'">
+                                :class="r.activo ? 'bg-pastel-verde-2 text-aviso-verde' : 'bg-tinta-100 text-tinta-400'">
                                 {{ r.activo ? 'Activo' : 'Inactivo' }}
                             </span>
                         </div>
                         <div class="flex items-center gap-3 mt-2">
-                            <button @click="editar(r)" class="text-xs text-blue-600 hover:underline">Editar permisos</button>
+                            <button @click="editar(r)" class="text-xs text-aviso-azul hover:underline">Editar permisos</button>
                             <button v-if="!r.es_sistema" @click="eliminar(r)"
-                                class="text-xs text-red-500 hover:underline">Eliminar</button>
+                                class="text-xs text-aviso-rojo hover:underline">Eliminar</button>
                         </div>
                     </div>
                 </div>
@@ -229,7 +229,7 @@ function eliminar(r) {
                                 <div class="flex items-center justify-between mb-2">
                                     <span class="text-sm font-medium text-tinta-700">{{ config.label }}</span>
                                     <button type="button" @click="alternarModulo(modulo, config.acciones)"
-                                        class="text-xs text-blue-600 hover:underline">
+                                        class="text-xs text-aviso-azul hover:underline">
                                         {{ moduloCompleto(modulo, config.acciones) ? 'Quitar todo' : 'Marcar todo' }}
                                     </button>
                                 </div>

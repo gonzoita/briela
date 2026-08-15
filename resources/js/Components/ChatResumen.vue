@@ -37,7 +37,7 @@ onMounted(cargar)
             <div v-for="p in datos.pendientes" :key="'p'+p.id"
                 @click="router.visit(p.url)"
                 class="flex items-center gap-3 rounded-2xl border p-4 cursor-pointer active:scale-[0.98] transition-transform"
-                :class="p.vencida ? 'border-red-200 bg-red-50/60' : 'border-amber-200 bg-amber-50/60'">
+                :class="p.vencida ? 'border-borde-aviso-rojo bg-pastel-rojo/60' : 'border-borde-aviso-ambar bg-pastel-ambar/60'">
                 <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 text-white"
                     :style="`background:${p.vencida ? '#DC2626' : '#D97706'};`">
                     <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
@@ -48,7 +48,7 @@ onMounted(cargar)
                 <div class="min-w-0 flex-1">
                     <p class="text-sm font-semibold text-tinta-900">
                         {{ etiqueta[p.tipo] }} de {{ p.autor }}
-                        <span v-if="p.vencida" class="text-red-600">· vencida</span>
+                        <span v-if="p.vencida" class="text-aviso-rojo">· vencida</span>
                         <span v-else-if="p.fecha_limite" class="text-tinta-400 font-normal">· antes del {{ p.fecha_limite }}</span>
                     </p>
                     <p class="text-xs text-tinta-400 truncate">{{ p.contenido }}</p>
@@ -57,7 +57,7 @@ onMounted(cargar)
 
             <!-- Mensajes directos sin leer -->
             <div v-for="d in datos.directos" :key="'d'+d.usuario_id"
-                class="flex items-center gap-3 rounded-2xl border border-teal-200 bg-teal-50/60 p-4">
+                class="flex items-center gap-3 rounded-2xl border border-borde-aviso-verde bg-pastel-verde/60 p-4">
                 <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 text-white font-semibold" style="background:#0F766E;">
                     {{ (d.nombre || '?').charAt(0).toUpperCase() }}
                 </div>
@@ -72,7 +72,7 @@ onMounted(cargar)
 
             <!-- Grupos con novedades -->
             <div v-for="g in datos.grupos" :key="'g'+g.id"
-                class="flex items-center gap-3 rounded-2xl border border-teal-200 bg-teal-50/60 p-4">
+                class="flex items-center gap-3 rounded-2xl border border-borde-aviso-verde bg-pastel-verde/60 p-4">
                 <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 text-white font-semibold" style="background:#0F766E;">#</div>
                 <div class="min-w-0 flex-1">
                     <p class="text-sm font-semibold text-tinta-900">

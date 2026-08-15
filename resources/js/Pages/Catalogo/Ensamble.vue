@@ -94,11 +94,11 @@ async function compartir() {
                     <div>
                         <div class="flex gap-2 flex-wrap mb-2">
                             <span v-if="ensamble.plantilla_nombre"
-                                class="text-xs font-medium px-2.5 py-1 rounded-full bg-purple-100 text-purple-700">
+                                class="text-xs font-medium px-2.5 py-1 rounded-full bg-pastel-violeta-2 text-aviso-violeta">
                                 {{ ensamble.plantilla_nombre }}
                             </span>
                             <span v-if="ensamble.categoria_nombre"
-                                class="text-xs font-medium px-2.5 py-1 rounded-full bg-blue-100 text-blue-700">
+                                class="text-xs font-medium px-2.5 py-1 rounded-full bg-pastel-azul-2 text-aviso-azul">
                                 {{ ensamble.categoria_nombre }}
                             </span>
                         </div>
@@ -111,12 +111,12 @@ async function compartir() {
 
                     <!-- El precio público lo decide la marca en Segmentación. -->
                     <div v-if="mostrarPrecio && precioPublico > 0"
-                        class="bg-green-50 border border-green-200 rounded-xl p-4">
-                        <p class="text-xs text-green-600 font-medium mb-0.5">Precio base estimado</p>
-                        <p class="text-2xl font-semibold text-green-700">
+                        class="bg-pastel-verde border border-borde-aviso-verde rounded-xl p-4">
+                        <p class="text-xs text-aviso-verde font-medium mb-0.5">Precio base estimado</p>
+                        <p class="text-2xl font-semibold text-aviso-verde">
                             ${{ Number(precioPublico).toLocaleString('es-CO') }}
                         </p>
-                        <p class="text-xs text-green-500 mt-1">El precio final depende de la configuración · IVA no incluido</p>
+                        <p class="text-xs text-aviso-verde mt-1">El precio final depende de la configuración · IVA no incluido</p>
                     </div>
 
                     <div v-if="ensamble.descripcion_larga"
@@ -128,7 +128,7 @@ async function compartir() {
                     <div class="border-t border-linea pt-5">
                         <p class="text-xs text-tinta-300 text-center">
                             ¿Tienes preguntas? Contáctanos a través de
-                            <a :href="$page.props.marca.web || '#'" target="_blank" class="text-blue-600 hover:underline">{{ $page.props.marca.web }}</a>
+                            <a :href="$page.props.marca.web || '#'" target="_blank" class="text-aviso-azul hover:underline">{{ $page.props.marca.web }}</a>
                         </p>
                     </div>
                 </div>

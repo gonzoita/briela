@@ -329,7 +329,7 @@ async function copiarVariable(variable) {
                                         <img :src="logoPreview" alt="Logo" class="h-10 w-auto object-contain" />
                                         <button
                                             @click="logoPreview = null; marcarCambio()"
-                                            class="text-xs text-red-500 hover:text-red-700"
+                                            class="text-xs text-aviso-rojo hover:text-aviso-rojo"
                                         >Quitar</button>
                                     </div>
                                     <label class="flex items-center justify-center gap-2 w-full py-3 border-2 border-dashed border-linea rounded-xl cursor-pointer hover:bg-tinta-50 transition-colors">
@@ -519,7 +519,7 @@ async function copiarVariable(variable) {
                                         :key="sec"
                                         class="flex items-center justify-between py-2.5 px-3 rounded-xl border transition-colors cursor-pointer"
                                         :class="seccionActiva(sec)
-                                            ? 'border-[var(--marca)] bg-blue-50'
+                                            ? 'border-[var(--marca)] bg-pastel-azul'
                                             : 'border-linea bg-tinta-50'"
                                         @click="toggleSeccion(sec)"
                                     >
@@ -554,7 +554,7 @@ async function copiarVariable(variable) {
                                             @click="copiarVariable(variable)"
                                             class="text-xs px-2 py-1 rounded-lg transition-colors"
                                             :class="copiadoVar === variable
-                                                ? 'bg-green-100 text-green-700'
+                                                ? 'bg-pastel-verde-2 text-aviso-verde'
                                                 : 'bg-tinta-200 text-tinta-500 hover:bg-gray-300'"
                                         >
                                             {{ copiadoVar === variable ? 'Copiado' : 'Copiar' }}
@@ -567,7 +567,7 @@ async function copiarVariable(variable) {
                         <!-- Botón guardar (fijo en el fondo) -->
                         <div class="px-5 py-4 border-t border-linea shrink-0">
                             <div class="flex items-center justify-between mb-3">
-                                <span class="text-xs" :class="guardado ? 'text-green-600' : sinGuardar ? 'text-amber-600' : 'text-tinta-300'">
+                                <span class="text-xs" :class="guardado ? 'text-aviso-verde' : sinGuardar ? 'text-aviso-ambar' : 'text-tinta-300'">
                                     {{ guardado ? '✓ Guardado' : sinGuardar ? '● Cambios sin guardar' : 'Sin cambios' }}
                                 </span>
                                 <a

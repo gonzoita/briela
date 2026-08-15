@@ -62,7 +62,7 @@ function enviar() {
                     </label>
                     <input v-model="form.fecha_remision" type="date"
                         class="w-full border border-linea rounded-xl px-4 py-2.5 text-sm focus:outline-none"/>
-                    <p v-if="errors.fecha_remision" class="text-xs text-red-500 mt-1">{{ errors.fecha_remision }}</p>
+                    <p v-if="errors.fecha_remision" class="text-xs text-aviso-rojo mt-1">{{ errors.fecha_remision }}</p>
                 </div>
 
                 <div>

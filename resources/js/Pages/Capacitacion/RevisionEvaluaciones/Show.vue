@@ -68,11 +68,11 @@ async function calificar() {
                         <div v-for="o in pregunta.opciones" :key="o.id"
                             class="text-sm px-3 py-2 rounded-xl mb-1"
                             :class="o.id === pregunta.opcion_id
-                                ? (pregunta.es_correcta ? 'bg-green-50 text-green-800 font-semibold' : 'bg-red-50 text-red-800 font-semibold')
+                                ? (pregunta.es_correcta ? 'bg-pastel-verde text-aviso-verde font-semibold' : 'bg-pastel-rojo text-aviso-rojo font-semibold')
                                 : 'text-tinta-400'">
                             {{ o.id === pregunta.opcion_id ? '→ ' : '' }}{{ o.texto }}
                         </div>
-                        <p class="text-xs mt-1" :class="pregunta.es_correcta ? 'text-green-600' : 'text-red-600'">
+                        <p class="text-xs mt-1" :class="pregunta.es_correcta ? 'text-aviso-verde' : 'text-aviso-rojo'">
                             {{ pregunta.es_correcta ? 'Respuesta correcta (calificada automáticamente)' : 'Respuesta incorrecta (calificada automáticamente)' }}
                         </p>
                     </template>
@@ -87,7 +87,7 @@ async function calificar() {
                 </div>
             </div>
 
-            <p v-if="error" class="text-xs text-red-500 mb-2">{{ error }}</p>
+            <p v-if="error" class="text-xs text-aviso-rojo mb-2">{{ error }}</p>
             <button @click="calificar" :disabled="guardando"
                 class="w-full py-3 rounded-xl text-sm font-semibold text-white disabled:opacity-50" style="background:var(--marca);">
                 {{ guardando ? 'Guardando...' : 'Calificar y finalizar' }}

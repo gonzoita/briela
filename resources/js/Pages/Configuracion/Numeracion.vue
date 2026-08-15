@@ -52,8 +52,8 @@ function guardar(f) {
                 <h1 class="text-xl font-semibold text-tinta-900">Numeración</h1>
             </div>
 
-            <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 mb-4">
-                <p class="text-xs text-amber-800">
+            <div class="bg-pastel-ambar border border-borde-aviso-ambar rounded-xl p-3 mb-4">
+                <p class="text-xs text-aviso-ambar">
                     Cuidado al cambiar el consecutivo: si lo bajas por debajo de un número ya usado,
                     el sistema intentará repetir códigos existentes.
                 </p>

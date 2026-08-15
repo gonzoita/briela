@@ -132,7 +132,7 @@ defineExpose({ total })
                     <p class="text-sm font-medium text-tinta-800">{{ p.nombre_completo ?? p.nombre }}</p>
                     <p class="text-xs text-tinta-400">
                         {{ p.referencia }} · costo ${{ formatCOP(p.precio_costo) }}
-                        <span v-if="p.tipo === 'servicio'" class="ml-1 text-[10px] px-1.5 py-0.5 rounded-full bg-purple-50 text-purple-600">servicio</span>
+                        <span v-if="p.tipo === 'servicio'" class="ml-1 text-[10px] px-1.5 py-0.5 rounded-full bg-pastel-violeta text-aviso-violeta">servicio</span>
                         <span v-else class="ml-1">· stock {{ p.stock_total }}</span>
                     </p>
                 </button>
@@ -195,7 +195,7 @@ defineExpose({ total })
                 <div class="sm:col-span-1 flex items-center justify-between sm:justify-end gap-2">
                     <span class="sm:hidden text-xs text-tinta-400">Subtotal ${{ formatCOP(subtotalDe(l)) }}</span>
                     <button type="button" @click="quitar(i)" title="Quitar"
-                        class="text-tinta-300 hover:text-red-500 transition-colors shrink-0">
+                        class="text-tinta-300 hover:text-aviso-rojo transition-colors shrink-0">
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
                         </svg>

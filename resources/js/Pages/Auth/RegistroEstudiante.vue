@@ -39,8 +39,8 @@ const submit = () => {
 
                 <!-- Invitación inválida -->
                 <div v-if="!invitacion" class="text-center py-4">
-                    <div class="w-12 h-12 rounded-full bg-red-50 flex items-center justify-center mx-auto mb-3">
-                        <svg class="w-6 h-6 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
+                    <div class="w-12 h-12 rounded-full bg-pastel-rojo flex items-center justify-center mx-auto mb-3">
+                        <svg class="w-6 h-6 text-aviso-rojo" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
                         </svg>
                     </div>
@@ -69,7 +69,7 @@ const submit = () => {
                                 class="w-full px-3 py-2.5 border rounded-lg text-sm focus:outline-none focus:ring-2 transition-colors"
                                 :class="form.errors.nombre ? 'border-red-400 focus:ring-red-200' : 'border-tinta-200 focus:ring-[var(--marca-suave)] focus:border-[var(--marca)]'"
                                 placeholder="Tu nombre" />
-                            <p v-if="form.errors.nombre" class="mt-1 text-xs text-red-600">{{ form.errors.nombre }}</p>
+                            <p v-if="form.errors.nombre" class="mt-1 text-xs text-aviso-rojo">{{ form.errors.nombre }}</p>
                         </div>
 
                         <div>
@@ -87,7 +87,7 @@ const submit = () => {
                                     </svg>
                                 </button>
                             </div>
-                            <p v-if="form.errors.password" class="mt-1 text-xs text-red-600">{{ form.errors.password }}</p>
+                            <p v-if="form.errors.password" class="mt-1 text-xs text-aviso-rojo">{{ form.errors.password }}</p>
                         </div>
 
                         <div>

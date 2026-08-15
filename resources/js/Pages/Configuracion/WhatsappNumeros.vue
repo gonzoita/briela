@@ -181,9 +181,9 @@ function eliminar(id) {
                 <div class="flex items-center gap-2 flex-wrap mb-1">
                     <h2 class="text-sm font-semibold text-tinta-700">Conexión con WhatsApp</h2>
                     <span v-if="conexion.lista"
-                        class="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-green-100 text-green-700 leading-none">Conectado</span>
+                        class="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-pastel-verde-2 text-aviso-verde leading-none">Conectado</span>
                     <span v-else
-                        class="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-700 leading-none">Sin conectar</span>
+                        class="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-pastel-ambar-2 text-aviso-ambar leading-none">Sin conectar</span>
                 </div>
                 <p class="text-xs text-tinta-300 mb-3">
                     Sin esta conexión los números de abajo no pueden enviar ni recibir mensajes.
@@ -199,7 +199,7 @@ function eliminar(id) {
                         Cambiar credenciales
                     </button>
                     <button type="button" @click="desconectar" :disabled="ocupado === 'desconectar'"
-                        class="px-3 py-2 rounded-xl border border-red-200 text-xs font-semibold text-red-600 hover:bg-red-50 disabled:opacity-50">
+                        class="px-3 py-2 rounded-xl border border-borde-aviso-rojo text-xs font-semibold text-aviso-rojo hover:bg-pastel-rojo disabled:opacity-50">
                         {{ ocupado === 'desconectar' ? 'Desconectando...' : 'Desconectar' }}
                     </button>
                 </div>
@@ -214,7 +214,7 @@ function eliminar(id) {
                 </button>
 
                 <div v-if="guiaAbierta" class="mt-3 text-xs text-tinta-500 leading-relaxed">
-                    <div class="mb-3 rounded-lg bg-amber-50 border border-amber-100 p-2.5 text-amber-800">
+                    <div class="mb-3 rounded-lg bg-pastel-ambar border border-borde-aviso-ambar p-2.5 text-aviso-ambar">
                         <p class="font-semibold mb-1">Antes de empezar, asegúrate de:</p>
                         <ul class="list-disc list-inside space-y-0.5">
                             <li>Tener una cuenta de WhatsApp Business API en Meta (no sirve WhatsApp normal ni Business de la tienda de apps).</li>
@@ -269,7 +269,7 @@ function eliminar(id) {
                         <div class="flex items-center gap-2 flex-wrap">
                             <h2 class="text-sm font-semibold text-tinta-700">Automatización</h2>
                             <span v-if="auto.activo"
-                                class="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-green-100 text-green-700 leading-none">Activa</span>
+                                class="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-pastel-verde-2 text-aviso-verde leading-none">Activa</span>
                             <span v-else
                                 class="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-tinta-100 text-tinta-400 leading-none">Apagada</span>
                         </div>
@@ -343,7 +343,7 @@ function eliminar(id) {
                                 <textarea v-model="r.mensaje" rows="2" placeholder="Mensaje que se envía"
                                     class="flex-1 border border-linea rounded-lg px-2 py-1.5 text-[12px] focus:outline-none focus:border-[var(--marca)]"></textarea>
                                 <button type="button" @click="quitarRespuesta(i)"
-                                    class="shrink-0 w-7 h-7 rounded-lg text-red-500 hover:bg-red-50 leading-none">✕</button>
+                                    class="shrink-0 w-7 h-7 rounded-lg text-aviso-rojo hover:bg-pastel-rojo leading-none">✕</button>
                             </div>
                             <button type="button" @click="agregarRespuesta"
                                 class="px-2.5 py-1.5 rounded-lg border border-linea text-[11px] font-semibold text-tinta-500 hover:bg-tinta-50">
@@ -382,7 +382,7 @@ function eliminar(id) {
                                 <div class="flex flex-wrap gap-1.5">
                                     <label v-for="u in usuarios" :key="u.id"
                                         class="inline-flex items-center gap-1 px-2 py-1 rounded-lg border cursor-pointer text-[11px]"
-                                        :class="auto.responsables.includes(u.id) ? 'border-blue-300 bg-blue-50 text-blue-700' : 'border-linea text-tinta-500'">
+                                        :class="auto.responsables.includes(u.id) ? 'border-borde-aviso-azul bg-pastel-azul text-aviso-azul' : 'border-linea text-tinta-500'">
                                         <input type="checkbox" :value="u.id" v-model="auto.responsables" class="hidden" />
                                         {{ u.name }}
                                     </label>
@@ -419,7 +419,7 @@ function eliminar(id) {
                     >
                         <!-- Icono WhatsApp -->
                         <div class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
-                            :class="n.activo ? 'bg-blue-50' : 'bg-tinta-100'"
+                            :class="n.activo ? 'bg-pastel-azul' : 'bg-tinta-100'"
                         >
                             <svg class="w-4 h-4" :class="n.activo ? 'text-[var(--marca)]' : 'text-tinta-300'"
                                 fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
@@ -448,13 +448,13 @@ function eliminar(id) {
                         <!-- Badge activo -->
                         <span
                             class="text-xs px-2 py-0.5 rounded-full shrink-0"
-                            :class="n.activo ? 'bg-green-100 text-green-700' : 'bg-tinta-100 text-tinta-400'"
+                            :class="n.activo ? 'bg-pastel-verde-2 text-aviso-verde' : 'bg-tinta-100 text-tinta-400'"
                         >
                             {{ n.activo ? 'Activo' : 'Inactivo' }}
                         </span>
 
-                        <button @click="editar(n)" class="text-xs text-blue-600 hover:underline shrink-0">Editar</button>
-                        <button @click="eliminar(n.id)" class="text-xs text-red-500 hover:underline shrink-0">Eliminar</button>
+                        <button @click="editar(n)" class="text-xs text-aviso-azul hover:underline shrink-0">Editar</button>
+                        <button @click="eliminar(n.id)" class="text-xs text-aviso-rojo hover:underline shrink-0">Eliminar</button>
                     </div>
                 </div>
             </div>

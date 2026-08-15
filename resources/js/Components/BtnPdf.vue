@@ -15,13 +15,13 @@ const plantillas = ref([])
 const claseBoton = computed(() =>
     props.variante === 'blanco'
         ? 'border-linea text-tinta-700 hover:bg-tinta-50'
-        : 'border-red-200 text-red-600 hover:bg-red-50'
+        : 'border-borde-aviso-rojo text-aviso-rojo hover:bg-pastel-rojo'
 )
 
 const claseDropdown = computed(() =>
     props.variante === 'blanco'
         ? 'border-linea text-tinta-400 hover:bg-tinta-50'
-        : 'border-red-200 text-red-400 hover:bg-red-50'
+        : 'border-borde-aviso-rojo text-red-400 hover:bg-pastel-rojo'
 )
 
 function getCookie(name) {
@@ -107,7 +107,7 @@ onUnmounted(() => document.removeEventListener('click', clickFuera))
             >
                 <span>{{ p.nombre }}</span>
                 <span v-if="p.es_default"
-                    class="text-xs bg-blue-100 text-blue-600 px-1.5 py-0.5 rounded ml-2">
+                    class="text-xs bg-pastel-azul-2 text-aviso-azul px-1.5 py-0.5 rounded ml-2">
                     Default
                 </span>
             </a>

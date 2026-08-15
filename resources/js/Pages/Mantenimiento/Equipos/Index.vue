@@ -28,9 +28,9 @@ function aplicarFiltros() {
 }
 
 const estadoBadge = {
-    activo:          { label: 'Activo',          class: 'bg-green-100 text-green-700'  },
-    en_mantenimiento:{ label: 'En mant.',         class: 'bg-amber-100 text-amber-700'  },
-    fuera_servicio:  { label: 'Fuera de servicio',class: 'bg-red-100 text-red-700'     },
+    activo:          { label: 'Activo',          class: 'bg-pastel-verde-2 text-aviso-verde'  },
+    en_mantenimiento:{ label: 'En mant.',         class: 'bg-pastel-ambar-2 text-aviso-ambar'  },
+    fuera_servicio:  { label: 'Fuera de servicio',class: 'bg-pastel-rojo-2 text-aviso-rojo'     },
 }
 
 function eliminar(e) {
@@ -80,7 +80,7 @@ function eliminar(e) {
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div v-for="e in equipos" :key="e.id"
-                    class="bg-superficie rounded-2xl border border-linea p-4 hover:border-blue-200 transition-colors cursor-pointer"
+                    class="bg-superficie rounded-2xl border border-linea p-4 hover:border-borde-aviso-azul transition-colors cursor-pointer"
                     @click="router.visit(`/mantenimiento/equipos/${e.id}`)">
                     <div class="flex items-start justify-between gap-3 mb-3">
                         <div class="min-w-0">
@@ -118,7 +118,7 @@ function eliminar(e) {
                             Editar
                         </button>
                         <button @click.stop="eliminar(e)"
-                            class="py-1.5 px-3 rounded-lg border border-red-100 text-xs font-medium text-red-500 hover:bg-red-50">
+                            class="py-1.5 px-3 rounded-lg border border-borde-aviso-rojo text-xs font-medium text-aviso-rojo hover:bg-pastel-rojo">
                             Eliminar
                         </button>
                     </div>

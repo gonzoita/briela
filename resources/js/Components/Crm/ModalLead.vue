@@ -87,7 +87,7 @@ async function guardar() {
 
                     <!-- Título -->
                     <div>
-                        <label class="block text-xs font-semibold text-tinta-500 mb-1">Título <span class="text-red-500">*</span></label>
+                        <label class="block text-xs font-semibold text-tinta-500 mb-1">Título <span class="text-aviso-rojo">*</span></label>
                         <input
                             v-model="form.titulo"
                             type="text"
@@ -95,7 +95,7 @@ async function guardar() {
                             class="w-full border border-linea rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]"
                             :class="{ 'border-red-400': errores.titulo }"
                         />
-                        <p v-if="errores.titulo" class="text-xs text-red-500 mt-1">{{ errores.titulo }}</p>
+                        <p v-if="errores.titulo" class="text-xs text-aviso-rojo mt-1">{{ errores.titulo }}</p>
                     </div>
 
                     <!-- Etapa -->

@@ -334,7 +334,7 @@ async function limpiar() {
                         </p>
                         <div class="flex flex-col gap-1.5 px-4">
                             <button v-for="s in sugerencias" :key="s" @click="enviar(s)"
-                                class="text-xs px-3 py-2 rounded-xl border border-linea bg-superficie text-tinta-500 hover:border-blue-300 text-left">
+                                class="text-xs px-3 py-2 rounded-xl border border-linea bg-superficie text-tinta-500 hover:border-borde-aviso-azul text-left">
                                 {{ s }}
                             </button>
                         </div>
@@ -390,7 +390,7 @@ async function limpiar() {
                         </div>
                     </div>
 
-                    <p v-if="error" class="text-xs text-red-600 text-center px-3">{{ error }}</p>
+                    <p v-if="error" class="text-xs text-aviso-rojo text-center px-3">{{ error }}</p>
                 </div>
 
                 <!-- Entrada -->
@@ -398,7 +398,7 @@ async function limpiar() {
                     <p v-if="dictando" class="text-xs text-center mb-2" style="color:var(--marca);">
                         Escuchando… habla y se envía sola al terminar.
                     </p>
-                    <p v-else-if="errorVoz" class="text-xs text-red-600 text-center mb-2">{{ errorVoz }}</p>
+                    <p v-else-if="errorVoz" class="text-xs text-aviso-rojo text-center mb-2">{{ errorVoz }}</p>
 
                     <div class="flex items-end gap-2">
                         <textarea v-model="entrada" rows="1" maxlength="2000"

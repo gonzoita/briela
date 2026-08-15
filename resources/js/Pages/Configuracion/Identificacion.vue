@@ -78,8 +78,8 @@ function ic(extra = '') {
                 </p>
                 <div class="space-y-3 text-sm">
                     <div class="flex gap-3">
-                        <span class="mt-0.5 shrink-0 w-5 h-5 rounded-full bg-green-100 flex items-center justify-center">
-                            <svg class="w-3 h-3 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+                        <span class="mt-0.5 shrink-0 w-5 h-5 rounded-full bg-pastel-verde-2 flex items-center justify-center">
+                            <svg class="w-3 h-3 text-aviso-verde" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
                             </svg>
                         </span>
@@ -92,8 +92,8 @@ function ic(extra = '') {
                         </div>
                     </div>
                     <div class="flex gap-3">
-                        <span class="mt-0.5 shrink-0 w-5 h-5 rounded-full bg-green-100 flex items-center justify-center">
-                            <svg class="w-3 h-3 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+                        <span class="mt-0.5 shrink-0 w-5 h-5 rounded-full bg-pastel-verde-2 flex items-center justify-center">
+                            <svg class="w-3 h-3 text-aviso-verde" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
                             </svg>
                         </span>
@@ -141,11 +141,11 @@ function ic(extra = '') {
                                 Cámbiala solo si el RUES deja de responder.
                             </p>
                             <button type="button" @click="restaurarUrl"
-                                class="text-xs text-blue-600 font-medium hover:underline shrink-0 ml-2">
+                                class="text-xs text-aviso-azul font-medium hover:underline shrink-0 ml-2">
                                 Restaurar
                             </button>
                         </div>
-                        <p v-if="form.errors.url" class="text-red-500 text-xs mt-1">{{ form.errors.url }}</p>
+                        <p v-if="form.errors.url" class="text-aviso-rojo text-xs mt-1">{{ form.errors.url }}</p>
                     </div>
 
                     <div>
@@ -158,7 +158,7 @@ function ic(extra = '') {
                             Sin token también funciona. Solo sube el límite de consultas por hora,
                             y se saca gratis en evergreen.data.socrata.com.
                         </p>
-                        <p v-if="form.errors.token" class="text-red-500 text-xs mt-1">{{ form.errors.token }}</p>
+                        <p v-if="form.errors.token" class="text-aviso-rojo text-xs mt-1">{{ form.errors.token }}</p>
                     </div>
 
                     <div>
@@ -169,7 +169,7 @@ function ic(extra = '') {
                         <p class="text-xs text-tinta-300 mt-1">
                             Pasado este tiempo se deja de esperar y el formulario sigue normal.
                         </p>
-                        <p v-if="form.errors.timeout" class="text-red-500 text-xs mt-1">{{ form.errors.timeout }}</p>
+                        <p v-if="form.errors.timeout" class="text-aviso-rojo text-xs mt-1">{{ form.errors.timeout }}</p>
                     </div>
                 </div>
 
@@ -202,8 +202,8 @@ function ic(extra = '') {
 
                 <div v-if="prueba" class="rounded-lg border px-3 py-2.5 text-xs"
                     :class="prueba.ok
-                        ? 'border-green-200 bg-green-50 text-green-900'
-                        : 'border-amber-200 bg-amber-50 text-amber-900'">
+                        ? 'border-borde-aviso-verde bg-pastel-verde text-aviso-verde'
+                        : 'border-borde-aviso-ambar bg-pastel-ambar text-aviso-ambar'">
                     <p class="font-semibold">{{ prueba.mensaje }}</p>
                     <p v-if="prueba.dv" class="mt-1">
                         Dígito de verificación calculado: <strong>{{ prueba.dv }}</strong>

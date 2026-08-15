@@ -115,7 +115,7 @@ const formatFecha = (d) => d
                 <div v-if="filtros.usuario_id || filtros.modelo || filtros.accion || filtros.desde || filtros.hasta || filtros.buscar"
                      class="flex justify-end mt-3">
                     <button @click="limpiarFiltros"
-                        class="text-xs text-tinta-400 hover:text-red-600 flex items-center gap-1 transition-colors">
+                        class="text-xs text-tinta-400 hover:text-aviso-rojo flex items-center gap-1 transition-colors">
                         Limpiar filtros
                     </button>
                 </div>
@@ -137,12 +137,12 @@ const formatFecha = (d) => d
                             {{ r.usuario?.name ?? 'Sistema' }} · {{ r.modelo }} · {{ formatFecha(r.created_at) }}
                         </p>
                         <details v-if="r.cambios" class="mt-1">
-                            <summary class="text-xs text-blue-600 cursor-pointer select-none">Ver cambios</summary>
+                            <summary class="text-xs text-aviso-azul cursor-pointer select-none">Ver cambios</summary>
                             <ul class="mt-1 text-xs text-tinta-500 space-y-0.5">
                                 <li v-for="(v, campo) in r.cambios" :key="campo">
                                     <span class="font-medium">{{ campo }}:</span>
-                                    <span class="text-red-500 line-through mr-1">{{ v.antes ?? '—' }}</span>
-                                    <span class="text-green-600">→ {{ v.despues ?? '—' }}</span>
+                                    <span class="text-aviso-rojo line-through mr-1">{{ v.antes ?? '—' }}</span>
+                                    <span class="text-aviso-verde">→ {{ v.despues ?? '—' }}</span>
                                 </li>
                             </ul>
                         </details>

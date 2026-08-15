@@ -162,7 +162,7 @@ function enviar(estado) {
                             <span class="text-xs font-medium text-tinta-400">
                                 {{ item._codigo_item ? `#${item._codigo_item}` : 'Ítem manual' }}
                             </span>
-                            <button @click="quitarItem(idx)" class="text-red-400 hover:text-red-600">
+                            <button @click="quitarItem(idx)" class="text-red-400 hover:text-aviso-rojo">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M6 18L18 6M6 6l12 12"/>
                                 </svg>
@@ -205,15 +205,15 @@ function enviar(estado) {
                 </div>
 
                 <button @click="agregarItemManual"
-                    class="w-full py-2 rounded-lg border-2 border-dashed border-tinta-200 text-sm text-tinta-400 hover:border-blue-400 hover:text-blue-600 transition-colors">
+                    class="w-full py-2 rounded-lg border-2 border-dashed border-tinta-200 text-sm text-tinta-400 hover:border-blue-400 hover:text-aviso-azul transition-colors">
                     + Agregar ítem manual
                 </button>
             </div>
 
             <!-- Errores -->
-            <div v-if="Object.keys(errores).length" class="bg-red-50 border border-red-200 rounded-xl p-4 mb-4">
-                <p class="text-sm font-semibold text-red-700 mb-1">Errores de validación:</p>
-                <ul class="text-sm text-red-600 list-disc list-inside space-y-0.5">
+            <div v-if="Object.keys(errores).length" class="bg-pastel-rojo border border-borde-aviso-rojo rounded-xl p-4 mb-4">
+                <p class="text-sm font-semibold text-aviso-rojo mb-1">Errores de validación:</p>
+                <ul class="text-sm text-aviso-rojo list-disc list-inside space-y-0.5">
                     <li v-for="(msg, key) in errores" :key="key">{{ msg }}</li>
                 </ul>
             </div>

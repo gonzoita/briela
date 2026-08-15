@@ -521,7 +521,7 @@ const precioMostrar = (p) => {
                                     En la web
                                 </span>
                                 <button v-if="p.es_padre" @click.stop="router.visit(`/productos/${p.id}/editar`)"
-                                    class="text-xs font-medium text-blue-600 hover:text-blue-800 hover:underline">
+                                    class="text-xs font-medium text-aviso-azul hover:text-aviso-azul hover:underline">
                                     Editar
                                 </button>
                             </div>
@@ -595,7 +595,7 @@ const precioMostrar = (p) => {
                             {{ formatCOP(precioMostrar(v)) }}
                         </td>
                         <td class="hidden sm:table-cell px-4 py-2 text-right">
-                            <span class="text-xs font-medium text-green-600">{{ v.stock_total }}</span>
+                            <span class="text-xs font-medium text-aviso-verde">{{ v.stock_total }}</span>
                         </td>
                     </tr>
                     </template>
@@ -648,7 +648,7 @@ const precioMostrar = (p) => {
                         </span>
                         <p class="text-xs text-tinta-300 mt-1">Toca para ver variantes</p>
                         <button @click.stop="router.visit(`/productos/${p.id}/editar`)"
-                            class="mt-1 text-xs font-medium text-blue-600 hover:text-blue-800 hover:underline">
+                            class="mt-1 text-xs font-medium text-aviso-azul hover:text-aviso-azul hover:underline">
                             Editar producto padre
                         </button>
                     </template>
@@ -666,7 +666,7 @@ const precioMostrar = (p) => {
                                 :style="p.stock_total <= p.stock_minimo ? 'background: #ef4444;' : 'background: #10b981;'"/>
                             <span class="text-xs text-tinta-400">
                                 {{ p.stock_total }} en stock
-                                <span v-if="p.stock_total <= p.stock_minimo" class="text-red-500 font-semibold"> (bajo mínimo)</span>
+                                <span v-if="p.stock_total <= p.stock_minimo" class="text-aviso-rojo font-semibold"> (bajo mínimo)</span>
                             </span>
                         </div>
                     </template>
@@ -677,7 +677,7 @@ const precioMostrar = (p) => {
                         class="flex items-center justify-between px-3 py-2 hover:bg-realce"
                         @click.stop="router.visit(`/productos/${v.id}`)">
                         <span class="text-xs text-tinta-700">{{ v.valor_variante }}</span>
-                        <span class="text-xs font-medium text-green-600">{{ v.stock_total }}</span>
+                        <span class="text-xs font-medium text-aviso-verde">{{ v.stock_total }}</span>
                     </div>
                 </div>
             </div>
@@ -746,9 +746,9 @@ const precioMostrar = (p) => {
                 </div>
 
                 <!-- Error banner -->
-                <div v-if="catError" class="mx-5 mt-3 bg-red-50 border border-red-200 rounded-xl px-4 py-2.5 text-sm text-red-700 flex items-center justify-between shrink-0">
+                <div v-if="catError" class="mx-5 mt-3 bg-pastel-rojo border border-borde-aviso-rojo rounded-xl px-4 py-2.5 text-sm text-aviso-rojo flex items-center justify-between shrink-0">
                     <span>{{ catError }}</span>
-                    <button @click="catError = ''" class="text-red-400 hover:text-red-600 ml-3 shrink-0">✕</button>
+                    <button @click="catError = ''" class="text-red-400 hover:text-aviso-rojo ml-3 shrink-0">✕</button>
                 </div>
 
                 <!-- Contenido scrollable -->
@@ -758,7 +758,7 @@ const precioMostrar = (p) => {
                     <div v-if="catEditando === null">
                         <button
                             @click="abrirNueva"
-                            class="w-full py-2.5 rounded-xl border-2 border-dashed border-linea text-sm text-tinta-400 hover:border-blue-300 hover:text-blue-600 transition-colors"
+                            class="w-full py-2.5 rounded-xl border-2 border-dashed border-linea text-sm text-tinta-400 hover:border-borde-aviso-azul hover:text-aviso-azul transition-colors"
                         >
                             + Nueva categoría
                         </button>
@@ -821,14 +821,14 @@ const precioMostrar = (p) => {
                                 <p class="text-xs text-tinta-300">{{ cat.productos_count ?? 0 }} producto(s)</p>
                             </div>
                             <button @click="abrirEditar(cat)"
-                                class="p-1.5 rounded-lg text-tinta-300 hover:text-blue-600 hover:bg-realce transition-colors"
+                                class="p-1.5 rounded-lg text-tinta-300 hover:text-aviso-azul hover:bg-realce transition-colors"
                                 title="Editar">
                                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                                 </svg>
                             </button>
                             <button @click="eliminarCategoria(cat)"
-                                class="p-1.5 rounded-lg text-tinta-300 hover:text-red-600 hover:bg-red-50 transition-colors"
+                                class="p-1.5 rounded-lg text-tinta-300 hover:text-aviso-rojo hover:bg-pastel-rojo transition-colors"
                                 title="Eliminar">
                                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>

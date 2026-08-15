@@ -99,7 +99,7 @@ const años = Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i)
                 </div>
                 <div class="bg-superficie rounded-2xl border border-linea shadow-sm px-4 py-4">
                     <p class="text-xs text-tinta-400 font-medium">Ganados</p>
-                    <p class="text-3xl font-semibold mt-1 text-green-600">{{ ganadosPeriodo }}</p>
+                    <p class="text-3xl font-semibold mt-1 text-aviso-verde">{{ ganadosPeriodo }}</p>
                     <p class="text-xs text-tinta-300 mt-1">leads cerrados</p>
                 </div>
                 <div class="bg-superficie rounded-2xl border border-linea shadow-sm px-4 py-4">
@@ -112,7 +112,7 @@ const años = Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i)
                 </div>
                 <div class="bg-superficie rounded-2xl border border-linea shadow-sm px-4 py-4">
                     <p class="text-xs text-tinta-400 font-medium">Activos ahora</p>
-                    <p class="text-3xl font-semibold mt-1 text-yellow-600">{{ activos }}</p>
+                    <p class="text-3xl font-semibold mt-1 text-aviso-ambar">{{ activos }}</p>
                     <p class="text-xs text-tinta-300 mt-1">en pipeline</p>
                 </div>
             </div>
@@ -223,7 +223,7 @@ const años = Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i)
                             <tr v-for="r in porResponsable" :key="r.responsable" class="hover:bg-tinta-50">
                                 <td class="py-2.5 font-medium text-tinta-900">{{ r.responsable }}</td>
                                 <td class="py-2.5 text-center text-tinta-500">{{ r.total }}</td>
-                                <td class="py-2.5 text-center text-green-600 font-semibold">{{ r.ganados }}</td>
+                                <td class="py-2.5 text-center text-aviso-verde font-semibold">{{ r.ganados }}</td>
                                 <td class="py-2.5 pl-4">
                                     <div class="flex items-center gap-2">
                                         <div class="flex-1 h-2 bg-tinta-100 rounded-full overflow-hidden max-w-[80px]">

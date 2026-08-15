@@ -272,7 +272,7 @@ async function importar() {
                 <div class="flex items-center justify-between mb-1">
                     <h2 class="text-sm font-semibold text-tinta-700">Conexión con la IA</h2>
                     <span class="text-xs px-2 py-0.5 rounded-full"
-                        :class="ia.configurada ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'">
+                        :class="ia.configurada ? 'bg-pastel-verde-2 text-aviso-verde' : 'bg-pastel-ambar-2 text-aviso-ambar'">
                         {{ ia.configurada ? 'Configurada' : 'Sin configurar' }}
                     </span>
                 </div>
@@ -403,10 +403,10 @@ async function importar() {
                         </button>
                     </div>
 
-                    <p v-if="resultadoPrueba === 'ok'" class="text-xs text-green-700">
+                    <p v-if="resultadoPrueba === 'ok'" class="text-xs text-aviso-verde">
                         Conexión correcta: la IA respondió.
                     </p>
-                    <p v-else-if="resultadoPrueba" class="text-xs text-red-600">{{ resultadoPrueba }}</p>
+                    <p v-else-if="resultadoPrueba" class="text-xs text-aviso-rojo">{{ resultadoPrueba }}</p>
                 </div>
             </div>
 
@@ -569,7 +569,7 @@ async function importar() {
                                 style="border-color:var(--marca); color:var(--marca);">
                                 {{ probandoVoz ? 'Generando audio…' : 'Escuchar cómo suena' }}
                             </button>
-                            <p v-if="errorVoz" class="text-xs text-red-600">{{ errorVoz }}</p>
+                            <p v-if="errorVoz" class="text-xs text-aviso-rojo">{{ errorVoz }}</p>
                         </div>
                     </div>
 
@@ -599,7 +599,7 @@ async function importar() {
                             <div class="flex items-center gap-2 flex-wrap">
                                 <h3 class="text-sm font-semibold text-tinta-900">{{ fila.label }}</h3>
                                 <span v-if="!fila.contenido"
-                                    class="text-xs px-2 py-0.5 rounded-full bg-amber-100 text-amber-700">Vacía</span>
+                                    class="text-xs px-2 py-0.5 rounded-full bg-pastel-ambar-2 text-aviso-ambar">Vacía</span>
                                 <span v-if="fila.generado_ia_at"
                                     class="text-xs px-2 py-0.5 rounded-full bg-tinta-100 text-tinta-400">IA · {{ fila.generado_ia_at }}</span>
                             </div>
@@ -622,7 +622,7 @@ async function importar() {
                             style="background:var(--marca);">
                             {{ generando ? 'Redactando…' : 'Redactar' }}
                         </button>
-                        <p v-if="errorIa" class="text-xs text-red-600">{{ errorIa }}</p>
+                        <p v-if="errorIa" class="text-xs text-aviso-rojo">{{ errorIa }}</p>
                     </div>
 
                     <textarea v-model="fila.contenido" rows="5" maxlength="20000"
@@ -650,7 +650,7 @@ async function importar() {
                         <textarea v-model="textoImportar" rows="10" maxlength="60000"
                             placeholder="Pega el contenido del documento…"
                             class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm mb-3 focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]"></textarea>
-                        <p v-if="errorImportar" class="text-xs text-red-600 mb-3">{{ errorImportar }}</p>
+                        <p v-if="errorImportar" class="text-xs text-aviso-rojo mb-3">{{ errorImportar }}</p>
                         <div class="flex gap-3">
                             <button @click="modalImportar = false"
                                 class="flex-1 py-2.5 rounded-xl border border-linea text-sm text-tinta-500">

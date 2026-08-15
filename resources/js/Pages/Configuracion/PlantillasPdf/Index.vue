@@ -257,8 +257,8 @@ function irACrear() {
                                     :disabled="procesando === `del-${p.id}`"
                                     class="px-3 py-1.5 text-xs font-medium rounded-lg border transition-colors disabled:opacity-50"
                                     :class="confirmando === p.id
-                                        ? 'border-red-300 bg-red-50 text-red-700'
-                                        : 'border-linea text-tinta-400 hover:border-red-200 hover:text-red-600'"
+                                        ? 'border-borde-aviso-rojo bg-pastel-rojo text-aviso-rojo'
+                                        : 'border-linea text-tinta-400 hover:border-borde-aviso-rojo hover:text-aviso-rojo'"
                                 >
                                     {{ confirmando === p.id ? '¿Confirmar?' : 'Eliminar' }}
                                 </button>
@@ -293,7 +293,7 @@ function irACrear() {
                                 @click="eliminar(p)"
                                 :disabled="procesando === `del-${p.id}`"
                                 class="py-1.5 px-3 text-xs font-medium rounded-lg border disabled:opacity-50"
-                                :class="confirmando === p.id ? 'border-red-300 bg-red-50 text-red-700' : 'border-linea text-tinta-400'"
+                                :class="confirmando === p.id ? 'border-borde-aviso-rojo bg-pastel-rojo text-aviso-rojo' : 'border-linea text-tinta-400'"
                             >
                                 {{ confirmando === p.id ? '¿Sí?' : 'X' }}
                             </button>

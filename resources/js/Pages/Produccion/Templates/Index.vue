@@ -41,7 +41,7 @@ function eliminar(t) {
                             <div class="flex items-center gap-2 flex-wrap">
                                 <p class="text-sm font-semibold text-tinta-900">{{ t.nombre }}</p>
                                 <span v-if="t.plantilla_nombre"
-                                    class="text-xs px-2 py-0.5 rounded-full bg-purple-100 text-purple-700">
+                                    class="text-xs px-2 py-0.5 rounded-full bg-pastel-violeta-2 text-aviso-violeta">
                                     {{ t.plantilla_nombre }}
                                 </span>
                                 <span v-if="!t.activo"
@@ -56,8 +56,8 @@ function eliminar(t) {
                         <div class="shrink-0">
                             <span class="text-xs font-semibold px-2.5 py-1 rounded-full"
                                 :class="Math.abs(t.suma_pesos - 100) < 0.1
-                                    ? 'bg-green-100 text-green-700'
-                                    : 'bg-red-100 text-red-700'">
+                                    ? 'bg-pastel-verde-2 text-aviso-verde'
+                                    : 'bg-pastel-rojo-2 text-aviso-rojo'">
                                 {{ formatPct(t.suma_pesos) }}%
                             </span>
                         </div>
@@ -69,7 +69,7 @@ function eliminar(t) {
                                 Editar
                             </a>
                             <button @click="eliminar(t)"
-                                class="px-3 py-1.5 rounded-xl border border-red-100 text-xs font-medium text-red-500 hover:bg-red-50">
+                                class="px-3 py-1.5 rounded-xl border border-borde-aviso-rojo text-xs font-medium text-aviso-rojo hover:bg-pastel-rojo">
                                 Eliminar
                             </button>
                         </div>

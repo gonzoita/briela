@@ -88,11 +88,11 @@ function saveConfig() {
                                 <p class="text-xs text-tinta-300">{{ t.hora_inicio }} — {{ t.hora_fin }}</p>
                             </div>
                             <span class="text-xs px-2 py-0.5 rounded-full"
-                                :class="t.activo ? 'bg-green-100 text-green-700' : 'bg-tinta-100 text-tinta-400'">
+                                :class="t.activo ? 'bg-pastel-verde-2 text-aviso-verde' : 'bg-tinta-100 text-tinta-400'">
                                 {{ t.activo ? 'Activo' : 'Inactivo' }}
                             </span>
                             <button @click="editarTurno(t)"
-                                class="text-xs text-blue-600 hover:underline shrink-0">
+                                class="text-xs text-aviso-azul hover:underline shrink-0">
                                 Editar
                             </button>
                         </div>
@@ -158,7 +158,7 @@ function saveConfig() {
                                 ${{ Number(tarifa.valor_hora).toLocaleString('es-CO') }}/h
                             </span>
                             <span class="text-xs px-2 py-0.5 rounded-full"
-                                :class="tarifa.activo ? 'bg-green-100 text-green-700' : 'bg-tinta-100 text-tinta-400'">
+                                :class="tarifa.activo ? 'bg-pastel-verde-2 text-aviso-verde' : 'bg-tinta-100 text-tinta-400'">
                                 {{ tarifa.activo ? 'Activa' : 'Inactiva' }}
                             </span>
                         </div>

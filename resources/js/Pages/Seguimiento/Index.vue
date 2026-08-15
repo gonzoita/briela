@@ -72,7 +72,7 @@ const cerrarQR = async () => {
             <!-- Flash error -->
             <div
                 v-if="flash?.error"
-                class="mb-4 px-4 py-3 rounded-xl text-sm text-red-800"
+                class="mb-4 px-4 py-3 rounded-xl text-sm text-aviso-rojo"
                 style="background: var(--pastel-rojo); border-left: 4px solid #EF4444;"
             >
                 {{ flash.error }}

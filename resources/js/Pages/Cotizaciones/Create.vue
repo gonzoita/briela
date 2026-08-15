@@ -755,14 +755,14 @@ function submit() {
 
             <!-- Badge cambios sin guardar -->
             <div v-if="hasChanges"
-                class="mb-3 inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold text-orange-700"
+                class="mb-3 inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold text-aviso-naranja"
                 style="background:var(--pastel-ambar); border:1px solid #F59E0B;">
                 ● Cambios sin guardar
             </div>
 
             <!-- Badge generada desde lead -->
             <div v-if="props.lead_preseleccionado && !esEdicion"
-                class="mb-3 inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold text-blue-700"
+                class="mb-3 inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold text-aviso-azul"
                 style="background:var(--pastel-azul-2); border:1px solid #93C5FD;">
                 Generada automáticamente desde el lead: {{ props.lead_preseleccionado.titulo }}
             </div>
@@ -835,7 +835,7 @@ function submit() {
                                         : 'El canal que le corresponde por su segmentación'">
                                     {{ canalCliente.etiqueta }}{{ canalEsRespaldo ? ' · por omisión' : '' }}
                                 </span>
-                                <button type="button" @click="limpiarCliente" class="text-blue-300 hover:text-blue-500">
+                                <button type="button" @click="limpiarCliente" class="text-blue-300 hover:text-aviso-azul">
                                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
                                     </svg>
@@ -845,13 +845,13 @@ function submit() {
                             <!-- Cliente sin canal: no hay precios, y se dice por qué y qué
                                  hacer. Antes se le cotizaba como cliente final en silencio. -->
                             <div v-if="clienteSeleccionado && motivoSinCanal"
-                                class="mt-2 flex items-start gap-2.5 px-3 py-2.5 rounded-xl bg-amber-50 border border-amber-200">
-                                <svg class="w-4 h-4 shrink-0 mt-0.5 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                                class="mt-2 flex items-start gap-2.5 px-3 py-2.5 rounded-xl bg-pastel-ambar border border-borde-aviso-ambar">
+                                <svg class="w-4 h-4 shrink-0 mt-0.5 text-aviso-ambar" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4m0 4h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/>
                                 </svg>
-                                <p class="text-xs text-amber-800 leading-relaxed flex-1">{{ motivoSinCanal }}</p>
+                                <p class="text-xs text-aviso-ambar leading-relaxed flex-1">{{ motivoSinCanal }}</p>
                                 <button type="button" @click="router.visit('/clientes/' + clienteSeleccionado.id + '/editar')"
-                                    class="text-xs font-semibold text-amber-900 underline underline-offset-2 shrink-0">
+                                    class="text-xs font-semibold text-aviso-ambar underline underline-offset-2 shrink-0">
                                     Ver ficha
                                 </button>
                             </div>
@@ -921,7 +921,7 @@ function submit() {
                     <div v-if="form.items.length > 0" class="space-y-3 mb-4">
                         <div v-for="(item, idx) in form.items" :key="idx"
                             class="rounded-xl border transition-colors"
-                            :class="dragOverIdx === idx && draggingIdx !== idx ? 'border-blue-400 bg-blue-50' : 'border-linea'"
+                            :class="dragOverIdx === idx && draggingIdx !== idx ? 'border-blue-400 bg-pastel-azul' : 'border-linea'"
                             :draggable="true"
                             @dragstart="onDragStart(idx)"
                             @dragover="onDragOver($event, idx)"
@@ -956,7 +956,7 @@ function submit() {
 
                                 <!-- Eliminar -->
                                 <button type="button" @click="eliminarItem(idx)"
-                                    class="w-7 h-7 rounded-lg flex items-center justify-center text-tinta-300 hover:text-red-600 hover:bg-red-50 transition-colors shrink-0">
+                                    class="w-7 h-7 rounded-lg flex items-center justify-center text-tinta-300 hover:text-aviso-rojo hover:bg-pastel-rojo transition-colors shrink-0">
                                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                                     </svg>
@@ -994,7 +994,7 @@ function submit() {
                                         <input v-model.number="item.cantidad" type="number" step="0.001" min="0"
                                             :class="['w-full rounded-lg border px-2 py-1.5 text-sm text-right focus:outline-none',
                                                 (item.inventariable || Number(item.stock_disponible) !== 0) && item.stock_disponible !== null && Number(item.cantidad) > Number(item.stock_disponible)
-                                                    ? 'border-red-300 bg-red-50' : 'border-tinta-200']"/>
+                                                    ? 'border-borde-aviso-rojo bg-pastel-rojo' : 'border-tinta-200']"/>
                                     </div>
                                     <div>
                                         <label class="block text-xs text-tinta-400 mb-1">Precio unit.</label>
@@ -1035,8 +1035,8 @@ function submit() {
 
                                 <!-- Badge canal mayorista -->
                                 <div v-if="canalSinDescuento"
-                                    class="mt-2 p-2 bg-blue-50 border border-blue-100 rounded-lg">
-                                    <p class="text-xs text-blue-600 text-center">
+                                    class="mt-2 p-2 bg-pastel-azul border border-borde-aviso-azul rounded-lg">
+                                    <p class="text-xs text-aviso-azul text-center">
                                         Canal mayorista — precio fijo sin descuento ni comisión
                                     </p>
                                 </div>
@@ -1048,7 +1048,7 @@ function submit() {
                                     <span class="text-xs font-medium shrink-0" style="color:var(--texto-ambar);">Com.</span>
                                     <button type="button" @click="ajustarComision(item, idx, -0.5)"
                                         :disabled="(item.comision_pct_actual || getCanalComisionMax(item)) <= getCanalComisionMin(item)"
-                                        class="w-6 h-6 rounded-full flex items-center justify-center font-semibold text-sm disabled:opacity-40 shrink-0 hover:bg-amber-100 transition-colors"
+                                        class="w-6 h-6 rounded-full flex items-center justify-center font-semibold text-sm disabled:opacity-40 shrink-0 hover:bg-pastel-ambar-2 transition-colors"
                                         style="border:1px solid #FCD34D;color:var(--texto-ambar);">−</button>
                                     <input type="range"
                                         :min="getCanalComisionMin(item)"
@@ -1059,7 +1059,7 @@ function submit() {
                                         class="flex-1 h-1.5 accent-amber-500 cursor-pointer" />
                                     <button type="button" @click="ajustarComision(item, idx, 0.5)"
                                         :disabled="(item.comision_pct_actual || getCanalComisionMax(item)) >= getCanalComisionMax(item)"
-                                        class="w-6 h-6 rounded-full flex items-center justify-center font-semibold text-sm disabled:opacity-40 shrink-0 hover:bg-amber-100 transition-colors"
+                                        class="w-6 h-6 rounded-full flex items-center justify-center font-semibold text-sm disabled:opacity-40 shrink-0 hover:bg-pastel-ambar-2 transition-colors"
                                         style="border:1px solid #FCD34D;color:var(--texto-ambar);">+</button>
                                     <span class="text-xs font-semibold shrink-0 text-right" style="color:var(--texto-ambar);min-width:5.5rem;">
                                         {{ formatPct(item.comision_pct_actual || getCanalComisionMax(item)) }}% · ${{ formatCOP(comisionActualValor(item)) }}
@@ -1075,7 +1075,7 @@ function submit() {
 
                     <!-- Botón agregar -->
                     <button type="button" @click="abrirModal"
-                        class="w-full py-2.5 rounded-xl border-2 border-dashed border-tinta-200 text-sm font-medium text-tinta-400 hover:border-blue-400 hover:text-blue-600 hover:bg-realce transition-colors flex items-center justify-center gap-2">
+                        class="w-full py-2.5 rounded-xl border-2 border-dashed border-tinta-200 text-sm font-medium text-tinta-400 hover:border-blue-400 hover:text-aviso-azul hover:bg-realce transition-colors flex items-center justify-center gap-2">
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
                         </svg>
@@ -1092,7 +1092,7 @@ function submit() {
                                 </div>
                                 <div v-if="totalDescuento > 0" class="flex justify-between text-sm text-tinta-500">
                                     <span>Descuento</span>
-                                    <span class="text-red-500">-${{ formatCOP(totalDescuento) }}</span>
+                                    <span class="text-aviso-rojo">-${{ formatCOP(totalDescuento) }}</span>
                                 </div>
                                 <div v-if="totalImpuesto > 0" class="flex justify-between text-sm text-tinta-500">
                                     <span>IVA</span>
@@ -1131,8 +1131,8 @@ function submit() {
                 </div>
 
                 <!-- Errores -->
-                <div v-if="Object.keys(form.errors).length > 0" class="bg-red-50 border border-red-200 rounded-xl p-4">
-                    <p v-for="(msg, field) in form.errors" :key="field" class="text-sm text-red-600">⚠ {{ msg }}</p>
+                <div v-if="Object.keys(form.errors).length > 0" class="bg-pastel-rojo border border-borde-aviso-rojo rounded-xl p-4">
+                    <p v-for="(msg, field) in form.errors" :key="field" class="text-sm text-aviso-rojo">⚠ {{ msg }}</p>
                 </div>
 
                 <!-- Acciones -->
@@ -1188,7 +1188,7 @@ function submit() {
                         <!-- Opción A: Producto -->
                         <button type="button" @click="modalPanel = 'producto'"
                             class="w-full flex items-center gap-4 p-4 rounded-2xl border-2 border-linea hover:border-blue-400 hover:bg-realce transition-colors text-left group">
-                            <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 group-hover:bg-blue-100 transition-colors" style="background:var(--pastel-azul);">
+                            <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 group-hover:bg-pastel-azul-2 transition-colors" style="background:var(--pastel-azul);">
                                 <svg class="w-5 h-5" style="color:var(--marca);" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7l8 4"/>
                                 </svg>
@@ -1204,7 +1204,7 @@ function submit() {
 
                         <!-- Opción B: Ensamble -->
                         <button type="button" @click="modalPanel = 'ensamble'"
-                            class="w-full flex items-center gap-4 p-4 rounded-2xl border-2 border-linea hover:border-orange-400 hover:bg-orange-50 transition-colors text-left group">
+                            class="w-full flex items-center gap-4 p-4 rounded-2xl border-2 border-linea hover:border-orange-400 hover:bg-pastel-naranja transition-colors text-left group">
                             <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-colors" style="background:var(--pastel-naranja);">
                                 <svg class="w-5 h-5" style="color:#C2410C;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
@@ -1327,8 +1327,8 @@ function submit() {
                                         </button>
                                     </div>
 
-                                    <div v-else class="p-3 rounded-xl bg-amber-50 border border-amber-200">
-                                        <p class="text-xs text-amber-800 leading-relaxed">{{ motivoSinCanal }}</p>
+                                    <div v-else class="p-3 rounded-xl bg-pastel-ambar border border-borde-aviso-ambar">
+                                        <p class="text-xs text-aviso-ambar leading-relaxed">{{ motivoSinCanal }}</p>
                                     </div>
                                 </div>
                             </div>
@@ -1377,9 +1377,9 @@ function submit() {
                             <!-- ── Imágenes de referencia del plantilla ─────── -->
                             <div v-if="imagenesReferencia.length" class="space-y-2">
                                 <p class="text-xs font-semibold text-tinta-400 uppercase">Planos de referencia</p>
-                                <div v-for="img in imagenesReferencia" :key="img.id" class="rounded-xl overflow-hidden border border-blue-100 bg-blue-50">
+                                <div v-for="img in imagenesReferencia" :key="img.id" class="rounded-xl overflow-hidden border border-borde-aviso-azul bg-pastel-azul">
                                     <img :src="'/storage/' + img.imagen_referencia" class="w-full max-h-40 object-contain bg-superficie" />
-                                    <p class="text-xs text-blue-700 px-3 py-1.5 font-medium">
+                                    <p class="text-xs text-aviso-azul px-3 py-1.5 font-medium">
                                         {{ img.imagen_referencia_titulo || img.etiqueta || img.nombre }}
                                     </p>
                                 </div>
@@ -1393,10 +1393,10 @@ function submit() {
                                     <div class="flex items-center justify-between px-3 py-1.5 bg-superficie border-t border-linea">
                                         <input v-model="img.titulo" type="text" placeholder="Título del plano..."
                                             class="flex-1 text-xs text-tinta-700 focus:outline-none bg-transparent" />
-                                        <button @click="quitarImagenInstancia(idx)" class="text-red-400 hover:text-red-600 text-sm ml-2">✕</button>
+                                        <button @click="quitarImagenInstancia(idx)" class="text-red-400 hover:text-aviso-rojo text-sm ml-2">✕</button>
                                     </div>
                                 </div>
-                                <label class="flex items-center gap-2 justify-center border-2 border-dashed border-linea rounded-xl py-3 cursor-pointer hover:border-blue-300 hover:bg-realce transition-colors">
+                                <label class="flex items-center gap-2 justify-center border-2 border-dashed border-linea rounded-xl py-3 cursor-pointer hover:border-borde-aviso-azul hover:bg-realce transition-colors">
                                     <svg class="w-4 h-4 text-tinta-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
                                     </svg>
@@ -1438,8 +1438,8 @@ function submit() {
                                     </button>
                                 </div>
 
-                                <div v-else class="p-3 rounded-xl bg-amber-50 border border-amber-200">
-                                    <p class="text-xs text-amber-800 leading-relaxed">{{ motivoSinCanal }}</p>
+                                <div v-else class="p-3 rounded-xl bg-pastel-ambar border border-borde-aviso-ambar">
+                                    <p class="text-xs text-aviso-ambar leading-relaxed">{{ motivoSinCanal }}</p>
                                 </div>
                             </div>
                         </div>

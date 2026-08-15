@@ -36,10 +36,10 @@ const formatMes = (mes) => {
 }
 
 const estadoBadge = {
-    proyectada: { clases: 'bg-amber-100 text-amber-700',   label: 'Proyectada' },
-    confirmada: { clases: 'bg-blue-100 text-blue-700',     label: 'Confirmada' },
-    ejecutada:  { clases: 'bg-purple-100 text-purple-700', label: 'Ejecutada'  },
-    liquidada:  { clases: 'bg-green-100 text-green-700',   label: 'Liquidada'  },
+    proyectada: { clases: 'bg-pastel-ambar-2 text-aviso-ambar',   label: 'Proyectada' },
+    confirmada: { clases: 'bg-pastel-azul-2 text-aviso-azul',     label: 'Confirmada' },
+    ejecutada:  { clases: 'bg-pastel-violeta-2 text-aviso-violeta', label: 'Ejecutada'  },
+    liquidada:  { clases: 'bg-pastel-verde-2 text-aviso-verde',   label: 'Liquidada'  },
 }
 
 async function liquidar(id) {

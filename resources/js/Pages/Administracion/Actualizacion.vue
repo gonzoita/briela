@@ -224,28 +224,28 @@ async function cancelarProceso() {
             </div>
 
             <!-- ── Requisitos que no se cumplen ───────────────────────────── -->
-            <div v-if="!puede" class="rounded-xl border border-red-200 bg-red-50 p-4">
-                <p class="text-sm font-semibold text-red-700">El servidor no está listo para actualizar</p>
+            <div v-if="!puede" class="rounded-xl border border-borde-aviso-rojo bg-pastel-rojo p-4">
+                <p class="text-sm font-semibold text-aviso-rojo">El servidor no está listo para actualizar</p>
                 <ul class="mt-2 space-y-1">
-                    <li v-for="p in comprobacion.problemas" :key="p" class="text-sm text-red-700">· {{ p }}</li>
+                    <li v-for="p in comprobacion.problemas" :key="p" class="text-sm text-aviso-rojo">· {{ p }}</li>
                 </ul>
             </div>
 
-            <div v-else-if="comprobacion.avisos?.length" class="rounded-xl border border-amber-200 bg-amber-50 p-4">
+            <div v-else-if="comprobacion.avisos?.length" class="rounded-xl border border-borde-aviso-ambar bg-pastel-ambar p-4">
                 <ul class="space-y-1">
-                    <li v-for="a in comprobacion.avisos" :key="a" class="text-sm text-amber-800">· {{ a }}</li>
+                    <li v-for="a in comprobacion.avisos" :key="a" class="text-sm text-aviso-ambar">· {{ a }}</li>
                 </ul>
             </div>
 
             <!-- ── Un proceso a medias de antes ───────────────────────────── -->
-            <div v-if="en_curso && !trabajando" class="rounded-xl border border-amber-200 bg-amber-50 p-4">
-                <p class="text-sm font-semibold text-amber-800">Hay una actualización a medio aplicar</p>
-                <p class="text-sm text-amber-800 mt-1">
+            <div v-if="en_curso && !trabajando" class="rounded-xl border border-borde-aviso-ambar bg-pastel-ambar p-4">
+                <p class="text-sm font-semibold text-aviso-ambar">Hay una actualización a medio aplicar</p>
+                <p class="text-sm text-aviso-ambar mt-1">
                     Se quedó en «{{ progreso.fase }}» de la versión {{ progreso.version }}. Puedes
                     volver a intentarlo o descartarla para empezar de nuevo.
                 </p>
                 <button type="button" @click="cancelarProceso"
-                    class="mt-2 text-sm font-semibold text-amber-900 underline underline-offset-2">
+                    class="mt-2 text-sm font-semibold text-aviso-ambar underline underline-offset-2">
                     Descartar y empezar de nuevo
                 </button>
             </div>
@@ -261,7 +261,7 @@ async function cancelarProceso() {
                         <p class="text-2xl font-semibold text-tinta-900 mt-1">{{ nueva.version }}</p>
                     </div>
                     <span v-if="nueva.obligatoria"
-                        class="shrink-0 text-xs font-semibold px-2 py-1 rounded bg-red-50 text-red-700">
+                        class="shrink-0 text-xs font-semibold px-2 py-1 rounded bg-pastel-rojo text-aviso-rojo">
                         Obligatoria
                     </span>
                 </div>
@@ -304,16 +304,16 @@ async function cancelarProceso() {
 
                 <p v-if="detalle" class="text-xs text-tinta-400">{{ detalle }}</p>
 
-                <p v-if="terminado" class="text-sm text-emerald-700 font-medium">
+                <p v-if="terminado" class="text-sm text-aviso-verde font-medium">
                     Actualización terminada. Recarga la página para ver la versión nueva.
                 </p>
             </div>
 
             <!-- ── Error ──────────────────────────────────────────────────── -->
-            <div v-if="error" class="rounded-xl border border-red-200 bg-red-50 p-4">
-                <p class="text-sm font-semibold text-red-700">La actualización se detuvo</p>
-                <p class="text-sm text-red-700 mt-1">{{ error }}</p>
-                <p class="text-xs text-red-600 mt-2">
+            <div v-if="error" class="rounded-xl border border-borde-aviso-rojo bg-pastel-rojo p-4">
+                <p class="text-sm font-semibold text-aviso-rojo">La actualización se detuvo</p>
+                <p class="text-sm text-aviso-rojo mt-1">{{ error }}</p>
+                <p class="text-xs text-aviso-rojo mt-2">
                     La base de datos quedó respaldada antes de empezar. Si el sistema no
                     funciona bien, escríbenos con este mensaje.
                 </p>

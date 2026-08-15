@@ -500,16 +500,16 @@ const configPuntos = computed(() =>
                                 <img :src="configForm['empresa_logo_url']"
                                     class="h-12 object-contain border rounded p-1 bg-superficie"
                                     @error="e => e.target.style.display='none'" />
-                                <span class="text-xs text-green-600">✓ Logo cargado</span>
+                                <span class="text-xs text-aviso-verde">✓ Logo cargado</span>
                             </div>
                         </div>
-                        <div v-if="grupo === 'seguridad'" class="mt-4 rounded-xl border border-blue-100 overflow-hidden">
-                            <div class="bg-blue-50 px-4 py-3 border-b border-blue-100">
+                        <div v-if="grupo === 'seguridad'" class="mt-4 rounded-xl border border-borde-aviso-azul overflow-hidden">
+                            <div class="bg-pastel-azul px-4 py-3 border-b border-borde-aviso-azul">
                                 <div class="flex items-center gap-2 mb-1">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-aviso-azul" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
                                     </svg>
-                                    <span class="text-sm font-semibold text-blue-800">Cómo configurar Google reCAPTCHA v3</span>
+                                    <span class="text-sm font-semibold text-aviso-azul">Cómo configurar Google reCAPTCHA v3</span>
                                 </div>
                             </div>
                             <div class="bg-superficie px-4 py-3 space-y-2">
@@ -729,7 +729,7 @@ const configPuntos = computed(() =>
                         </button>
                     </div>
                     <div v-if="smtpResultado" class="mt-3 rounded-xl px-4 py-3 text-sm"
-                        :class="smtpResultado.ok ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-red-50 text-red-700 border border-red-200'"
+                        :class="smtpResultado.ok ? 'bg-pastel-verde text-aviso-verde border border-borde-aviso-verde' : 'bg-pastel-rojo text-aviso-rojo border border-borde-aviso-rojo'"
                     >
                         {{ smtpResultado.ok ? '✓' : '✗' }} {{ smtpResultado.mensaje }}
                     </div>
@@ -750,7 +750,7 @@ const configPuntos = computed(() =>
                             v-for="(t, idx) in tipos"
                             :key="t.id"
                             class="flex items-center px-4 py-3 gap-3 transition-colors cursor-default"
-                            :class="dragOverTipoIdx === idx && dragTipoIdx !== idx ? 'bg-blue-50' : ''"
+                            :class="dragOverTipoIdx === idx && dragTipoIdx !== idx ? 'bg-pastel-azul' : ''"
                             :draggable="true"
                             @dragstart="onDragStartTipo(idx)"
                             @dragover="onDragOverTipo($event, idx)"
@@ -768,12 +768,12 @@ const configPuntos = computed(() =>
                             <!-- Badge activo -->
                             <span
                                 class="text-xs px-2 py-0.5 rounded-full shrink-0"
-                                :class="t.activo ? 'bg-green-100 text-green-700' : 'bg-tinta-100 text-tinta-400'"
+                                :class="t.activo ? 'bg-pastel-verde-2 text-aviso-verde' : 'bg-tinta-100 text-tinta-400'"
                             >
                                 {{ t.activo ? 'Activo' : 'Inactivo' }}
                             </span>
-                            <button @click="editarTipo(t)" class="text-xs text-blue-600 hover:underline shrink-0">Editar</button>
-                            <button @click="destroyTipo(t.id)" class="text-xs text-red-500 hover:underline shrink-0">Eliminar</button>
+                            <button @click="editarTipo(t)" class="text-xs text-aviso-azul hover:underline shrink-0">Editar</button>
+                            <button @click="destroyTipo(t.id)" class="text-xs text-aviso-rojo hover:underline shrink-0">Eliminar</button>
                         </div>
                     </div>
                 </div>
@@ -842,7 +842,7 @@ const configPuntos = computed(() =>
                             v-for="(e, idx) in estaciones"
                             :key="e.id"
                             class="px-4 py-3 transition-colors cursor-default"
-                            :class="dragOverEstacionIdx === idx && dragEstacionIdx !== idx ? 'bg-blue-50' : ''"
+                            :class="dragOverEstacionIdx === idx && dragEstacionIdx !== idx ? 'bg-pastel-azul' : ''"
                             :draggable="true"
                             @dragstart="onDragStartEstacion(idx)"
                             @dragover="onDragOverEstacion($event, idx)"
@@ -862,12 +862,12 @@ const configPuntos = computed(() =>
                                 <span class="text-xs text-tinta-400 shrink-0">Cap: {{ e.capacidad_simultanea }}</span>
                                 <span
                                     class="text-xs px-2 py-0.5 rounded-full shrink-0"
-                                    :class="e.activa ? 'bg-green-100 text-green-700' : 'bg-tinta-100 text-tinta-400'"
+                                    :class="e.activa ? 'bg-pastel-verde-2 text-aviso-verde' : 'bg-tinta-100 text-tinta-400'"
                                 >
                                     {{ e.activa ? 'Activa' : 'Inactiva' }}
                                 </span>
-                                <button @click="editarEstacion(e)" class="text-xs text-blue-600 hover:underline shrink-0">Editar</button>
-                                <button @click="destroyEstacion(e.id)" class="text-xs text-red-500 hover:underline shrink-0">Eliminar</button>
+                                <button @click="editarEstacion(e)" class="text-xs text-aviso-azul hover:underline shrink-0">Editar</button>
+                                <button @click="destroyEstacion(e.id)" class="text-xs text-aviso-rojo hover:underline shrink-0">Eliminar</button>
                             </div>
 
                             <!-- Equipos asignados -->
@@ -878,10 +878,10 @@ const configPuntos = computed(() =>
                                         :key="eq.id"
                                         class="text-xs px-2 py-0.5 rounded-full"
                                         :class="eq.estado === 'en_mantenimiento'
-                                            ? 'bg-red-100 text-red-700'
+                                            ? 'bg-pastel-rojo-2 text-aviso-rojo'
                                             : eq.estado === 'fuera_servicio'
                                             ? 'bg-tinta-100 text-tinta-400'
-                                            : 'bg-green-100 text-green-700'"
+                                            : 'bg-pastel-verde-2 text-aviso-verde'"
                                     >
                                         {{ eq.nombre }}<span v-if="eq.estado === 'en_mantenimiento'"> ⚠</span>
                                     </span>
@@ -1051,7 +1051,7 @@ const configPuntos = computed(() =>
                                     Editar
                                 </button>
                                 <button @click="destroyNivel(n.id)"
-                                    class="px-3 py-1 rounded-xl border border-red-200 text-xs text-red-500 hover:bg-red-50">
+                                    class="px-3 py-1 rounded-xl border border-borde-aviso-rojo text-xs text-aviso-rojo hover:bg-pastel-rojo">
                                     Eliminar
                                 </button>
                             </div>
@@ -1117,7 +1117,7 @@ const configPuntos = computed(() =>
                             v-for="(etapa, idx) in crmEtapas"
                             :key="etapa.id"
                             class="flex items-center px-4 py-3 gap-3 transition-colors cursor-default"
-                            :class="crmDragOverIdx === idx && crmDragIdx !== idx ? 'bg-blue-50' : ''"
+                            :class="crmDragOverIdx === idx && crmDragIdx !== idx ? 'bg-pastel-azul' : ''"
                             draggable="true"
                             @dragstart="crmOnDragStart(idx)"
                             @dragover="crmOnDragOver($event, idx)"
@@ -1132,14 +1132,14 @@ const configPuntos = computed(() =>
                                 <p class="text-sm font-medium text-tinta-900 truncate">{{ etapa.nombre }}</p>
                                 <p class="text-xs text-tinta-300">{{ crmAccionLabel[etapa.accion_automatica] }}</p>
                             </div>
-                            <span v-if="etapa.es_ganado" class="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full shrink-0">Ganado</span>
-                            <span v-if="etapa.es_perdido" class="text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded-full shrink-0">Perdido</span>
+                            <span v-if="etapa.es_ganado" class="text-xs bg-pastel-verde-2 text-aviso-verde px-2 py-0.5 rounded-full shrink-0">Ganado</span>
+                            <span v-if="etapa.es_perdido" class="text-xs bg-pastel-rojo-2 text-aviso-rojo px-2 py-0.5 rounded-full shrink-0">Perdido</span>
                             <span class="text-xs px-2 py-0.5 rounded-full shrink-0"
-                                :class="etapa.activa ? 'bg-green-100 text-green-700' : 'bg-tinta-100 text-tinta-400'">
+                                :class="etapa.activa ? 'bg-pastel-verde-2 text-aviso-verde' : 'bg-tinta-100 text-tinta-400'">
                                 {{ etapa.activa ? 'Activa' : 'Inactiva' }}
                             </span>
-                            <button @click="crmEditarEtapa(etapa)" class="text-xs text-blue-600 hover:underline shrink-0">Editar</button>
-                            <button @click="crmDestroyEtapa(etapa.id)" class="text-xs text-red-500 hover:underline shrink-0">Eliminar</button>
+                            <button @click="crmEditarEtapa(etapa)" class="text-xs text-aviso-azul hover:underline shrink-0">Editar</button>
+                            <button @click="crmDestroyEtapa(etapa.id)" class="text-xs text-aviso-rojo hover:underline shrink-0">Eliminar</button>
                         </div>
                     </div>
                 </div>
@@ -1211,9 +1211,9 @@ const configPuntos = computed(() =>
                     <p class="text-xs font-semibold text-tinta-300 uppercase tracking-[0.12em] mb-3">Organización</p>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
                         <a href="/configuracion/sedes" @click.prevent="router.visit('/configuracion/sedes')"
-                            class="flex items-center gap-3 bg-superficie rounded-xl border border-linea p-4 hover:border-blue-300 hover:shadow-sm transition-all">
-                            <div class="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center shrink-0">
-                                <svg class="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
+                            class="flex items-center gap-3 bg-superficie rounded-xl border border-linea p-4 hover:border-borde-aviso-azul hover:shadow-sm transition-all">
+                            <div class="w-10 h-10 rounded-xl bg-pastel-azul flex items-center justify-center shrink-0">
+                                <svg class="w-5 h-5 text-aviso-azul" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                                 </svg>
                             </div>
@@ -1226,9 +1226,9 @@ const configPuntos = computed(() =>
                             </svg>
                         </a>
                         <a href="/configuracion/perfil-marca" @click.prevent="router.visit('/configuracion/perfil-marca')"
-                            class="flex items-center gap-3 bg-superficie rounded-xl border border-linea p-4 hover:border-blue-300 hover:shadow-sm transition-all">
-                            <div class="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center shrink-0">
-                                <svg class="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
+                            class="flex items-center gap-3 bg-superficie rounded-xl border border-linea p-4 hover:border-borde-aviso-azul hover:shadow-sm transition-all">
+                            <div class="w-10 h-10 rounded-xl bg-pastel-azul flex items-center justify-center shrink-0">
+                                <svg class="w-5 h-5 text-aviso-azul" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
                                 </svg>
                             </div>
@@ -1241,9 +1241,9 @@ const configPuntos = computed(() =>
                             </svg>
                         </a>
                         <a href="/configuracion/integraciones/wordpress" @click.prevent="router.visit('/configuracion/integraciones/wordpress')"
-                            class="flex items-center gap-3 bg-superficie rounded-xl border border-linea p-4 hover:border-blue-300 hover:shadow-sm transition-all">
-                            <div class="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center shrink-0">
-                                <svg class="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
+                            class="flex items-center gap-3 bg-superficie rounded-xl border border-linea p-4 hover:border-borde-aviso-azul hover:shadow-sm transition-all">
+                            <div class="w-10 h-10 rounded-xl bg-pastel-azul flex items-center justify-center shrink-0">
+                                <svg class="w-5 h-5 text-aviso-azul" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 010 5.656l-4 4a4 4 0 01-5.656-5.656l1.5-1.5M10.172 13.828a4 4 0 010-5.656l4-4a4 4 0 015.656 5.656l-1.5 1.5" />
                                 </svg>
                             </div>
@@ -1256,9 +1256,9 @@ const configPuntos = computed(() =>
                             </svg>
                         </a>
                         <a href="/configuracion/roles" @click.prevent="router.visit('/configuracion/roles')"
-                            class="flex items-center gap-3 bg-superficie rounded-xl border border-linea p-4 hover:border-blue-300 hover:shadow-sm transition-all">
-                            <div class="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center shrink-0">
-                                <svg class="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
+                            class="flex items-center gap-3 bg-superficie rounded-xl border border-linea p-4 hover:border-borde-aviso-azul hover:shadow-sm transition-all">
+                            <div class="w-10 h-10 rounded-xl bg-pastel-azul flex items-center justify-center shrink-0">
+                                <svg class="w-5 h-5 text-aviso-azul" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                                 </svg>
                             </div>
@@ -1271,9 +1271,9 @@ const configPuntos = computed(() =>
                             </svg>
                         </a>
                         <a href="/configuracion/numeracion" @click.prevent="router.visit('/configuracion/numeracion')"
-                            class="flex items-center gap-3 bg-superficie rounded-xl border border-linea p-4 hover:border-blue-300 hover:shadow-sm transition-all">
-                            <div class="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center shrink-0">
-                                <svg class="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
+                            class="flex items-center gap-3 bg-superficie rounded-xl border border-linea p-4 hover:border-borde-aviso-azul hover:shadow-sm transition-all">
+                            <div class="w-10 h-10 rounded-xl bg-pastel-azul flex items-center justify-center shrink-0">
+                                <svg class="w-5 h-5 text-aviso-azul" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" />
                                 </svg>
                             </div>
@@ -1286,9 +1286,9 @@ const configPuntos = computed(() =>
                             </svg>
                         </a>
                         <a href="/configuracion/marca" @click.prevent="router.visit('/configuracion/marca')"
-                            class="flex items-center gap-3 bg-superficie rounded-xl border border-linea p-4 hover:border-blue-300 hover:shadow-sm transition-all">
-                            <div class="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center shrink-0">
-                                <svg class="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
+                            class="flex items-center gap-3 bg-superficie rounded-xl border border-linea p-4 hover:border-borde-aviso-azul hover:shadow-sm transition-all">
+                            <div class="w-10 h-10 rounded-xl bg-pastel-azul flex items-center justify-center shrink-0">
+                                <svg class="w-5 h-5 text-aviso-azul" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828L11 19.5M7 17h.01" />
                                 </svg>
                             </div>
@@ -1301,9 +1301,9 @@ const configPuntos = computed(() =>
                             </svg>
                         </a>
                         <a href="/configuracion/identificacion" @click.prevent="router.visit('/configuracion/identificacion')"
-                            class="flex items-center gap-3 bg-superficie rounded-xl border border-linea p-4 hover:border-blue-300 hover:shadow-sm transition-all">
-                            <div class="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center shrink-0">
-                                <svg class="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
+                            class="flex items-center gap-3 bg-superficie rounded-xl border border-linea p-4 hover:border-borde-aviso-azul hover:shadow-sm transition-all">
+                            <div class="w-10 h-10 rounded-xl bg-pastel-azul flex items-center justify-center shrink-0">
+                                <svg class="w-5 h-5 text-aviso-azul" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0h4m-7 6h3m-3 3h6" />
                                 </svg>
                             </div>
@@ -1323,9 +1323,9 @@ const configPuntos = computed(() =>
                     <p class="text-xs font-semibold text-tinta-300 uppercase tracking-[0.12em] mb-3">Inventario y Cotización</p>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <a href="/configuracion/bodegas" @click.prevent="router.visit('/configuracion/bodegas')"
-                            class="flex items-center gap-3 bg-superficie rounded-xl border border-linea p-4 hover:border-blue-300 hover:shadow-sm transition-all">
-                            <div class="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center shrink-0">
-                                <svg class="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
+                            class="flex items-center gap-3 bg-superficie rounded-xl border border-linea p-4 hover:border-borde-aviso-azul hover:shadow-sm transition-all">
+                            <div class="w-10 h-10 rounded-xl bg-pastel-azul flex items-center justify-center shrink-0">
+                                <svg class="w-5 h-5 text-aviso-azul" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M3 7a1 1 0 011-1h5a1 1 0 011 1v3H3V7zm0 3h7v7a1 1 0 01-1 1H4a1 1 0 01-1-1v-7zm11-3a1 1 0 011-1h5a1 1 0 011 1v3h-7V7zm0 3h7v7a1 1 0 01-1 1h-5a1 1 0 01-1-1v-7z" />
                                 </svg>
                             </div>
@@ -1338,9 +1338,9 @@ const configPuntos = computed(() =>
                             </svg>
                         </a>
                         <a href="/cotizadores/plantillas" @click.prevent="router.visit('/cotizadores/plantillas')"
-                            class="flex items-center gap-3 bg-superficie rounded-xl border border-linea p-4 hover:border-blue-300 hover:shadow-sm transition-all">
-                            <div class="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center shrink-0">
-                                <svg class="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
+                            class="flex items-center gap-3 bg-superficie rounded-xl border border-linea p-4 hover:border-borde-aviso-azul hover:shadow-sm transition-all">
+                            <div class="w-10 h-10 rounded-xl bg-pastel-azul flex items-center justify-center shrink-0">
+                                <svg class="w-5 h-5 text-aviso-azul" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                 </svg>
                             </div>
@@ -1365,9 +1365,9 @@ const configPuntos = computed(() =>
                     <p class="text-xs font-semibold text-tinta-300 uppercase tracking-[0.12em] mb-3">RRHH</p>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <a href="/rrhh/configuracion" @click.prevent="router.visit('/rrhh/configuracion')"
-                            class="flex items-center gap-3 bg-superficie rounded-xl border border-linea p-4 hover:border-blue-300 hover:shadow-sm transition-all">
-                            <div class="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center shrink-0">
-                                <svg class="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
+                            class="flex items-center gap-3 bg-superficie rounded-xl border border-linea p-4 hover:border-borde-aviso-azul hover:shadow-sm transition-all">
+                            <div class="w-10 h-10 rounded-xl bg-pastel-azul flex items-center justify-center shrink-0">
+                                <svg class="w-5 h-5 text-aviso-azul" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
                                 </svg>
                             </div>
@@ -1387,9 +1387,9 @@ const configPuntos = computed(() =>
                     <p class="text-xs font-semibold text-tinta-300 uppercase tracking-[0.12em] mb-3">Administración</p>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <a href="/usuarios" @click.prevent="router.visit('/usuarios')"
-                            class="flex items-center gap-3 bg-superficie rounded-xl border border-linea p-4 hover:border-blue-300 hover:shadow-sm transition-all">
-                            <div class="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center shrink-0">
-                                <svg class="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
+                            class="flex items-center gap-3 bg-superficie rounded-xl border border-linea p-4 hover:border-borde-aviso-azul hover:shadow-sm transition-all">
+                            <div class="w-10 h-10 rounded-xl bg-pastel-azul flex items-center justify-center shrink-0">
+                                <svg class="w-5 h-5 text-aviso-azul" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
                                 </svg>
                             </div>
@@ -1402,9 +1402,9 @@ const configPuntos = computed(() =>
                             </svg>
                         </a>
                         <a href="/configuracion/whatsapp-numeros" @click.prevent="router.visit('/configuracion/whatsapp-numeros')"
-                            class="flex items-center gap-3 bg-superficie rounded-xl border border-linea p-4 hover:border-blue-300 hover:shadow-sm transition-all">
-                            <div class="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center shrink-0">
-                                <svg class="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
+                            class="flex items-center gap-3 bg-superficie rounded-xl border border-linea p-4 hover:border-borde-aviso-azul hover:shadow-sm transition-all">
+                            <div class="w-10 h-10 rounded-xl bg-pastel-azul flex items-center justify-center shrink-0">
+                                <svg class="w-5 h-5 text-aviso-azul" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-6l-4 4v-4z" />
                                 </svg>
                             </div>
@@ -1417,9 +1417,9 @@ const configPuntos = computed(() =>
                             </svg>
                         </a>
                         <a href="/administracion/backup" @click.prevent="router.visit('/administracion/backup')"
-                            class="flex items-center gap-3 bg-superficie rounded-xl border border-linea p-4 hover:border-blue-300 hover:shadow-sm transition-all">
-                            <div class="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center shrink-0">
-                                <svg class="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
+                            class="flex items-center gap-3 bg-superficie rounded-xl border border-linea p-4 hover:border-borde-aviso-azul hover:shadow-sm transition-all">
+                            <div class="w-10 h-10 rounded-xl bg-pastel-azul flex items-center justify-center shrink-0">
+                                <svg class="w-5 h-5 text-aviso-azul" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M4 7C4 5.343 7.582 4 12 4s8 1.343 8 3v2c0 1.657-3.582 3-8 3S4 10.657 4 9V7z" />
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M4 9v4c0 1.657 3.582 3 8 3s8-1.343 8-3V9" />
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M4 13v4c0 1.657 3.582 3 8 3s8-1.343 8-3v-4" />
@@ -1434,9 +1434,9 @@ const configPuntos = computed(() =>
                             </svg>
                         </a>
                         <a href="/administracion/actualizacion" @click.prevent="router.visit('/administracion/actualizacion')"
-                            class="flex items-center gap-3 bg-superficie rounded-xl border border-linea p-4 hover:border-blue-300 hover:shadow-sm transition-all">
-                            <div class="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center shrink-0">
-                                <svg class="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
+                            class="flex items-center gap-3 bg-superficie rounded-xl border border-linea p-4 hover:border-borde-aviso-azul hover:shadow-sm transition-all">
+                            <div class="w-10 h-10 rounded-xl bg-pastel-azul flex items-center justify-center shrink-0">
+                                <svg class="w-5 h-5 text-aviso-azul" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v12m0 0l-4-4m4 4l4-4" />
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M4 18v1a1 1 0 001 1h14a1 1 0 001-1v-1" />
                                 </svg>
@@ -1450,7 +1450,7 @@ const configPuntos = computed(() =>
                             <!-- El punto es todo el aviso que hace falta: quien no tenga
                                  nada pendiente no debería ver nada llamándole la atención. -->
                             <span v-if="$page.props.licencia?.actualizacion"
-                                class="shrink-0 text-xs font-semibold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700">
+                                class="shrink-0 text-xs font-semibold px-2 py-0.5 rounded-full bg-pastel-azul text-aviso-azul">
                                 {{ $page.props.licencia.actualizacion.version }}
                             </span>
                             <svg class="w-4 h-4 text-tinta-300 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
@@ -1498,11 +1498,11 @@ const configPuntos = computed(() =>
                             <button
                                 @click="regenerarTokenPantalla"
                                 :disabled="regenerandoPantalla"
-                                class="px-3 py-2 rounded-lg text-xs font-medium border border-amber-300 text-amber-700 hover:bg-amber-50 disabled:opacity-50"
+                                class="px-3 py-2 rounded-lg text-xs font-medium border border-borde-aviso-ambar text-aviso-ambar hover:bg-pastel-ambar disabled:opacity-50"
                             >
                                 {{ regenerandoPantalla ? 'Generando…' : 'Generar URL nueva' }}
                             </button>
-                            <p v-if="tokenPantallaNuevo" class="text-xs text-green-600 mt-2 font-medium">
+                            <p v-if="tokenPantallaNuevo" class="text-xs text-aviso-verde mt-2 font-medium">
                                 Listo. La URL de arriba ya es la nueva — cópiala y cárgala en las pantallas de la planta.
                             </p>
                         </div>
@@ -1514,9 +1514,9 @@ const configPuntos = computed(() =>
                     <p class="text-xs font-semibold text-tinta-300 uppercase tracking-[0.12em] mb-3">Clientes</p>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <a href="/administracion/segmentacion" @click.prevent="router.visit('/administracion/segmentacion')"
-                            class="flex items-center gap-3 bg-superficie rounded-xl border border-linea p-4 hover:border-blue-300 hover:shadow-sm transition-all">
-                            <div class="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center shrink-0">
-                                <svg class="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
+                            class="flex items-center gap-3 bg-superficie rounded-xl border border-linea p-4 hover:border-borde-aviso-azul hover:shadow-sm transition-all">
+                            <div class="w-10 h-10 rounded-xl bg-pastel-azul flex items-center justify-center shrink-0">
+                                <svg class="w-5 h-5 text-aviso-azul" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
                                 </svg>
                             </div>

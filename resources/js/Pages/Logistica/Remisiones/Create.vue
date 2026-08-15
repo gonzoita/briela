@@ -250,30 +250,30 @@ watch(() => form.tipo, () => {
                                     class="w-full text-left px-4 py-2.5 hover:bg-tinta-50 transition-colors border-b border-separador last:border-0">
                                     <span class="font-mono text-xs font-semibold text-tinta-900">{{ op.numero }}</span>
                                     <span class="text-xs text-tinta-400 ml-2">{{ op.cliente_nombre }}</span>
-                                    <span class="text-xs text-blue-500 ml-2">{{ op.items_count }} ítems disponibles</span>
+                                    <span class="text-xs text-aviso-azul ml-2">{{ op.items_count }} ítems disponibles</span>
                                 </button>
                             </div>
                         </div>
-                        <p v-if="errors.op_id" class="text-xs text-red-500 mt-1">{{ errors.op_id }}</p>
+                        <p v-if="errors.op_id" class="text-xs text-aviso-rojo mt-1">{{ errors.op_id }}</p>
                     </div>
 
                     <!-- Datos de la OP cargada -->
                     <div v-if="opCargada">
-                        <div class="bg-blue-50 rounded-xl p-3 mb-3">
-                            <p class="text-xs font-semibold text-blue-700">
+                        <div class="bg-pastel-azul rounded-xl p-3 mb-3">
+                            <p class="text-xs font-semibold text-aviso-azul">
                                 {{ opCargada.op?.numero ?? opCargada.numero }}
-                                <span class="font-normal text-blue-500 ml-2">{{ clienteNombre }}</span>
+                                <span class="font-normal text-aviso-azul ml-2">{{ clienteNombre }}</span>
                             </p>
                         </div>
 
                         <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-2">
                             Ítems disponibles — selecciona los que incluir
                         </p>
-                        <div class="flex items-center gap-2 bg-amber-50 border border-amber-200 rounded-xl px-3 py-2 mb-3">
-                            <svg class="w-4 h-4 text-amber-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
+                        <div class="flex items-center gap-2 bg-pastel-ambar border border-borde-aviso-ambar rounded-xl px-3 py-2 mb-3">
+                            <svg class="w-4 h-4 text-aviso-ambar shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                             </svg>
-                            <p class="text-xs text-amber-700">Solo se remisionan <strong>unidades con avance 100%</strong> que no hayan sido remisionadas antes.</p>
+                            <p class="text-xs text-aviso-ambar">Solo se remisionan <strong>unidades con avance 100%</strong> que no hayan sido remisionadas antes.</p>
                         </div>
 
                         <div v-if="!opCargada.items?.length" class="text-sm text-tinta-300 py-4 text-center">
@@ -294,7 +294,7 @@ watch(() => form.tipo, () => {
                             </label>
                             <label v-for="item in opCargada.items" :key="item.id"
                                 class="flex items-start gap-3 p-3 rounded-xl border border-linea cursor-pointer hover:bg-tinta-50 transition-colors"
-                                :class="itemsSeleccionados[item.id] ? 'border-blue-200 bg-blue-50' : ''">
+                                :class="itemsSeleccionados[item.id] ? 'border-borde-aviso-azul bg-pastel-azul' : ''">
                                 <input type="checkbox" v-model="itemsSeleccionados[item.id]"
                                     @change="initCantidad(item)"
                                     class="mt-0.5 rounded" style="accent-color:var(--marca);"/>
@@ -302,11 +302,11 @@ watch(() => form.tipo, () => {
                                     <p class="text-sm font-medium text-tinta-900">{{ item.descripcion }}</p>
                                     <div class="flex flex-wrap gap-3 mt-1 text-xs text-tinta-400">
                                         <span>Total: <strong class="text-tinta-700">{{ item.total }}</strong></span>
-                                        <span class="text-green-600">Completadas: <strong>{{ item.unidades_completadas }}</strong></span>
-                                        <span v-if="item.unidades_remisionadas > 0" class="text-amber-600">
+                                        <span class="text-aviso-verde">Completadas: <strong>{{ item.unidades_completadas }}</strong></span>
+                                        <span v-if="item.unidades_remisionadas > 0" class="text-aviso-ambar">
                                             Ya remisionadas: <strong>{{ item.unidades_remisionadas }}</strong>
                                         </span>
-                                        <span class="font-semibold" :class="item.unidades_disponibles > 0 ? 'text-blue-600' : 'text-tinta-300'">
+                                        <span class="font-semibold" :class="item.unidades_disponibles > 0 ? 'text-aviso-azul' : 'text-tinta-300'">
                                             Disponibles: {{ item.unidades_disponibles }}
                                         </span>
                                         <span v-if="item.numero_serie" class="font-mono text-tinta-300">{{ item.numero_serie }}</span>
@@ -316,13 +316,13 @@ watch(() => form.tipo, () => {
                                         <label class="text-xs text-tinta-400">Unidades a remisionar (máx. {{ item.unidades_disponibles }}):</label>
                                         <input type="number" step="1" min="1" :max="item.unidades_disponibles"
                                             v-model.number="cantidadesARemisionar[item.id]"
-                                            class="mt-1 w-full border border-blue-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none"
+                                            class="mt-1 w-full border border-borde-aviso-azul rounded-lg px-3 py-1.5 text-sm focus:outline-none"
                                             style="background:var(--superficie);"/>
                                     </div>
                                 </div>
                             </label>
                         </div>
-                        <p v-if="errors.items" class="text-xs text-red-500 mt-2">{{ errors.items }}</p>
+                        <p v-if="errors.items" class="text-xs text-aviso-rojo mt-2">{{ errors.items }}</p>
                     </div>
                 </template>
 
@@ -343,7 +343,7 @@ watch(() => form.tipo, () => {
                         <div class="flex items-center justify-between mb-2">
                             <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">Ítems</p>
                             <button @click="agregarItemManual" type="button"
-                                class="text-xs font-medium text-blue-600 hover:underline">+ Agregar ítem</button>
+                                class="text-xs font-medium text-aviso-azul hover:underline">+ Agregar ítem</button>
                         </div>
 
                         <div v-for="(item, idx) in itemsManual" :key="idx"
@@ -362,7 +362,7 @@ watch(() => form.tipo, () => {
                                     <input v-model="item.notas" type="text" placeholder="Notas (opcional)"
                                         class="border border-linea rounded-lg px-3 py-2 text-sm flex-1 focus:outline-none"/>
                                     <button v-if="itemsManual.length > 1" @click="quitarItemManual(idx)" type="button"
-                                        class="text-red-400 hover:text-red-600">
+                                        class="text-red-400 hover:text-aviso-rojo">
                                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
                                         </svg>
@@ -370,7 +370,7 @@ watch(() => form.tipo, () => {
                                 </div>
                             </div>
                         </div>
-                        <p v-if="errors.items" class="text-xs text-red-500">{{ errors.items }}</p>
+                        <p v-if="errors.items" class="text-xs text-aviso-rojo">{{ errors.items }}</p>
                     </div>
                 </template>
 
@@ -383,7 +383,7 @@ watch(() => form.tipo, () => {
 
             <!-- ═══ PASO 2 — Datos de remisión ═══ -->
             <div v-if="paso === 2" class="bg-superficie rounded-2xl border border-linea p-5 space-y-4">
-                <button @click="paso = 1" type="button" class="text-xs text-blue-600 hover:underline">← Volver</button>
+                <button @click="paso = 1" type="button" class="text-xs text-aviso-azul hover:underline">← Volver</button>
 
                 <div>
                     <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1.5">

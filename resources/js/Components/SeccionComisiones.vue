@@ -91,9 +91,9 @@ watch(descuentoMaxRealClienteFinal, (v) => emit('update:descuentoMaxClienteFinal
                     <p class="text-xs text-tinta-300 mb-1">Costo</p>
                     <p class="font-semibold text-tinta-700">${{ formatCOP(precioCosto) }}</p>
                 </div>
-                <div class="bg-blue-50 rounded-lg p-3 text-center">
+                <div class="bg-pastel-azul rounded-lg p-3 text-center">
                     <p class="text-xs text-blue-400 mb-1">Mayorista</p>
-                    <p class="font-semibold text-blue-700">${{ formatCOP(precioMayorista) }}</p>
+                    <p class="font-semibold text-aviso-azul">${{ formatCOP(precioMayorista) }}</p>
                     <p class="text-xs text-blue-300 mt-0.5">Precio fijo · sin descuento</p>
                 </div>
                 <div class="bg-[var(--marca-suave)] rounded-lg p-3 text-center">
@@ -101,20 +101,20 @@ watch(descuentoMaxRealClienteFinal, (v) => emit('update:descuentoMaxClienteFinal
                     <p class="font-semibold text-[var(--marca)]">${{ formatCOP(precioDistribuidor) }}</p>
                     <p class="text-xs text-tinta-300 mt-0.5">Mín: ${{ formatCOP(precioMinDistribuidor) }}</p>
                 </div>
-                <div class="bg-green-50 rounded-lg p-3 text-center">
+                <div class="bg-pastel-verde rounded-lg p-3 text-center">
                     <p class="text-xs text-green-400 mb-1">Cliente final</p>
-                    <p class="font-semibold text-green-700">${{ formatCOP(precioClienteFinal) }}</p>
+                    <p class="font-semibold text-aviso-verde">${{ formatCOP(precioClienteFinal) }}</p>
                     <p class="text-xs text-green-300 mt-0.5">Mín: ${{ formatCOP(precioMinClienteFinal) }}</p>
                 </div>
             </div>
 
             <!-- Canal MAYORISTA — precio fijo -->
-            <div class="bg-blue-50 border border-blue-100 rounded-lg p-3">
+            <div class="bg-pastel-azul border border-borde-aviso-azul rounded-lg p-3">
                 <div class="flex items-center gap-2 mb-1">
-                    <span class="text-xs font-semibold text-blue-700 uppercase">Mayorista</span>
-                    <span class="bg-blue-100 text-blue-600 text-xs px-2 py-0.5 rounded-full">Precio fijo</span>
+                    <span class="text-xs font-semibold text-aviso-azul uppercase">Mayorista</span>
+                    <span class="bg-pastel-azul-2 text-aviso-azul text-xs px-2 py-0.5 rounded-full">Precio fijo</span>
                 </div>
-                <p class="text-xs text-blue-500">Sin comisión de vendedor · Sin descuento al cliente</p>
+                <p class="text-xs text-aviso-azul">Sin comisión de vendedor · Sin descuento al cliente</p>
                 <p class="text-xs text-blue-400 mt-1">Precio = ${{ formatCOP(precioMayorista) }} (fijo, no negociable)</p>
             </div>
 
@@ -126,13 +126,13 @@ watch(descuentoMaxRealClienteFinal, (v) => emit('update:descuentoMaxClienteFinal
                         <p class="text-tinta-300">Precio base</p>
                         <p class="font-semibold">${{ formatCOP(precioDistribuidor) }}</p>
                     </div>
-                    <div class="bg-red-50 rounded p-2">
+                    <div class="bg-pastel-rojo rounded p-2">
                         <p class="text-red-400">Precio mínimo</p>
-                        <p class="font-semibold text-red-600">${{ formatCOP(precioMinDistribuidor) }}</p>
+                        <p class="font-semibold text-aviso-rojo">${{ formatCOP(precioMinDistribuidor) }}</p>
                     </div>
-                    <div class="bg-green-50 rounded p-2">
+                    <div class="bg-pastel-verde rounded p-2">
                         <p class="text-green-400">Descuento máx real</p>
-                        <p class="font-semibold text-green-600">{{ descuentoMaxRealDistribuidor }}%</p>
+                        <p class="font-semibold text-aviso-verde">{{ descuentoMaxRealDistribuidor }}%</p>
                     </div>
                 </div>
                 <div class="flex items-center justify-between mb-1">
@@ -160,7 +160,7 @@ watch(descuentoMaxRealClienteFinal, (v) => emit('update:descuentoMaxClienteFinal
                             class="w-full border border-tinta-200 rounded px-2 py-1.5 text-sm focus:outline-none focus:border-[var(--marca)]" />
                     </div>
                 </div>
-                <p :class="['text-xs', validacionDistribuidor.ok === true ? 'text-green-600' : validacionDistribuidor.ok === false ? 'text-red-600' : 'text-tinta-300']">
+                <p :class="['text-xs', validacionDistribuidor.ok === true ? 'text-aviso-verde' : validacionDistribuidor.ok === false ? 'text-aviso-rojo' : 'text-tinta-300']">
                     {{ validacionDistribuidor.ok === true ? '✅' : validacionDistribuidor.ok === false ? '❌' : 'ℹ️' }}
                     {{ validacionDistribuidor.mensaje }}
                 </p>
@@ -174,16 +174,16 @@ watch(descuentoMaxRealClienteFinal, (v) => emit('update:descuentoMaxClienteFinal
                         <p class="text-tinta-300">Precio base</p>
                         <p class="font-semibold">${{ formatCOP(precioClienteFinal) }}</p>
                     </div>
-                    <div class="bg-red-50 rounded p-2">
+                    <div class="bg-pastel-rojo rounded p-2">
                         <p class="text-red-400">Precio mínimo</p>
-                        <p class="font-semibold text-red-600">${{ formatCOP(precioMinClienteFinal) }}</p>
+                        <p class="font-semibold text-aviso-rojo">${{ formatCOP(precioMinClienteFinal) }}</p>
                     </div>
-                    <div class="bg-green-50 rounded p-2">
+                    <div class="bg-pastel-verde rounded p-2">
                         <p class="text-green-400">Descuento máx real</p>
-                        <p class="font-semibold text-green-600">{{ descuentoMaxRealClienteFinal }}%</p>
+                        <p class="font-semibold text-aviso-verde">{{ descuentoMaxRealClienteFinal }}%</p>
                     </div>
                 </div>
-                <p :class="['text-xs', validacionClienteFinal.ok === true ? 'text-green-600' : validacionClienteFinal.ok === false ? 'text-red-600' : 'text-tinta-300']">
+                <p :class="['text-xs', validacionClienteFinal.ok === true ? 'text-aviso-verde' : validacionClienteFinal.ok === false ? 'text-aviso-rojo' : 'text-tinta-300']">
                     {{ validacionClienteFinal.ok === true ? '✅' : validacionClienteFinal.ok === false ? '❌' : 'ℹ️' }}
                     {{ validacionClienteFinal.mensaje }}
                 </p>

@@ -193,12 +193,12 @@ function getCookie(name) {
                 <div class="flex items-center gap-1.5 text-sm">
                     <span class="w-2 h-2 rounded-full bg-green-500"></span>
                     <span class="text-tinta-400">Ganados:</span>
-                    <span class="font-semibold text-green-700">{{ metricasRef.ganados ?? 0 }}</span>
+                    <span class="font-semibold text-aviso-verde">{{ metricasRef.ganados ?? 0 }}</span>
                 </div>
                 <div class="flex items-center gap-1.5 text-sm">
                     <span class="w-2 h-2 rounded-full bg-red-400"></span>
                     <span class="text-tinta-400">Perdidos:</span>
-                    <span class="font-semibold text-red-700">{{ metricasRef.perdidos ?? 0 }}</span>
+                    <span class="font-semibold text-aviso-rojo">{{ metricasRef.perdidos ?? 0 }}</span>
                 </div>
             </div>
 
@@ -264,7 +264,7 @@ function getCookie(name) {
                 <button
                     v-if="filtroMes || filtroResponsable || filtroFuente || filtroEstado !== 'activo' || filtroBuscar"
                     @click="limpiarFiltros"
-                    class="flex items-center gap-1 text-sm text-red-500 border border-red-200 rounded-lg px-3 py-1.5 hover:bg-red-50 transition-colors"
+                    class="flex items-center gap-1 text-sm text-aviso-rojo border border-borde-aviso-rojo rounded-lg px-3 py-1.5 hover:bg-pastel-rojo transition-colors"
                 >
                     <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
@@ -322,7 +322,7 @@ function getCookie(name) {
                                 <div
                                     v-if="lead.estado && lead.estado !== 'activo'"
                                     class="inline-flex items-center text-xs font-semibold px-1.5 py-0.5 rounded-lg mb-1"
-                                    :class="lead.estado === 'ganado' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-600'"
+                                    :class="lead.estado === 'ganado' ? 'bg-pastel-verde-2 text-aviso-verde' : 'bg-pastel-rojo-2 text-aviso-rojo'"
                                 >
                                     {{ lead.estado === 'ganado' ? '✓ Ganado' : '✗ Perdido' }}
                                 </div>
@@ -367,20 +367,20 @@ function getCookie(name) {
                                 <div class="flex items-center justify-between gap-1 mt-2">
                                     <span
                                         v-if="!lead.origenes?.length && lead.fuente"
-                                        class="text-xs bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded truncate max-w-[100px]"
+                                        class="text-xs bg-pastel-azul text-aviso-azul px-1.5 py-0.5 rounded truncate max-w-[100px]"
                                     >{{ lead.fuente }}</span>
                                     <span v-else class="flex-1"></span>
 
                                     <div class="flex items-center gap-1.5 shrink-0">
                                         <span v-if="lead.tareas_vencidas > 0"
-                                            class="flex items-center gap-0.5 text-xs text-red-600 font-semibold">
+                                            class="flex items-center gap-0.5 text-xs text-aviso-rojo font-semibold">
                                             <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
                                             </svg>
                                             {{ lead.tareas_vencidas }}
                                         </span>
                                         <span v-else-if="lead.tareas_pendientes > 0"
-                                            class="flex items-center gap-0.5 text-xs text-yellow-600">
+                                            class="flex items-center gap-0.5 text-xs text-aviso-ambar">
                                             <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
                                             </svg>

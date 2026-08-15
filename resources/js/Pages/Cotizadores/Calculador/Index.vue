@@ -110,12 +110,12 @@ function guardarConfig() {
                             <div class="grid grid-cols-2 gap-2">
                                 <button type="button" @click="params.tipo_sello = 'SUELO'"
                                     :class="['rounded-xl border-2 px-3 py-2 text-sm font-medium transition-colors',
-                                        params.tipo_sello === 'SUELO' ? 'border-blue-600 bg-blue-50 text-blue-700' : 'border-linea text-tinta-500']">
+                                        params.tipo_sello === 'SUELO' ? 'border-blue-600 bg-pastel-azul text-aviso-azul' : 'border-linea text-tinta-500']">
                                     Sello al Suelo
                                 </button>
                                 <button type="button" @click="params.tipo_sello = 'TOPE'"
                                     :class="['rounded-xl border-2 px-3 py-2 text-sm font-medium transition-colors',
-                                        params.tipo_sello === 'TOPE' ? 'border-blue-600 bg-blue-50 text-blue-700' : 'border-linea text-tinta-500']">
+                                        params.tipo_sello === 'TOPE' ? 'border-blue-600 bg-pastel-azul text-aviso-azul' : 'border-linea text-tinta-500']">
                                     Sello a Tope
                                 </button>
                             </div>
@@ -128,7 +128,7 @@ function guardarConfig() {
                                 <button v-for="s in ['SE12','SM20','480']" :key="s" type="button"
                                     @click="params.tipo_corredera = s"
                                     :class="['rounded-xl border-2 px-3 py-2 text-sm font-medium transition-colors',
-                                        params.tipo_corredera === s ? 'border-blue-600 bg-blue-50 text-blue-700' : 'border-linea text-tinta-500']">
+                                        params.tipo_corredera === s ? 'border-blue-600 bg-pastel-azul text-aviso-azul' : 'border-linea text-tinta-500']">
                                     {{ s }}
                                 </button>
                             </div>
@@ -140,13 +140,13 @@ function guardarConfig() {
                             <div class="grid grid-cols-2 gap-2">
                                 <button type="button" @click="params.temperatura = 'MEDIA'"
                                     :class="['rounded-xl border-2 px-3 py-2 text-sm font-medium transition-colors',
-                                        params.temperatura === 'MEDIA' ? 'border-blue-600 bg-blue-50 text-blue-700' : 'border-linea text-tinta-500']">
+                                        params.temperatura === 'MEDIA' ? 'border-blue-600 bg-pastel-azul text-aviso-azul' : 'border-linea text-tinta-500']">
                                     Media
                                 </button>
                                 <button type="button"
                                     @click="params.tipo_puerta !== 'BATIENTE_DOBLE' ? params.temperatura = 'BAJA' : null"
                                     :class="['rounded-xl border-2 px-3 py-2 text-sm font-medium transition-colors',
-                                        params.temperatura === 'BAJA' ? 'border-blue-600 bg-blue-50 text-blue-700' : 'border-linea text-tinta-500',
+                                        params.temperatura === 'BAJA' ? 'border-blue-600 bg-pastel-azul text-aviso-azul' : 'border-linea text-tinta-500',
                                         params.tipo_puerta === 'BATIENTE_DOBLE' ? 'opacity-40 cursor-not-allowed' : '']">
                                     Baja
                                 </button>
@@ -173,8 +173,8 @@ function guardarConfig() {
                     </div>
 
                     <!-- Errores de validacion -->
-                    <div v-if="errores.length > 0" class="bg-red-50 border border-red-200 rounded-xl p-4">
-                        <p v-for="e in errores" :key="e" class="text-sm text-red-600">&#9888; {{ e }}</p>
+                    <div v-if="errores.length > 0" class="bg-pastel-rojo border border-borde-aviso-rojo rounded-xl p-4">
+                        <p v-for="e in errores" :key="e" class="text-sm text-aviso-rojo">&#9888; {{ e }}</p>
                     </div>
 
                     <!-- Boton guardar -->

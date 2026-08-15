@@ -129,9 +129,9 @@ async function verMovimientos(item) {
 function semaforo(item) {
     const stock = item.stock_total ?? 0
     const pct   = item.stock_minimo > 0 ? stock / item.stock_minimo : 1
-    if (pct <= 1)   return { bg: 'bg-red-100',    text: 'text-red-700',    label: '🔴 Bajo' }
-    if (pct <= 1.5) return { bg: 'bg-yellow-100', text: 'text-yellow-700', label: '🟡 Cerca' }
-    return { bg: 'bg-green-100', text: 'text-green-700', label: '🟢 OK' }
+    if (pct <= 1)   return { bg: 'bg-pastel-rojo-2',    text: 'text-aviso-rojo',    label: '🔴 Bajo' }
+    if (pct <= 1.5) return { bg: 'bg-pastel-ambar-2', text: 'text-aviso-ambar', label: '🟡 Cerca' }
+    return { bg: 'bg-pastel-verde-2', text: 'text-aviso-verde', label: '🟢 OK' }
 }
 
 function fmt(n) {
@@ -148,8 +148,8 @@ function fmt(n) {
                 <div>
                     <h1 class="text-xl font-semibold text-tinta-900">Inventario</h1>
                     <div class="flex gap-3">
-                        <a href="/inventario/dashboard" class="text-sm text-blue-600 underline">Ver dashboard</a>
-                        <a href="/inventario/recetas-corte" class="text-sm text-blue-600 underline">Recetas de corte</a>
+                        <a href="/inventario/dashboard" class="text-sm text-aviso-azul underline">Ver dashboard</a>
+                        <a href="/inventario/recetas-corte" class="text-sm text-aviso-azul underline">Recetas de corte</a>
                     </div>
                 </div>
                 <button @click="abrirCrear"
@@ -205,7 +205,7 @@ function fmt(n) {
                     </thead>
                     <tbody class="divide-y divide-linea">
                         <tr v-for="item in items.data" :key="item.id"
-                            :class="['hover:bg-tinta-50 transition-colors', item.bajo_stock ? 'bg-red-50' : '']">
+                            :class="['hover:bg-tinta-50 transition-colors', item.bajo_stock ? 'bg-pastel-rojo' : '']">
                             <td class="px-4 py-3 font-mono text-xs text-tinta-400">{{ item.referencia }}</td>
                             <td class="px-4 py-3">
                                 <p class="font-medium text-tinta-900 text-sm">{{ item.nombre }}</p>
@@ -221,8 +221,8 @@ function fmt(n) {
                             </td>
                             <td class="px-4 py-3">
                                 <div class="flex items-center gap-2 justify-end">
-                                    <button @click="verMovimientos(item)" class="text-xs text-blue-600 font-medium">Movimientos</button>
-                                    <button @click="abrirAjuste(item)" class="text-xs text-green-600 font-medium">Ajuste</button>
+                                    <button @click="verMovimientos(item)" class="text-xs text-aviso-azul font-medium">Movimientos</button>
+                                    <button @click="abrirAjuste(item)" class="text-xs text-aviso-verde font-medium">Ajuste</button>
                                     <button @click="abrirEditar(item)" class="text-xs text-tinta-400 font-medium">Editar</button>
                                 </div>
                             </td>
@@ -281,7 +281,7 @@ function fmt(n) {
                                     <p class="text-xs text-tinta-300 mt-1">{{ m.usuario?.name }} · {{ new Date(m.created_at).toLocaleDateString('es-CO') }}</p>
                                 </div>
                                 <div class="text-right">
-                                    <p :class="['font-semibold text-sm', ['entrada','devolucion'].includes(m.tipo) ? 'text-green-600' : 'text-red-600']">
+                                    <p :class="['font-semibold text-sm', ['entrada','devolucion'].includes(m.tipo) ? 'text-aviso-verde' : 'text-aviso-rojo']">
                                         {{ ['entrada','devolucion'].includes(m.tipo) ? '+' : '-' }}{{ fmt(m.cantidad) }}
                                     </p>
                                     <p class="text-xs text-tinta-300">→ {{ fmt(m.stock_nuevo) }}</p>
