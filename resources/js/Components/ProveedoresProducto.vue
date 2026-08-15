@@ -181,7 +181,7 @@ const formatCOP = (v) =>
                     <label class="block text-xs text-tinta-400 mb-1">Precio</label>
                     <div class="relative">
                         <span class="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs text-tinta-300">$</span>
-                        <input v-model.number="f.precio" type="number" min="0" step="1"
+                        <input v-model.number="f.precio" type="number" min="0" step="0.01"
                             class="w-full border border-linea rounded-lg pl-6 pr-2 py-1.5 text-sm text-right focus:outline-none focus:border-[var(--marca)]" />
                     </div>
                 </div>
@@ -192,7 +192,7 @@ const formatCOP = (v) =>
                 </div>
                 <div>
                     <label class="block text-xs text-tinta-400 mb-1">Mínimo de compra</label>
-                    <input v-model.number="f.minimo_compra" type="number" min="0" step="0.01" placeholder="—"
+                    <input v-model.number="f.minimo_compra" type="number" min="0" step="0.001" placeholder="—"
                         class="w-full border border-linea rounded-lg px-2.5 py-1.5 text-sm text-right focus:outline-none focus:border-[var(--marca)]" />
                 </div>
                 <div>

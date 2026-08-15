@@ -1,4 +1,7 @@
 <script setup>
+// Los porcentajes se guardan con dos decimales: mostrarlos con toFixed(0) hacía que tres
+// pasos al 33,33% se vieran como «33%» tres veces, que suma 99 y parece un error.
+import { formatPct } from '@/formato'
 import { router } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
 
@@ -55,7 +58,7 @@ function eliminar(t) {
                                 :class="Math.abs(t.suma_pesos - 100) < 0.1
                                     ? 'bg-green-100 text-green-700'
                                     : 'bg-red-100 text-red-700'">
-                                {{ t.suma_pesos.toFixed(0) }}%
+                                {{ formatPct(t.suma_pesos) }}%
                             </span>
                         </div>
 

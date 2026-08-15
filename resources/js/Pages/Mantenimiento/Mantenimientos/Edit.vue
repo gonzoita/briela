@@ -152,7 +152,7 @@ function submit() {
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1.5">Mano de obra ($)</label>
-                    <input v-model.number="form.costo_mano_obra" type="number" min="0"
+                    <input v-model.number="form.costo_mano_obra" type="number" step="0.01" min="0"
                         class="w-full rounded-xl border border-tinta-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2" />
                 </div>
             </div>
@@ -183,11 +183,11 @@ function submit() {
                         <input v-model="r.nombre" placeholder="Nombre *" type="text"
                             class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-2" />
                         <div class="grid grid-cols-3 gap-2">
-                            <input v-model.number="r.cantidad" type="number" min="0" placeholder="Cant."
+                            <input v-model.number="r.cantidad" type="number" step="0.01" min="0" placeholder="Cant."
                                 class="rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-2" />
                             <input v-model="r.unidad" placeholder="Und" type="text"
                                 class="rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-2" />
-                            <input v-model.number="r.precio_unitario" type="number" min="0" placeholder="$/u"
+                            <input v-model.number="r.precio_unitario" type="number" step="0.01" min="0" placeholder="$/u"
                                 class="rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-2" />
                         </div>
                     </div>

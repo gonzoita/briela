@@ -513,7 +513,7 @@ const precioMostrar = (p) => {
                         <td class="hidden lg:table-cell px-3 py-2.5 text-right" @click.stop>
                             <span v-if="p.es_padre" class="text-xs text-tinta-200">—</span>
                             <template v-else>
-                                <input type="number" min="0" step="1" v-model.number="p.precio_costo"
+                                <input type="number" min="0" step="0.01" v-model.number="p.precio_costo"
                                     @blur="guardarCosto(p)" @keyup.enter="$event.target.blur()"
                                     class="w-24 text-right text-xs border border-linea rounded-lg px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-300" />
                                 <span v-if="guardandoCosto.has(p.id)" class="block text-[10px] text-tinta-300 mt-0.5">guardando...</span>
@@ -559,7 +559,7 @@ const precioMostrar = (p) => {
                         <td class="hidden md:table-cell px-3 py-2"></td>
                         <!-- Costo (editable) -->
                         <td class="hidden lg:table-cell px-3 py-2 text-right" @click.stop>
-                            <input type="number" min="0" step="1" v-model.number="v.precio_costo"
+                            <input type="number" min="0" step="0.01" v-model.number="v.precio_costo"
                                 @blur="guardarCosto(v)" @keyup.enter="$event.target.blur()"
                                 class="w-24 text-right text-xs border border-linea rounded-lg px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-300" />
                             <span v-if="guardandoCosto.has(v.id)" class="block text-[10px] text-tinta-300 mt-0.5">guardando...</span>
@@ -629,7 +629,7 @@ const precioMostrar = (p) => {
                         <p class="text-sm font-semibold" style="color: var(--marca);">{{ formatCOP(precioMostrar(p)) }}</p>
                         <div class="flex items-center gap-1 mt-1" @click.stop>
                             <span class="text-xs text-tinta-300">Costo:</span>
-                            <input type="number" min="0" step="1" v-model.number="p.precio_costo"
+                            <input type="number" min="0" step="0.01" v-model.number="p.precio_costo"
                                 @blur="guardarCosto(p)" @keyup.enter="$event.target.blur()"
                                 class="w-20 text-xs border border-linea rounded-lg px-1.5 py-0.5 focus:outline-none focus:ring-2 focus:ring-blue-300" />
                             <span v-if="guardandoCosto.has(p.id)" class="text-[10px] text-tinta-300">...</span>

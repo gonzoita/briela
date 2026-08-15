@@ -181,7 +181,7 @@ const TIPOS = ['compresor', 'evaporador', 'condensador', 'puerta', 'panel', 'mot
                             <input v-model="c.referencia" placeholder="Referencia" type="text"
                                 class="rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-2" />
                             <div class="flex gap-2">
-                                <input v-model.number="c.cantidad" type="number" min="0" placeholder="Cant."
+                                <input v-model.number="c.cantidad" type="number" step="0.01" min="0" placeholder="Cant."
                                     class="flex-1 rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-2" />
                                 <input v-model="c.unidad" placeholder="Und" type="text"
                                     class="w-20 rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-2" />

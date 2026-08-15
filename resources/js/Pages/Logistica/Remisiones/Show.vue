@@ -361,7 +361,7 @@ function eliminar() {
                             class="w-full border border-linea rounded-xl px-4 py-2.5 text-sm focus:outline-none"/>
                         <input v-model="datosTransporte.placa" type="text" placeholder="Placa del vehículo"
                             class="w-full border border-linea rounded-xl px-4 py-2.5 text-sm focus:outline-none"/>
-                        <input v-model.number="datosTransporte.costo_flete" type="number" placeholder="Costo del flete (opcional)"
+                        <input v-model.number="datosTransporte.costo_flete" type="number" step="0.01" placeholder="Costo del flete (opcional)"
                             class="w-full border border-linea rounded-xl px-4 py-2.5 text-sm focus:outline-none"/>
                     </template>
 

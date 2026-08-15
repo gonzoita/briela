@@ -172,7 +172,7 @@ defineExpose({ total })
 
                 <div class="sm:col-span-2">
                     <label class="sm:hidden block text-xs text-tinta-400 mb-1">Cantidad</label>
-                    <input v-model.number="l.cantidad" type="number" min="0" step="0.01"
+                    <input v-model.number="l.cantidad" type="number" min="0" step="0.001"
                         class="w-full border border-linea rounded-lg px-2.5 py-1.5 text-sm text-right focus:outline-none focus:border-[var(--marca)]" />
                 </div>
 
@@ -187,7 +187,7 @@ defineExpose({ total })
                     <label class="sm:hidden block text-xs text-tinta-400 mb-1">Costo unitario</label>
                     <div class="relative">
                         <span class="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs text-tinta-300">$</span>
-                        <input v-model.number="l.precio_unit" type="number" min="0" step="1"
+                        <input v-model.number="l.precio_unit" type="number" min="0" step="0.01"
                             class="w-full border border-linea rounded-lg pl-6 pr-2 py-1.5 text-sm text-right focus:outline-none focus:border-[var(--marca)]" />
                     </div>
                 </div>

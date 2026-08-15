@@ -1,4 +1,7 @@
 <script setup>
+// Los porcentajes se guardan con dos decimales: mostrarlos con toFixed(0) hacía que tres
+// pasos al 33,33% se vieran como «33%» tres veces, que suma 99 y parece un error.
+import { formatPct } from '@/formato'
 import { ref, computed, watch, onMounted } from 'vue'
 import { router } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
@@ -265,7 +268,7 @@ function submit() {
                                             class="text-2xl leading-none transition-colors"
                                             :class="s <= paso.nivel_dificultad ? 'text-yellow-400' : 'text-gray-200'">★</button>
                                     </div>
-                                    <span class="text-xs text-tinta-300 font-mono">Peso: {{ parseFloat(paso.peso_porcentaje || 0).toFixed(1) }}%</span>
+                                    <span class="text-xs text-tinta-300 font-mono">Peso: {{ formatPct(paso.peso_porcentaje) }}%</span>
                                 </div>
                             </div>
                             <!-- Paso final -->
@@ -358,7 +361,7 @@ function submit() {
                             <span v-if="paso.es_paso_final" class="shrink-0 text-purple-500 text-xs font-semibold">★</span>
                             <span v-else-if="paso.depende_de?.length" class="shrink-0 text-tinta-300 text-xs">→{{ paso.depende_de.length }}</span>
                             <span class="text-xs font-mono shrink-0" :class="pasoActivo === idx ? 'text-blue-500' : 'text-tinta-300'">
-                                {{ parseFloat(paso.peso_porcentaje || 0).toFixed(0) }}%
+                                {{ formatPct(paso.peso_porcentaje) }}%
                             </span>
                         </div>
                         <button @click="agregarPaso" type="button"
@@ -446,7 +449,7 @@ function submit() {
                                         :class="s <= form.pasos[pasoActivo].nivel_dificultad ? 'text-yellow-400' : 'text-gray-200'">★</button>
                                 </div>
                                 <span class="text-xs text-tinta-300 font-mono">
-                                    Peso: {{ parseFloat(form.pasos[pasoActivo].peso_porcentaje || 0).toFixed(1) }}%
+                                    Peso: {{ formatPct(form.pasos[pasoActivo].peso_porcentaje) }}%
                                 </span>
                             </div>
                         </div>

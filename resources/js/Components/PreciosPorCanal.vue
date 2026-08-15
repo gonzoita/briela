@@ -49,7 +49,7 @@ const formatCOP = (v) =>
                     <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-tinta-300">$</span>
                     <input v-if="costoEditable"
                         :value="precioCosto" @input="emit('update:precioCosto', Number($event.target.value) || 0)"
-                        type="number" min="0" step="100"
+                        type="number" min="0" step="0.01"
                         class="w-full border rounded-xl pl-7 pr-3 py-2 text-sm focus:outline-none border-linea bg-superficie focus:border-[var(--marca)]" />
                     <input v-else :value="formatCOP(precioCosto)" readonly
                         class="w-full border border-linea rounded-xl pl-7 pr-3 py-2 text-sm bg-tinta-50 font-semibold text-tinta-700" />
@@ -73,7 +73,7 @@ const formatCOP = (v) =>
                 <div class="grid grid-cols-2 gap-3 items-end">
                     <div>
                         <label class="block text-xs font-medium text-tinta-400 mb-1">Margen %</label>
-                        <input v-model.number="canal.margen_pct" type="number" min="1" max="99" step="0.5"
+                        <input v-model.number="canal.margen_pct" type="number" min="1" max="99" step="0.01"
                             class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[var(--marca)]" />
                     </div>
                     <div>
@@ -149,7 +149,7 @@ const formatCOP = (v) =>
                             </span>
                         </label>
                         <div class="flex items-center gap-2">
-                            <input type="number" step="0.1" :min="minimoExigido(i)" v-model.number="canal.comision_min_pct"
+                            <input type="number" step="0.01" :min="minimoExigido(i)" v-model.number="canal.comision_min_pct"
                                 :class="['w-24 border rounded-lg px-2 py-1.5 text-sm focus:ring-2 focus:outline-none',
                                     errorEscalera(i) ? 'border-red-400 focus:ring-red-300' : 'border-tinta-200 focus:ring-[var(--marca-suave)]']" />
                             <span class="text-xs text-tinta-300">= {{ formatCOP(excedenteDe(canal) * canal.comision_min_pct / 100) }}</span>
@@ -158,7 +158,7 @@ const formatCOP = (v) =>
                     <div>
                         <label class="text-xs text-tinta-400 mb-1 block">Comisión máxima (%)</label>
                         <div class="flex items-center gap-2">
-                            <input type="number" step="0.1" :min="canal.comision_min_pct" v-model.number="canal.comision_max_pct"
+                            <input type="number" step="0.01" :min="canal.comision_min_pct" v-model.number="canal.comision_max_pct"
                                 class="w-24 border border-tinta-200 rounded-lg px-2 py-1.5 text-sm focus:ring-2 focus:ring-[var(--marca-suave)] focus:outline-none" />
                             <span class="text-xs text-tinta-300">= {{ formatCOP(excedenteDe(canal) * canal.comision_max_pct / 100) }}</span>
                         </div>

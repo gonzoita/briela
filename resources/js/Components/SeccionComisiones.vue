@@ -149,14 +149,14 @@ watch(descuentoMaxRealClienteFinal, (v) => emit('update:descuentoMaxClienteFinal
                         <label class="block text-xs text-tinta-400 mb-1">Mínima (%)</label>
                         <input :value="comisionMin"
                             @input="emit('update:comisionMin', parseFloat($event.target.value) || 0)"
-                            type="number" step="0.1" min="0"
+                            type="number" step="0.01" min="0"
                             class="w-full border border-tinta-200 rounded px-2 py-1.5 text-sm focus:outline-none focus:border-[var(--marca)]" />
                     </div>
                     <div>
                         <label class="block text-xs text-tinta-400 mb-1">Máxima (%)</label>
                         <input :value="comisionMax"
                             @input="emit('update:comisionMax', parseFloat($event.target.value) || 0)"
-                            type="number" step="0.1" min="0"
+                            type="number" step="0.01" min="0"
                             class="w-full border border-tinta-200 rounded px-2 py-1.5 text-sm focus:outline-none focus:border-[var(--marca)]" />
                     </div>
                 </div>

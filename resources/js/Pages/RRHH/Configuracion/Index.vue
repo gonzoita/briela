@@ -178,7 +178,7 @@ function saveConfig() {
                         </div>
                         <div>
                             <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1.5">Valor por hora ($) *</label>
-                            <input v-model.number="tarifaForm.valor_hora" type="number" min="0"
+                            <input v-model.number="tarifaForm.valor_hora" type="number" step="0.01" min="0"
                                 class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-2" />
                         </div>
                         <label class="flex items-center gap-2 cursor-pointer">
@@ -199,12 +199,12 @@ function saveConfig() {
                     <div class="space-y-3">
                         <div>
                             <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1.5">Tarifa hora base ($/h)</label>
-                            <input v-model.number="configForm.tarifa_hora_base" type="number" min="0"
+                            <input v-model.number="configForm.tarifa_hora_base" type="number" step="0.01" min="0"
                                 class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-2" />
                         </div>
                         <div>
                             <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1.5">Penalización por ausencia ($)</label>
-                            <input v-model.number="configForm.penalizacion_ausencia" type="number" min="0"
+                            <input v-model.number="configForm.penalizacion_ausencia" type="number" step="0.01" min="0"
                                 class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-2" />
                         </div>
                         <button @click="saveConfig"

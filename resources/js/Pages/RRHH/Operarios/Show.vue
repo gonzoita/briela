@@ -481,7 +481,7 @@ function storePermiso() {
                             </div>
                             <div>
                                 <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1.5">Penalización $</label>
-                                <input v-model="disciplinaForm.penalizacion_valor" type="number" min="0"
+                                <input v-model="disciplinaForm.penalizacion_valor" type="number" step="0.01" min="0"
                                     class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-2" />
                             </div>
                         </div>
@@ -545,13 +545,13 @@ function storePermiso() {
                             </div>
                             <div>
                                 <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1.5">Meta valor</label>
-                                <input v-model.number="hitoForm.meta_valor" type="number" min="0"
+                                <input v-model.number="hitoForm.meta_valor" type="number" step="0.01" min="0"
                                     class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-2" />
                             </div>
                         </div>
                         <div>
                             <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1.5">Valor bono ($)</label>
-                            <input v-model.number="hitoForm.valor_bono" type="number" min="0"
+                            <input v-model.number="hitoForm.valor_bono" type="number" step="0.01" min="0"
                                 class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-2" />
                         </div>
                         <button @click="storeHito"
@@ -604,7 +604,7 @@ function storePermiso() {
                         </div>
                         <div>
                             <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1.5">Horas *</label>
-                            <input v-model.number="extraForm.horas" type="number" min="0.5" max="24" step="0.5"
+                            <input v-model.number="extraForm.horas" type="number" min="0.25" max="24" step="0.01"
                                 class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-2" />
                         </div>
                         <div>

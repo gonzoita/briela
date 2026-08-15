@@ -468,7 +468,7 @@ function submit() {
                     <!-- Anticipo -->
                     <div class="md:col-span-2">
                         <label class="block text-xs font-medium text-tinta-400 mb-1">Anticipo (COP)</label>
-                        <input v-model="form.anticipo" type="number" min="0" step="1000"
+                        <input v-model="form.anticipo" type="number" min="0" step="0.01"
                             class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[var(--marca)]"
                             placeholder="0"/>
                     </div>

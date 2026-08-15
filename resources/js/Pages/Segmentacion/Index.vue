@@ -452,7 +452,7 @@ const faltaConfigurar = computed(() => {
                                         <label v-if="op.define_precio"
                                             class="flex items-center gap-1 text-[10px] text-tinta-400 pl-1">
                                             margen
-                                            <input type="number" min="0" max="99" step="0.5"
+                                            <input type="number" min="0" max="99" step="0.01"
                                                 :value="op.margen_sugerido"
                                                 @change="cambiarMargen(op, $event.target.value)"
                                                 class="w-14 rounded border border-linea px-1.5 py-0.5 text-[11px] text-right bg-superficie focus:outline-none focus:border-[var(--marca)]" />

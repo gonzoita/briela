@@ -94,7 +94,7 @@ function enviar() {
                     <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1.5">
                         Costo flete
                     </label>
-                    <input v-model.number="form.costo_flete" type="number" step="1000" min="0" placeholder="0"
+                    <input v-model.number="form.costo_flete" type="number" step="0.01" min="0" placeholder="0"
                         class="w-full border border-linea rounded-xl px-4 py-2.5 text-sm focus:outline-none"/>
                 </div>
 

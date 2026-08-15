@@ -176,7 +176,7 @@ function fmtMoney(n) {
                                 </div>
                                 <div>
                                     <label class="block text-xs text-tinta-500 mb-0.5">IVA %</label>
-                                    <input v-model="item.impuesto_pct" type="number" min="0" max="100" step="1"
+                                    <input v-model="item.impuesto_pct" type="number" min="0" max="100" step="0.01"
                                         class="w-full rounded border border-tinta-200 px-2 py-1.5 text-sm" />
                                 </div>
                             </div>

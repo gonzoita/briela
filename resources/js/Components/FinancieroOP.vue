@@ -41,7 +41,7 @@
         <input v-model="formCuota.concepto" placeholder="Concepto (ej: Anticipo 50%)"
           class="w-full border border-tinta-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300" />
         <div class="grid grid-cols-2 gap-2">
-          <input v-model="formCuota.valor" type="number" placeholder="Valor"
+          <input v-model="formCuota.valor" type="number" step="0.01" min="0" placeholder="Valor"
             class="border border-tinta-200 rounded-lg px-3 py-2 text-sm focus:outline-none" />
           <input v-model="formCuota.fecha_vencimiento" type="date"
             class="border border-tinta-200 rounded-lg px-3 py-2 text-sm focus:outline-none" />
@@ -113,7 +113,7 @@
           <div class="space-y-3">
             <div>
               <label class="text-xs text-tinta-400 block mb-1">Valor a pagar</label>
-              <input v-model="formPago.valor" type="number"
+              <input v-model="formPago.valor" type="number" step="0.01" min="0"
                 :placeholder="`Saldo: $${fmt(cuotaSeleccionada.saldo)}`"
                 class="w-full border border-tinta-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300" />
             </div>

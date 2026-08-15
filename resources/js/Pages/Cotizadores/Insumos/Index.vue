@@ -231,7 +231,7 @@ const ic = (extra = '') =>
                             </div>
                             <div>
                                 <label class="block text-xs font-medium text-tinta-700 mb-1">Precio costo *</label>
-                                <input v-model="formNuevo.precio_costo" type="number" :class="ic()" min="0"/>
+                                <input v-model="formNuevo.precio_costo" type="number" :class="ic()" min="0" step="0.01"/>
                                 <p v-if="formNuevo.errors.precio_costo" class="text-red-500 text-xs mt-1">{{ formNuevo.errors.precio_costo }}</p>
                             </div>
                         </div>

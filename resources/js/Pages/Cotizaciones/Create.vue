@@ -1,4 +1,7 @@
 <script setup>
+// Los porcentajes se guardan con dos decimales: redondearlos al mostrarlos contradecía
+// lo que la persona acababa de configurar.
+import { formatPct } from '@/formato'
 import { ref, computed, watch, onMounted } from 'vue'
 import { useForm, router, usePage } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
@@ -1050,7 +1053,7 @@ function submit() {
                                     <input type="range"
                                         :min="getCanalComisionMin(item)"
                                         :max="getCanalComisionMax(item)"
-                                        :step="0.1"
+                                        :step="0.01"
                                         :value="item.comision_pct_actual || getCanalComisionMax(item)"
                                         @input="onComisionChange(item, idx, $event.target.value)"
                                         class="flex-1 h-1.5 accent-amber-500 cursor-pointer" />
@@ -1059,7 +1062,7 @@ function submit() {
                                         class="w-6 h-6 rounded-full flex items-center justify-center font-semibold text-sm disabled:opacity-40 shrink-0 hover:bg-amber-100 transition-colors"
                                         style="border:1px solid #FCD34D;color:var(--texto-ambar);">+</button>
                                     <span class="text-xs font-semibold shrink-0 text-right" style="color:var(--texto-ambar);min-width:5.5rem;">
-                                        {{ (item.comision_pct_actual || getCanalComisionMax(item)).toFixed(1) }}% · ${{ formatCOP(comisionActualValor(item)) }}
+                                        {{ formatPct(item.comision_pct_actual || getCanalComisionMax(item)) }}% · ${{ formatCOP(comisionActualValor(item)) }}
                                     </span>
                                 </div>
                             </div>

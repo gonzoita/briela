@@ -1,4 +1,7 @@
 <script setup>
+// Los porcentajes se guardan con dos decimales: redondearlos al mostrarlos contradecía
+// lo que la persona acababa de configurar.
+import { formatPct } from '@/formato'
 import { ref, reactive, computed, watch, nextTick } from 'vue'
 import { router } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
@@ -2465,7 +2468,7 @@ const badgesTipo = {
                                         <p class="text-xs text-tinta-300 truncate" v-html="paso.objetivo || paso.descripcion || 'Sin descripción'"></p>
                                     </div>
                                     <span class="shrink-0 text-xs" :class="colorDificultad[paso.nivel_dificultad ?? 1]">{{ labelDificultad[paso.nivel_dificultad ?? 1] }}</span>
-                                    <span class="shrink-0 text-xs font-mono text-tinta-400">{{ parseFloat(paso.peso_porcentaje || 0).toFixed(1) }}%</span>
+                                    <span class="shrink-0 text-xs font-mono text-tinta-400">{{ formatPct(paso.peso_porcentaje) }}%</span>
                                     <button @click.stop="quitarPasoProduccion(idx)" class="shrink-0 text-xs text-red-500 hover:text-red-700">Eliminar</button>
                                 </div>
 
@@ -2503,7 +2506,7 @@ const badgesTipo = {
                                                     class="text-2xl leading-none transition-colors"
                                                     :class="s <= (paso.nivel_dificultad ?? 1) ? 'text-yellow-400' : 'text-gray-200'">★</button>
                                             </div>
-                                            <span class="text-xs text-tinta-300 font-mono">Peso automático: {{ parseFloat(paso.peso_porcentaje || 0).toFixed(1) }}%</span>
+                                            <span class="text-xs text-tinta-300 font-mono">Peso automático: {{ formatPct(paso.peso_porcentaje) }}%</span>
                                         </div>
                                     </div>
 

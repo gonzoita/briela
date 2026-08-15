@@ -73,6 +73,15 @@ viaja al servidor del cliente.
 7. Las rutas usan `Inertia::render()` en `routes/web.php`.
 8. El layout principal es `Layouts/AppLayout.vue` — úsalo en todas las páginas autenticadas.
 9. **Mobile-first siempre.** Diseña primero para celular, luego adapta a desktop.
+10. **El `step` de un campo numérico iguala la precisión de su columna.** Los porcentajes y
+    el dinero son `decimal(_,2)` → `step="0.01"`; las cantidades son `decimal(_,3)` →
+    `step="0.001"`. Un `step` más grueso que la columna hace que el navegador rechace un
+    valor que la base sí acepta: con `step="0.1"` no se puede escribir una comisión de
+    2,25%, y el campo no explica por qué. Solo llevan `step="1"` —o ninguno— los que son
+    enteros de verdad: píxeles, puertos, puntos, minutos, intentos, días.
+    Para mostrarlos, `resources/js/formato.js`: `formatPct` (hasta 2 decimales, sin ceros
+    de relleno), `formatCOP`, `formatCantidad`. Tres pasos al 33,33% mostrados con
+    `toFixed(0)` daban «33%» tres veces, que suma 99 y parece un error de cuentas.
 
 ---
 

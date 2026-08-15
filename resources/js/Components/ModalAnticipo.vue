@@ -22,12 +22,12 @@
         <div class="grid grid-cols-2 gap-2">
           <div>
             <label class="text-xs text-tinta-400 block mb-1">Valor cuota</label>
-            <input v-model="form.valor_cuota" type="number" placeholder="0"
+            <input v-model="form.valor_cuota" type="number" step="0.01" min="0" placeholder="0"
               class="w-full border border-tinta-200 rounded-lg px-3 py-2 text-sm focus:outline-none"/>
           </div>
           <div>
             <label class="text-xs text-tinta-400 block mb-1">Valor pagado</label>
-            <input v-model="form.valor_pago" type="number" placeholder="0"
+            <input v-model="form.valor_pago" type="number" step="0.01" min="0" placeholder="0"
               class="w-full border border-tinta-200 rounded-lg px-3 py-2 text-sm focus:outline-none"/>
           </div>
         </div>
