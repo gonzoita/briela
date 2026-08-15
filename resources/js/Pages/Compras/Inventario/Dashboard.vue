@@ -84,7 +84,7 @@ function tipoSimbolo(tipo) {
                 <div v-if="!ultimosMovimientos.length" class="text-center py-4 text-tinta-300 text-sm">Sin movimientos</div>
                 <div v-else class="space-y-2">
                     <div v-for="m in ultimosMovimientos" :key="m.id"
-                        class="flex items-center justify-between py-2 border-b border-gray-50 last:border-0">
+                        class="flex items-center justify-between py-2 border-b border-separador last:border-0">
                         <div>
                             <p class="text-sm font-medium text-tinta-900">{{ m.producto?.nombre }}</p>
                             <p class="text-xs text-tinta-400">{{ m.usuario?.name }} · {{ new Date(m.created_at).toLocaleDateString('es-CO') }}</p>

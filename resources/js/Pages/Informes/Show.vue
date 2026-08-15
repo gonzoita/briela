@@ -308,7 +308,7 @@ const lineaPuntos = computed(() => {
                                 </th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-gray-50">
+                        <tbody class="divide-y divide-separador">
                             <tr
                                 v-for="(fila, i) in datos"
                                 :key="i"

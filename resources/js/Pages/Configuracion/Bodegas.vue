@@ -86,7 +86,7 @@ function eliminar(id) {
                     Sin bodegas configuradas.
                 </div>
 
-                <div class="divide-y divide-gray-50">
+                <div class="divide-y divide-separador">
                     <div
                         v-for="b in bodegas"
                         :key="b.id"

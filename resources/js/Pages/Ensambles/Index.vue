@@ -161,9 +161,9 @@ function inicial(nombre) {
                         class="w-4 h-4 rounded border-tinta-300 cursor-pointer" />
                     <span class="text-xs text-tinta-400">Seleccionar todos los de esta página</span>
                 </div>
-                <ul class="divide-y divide-gray-50">
+                <ul class="divide-y divide-separador">
                     <li v-for="e in ensamblesLocal" :key="e.id"
-                        class="flex items-center gap-3 px-4 py-3 hover:bg-blue-50/40 transition-colors cursor-pointer"
+                        class="flex items-center gap-3 px-4 py-3 hover:bg-realce transition-colors cursor-pointer"
                         @click="router.visit(`/ensambles/${e.id}`)">
                         <input v-if="puedeEditarEnsambles" type="checkbox" :checked="seleccion.has(e.id)"
                             @change="alternarSeleccion(e.id)" @click.stop

@@ -448,7 +448,7 @@ function marcarTerminado(item) {
                                 <th class="w-8"></th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-gray-50">
+                        <tbody class="divide-y divide-separador">
                             <template v-for="(item, idx) in op.items" :key="item.id">
                                 <tr class="hover:bg-tinta-50 cursor-pointer transition-colors" @click="toggleItem(item.id)">
                                     <td class="px-4 py-3">
@@ -606,7 +606,7 @@ function marcarTerminado(item) {
                                                                 <th class="w-8"></th>
                                                             </tr>
                                                         </thead>
-                                                        <tbody class="divide-y divide-gray-50">
+                                                        <tbody class="divide-y divide-separador">
                                                             <!-- Vista con secciones -->
                                                             <template v-if="item.tiene_secciones">
                                                                 <template v-for="(padres, seccionNombre) in componentesPorSeccion(item.componentes)" :key="seccionNombre">
@@ -847,7 +847,7 @@ function marcarTerminado(item) {
                 </div>
 
                 <!-- Mobile cards -->
-                <div class="md:hidden divide-y divide-gray-50">
+                <div class="md:hidden divide-y divide-separador">
                     <div v-for="(item, idx) in op.items" :key="item.id">
                         <div class="px-4 py-3 flex items-start gap-3 cursor-pointer hover:bg-tinta-50 transition-colors"
                             @click="toggleItem(item.id)">
@@ -986,7 +986,7 @@ function marcarTerminado(item) {
                                                 <th class="w-8"></th>
                                             </tr>
                                         </thead>
-                                        <tbody class="divide-y divide-gray-50">
+                                        <tbody class="divide-y divide-separador">
                                             <!-- Vista con secciones -->
                                             <template v-if="item.tiene_secciones">
                                                 <template v-for="(padres, seccionNombre) in componentesPorSeccion(item.componentes)" :key="seccionNombre">

@@ -182,7 +182,7 @@ async function importar() {
             <!-- Guía de columnas -->
             <div class="bg-superficie rounded-2xl border border-linea shadow-sm p-5">
                 <h2 class="text-sm font-semibold text-tinta-900 mb-3">Guía de columnas</h2>
-                <div class="divide-y divide-gray-50">
+                <div class="divide-y divide-separador">
                     <div v-for="col in columnas" :key="col" class="py-2 flex items-start gap-3">
                         <span class="shrink-0 font-mono text-xs px-2 py-1 rounded bg-tinta-100 text-tinta-700 w-48 truncate">{{ col }}</span>
                         <div class="flex-1 min-w-0">

@@ -227,7 +227,7 @@ function eliminar() {
                                 <th class="text-left px-3 py-2.5 text-xs font-semibold text-tinta-400 uppercase">Notas</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-gray-50">
+                        <tbody class="divide-y divide-separador">
                             <tr v-for="item in remision.items" :key="item.id">
                                 <td class="px-4 py-3 text-sm text-tinta-900">{{ item.descripcion }}</td>
                                 <td class="px-3 py-3 text-center text-sm font-medium">{{ item.cantidad }}</td>

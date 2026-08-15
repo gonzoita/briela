@@ -247,7 +247,7 @@ watch(() => form.tipo, () => {
                                 class="absolute z-10 w-full mt-1 bg-superficie border border-linea rounded-xl shadow-lg overflow-hidden">
                                 <button v-for="op in resultadosOp" :key="op.id"
                                     @click="seleccionarOp(op)"
-                                    class="w-full text-left px-4 py-2.5 hover:bg-tinta-50 transition-colors border-b border-gray-50 last:border-0">
+                                    class="w-full text-left px-4 py-2.5 hover:bg-tinta-50 transition-colors border-b border-separador last:border-0">
                                     <span class="font-mono text-xs font-semibold text-tinta-900">{{ op.numero }}</span>
                                     <span class="text-xs text-tinta-400 ml-2">{{ op.cliente_nombre }}</span>
                                     <span class="text-xs text-blue-500 ml-2">{{ op.items_count }} ítems disponibles</span>

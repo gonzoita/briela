@@ -90,7 +90,7 @@ function eliminar(informe) {
                     </div>
 
                     <!-- Footer: fecha + acciones -->
-                    <div class="flex items-center justify-between pt-1 border-t border-gray-50 mt-auto">
+                    <div class="flex items-center justify-between pt-1 border-t border-separador mt-auto">
                         <span class="text-xs text-tinta-300">{{ informe.created_at }}</span>
                         <div class="flex items-center gap-1">
                             <!-- Ver -->

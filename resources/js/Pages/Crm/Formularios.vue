@@ -242,7 +242,7 @@ const formularioEditando = computed(() => lista.value.find(f => f.id === editand
 
             <!-- Tabla de formularios -->
             <div v-else class="bg-superficie rounded-2xl border border-linea overflow-hidden">
-                <div class="divide-y divide-gray-50">
+                <div class="divide-y divide-separador">
                     <div v-for="f in lista" :key="f.id" class="px-5 py-4">
                         <!-- Fila principal -->
                         <div class="flex items-start gap-4">
@@ -268,7 +268,7 @@ const formularioEditando = computed(() => lista.value.find(f => f.id === editand
                                 <a :href="`/f/${f.slug}`" target="_blank"
                                     class="px-3 py-1.5 rounded-xl border border-linea text-xs text-tinta-500 hover:bg-tinta-50">Ver</a>
                                 <button @click="abrirEditar(f)"
-                                    class="px-3 py-1.5 rounded-xl border border-linea text-xs text-blue-600 hover:bg-blue-50">Editar</button>
+                                    class="px-3 py-1.5 rounded-xl border border-linea text-xs text-blue-600 hover:bg-realce">Editar</button>
                                 <button @click="eliminar(f)" :disabled="eliminando === f.id"
                                     class="px-3 py-1.5 rounded-xl border border-linea text-xs text-red-500 hover:bg-red-50">Eliminar</button>
                             </div>
@@ -487,7 +487,7 @@ const formularioEditando = computed(() => lista.value.find(f => f.id === editand
                             <div class="flex items-center justify-between mb-3">
                                 <p class="text-xs font-semibold text-tinta-300 uppercase tracking-[0.12em]">Campos del formulario</p>
                                 <button @click="agregarCampo"
-                                    class="flex items-center gap-1 text-xs px-3 py-1.5 rounded-xl border border-linea text-blue-600 hover:bg-blue-50">
+                                    class="flex items-center gap-1 text-xs px-3 py-1.5 rounded-xl border border-linea text-blue-600 hover:bg-realce">
                                     <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
                                     </svg>

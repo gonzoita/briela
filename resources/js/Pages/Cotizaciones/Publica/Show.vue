@@ -167,7 +167,7 @@ function calcularTotal(item) {
                                 <th class="text-right px-4 py-2.5 text-xs font-semibold text-tinta-400 uppercase">Total</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-gray-50">
+                        <tbody class="divide-y divide-separador">
                             <tr v-for="(item, idx) in cot.items" :key="item.id">
                                 <td class="px-4 py-3 text-tinta-300 text-xs align-top">{{ idx + 1 }}</td>
                                 <td class="px-4 py-3 text-tinta-700">

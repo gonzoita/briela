@@ -811,7 +811,7 @@ onMounted(() => {
                                 <th class="pb-2 font-medium text-right">Subtotal</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-gray-50">
+                        <tbody class="divide-y divide-separador">
                             <tr v-for="(c, i) in componentes" :key="i" class="hover:bg-tinta-50">
                                 <td class="py-2 font-medium text-tinta-700">{{ c.nombre }}</td>
                                 <td class="py-2 text-right font-mono text-tinta-500">{{ c.cantidad }}</td>

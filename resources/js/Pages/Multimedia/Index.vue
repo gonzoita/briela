@@ -388,7 +388,7 @@ const iconoExtension = (ext) => {
                         <td class="px-4 py-3 text-tinta-300 hidden lg:table-cell text-xs">{{ archivo.created_at }}</td>
                         <td class="px-4 py-3 text-right">
                             <div class="flex items-center justify-end gap-1">
-                                <a :href="archivo.url" target="_blank" class="w-7 h-7 rounded-lg flex items-center justify-center text-tinta-300 hover:text-blue-600 hover:bg-blue-50 transition-colors">
+                                <a :href="archivo.url" target="_blank" class="w-7 h-7 rounded-lg flex items-center justify-center text-tinta-300 hover:text-blue-600 hover:bg-realce transition-colors">
                                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
                                     </svg>

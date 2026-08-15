@@ -90,7 +90,7 @@ const fmt = (n) => Number(n).toLocaleString('es-CO')
                 <div class="px-5 py-3 border-b border-linea">
                     <h2 class="text-sm font-semibold text-tinta-700">En proceso ahora</h2>
                 </div>
-                <div class="divide-y divide-gray-50">
+                <div class="divide-y divide-separador">
                     <div v-for="m in en_proceso" :key="m.id"
                         class="flex items-center px-5 py-3 gap-3 hover:bg-tinta-50 cursor-pointer"
                         @click="router.visit(`/mantenimiento/mantenimientos/${m.id}`)">

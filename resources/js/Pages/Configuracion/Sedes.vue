@@ -91,7 +91,7 @@ function eliminar(s) {
                     Sin sedes configuradas.
                 </div>
 
-                <div class="divide-y divide-gray-50">
+                <div class="divide-y divide-separador">
                     <div v-for="s in sedes" :key="s.id" class="px-4 py-3">
                         <div class="flex items-center gap-3">
                             <div class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"

@@ -28,7 +28,7 @@ const filas = computed(() => {
 </script>
 
 <template>
-    <div class="divide-y divide-gray-50">
+    <div class="divide-y divide-separador">
         <template v-for="(fila, idx) in filas" :key="idx">
             <div v-if="fila.tipo === 'encabezado'" class="px-4 py-1.5 text-xs font-semibold text-tinta-300 uppercase tracking-wide bg-tinta-50">
                 {{ fila.nombre }}
@@ -36,7 +36,7 @@ const filas = computed(() => {
             <button
                 v-else
                 type="button"
-                class="w-full text-left px-4 py-2.5 hover:bg-blue-50/60 transition-colors flex items-center justify-between gap-2"
+                class="w-full text-left px-4 py-2.5 hover:bg-realce transition-colors flex items-center justify-between gap-2"
                 :class="fila.esVariante ? 'pl-7' : ''"
                 @click="emit('elegir', fila.producto)"
             >

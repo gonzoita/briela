@@ -131,7 +131,7 @@ function eliminar(r) {
                     </p>
                 </div>
 
-                <div class="divide-y divide-gray-50">
+                <div class="divide-y divide-separador">
                     <div v-for="r in roles" :key="r.id" class="px-4 py-3">
                         <div class="flex items-center gap-3">
                             <div class="flex-1 min-w-0">

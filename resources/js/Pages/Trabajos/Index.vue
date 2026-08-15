@@ -337,7 +337,7 @@ async function eliminarTrabajo(t) {
                         <th class="px-5 py-3"></th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-50">
+                <tbody class="divide-y divide-separador">
                     <tr v-if="lista.length === 0">
                         <td colspan="6" class="text-center py-10 text-tinta-300 text-sm">No hay trabajos registrados</td>
                     </tr>

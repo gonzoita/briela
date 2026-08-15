@@ -413,7 +413,7 @@ async function eliminarPregunta(pregunta, target = evaluacion) {
                     </div>
 
                     <div v-if="expandidos.has(modulo.id)" class="border-t border-linea">
-                        <ul class="divide-y divide-gray-50">
+                        <ul class="divide-y divide-separador">
                             <li v-for="(leccion, lIdx) in modulo.lecciones" :key="leccion.id" class="flex items-center gap-2 px-4 py-2.5 hover:bg-tinta-50/60">
                                 <span class="text-xs text-tinta-300 w-4 shrink-0">{{ lIdx + 1 }}</span>
                                 <div class="flex-1 min-w-0 cursor-pointer" @click="abrirEditarLeccion(modulo, leccion)">
@@ -433,7 +433,7 @@ async function eliminarPregunta(pregunta, target = evaluacion) {
                                 </div>
                             </li>
                         </ul>
-                        <button @click="abrirNuevaLeccion(modulo)" class="w-full py-2.5 text-xs font-semibold text-center hover:bg-blue-50/60 transition-colors" style="color:var(--marca);">
+                        <button @click="abrirNuevaLeccion(modulo)" class="w-full py-2.5 text-xs font-semibold text-center hover:bg-realce transition-colors" style="color:var(--marca);">
                             + Lección
                         </button>
 
@@ -494,7 +494,7 @@ async function eliminarPregunta(pregunta, target = evaluacion) {
                                     </div>
                                 </div>
 
-                                <button @click="abrirNuevaPregunta(modulo.evalCfg)" class="w-full py-2 rounded-xl text-xs font-semibold text-center bg-superficie border border-linea hover:bg-blue-50/60 transition-colors" style="color:var(--marca);">
+                                <button @click="abrirNuevaPregunta(modulo.evalCfg)" class="w-full py-2 rounded-xl text-xs font-semibold text-center bg-superficie border border-linea hover:bg-realce transition-colors" style="color:var(--marca);">
                                     + Pregunta
                                 </button>
                             </div>
@@ -574,7 +574,7 @@ async function eliminarPregunta(pregunta, target = evaluacion) {
                     </div>
                 </div>
 
-                <button @click="abrirNuevaPregunta" class="w-full py-2.5 rounded-xl text-xs font-semibold text-center bg-superficie shadow-sm hover:bg-blue-50/60 transition-colors" style="color:var(--marca);">
+                <button @click="abrirNuevaPregunta" class="w-full py-2.5 rounded-xl text-xs font-semibold text-center bg-superficie shadow-sm hover:bg-realce transition-colors" style="color:var(--marca);">
                     + Pregunta
                 </button>
             </div>

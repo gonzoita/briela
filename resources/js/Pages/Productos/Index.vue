@@ -469,10 +469,10 @@ const precioMostrar = (p) => {
                         <th class="hidden sm:table-cell text-right px-4 py-3 text-xs font-semibold text-tinta-400 uppercase">Stock</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-50">
+                <tbody class="divide-y divide-separador">
                     <template v-for="p in productosLocal" :key="p.id">
                     <tr
-                        class="cursor-pointer transition-colors hover:bg-blue-50/40"
+                        class="cursor-pointer transition-colors hover:bg-realce"
                         @click="p.es_padre ? toggleExpandido(p.id) : router.visit(`/productos/${p.id}`)"
                     >
                         <!-- Selección para publicar en la web -->
@@ -566,7 +566,7 @@ const precioMostrar = (p) => {
                     </tr>
                     <!-- Filas de variantes (indentadas) -->
                     <tr v-if="p.es_padre && padresExpandidos.has(p.id)" v-for="v in p.variantes" :key="`v-${v.id}`"
-                        class="cursor-pointer transition-colors hover:bg-blue-50/40"
+                        class="cursor-pointer transition-colors hover:bg-realce"
                         style="background:var(--superficie-2);"
                         @click="router.visit(`/productos/${v.id}`)"
                     >
@@ -672,9 +672,9 @@ const precioMostrar = (p) => {
                     </template>
                 </div>
                 <!-- Variantes expandidas (grid) -->
-                <div v-if="p.es_padre && padresExpandidos.has(p.id)" class="border-t border-linea divide-y divide-gray-50">
+                <div v-if="p.es_padre && padresExpandidos.has(p.id)" class="border-t border-linea divide-y divide-separador">
                     <div v-for="v in p.variantes" :key="v.id"
-                        class="flex items-center justify-between px-3 py-2 hover:bg-blue-50/40"
+                        class="flex items-center justify-between px-3 py-2 hover:bg-realce"
                         @click.stop="router.visit(`/productos/${v.id}`)">
                         <span class="text-xs text-tinta-700">{{ v.valor_variante }}</span>
                         <span class="text-xs font-medium text-green-600">{{ v.stock_total }}</span>
@@ -809,7 +809,7 @@ const precioMostrar = (p) => {
                     <div v-if="catCargando" class="text-center text-sm text-tinta-300 py-8">
                         Cargando...
                     </div>
-                    <ul v-else class="divide-y divide-gray-50">
+                    <ul v-else class="divide-y divide-separador">
                         <li
                             v-for="cat in catLista"
                             :key="cat.id"
@@ -821,7 +821,7 @@ const precioMostrar = (p) => {
                                 <p class="text-xs text-tinta-300">{{ cat.productos_count ?? 0 }} producto(s)</p>
                             </div>
                             <button @click="abrirEditar(cat)"
-                                class="p-1.5 rounded-lg text-tinta-300 hover:text-blue-600 hover:bg-blue-50 transition-colors"
+                                class="p-1.5 rounded-lg text-tinta-300 hover:text-blue-600 hover:bg-realce transition-colors"
                                 title="Editar">
                                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>

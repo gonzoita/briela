@@ -111,7 +111,7 @@ const semaforoClass = {
                 <th class="w-20"></th>
               </tr>
             </thead>
-            <tbody class="divide-y divide-gray-50">
+            <tbody class="divide-y divide-separador">
               <tr v-for="c in cuotasFiltradas" :key="c.id" class="hover:bg-tinta-50 transition-colors">
                 <td class="px-4 py-3">
                   <span class="w-2.5 h-2.5 rounded-full inline-block" :class="semaforoClass[c.semaforo]"></span>

@@ -188,7 +188,7 @@ function submit() {
                     </button>
                 </div>
                 <div v-if="!form.repuestos.length" class="py-6 text-center text-xs text-tinta-300">Sin repuestos.</div>
-                <div class="divide-y divide-gray-50">
+                <div class="divide-y divide-separador">
                     <div v-for="(r, idx) in form.repuestos" :key="idx" class="p-4 space-y-2">
                         <div class="flex items-center justify-between">
                             <span class="text-xs font-semibold text-tinta-300">Ítem {{ idx + 1 }}</span>

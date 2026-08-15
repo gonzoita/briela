@@ -113,7 +113,7 @@ onUnmounted(() => document.removeEventListener('click', clickFuera))
             </a>
             <div class="border-t border-linea mt-1 pt-1">
                 <a href="/configuracion/plantillas-pdf"
-                    class="flex items-center gap-1.5 px-3 py-1.5 text-xs text-[var(--marca)] hover:bg-blue-50 transition-colors"
+                    class="flex items-center gap-1.5 px-3 py-1.5 text-xs text-[var(--marca)] hover:bg-realce transition-colors"
                 >
                     <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                         <path stroke-linecap="round" stroke-linejoin="round"

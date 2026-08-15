@@ -253,7 +253,7 @@ function reactivar(c) {
                     Sin cuentas conectadas todavía.
                 </div>
 
-                <div class="divide-y divide-gray-50">
+                <div class="divide-y divide-separador">
                     <div v-for="c in cuentas" :key="c.id" class="flex items-center gap-3 px-4 py-3">
                         <div class="flex-1 min-w-0">
                             <p class="text-sm font-medium text-tinta-900 truncate">{{ c.nombre_cuenta }}</p>

@@ -182,7 +182,7 @@ function desmarcarPaso(paso) {
                 <div class="px-4 py-3 border-b border-linea">
                     <h2 class="text-sm font-semibold text-tinta-700">Pasos del trabajo</h2>
                 </div>
-                <div class="divide-y divide-gray-50">
+                <div class="divide-y divide-separador">
                     <div v-for="paso in trabajo.pasos" :key="paso.id"
                         class="px-4 py-3 transition-colors"
                         :class="paso.completado ? 'bg-green-50' : 'hover:bg-tinta-50'">

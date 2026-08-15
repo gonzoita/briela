@@ -423,7 +423,7 @@ function submit() {
                         class="absolute z-20 mt-1 w-full bg-superficie border border-linea rounded-xl shadow-lg overflow-hidden">
                         <button v-for="c in clienteResultados" :key="c.id"
                             @click="seleccionarCliente(c)"
-                            class="w-full text-left px-4 py-2.5 text-sm hover:bg-blue-50 border-b border-gray-50 last:border-0">
+                            class="w-full text-left px-4 py-2.5 text-sm hover:bg-realce border-b border-separador last:border-0">
                             <span class="font-medium text-tinta-900">{{ c.nombre }} {{ c.apellido }}</span>
                             <span v-if="c.numero_identificacion" class="ml-2 text-xs text-tinta-300">{{ c.numero_identificacion }}</span>
                         </button>
@@ -604,7 +604,7 @@ function submit() {
 
                 <!-- Botón agregar -->
                 <button type="button" @click="abrirModal"
-                    class="w-full py-2.5 rounded-xl border-2 border-dashed border-tinta-200 text-sm font-medium text-tinta-400 hover:border-blue-400 hover:text-blue-600 hover:bg-blue-50 transition-colors flex items-center justify-center gap-2">
+                    class="w-full py-2.5 rounded-xl border-2 border-dashed border-tinta-200 text-sm font-medium text-tinta-400 hover:border-blue-400 hover:text-blue-600 hover:bg-realce transition-colors flex items-center justify-center gap-2">
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
                     </svg>
@@ -615,7 +615,7 @@ function submit() {
             <!-- ── Panel componentes requeridos ─────────────────────────────── -->
             <div v-if="panelComponentes.length" class="bg-superficie rounded-2xl border border-linea overflow-hidden mb-4">
                 <h2 class="text-sm font-semibold text-tinta-700 px-5 py-3 border-b border-linea">Componentes requeridos</h2>
-                <div class="divide-y divide-gray-50">
+                <div class="divide-y divide-separador">
                     <div v-for="grupo in panelComponentes" :key="grupo.nombre" class="px-5 py-4">
                         <p class="text-xs font-semibold text-tinta-500 mb-2">
                             {{ grupo.nombre }}
@@ -632,7 +632,7 @@ function submit() {
                                         <th v-if="esEdicion" class="text-left px-3 py-2 font-semibold text-tinta-400">Obs.</th>
                                     </tr>
                                 </thead>
-                                <tbody class="divide-y divide-gray-50">
+                                <tbody class="divide-y divide-separador">
                                     <template v-for="comp in componentesConJerarquia(grupo.componentes)" :key="comp.id ?? comp.nombre">
                                         <!-- Fila hijo -->
                                         <tr v-if="comp.parent_componente_id" class="bg-tinta-50/50">
@@ -748,7 +748,7 @@ function submit() {
                     <!-- Opciones -->
                     <div v-if="modalPanel === 'opciones'" class="p-5 space-y-3">
                         <button type="button" @click="modalPanel = 'producto'"
-                            class="w-full flex items-center gap-4 p-4 rounded-2xl border-2 border-linea hover:border-blue-400 hover:bg-blue-50 transition-colors text-left group">
+                            class="w-full flex items-center gap-4 p-4 rounded-2xl border-2 border-linea hover:border-blue-400 hover:bg-realce transition-colors text-left group">
                             <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style="background:var(--pastel-azul);">
                                 <svg class="w-5 h-5" style="color:var(--marca);" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7l8 4"/>
@@ -803,7 +803,7 @@ function submit() {
                         <div class="overflow-y-auto flex-1">
                             <p v-if="!ensambleQuery" class="text-sm text-tinta-300 text-center py-8">Escribe para buscar...</p>
                             <p v-else-if="ensambleResultados.length === 0 && ensambleQuery.length >= 2" class="text-sm text-tinta-300 text-center py-8">Sin resultados</p>
-                            <div v-for="e in ensambleResultados" :key="e.id" class="border-b border-gray-50 last:border-0">
+                            <div v-for="e in ensambleResultados" :key="e.id" class="border-b border-separador last:border-0">
                                 <div class="flex items-center justify-between px-5 py-3 hover:bg-tinta-50 cursor-pointer"
                                     @click="seleccionarEnsamble(e)">
                                     <div class="min-w-0 flex-1">

@@ -210,7 +210,7 @@ function guardarConfig() {
                                         <th class="text-right px-4 py-2 font-semibold text-tinta-400 uppercase w-24">Subtotal</th>
                                     </tr>
                                 </thead>
-                                <tbody class="divide-y divide-gray-50">
+                                <tbody class="divide-y divide-separador">
                                     <tr v-for="linea in desglose" :key="linea.id">
                                         <td class="px-4 py-2 text-tinta-700">{{ linea.nombre }}</td>
                                         <td class="px-2 py-2 text-center text-tinta-300 font-mono">{{ linea.unidad }}</td>
@@ -245,7 +245,7 @@ function guardarConfig() {
                                         <th class="text-right px-4 py-2 font-semibold text-tinta-400 uppercase">Cliente</th>
                                     </tr>
                                 </thead>
-                                <tbody class="divide-y divide-gray-50">
+                                <tbody class="divide-y divide-separador">
                                     <tr v-for="(v, idx) in versionesLamina" :key="idx"
                                         :class="['cursor-pointer transition-colors', versionSeleccionada === idx ? '' : 'hover:bg-tinta-50']"
                                         :style="versionSeleccionada === idx ? 'background:var(--pastel-azul);' : ''"

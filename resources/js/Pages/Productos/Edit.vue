@@ -427,9 +427,9 @@ const badgeStyle = {
                         <div class="px-5 py-3 border-b border-linea">
                             <h3 class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">Variantes existentes</h3>
                         </div>
-                        <div class="divide-y divide-gray-50">
+                        <div class="divide-y divide-separador">
                             <div v-for="v in (p.variantes ?? [])" :key="v.id"
-                                class="flex items-center justify-between px-5 py-3 cursor-pointer hover:bg-blue-50/40"
+                                class="flex items-center justify-between px-5 py-3 cursor-pointer hover:bg-realce"
                                 @click="router.visit(`/productos/${v.id}/editar`)">
                                 <div>
                                     <p class="text-sm text-tinta-900">{{ v.nombre }}</p>
@@ -722,7 +722,7 @@ const badgeStyle = {
                                     Ver detalle / Ajustar stock →
                                 </a>
                             </div>
-                            <div class="divide-y divide-gray-50 border border-linea rounded-xl overflow-hidden">
+                            <div class="divide-y divide-separador border border-linea rounded-xl overflow-hidden">
                                 <div v-for="s in stocksPorBodega" :key="s.bodega_id"
                                     class="flex items-center justify-between px-3 py-2">
                                     <span class="text-xs text-tinta-500">{{ s.bodega_nombre }}</span>

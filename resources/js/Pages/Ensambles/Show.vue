@@ -230,7 +230,7 @@ const variablesEntries = Object.entries(props.ensamble.variables ?? {})
                                 <th class="pb-2 font-medium text-right">Subtotal</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-gray-50">
+                        <tbody class="divide-y divide-separador">
                             <tr v-for="(c, i) in ensamble.componentes_resultado" :key="i" class="hover:bg-tinta-50">
                                 <td class="py-2 font-medium text-tinta-700">{{ c.nombre }}</td>
                                 <td class="py-2 text-right font-mono text-tinta-500">{{ c.cantidad }}</td>
@@ -263,7 +263,7 @@ const variablesEntries = Object.entries(props.ensamble.variables ?? {})
                 </div>
 
                 <div class="border border-linea rounded-xl overflow-hidden">
-                    <div class="divide-y divide-gray-50">
+                    <div class="divide-y divide-separador">
                         <div class="flex items-center justify-between px-3 py-2.5">
                             <span class="text-xs text-tinta-400">Costo</span>
                             <span class="text-sm font-semibold text-tinta-900">${{ formatCOP(ensamble.precio_costo) }}</span>

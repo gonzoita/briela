@@ -233,7 +233,7 @@ function storePermiso() {
                     <div class="px-5 py-3 border-b border-linea">
                         <h2 class="text-sm font-semibold text-tinta-700">Historial de Bonos</h2>
                     </div>
-                    <div class="divide-y divide-gray-50">
+                    <div class="divide-y divide-separador">
                         <div v-for="b in historial_bonos" :key="b.id"
                             class="flex items-center justify-between px-5 py-3">
                             <span class="text-sm text-tinta-700">{{ mesLabel(b.periodo_mes) }} {{ b.periodo_anio }}</span>
@@ -292,7 +292,7 @@ function storePermiso() {
                     <div v-if="!historial_puntos?.length" class="py-10 text-center text-sm text-tinta-300">
                         Sin movimientos de puntos aún.
                     </div>
-                    <div v-else class="divide-y divide-gray-50">
+                    <div v-else class="divide-y divide-separador">
                         <div v-for="p in historial_puntos" :key="p.id"
                             class="flex items-center justify-between px-5 py-3 gap-3">
                             <div class="flex-1 min-w-0">
@@ -356,7 +356,7 @@ function storePermiso() {
                             @click.prevent="router.visit(`/rrhh/operarios/${operario.id}/editar`)"
                             class="text-xs text-blue-600 underline">Gestionar</a>
                     </div>
-                    <div class="divide-y divide-gray-50">
+                    <div class="divide-y divide-separador">
                         <div v-for="doc in DOCS_LISTA" :key="doc.campo"
                             class="flex items-center justify-between px-5 py-3">
                             <span class="text-sm text-tinta-700">{{ doc.label }}</span>
@@ -402,7 +402,7 @@ function storePermiso() {
                     <div v-if="!pasos_mes.length" class="py-10 text-center text-sm text-tinta-300">
                         Sin pasos completados este mes.
                     </div>
-                    <div v-else class="divide-y divide-gray-50">
+                    <div v-else class="divide-y divide-separador">
                         <div v-for="paso in pasos_mes" :key="paso.id" class="px-5 py-3">
                             <div class="flex items-start justify-between gap-3">
                                 <div class="flex-1 min-w-0">
@@ -431,7 +431,7 @@ function storePermiso() {
                         <h2 class="text-sm font-semibold text-tinta-700">Registros de disciplina</h2>
                     </div>
                     <div v-if="!disciplinas.length" class="py-10 text-center text-sm text-tinta-300">Sin registros.</div>
-                    <div v-else class="divide-y divide-gray-50">
+                    <div v-else class="divide-y divide-separador">
                         <div v-for="d in disciplinas" :key="d.id" class="px-5 py-4">
                             <div class="flex items-start justify-between gap-3">
                                 <div class="flex-1 min-w-0">
@@ -507,7 +507,7 @@ function storePermiso() {
                         </button>
                     </div>
                     <div v-if="!hitos_mes.length" class="py-8 text-center text-sm text-tinta-300">Sin hitos este mes.</div>
-                    <div v-else class="divide-y divide-gray-50">
+                    <div v-else class="divide-y divide-separador">
                         <div v-for="h in hitos_mes" :key="h.id" class="flex items-center px-5 py-3 gap-3">
                             <div class="flex-1 min-w-0">
                                 <p class="text-sm font-medium text-tinta-900">{{ h.nombre }}</p>
@@ -571,7 +571,7 @@ function storePermiso() {
                         <h2 class="text-sm font-semibold text-tinta-700">Horas extras — {{ mesLabel(mes_actual) }}</h2>
                     </div>
                     <div v-if="!horas_extras_mes.length" class="py-8 text-center text-sm text-tinta-300">Sin horas extras este mes.</div>
-                    <div v-else class="divide-y divide-gray-50">
+                    <div v-else class="divide-y divide-separador">
                         <div v-for="h in horas_extras_mes" :key="h.id" class="flex items-center px-5 py-3 gap-3">
                             <div class="flex-1 min-w-0">
                                 <p class="text-sm font-medium text-tinta-900 capitalize">{{ h.tipo }}</p>
@@ -626,7 +626,7 @@ function storePermiso() {
                         <h2 class="text-sm font-semibold text-tinta-700">Permisos — {{ mesLabel(mes_actual) }}</h2>
                     </div>
                     <div v-if="!permisos_mes.length" class="py-6 text-center text-sm text-tinta-300">Sin permisos este mes.</div>
-                    <div v-else class="divide-y divide-gray-50">
+                    <div v-else class="divide-y divide-separador">
                         <div v-for="p in permisos_mes" :key="p.id" class="flex items-center px-5 py-3 gap-3">
                             <div class="flex-1 min-w-0">
                                 <p class="text-xs text-tinta-700">

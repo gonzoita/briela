@@ -133,7 +133,7 @@ function publicarAhora(p) {
                         <img v-if="p.imagen_url" :src="p.imagen_url" class="w-14 h-14 rounded-lg object-cover shrink-0" />
                     </div>
 
-                    <div class="flex items-center gap-3 mt-3 pt-3 border-t border-gray-50">
+                    <div class="flex items-center gap-3 mt-3 pt-3 border-t border-separador">
                         <button v-if="['borrador','programada','fallida','parcial'].includes(p.estado)"
                             @click="publicarAhora(p)" class="text-xs font-semibold text-[var(--marca)]">
                             Publicar ahora

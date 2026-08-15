@@ -85,6 +85,20 @@ viaja al servidor del cliente.
 
 ---
 
+## Colores: nunca un gris fijo de Tailwind para líneas ni realces
+
+`border-linea` delimita, `divide-separador` separa filas, `hover:bg-realce` marca el
+renglón del puntero. Los tres cambian con el tema. **Prohibido** `divide-gray-50`,
+`border-gray-50` y `hover:bg-blue-50`: son colores fijos que en modo noche dejan líneas
+casi blancas —15,6:1 contra la superficie— y hovers que destellan. Ver
+`docs/manual/marca.md`.
+
+Los fondos de aviso van con los pasteles del tema (`--pastel-azul`, `-verde`, `-ambar`,
+`-rojo`, `-violeta`, `-naranja`) y su texto con `--texto-azul` y compañía: en modo noche
+el pastel se vuelve un tinte oscuro y el texto se aclara. Un `bg-blue-50` con
+`text-blue-700` escritos a mano quedan claro sobre claro de día y oscuro sobre oscuro de
+noche. Quedan 371 sitios con esa deuda; al tocar una pantalla, corregir los suyos.
+
 ## Listas: el orden lo pide la pantalla
 
 Toda lista paginada se ordena por lo que elija el usuario. Tres piezas, y no hay que

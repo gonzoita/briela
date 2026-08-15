@@ -164,7 +164,7 @@ const TIPOS = ['compresor', 'evaporador', 'condensador', 'puerta', 'panel', 'mot
                 <div v-if="!form.componentes.length" class="py-6 text-center text-xs text-tinta-300">
                     Sin componentes. Opcional.
                 </div>
-                <div class="divide-y divide-gray-50">
+                <div class="divide-y divide-separador">
                     <div v-for="(c, idx) in form.componentes" :key="idx" class="p-4 space-y-2">
                         <div class="flex items-center justify-between">
                             <span class="text-xs font-semibold text-tinta-300">Componente {{ idx + 1 }}</span>

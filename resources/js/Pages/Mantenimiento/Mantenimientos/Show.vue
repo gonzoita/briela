@@ -89,7 +89,7 @@ const estadoBadge = {
                 <div class="px-5 py-3 border-b border-linea">
                     <h2 class="text-sm font-semibold text-tinta-700">Repuestos / materiales</h2>
                 </div>
-                <div class="divide-y divide-gray-50">
+                <div class="divide-y divide-separador">
                     <div v-for="r in mantenimiento.repuestos" :key="r.id"
                         class="flex items-center px-5 py-3 gap-3">
                         <div class="flex-1">

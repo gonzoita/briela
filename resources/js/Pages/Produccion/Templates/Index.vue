@@ -34,7 +34,7 @@ function eliminar(t) {
                 <div v-if="!templates.length" class="py-12 text-center text-sm text-tinta-300">
                     No hay templates registrados.
                 </div>
-                <div v-else class="divide-y divide-gray-50">
+                <div v-else class="divide-y divide-separador">
                     <div v-for="t in templates" :key="t.id"
                         class="flex items-center px-5 py-4 gap-4">
                         <div class="flex-1 min-w-0">

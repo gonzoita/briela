@@ -107,7 +107,7 @@ const formatCOP = (v) =>
         <div class="px-5 py-3 border-b border-linea flex items-center justify-between gap-2">
             <h3 class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">Comisión vendedor por canal</h3>
             <button type="button" @click="sugerirComisiones"
-                class="text-xs text-[var(--marca)] border border-[var(--marca)] rounded-lg px-3 py-1.5 hover:bg-blue-50 transition-colors shrink-0">
+                class="text-xs text-[var(--marca)] border border-[var(--marca)] rounded-lg px-3 py-1.5 hover:bg-realce transition-colors shrink-0">
                 Sugerir comisiones
             </button>
         </div>

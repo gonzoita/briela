@@ -25,7 +25,7 @@
                     <!-- Zona drag & drop -->
                     <div
                         class="border-2 border-dashed rounded-2xl p-8 text-center cursor-pointer transition-colors"
-                        :class="archivoSeleccionado ? 'border-[var(--marca)] bg-blue-50' : 'border-linea hover:border-[var(--marca)] hover:bg-blue-50'"
+                        :class="archivoSeleccionado ? 'border-[var(--marca)] bg-blue-50' : 'border-linea hover:border-[var(--marca)] hover:bg-realce'"
                         @dragover.prevent
                         @drop.prevent="onDrop"
                         @click="$refs.inputArchivo.click()"

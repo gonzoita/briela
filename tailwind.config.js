@@ -51,6 +51,15 @@ export default {
                     50:  'var(--tinta-50)',
                 },
                 linea: 'var(--borde)',
+                // El separador entre filas: más suave que `linea`. Delimitar una tarjeta y
+                // dejar seguir el renglón con la vista son dos cosas distintas, y cuando
+                // pesan lo mismo la tabla se vuelve una reja. Antes esto era
+                // `divide-gray-50` escrito a mano en 84 sitios — un gris casi blanco que
+                // en modo noche dejaba líneas encendidas sobre fondo oscuro.
+                separador: 'var(--separador)',
+                // El realce del puntero sobre una fila. Un azul fijo funcionaba de día y
+                // encendía la pantalla de noche.
+                realce: 'var(--realce)',
                 lienzo: 'var(--fondo)',
                 // Las superficies: lo que en modo día es blanco y de noche es un
                 // gris muy oscuro. `text-white` se deja como blanco real, porque

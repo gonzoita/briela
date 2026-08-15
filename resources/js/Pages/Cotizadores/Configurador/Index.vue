@@ -272,7 +272,7 @@ const badgesTipo = {
                                 class="w-6 h-6 rounded-lg flex items-center justify-center text-white text-base font-semibold"
                                 style="background:var(--marca);" title="Nueva plantilla">+</button>
                         </div>
-                        <ul class="divide-y divide-gray-50">
+                        <ul class="divide-y divide-separador">
                             <li v-for="p in plantillas" :key="p.id"
                                 @click="seleccionar(p)"
                                 :class="['flex items-center justify-between px-4 py-3 cursor-pointer transition-colors group', plantillaActual?.id === p.id ? 'bg-blue-50' : 'hover:bg-tinta-50']">
@@ -325,7 +325,7 @@ const badgesTipo = {
                             </div>
 
                             <!-- Lista de campos -->
-                            <ul class="divide-y divide-gray-50">
+                            <ul class="divide-y divide-separador">
                                 <li v-for="c in plantillaActual.campos" :key="c.id"
                                     class="px-4 py-3 flex items-start gap-3 group">
                                     <div class="flex-1 min-w-0">
@@ -337,7 +337,7 @@ const badgesTipo = {
                                         <p v-if="c.opciones?.length" class="text-xs text-tinta-300">{{ c.opciones.map(o => o.etiqueta).join(' · ') }}</p>
                                     </div>
                                     <div class="flex gap-1 opacity-0 group-hover:opacity-100 shrink-0">
-                                        <button @click="abrirEditarCampo(c)" class="p-1 rounded-lg text-tinta-300 hover:text-blue-600 hover:bg-blue-50">
+                                        <button @click="abrirEditarCampo(c)" class="p-1 rounded-lg text-tinta-300 hover:text-blue-600 hover:bg-realce">
                                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
                                         </button>
                                         <button @click="eliminarCampo(c)" class="p-1 rounded-lg text-tinta-300 hover:text-red-600 hover:bg-red-50">
@@ -422,7 +422,7 @@ const badgesTipo = {
                             </div>
 
                             <!-- Lista de componentes -->
-                            <ul class="divide-y divide-gray-50">
+                            <ul class="divide-y divide-separador">
                                 <li v-for="c in plantillaActual.componentes" :key="c.id"
                                     :class="['px-4 py-3 flex items-start gap-3 group', !c.activo ? 'opacity-50' : '']">
                                     <div class="flex-1 min-w-0">
@@ -432,7 +432,7 @@ const badgesTipo = {
                                         <span class="text-xs text-tinta-300">{{ c.unidad }}</span>
                                     </div>
                                     <div class="flex gap-1 opacity-0 group-hover:opacity-100 shrink-0">
-                                        <button @click="abrirEditarComponente(c)" class="p-1 rounded-lg text-tinta-300 hover:text-blue-600 hover:bg-blue-50">
+                                        <button @click="abrirEditarComponente(c)" class="p-1 rounded-lg text-tinta-300 hover:text-blue-600 hover:bg-realce">
                                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
                                         </button>
                                         <button @click="eliminarComponente(c)" class="p-1 rounded-lg text-tinta-300 hover:text-red-600 hover:bg-red-50">
@@ -586,7 +586,7 @@ const badgesTipo = {
                             <thead><tr class="text-left text-tinta-300">
                                 <th class="pb-1">Componente</th><th class="pb-1 text-right">Cant.</th><th class="pb-1 text-right">Precio Unit.</th><th class="pb-1 text-right">Subtotal</th>
                             </tr></thead>
-                            <tbody class="divide-y divide-gray-50">
+                            <tbody class="divide-y divide-separador">
                                 <tr v-for="(c, i) in probarResultado.componentes" :key="i" class="hover:bg-tinta-50">
                                     <td class="py-1.5 font-medium text-tinta-700">{{ c.nombre }} <span class="text-tinta-300 font-normal">{{ c.unidad }}</span></td>
                                     <td class="py-1.5 text-right font-mono text-tinta-500">{{ c.cantidad }}</td>

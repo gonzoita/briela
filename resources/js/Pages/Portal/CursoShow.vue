@@ -114,7 +114,7 @@ const tipoLabel = (v) => ({ video_drive: 'Video', video_externo: 'Video', texto:
                 <!-- Sidebar módulos/lecciones -->
                 <div class="md:col-span-1 order-2 md:order-1 space-y-3">
                     <div v-for="modulo in curso.modulos" :key="modulo.id" class="bg-superficie rounded-2xl shadow-sm overflow-hidden" :class="{ 'opacity-60': modulo.bloqueado }">
-                        <div class="flex items-center gap-2 px-4 py-2.5 border-b border-gray-50">
+                        <div class="flex items-center gap-2 px-4 py-2.5 border-b border-separador">
                             <svg v-if="modulo.bloqueado" class="w-3.5 h-3.5 text-tinta-300 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
                             </svg>
@@ -126,7 +126,7 @@ const tipoLabel = (v) => ({ video_drive: 'Video', video_externo: 'Video', texto:
                         </p>
 
                         <template v-else>
-                            <ul class="divide-y divide-gray-50">
+                            <ul class="divide-y divide-separador">
                                 <li v-for="leccion in modulo.lecciones" :key="leccion.id">
                                     <button @click="seleccionarLeccion(leccion, modulo)"
                                         class="w-full flex items-center gap-2.5 px-4 py-2.5 text-left transition-colors"

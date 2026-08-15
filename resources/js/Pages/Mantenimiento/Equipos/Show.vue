@@ -110,7 +110,7 @@ function nuevo() {
                     <div class="px-5 py-3 border-b border-linea">
                         <h2 class="text-sm font-semibold text-tinta-700">Componentes ({{ equipo.componentes.length }})</h2>
                     </div>
-                    <div class="divide-y divide-gray-50">
+                    <div class="divide-y divide-separador">
                         <div v-for="c in equipo.componentes" :key="c.id" class="flex items-center px-5 py-3 gap-3">
                             <div class="flex-1 min-w-0">
                                 <p class="text-sm font-medium text-tinta-900">{{ c.nombre }}</p>

@@ -223,6 +223,15 @@ class Marca
                 'superficie-2' => '#F9FAFB',
                 'fondo'        => '#FBFBFC',
                 'borde'        => '#EDEFF2',
+                // El separador entre filas de una lista es MÁS suave que el borde de una
+                // tarjeta: son dos trabajos distintos. Un borde delimita algo; una línea
+                // entre filas solo tiene que dejar seguir el renglón con la vista, y
+                // cuando pesa lo mismo que el borde la tabla se vuelve una reja.
+                'separador'    => '#F2F4F7',
+                // El realce de una fila señalada con el puntero, o de un elemento elegido.
+                // Antes eran 49 sitios con `hover:bg-blue-50`, un azul casi blanco: en modo
+                // noche cada fila destellaba al pasar por encima.
+                'realce'       => '#F4F7FE',
                 'texto'        => '#101828',
                 'texto-2'      => '#475467',
                 'texto-3'      => '#98A2B3',
@@ -273,14 +282,25 @@ class Marca
                 'superficie-2' => '#232833',
                 'fondo'        => '#14171E',
                 'borde'        => '#2E3542',
-                'texto'        => '#F2F4F7',
-                'texto-2'      => '#B4BCCA',
-                'texto-3'      => '#7D8698',
-                'tinta-900'    => '#F2F4F7',
-                'tinta-700'    => '#D9DEE7',
+                'separador'    => '#262C37',
+                // Apenas por encima de la superficie. Un realce se tiene que notar sin
+                // pedir permiso: el salto justo para saber en qué renglón está el puntero.
+                'realce'       => '#282F3B',
+                // Casi blanco cansa. `#F2F4F7` sobre estas superficies da un contraste de
+                // más de 14:1, muy por encima de lo que pide la accesibilidad, y en una
+                // tabla de cuarenta filas en negrita se lee como un foco. Bajarlo a
+                // `#E4E8EE` deja 12:1 —de sobra— y la pantalla descansa.
+                'texto'        => '#E4E8EE',
+                'texto-2'      => '#AEB6C4',
+                'texto-3'      => '#8A93A3',
+                'tinta-900'    => '#E4E8EE',
+                'tinta-700'    => '#CBD2DC',
                 'tinta-500'    => '#B4BCCA',
                 'tinta-400'    => '#98A2B3',
-                'tinta-300'    => '#7D8698',
+                // 4,77:1 sobre la superficie más clara del tema, que es lo mínimo que pide
+                // la accesibilidad para texto normal. Se quedaba en 3,8 y es justo el tono
+                // de las etiquetas y los textos de ayuda.
+                'tinta-300'    => '#8A93A3',
                 'tinta-200'    => '#2E3542',
                 'tinta-100'    => '#252B36',
                 'tinta-50'     => '#232833',

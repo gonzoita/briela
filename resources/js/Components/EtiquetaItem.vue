@@ -2,7 +2,7 @@
     <!-- Botón impresora -->
     <button
         @click="mostrar = true"
-        class="w-7 h-7 flex items-center justify-center rounded-lg border border-linea text-tinta-300 hover:text-[var(--marca)] hover:border-[var(--marca)] hover:bg-blue-50 transition-colors"
+        class="w-7 h-7 flex items-center justify-center rounded-lg border border-linea text-tinta-300 hover:text-[var(--marca)] hover:border-[var(--marca)] hover:bg-realce transition-colors"
         title="Ver etiqueta e imprimir"
     >
         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
@@ -28,7 +28,7 @@
                     <div class="flex items-center gap-2">
                         <button
                             @click="imprimir"
-                            class="px-3 py-1.5 bg-superficie text-[var(--marca)] rounded-lg text-sm font-semibold hover:bg-blue-50 flex items-center gap-1.5"
+                            class="px-3 py-1.5 bg-superficie text-[var(--marca)] rounded-lg text-sm font-semibold hover:bg-realce flex items-center gap-1.5"
                         >
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2m-6 0v4H9v-4h6z"/>

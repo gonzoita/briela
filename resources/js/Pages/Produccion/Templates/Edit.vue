@@ -221,7 +221,7 @@ function submit() {
                     <div v-if="!form.pasos.length" class="py-8 text-center text-sm text-tinta-300">
                         Sin pasos. Agrega al menos uno.
                     </div>
-                    <div class="divide-y divide-gray-50">
+                    <div class="divide-y divide-separador">
                         <div v-for="(paso, idx) in form.pasos" :key="idx"
                             :class="['p-4 space-y-3', paso.es_paso_final ? 'border-l-4 border-purple-400 bg-purple-50/20' : '']">
                             <div class="flex items-center justify-between">
@@ -365,7 +365,7 @@ function submit() {
                             </span>
                         </div>
                         <button @click="agregarPaso" type="button"
-                            class="w-full mt-2 py-1.5 text-sm text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+                            class="w-full mt-2 py-1.5 text-sm text-blue-600 hover:bg-realce rounded-lg transition-colors">
                             + Paso
                         </button>
                         <p v-if="errors.pasos" class="text-xs text-red-500 mt-2 px-2">{{ errors.pasos }}</p>

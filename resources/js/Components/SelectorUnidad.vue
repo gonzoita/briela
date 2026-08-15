@@ -227,7 +227,7 @@ const etiquetaTipo = { producto: 'Producto', servicio: 'Servicio', ambos: 'Ambos
                     </div>
 
                     <!-- Lista -->
-                    <ul class="divide-y divide-gray-50 border-t border-linea">
+                    <ul class="divide-y divide-separador border-t border-linea">
                         <li v-for="(u, i) in [...unidades].sort((a,b) => a.orden - b.orden)" :key="u.id"
                             class="flex items-center gap-2 py-2.5">
                             <div class="flex flex-col gap-0.5 shrink-0">

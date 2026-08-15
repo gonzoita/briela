@@ -95,7 +95,7 @@ function eliminar(m) {
             </div>
 
             <div v-else class="bg-superficie rounded-2xl border border-linea overflow-hidden">
-                <div class="divide-y divide-gray-50">
+                <div class="divide-y divide-separador">
                     <div v-for="m in mantenimientos" :key="m.id"
                         class="flex items-center px-4 py-4 gap-3 hover:bg-tinta-50 cursor-pointer"
                         @click="router.visit(`/mantenimiento/mantenimientos/${m.id}`)">

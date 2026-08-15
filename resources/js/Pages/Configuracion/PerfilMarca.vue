@@ -550,7 +550,7 @@ async function importar() {
                                     </summary>
                                     <input v-model="buscarVoz" type="text" placeholder="Filtrar…"
                                         class="w-full rounded-xl border border-linea px-3 py-1.5 text-xs my-1.5 focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]" />
-                                    <div class="max-h-32 overflow-y-auto rounded-xl border border-linea divide-y divide-gray-50">
+                                    <div class="max-h-32 overflow-y-auto rounded-xl border border-linea divide-y divide-separador">
                                         <button v-for="(label, id) in modelosVozFiltrados" :key="id" type="button"
                                             @click="modeloVoz = id"
                                             class="w-full text-left px-2 py-1.5 text-xs hover:bg-tinta-50">

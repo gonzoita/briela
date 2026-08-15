@@ -1044,7 +1044,7 @@ const badgesTipo = {
                                 </button>
                             </div>
                         </div>
-                        <ul class="divide-y divide-gray-50">
+                        <ul class="divide-y divide-separador">
                             <li v-for="p in plantillasFiltradas" :key="p.id"
                                 @click="seleccionar(p)"
                                 :class="['flex items-center justify-between px-4 py-3 cursor-pointer transition-colors group', plantillaActual?.id === p.id ? 'bg-blue-50' : 'hover:bg-tinta-50']">
@@ -1055,7 +1055,7 @@ const badgesTipo = {
                                 <div class="flex items-center gap-1">
                                     <span v-if="!p.activo" class="text-xs bg-tinta-100 text-tinta-300 px-1.5 py-0.5 rounded-full">Inactiva</span>
                                     <button @click.stop="duplicarPlantilla(p)" title="Duplicar plantilla"
-                                        class="opacity-0 group-hover:opacity-100 w-6 h-6 rounded-lg flex items-center justify-center text-tinta-300 hover:text-blue-600 hover:bg-blue-50">
+                                        class="opacity-0 group-hover:opacity-100 w-6 h-6 rounded-lg flex items-center justify-center text-tinta-300 hover:text-blue-600 hover:bg-realce">
                                         <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
                                         </svg>
@@ -1165,7 +1165,7 @@ const badgesTipo = {
 
                     <!-- ══════════════ Tab: Campos ═════════════════════════════ -->
                     <div v-if="tabActivo === 'campos'" class="bg-superficie rounded-b-2xl shadow-sm overflow-hidden">
-                        <ul class="divide-y divide-gray-50">
+                        <ul class="divide-y divide-separador">
                             <template v-for="(c, idx) in plantillaActual.campos" :key="c.id">
                                 <!-- Separador: variables calculadas -->
                                 <li v-if="idx > 0 && c.tipo_campo === 'calculado' && (plantillaActual.campos[idx-1].tipo_campo ?? 'entrada') !== 'calculado'"
@@ -1241,7 +1241,7 @@ const badgesTipo = {
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
                                             </svg>
                                         </button>
-                                        <button @click="abrirEditarCampo(c)" class="p-1 rounded-lg text-tinta-300 hover:text-blue-600 hover:bg-blue-50">
+                                        <button @click="abrirEditarCampo(c)" class="p-1 rounded-lg text-tinta-300 hover:text-blue-600 hover:bg-realce">
                                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
                                         </button>
                                         <button @click="eliminarCampo(c)" class="p-1 rounded-lg text-tinta-300 hover:text-red-600 hover:bg-red-50">
@@ -1463,7 +1463,7 @@ const badgesTipo = {
                                     <p class="text-xs text-tinta-300 mt-0.5">Edita el título y haz clic en «Actualizar» para guardarlo.</p>
                                 </div>
                                 <div v-else>
-                                    <label class="flex flex-col items-center justify-center gap-1 border-2 border-dashed border-linea rounded-lg py-5 cursor-pointer hover:border-blue-300 hover:bg-blue-50 transition-colors">
+                                    <label class="flex flex-col items-center justify-center gap-1 border-2 border-dashed border-linea rounded-lg py-5 cursor-pointer hover:border-blue-300 hover:bg-realce transition-colors">
                                         <svg class="w-5 h-5 text-tinta-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"/>
                                         </svg>
@@ -1539,7 +1539,7 @@ const badgesTipo = {
                         <!-- Panel de ayuda colapsable -->
                         <div class="border-b border-linea">
                             <button @click="ayudaVisible = !ayudaVisible"
-                                class="w-full flex items-center justify-between px-4 py-2.5 text-left hover:bg-blue-50 transition-colors">
+                                class="w-full flex items-center justify-between px-4 py-2.5 text-left hover:bg-realce transition-colors">
                                 <span class="flex items-center gap-2 text-xs font-medium text-blue-700">
                                     <svg class="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
@@ -1649,7 +1649,7 @@ const badgesTipo = {
                         <div class="px-4 py-3 border-b border-linea">
                             <template v-if="!showNuevaSec">
                                 <button @click="showNuevaSec = true"
-                                    class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border-2 border-dashed border-blue-300 text-xs text-blue-600 hover:bg-blue-50 font-medium transition-colors">
+                                    class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border-2 border-dashed border-blue-300 text-xs text-blue-600 hover:bg-realce font-medium transition-colors">
                                     <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
                                     </svg>
@@ -1752,7 +1752,7 @@ const badgesTipo = {
                                         draggable="true"
                                         @dragstart="onDragStartComp($event, c)"
                                         @dragend="dragCompId = null; dropCompTarget = undefined"
-                                        :class="['px-4 py-3 flex items-center gap-2 group border-b border-gray-50 transition-colors', !c.activo ? 'opacity-50' : '', dragCompId === c.id ? 'opacity-40 bg-blue-50' : 'hover:bg-tinta-50']">
+                                        :class="['px-4 py-3 flex items-center gap-2 group border-b border-separador transition-colors', !c.activo ? 'opacity-50' : '', dragCompId === c.id ? 'opacity-40 bg-blue-50' : 'hover:bg-tinta-50']">
                                         <!-- Grip componente -->
                                         <svg class="w-4 h-4 text-tinta-200 cursor-grab shrink-0 hover:text-tinta-400 transition-colors" fill="currentColor" viewBox="0 0 20 20">
                                             <path d="M7 2a2 2 0 1 0 .001 4.001A2 2 0 0 0 7 2zm0 6a2 2 0 1 0 .001 4.001A2 2 0 0 0 7 8zm0 6a2 2 0 1 0 .001 4.001A2 2 0 0 0 7 14zm6-8a2 2 0 1 0-.001-4.001A2 2 0 0 0 13 6zm0 2a2 2 0 1 0 .001 4.001A2 2 0 0 0 13 8zm0 6a2 2 0 1 0 .001 4.001A2 2 0 0 0 13 14z"/>
@@ -1786,7 +1786,7 @@ const badgesTipo = {
                                         </div>
                                         <!-- Acciones -->
                                         <div class="flex gap-1 opacity-0 group-hover:opacity-100 shrink-0">
-                                            <button @click="abrirEditarComponente(c)" class="p-1 rounded-lg text-tinta-300 hover:text-blue-600 hover:bg-blue-50">
+                                            <button @click="abrirEditarComponente(c)" class="p-1 rounded-lg text-tinta-300 hover:text-blue-600 hover:bg-realce">
                                                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
                                             </button>
                                             <button @click="eliminarComponente(c)" class="p-1 rounded-lg text-tinta-300 hover:text-red-600 hover:bg-red-50">
@@ -2044,7 +2044,7 @@ const badgesTipo = {
                                         draggable="true"
                                         @dragstart="onDragStartComp($event, c)"
                                         @dragend="dragCompId = null; dropCompTarget = undefined"
-                                        :class="['px-4 py-3 flex items-center gap-2 group border-b border-gray-50 transition-colors', !c.activo ? 'opacity-50' : '', dragCompId === c.id ? 'opacity-40 bg-blue-50' : 'hover:bg-tinta-50']">
+                                        :class="['px-4 py-3 flex items-center gap-2 group border-b border-separador transition-colors', !c.activo ? 'opacity-50' : '', dragCompId === c.id ? 'opacity-40 bg-blue-50' : 'hover:bg-tinta-50']">
                                         <svg class="w-4 h-4 text-tinta-200 cursor-grab shrink-0 hover:text-tinta-400 transition-colors" fill="currentColor" viewBox="0 0 20 20">
                                             <path d="M7 2a2 2 0 1 0 .001 4.001A2 2 0 0 0 7 2zm0 6a2 2 0 1 0 .001 4.001A2 2 0 0 0 7 8zm0 6a2 2 0 1 0 .001 4.001A2 2 0 0 0 7 14zm6-8a2 2 0 1 0-.001-4.001A2 2 0 0 0 13 6zm0 2a2 2 0 1 0 .001 4.001A2 2 0 0 0 13 8zm0 6a2 2 0 1 0 .001 4.001A2 2 0 0 0 13 14z"/>
                                         </svg>
@@ -2074,7 +2074,7 @@ const badgesTipo = {
                                             </div>
                                         </div>
                                         <div class="flex gap-1 opacity-0 group-hover:opacity-100 shrink-0">
-                                            <button @click="abrirEditarComponente(c)" class="p-1 rounded-lg text-tinta-300 hover:text-blue-600 hover:bg-blue-50">
+                                            <button @click="abrirEditarComponente(c)" class="p-1 rounded-lg text-tinta-300 hover:text-blue-600 hover:bg-realce">
                                                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
                                             </button>
                                             <button @click="eliminarComponente(c)" class="p-1 rounded-lg text-tinta-300 hover:text-red-600 hover:bg-red-50">
@@ -2719,7 +2719,7 @@ const badgesTipo = {
                                     <th class="pb-2 text-right">P.Unit.</th>
                                     <th class="pb-2 text-right">Subtotal</th>
                                 </tr></thead>
-                                <tbody class="divide-y divide-gray-50">
+                                <tbody class="divide-y divide-separador">
                                     <tr v-for="(c, i) in probarResultado.componentes" :key="i">
                                         <td class="py-1.5 font-medium text-tinta-700">{{ c.nombre }} <span class="text-tinta-300 font-normal">{{ c.unidad }}</span></td>
                                         <td class="py-1.5 text-right font-mono">{{ c.cantidad }}</td>

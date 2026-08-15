@@ -85,7 +85,7 @@ const badgeItem = (e) => ESTADOS_ITEM[e] ?? ESTADOS_ITEM.pendiente
                 <div class="px-4 py-3 border-b border-linea">
                     <h2 class="text-sm font-semibold text-tinta-700">Ítems en producción</h2>
                 </div>
-                <div class="divide-y divide-gray-50">
+                <div class="divide-y divide-separador">
                     <div v-for="(item, idx) in op.items" :key="idx" class="px-4 py-3">
                         <div class="flex items-center justify-between mb-2">
                             <span class="text-sm font-medium text-tinta-900 flex-1 mr-3">{{ item.descripcion }}</span>

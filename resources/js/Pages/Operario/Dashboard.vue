@@ -149,7 +149,7 @@ function nivelEmoji(nombre) {
                 <p class="text-sm font-semibold text-tinta-700 mb-3">⭐ Mis últimos puntos</p>
                 <div class="space-y-2">
                     <div v-for="(p, idx) in historial_puntos" :key="idx"
-                         class="flex items-center justify-between py-2 border-b border-gray-50 last:border-0">
+                         class="flex items-center justify-between py-2 border-b border-separador last:border-0">
                         <div class="min-w-0 flex-1">
                             <p class="text-sm text-tinta-700 truncate">{{ p.concepto }}</p>
                             <p class="text-xs text-tinta-300">{{ p.created_at }}</p>
@@ -196,7 +196,7 @@ function nivelEmoji(nombre) {
                 <div class="px-4 py-3 border-b border-linea">
                     <h2 class="text-sm font-semibold text-tinta-700">Trabajos activos</h2>
                 </div>
-                <div class="divide-y divide-gray-50">
+                <div class="divide-y divide-separador">
                     <button
                         v-for="t in trabajos_activos"
                         :key="t.id"
@@ -245,7 +245,7 @@ function nivelEmoji(nombre) {
                 <div class="px-4 py-3 border-b border-linea">
                     <h2 class="text-sm font-semibold text-tinta-700">Terminados</h2>
                 </div>
-                <div class="divide-y divide-gray-50">
+                <div class="divide-y divide-separador">
                     <button
                         v-for="t in trabajos_terminados"
                         :key="t.id"

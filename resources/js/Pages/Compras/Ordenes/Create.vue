@@ -131,7 +131,7 @@ function fmtMoney(n) {
                     <div v-if="buscarItem && itemsFiltrados.length" class="absolute z-10 top-full left-0 right-0 mt-1 bg-superficie border border-linea rounded-lg shadow-lg max-h-48 overflow-y-auto">
                         <button v-for="item in itemsFiltrados.slice(0,8)" :key="item.id"
                             @click="agregarItemDesdeInventario(item)"
-                            class="w-full text-left px-3 py-2 hover:bg-blue-50 text-sm border-b border-gray-50 last:border-0">
+                            class="w-full text-left px-3 py-2 hover:bg-realce text-sm border-b border-separador last:border-0">
                             <span class="font-medium">{{ item.nombre }}</span>
                             <span class="text-tinta-300 ml-2 text-xs">{{ item.codigo }} · {{ item.unidad }} · $ {{ Number(item.precio_promedio).toLocaleString('es-CO') }}</span>
                         </button>

@@ -49,6 +49,30 @@ carga. Por eso el cambio se ve al recargar, sin recompilar.
 - **Colores de categorías de productos** — son datos que eliges tú por
   categoría.
 
+## Los tonos de las líneas y del texto
+
+El tema define tres grises distintos para separar cosas, y usarlos bien es lo que
+hace que una tabla larga se lea sin cansar:
+
+| Token | Para qué | Día | Noche |
+|---|---|---|---|
+| `border-linea` | El borde de una tarjeta o de un campo: **delimita** | `#EDEFF2` | `#2E3542` |
+| `divide-separador` | La línea entre filas de una lista: solo deja **seguir el renglón** | `#F2F4F7` | `#262C37` |
+| `hover:bg-realce` | El renglón donde está el puntero, o el elemento elegido | `#F4F7FE` | `#282F3B` |
+
+**No usar `divide-gray-50`, `border-gray-50` ni `hover:bg-blue-50`.** Son colores
+fijos de Tailwind que ignoran el tema: `gray-50` es `#F9FAFB`, casi blanco, y en modo
+noche eso da un contraste de **15,6:1 contra la superficie** — la razón por la que las
+tablas se veían con líneas encendidas. Con `separador` queda en 1,16:1, que es lo que
+tiene que ser una línea: presente, no protagonista. El 15 ago 2026 se cambiaron 107
+clases fijas de línea y 49 de realce.
+
+El texto del modo noche tampoco es blanco. `#F2F4F7` daba 14,8:1, muy por encima de
+lo que pide la accesibilidad, y en una tabla de cuarenta filas en negrita se lee como
+un foco; ahora es `#E4E8EE`, que deja 13,3:1 —de sobra, AAA pide 7— y descansa la
+vista. El texto auxiliar subió de 3,8:1 a 4,8:1, que era el que **sí** estaba por
+debajo del mínimo.
+
 ## Título de la pestaña
 
 Admite dos comodines:

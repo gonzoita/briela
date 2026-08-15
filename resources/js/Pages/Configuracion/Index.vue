@@ -567,7 +567,7 @@ const configPuntos = computed(() =>
                             <span>Email</span>
                         </div>
                     </div>
-                    <div class="divide-y divide-gray-50">
+                    <div class="divide-y divide-separador">
                         <div v-for="n in items" :key="n.tipo"
                             class="flex items-center justify-between px-5 py-3">
                             <span class="text-sm text-tinta-900 flex-1">{{ n.label }}</span>
@@ -745,7 +745,7 @@ const configPuntos = computed(() =>
                         <p class="text-xs text-tinta-300 mt-0.5">Arrastra para reordenar</p>
                     </div>
                     <div v-if="!tipos.length" class="py-8 text-center text-sm text-tinta-300">Sin tipos configurados.</div>
-                    <div class="divide-y divide-gray-50">
+                    <div class="divide-y divide-separador">
                         <div
                             v-for="(t, idx) in tipos"
                             :key="t.id"
@@ -837,7 +837,7 @@ const configPuntos = computed(() =>
                         <p class="text-xs text-tinta-300 mt-0.5">Arrastra para reordenar</p>
                     </div>
                     <div v-if="!estaciones.length" class="py-8 text-center text-sm text-tinta-300">Sin estaciones configuradas.</div>
-                    <div class="divide-y divide-gray-50">
+                    <div class="divide-y divide-separador">
                         <div
                             v-for="(e, idx) in estaciones"
                             :key="e.id"
@@ -996,7 +996,7 @@ const configPuntos = computed(() =>
                         <p class="text-xs text-tinta-300 mt-0.5">Define los niveles que se asignan según los puntos acumulados.</p>
                     </div>
                     <div v-if="!niveles.length" class="py-8 text-center text-sm text-tinta-300">Sin niveles configurados.</div>
-                    <div class="divide-y divide-gray-50">
+                    <div class="divide-y divide-separador">
                         <div v-for="n in niveles" :key="n.id" class="px-4 py-3">
                             <div v-if="editandoNivel === n.id" class="space-y-3">
                                 <div class="grid grid-cols-2 gap-2">
@@ -1112,7 +1112,7 @@ const configPuntos = computed(() =>
                         <p class="text-xs text-tinta-300 mt-0.5">Arrastra para reordenar</p>
                     </div>
                     <div v-if="!crmEtapas.length" class="py-8 text-center text-sm text-tinta-300">Sin etapas configuradas.</div>
-                    <div class="divide-y divide-gray-50">
+                    <div class="divide-y divide-separador">
                         <div
                             v-for="(etapa, idx) in crmEtapas"
                             :key="etapa.id"

@@ -313,7 +313,7 @@ function formatFecha(fecha) {
                                 <button
                                     v-if="!mostrarFormConvertir"
                                     @click="mostrarFormConvertir = true"
-                                    class="flex items-center gap-1.5 text-sm font-medium border rounded-lg px-3 py-1.5 transition-colors hover:bg-blue-50"
+                                    class="flex items-center gap-1.5 text-sm font-medium border rounded-lg px-3 py-1.5 transition-colors hover:bg-realce"
                                     style="color: var(--marca); border-color: var(--marca);"
                                 >
                                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
@@ -451,7 +451,7 @@ function formatFecha(fecha) {
                                 :class="esTareaVencida(tarea) ? 'bg-red-50 border border-red-100' : 'bg-tinta-50'">
                                 <button @click="toggleTarea(tarea)"
                                     class="mt-0.5 w-4 h-4 rounded border-2 shrink-0 flex items-center justify-center transition-colors"
-                                    :class="tarea.completada ? 'border-green-500 bg-green-500' : 'border-tinta-200 hover:border-gray-500'">
+                                    :class="tarea.completada ? 'border-green-500 bg-green-500' : 'border-tinta-200 hover:border-separador0'">
                                     <svg v-if="tarea.completada" class="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
                                     </svg>

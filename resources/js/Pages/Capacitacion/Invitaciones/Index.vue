@@ -205,7 +205,7 @@ function limpiarCliente() {
                                 class="absolute top-full left-0 right-0 mt-1 bg-superficie rounded-xl shadow-xl border border-linea z-20 overflow-hidden">
                                 <button v-for="c in clienteResultados" :key="c.id" type="button"
                                     @click="seleccionarCliente(c)"
-                                    class="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-tinta-50 text-left transition-colors border-b border-gray-50 last:border-0">
+                                    class="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-tinta-50 text-left transition-colors border-b border-separador last:border-0">
                                     <div>
                                         <p class="text-sm font-medium text-tinta-900">{{ c.nombre }}{{ c.apellido ? ' ' + c.apellido : '' }}</p>
                                         <p class="text-xs text-tinta-300">{{ c.tipo_identificacion }}: {{ c.numero_identificacion }} · {{ c.ciudad }}</p>

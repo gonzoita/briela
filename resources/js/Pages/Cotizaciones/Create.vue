@@ -805,7 +805,7 @@ function submit() {
                                     class="absolute top-full left-0 right-0 mt-1 bg-superficie rounded-xl shadow-xl border border-linea z-20 overflow-hidden">
                                     <button v-for="c in clienteResultados" :key="c.id" type="button"
                                         @click="seleccionarCliente(c)"
-                                        class="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-tinta-50 text-left transition-colors border-b border-gray-50 last:border-0">
+                                        class="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-tinta-50 text-left transition-colors border-b border-separador last:border-0">
                                         <div>
                                             <p class="text-sm font-medium text-tinta-900">{{ c.nombre }}{{ c.apellido ? ' ' + c.apellido : '' }}</p>
                                             <p class="text-xs text-tinta-300">{{ c.tipo_identificacion }}: {{ c.numero_identificacion }} · {{ c.ciudad }}</p>
@@ -1075,7 +1075,7 @@ function submit() {
 
                     <!-- Botón agregar -->
                     <button type="button" @click="abrirModal"
-                        class="w-full py-2.5 rounded-xl border-2 border-dashed border-tinta-200 text-sm font-medium text-tinta-400 hover:border-blue-400 hover:text-blue-600 hover:bg-blue-50 transition-colors flex items-center justify-center gap-2">
+                        class="w-full py-2.5 rounded-xl border-2 border-dashed border-tinta-200 text-sm font-medium text-tinta-400 hover:border-blue-400 hover:text-blue-600 hover:bg-realce transition-colors flex items-center justify-center gap-2">
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
                         </svg>
@@ -1187,7 +1187,7 @@ function submit() {
                     <div v-if="modalPanel === 'opciones'" class="p-5 space-y-3">
                         <!-- Opción A: Producto -->
                         <button type="button" @click="modalPanel = 'producto'"
-                            class="w-full flex items-center gap-4 p-4 rounded-2xl border-2 border-linea hover:border-blue-400 hover:bg-blue-50 transition-colors text-left group">
+                            class="w-full flex items-center gap-4 p-4 rounded-2xl border-2 border-linea hover:border-blue-400 hover:bg-realce transition-colors text-left group">
                             <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 group-hover:bg-blue-100 transition-colors" style="background:var(--pastel-azul);">
                                 <svg class="w-5 h-5" style="color:var(--marca);" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7l8 4"/>
@@ -1276,7 +1276,7 @@ function submit() {
                         <div class="overflow-y-auto flex-1">
                             <p v-if="!ensambleQuery" class="text-sm text-tinta-300 text-center py-8">Escribe para buscar...</p>
                             <p v-else-if="ensambleResultados.length === 0 && ensambleQuery.length >= 2" class="text-sm text-tinta-300 text-center py-8">Sin resultados para "{{ ensambleQuery }}"</p>
-                            <div v-for="e in ensambleResultados" :key="e.id" class="border-b border-gray-50 last:border-0">
+                            <div v-for="e in ensambleResultados" :key="e.id" class="border-b border-separador last:border-0">
                                 <!-- Fila principal -->
                                 <div class="flex items-center justify-between px-5 py-3 hover:bg-tinta-50 cursor-pointer transition-colors"
                                     @click="seleccionarEnsamble(e)">
@@ -1396,7 +1396,7 @@ function submit() {
                                         <button @click="quitarImagenInstancia(idx)" class="text-red-400 hover:text-red-600 text-sm ml-2">✕</button>
                                     </div>
                                 </div>
-                                <label class="flex items-center gap-2 justify-center border-2 border-dashed border-linea rounded-xl py-3 cursor-pointer hover:border-blue-300 hover:bg-blue-50 transition-colors">
+                                <label class="flex items-center gap-2 justify-center border-2 border-dashed border-linea rounded-xl py-3 cursor-pointer hover:border-blue-300 hover:bg-realce transition-colors">
                                     <svg class="w-4 h-4 text-tinta-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
                                     </svg>

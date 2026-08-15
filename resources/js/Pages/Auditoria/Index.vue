@@ -122,7 +122,7 @@ const formatFecha = (d) => d
             </div>
 
             <!-- Lista -->
-            <div class="bg-superficie rounded-2xl border border-linea divide-y divide-gray-50">
+            <div class="bg-superficie rounded-2xl border border-linea divide-y divide-separador">
                 <div v-if="registros.data.length === 0" class="px-4 py-12 text-center text-tinta-300 text-sm">
                     Sin registros de actividad para estos filtros.
                 </div>

@@ -441,12 +441,12 @@ const seccionesTabs = [
                                     class="absolute top-full left-0 mt-1 z-20 bg-superficie border border-linea rounded-xl shadow-lg py-1 w-80 max-h-80 overflow-y-auto"
                                     @click.stop>
                                     <template v-for="grupo in variablesAgrupadas" :key="grupo.grupo">
-                                        <div class="px-3 pt-2 pb-0.5 sticky top-0 bg-superficie border-b border-gray-50">
+                                        <div class="px-3 pt-2 pb-0.5 sticky top-0 bg-superficie border-b border-separador">
                                             <span class="text-xs font-semibold text-tinta-300 uppercase tracking-[0.12em]">{{ grupo.grupo }}</span>
                                         </div>
                                         <div v-for="v in grupo.vars" :key="v.var"
                                             @click="insertarVariable(v.var)"
-                                            class="px-3 py-2 cursor-pointer hover:bg-blue-50 transition-colors">
+                                            class="px-3 py-2 cursor-pointer hover:bg-realce transition-colors">
                                             <code class="text-xs font-mono text-[var(--marca)]">{{ v.var }}</code>
                                             <p class="text-xs text-tinta-300 mt-0.5">{{ v.desc }}</p>
                                         </div>
@@ -552,7 +552,7 @@ const seccionesTabs = [
                                 </div>
                                 <div class="flex-1 overflow-y-auto">
                                     <template v-for="grupo in variablesAgrupadas" :key="grupo.grupo">
-                                        <div class="px-3 pt-3 pb-1 sticky top-0 bg-superficie z-10 border-b border-gray-50">
+                                        <div class="px-3 pt-3 pb-1 sticky top-0 bg-superficie z-10 border-b border-separador">
                                             <span class="text-xs font-semibold text-tinta-300 uppercase tracking-[0.12em]">{{ grupo.grupo }}</span>
                                         </div>
                                         <div class="p-2 space-y-0.5">

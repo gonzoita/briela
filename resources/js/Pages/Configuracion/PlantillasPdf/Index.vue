@@ -266,7 +266,7 @@ function irACrear() {
                         </div>
 
                         <!-- Acciones mobile -->
-                        <div class="flex sm:hidden items-center gap-2 mt-3 pt-3 border-t border-gray-50">
+                        <div class="flex sm:hidden items-center gap-2 mt-3 pt-3 border-t border-separador">
                             <button
                                 @click="router.visit(`/configuracion/plantillas-pdf/${p.id}/editar`)"
                                 class="flex-1 py-1.5 text-xs font-medium rounded-lg text-center text-white"

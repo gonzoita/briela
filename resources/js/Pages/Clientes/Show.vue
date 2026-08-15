@@ -146,7 +146,7 @@ function eliminar() {
                 <div class="flex items-center justify-between mb-3">
                     <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">Contactos</p>
                     <a :href="`/clientes/${cliente.id}/edit`"
-                       class="text-xs font-medium px-2 py-1 rounded text-blue-600 hover:bg-blue-50">
+                       class="text-xs font-medium px-2 py-1 rounded text-blue-600 hover:bg-realce">
                         Gestionar
                     </a>
                 </div>
@@ -186,7 +186,7 @@ function eliminar() {
                 <div class="flex items-center justify-between mb-3">
                     <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">Documentos</p>
                     <a :href="`/clientes/${cliente.id}/edit`"
-                       class="text-xs font-medium px-2 py-1 rounded text-blue-600 hover:bg-blue-50">
+                       class="text-xs font-medium px-2 py-1 rounded text-blue-600 hover:bg-realce">
                         Gestionar
                     </a>
                 </div>
@@ -222,7 +222,7 @@ function eliminar() {
                         <span v-if="b.items.length" class="ml-1 text-tinta-200">{{ b.items.length }}</span>
                     </p>
                     <a v-if="b.items.length" :href="b.verTodos"
-                       class="text-xs font-medium px-2 py-1 rounded text-blue-600 hover:bg-blue-50">
+                       class="text-xs font-medium px-2 py-1 rounded text-blue-600 hover:bg-realce">
                         Ver todas
                     </a>
                 </div>

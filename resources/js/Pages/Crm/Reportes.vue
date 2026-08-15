@@ -219,7 +219,7 @@ const años = Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i)
                                 <th class="text-left text-xs font-semibold text-tinta-400 pb-2 pl-4">% Conversión</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-gray-50">
+                        <tbody class="divide-y divide-separador">
                             <tr v-for="r in porResponsable" :key="r.responsable" class="hover:bg-tinta-50">
                                 <td class="py-2.5 font-medium text-tinta-900">{{ r.responsable }}</td>
                                 <td class="py-2.5 text-center text-tinta-500">{{ r.total }}</td>

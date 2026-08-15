@@ -351,7 +351,7 @@ const circuloPaso = (paso) => {
                         </div>
 
                         <!-- ── Body expandible ────────────────────────────── -->
-                        <div v-if="expandidos.has(paso.id)" class="px-4 pb-4 border-t border-gray-50">
+                        <div v-if="expandidos.has(paso.id)" class="px-4 pb-4 border-t border-separador">
 
                             <!-- Descripción resuelta -->
                             <div v-if="paso.descripcion_resuelta" class="mt-3 text-sm text-tinta-500 bg-tinta-50 rounded-xl p-3 leading-relaxed rich-desc" v-html="paso.descripcion_resuelta"></div>

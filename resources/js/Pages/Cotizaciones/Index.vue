@@ -264,7 +264,7 @@ const chartPoints = computed(() => {
                                 <th class="text-right px-4 py-3 text-xs font-semibold text-tinta-400 uppercase">Acciones</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-gray-50">
+                        <tbody class="divide-y divide-separador">
                             <tr v-for="cot in cotizaciones.data" :key="cot.id" class="hover:bg-tinta-50 transition-colors">
                                 <td class="px-4 py-3">
                                     <a :href="`/cotizaciones/${cot.id}`" class="font-semibold hover:underline" style="color:var(--marca);">
@@ -294,7 +294,7 @@ const chartPoints = computed(() => {
                                 </td>
                                 <td class="px-4 py-3">
                                     <div class="flex items-center justify-end gap-1">
-                                        <a :href="`/cotizaciones/${cot.id}`" class="p-1.5 rounded-lg text-tinta-300 hover:text-blue-600 hover:bg-blue-50" title="Ver">
+                                        <a :href="`/cotizaciones/${cot.id}`" class="p-1.5 rounded-lg text-tinta-300 hover:text-blue-600 hover:bg-realce" title="Ver">
                                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>

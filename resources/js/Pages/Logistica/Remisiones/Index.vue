@@ -139,7 +139,7 @@ function eliminar(id) {
                             <th class="w-24"></th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-gray-50">
+                    <tbody class="divide-y divide-separador">
                         <tr v-if="!remisiones.data.length">
                             <td colspan="7" class="px-4 py-12 text-center text-sm text-tinta-300">
                                 No hay remisiones con los filtros seleccionados.

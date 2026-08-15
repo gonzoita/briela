@@ -143,7 +143,7 @@ const ic = (extra = '') =>
                                         <th v-if="esAdmin" class="text-center text-xs font-semibold text-tinta-400 uppercase px-3 py-2 w-24">Acciones</th>
                                     </tr>
                                 </thead>
-                                <tbody class="divide-y divide-gray-50">
+                                <tbody class="divide-y divide-separador">
                                     <tr v-for="item in grupo.items" :key="item.id"
                                         :class="['transition-colors', item.activo ? 'hover:bg-tinta-50' : 'opacity-50']">
                                         <td class="px-4 py-2.5 font-medium text-tinta-900">

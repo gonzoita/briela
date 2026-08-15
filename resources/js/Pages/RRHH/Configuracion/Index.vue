@@ -81,7 +81,7 @@ function saveConfig() {
                         <h2 class="text-sm font-semibold text-tinta-700">Turnos configurados</h2>
                     </div>
                     <div v-if="!turnos.length" class="py-8 text-center text-sm text-tinta-300">Sin turnos.</div>
-                    <div v-else class="divide-y divide-gray-50">
+                    <div v-else class="divide-y divide-separador">
                         <div v-for="t in turnos" :key="t.id" class="flex items-center px-5 py-3 gap-3">
                             <div class="flex-1 min-w-0">
                                 <p class="text-sm font-medium text-tinta-900">{{ t.nombre }}</p>
@@ -148,7 +148,7 @@ function saveConfig() {
                     <div class="px-5 py-3 border-b border-linea">
                         <h2 class="text-sm font-semibold text-tinta-700">Tarifas por tipo de hora extra</h2>
                     </div>
-                    <div class="divide-y divide-gray-50">
+                    <div class="divide-y divide-separador">
                         <div v-for="tarifa in props.tarifas" :key="tarifa.id"
                             class="flex items-center px-5 py-3 gap-3">
                             <div class="flex-1">

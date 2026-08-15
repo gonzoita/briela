@@ -370,7 +370,7 @@ const faltaConfigurar = computed(() => {
                                         <span class="text-xs text-tinta-300 font-mono hidden sm:block shrink-0">{{ op.valor }}</span>
                                         <div class="flex gap-1 shrink-0">
                                             <button type="button" @click="iniciarEdicion(op)"
-                                                class="text-xs px-2 py-1 rounded text-blue-600 hover:bg-blue-50">Editar</button>
+                                                class="text-xs px-2 py-1 rounded text-blue-600 hover:bg-realce">Editar</button>
                                             <button type="button"
                                                 :disabled="op.atada_a_precios"
                                                 @click="op.atada_a_precios ? avisarNoBorrable(op) : eliminar(op.id, op)"

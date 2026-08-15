@@ -262,7 +262,7 @@ function submit() {
                             </div>
                             <div class="flex items-center gap-1 shrink-0">
                                 <button v-if="!c.es_principal" type="button" @click="setPrincipal(idx)"
-                                    class="text-xs px-2 py-1 rounded text-tinta-400 hover:text-blue-600 hover:bg-blue-50"
+                                    class="text-xs px-2 py-1 rounded text-tinta-400 hover:text-blue-600 hover:bg-realce"
                                     title="Marcar como principal">★</button>
                                 <button type="button" @click="eliminarContacto(idx)"
                                     class="text-xs px-2 py-1 rounded text-tinta-300 hover:text-red-600 hover:bg-red-50">

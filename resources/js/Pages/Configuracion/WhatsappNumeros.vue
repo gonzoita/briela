@@ -411,7 +411,7 @@ function eliminar(id) {
                     Sin números configurados.
                 </div>
 
-                <div class="divide-y divide-gray-50">
+                <div class="divide-y divide-separador">
                     <div
                         v-for="n in numeros"
                         :key="n.id"
