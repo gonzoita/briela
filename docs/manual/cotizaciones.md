@@ -74,6 +74,22 @@ clic en la tarjeta equivocada es una venta por debajo.
 explica qué hacer. Cuál canal le corresponde a cada cliente se decide en
 [Segmentación](./segmentacion-y-precios.md).
 
+## La comisión de un ensamble se calcula igual que la de un producto
+
+La comisión se paga sobre el **excedente por encima del precio del canal base**, y ese
+precio base tiene que salir del mismo lugar en los dos casos: la fila del canal marcado
+como base.
+
+Hasta el 15 ago 2026 el ensamble usaba la columna antigua `precio_mayorista`, calculada
+con otro margen. El excedente salía distinto y la comisión de un ensamble no cuadraba con
+la de un producto vendido al mismo cliente, aunque los dos se vendieran al mismo precio.
+
+Y un ensamble **medido** llegaba a la cotización sin rango de comisión: el cálculo por
+medidas recalcula los precios pero las comisiones no dependen de las medidas —son la
+política comercial del ensamble— y no se estaban incluyendo. La barra de negociar no tenía
+nada que mover. Ahora se toman de las filas guardadas del ensamble y se mezclan con el
+precio recalculado.
+
 ## Cómo se calcula la comisión *(corregido 23 jul 2026)*
 
 La comisión del vendedor **no** se calcula sobre el precio de venta

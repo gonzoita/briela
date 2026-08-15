@@ -599,8 +599,16 @@ class CotizacionController extends Controller
      *
      * @param  array<string, mixed>  $conf  El config_salida de la plantilla.
      */
-    private function canalesDeInstancia(array $conf, float $costo, callable $redondear): array
+    private function canalesDeInstancia(array $conf, float $costo, callable $redondear, ?Ensamble $ensamble = null): array
     {
+        // Las comisiones y el descuento de cada canal NO dependen de las medidas: son la
+        // política comercial del ensamble. Se toman de sus filas guardadas y se mezclan con el
+        // precio recalculado. Sin esto, un ensamble medido llegaba a la cotización sin rango
+        // de comisión, y la barra de negociar no tenía nada que mover.
+        $guardadas = $ensamble
+            ? $ensamble->preciosPorCanal()->get()->keyBy('segmentacion_opcion_id')
+            : collect();
+
         // El nombre del margen en la plantilla, para los canales que ya existían.
         $heredados = [
             'mayorista'       => 'margen_mayorista',
@@ -608,17 +616,23 @@ class CotizacionController extends Controller
             'cliente_directo' => 'margen_cliente_final',
         ];
 
-        return app(\App\Services\CanalesPrecioService::class)->canales()->map(function ($canal) use ($conf, $costo, $redondear, $heredados) {
+        return app(\App\Services\CanalesPrecioService::class)->canales()->map(function ($canal) use ($conf, $costo, $redondear, $heredados, $guardadas) {
             $clave  = $heredados[$canal->valor] ?? null;
             $margen = $clave !== null && isset($conf[$clave])
                 ? (float) $conf[$clave]
                 : ($canal->es_canal_base ? 30 : ($canal->es_precio_publico ? 35 : 32.5));
 
+            $fila = $guardadas->get($canal->id);
+
             return [
                 'segmentacion_opcion_id' => $canal->id,
                 'etiqueta'               => $canal->etiqueta,
+                'es_canal_base'          => (bool) $canal->es_canal_base,
                 'margen_pct'             => $margen,
                 'precio'                 => $redondear($costo, $margen),
+                'comision_min_pct'       => (float) ($fila->comision_min_pct ?? 0),
+                'comision_max_pct'       => (float) ($fila->comision_max_pct ?? 0),
+                'descuento_max_pct'      => (float) ($fila->descuento_max_pct ?? 0),
             ];
         })->values()->all();
     }
@@ -649,7 +663,7 @@ class CotizacionController extends Controller
                 'precio_mayorista'     => $ceil5k($totalCosto, $mmay),
                 'precio_distribuidor'  => $ceil5k($totalCosto, $mdist),
                 'precio_cliente_final' => $ceil5k($totalCosto, $mfinal),
-                'canales'              => $this->canalesDeInstancia($conf, $totalCosto, $ceil5k),
+                'canales'              => $this->canalesDeInstancia($conf, $totalCosto, $ceil5k, $ensamble),
             ]);
         }
 

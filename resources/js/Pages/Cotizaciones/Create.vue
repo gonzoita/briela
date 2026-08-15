@@ -111,7 +111,9 @@ const form = useForm({
         // Cotizaciones creadas antes de este fix no tienen precio_mayorista_base
         // guardado (queda en 0) — para esas se cae al precio mayorista actual
         // del producto/ensamble como mejor aproximación disponible.
-        precio_mayorista_base: parseFloat(i.precio_mayorista_base) || parseFloat(i.producto?.precio_mayorista ?? i.ensamble?.precio_mayorista ?? 0) || 0,
+        // Lo guardado manda: la comisión se liquida con el precio que había el día que se
+        // vendió. Si quedó en cero —cotizaciones viejas—, se cae al canal base de hoy.
+        precio_mayorista_base: parseFloat(i.precio_mayorista_base) || 0,
         descuento_pct:        parseFloat(i.descuento_pct),
         impuesto_pct:         parseFloat(i.impuesto_pct),
         // El rango de comisión sale de la fila del canal del cliente, que es la misma fuente
@@ -207,6 +209,13 @@ watch(canalCliente, () => {
         item.comision_pct_minima = min
         item.comision_pct_maxima = max
         item.descuento_max       = getDescuentoMaxSegunCanal(item)
+
+        // Cotizaciones viejas quedaron sin base guardada. Sin base, TODO el precio cuenta
+        // como excedente y la comisión sale disparada; se cae al canal base de hoy, que es la
+        // mejor aproximación disponible.
+        if (! (parseFloat(item.precio_mayorista_base) > 0)) {
+            item.precio_mayorista_base = getPrecioBase(item)
+        }
 
         const aplicada = parseFloat(item.comision_pct_aplicada) || 0
 
@@ -685,7 +694,11 @@ function agregarItemDesdeEnsambleInstancia(precio) {
         cantidad: 1, precio_unitario: precio, descuento_pct: 0, impuesto_pct: 0,
         orden: form.items.length,
         precio_lista:                precio,
-        precio_mayorista_base:       parseFloat(preciosCalculados.value?.precio_mayorista) || 0,
+        // La base de la comisión es el precio del CANAL BASE, igual que en productos. Antes
+        // se tomaba `precio_mayorista`, que es la columna antigua calculada con otro margen:
+        // el excedente salía distinto y la comisión del ensamble no cuadraba con la de un
+        // producto vendido al mismo cliente.
+        precio_mayorista_base:       getPrecioBase(preciosCalculados.value) || parseFloat(preciosCalculados.value?.precio_mayorista) || 0,
         precio_minimo_absoluto:      getPrecioMinimo(e),
         comision_pct_minima:         getCanalComisionMin(e),
         comision_pct_maxima:         getCanalComisionMax(e),
@@ -714,7 +727,7 @@ function agregarItemDesdeEnsamble(ensamble, precio) {
         cantidad: 1, precio_unitario: precio, descuento_pct: 0, impuesto_pct: 0,
         orden: form.items.length,
         precio_lista:                precio,
-        precio_mayorista_base:       parseFloat(ensamble.precio_mayorista) || 0,
+        precio_mayorista_base:       getPrecioBase(ensamble) || parseFloat(ensamble.precio_mayorista) || 0,
         precio_minimo_absoluto:      getPrecioMinimo(ensamble),
         comision_pct_minima:         getCanalComisionMin(ensamble),
         comision_pct_maxima:         getCanalComisionMax(ensamble),
