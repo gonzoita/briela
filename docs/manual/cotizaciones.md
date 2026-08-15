@@ -190,6 +190,20 @@ Dos cosas que conviene saber:
   así que hay productos físicos con unidades y la marca en falso; callar ahí escondería
   el dato justo donde hace falta.
 
+## El costo no se ve al cotizar *(nuevo 15 ago 2026)*
+
+Ver el costo es un permiso aparte de ver el producto: **Ver costos** (`costos.ver`), en
+Inventario y Compras. Lo tienen el administrador y el jefe de producción; **el vendedor
+no**.
+
+Un vendedor necesita el precio para cotizar y no necesita el costo. Tenerlo en la
+pantalla de cotizar es la forma más fácil de que el margen de la empresa termine en una
+conversación con un cliente.
+
+El servidor **tampoco lo envía** a quien no puede verlo. Esconder la caja y mandar el
+número igual lo dejaría a la vista en el código fuente de la página, que es esconderlo
+solo de quien no sabe mirar.
+
 ## Qué se imprime debajo de cada ítem
 
 El **resumen técnico** del producto, no su ficha completa. Son dos o tres líneas con

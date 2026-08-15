@@ -21,6 +21,9 @@ class Ensamble extends Model
         // «ENS-{id}» a mano: un identificador de base disfrazado de referencia.
         'referencia',
         'unidad_medida',
+        // Si de este ensamble se guardan unidades armadas en bodega. Al prenderlo nace su
+        // producto terminado en el catálogo, y con él todo el inventario que ya existe.
+        'maneja_stock',
         'categoria_id',
         'descripcion_corta',
         'descripcion_larga',
@@ -193,6 +196,84 @@ class Ensamble extends Model
     public function esDirecto(): bool
     {
         return ($this->tipo_armado ?? 'plantilla') === 'directo';
+    }
+
+    /** El producto terminado de este ensamble: lo que se guarda en bodega. */
+    public function productoTerminado(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(\App\Models\Producto::class, 'ensamble_id');
+    }
+
+    /**
+     * Crea o pone al día el producto terminado de este ensamble.
+     *
+     * Un ensamble que se guarda en bodega **es** un producto terminado, así que en vez de una
+     * tabla de stock propia obtiene su fila en `productos` y hereda el módulo de inventario
+     * completo: stock por bodega, movimientos, traslados, mínimos, el aviso de stock bajo y
+     * la etiqueta de disponibles al cotizar.
+     *
+     * Nace **no vendible**: lo que se cotiza es el ensamble, con sus medidas y su receta. Si
+     * el producto terminado también se pudiera cotizar, el mismo artículo aparecería dos
+     * veces en el buscador y nadie sabría cuál de los dos elegir.
+     *
+     * No borra nada al apagar `maneja_stock`: el producto se desactiva. Sus movimientos son
+     * historia de inventario, y el stock que tenga es algo que existe en una estantería.
+     */
+    public function sincronizarProductoTerminado(): ?\App\Models\Producto
+    {
+        // Consulta fresca, no la propiedad: la relación se cachea en el modelo, y si se leyó
+        // antes de que el producto existiera —lo que pasa en el mismo guardado que lo crea—
+        // queda en null. Con eso, apagar el interruptor no desactivaba nada y el producto
+        // seguía apareciendo en el inventario.
+        $producto = $this->productoTerminado()->first();
+
+        if (! $this->maneja_stock) {
+            $producto?->update(['activo' => false]);
+
+            return $producto;
+        }
+
+        $datos = [
+            'nombre'            => $this->nombre,
+            'unidad_medida'     => $this->unidad_medida ?: 'unidad',
+            'categoria_id'      => $this->categoria_id,
+            'descripcion_corta' => $this->descripcion_corta,
+            'precio_costo'      => $this->precio_costo,
+            'activo'            => true,
+        ];
+
+        if ($producto) {
+            $producto->update($datos);
+
+            return $producto;
+        }
+
+        return \App\Models\Producto::create(array_merge($datos, [
+            'ensamble_id'   => $this->id,
+            'tipo'          => 'producto',
+            // La referencia del ensamble, con un sufijo: son dos filas distintas en dos
+            // tablas distintas y la de productos exige que no se repita.
+            'referencia'    => $this->referenciaParaProductoTerminado(),
+            'inventariable' => true,
+            // Lo que se cotiza es el ensamble. Ver el comentario de arriba.
+            'es_vendible'   => false,
+            'es_insumo'     => false,
+            'es_padre'      => false,
+        ]));
+    }
+
+    private function referenciaParaProductoTerminado(): string
+    {
+        $base = ($this->referencia ?: 'ENS-'.$this->id).'-T';
+        $ref  = $base;
+        $n    = 1;
+
+        while (\App\Models\Producto::withTrashed()->where('referencia', $ref)->exists()) {
+            $n++;
+            $ref = $base.$n;
+        }
+
+        return $ref;
     }
 
     /**

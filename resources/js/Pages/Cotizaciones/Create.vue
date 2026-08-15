@@ -33,6 +33,12 @@ const hoy30 = new Date(Date.now() + 30 * 86400000).toISOString().split('T')[0]
 
 const page = usePage()
 
+// El costo es un permiso aparte de ver el ensamble. Un vendedor necesita el precio para
+// cotizar y no el costo: tenerlo en la pantalla de cotizar es la forma más fácil de que el
+// margen de la empresa termine en una conversación con un cliente. El servidor tampoco lo
+// manda, así que esto solo decide si se dibuja la caja.
+const puedeVerCosto = computed(() => (page.props.auth?.permisosLista ?? []).includes('costos.ver'))
+
 // ── Condiciones comerciales ───────────────────────────────────────────────────
 // El texto de esta cotización se edita arriba. Guardarlo como general cambia con qué
 // texto NACEN las cotizaciones nuevas; las hechas ya guardaron el suyo y no se tocan.
@@ -454,8 +460,8 @@ async function seleccionarEnsamble(e) {
             }))
             // Pre-mostrar precios guardados del ensamble (antes de calcular con variables específicas)
             preciosCalculados.value = {
-                total_costo:           e.precio_costo ?? 0,
-                precio_costo:          e.precio_costo ?? 0,
+                total_costo:           e.precio_costo ?? null,
+                precio_costo:          e.precio_costo ?? null,
                 precio_mayorista:      e.precio_mayorista ?? 0,
                 precio_distribuidor:   e.precio_distribuidor ?? 0,
                 precio_cliente_final:  e.precio_cliente_final ?? 0,
@@ -1303,7 +1309,7 @@ function submit() {
                                      cotizando a un cliente final, y basta un clic en la
                                      tarjeta equivocada para vender al costo. -->
                                 <div v-if="ensambleExpandido?.id === e.id" class="px-5 pb-4 pt-2" style="background:var(--pastel-ambar);">
-                                    <div v-if="canalCliente" class="grid grid-cols-2 gap-2">
+                                    <div v-if="canalCliente" :class="['grid gap-2', puedeVerCosto ? 'grid-cols-2' : 'grid-cols-1']">
                                         <button type="button" @click="agregarItemDesdeEnsamble(e, getPrecioSegunCanal(e))"
                                             class="text-left p-3 rounded-xl transition-all border-2"
                                             :style="`border-color:${canalCliente.color}; background:${canalCliente.color}12;`">
@@ -1317,9 +1323,9 @@ function submit() {
                                                 {{ canalCliente.es_canal_base ? 'Precio fijo · Sin descuento' : 'Precio sugerido' }}
                                             </p>
                                         </button>
-                                        <!-- El costo sigue a la vista: es la referencia que
-                                             evita vender por debajo sin darse cuenta. -->
-                                        <button type="button" @click="agregarItemDesdeEnsamble(e, e.precio_costo)"
+                                        <!-- El costo solo para quien tiene permiso de verlo. El
+                                             servidor tampoco lo manda al resto. -->
+                                        <button v-if="puedeVerCosto" type="button" @click="agregarItemDesdeEnsamble(e, e.precio_costo)"
                                             class="text-left p-3 rounded-xl border border-linea bg-tinta-50 opacity-70 hover:opacity-100 transition-all">
                                             <p class="text-xs text-tinta-300 mb-1">Costo</p>
                                             <p class="font-semibold text-tinta-500">${{ formatCOP(e.precio_costo) }}</p>
@@ -1416,7 +1422,7 @@ function submit() {
                             <div v-if="preciosCalculados" class="space-y-2">
                                 <p class="text-xs font-semibold text-tinta-400 uppercase mt-2">Selecciona el precio:</p>
                                 <!-- Solo el canal del cliente, más el costo como referencia. -->
-                                <div v-if="canalCliente" class="grid grid-cols-2 gap-2">
+                                <div v-if="canalCliente" :class="['grid gap-2', puedeVerCosto ? 'grid-cols-2' : 'grid-cols-1']">
                                     <button type="button" @click="agregarItemDesdeEnsambleInstancia(precioCalculadoDelCanal)"
                                         class="text-left p-3 rounded-xl transition-all border-2"
                                         :style="`border-color:${canalCliente.color}; background:${canalCliente.color}12;`">
@@ -1430,7 +1436,7 @@ function submit() {
                                             {{ canalCliente.es_canal_base ? 'Precio fijo · Sin descuento' : 'Precio sugerido' }}
                                         </p>
                                     </button>
-                                    <button type="button" @click="agregarItemDesdeEnsambleInstancia(preciosCalculados.total_costo)"
+                                    <button v-if="puedeVerCosto" type="button" @click="agregarItemDesdeEnsambleInstancia(preciosCalculados.total_costo)"
                                         class="text-left p-3 rounded-xl border border-linea bg-tinta-50 opacity-70 hover:opacity-100 transition-all">
                                         <p class="text-xs text-tinta-300 mb-1">Costo</p>
                                         <p class="font-semibold text-tinta-500">${{ formatCOP(preciosCalculados.total_costo) }}</p>

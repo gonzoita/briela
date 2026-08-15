@@ -98,6 +98,31 @@ van como JSON y el servidor los desempaca antes de validar — si no, un campo d
 guardado como `'0'` volvería a la pantalla de editar marcado, porque `'0'` es una
 cadena no vacía.
 
+### ¿Lo tengo en almacén?
+
+Un ensamble puede responder a dos preguntas distintas, y las dos aparecen en su ficha:
+
+**Cuántas se pueden armar.** Sale del material que primero se agota: si la receta pide
+4 bisagras y en bodega hay 10, alcanza para 2. Es la respuesta honesta para algo que se
+fabrica contra pedido y no vive en un estante. Dice además cuál es el cuello de botella
+y qué falta, que es lo que se lleva a una solicitud de compra.
+
+**Cuántas hay ya armadas.** Solo si el ensamble tiene prendido **«Se guarda en bodega»**,
+para lo que se fabrica por adelantado y se deja listo.
+
+Al prender ese interruptor el ensamble obtiene su **producto terminado** en el catálogo,
+y con él **todo el inventario que ya existe**: stock por bodega, movimientos con su
+historia, traslados, mínimos, el aviso diario de stock bajo, los informes y la etiqueta
+de disponibles al cotizar. Las unidades se cargan desde inventario como con cualquier
+producto —entrada, traslado o ajuste—, y la ficha del ensamble enlaza directo ahí.
+
+El producto terminado nace **no vendible** a propósito: lo que se cotiza es el ensamble,
+con sus medidas y su receta. Si el producto terminado también se pudiera cotizar, el
+mismo artículo saldría dos veces en el buscador y nadie sabría cuál elegir.
+
+Al apagar el interruptor el producto **se desactiva, no se borra**: sus movimientos son
+historia de inventario y el stock que tenga es algo que existe en una estantería.
+
 ### Duplicar un ensamble
 
 Desde la ficha del ensamble, **Duplicar** abre el formulario de crear ya lleno: la

@@ -10,6 +10,9 @@ const props = defineProps({
     canales:  { type: Array,  default: () => [] },
     // Cuántas unidades alcanzan a armarse hoy, y qué material se agota primero.
     disponibilidad: { type: Object, default: null },
+    // Cuántas hay YA armadas y en qué bodega. Null cuando el ensamble no se guarda en
+    // bodega: ahí la pregunta no aplica, y una tarjeta en cero se leería como un faltante.
+    stock: { type: Object, default: null },
     web:      { type: Object, default: null },
 })
 
@@ -169,6 +172,39 @@ const variablesEntries = Object.entries(props.ensamble.variables ?? {})
                  la pregunta «¿lo tengo en almacén?» no tiene respuesta literal, y la que sí
                  sirve es cuántos alcanzan a armarse con lo que hay — limitado por el material
                  que primero se agota. -->
+            <!-- Lo que hay ya armado en bodega. Va antes de «se puede armar» porque es la
+                 respuesta directa a «¿lo tengo?»: si hay tres listas, no importa cuántas
+                 más alcanzan a armarse. -->
+            <div v-if="stock" class="bg-superficie rounded-2xl shadow-sm p-5 mb-4">
+                <div class="flex items-start justify-between gap-2 mb-3">
+                    <h2 class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">Armadas en bodega</h2>
+                    <a :href="`/productos/${stock.producto_id}`"
+                        class="text-xs font-semibold shrink-0" style="color:var(--marca);">Ver en inventario</a>
+                </div>
+
+                <div class="flex items-baseline gap-2 flex-wrap">
+                    <span class="text-3xl font-semibold"
+                        :class="stock.total > 0 ? 'text-aviso-verde' : 'text-tinta-300'">{{ stock.total }}</span>
+                    <span class="text-sm text-tinta-400">
+                        {{ stock.total === 1 ? 'unidad lista' : 'unidades listas' }} para despachar
+                    </span>
+                </div>
+
+                <div v-if="stock.por_bodega.length" class="mt-3 border-t border-linea pt-3 space-y-1">
+                    <div v-for="(b, i) in stock.por_bodega" :key="i"
+                        class="flex items-center justify-between gap-2 text-xs">
+                        <span class="text-tinta-600 truncate">{{ b.bodega }}</span>
+                        <span class="font-semibold text-tinta-700 shrink-0">{{ b.cantidad }}</span>
+                    </div>
+                </div>
+
+                <p v-else class="text-xs text-tinta-400 mt-2">
+                    Todavía no hay ninguna registrada. Se cargan desde
+                    <a :href="`/productos/${stock.producto_id}`" class="font-semibold" style="color:var(--marca);">inventario</a>,
+                    como cualquier producto: entrada, traslado o ajuste.
+                </p>
+            </div>
+
             <div v-if="disponibilidad && disponibilidad.unidades !== null"
                 class="bg-superficie rounded-2xl shadow-sm p-5 mb-4">
                 <h2 class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-3">Se puede armar</h2>

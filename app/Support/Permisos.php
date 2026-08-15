@@ -35,6 +35,11 @@ class Permisos
                 'productos'   => ['label' => 'Productos',            'acciones' => ['ver', 'crear', 'editar', 'eliminar']],
                 'ensambles'   => ['label' => 'Ensambles',            'acciones' => ['ver', 'crear', 'editar', 'eliminar']],
                 'inventario'  => ['label' => 'Stock y movimientos',  'acciones' => ['ver', 'editar']],
+                // Ver el costo es un permiso aparte de ver el producto. Un vendedor
+                // necesita el precio para cotizar y no necesita el costo; enseñárselo en la
+                // pantalla de cotizar es la forma más fácil de que el margen de la empresa
+                // salga en una conversación con un cliente.
+                'costos'      => ['label' => 'Ver costos',           'acciones' => ['ver']],
                 'proveedores' => ['label' => 'Proveedores',          'acciones' => ['ver', 'crear', 'editar', 'eliminar']],
                 'solicitudes' => ['label' => 'Solicitudes de compra','acciones' => ['ver', 'crear', 'editar', 'aprobar']],
                 'ordenes'     => ['label' => 'Órdenes de compra',    'acciones' => ['ver', 'crear', 'editar', 'recibir']],
@@ -122,6 +127,7 @@ class Permisos
                 'productos'     => ['ver', 'crear', 'editar'],
                 'ensambles'     => ['ver', 'crear', 'editar'],
                 'inventario'    => ['ver', 'editar'],
+                'costos'        => ['ver'],
                 'proveedores'   => ['ver', 'crear', 'editar'],
                 'solicitudes'   => ['ver', 'crear', 'editar', 'aprobar'],
                 'ordenes'       => ['ver', 'crear', 'editar', 'recibir'],

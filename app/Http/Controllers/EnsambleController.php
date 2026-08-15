@@ -133,6 +133,8 @@ class EnsambleController extends Controller
             // La referencia se genera si no la escriben, igual que en productos.
             'referencia'                => 'nullable|string|max:60',
             'unidad_medida'             => 'nullable|string|max:30',
+            // Si de este ensamble se guardan unidades armadas en bodega.
+            'maneja_stock'              => 'nullable|boolean',
             'variables'                 => 'required_if:tipo_armado,plantilla|nullable|array',
             // Sin `min:1`: la pantalla manda `lineas: []` cuando el ensamble es con
             // plantilla, y `min:1` lo rechazaba aunque las líneas no vinieran al caso.
@@ -194,6 +196,7 @@ class EnsambleController extends Controller
         $ensamble = Ensamble::create([
             'plantilla_id'              => $plantillaId,
             'tipo_armado'               => $esDirecto ? 'directo' : 'plantilla',
+            'maneja_stock'              => $request->boolean('maneja_stock'),
             'nombre'                    => $request->nombre,
             // Si no la escriben, se genera: un ensamble sin código no se puede buscar ni
             // dictar por teléfono, y era la única línea sin referencia en una cotización.
@@ -222,6 +225,8 @@ class EnsambleController extends Controller
 
         $this->guardarCanales($request, $ensamble);
         $this->guardarImagenes($request, $ensamble);
+        // Si se guarda en bodega, nace su producto terminado y con él todo el inventario.
+        $ensamble->sincronizarProductoTerminado();
 
         return redirect("/ensambles/{$ensamble->id}")->with('success', $esDirecto
             ? 'Ensamble creado con su lista de materiales.'
@@ -247,6 +252,11 @@ class EnsambleController extends Controller
             // es el que primero se agota. Es la respuesta honesta a «¿está disponible?»
             // para algo que se fabrica: un ensamble no vive en un estante.
             'disponibilidad' => $ensamble->unidadesArmables(\App\Support\ContextoSede::idsBodegasVisibles()),
+            // Y lo complementario: cuántas hay YA armadas y en qué bodega. Sale del producto
+            // terminado, que es donde vive el stock de lo que la empresa fabrica y guarda.
+            // Las dos cifras responden preguntas distintas: «cuántas puedo armar hoy» y
+            // «cuántas tengo listas para despachar».
+            'stock' => $this->stockDelEnsamble($ensamble),
             // Los canales configurados con el precio EFECTIVO de este ensamble en cada uno:
             // lo guardado o, si falta, la columna antigua. La tabla de precios mostraba tres
             // nombres escritos en la pantalla —mayorista, distribuidor, cliente final—, así
@@ -271,6 +281,44 @@ class EnsambleController extends Controller
                 'sin_precio' => app(\App\Services\PublicacionWebService::class)->precioParaWeb($ensamble) === null,
             ],
         ]);
+    }
+
+    /**
+     * El stock del producto terminado de un ensamble, bodega por bodega.
+     *
+     * Devuelve null si el ensamble no se guarda en bodega: ahí la pregunta no aplica y una
+     * tarjeta en cero se leería como un faltante.
+     *
+     * @return array{total: float, minimo: float, por_bodega: array<int, array<string, mixed>>}|null
+     */
+    private function stockDelEnsamble(Ensamble $ensamble): ?array
+    {
+        if (! $ensamble->maneja_stock) {
+            return null;
+        }
+
+        $producto = $ensamble->productoTerminado;
+
+        if (! $producto) {
+            return null;
+        }
+
+        $bodegas = \App\Support\ContextoSede::idsBodegasVisibles();
+
+        $filas = $producto->stocks()->with('bodega:id,nombre')
+            ->when($bodegas !== [], fn ($q) => $q->whereIn('bodega_id', $bodegas))
+            ->get();
+
+        return [
+            'producto_id' => $producto->id,
+            'referencia'  => $producto->referencia,
+            'total'       => (float) $filas->sum('cantidad'),
+            'minimo'      => (float) $producto->stock_minimo,
+            'por_bodega'  => $filas->map(fn ($f) => [
+                'bodega'   => $f->bodega?->nombre ?? '—',
+                'cantidad' => (float) $f->cantidad,
+            ])->values()->all(),
+        ];
     }
 
     public function edit(int $id): Response
@@ -434,6 +482,7 @@ class EnsambleController extends Controller
             'descripcion_corta'    => $request->descripcion_corta,
             'descripcion_larga'    => $request->descripcion_larga,
             'descripcion_cotizacion' => $request->descripcion_cotizacion,
+            'maneja_stock'         => $request->boolean('maneja_stock'),
             'variables'            => $variables,
             'componentes_resultado'=> $componentes,
             'precio_costo'         => $totalCosto,
@@ -454,6 +503,7 @@ class EnsambleController extends Controller
         ]);
 
         $this->guardarCanales($request, $ensamble);
+        $ensamble->sincronizarProductoTerminado();
 
         return redirect("/ensambles/{$ensamble->id}")->with('success', 'Ensamble actualizado.');
     }
@@ -607,7 +657,9 @@ class EnsambleController extends Controller
 
         return response()->json([
             'componentes'          => $componentes,
-            'total_costo'          => $totalCosto,
+            // El costo solo viaja si quien pregunta puede verlo. Esconderlo en la pantalla
+            // y mandarlo igual lo deja a la vista en el código fuente de la página.
+            'total_costo'          => auth()->user()?->tienePermiso('costos.ver') ? $totalCosto : null,
             'precio_mayorista'     => round($totalCosto * (1 + $mmay   / 100), 0),
             'precio_distribuidor'  => round($totalCosto * (1 + $mdist  / 100), 0),
             'precio_cliente_final' => round($totalCosto * (1 + $mfinal / 100), 0),
@@ -642,6 +694,8 @@ class EnsambleController extends Controller
     {
         $q = $request->get('q', '');
 
+        $puedeVerCosto = (bool) auth()->user()?->tienePermiso('costos.ver');
+
         $ensambles = Ensamble::with(['plantilla', 'categoria', 'preciosPorCanal'])
             ->where('nombre', 'like', "%{$q}%")
             ->latest()
@@ -662,7 +716,8 @@ class EnsambleController extends Controller
                 'descripcion_corta'          => $e->descripcion_corta,
                 // Mismo criterio que en productos: al cotizar va el texto técnico corto.
                 'descripcion_larga'          => $e->descripcion_cotizacion ?: $e->descripcion_corta,
-                'precio_costo'               => (float) $e->precio_costo,
+                // Igual que en `calcular()`: sin permiso, el costo no sale de aquí.
+                'precio_costo'               => $puedeVerCosto ? (float) $e->precio_costo : null,
                 'precio_mayorista'           => (float) $e->precio_mayorista,
                 'precio_distribuidor'        => (float) $e->precio_distribuidor,
                 'precio_cliente_final'       => (float) $e->precio_cliente_final,

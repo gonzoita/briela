@@ -18,6 +18,9 @@ class Producto extends Model
         'tipo',
         'es_vendible',
         'es_insumo',
+        // Cuando este producto es el producto TERMINADO de un ensamble: lo que se guarda en
+        // bodega de algo que la empresa fabrica. Nulo en un producto comprado.
+        'ensamble_id',
         'es_padre',
         'producto_padre_id',
         'atributo_variante',
@@ -176,6 +179,18 @@ class Producto extends Model
     public function scopeVendibles($query)
     {
         return $query->where('es_vendible', true);
+    }
+
+    /** El ensamble del que este producto es el producto terminado, si lo es. */
+    public function ensamble(): BelongsTo
+    {
+        return $this->belongsTo(\App\Models\Ensamble::class, 'ensamble_id');
+    }
+
+    /** Lo que la empresa fabrica y guarda, frente a lo que compra. */
+    public function esProductoTerminado(): bool
+    {
+        return $this->ensamble_id !== null;
     }
 
     public function scopeInsumos($query)
