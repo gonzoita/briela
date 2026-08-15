@@ -143,6 +143,10 @@ const form = useForm({
         // Las filas por canal del producto o del ensamble, para que la comisión y el
         // descuento se puedan negociar igual que al crear.
         canales:          i.canales ?? [],
+        // El ensamble completo, para poder reabrir sus medidas y recalcular sin pedirlo otra
+        // vez al servidor. Se cotizó con una receta congelada; editarlo es volver a esa
+        // pantalla, cambiar una medida y congelar la nueva.
+        ensamble:         i.ensamble ?? null,
         // Por qué este ítem no se puede guardar, si es el caso. Lo decide el servidor.
         problema:         i.problema ?? null,
     })) ?? [],
@@ -370,6 +374,7 @@ function cerrarModal() {
     productoQuery.value = ''; productoResultados.value = []; productoExpandido.value = null
     ensambleQuery.value = ''; ensambleResultados.value = []; ensambleExpandido.value = null
     ensambleInstancia.value = null; camposInstancia.value = []; valoresInstancia.value = {}
+    itemEditandoIdx.value = null
     preciosCalculados.value = null; calculandoInstancia.value = false
     imagenesReferencia.value = []; imagenesInstancia.value = []
 }
@@ -448,6 +453,10 @@ let timerEns = null
 
 // Variables de instancia
 const ensambleInstancia    = ref(null)   // ensamble seleccionado para paso 2
+// Cuál ítem se está editando. Null = se está agregando uno nuevo. Es lo único que distingue
+// los dos usos del mismo panel: se abre igual, se calcula igual, y al confirmar uno empuja un
+// ítem nuevo y el otro reemplaza el que ya estaba.
+const itemEditandoIdx      = ref(null)
 const camposInstancia      = ref([])     // campos variable_instancia del ensamble
 const valoresInstancia     = ref({})     // valores ingresados por el usuario
 const preciosCalculados    = ref(null)   // resultado del cálculo
@@ -553,6 +562,53 @@ function quitarImagenInstancia(idx) {
     imagenesInstancia.value.splice(idx, 1)
 }
 
+/**
+ * Reabre las medidas de un ensamble que ya está en la cotización.
+ *
+ * Un ensamble se cotiza con su receta **congelada**: los materiales y el costo que resultaron
+ * de esas medidas ese día. Editarlo no es cambiar un texto — es volver al panel de medidas,
+ * cambiar lo que haya que cambiar y congelar la receta nueva. Por eso reusa el mismo panel
+ * que al agregarlo, y no un formulario aparte que se iría separando.
+ */
+async function editarEnsambleDeItem(idx) {
+    const item = form.items[idx]
+
+    if (! item?.ensamble_id) return
+
+    try {
+        const r    = await fetch(`/api/ensambles/${item.ensamble_id}/variables-instancia`)
+        const data = await r.json()
+
+        camposInstancia.value = (data.campos ?? []).map(c => ({
+            ...c,
+            opciones_selector: typeof c.opciones_selector === 'string'
+                ? JSON.parse(c.opciones_selector)
+                : (c.opciones_selector ?? []),
+        }))
+        imagenesReferencia.value = data.imagenes_referencia ?? []
+    } catch {
+        camposInstancia.value = []
+        imagenesReferencia.value = []
+    }
+
+    // El ensamble que viene con el ítem trae sus canales, que es lo que el panel necesita
+    // para mostrar el precio del canal del cliente.
+    ensambleInstancia.value = {
+        ...(item.ensamble ?? { id: item.ensamble_id, nombre: item.descripcion }),
+        // Las filas por canal vienen en el ítem, no en la relación del ensamble.
+        canales: item.canales ?? [],
+    }
+
+    valoresInstancia.value  = { ...(item.variables_instancia ?? {}) }
+    imagenesInstancia.value = [...(item.imagenes_instancia ?? [])]
+    itemEditandoIdx.value   = idx
+
+    // Se calcula de una: quien entra a editar quiere ver lo que hay, no un panel vacío.
+    preciosCalculados.value = null
+    modalPanel.value = 'ensamble_instancia'
+    await calcularInstancia()
+}
+
 async function calcularInstancia() {
     if (!ensambleInstancia.value) return
     calculandoInstancia.value = true
@@ -594,6 +650,29 @@ function buildDescripcionLargaInstancia(base, valores, campos) {
 
 function agregarItemDesdeEnsambleInstancia(precio) {
     const e = ensambleInstancia.value
+
+    // Editando: se reemplazan las medidas, la receta y el precio, y se conservan el id del
+    // ítem, su cantidad y lo que se haya negociado. Reemplazar el ítem entero le borraría al
+    // vendedor el descuento y la comisión que ya había acordado.
+    if (itemEditandoIdx.value !== null) {
+        const idx  = itemEditandoIdx.value
+        const item = form.items[idx]
+
+        Object.assign(item, {
+            variables_snapshot:   e.variables,
+            componentes_snapshot: preciosCalculados.value?.componentes ?? item.componentes_snapshot,
+            variables_instancia:  { ...valoresInstancia.value },
+            imagenes_instancia:   [...imagenesInstancia.value],
+            descripcion_larga:    buildDescripcionLargaInstancia(e.descripcion_larga, valoresInstancia.value, camposInstancia.value),
+            precio_unitario:      precio,
+            precio_lista:         precio,
+        })
+
+        cerrarModal()
+
+        return
+    }
+
     form.items.push({
         tipo: 'ensamble', producto_id: null, ensamble_id: e.id,
         variables_snapshot:   e.variables,
@@ -1026,6 +1105,17 @@ function submit() {
                                         class="w-7 h-7 rounded-lg flex items-center justify-center text-tinta-300 hover:text-tinta-700 hover:bg-tinta-100 disabled:opacity-30 text-sm font-semibold transition-colors">↓</button>
                                 </div>
 
+                                <!-- Editar las medidas del ensamble. Solo en los de ensamble:
+                                     un producto no tiene medidas que recalcular. -->
+                                <button v-if="item.tipo === 'ensamble' && item.ensamble_id"
+                                    type="button" @click="editarEnsambleDeItem(idx)"
+                                    title="Cambiar medidas y recalcular"
+                                    class="w-7 h-7 rounded-lg flex items-center justify-center text-tinta-300 hover:text-[var(--marca)] hover:bg-realce transition-colors shrink-0">
+                                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                    </svg>
+                                </button>
+
                                 <!-- Eliminar -->
                                 <button type="button" @click="eliminarItem(idx)"
                                     class="w-7 h-7 rounded-lg flex items-center justify-center text-tinta-300 hover:text-aviso-rojo hover:bg-pastel-rojo transition-colors shrink-0">
@@ -1425,7 +1515,13 @@ function submit() {
                     <!-- Configurador variable_instancia -->
                     <div v-else-if="modalPanel === 'ensamble_instancia'" class="flex flex-col overflow-hidden">
                         <div class="px-5 py-3 border-b border-linea shrink-0">
-                            <p class="text-sm font-semibold text-tinta-900">{{ ensambleInstancia?.nombre }}</p>
+                            <p class="text-sm font-semibold text-tinta-900">
+                                {{ ensambleInstancia?.nombre }}
+                                <span v-if="itemEditandoIdx !== null"
+                                    class="ml-1 text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-pastel-azul text-aviso-azul align-middle">
+                                    editando el ítem {{ itemEditandoIdx + 1 }}
+                                </span>
+                            </p>
                             <p class="text-xs text-tinta-300 mt-0.5">Completa los datos específicos de esta unidad</p>
                         </div>
                         <div class="overflow-y-auto flex-1 px-5 py-4 space-y-3">

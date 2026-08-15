@@ -219,6 +219,29 @@ Al intentar guardar también se avisa antes de mandar el formulario, diciendo el
 del ítem. Quitarlo y agregarlo de nuevo eligiendo la variante conserva el resto de la
 cotización.
 
+## Editar un ensamble ya cotizado *(nuevo 15 ago 2026)*
+
+Un ensamble se cotiza con su receta **congelada**: los materiales y el costo que
+resultaron de esas medidas ese día. Editarlo no es cambiar un texto — es volver al panel
+de medidas, cambiar lo que haga falta y congelar la receta nueva.
+
+El **lápiz** en el ítem de ensamble reabre ese panel con las medidas que tenía, calcula
+de una y muestra el precio del canal del cliente. Al confirmar se reemplazan las medidas,
+la receta y el precio; se conservan **el ítem, su cantidad y lo que se haya negociado** —
+reemplazar el ítem entero le borraría al vendedor el descuento y la comisión que ya había
+acordado.
+
+Lo mismo en la orden de producción, con una diferencia importante: **una OP que ya
+arrancó no se puede modificar**. El lápiz se apaga cuando la orden está en producción,
+calidad, reproceso o despachada, y también cuando un operario ya cerró algún paso aunque
+la orden siga en «confirmada» — porque ahí también hay trabajo hecho que proteger.
+
+El candado está en el servidor, no solo en la pantalla: cambiar la receta con pasos
+completados dejaría los tiempos y las fotos de los operarios apuntando a algo que ya no es
+lo que se fabrica, y si una unidad entró a bodega, cambiarla descuadraría el inventario
+hacia atrás. Las fechas, el responsable y las notas de una OP en producción sí se pueden
+seguir guardando.
+
 ## Qué se imprime debajo de cada ítem
 
 El **resumen técnico** del producto, no su ficha completa. Son dos o tres líneas con

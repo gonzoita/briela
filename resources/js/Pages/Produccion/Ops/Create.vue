@@ -79,9 +79,24 @@ function limpiarCliente() { form.cliente_id = null; clienteBuscar.value = '' }
 // ── Modal ─────────────────────────────────────────────────────────────────────
 const modalPanel = ref(null) // null | 'opciones' | 'producto' | 'ensamble' | 'ensamble_instancia'
 
+// Cuál ítem se está editando. Null = se está agregando uno nuevo.
+const itemEditandoIdx = ref(null)
+
+/**
+ * Una OP que ya arrancó no se modifica.
+ *
+ * En cuanto hay trabajo hecho, cambiar las medidas de un ítem dejaría los pasos, los tiempos
+ * y las fotos de los operarios apuntando a algo que ya no es lo que se está fabricando. Y si
+ * la unidad ya entró a bodega, cambiar su receta descuadraría el inventario hacia atrás.
+ */
+const enProduccion = computed(() =>
+    ['en_produccion', 'calidad', 'reproceso', 'despachada'].includes(form.estado)
+)
+
 function abrirModal() { modalPanel.value = 'opciones' }
 function cerrarModal() {
     modalPanel.value = null
+    itemEditandoIdx.value = null
     productoQuery.value = ''; productoResultados.value = []
     ensambleQuery.value = ''; ensambleResultados.value = []; ensambleExpandido.value = null
     ensambleInstancia.value = null; camposInstancia.value = []; valoresInstancia.value = {}
@@ -178,6 +193,39 @@ async function seleccionarEnsamble(e) {
     } catch { expandirEnsamble(e) }
 }
 
+/**
+ * Reabre las medidas de un ensamble que ya está en la OP.
+ *
+ * Mismo panel que al agregarlo: se cotiza y se fabrica con una receta congelada, y editar es
+ * volver a las medidas, cambiarlas y congelar la nueva.
+ */
+async function editarEnsambleDeItem(idx) {
+    if (enProduccion.value) return
+
+    const item = items.value[idx]
+
+    if (! item?.ensamble_id) return
+
+    try {
+        const r      = await fetch(`/api/ensambles/${item.ensamble_id}/variables-instancia`)
+        const campos = await r.json()
+
+        camposInstancia.value = (Array.isArray(campos) ? campos : campos.campos ?? []).map(c => ({
+            ...c,
+            opciones_selector: typeof c.opciones_selector === 'string'
+                ? JSON.parse(c.opciones_selector)
+                : (c.opciones_selector ?? []),
+        }))
+    } catch {
+        camposInstancia.value = []
+    }
+
+    ensambleInstancia.value = { id: item.ensamble_id, nombre: item.descripcion }
+    valoresInstancia.value  = { ...(item.variables_instancia ?? {}) }
+    itemEditandoIdx.value   = idx
+    modalPanel.value        = 'ensamble_instancia'
+}
+
 function buildDescripcionLarga(base, valores, campos) {
     if (!Object.keys(valores).length) return base ?? ''
     const lineas = campos.map(c => {
@@ -196,6 +244,21 @@ function buildDescripcionLarga(base, valores, campos) {
 
 function confirmarInstancia() {
     const e = ensambleInstancia.value
+
+    // Editando: se cambian las medidas y la descripción, y se conservan la cantidad, el
+    // operario asignado, el número de serie y las notas. Reemplazar el ítem entero borraría
+    // lo que alguien ya había asignado en planta.
+    if (itemEditandoIdx.value !== null) {
+        const item = items.value[itemEditandoIdx.value]
+
+        item.variables_instancia = { ...valoresInstancia.value }
+        item.descripcion_larga   = buildDescripcionLarga(e.descripcion_larga, valoresInstancia.value, camposInstancia.value)
+
+        cerrarModal()
+
+        return
+    }
+
     items.value.push({
         _key:              Math.random(),
         _expandido:        false,
@@ -515,6 +578,19 @@ function submit() {
                                 <button type="button" @click="moverItem(idx,1)" :disabled="idx===items.length-1"
                                     class="w-7 h-7 rounded-lg flex items-center justify-center text-tinta-300 hover:text-tinta-700 hover:bg-tinta-100 disabled:opacity-30 text-sm font-semibold">↓</button>
                             </div>
+                            <!-- Editar las medidas del ensamble. Se apaga en cuanto la OP
+                                 arrancó: cambiar la receta con trabajo hecho dejaría los
+                                 pasos, los tiempos y las fotos apuntando a otra cosa. -->
+                            <button v-if="item.tipo === 'ensamble' && item.ensamble_id"
+                                type="button" @click="editarEnsambleDeItem(idx)"
+                                :disabled="enProduccion"
+                                :title="enProduccion ? 'La OP ya está en producción: no se puede cambiar' : 'Cambiar medidas'"
+                                class="w-7 h-7 rounded-lg flex items-center justify-center text-tinta-300 hover:text-[var(--marca)] hover:bg-realce disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-tinta-300 shrink-0">
+                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                </svg>
+                            </button>
+
                             <!-- Eliminar -->
                             <button type="button" @click="eliminarItem(idx)"
                                 class="w-7 h-7 rounded-lg flex items-center justify-center text-tinta-300 hover:text-aviso-rojo hover:bg-pastel-rojo shrink-0">

@@ -186,6 +186,28 @@ class Op extends Model
      * remisión (ver RemisionController::revisarEstadoOp), vive aquí para
      * que ambos caminos lo disparen de la misma forma.
      */
+    /**
+     * ¿Los ítems de esta orden ya no se pueden tocar?
+     *
+     * Deja de poder cambiarse cuando hay trabajo hecho: cambiar la receta con pasos
+     * completados dejaría los tiempos y las fotos de los operarios apuntando a algo que ya no
+     * es lo que se está fabricando, y si una unidad entró a bodega, cambiarla descuadraría el
+     * inventario hacia atrás.
+     *
+     * Se mira el estado **y** el trabajo real: una OP puede estar en `confirmada` y tener un
+     * operario que ya cerró un paso, y ahí también hay algo que proteger.
+     */
+    public function itemsBloqueados(): bool
+    {
+        if (in_array($this->estado, ['en_produccion', 'calidad', 'reproceso', 'despachada'], true)) {
+            return true;
+        }
+
+        return OpItemTrabajoPaso::whereHas('trabajo.opItem', fn ($q) => $q->where('op_id', $this->id))
+            ->where('completado', true)
+            ->exists();
+    }
+
     public function consumirMaterialesInventario(): void
     {
         $bodegaPrincipal = Bodega::principal();

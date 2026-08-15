@@ -185,8 +185,10 @@ class OpController extends Controller
             'notas_internas'          => $data['notas_internas'] ?? null,
         ]);
 
-        $this->syncItems($op, $data['items'] ?? []);
-        $op->recalcularTotales();
+        if (! $op->itemsBloqueados()) {
+            $this->syncItems($op, $data['items'] ?? []);
+            $op->recalcularTotales();
+        }
 
         return redirect("/produccion/ops/{$op->id}")
             ->with('success', "Orden {$op->numero} creada.");
@@ -321,6 +323,18 @@ class OpController extends Controller
     {
         $data = $this->validarForm($request);
 
+        // Una OP que ya arrancó no cambia sus ítems. En cuanto hay trabajo hecho, cambiar la
+        // receta de un ítem dejaría los pasos, los tiempos y las fotos de los operarios
+        // apuntando a algo que ya no es lo que se está fabricando; y si una unidad ya entró a
+        // bodega, cambiarla descuadraría el inventario hacia atrás.
+        //
+        // El candado va aquí y no solo en la pantalla: una pantalla se puede saltar.
+        if ($op->itemsBloqueados() && $request->filled('items')) {
+            return back()->with('error',
+                'Esta orden ya está en producción: sus ítems no se pueden modificar. '
+                .'Los cambios de fechas, responsable y notas sí se guardaron.');
+        }
+
         $op->update([
             'cliente_id'             => $data['cliente_id'] ?? null,
             'responsable_id'         => $data['responsable_id'],
@@ -332,8 +346,10 @@ class OpController extends Controller
             'notas_internas'         => $data['notas_internas'] ?? null,
         ]);
 
-        $this->syncItems($op, $data['items'] ?? []);
-        $op->recalcularTotales();
+        if (! $op->itemsBloqueados()) {
+            $this->syncItems($op, $data['items'] ?? []);
+            $op->recalcularTotales();
+        }
 
         return redirect("/produccion/ops/{$op->id}")
             ->with('success', 'Orden actualizada.');
