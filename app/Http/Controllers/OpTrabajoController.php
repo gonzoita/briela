@@ -93,13 +93,24 @@ class OpTrabajoController extends Controller
         $trabajo = $paso->trabajo;
         $trabajo->recalcularAvance();
 
+        $aviso = '';
+
         if ($trabajo->pasos()->where('completado', false)->count() === 0) {
             $item->update(['estado_item' => 'terminado']);
+
+            // La unidad terminó: entra a bodega y sus materiales se descuentan ahí. Antes el
+            // trabajo terminaba y la unidad no existía en ninguna parte del sistema hasta que
+            // alguien la despachaba.
+            $bodega = app(\App\Services\EntregaAlmacenService::class)->entregar($trabajo);
+
+            if ($bodega) {
+                $aviso = " La unidad entró a {$bodega->nombre}.";
+            }
         }
 
         $this->recalcularProgresoOp($op);
 
-        return back()->with('success', 'Paso completado.');
+        return back()->with('success', 'Paso completado.'.$aviso);
     }
 
     public function desmarcarPaso(Request $request, Op $op, OpItem $item, OpItemTrabajoPaso $paso): RedirectResponse

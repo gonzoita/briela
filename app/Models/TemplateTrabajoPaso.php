@@ -19,6 +19,9 @@ class TemplateTrabajoPaso extends Model
         'nivel_dificultad',
         'depende_de',
         'es_paso_final',
+        // A qué bodega entra la unidad al cerrar este paso. Solo se usa en el paso de
+        // entrega; en los demás no significa nada.
+        'bodega_destino_id',
         'imagen',
         'archivo_plano',
     ];

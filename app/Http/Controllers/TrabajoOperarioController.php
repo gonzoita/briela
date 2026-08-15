@@ -139,9 +139,20 @@ class TrabajoOperarioController extends Controller
 
         $trabajo->recalcularAvance();
 
-        $item = $trabajo->opItem;
+        $item  = $trabajo->opItem;
+        $aviso = '';
+
         if ($trabajo->pasos()->where('completado', false)->count() === 0) {
             $item->update(['estado_item' => 'terminado']);
+
+            // La unidad terminó: entra a bodega y sus materiales se descuentan ahí. Va aquí y
+            // en el panel de la OP porque los dos cierran pasos; la lógica está en un solo
+            // sitio para que no se separen.
+            $bodega = app(\App\Services\EntregaAlmacenService::class)->entregar($trabajo);
+
+            if ($bodega) {
+                $aviso = " La unidad entró a {$bodega->nombre}.";
+            }
         } else {
             $item->update(['estado_item' => 'en_proceso']);
         }
@@ -160,7 +171,7 @@ class TrabajoOperarioController extends Controller
             }
         }
 
-        return back()->with('success', 'Paso completado.');
+        return back()->with('success', 'Paso completado.'.$aviso);
     }
 
     public function desmarcarPaso(Request $request, string $token, OpItemTrabajoPaso $paso): RedirectResponse

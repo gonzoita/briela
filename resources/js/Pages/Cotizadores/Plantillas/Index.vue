@@ -14,6 +14,8 @@ const { copyText } = useClipboard()
 const props = defineProps({
     plantillas: { type: Array, default: () => [] },
     productos:  { type: Array, default: () => [] },
+    // Para que el paso de entrega diga a qué bodega llega lo fabricado.
+    bodegas:    { type: Array, default: () => [] },
 })
 
 // ── Estado global ─────────────────────────────────────────────────────────────
@@ -705,7 +707,7 @@ function agregarPasoProduccion() {
     plantillaActual.value.pasosTrabajo.push({
         nombre: '', objetivo: '', descripcion: '', peso_porcentaje: 0,
         orden: plantillaActual.value.pasosTrabajo.length, nivel_dificultad: 2,
-        depende_de: [], es_paso_final: false, imagen: null, archivo_plano: null,
+        depende_de: [], es_paso_final: false, bodega_destino_id: null, imagen: null, archivo_plano: null,
     })
     recalcularPesosProduccion()
     pasoActivo.value = plantillaActual.value.pasosTrabajo.length - 1
@@ -785,6 +787,7 @@ async function guardarPasosProduccion() {
             nivel_dificultad: p.nivel_dificultad ?? 1,
             depende_de: p.depende_de ?? [],
             es_paso_final: !!p.es_paso_final,
+            bodega_destino_id: p.bodega_destino_id || null,
             imagen: p.imagen ?? null,
             archivo_plano: p.archivo_plano ?? null,
         }))
@@ -2514,8 +2517,28 @@ const badgesTipo = {
                                         <input type="checkbox" v-model="paso.es_paso_final"
                                             @change="marcarPasoFinalProduccion(idx)" class="rounded accent-purple-600" />
                                         <span class="text-xs font-semibold text-aviso-violeta">Paso final</span>
-                                        <span class="text-xs text-tinta-300">(cierra el trabajo al completarse)</span>
+                                        <span class="text-xs text-tinta-300">(cierra el trabajo y entrega a bodega)</span>
                                     </label>
+
+                                    <!-- El paso final es el de entrega: quien lo cierra es quien
+                                         deja la unidad en el estante, así que aquí se dice en
+                                         cuál. Al cerrarlo, la unidad entra a esa bodega y sus
+                                         materiales se descuentan. -->
+                                    <div v-if="paso.es_paso_final" class="rounded-lg bg-pastel-violeta border border-borde-aviso-violeta p-3">
+                                        <label class="block text-xs font-semibold text-aviso-violeta uppercase tracking-[0.12em] mb-1.5">
+                                            Entrega en
+                                        </label>
+                                        <select v-model="paso.bodega_destino_id"
+                                            class="w-full border border-linea rounded-lg px-2.5 py-2 text-sm bg-superficie focus:outline-none focus:border-[var(--marca)]">
+                                            <option :value="null">— Bodega principal —</option>
+                                            <option v-for="b in (bodegas ?? [])" :key="b.id" :value="b.id">{{ b.nombre }}</option>
+                                        </select>
+                                        <p class="text-xs text-aviso-violeta mt-1.5 leading-relaxed">
+                                            Al cerrar este paso, la unidad entra a esta bodega y se descuentan
+                                            los materiales que se gastaron en ella. Se puede cambiar en cada
+                                            orden de producción.
+                                        </p>
+                                    </div>
 
                                     <div v-if="(plantillaActual.pasosTrabajo ?? []).length > 1">
                                         <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1">Requiere completar primero:</label>

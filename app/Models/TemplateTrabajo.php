@@ -71,6 +71,7 @@ class TemplateTrabajo extends Model
                 'nivel_dificultad' => $paso['nivel_dificultad'] ?? 1,
                 'depende_de'       => $paso['depende_de'] ?? [],
                 'es_paso_final'    => $paso['es_paso_final'] ?? false,
+                'bodega_destino_id'=> $paso['bodega_destino_id'] ?? null,
                 'imagen'           => $paso['imagen'] ?? null,
                 'archivo_plano'    => $paso['archivo_plano'] ?? null,
             ]);

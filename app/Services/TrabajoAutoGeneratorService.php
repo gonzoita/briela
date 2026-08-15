@@ -78,6 +78,9 @@ class TrabajoAutoGeneratorService
                     'descripcion_resuelta' => $desc,
                     'peso_porcentaje'      => $paso->peso_porcentaje,
                     'orden'                => $paso->orden,
+                    'es_paso_final'        => $paso->es_paso_final,
+                    // La bodega de entrega baja de la plantilla y queda ajustable en esta OP.
+                    'bodega_destino_id'    => $paso->bodega_destino_id,
                 ]);
             }
         }

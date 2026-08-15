@@ -197,11 +197,17 @@ class Op extends Model
             foreach ($this->items as $item) {
                 if (! $item->ensamble_id) continue;
 
-                // Si el ensamble se guarda armado y hay unidades en bodega, se despacha DE
-                // AHÍ y no se vuelven a consumir los materiales: ya se gastaron cuando la
-                // unidad se armó. Sin esta salida, despachar algo que estaba en el estante
-                // descontaba el material una segunda vez y el inventario quedaba en negativo
-                // mientras el contador de armadas nunca bajaba.
+                // Lo que se fabricó en esta OP ya descontó su material al terminarse, cuando
+                // la unidad entró a bodega (ver `EntregaAlmacenService`). Volver a consumirlo
+                // aquí lo descontaría dos veces.
+                if ($item->trabajos()->whereNotNull('entregado_at')->exists()) {
+                    $this->descontarDelTerminado($item, $bodegaPrincipal);
+
+                    continue;
+                }
+
+                // Y si no se fabricó aquí pero hay unidades armadas en bodega, se despacha de
+                // ahí: su material se gastó el día que se armaron.
                 if ($this->descontarDelTerminado($item, $bodegaPrincipal)) continue;
 
                 $componentes = $item->componentes_snapshot ?? [];
@@ -259,6 +265,14 @@ class Op extends Model
         }
 
         $piden = (float) $item->cantidad;
+
+        // Se saca de la bodega donde entraron las unidades al fabricarse, que puede no ser la
+        // principal: el último paso del flujo decide a cuál entran.
+        $entregada = $item->trabajos()->whereNotNull('bodega_entrega_id')->value('bodega_entrega_id');
+
+        if ($entregada) {
+            $bodega = Bodega::find($entregada) ?? $bodega;
+        }
 
         if ($piden <= 0 || $terminado->stockEnBodega($bodega->id) < $piden) {
             return false;

@@ -43,6 +43,10 @@ class PlantillaEnsambleController extends Controller
         return Inertia::render('Cotizadores/Plantillas/Index', [
             'plantillas' => $plantillas,
             'productos'  => $productos,
+            // Para que el paso de entrega pueda decir a qué bodega llega lo fabricado.
+            'bodegas'    => \App\Support\ContextoSede::bodegasVisibles()->map(fn ($b) => [
+                'id' => $b->id, 'nombre' => $b->nombre,
+            ])->values(),
             'filters'    => $request->only(['search', 'activo']),
         ]);
     }
@@ -370,6 +374,9 @@ class PlantillaEnsambleController extends Controller
             'pasos.*.depende_de'          => 'nullable|array',
             'pasos.*.depende_de.*'        => 'nullable|integer|min:0',
             'pasos.*.es_paso_final'       => 'boolean',
+            // A qué bodega entra la unidad al cerrar el paso de entrega. Solo tiene sentido
+            // en el paso final; en los demás se guarda y no se usa.
+            'pasos.*.bodega_destino_id'   => 'nullable|exists:bodegas,id',
             'pasos.*.imagen'              => 'nullable|string',
             'pasos.*.archivo_plano'       => 'nullable|string',
         ]);

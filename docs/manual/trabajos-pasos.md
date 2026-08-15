@@ -93,6 +93,40 @@ también **devuelve los puntos** otorgados, para que el ranking no quede inflado
 También se pueden agregar **pasos extra** sobre la marcha, para el trabajo que
 no estaba en la receta.
 
+## El último paso entrega a una bodega *(nuevo 15 ago 2026)*
+
+**Toda producción entra a bodega.** El último paso del flujo es el de entrega: quien lo
+cierra es quien físicamente deja la unidad en el estante, así que ese paso dice **en qué
+bodega**. Se define una vez en la plantilla de pasos, y se puede cambiar en una orden
+concreta si ese lote va a otra parte.
+
+Al cerrar ese paso, en la misma operación:
+
+1. Se **descuentan los materiales** de esa unidad. Es el momento honesto: es cuando se
+   gastaron.
+2. Se **registra la entrada** del producto terminado en esa bodega.
+
+Antes un trabajo terminaba y ahí quedaba: la unidad existía en el mundo real —armada,
+aprobada, en un estante— y en el sistema no existía en ninguna parte. El material recién
+se descontaba al despachar, así que entre fabricar y despachar el inventario mostraba
+insumos que ya no estaban y no mostraba el producto que sí estaba.
+
+Un trabajo es **una unidad física**, así que cada uno descuenta lo suyo cuando de verdad
+se armó. Una OP de cinco unidades a medio fabricar tiene el inventario que le
+corresponde, no el de las cinco.
+
+**No se puede entregar dos veces.** El trabajo guarda cuándo entró y a dónde, y esa marca
+es el candado: sin ella, volver a marcar el último paso —o dos personas marcándolo a la
+vez— metería la misma unidad dos veces al inventario, y eso no se nota hasta que alguien
+cuenta el estante.
+
+Al despachar, la remisión **saca de esa bodega y no vuelve a tocar los materiales**: ya se
+descontaron al fabricar.
+
+Si el ensamble no tenía prendido «se guarda en bodega», se prende solo al entregar la
+primera unidad: de ese ensamble sí hay unidades guardadas, aunque nadie lo hubiera
+declarado antes.
+
 ## Qué se dispara al avanzar
 
 Marcar pasos no solo mueve una barra de progreso. Cada vez que cambia el avance

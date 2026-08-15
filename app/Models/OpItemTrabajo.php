@@ -18,7 +18,17 @@ class OpItemTrabajo extends Model
         'total_unidades',
         'token_trabajo',
         'remisionado',
+        // Cuándo entró a bodega la unidad y a cuál. Es el candado que evita que volver a
+        // marcar el último paso meta la misma unidad dos veces al inventario.
+        'entregado_at',
+        'bodega_entrega_id',
     ];
+
+    /** La bodega a la que entró esta unidad al terminarse. */
+    public function bodegaEntrega(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(\App\Models\Bodega::class, 'bodega_entrega_id');
+    }
 
     protected static function booted(): void
     {
@@ -30,6 +40,7 @@ class OpItemTrabajo extends Model
     }
 
     protected $casts = [
+        'entregado_at'      => 'datetime',
         'porcentaje_avance' => 'decimal:2',
         'remisionado'       => 'boolean',
     ];

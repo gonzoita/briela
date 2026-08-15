@@ -30,6 +30,9 @@ class OpItemTrabajoPaso extends Model
         'tiempo_estimado_minutos',
         'depende_de',
         'es_paso_final',
+        // Copiada de la plantilla y ajustable en esta OP: un lote puede ir a otra bodega
+        // sin que eso cambie la regla general de la línea.
+        'bodega_destino_id',
     ];
 
     protected $casts = [
