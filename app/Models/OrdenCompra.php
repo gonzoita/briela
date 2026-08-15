@@ -19,8 +19,12 @@ class OrdenCompra extends Model
     ];
 
     protected $casts = [
-        'fecha_entrega_esperada' => 'date',
-        'fecha_recepcion'        => 'date',
+        // `date:Y-m-d` y no `date`: sin el formato esto se serializa como
+        // «2026-08-10T00:00:00.000000Z», y un `<input type="date"» exige «2026-08-10».
+        // El navegador rechaza el valor y solo lo dice en la consola: el campo se ve
+        // vacío y el usuario no puede leer ni corregir una fecha que sí está guardada.
+        'fecha_entrega_esperada' => 'date:Y-m-d',
+        'fecha_recepcion'        => 'date:Y-m-d',
         'subtotal'               => 'decimal:2',
         'impuesto'               => 'decimal:2',
         'total'                  => 'decimal:2',

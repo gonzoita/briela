@@ -41,8 +41,12 @@ class Op extends Model
     ];
 
     protected $casts = [
-        'fecha_creacion'         => 'date',
-        'fecha_entrega_estimada' => 'date',
+        // `date:Y-m-d` y no `date`: sin el formato esto se serializa como
+        // «2026-08-10T00:00:00.000000Z», y un `<input type="date"» exige «2026-08-10».
+        // El navegador rechaza el valor y solo lo dice en la consola: el campo se ve
+        // vacío y el usuario no puede leer ni corregir una fecha que sí está guardada.
+        'fecha_creacion'         => 'date:Y-m-d',
+        'fecha_entrega_estimada' => 'date:Y-m-d',
         'anticipo'               => 'decimal:2',
         'subtotal'               => 'decimal:2',
         'descuento_total'        => 'decimal:2',
@@ -193,6 +197,13 @@ class Op extends Model
             foreach ($this->items as $item) {
                 if (! $item->ensamble_id) continue;
 
+                // Si el ensamble se guarda armado y hay unidades en bodega, se despacha DE
+                // AHÍ y no se vuelven a consumir los materiales: ya se gastaron cuando la
+                // unidad se armó. Sin esta salida, despachar algo que estaba en el estante
+                // descontaba el material una segunda vez y el inventario quedaba en negativo
+                // mientras el contador de armadas nunca bajaba.
+                if ($this->descontarDelTerminado($item, $bodegaPrincipal)) continue;
+
                 $componentes = $item->componentes_snapshot ?? [];
                 if (empty($componentes) && $item->ensamble) {
                     $componentes = $item->ensamble->componentes_resultado ?? [];
@@ -220,6 +231,50 @@ class Op extends Model
                 }
             }
         });
+    }
+
+    /**
+     * Despacha un ítem desde el stock de unidades ya armadas, si alcanza.
+     *
+     * Devuelve true cuando lo hizo, y entonces los materiales de ese ítem **no** se
+     * consumen: se gastaron el día que la unidad se armó.
+     *
+     * Si el ensamble se guarda en bodega pero no hay suficientes armadas, devuelve false y se
+     * consumen los materiales como siempre — esa vez se fabricó contra pedido. Es la opción
+     * honesta: la alternativa sería dejar el stock en negativo para sostener la ficción de
+     * que estaba armado.
+     */
+    private function descontarDelTerminado(OpItem $item, Bodega $bodega): bool
+    {
+        $ensamble = $item->ensamble;
+
+        if (! $ensamble || ! $ensamble->maneja_stock) {
+            return false;
+        }
+
+        $terminado = $ensamble->productoTerminado()->first();
+
+        if (! $terminado) {
+            return false;
+        }
+
+        $piden = (float) $item->cantidad;
+
+        if ($piden <= 0 || $terminado->stockEnBodega($bodega->id) < $piden) {
+            return false;
+        }
+
+        $terminado->registrarMovimiento(
+            tipo: 'salida',
+            cantidad: $piden,
+            bodegaId: $bodega->id,
+            usuarioId: auth()->id(),
+            origenTipo: 'op',
+            origenId: $this->id,
+            notas: "Despacho de unidades armadas · OP #{$this->id}"
+        );
+
+        return true;
     }
 
     /**

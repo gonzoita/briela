@@ -123,6 +123,21 @@ mismo artículo saldría dos veces en el buscador y nadie sabría cuál elegir.
 Al apagar el interruptor el producto **se desactiva, no se borra**: sus movimientos son
 historia de inventario y el stock que tenga es algo que existe en una estantería.
 
+**Al despachar se descuenta de ahí, no del material.** Si hay unidades armadas suficientes,
+la remisión saca del stock de armadas y **no** vuelve a consumir los componentes: se
+gastaron el día que la unidad se armó. Sin esa salida, despachar algo que estaba en el
+estante descontaba el material una segunda vez, el inventario de insumos quedaba en
+negativo y el contador de armadas nunca bajaba.
+
+Si el ensamble se guarda en bodega pero **no hay suficientes armadas**, se consumen los
+materiales como siempre: esa vez se fabricó contra pedido. Es la opción honesta — la
+alternativa sería dejar el stock en negativo para sostener la ficción de que estaba listo.
+
+Las unidades **entran a mano** desde inventario, cuando alguien declara «armé cuatro».
+Todavía no las suma sola al terminar una OP, y es a propósito: «cuándo está armada» tiene
+más de una respuesta —¿al aprobar calidad? ¿al terminar el último paso de cada unidad?— y
+adivinar mal infla el inventario con unidades que no existen.
+
 ### Duplicar un ensamble
 
 Desde la ficha del ensamble, **Duplicar** abre el formulario de crear ya lleno: la

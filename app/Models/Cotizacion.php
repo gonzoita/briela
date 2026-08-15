@@ -42,8 +42,12 @@ class Cotizacion extends Model
     ];
 
     protected $casts = [
-        'fecha_creacion'   => 'date',
-        'fecha_validez'    => 'date',
+        // `date:Y-m-d` y no `date`: sin el formato, esto se serializa como
+        // «2026-08-10T00:00:00.000000Z» y un `<input type="date">` exige «2026-08-10». El
+        // navegador rechaza el valor en silencio —solo lo dice en la consola—, el campo se
+        // ve vacío, y el usuario no puede leer ni corregir la fecha de su cotización.
+        'fecha_creacion'   => 'date:Y-m-d',
+        'fecha_validez'    => 'date:Y-m-d',
         'subtotal'         => 'decimal:2',
         'descuento_total'  => 'decimal:2',
         'impuesto_total'   => 'decimal:2',
