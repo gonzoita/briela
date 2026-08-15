@@ -114,10 +114,18 @@ const form = useForm({
         precio_mayorista_base: parseFloat(i.precio_mayorista_base) || parseFloat(i.producto?.precio_mayorista ?? i.ensamble?.precio_mayorista ?? 0) || 0,
         descuento_pct:        parseFloat(i.descuento_pct),
         impuesto_pct:         parseFloat(i.impuesto_pct),
-        comision_pct_minima:         parseFloat(i.producto?.comision_pct_minima          ?? i.ensamble?.comision_pct_minima          ?? 0),
-        comision_pct_maxima:         parseFloat(i.producto?.comision_pct_maxima          ?? i.ensamble?.comision_pct_maxima          ?? 0),
-        comision_pct_aplicada:       parseFloat(i.comision_pct_aplicada                  ?? i.producto?.comision_pct_maxima          ?? i.ensamble?.comision_pct_maxima          ?? 0),
-        comision_pct_actual:         parseFloat(i.comision_pct_aplicada                  ?? i.producto?.comision_pct_maxima          ?? i.ensamble?.comision_pct_maxima          ?? 0),
+        // El rango de comisión sale de la fila del canal del cliente, que es la misma fuente
+        // que se usa al agregar el ítem. Leerlo de las columnas antiguas del producto dejaba
+        // el rango en 0–0 al reabrir la cotización, y con mínimo igual a máximo la barra de
+        // negociar no se puede mover.
+        // El rango se llena en cuanto se sabe el canal del cliente (ver el watch de más
+        // abajo). Aquí no se puede: `canalCliente` es un const declarado después, y leerlo
+        // antes de su declaración lanza un error que deja la pantalla en blanco.
+        comision_pct_minima:         0,
+        comision_pct_maxima:         0,
+        // Lo aplicado se respeta tal cual: es lo que se negoció ese día.
+        comision_pct_aplicada:       parseFloat(i.comision_pct_aplicada) || 0,
+        comision_pct_actual:         parseFloat(i.comision_pct_aplicada) || 0,
         comision_min_distribuidor:   parseFloat(i.producto?.comision_min_distribuidor    ?? i.ensamble?.comision_min_distribuidor    ?? 0),
         comision_max_distribuidor:   parseFloat(i.producto?.comision_max_distribuidor    ?? i.ensamble?.comision_max_distribuidor    ?? 0),
         comision_min_cliente_final:  parseFloat(i.producto?.comision_min_cliente_final   ?? i.ensamble?.comision_min_cliente_final   ?? 0),
@@ -132,6 +140,9 @@ const form = useForm({
         stock_disponible: i.stock_disponible ?? null,
         stock_minimo:     Number(i.stock_minimo) || 0,
         inventariable:    i.inventariable !== false,
+        // Las filas por canal del producto o del ensamble, para que la comisión y el
+        // descuento se puedan negociar igual que al crear.
+        canales:          i.canales ?? [],
         // Por qué este ítem no se puede guardar, si es el caso. Lo decide el servidor.
         problema:         i.problema ?? null,
     })) ?? [],
@@ -173,6 +184,35 @@ const canalPropio = computed(() => {
 
 /** El canal con el que se cotiza: el suyo, o el público como respaldo. */
 const canalCliente = computed(() => canalPropio.value ?? canalPublico.value)
+
+/**
+ * Rellena el rango de comisión y el descuento máximo de cada ítem según el canal del cliente.
+ *
+ * Va en un watch y no en el arranque del formulario por dos razones. La primera es técnica:
+ * al construir el formulario todavía no existe `canalCliente`. La segunda importa más — el
+ * canal cambia si se cambia el cliente, y con él cambian los topes de negociación: antes se
+ * quedaban los del cliente anterior.
+ *
+ * Lo aplicado no se toca: es lo que alguien negoció y se recorta solo si sale del rango.
+ */
+watch(canalCliente, () => {
+    form.items.forEach(item => {
+        const min = getCanalComisionMin(item)
+        const max = getCanalComisionMax(item)
+
+        item.comision_pct_minima = min
+        item.comision_pct_maxima = max
+        item.descuento_max       = getDescuentoMaxSegunCanal(item)
+
+        const aplicada = parseFloat(item.comision_pct_aplicada) || 0
+
+        // Sin nada negociado, se arranca en el máximo: es lo que gana el vendedor si no
+        // regala descuento. Y si lo guardado se salió del rango nuevo, se recorta.
+        item.comision_pct_actual = aplicada > 0
+            ? Math.min(Math.max(aplicada, min), max)
+            : max
+    })
+}, { immediate: true })
 
 /** ¿Se está cotizando con el respaldo en vez de con el canal del cliente? */
 const canalEsRespaldo = computed(() =>

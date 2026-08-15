@@ -269,19 +269,42 @@ class CotizacionController extends Controller
 
         $ids = collect($cotizacion->items)->pluck('producto_id')->filter()->unique();
 
-        if ($ids->isEmpty()) {
-            return $datos;
-        }
+        $productos = $ids->isEmpty()
+            ? collect()
+            : \App\Models\Producto::with('preciosPorCanal')->whereIn('id', $ids)
+                ->get(['id', 'nombre', 'stock_minimo', 'inventariable', 'es_padre'])
+                ->keyBy('id');
 
-        $productos = \App\Models\Producto::whereIn('id', $ids)
-            ->get(['id', 'nombre', 'stock_minimo', 'inventariable', 'es_padre'])
-            ->keyBy('id');
+        // Los ensambles también: sus comisiones y descuentos viven en las filas por canal, y
+        // la pantalla los necesita para poder negociar la comisión al reabrir la cotización.
+        $ensambles = collect($cotizacion->items)->pluck('ensamble_id')->filter()->unique();
+
+        $ensambles = $ensambles->isEmpty()
+            ? collect()
+            : \App\Models\Ensamble::with('preciosPorCanal')->whereIn('id', $ensambles)
+                ->get(['id', 'nombre'])->keyBy('id');
 
         // Mismo criterio que el buscador y el inventario: solo las bodegas de esta sede.
         $bodegas = \App\Support\ContextoSede::idsBodegasVisibles();
 
-        $datos['items'] = collect($datos['items'])->map(function (array $item) use ($productos, $bodegas) {
+        $datos['items'] = collect($datos['items'])->map(function (array $item) use ($productos, $ensambles, $bodegas) {
             $producto = $item['producto_id'] ? $productos->get($item['producto_id']) : null;
+
+            // Las filas por canal del producto o del ensamble, con la MISMA forma que manda
+            // el buscador al agregar el ítem. Sin esto, al reabrir la cotización la pantalla
+            // leía las comisiones de las columnas antiguas —que quedaron en cero al pasar a
+            // canales—, el rango salía de 0 a 0 y la barra de negociar no se podía mover.
+            $fuente = $producto ?? ($item['ensamble_id'] ? $ensambles->get($item['ensamble_id']) : null);
+
+            $item['canales'] = $fuente
+                ? $fuente->preciosPorCanal->map(fn ($c) => [
+                    'segmentacion_opcion_id' => $c->segmentacion_opcion_id,
+                    'precio'                 => (float) $c->precio,
+                    'comision_min_pct'       => (float) $c->comision_min_pct,
+                    'comision_max_pct'       => (float) $c->comision_max_pct,
+                    'descuento_max_pct'      => (float) $c->descuento_max_pct,
+                ])->values()->all()
+                : [];
 
             // Va el dato crudo, sin decidir aquí si se muestra: esa regla vive en
             // `EtiquetaStock.vue`, y tenerla en dos sitios es tenerla en ninguno.
