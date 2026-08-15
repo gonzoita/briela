@@ -200,6 +200,7 @@ class ProductoController extends Controller
             ]));
 
             $this->guardarCanales($request, $producto);
+            $this->guardarProveedores($request, $producto);
 
             if ($esPadre) {
                 foreach ($request->input('variantes', []) as $variante) {
@@ -243,6 +244,7 @@ class ProductoController extends Controller
             'categoria',
             'imagenes',
             'proveedor:id,nombre',
+            'proveedores.proveedor:id,nombre',
             'padre:id,nombre',
             'stocks.bodega',
             'variantes.stocks',
@@ -283,6 +285,22 @@ class ProductoController extends Controller
                 'stocks'               => $stocks,
                 'variantes'            => $variantes,
                 'movimientos_recientes' => $producto->es_padre ? [] : $producto->movimientos,
+                // La comparación de proveedores, ya resuelta: la ficha muestra quién lo
+                // vende más barato y cuánto se ahorra. Antes solo salía el último al que se
+                // le compró, y comparar era abrir un cuaderno.
+                'proveedores_precios'   => $producto->proveedores->map(fn ($pp) => [
+                    'proveedor_id'         => $pp->proveedor_id,
+                    'proveedor_nombre'     => $pp->proveedor?->nombre,
+                    'referencia_proveedor' => $pp->referencia_proveedor,
+                    'precio'               => (float) $pp->precio,
+                    'dias_entrega'         => $pp->dias_entrega,
+                    'minimo_compra'        => $pp->minimo_compra !== null ? (float) $pp->minimo_compra : null,
+                    'es_preferido'         => (bool) $pp->es_preferido,
+                    'actualizado_el'       => $pp->actualizado_el?->toDateString(),
+                    'dias_desde'           => $pp->diasDesdeActualizacion(),
+                    'notas'                => $pp->notas,
+                ])->values(),
+                'ahorro_proveedores'    => $producto->ahorroEntreProveedores(),
             ]),
             'categorias' => CategoriaProducto::where('activa', true)->orderBy('nombre')->get(),
             'bodegas'    => Bodega::where('activa', true)->orderByDesc('es_principal')->orderBy('nombre')->get(),
@@ -313,7 +331,7 @@ class ProductoController extends Controller
 
     public function edit(int $id): Response
     {
-        $producto = Producto::with(['categoria', 'imagenes', 'stocks.bodega', 'padre:id,nombre', 'variantes.stocks'])->findOrFail($id);
+        $producto = Producto::with(['categoria', 'imagenes', 'stocks.bodega', 'padre:id,nombre', 'variantes.stocks', 'proveedores'])->findOrFail($id);
 
         $imagenes = $producto->imagenes->map(fn ($img) => array_merge($img->toArray(), [
             'url' => $img->url,
@@ -339,6 +357,17 @@ class ProductoController extends Controller
                 'imagenes'    => $imagenes,
                 'stocks'      => $stocks,
                 'variantes'   => $variantes,
+                // Los proveedores con su precio, para el comparador del formulario.
+                'proveedores_precios' => $producto->proveedores->map(fn ($pp) => [
+                    'proveedor_id'         => (string) $pp->proveedor_id,
+                    'referencia_proveedor' => $pp->referencia_proveedor,
+                    'precio'               => (float) $pp->precio,
+                    'dias_entrega'         => $pp->dias_entrega,
+                    'minimo_compra'        => $pp->minimo_compra !== null ? (float) $pp->minimo_compra : null,
+                    'es_preferido'         => (bool) $pp->es_preferido,
+                    'actualizado_el'       => $pp->actualizado_el?->toDateString(),
+                    'notas'                => $pp->notas,
+                ])->values(),
             ]),
             'categorias'  => CategoriaProducto::where('activa', true)->orderBy('nombre')->get(),
             'proveedores' => Proveedor::where('activo', true)->orderBy('nombre')->get(['id', 'nombre']),
@@ -437,12 +466,79 @@ class ProductoController extends Controller
             ]);
 
             $this->guardarCanales($request, $producto);
+            $this->guardarProveedores($request, $producto);
             $this->procesarImagenes($request, $producto);
         } catch (\Exception $e) {
             return back()->withErrors(['error' => $e->getMessage()]);
         }
 
         return redirect("/productos/{$producto->id}")->with('success', 'Producto actualizado.');
+    }
+
+    /**
+     * Guarda la lista de proveedores del producto y sincroniza la columna de siempre.
+     *
+     * `productos.proveedor_id` NO se retira: las órdenes de compra y varias pantallas la
+     * leen, y al otro lado hay bases de clientes con versiones anteriores (regla 2). Queda
+     * apuntando al **preferido**, así que el código viejo sigue viendo un proveedor correcto
+     * mientras el nuevo compara la lista completa.
+     */
+    private function guardarProveedores(Request $request, Producto $producto): void
+    {
+        $filas = $request->input('proveedores_precios');
+
+        // Sin la clave, la pantalla no maneja proveedores: no se toca nada. Es lo que
+        // permite que la importación y la pantalla de variantes sigan funcionando sin
+        // borrarle los proveedores a un producto que ya los tenía.
+        if (! is_array($filas)) {
+            return;
+        }
+
+        $vistos     = [];
+        $preferido  = null;
+
+        foreach ($filas as $fila) {
+            $proveedorId = (int) ($fila['proveedor_id'] ?? 0);
+
+            if (! $proveedorId || in_array($proveedorId, $vistos, true)) {
+                continue;
+            }
+
+            $vistos[] = $proveedorId;
+
+            \App\Models\ProductoProveedor::updateOrCreate(
+                ['producto_id' => $producto->id, 'proveedor_id' => $proveedorId],
+                [
+                    'referencia_proveedor' => $fila['referencia_proveedor'] ?? null,
+                    'precio'               => (float) ($fila['precio'] ?? 0),
+                    'dias_entrega'         => $fila['dias_entrega'] !== null && $fila['dias_entrega'] !== ''
+                        ? (int) $fila['dias_entrega'] : null,
+                    'minimo_compra'        => $fila['minimo_compra'] !== null && $fila['minimo_compra'] !== ''
+                        ? (float) $fila['minimo_compra'] : null,
+                    'es_preferido'         => (bool) ($fila['es_preferido'] ?? false),
+                    'actualizado_el'       => $fila['actualizado_el'] ?? null,
+                    'notas'                => $fila['notas'] ?? null,
+                ]
+            );
+
+            if ($fila['es_preferido'] ?? false) {
+                $preferido = $proveedorId;
+            }
+        }
+
+        // Las que ya no están en la pantalla se van: se quitaron a propósito.
+        $producto->proveedores()->whereNotIn('proveedor_id', $vistos ?: [0])->delete();
+
+        // Si nadie quedó marcado, manda el más barato: es la elección que la persona haría
+        // igual, y dejar la columna vieja en null rompería las órdenes de compra.
+        if (! $preferido) {
+            $preferido = $producto->proveedores()->where('precio', '>', 0)
+                ->orderBy('precio')->value('proveedor_id');
+        }
+
+        if ($preferido && (int) $producto->proveedor_id !== (int) $preferido) {
+            $producto->newQuery()->whereKey($producto->getKey())->update(['proveedor_id' => $preferido]);
+        }
     }
 
     /**
@@ -642,6 +738,17 @@ class ProductoController extends Controller
             'unidad_medida'       => 'nullable|string|max:30',
             'categoria_id'        => 'nullable|exists:categorias_producto,id',
             'proveedor_id'        => 'nullable|exists:proveedores,id',
+            // La lista de proveedores con precio, para comparar antes de comprar. La
+            // columna de arriba queda apuntando al preferido.
+            'proveedores_precios'                        => 'nullable|array|max:20',
+            'proveedores_precios.*.proveedor_id'         => 'nullable|exists:proveedores,id',
+            'proveedores_precios.*.referencia_proveedor' => 'nullable|string|max:80',
+            'proveedores_precios.*.precio'               => 'nullable|numeric|min:0',
+            'proveedores_precios.*.dias_entrega'         => 'nullable|integer|min:0|max:3650',
+            'proveedores_precios.*.minimo_compra'        => 'nullable|numeric|min:0',
+            'proveedores_precios.*.es_preferido'         => 'nullable|boolean',
+            'proveedores_precios.*.actualizado_el'       => 'nullable|date',
+            'proveedores_precios.*.notas'                => 'nullable|string|max:500',
             // 1000 y no 160: es lo que dice el contador de la pantalla y lo que ya
             // aceptaba `ensambles.descripcion_corta`. Con 160, una ficha generada con IA
             // —hasta 380 caracteres de introducción— se veía bien y reventaba al guardar.

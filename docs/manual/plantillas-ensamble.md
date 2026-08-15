@@ -52,6 +52,39 @@ operario pueda escanear su QR y la OP avance sola; se editan en
 
 El modo no se cambia después de creado: sería reescribir la receta completa.
 
+### Referencia y unidad de medida
+
+Desde el 14 ago 2026 un ensamble tiene **referencia** y **unidad de medida**, como un
+producto. La referencia se genera sola (`ENS-0001`, `ENS-0002`…) si se deja en blanco,
+y se puede escribir a mano. Antes el ensamble era la única línea sin código en una
+cotización, una orden de producción o una remisión: las pantallas escribían `ENS-{id}`
+a mano, que es un identificador de base de datos disfrazado de referencia —cambia si
+se migra la base y no se puede dictar por teléfono—. La unidad, igual: todo se cotizaba
+«por unidad» aunque el fabricante venda metros lineales o juegos de dos puertas.
+
+### ¿Está en almacén? — cuántos se pueden armar
+
+La ficha del ensamble responde **cuántas unidades alcanzan a armarse hoy** con el
+inventario de la sede, y cuál es el material que primero se agota. Si falta algo para
+armar una sola unidad, lista qué falta y cuánto.
+
+Esa es la respuesta honesta a «¿lo tengo?» para algo que se fabrica por pedido: **un
+ensamble no vive en un estante**. Cada uno se arma cuando se vende, y su receta
+consume materiales que sí están en bodega. Lo que se puede saber no es cuántos hay
+guardados, sino con cuántos alcanza. Sale del componente que primero se agota: si la
+receta pide 4 bisagras y hay 10, alcanza para 2.
+
+Los conceptos libres —mano de obra, transporte— no limitan nada: no se agotan.
+
+Si el ensamble no tiene materiales de inventario en su receta —o la receta no se ha
+calculado— no se muestra ningún número. No se inventa uno.
+
+> **Lo que todavía no existe:** stock de ensambles *ya armados*. Si se fabrican tres
+> kits por adelantado y se guardan en bodega, hoy el sistema no los cuenta como
+> existencias — cuenta los materiales. Tendría sentido para un **ensamble directo**,
+> que siempre lleva lo mismo; no para uno por medidas, donde cada unidad es distinta y
+> nunca sería la que el próximo cliente pide.
+
 ### Imágenes
 
 Se eligen **al crear**, en Información de catálogo: la primera queda como principal

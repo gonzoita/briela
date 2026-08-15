@@ -8,6 +8,8 @@ const props = defineProps({
     ensamble: { type: Object, required: true },
     // Los canales configurados con el precio efectivo de este ensamble en cada uno.
     canales:  { type: Array,  default: () => [] },
+    // Cuántas unidades alcanzan a armarse hoy, y qué material se agota primero.
+    disponibilidad: { type: Object, default: null },
     web:      { type: Object, default: null },
 })
 
@@ -57,7 +59,12 @@ const variablesEntries = Object.entries(props.ensamble.variables ?? {})
                         <span class="text-xs text-tinta-300 font-medium">Ensambles</span>
                     </div>
                     <h1 class="text-xl font-semibold text-tinta-900">{{ ensamble.nombre }}</h1>
-                    <p class="text-sm text-tinta-400">{{ ensamble.plantilla_nombre }}</p>
+                    <p class="text-sm text-tinta-400">
+                        <span v-if="ensamble.referencia" class="font-mono">{{ ensamble.referencia }}</span>
+                        <span v-if="ensamble.referencia && ensamble.plantilla_nombre"> · </span>
+                        {{ ensamble.plantilla_nombre }}
+                        <span v-if="ensamble.unidad_medida"> · por {{ ensamble.unidad_medida }}</span>
+                    </p>
                     <!-- Categoría -->
                     <span v-if="ensamble.categoria_nombre"
                         class="inline-block mt-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold text-white"
@@ -155,6 +162,45 @@ const variablesEntries = Object.entries(props.ensamble.variables ?? {})
                     asistente no tiene con qué recomendar este ensamble. Se genera con «Ficha técnica
                     con IA» al editarlo.
                 </p>
+            </div>
+
+            <!-- ¿Se puede armar hoy?
+                 Un ensamble no vive en un estante: cada uno se arma cuando se vende. Así que
+                 la pregunta «¿lo tengo en almacén?» no tiene respuesta literal, y la que sí
+                 sirve es cuántos alcanzan a armarse con lo que hay — limitado por el material
+                 que primero se agota. -->
+            <div v-if="disponibilidad && disponibilidad.unidades !== null"
+                class="bg-superficie rounded-2xl shadow-sm p-5 mb-4">
+                <h2 class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-3">Se puede armar</h2>
+
+                <div class="flex items-baseline gap-2 flex-wrap">
+                    <span class="text-3xl font-semibold"
+                        :class="disponibilidad.unidades > 0 ? 'text-emerald-600' : 'text-red-600'">
+                        {{ disponibilidad.unidades }}
+                    </span>
+                    <span class="text-sm text-tinta-400">
+                        {{ disponibilidad.unidades === 1 ? 'unidad' : 'unidades' }} con el inventario de esta sede
+                    </span>
+                </div>
+
+                <p v-if="disponibilidad.cuello" class="text-xs text-tinta-400 mt-2">
+                    Lo primero que se agota: <span class="font-medium text-tinta-600">{{ disponibilidad.cuello }}</span>
+                </p>
+
+                <!-- Qué falta y cuánto: es lo que se lleva a una solicitud de compra. -->
+                <div v-if="disponibilidad.faltantes.length" class="mt-3 border-t border-linea pt-3">
+                    <p class="text-xs font-semibold text-amber-700 mb-2">Falta material para armar una sola unidad</p>
+                    <div class="space-y-1">
+                        <div v-for="(f, i) in disponibilidad.faltantes" :key="i"
+                            class="flex items-center justify-between gap-2 text-xs">
+                            <span class="text-tinta-600 truncate">{{ f.nombre }}</span>
+                            <span class="text-tinta-400 shrink-0">
+                                hay {{ f.hay }} · pide {{ f.necesita }} {{ f.unidad }} ·
+                                <span class="text-red-600 font-semibold">falta {{ f.falta }}</span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- Variables configuradas. Un ensamble directo no tiene: su receta se escribió

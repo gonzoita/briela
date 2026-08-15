@@ -8,6 +8,7 @@ import EditorTexto from '@/Components/EditorTexto.vue'
 import GeneradorFichaIa from '@/Components/GeneradorFichaIa.vue'
 import PreciosPorCanal from '@/Components/PreciosPorCanal.vue'
 import LineasEnsambleDirecto from '@/Components/LineasEnsambleDirecto.vue'
+import SelectorUnidad from '@/Components/SelectorUnidad.vue'
 import { usePreciosPorCanal } from '@/composables/usePreciosPorCanal'
 import { colorMarca } from '@/marca'
 
@@ -39,6 +40,10 @@ const tipoArmado               = ref(inicial?.tipo_armado ?? 'plantilla')
 const esDirecto                = computed(() => tipoArmado.value === 'directo')
 const plantillaId              = ref(inicial?.plantilla_id ?? '')
 const nombre                   = ref(inicial?.nombre ?? '')
+// La referencia se deja en blanco al crear: el servidor genera ENS-0001 y siguientes. Al
+// duplicar tampoco se copia — dos ensambles con el mismo código no se pueden distinguir.
+const referencia               = ref(props.ensamble?.referencia ?? '')
+const unidadMedida             = ref(inicial?.unidad_medida ?? 'unidad')
 const margenesActuales         = ref({ mayorista: 30, distribuidor: 32.5, cliente_final: 35, por_defecto: 'distribuidor' })
 const variables                = reactive({})
 const componentes              = ref(inicial?.componentes_resultado ?? [])
@@ -393,6 +398,8 @@ async function guardar() {
         tipo_armado:         tipoArmado.value,
         plantilla_id:        esDirecto.value ? null : plantillaId.value,
         nombre:              nombre.value,
+        referencia:          referencia.value || null,
+        unidad_medida:       unidadMedida.value || 'unidad',
         variables:           esDirecto.value ? {} : { ...variables },
         lineas:              esDirecto.value ? lineas.value : [],
         canales:             canales.value,
@@ -539,6 +546,24 @@ onMounted(() => {
                             placeholder="Nombre descriptivo..."
                             @input="onNombreInput" />
                         <p v-if="!esDirecto" class="text-xs text-tinta-300 mt-1">Se genera automáticamente desde las variables.</p>
+                    </div>
+
+                    <!-- Referencia y unidad. Un ensamble era la única línea sin código en
+                         una cotización o una orden de producción, y todo se cotizaba «por
+                         unidad» aunque el fabricante venda metros o juegos de dos. -->
+                    <div v-if="plantillaSeleccionada || esDirecto" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-tinta-700 mb-1.5">Referencia</label>
+                            <input v-model="referencia" type="text"
+                                class="w-full border border-linea rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-[var(--marca)]"
+                                :placeholder="esEdicion ? '' : 'Se genera sola (ENS-0001)'" />
+                            <p class="text-xs text-tinta-300 mt-1">Déjala en blanco y el sistema la asigna.</p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-tinta-700 mb-1.5">Unidad de medida</label>
+                            <SelectorUnidad v-model="unidadMedida" tipo="producto"
+                                clase="w-full border border-linea rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-[var(--marca)]" />
+                        </div>
                     </div>
                 </div>
             </div>

@@ -145,6 +145,37 @@ Por el lado del costo hay tres cifras distintas, y conviene no confundirlas:
 - **Precio promedio de compra**: promedio ponderado que se recalcula solo con
   cada entrada de mercancía. Es el que se usa para valorizar el inventario.
 
+## Varios proveedores por producto *(nuevo 14 ago 2026)*
+
+Un producto marcado como **insumo** puede llevar la lista de todos los proveedores
+que lo venden, cada uno con su precio. Antes había un solo selector de proveedor:
+alcanzaba para saber a quién se le compró la última vez, y no para lo que de verdad
+se hace antes de comprar —mirar los tres que lo venden y elegir—. Esa comparación se
+hacía en un cuaderno o en un chat, y por eso se compraba caro sin darse cuenta.
+
+De cada proveedor se guarda:
+
+| Campo | Para qué |
+|---|---|
+| **Precio** | La cifra que se compara. |
+| **Días de entrega** | El más barato que llega en tres semanas no sirve para una OP de mañana. |
+| **Mínimo de compra** | Un precio bueno comprando cien no es un precio bueno comprando dos. |
+| **Fecha del precio** | Un precio de hace ocho meses no es un precio, es un recuerdo. |
+| **Referencia del proveedor** | El código con el que *ellos* lo llaman. Es lo que va en la orden de compra para que no manden otra cosa. |
+| **Preferido** | El que rige cuando no se está comparando. |
+
+El más barato se **marca**, y arriba sale cuánto se ahorra por unidad, pero el sistema
+**no elige solo**: si ese precio tiene más de 90 días, o si el mínimo de compra no
+cuadra con lo que se necesita, lo dice y la decisión queda en quien compra. Un precio
+marcado como el más barato sin avisar que es de hace ocho meses es peor que no marcar
+nada.
+
+`productos.proveedor_id` **sigue existiendo** y apunta al preferido: las órdenes de
+compra y varias pantallas la leen, y al otro lado hay instalaciones de clientes con
+versiones anteriores (regla 2). Al aplicar la actualización, el proveedor que cada
+producto ya tenía se convierte en su primera fila, marcada como preferida y con el
+costo actual del producto — sin fecha, porque nadie sabe de cuándo era ese precio.
+
 ## Stock por bodega
 
 El stock no es un número: es un número **por bodega**. Un mismo insumo puede

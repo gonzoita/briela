@@ -26,6 +26,15 @@ const imagenActiva = ref(p.value.imagenes?.[0] ?? null)
 
 const setImagenActiva = (img) => { imagenActiva.value = img }
 
+const proveedoresOrdenados = computed(() =>
+    [...(props.producto.proveedores_precios ?? [])].sort((a, b) => Number(a.precio) - Number(b.precio))
+)
+
+// El más barato entre los que tienen precio: un cero no es un precio.
+const masBaratoId = computed(() =>
+    proveedoresOrdenados.value.find(pv => Number(pv.precio) > 0)?.proveedor_id ?? null
+)
+
 const formatCOP = (v) =>
     new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 }).format(v ?? 0)
 
@@ -393,6 +402,60 @@ const fmtFecha = (d) => d ? new Date(d).toLocaleDateString('es-CO', { day: '2-di
                                 <p class="text-xs text-tinta-400">
                                     No hay canales de precio configurados. Se marcan con «define precio»
                                     en Configuración → Listas de segmentación.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Comparación de proveedores.
+                         La ficha mostraba solo el último al que se le compró. Comparar era
+                         abrir un cuaderno, y por eso se compraba caro sin darse cuenta. El
+                         más barato se marca, pero se muestran también los días de entrega y
+                         la fecha del precio: el más barato que llega en tres semanas no
+                         sirve para una OP de mañana, y un precio de hace ocho meses no es un
+                         precio. -->
+                    <div v-if="(p.proveedores_precios ?? []).length" class="border border-linea rounded-xl overflow-hidden mb-4">
+                        <div class="px-3 py-2 bg-tinta-50 border-b border-linea flex items-center justify-between gap-2">
+                            <p class="text-xs font-semibold text-tinta-400 uppercase tracking-wide">Proveedores</p>
+                            <a v-if="puedeEditar" :href="`/productos/${p.id}/editar`"
+                                class="text-xs font-semibold" style="color:var(--marca);">Editar</a>
+                        </div>
+
+                        <div v-if="p.ahorro_proveedores > 0" class="px-3 py-2 text-xs"
+                            style="background:var(--pastel-verde); color:var(--texto-verde);">
+                            Entre el más barato y el más caro hay <strong>{{ formatCOP(p.ahorro_proveedores) }}</strong> por unidad.
+                        </div>
+
+                        <div class="divide-y divide-gray-50">
+                            <div v-for="pv in proveedoresOrdenados" :key="pv.proveedor_id" class="px-3 py-2.5">
+                                <div class="flex items-start justify-between gap-2">
+                                    <div class="min-w-0">
+                                        <p class="text-sm text-tinta-800 truncate">
+                                            {{ pv.proveedor_nombre }}
+                                            <span v-if="pv.es_preferido" class="ml-1 text-[10px] px-1.5 py-0.5 rounded-full"
+                                                style="background:var(--marca-suave); color:var(--marca);">preferido</span>
+                                        </p>
+                                        <p class="text-xs text-tinta-400 truncate">
+                                            <span v-if="pv.referencia_proveedor" class="font-mono">{{ pv.referencia_proveedor }}</span>
+                                            <span v-if="pv.referencia_proveedor && pv.dias_entrega !== null"> · </span>
+                                            <span v-if="pv.dias_entrega !== null">{{ pv.dias_entrega }} días</span>
+                                            <span v-if="pv.minimo_compra"> · mín {{ pv.minimo_compra }}</span>
+                                        </p>
+                                    </div>
+                                    <div class="text-right shrink-0">
+                                        <p class="text-sm font-semibold"
+                                            :class="pv.proveedor_id === masBaratoId && proveedoresOrdenados.length > 1 ? 'text-emerald-600' : 'text-tinta-900'">
+                                            {{ formatCOP(pv.precio) }}
+                                        </p>
+                                        <p v-if="pv.proveedor_id === masBaratoId && proveedoresOrdenados.length > 1"
+                                            class="text-[10px] font-semibold text-emerald-600">más barato</p>
+                                    </div>
+                                </div>
+                                <p v-if="pv.dias_desde !== null && pv.dias_desde > 90" class="text-xs text-amber-700 mt-1">
+                                    ⚠ Precio de hace {{ pv.dias_desde }} días. Conviene confirmarlo.
+                                </p>
+                                <p v-else-if="!pv.actualizado_el" class="text-xs text-tinta-300 mt-1">
+                                    Sin fecha: no se sabe de cuándo es este precio.
                                 </p>
                             </div>
                         </div>

@@ -74,7 +74,7 @@ class EnsambleController extends Controller
         $ensamble = Ensamble::with(['plantilla.campos', 'preciosPorCanal'])->findOrFail($id);
 
         $base = collect($ensamble->toArray())->only([
-            'tipo_armado', 'plantilla_id', 'categoria_id',
+            'tipo_armado', 'plantilla_id', 'categoria_id', 'unidad_medida',
             'descripcion_corta', 'descripcion_larga', 'descripcion_cotizacion',
             'variables', 'componentes_resultado', 'precio_costo',
             'margen_aplicado', 'utilidad_minima_empresa_pct',
@@ -120,6 +120,9 @@ class EnsambleController extends Controller
             'tipo_armado'               => 'nullable|in:plantilla,directo',
             'plantilla_id'              => 'required_if:tipo_armado,plantilla|nullable|exists:plantillas_ensamble,id',
             'nombre'                    => 'required|string|max:150',
+            // La referencia se genera si no la escriben, igual que en productos.
+            'referencia'                => 'nullable|string|max:60',
+            'unidad_medida'             => 'nullable|string|max:30',
             'variables'                 => 'required_if:tipo_armado,plantilla|nullable|array',
             // Sin `min:1`: la pantalla manda `lineas: []` cuando el ensamble es con
             // plantilla, y `min:1` lo rechazaba aunque las líneas no vinieran al caso.
@@ -182,6 +185,12 @@ class EnsambleController extends Controller
             'plantilla_id'              => $plantillaId,
             'tipo_armado'               => $esDirecto ? 'directo' : 'plantilla',
             'nombre'                    => $request->nombre,
+            // Si no la escriben, se genera: un ensamble sin código no se puede buscar ni
+            // dictar por teléfono, y era la única línea sin referencia en una cotización.
+            'referencia'                => $request->filled('referencia')
+                ? $request->referencia
+                : Ensamble::generarReferencia(),
+            'unidad_medida'             => $request->unidad_medida ?: 'unidad',
             'categoria_id'              => $request->categoria_id,
             'descripcion_corta'         => $request->descripcion_corta,
             'descripcion_larga'         => $request->descripcion_larga,
@@ -224,6 +233,10 @@ class EnsambleController extends Controller
                 'categoria_nombre'  => $ensamble->categoria?->nombre,
                 'categoria_color'   => $ensamble->categoria?->color,
             ],
+            // Cuántas unidades alcanzan a armarse con lo que hay en bodega, y qué material
+            // es el que primero se agota. Es la respuesta honesta a «¿está disponible?»
+            // para algo que se fabrica: un ensamble no vive en un estante.
+            'disponibilidad' => $ensamble->unidadesArmables(\App\Support\ContextoSede::idsBodegasVisibles()),
             // Los canales configurados con el precio EFECTIVO de este ensamble en cada uno:
             // lo guardado o, si falta, la columna antigua. La tabla de precios mostraba tres
             // nombres escritos en la pantalla —mayorista, distribuidor, cliente final—, así
@@ -352,6 +365,8 @@ class EnsambleController extends Controller
 
         $request->validate([
             'nombre'                    => 'required|string|max:150',
+            'referencia'                => 'nullable|string|max:60',
+            'unidad_medida'             => 'nullable|string|max:30',
             // Un ensamble directo no tiene variables: tiene líneas.
             'variables'                 => 'nullable|array',
             'lineas'                    => 'nullable|array',
@@ -401,6 +416,10 @@ class EnsambleController extends Controller
 
         $ensamble->update([
             'nombre'               => $request->nombre,
+            'referencia'           => $request->filled('referencia')
+                ? $request->referencia
+                : ($ensamble->referencia ?: Ensamble::generarReferencia()),
+            'unidad_medida'        => $request->unidad_medida ?: ($ensamble->unidad_medida ?: 'unidad'),
             'categoria_id'         => $request->categoria_id,
             'descripcion_corta'    => $request->descripcion_corta,
             'descripcion_larga'    => $request->descripcion_larga,
@@ -621,6 +640,8 @@ class EnsambleController extends Controller
             ->map(fn ($e) => [
                 'id'                         => $e->id,
                 'nombre'                     => $e->nombre,
+                'referencia'                 => $e->referencia,
+                'unidad_medida'              => $e->unidad_medida,
                 'plantilla_nombre'           => $e->plantilla?->nombre,
                 'categoria_nombre'           => $e->categoria?->nombre,
                 'imagen_principal'           => $e->imagen_principal

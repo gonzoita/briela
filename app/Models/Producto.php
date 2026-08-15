@@ -93,9 +93,57 @@ class Producto extends Model
         return $this->belongsTo(CategoriaProducto::class, 'categoria_id');
     }
 
+    /**
+     * El proveedor preferido, en la columna de siempre.
+     *
+     * Se conserva porque muchas pantallas y las órdenes de compra la leen. Ya no es el único:
+     * la lista completa con precios está en `proveedores()`, y esta columna sigue apuntando
+     * al preferido.
+     */
     public function proveedor(): BelongsTo
     {
         return $this->belongsTo(Proveedor::class);
+    }
+
+    /**
+     * Todos los proveedores que venden este producto, con su precio.
+     *
+     * Es lo que permite comparar antes de comprar, que es lo que se hacía por fuera del
+     * sistema. Ordenados por precio: el primero es el más barato de la lista.
+     */
+    public function proveedores(): HasMany
+    {
+        return $this->hasMany(ProductoProveedor::class, 'producto_id')->orderBy('precio');
+    }
+
+    /**
+     * El proveedor más conveniente, o null si no hay ninguno cargado.
+     *
+     * **El más barato no gana solo.** Se descartan los que exigen comprar más de lo que se
+     * necesita —un precio bueno comprando cien no es un precio bueno comprando dos— y, entre
+     * los que quedan, gana el precio. Si `$necesito` no se pasa, no se descarta a nadie.
+     *
+     * Deliberadamente NO usa la fecha del precio para decidir: un precio viejo puede seguir
+     * siendo el bueno, y adivinarlo sería peor que mostrarlo con su fecha y dejar que la
+     * persona juzgue. La pantalla avisa cuándo se actualizó.
+     */
+    public function mejorProveedor(?float $necesito = null): ?ProductoProveedor
+    {
+        return $this->proveedores
+            ->filter(fn (ProductoProveedor $p) => (float) $p->precio > 0)
+            ->filter(fn (ProductoProveedor $p) => $necesito === null
+                || $p->minimo_compra === null
+                || (float) $p->minimo_compra <= $necesito)
+            ->sortBy(fn (ProductoProveedor $p) => (float) $p->precio)
+            ->first();
+    }
+
+    /** Cuánto se ahorra comprándole al más barato en vez de al más caro. */
+    public function ahorroEntreProveedores(): float
+    {
+        $precios = $this->proveedores->pluck('precio')->map(fn ($v) => (float) $v)->filter(fn ($v) => $v > 0);
+
+        return $precios->count() < 2 ? 0.0 : round($precios->max() - $precios->min(), 2);
     }
 
     public function imagenes(): HasMany

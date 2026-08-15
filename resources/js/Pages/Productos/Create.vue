@@ -4,6 +4,7 @@ import EditorTexto from '@/Components/EditorTexto.vue'
 import SelectorUnidad from '@/Components/SelectorUnidad.vue'
 import GeneradorFichaIa from '@/Components/GeneradorFichaIa.vue'
 import PreciosPorCanal from '@/Components/PreciosPorCanal.vue'
+import ProveedoresProducto from '@/Components/ProveedoresProducto.vue'
 import { usePreciosPorCanal } from '@/composables/usePreciosPorCanal'
 import { useForm, router } from '@inertiajs/vue3'
 import { ref, computed, watch, reactive, onMounted } from 'vue'
@@ -58,6 +59,9 @@ const form = useForm({
     tipo:                tipoSeleccionado.value,
     categoria_id:        '',
     proveedor_id:        '',
+    // Dentro de useForm a propósito: `data()` solo recorre las claves que existían al
+    // crearlo, así que una agregada después nunca se enviaría.
+    proveedores_precios: [],
     nombre:              '',
     referencia:          '',
     unidad_medida:       'unidad',
@@ -567,14 +571,20 @@ const badgeStyle = {
                                 <p class="text-xs text-tinta-300">Se usa como componente en ensambles y controla stock en bodegas</p>
                             </div>
                         </label>
-                        <!-- Proveedor (solo si es insumo) -->
+                        <!-- Proveedores (solo si es insumo).
+                             Antes era un solo selector: alcanzaba para saber a quién se le
+                             compró la última vez, no para comparar antes de comprar. -->
                         <div v-if="form.es_insumo" class="pt-2 border-t border-linea space-y-3">
                             <div>
-                                <label class="block text-xs font-medium text-tinta-500 mb-1">Proveedor</label>
-                                <select v-model="form.proveedor_id" :class="ic('proveedor_id')">
-                                    <option value="">Sin proveedor</option>
-                                    <option v-for="pv in props.proveedores" :key="pv.id" :value="String(pv.id)">{{ pv.nombre }}</option>
-                                </select>
+                                <p class="text-xs font-medium text-tinta-500 mb-1">Proveedores y precios</p>
+                                <p class="text-xs text-tinta-300 mb-2">
+                                    Carga los que lo venden y compara. El preferido es el que queda
+                                    en las órdenes de compra.
+                                </p>
+                                <ProveedoresProducto
+                                    :filas="form.proveedores_precios"
+                                    :proveedores="props.proveedores ?? []"
+                                />
                             </div>
                         </div>
                     </div>

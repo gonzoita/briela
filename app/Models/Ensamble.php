@@ -17,6 +17,10 @@ class Ensamble extends Model
         // «plantilla» (medidas y fórmulas) o «directo» (líneas con cantidades exactas).
         'tipo_armado',
         'nombre',
+        // El código con el que se busca y se dicta. Antes las pantallas escribían
+        // «ENS-{id}» a mano: un identificador de base disfrazado de referencia.
+        'referencia',
+        'unidad_medida',
         'categoria_id',
         'descripcion_corta',
         'descripcion_larga',
@@ -100,6 +104,85 @@ class Ensamble extends Model
      * Los precios por canal. Reemplazan a las columnas fijas por canal, que siguen
      * existiendo durante el período de compatibilidad de la regla 2.
      */
+    /**
+     * La siguiente referencia libre, con el formato ENS-0001.
+     *
+     * Cuenta las que ya existen —incluidas las borradas— para no repetir un código que
+     * todavía aparece en una cotización vieja, y avanza hasta encontrar uno libre: contar
+     * solas no alcanza si alguien escribió una referencia a mano.
+     */
+    public static function generarReferencia(): string
+    {
+        $consecutivo = static::withTrashed()->where('referencia', 'like', 'ENS-%')->count();
+
+        do {
+            $consecutivo++;
+            $referencia = 'ENS-'.str_pad((string) $consecutivo, 4, '0', STR_PAD_LEFT);
+        } while (static::withTrashed()->where('referencia', $referencia)->exists());
+
+        return $referencia;
+    }
+
+    /**
+     * ¿Cuántas unidades de este ensamble se pueden armar con lo que hay en bodega?
+     *
+     * Es la respuesta honesta a «¿está disponible?» para algo que se fabrica: un ensamble no
+     * vive en un estante —cada uno se arma cuando se vende—, así que lo que se puede saber no
+     * es cuántos hay guardados sino **cuántos alcanzan a armarse hoy**. Sale del componente
+     * que primero se agota: si la receta pide 4 bisagras y hay 10, alcanza para 2.
+     *
+     * Los conceptos libres —mano de obra, transporte— no limitan nada: no se agotan.
+     *
+     * @param  array<int, int>  $bodegaIds  Bodegas a contar; vacío cuenta todas.
+     * @return array{unidades: int|null, cuello: ?string, faltantes: array<int, array<string, mixed>>}
+     */
+    public function unidadesArmables(array $bodegaIds = []): array
+    {
+        $lineas = collect((array) $this->componentes_resultado)
+            ->filter(fn ($c) => ($c['producto_id'] ?? null) && (float) ($c['cantidad_real'] ?? $c['cantidad'] ?? 0) > 0);
+
+        if ($lineas->isEmpty()) {
+            // Sin materiales de inventario no hay nada que limite: puede ser un ensamble de
+            // pura mano de obra, o uno con la receta sin calcular. No se inventa un número.
+            return ['unidades' => null, 'cuello' => null, 'faltantes' => []];
+        }
+
+        $productos = Producto::whereIn('id', $lineas->pluck('producto_id')->unique())->get()->keyBy('id');
+
+        $unidades  = null;
+        $cuello    = null;
+        $faltantes = [];
+
+        foreach ($lineas as $linea) {
+            $producto = $productos->get((int) $linea['producto_id']);
+
+            if (! $producto) {
+                continue;
+            }
+
+            $necesita = (float) ($linea['cantidad_real'] ?? $linea['cantidad']);
+            $hay      = $producto->stockEnBodegas($bodegaIds);
+            $alcanza  = (int) floor($hay / $necesita);
+
+            if ($unidades === null || $alcanza < $unidades) {
+                $unidades = $alcanza;
+                $cuello   = $linea['nombre'] ?? $producto->nombre;
+            }
+
+            if ($hay < $necesita) {
+                $faltantes[] = [
+                    'nombre'   => $linea['nombre'] ?? $producto->nombre,
+                    'necesita' => $necesita,
+                    'hay'      => $hay,
+                    'falta'    => round($necesita - $hay, 4),
+                    'unidad'   => $linea['unidad'] ?? $producto->unidad_medida,
+                ];
+            }
+        }
+
+        return ['unidades' => $unidades, 'cuello' => $cuello, 'faltantes' => $faltantes];
+    }
+
     /**
      * ¿Es un ensamble armado a mano, sin plantilla ni fórmulas?
      *
