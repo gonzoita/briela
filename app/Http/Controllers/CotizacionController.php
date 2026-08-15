@@ -273,7 +273,8 @@ class CotizacionController extends Controller
             return $datos;
         }
 
-        $productos = \App\Models\Producto::whereIn('id', $ids)->get(['id', 'stock_minimo', 'inventariable', 'es_padre'])
+        $productos = \App\Models\Producto::whereIn('id', $ids)
+            ->get(['id', 'nombre', 'stock_minimo', 'inventariable', 'es_padre'])
             ->keyBy('id');
 
         // Mismo criterio que el buscador y el inventario: solo las bodegas de esta sede.
@@ -287,6 +288,18 @@ class CotizacionController extends Controller
             $item['stock_disponible'] = $producto ? $producto->stockEnBodegas($bodegas) : null;
             $item['stock_minimo']     = (float) ($producto->stock_minimo ?? 0);
             $item['inventariable']    = (bool) ($producto->inventariable ?? false);
+
+            // Si este ítem ya no se puede guardar, se dice AQUÍ y no en un aviso al final de
+            // la pantalla. Pasa sin que nadie haga nada raro: se cotiza un producto simple y
+            // meses después alguien le agrega variantes, o lo borran. El aviso general no
+            // decía en qué línea, así que se revisaba lo último que se había agregado.
+            $item['problema'] = match (true) {
+                ! $item['producto_id'] => null,
+                ! $producto            => 'Este producto ya no existe. Bórralo de la lista y agrégalo de nuevo.',
+                (bool) $producto->es_padre => 'Este producto pasó a tener variantes, y lo que se vende es una '
+                    .'variante concreta. Bórralo y elige la que va.',
+                default => null,
+            };
 
             return $item;
         })->all();

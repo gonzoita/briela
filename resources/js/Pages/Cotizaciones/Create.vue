@@ -132,6 +132,8 @@ const form = useForm({
         stock_disponible: i.stock_disponible ?? null,
         stock_minimo:     Number(i.stock_minimo) || 0,
         inventariable:    i.inventariable !== false,
+        // Por qué este ítem no se puede guardar, si es el caso. Lo decide el servidor.
+        problema:         i.problema ?? null,
     })) ?? [],
 })
 
@@ -623,6 +625,14 @@ function agregarItemTextoLibre() {
 
 function eliminarItem(idx) { form.items.splice(idx, 1) }
 
+// Los ítems que el servidor ya marcó como imposibles de guardar. Se avisa antes de intentar:
+// mandar el formulario para que vuelva rechazado es hacerle perder un viaje a quien lo llena.
+const itemsConProblema = computed(() =>
+    form.items
+        .map((item, idx) => ({ item, numero: idx + 1 }))
+        .filter(({ item }) => item.problema)
+)
+
 // ─── Reordenar ────────────────────────────────────────────────────────────────
 function moverItem(idx, dir) {
     const ni = idx + dir
@@ -738,6 +748,22 @@ function onDescuentoChange(item, index, nuevoPct) {
 
 // ─── Submit ───────────────────────────────────────────────────────────────────
 function submit() {
+    // Se avisa antes de mandar: dejar que el servidor lo rechace le hace perder un viaje a
+    // quien llena el formulario, y el aviso vuelve al final de la pantalla sin decir la línea.
+    if (itemsConProblema.value.length) {
+        const cuales = itemsConProblema.value.map(({ numero }) => numero).join(', ')
+
+        alert(
+            [
+                `El ítem ${cuales} no se puede guardar: su producto cambió desde que se cotizó.`,
+                '',
+                'Quítalo con el botón rojo del ítem y agrégalo de nuevo. El resto de la cotización se conserva.',
+            ].join('\n')
+        )
+
+        return
+    }
+
     markClean()
     // Mapear comision_pct_actual → comision_pct_aplicada antes de enviar al backend
     form.items = form.items.map(item => {
@@ -967,6 +993,21 @@ function submit() {
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                                     </svg>
                                 </button>
+                            </div>
+
+                            <!-- Este ítem no se puede guardar. Va DENTRO del ítem y con el
+                                 botón que lo arregla: el mismo aviso al final de la pantalla
+                                 no decía en qué línea, y con ocho ítems eso manda a revisar
+                                 el equivocado. -->
+                            <div v-if="item.problema"
+                                class="mx-3 mt-2 rounded-lg bg-pastel-rojo border border-borde-aviso-rojo px-3 py-2.5">
+                                <div class="flex items-start justify-between gap-2">
+                                    <p class="text-xs text-aviso-rojo leading-relaxed">{{ item.problema }}</p>
+                                    <button type="button" @click="eliminarItem(idx)"
+                                        class="text-xs font-semibold text-aviso-rojo underline underline-offset-2 shrink-0">
+                                        Quitar
+                                    </button>
+                                </div>
                             </div>
 
                             <!-- Cuerpo del ítem -->

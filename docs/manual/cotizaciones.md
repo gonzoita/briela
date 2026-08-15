@@ -204,6 +204,21 @@ El servidor **tampoco lo envía** a quien no puede verlo. Esconder la caja y man
 número igual lo dejaría a la vista en el código fuente de la página, que es esconderlo
 solo de quien no sabe mirar.
 
+## Cuando un ítem deja de poder guardarse
+
+Pasa sin que nadie haga nada raro: se cotiza un producto simple y meses después alguien
+le agrega variantes. Ese producto se vuelve **padre**, y lo que se vende es una variante
+concreta — así que la cotización que lo tenía deja de poder guardarse. Lo mismo si el
+producto se borra.
+
+El aviso sale **dentro del ítem**, en rojo, con el botón «Quitar» al lado. Antes salía
+como un mensaje al final de la pantalla que no decía en qué línea: con ocho ítems, quien
+lo leía revisaba lo último que había agregado y concluía que el problema era eso.
+
+Al intentar guardar también se avisa antes de mandar el formulario, diciendo el número
+del ítem. Quitarlo y agregarlo de nuevo eligiendo la variante conserva el resto de la
+cotización.
+
 ## Qué se imprime debajo de cada ítem
 
 El **resumen técnico** del producto, no su ficha completa. Son dos o tres líneas con
