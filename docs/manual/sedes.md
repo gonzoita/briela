@@ -1,6 +1,6 @@
 # Sedes y numeración de documentos *(nuevo, 26 jul 2026)*
 
-Primera fase del multi-sede. Permite que el SGI opere con varias sedes de la
+Primera fase del multi-sede. Permite que Briela opere con varias sedes de la
 empresa — unas de venta, otras de fábrica, o mixtas — y que los códigos de cada
 documento se configuren desde el sistema, sin tocar código.
 

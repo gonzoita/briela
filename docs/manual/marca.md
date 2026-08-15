@@ -107,7 +107,7 @@ Admite dos comodines:
 Ejemplos:
 
 ```
-SGI — {empresa}          →  SGI — Mi Empresa SAS
+Briela — {empresa}          →  Briela — Mi Empresa SAS
 {pagina} · {empresa}     →  Clientes · Mi Empresa SAS
 {pagina} | Mi ERP        →  Clientes | Mi ERP
 ```

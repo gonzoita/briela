@@ -29,7 +29,7 @@ return new class extends Migration
 
         // Una sola sede, la principal, para que la instalación nazca usable.
         // Cada empresa la renombra y agrega las suyas desde
-        // Configuración → Organización. En el SGI de origen aquí se sembraban
+        // Configuración → Organización. En el sistema de origen aquí se sembraban
         // las tres sedes reales de esa empresa.
         DB::table('sedes')->insert([
             [

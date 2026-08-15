@@ -38,7 +38,7 @@ const logoSegunTema = computed(() => {
 })
 
 const marca = computed(() => page.props.marca ?? {
-    nombre: 'SGI',
+    nombre: 'Briela',
     logo:   '/icons/icon-512.png',
 })
 const user     = computed(() => page.props.auth?.user)
@@ -1312,7 +1312,7 @@ onUnmounted(() => {
                         </svg>
                     </div>
                     <div class="flex-1 min-w-0">
-                        <p class="text-white font-semibold text-sm">Instalar SGI</p>
+                        <p class="text-white font-semibold text-sm">Instalar Briela</p>
                         <p class="text-xs" style="color: rgba(255,255,255,0.7);">Acceso rápido desde tu pantalla de inicio</p>
                     </div>
                     <button

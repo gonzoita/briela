@@ -67,7 +67,7 @@ class AsistenteController extends Controller
     }
 
     /**
-     * Responde una pregunta usando el perfil de marca y los datos del SGI.
+     * Responde una pregunta usando el perfil de marca y los datos del sistema.
      *
      * Funciona en dos pasos:
      *   1. Se le muestra a la IA el catálogo de consultas disponibles y decide

@@ -15,7 +15,7 @@ use App\Models\SolicitudCompra;
 use App\Support\ContextoSede;
 
 /**
- * Consultas que el asistente puede hacer sobre los datos del SGI.
+ * Consultas que el asistente puede hacer sobre los datos del sistema.
  *
  * DECISIÓN DE DISEÑO IMPORTANTE: la IA nunca escribe SQL ni toca la base de
  * datos. Solo elige una consulta de este catálogo cerrado; el cálculo lo hace

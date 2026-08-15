@@ -288,7 +288,7 @@ async function limpiar() {
                     </div>
                     <div class="flex-1 min-w-0">
                         <p class="text-white text-sm font-semibold truncate">{{ nombre }}</p>
-                        <p class="text-blue-200 text-xs">Asistente del SGI</p>
+                        <p class="text-blue-200 text-xs">Asistente del sistema de origen</p>
                     </div>
                     <!-- Ajustes de voz -->
                     <button v-if="soportaVoz" @click="ajustesAbiertos = !ajustesAbiertos"

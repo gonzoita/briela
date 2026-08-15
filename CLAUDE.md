@@ -135,7 +135,7 @@ pantalla que nadie pidió tocar se siente como un error.
 
 ## Reglas del producto instalable
 
-Propias de Briela; no existían en el SGI. Si se rompen, el producto se vuelve
+Propias de Briela; no existían en el sistema de origen. Si se rompen, el producto se vuelve
 inmantenible con menos de diez clientes.
 
 1. **Cero personalización en el código de un cliente.** Lo que alguien necesite
@@ -189,7 +189,7 @@ php artisan serve  # Servidor PHP
 
 ## Esquema de base de datos
 
-El esquema funcional es el heredado del SGI, descrito módulo por módulo en
+El esquema funcional es el heredado del sistema de origen, descrito módulo por módulo en
 `docs/manual/`. Lo esencial:
 
 ### Producción — el flujo real
@@ -367,7 +367,7 @@ un comercio o una empresa de servicios.
 ## graphify
 
 **graphify es un skill de Claude Code (`/graphify`), no un comando de terminal.**
-No existe un binario `graphify` en el PATH: las instrucciones heredadas del SGI
+No existe un binario `graphify` en el PATH: las instrucciones heredadas del sistema de origen
 decían lo contrario y estaban equivocadas.
 
 - El grafo se genera invocando el skill `/graphify` sobre el proyecto. Deja sus

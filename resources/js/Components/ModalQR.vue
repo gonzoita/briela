@@ -68,7 +68,7 @@
                                 @click="buscarOP"
                                 class="flex-1 py-2 bg-[var(--marca)] text-white rounded-lg text-sm font-medium"
                             >
-                                Abrir en SGI
+                                Abrir en Briela
                             </button>
                         </div>
                     </div>

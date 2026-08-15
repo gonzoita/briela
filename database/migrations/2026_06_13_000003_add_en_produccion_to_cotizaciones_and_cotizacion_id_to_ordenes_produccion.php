@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Schema;
 
 // Originalmente esta migración también agregaba `cotizacion_id` a
 // `ordenes_produccion`, la tabla del sistema viejo de producción. Esa parte se
-// quitó al arrancar Briela, junto con las tablas muertas que heredó del SGI.
+// quitó al arrancar Briela, junto con las tablas muertas que heredó del sistema de origen.
 // El nombre del archivo se conserva para no alterar el orden del historial de
 // migraciones ni el registro de instalaciones existentes.
 return new class extends Migration

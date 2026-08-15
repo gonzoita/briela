@@ -512,7 +512,7 @@ async function copiarPrompt(texto) {
                                     placeholder="https://tudominio.com/logo.png"
                                     class="w-full border border-linea rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
                                 />
-                                <p class="text-xs text-tinta-300 mt-1">En SGI: <code class="bg-tinta-100 px-1 rounded">/storage/logos/logo.png</code></p>
+                                <p class="text-xs text-tinta-300 mt-1">En Briela: <code class="bg-tinta-100 px-1 rounded">/storage/logos/logo.png</code></p>
                             </div>
                             <!-- Vista previa del logo -->
                             <div v-if="diseno.logo_url" class="flex items-center gap-2 p-2 bg-tinta-50 rounded-lg">

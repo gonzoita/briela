@@ -56,7 +56,7 @@
                         <!-- Franja superior azul -->
                         <div style="background:var(--marca);height:32px;display:flex;align-items:center;padding:0 12px;justify-content:space-between;">
                             <span style="color:white;font-weight:bold;font-size:13px;letter-spacing:1px;">{{ ($page.props.marca.nombre || '').toUpperCase() }}</span>
-                            <span style="color:rgba(255,255,255,0.7);font-size:10px;">SGI</span>
+                            <span style="color:rgba(255,255,255,0.7);font-size:10px;">Briela</span>
                         </div>
 
                         <!-- Cuerpo: QR izquierda + datos derecha -->

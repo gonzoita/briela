@@ -193,7 +193,7 @@ class WhatsAppService
 
     /**
      * Coexistencia: mensajes enviados por el asesor desde su propio celular
-     * (no desde SGI). Mantiene el historial sincronizado.
+     * (no desde Briela). Mantiene el historial sincronizado.
      */
     private function procesarMessageEchoes(array $value): void
     {

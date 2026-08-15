@@ -1,7 +1,7 @@
 # Briela — documento de arranque
 
 > Para abrir el chat del proyecto nuevo. Este archivo vive hoy en el repo del
-> SGI porque es donde nació la idea, pero **se copia al repositorio de Briela**
+> del sistema de origen porque es donde nació la idea, pero **se copia al repositorio de Briela**
 > y allá se convierte en su documento de contexto.
 
 Fecha: 1 ago 2026 · Punto de partida: una copia del código del sistema de origen.
@@ -26,7 +26,7 @@ Lo que esto implica, y es lo más importante de entender:
   cliente ve únicamente sus datos.
 
 > **Consecuencia a tener presente:** a partir del día de la copia, los dos
-> proyectos divergen. Si se arregla un bug en Briela, no llega solo al SGI (ni
+> proyectos divergen. Si se arregla un bug en Briela, no llega solo al sistema de origen (ni
 > al revés). Hay que decidir si eso se acepta (lo normal) o si se quiere
 > mantener alguna forma de sincronía (costoso, casi nunca vale la pena).
 
@@ -46,14 +46,14 @@ cd C:\laragon\www\briela
 git init
 ```
 
-**Por qué el historial limpio y no un fork:** el historial del SGI contiene la
+**Por qué el historial limpio y no un fork:** el historial del sistema de origen contiene la
 contraseña de la base de datos de producción del sistema de origen en texto plano
 dentro de `CLAUDE.md`. Un fork se la lleva completa, y borrarla después no la
 saca del historial. Para un producto que se va a vender —y que puede terminar
 con colaboradores externos— eso no puede viajar. Arrancar con `git init` corta
 ese problema de raíz.
 
-(Aprovechando: esa credencial debería rotarse en el SGI de todos modos.)
+(Aprovechando: esa credencial debería rotarse en el sistema de origen de todos modos.)
 
 ### 2.2 Limpiar antes de escribir la primera línea
 
@@ -64,7 +64,7 @@ Esto es lo que **no** debe existir en Briela:
 | `OrdenProduccion`, `LineaOP`, `ItemOP` + sus tablas y migraciones | Código muerto del sistema viejo de "3 líneas". No arrastrar a un producto que se vende |
 | `InventarioItem`, `InventarioMovimiento` | Stock viejo, ya reemplazado por `Producto` |
 | Credenciales del sistema de origen en `CLAUDE.md` y `.env` | Servidor, base, dominio y llaves son otros |
-| `HANDOFF.md` | Documento muerto del 16 jul, ya obsoleto en el propio SGI |
+| `HANDOFF.md` | Documento muerto del 16 jul, ya obsoleto en el propio el sistema de origen |
 | Marca del sistema de origen (logo, color `#0A4283`, textos) | Briela tiene identidad propia, y además la marca pasa a ser configurable por cada empresa cliente |
 | `.github/workflows/deploy.yml` con los datos de Hostinger | Briela tiene su propio servidor y sus propios secretos |
 | `docs/manual/*.md` específicos del sistema de origen | Se revisan uno por uno: la mayoría sirve como base, pero hablan del sistema de origen |
@@ -82,14 +82,14 @@ solo cambian los secretos y las rutas. Ver `docs/manual/deploy-automatico.md`.
 
 ## 3. LO MÁS IMPORTANTE: multisede ≠ multiempresa
 
-El SGI ya tiene "multisede" (Bogotá, Cali, Cúcuta). **Es tentador pensar que
+El sistema de origen ya tiene "multisede" (varias ciudades). **Es tentador pensar que
 multiempresa es lo mismo con otro nombre. No lo es, y confundirlos es el error
 que puede hundir el proyecto.**
 
 | | Multisede (lo que hay) | Multiempresa (lo que Briela necesita) |
 |---|---|---|
 | Qué separa | Sucursales de **una misma empresa** | **Empresas distintas** que compiten entre sí |
-| Si se filtra un dato | Molesto: alguien de Bogotá ve una OP de Cali | **Catastrófico**: la empresa A ve clientes, precios y márgenes de la B |
+| Si se filtra un dato | Molesto: alguien de una sede ve una OP de otra | **Catastrófico**: la empresa A ve clientes, precios y márgenes de la B |
 | Cómo está hecho | `sede_id` + `ContextoSede::aplicar()` en cada consulta | Por definir (sección 4) |
 
 En Briela la jerarquía queda: **empresa → sedes → datos**. Lo de sedes se
@@ -100,7 +100,7 @@ conserva; se le agrega un nivel por encima.
 El filtrado por sede de hoy es **opt-in**: funciona solo si el programador se
 acuerda de llamar a `ContextoSede::aplicar()` en esa consulta concreta.
 
-Medido en el repositorio del SGI:
+Medido en el repositorio del sistema de origen:
 - Solo **7 de 190 migraciones** agregan `sede_id`.
 - Solo **33 de 100 archivos** de modelos y servicios mencionan `ContextoSede`.
 - Tamaño total a revisar: **100 modelos, 190 migraciones, 98 controladores.**
@@ -152,7 +152,7 @@ infraestructura y evita el único error que no tiene vuelta atrás.
 
 ### 5.1 De global a "por empresa"
 
-| Pieza heredada | Estado en el SGI | Qué implica |
+| Pieza heredada | Estado en el sistema de origen | Qué implica |
 |---|---|---|
 | **`Configuracion`** (clave/valor) | **Totalmente global**, sin `sede_id` | El punto más crítico después del aislamiento. Ahí viven SMTP, interruptores de notificaciones, ajustes de IA y puntos de gamificación. Cada empresa necesita los suyos |
 | **`Sede`** | Tabla global | Pasa a colgar de la empresa |
@@ -240,7 +240,7 @@ repositorio, el dominio, el servidor, la base, la marca y el propósito.
 Sugerencia de primer mensaje, ya parado en la carpeta de Briela:
 
 > Estamos arrancando **Briela**: un producto SaaS multiempresa que parte de una
-> copia del código del sistema de origen. El SGI original no se toca.
+> copia del código del sistema de origen. El sistema de origen original no se toca.
 > Lee en este orden: `docs/BRIELA-CONTEXTO.md`, `CLAUDE.md` y
 > `docs/manual/00-indice.md`. No re-explores el código ya documentado.
 >

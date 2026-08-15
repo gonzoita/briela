@@ -115,8 +115,13 @@ class NotificacionService
 
             $cuerpo = trim(($mensaje ?? '') . ($url ? "\n\n" . url($url) : ''));
 
-            \Illuminate\Support\Facades\Mail::raw($cuerpo !== '' ? $cuerpo : $titulo, function ($m) use ($user, $titulo) {
-                $m->to($user->email)->subject("[SGI] {$titulo}");
+            // El asunto lleva el nombre de la empresa que tiene la instalación, no un
+            // nombre fijo: el correo lo recibe su gente, y un prefijo ajeno en la bandeja
+            // de entrada se lee como spam.
+            $marca = \App\Support\Marca::nombreEmpresa();
+
+            \Illuminate\Support\Facades\Mail::raw($cuerpo !== '' ? $cuerpo : $titulo, function ($m) use ($user, $titulo, $marca) {
+                $m->to($user->email)->subject("[{$marca}] {$titulo}");
             });
         } catch (\Throwable $e) {
             \Illuminate\Support\Facades\Log::warning("No se pudo enviar email de notificación: {$e->getMessage()}");

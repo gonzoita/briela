@@ -334,7 +334,7 @@ class PdfPlantillaController extends Controller
 {{/if}}
 
 <div class="footer">
-  Documento generado por SGI {{empresa.nombre}}
+  Documento generado por {{empresa.nombre}}
 </div>
 
 </body>

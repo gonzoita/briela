@@ -12,7 +12,7 @@ return new class extends Migration
 
         Schema::create('whatsapp_numeros', function (Blueprint $table) {
             $table->id();
-            $table->string('nombre'); // ej. "Renier Dominguez", "SGI Central"
+            $table->string('nombre'); // ej. "Renier Dominguez", "Central"
             $table->string('numero_telefono'); // formato +573XXXXXXXXX
             $table->string('phone_number_id')->unique(); // ID que da Meta
             $table->string('rol')->default('asesor'); // central | asesor

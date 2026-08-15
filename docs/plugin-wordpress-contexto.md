@@ -1,8 +1,8 @@
 # Plugin de WordPress de Briela — contexto y arquitectura
 
 > Documento de arranque para el plugin "Briela Connect". Nace en el repo de
-> Briela (no en el SGI) porque es un **módulo nuevo**, y la regla
-> de `docs/sincronizacion-sgi.md` es que lo nuevo se construye aquí primero.
+> Briela (no en Briela) porque es un **módulo nuevo**, y la regla
+> de `docs/sincronizacion-con-el-origen.md` es que lo nuevo se construye aquí primero.
 
 Fecha: 9 ago 2026.
 
@@ -98,7 +98,7 @@ diseñado para no chocar con la Fase 2 cuando llegue:
 
 Se activa solo si `class_exists('WooCommerce')`. Retoma lo ya definido en la
 conversación anterior:
-- Sync de catálogo (nombre, precio, stock, imágenes, variantes) SGI→Woo.
+- Sync de catálogo (nombre, precio, stock, imágenes, variantes) Briela→Woo.
 - Webhook de orden completada → `POST /api/wp/pedidos` → descuenta stock real
   vía `Producto::registrarMovimiento('venta', ...)`.
 
@@ -203,10 +203,10 @@ Detalle funcional en `docs/manual/publicar-en-la-web.md`.
 
 Briela tiene un grafo de conocimiento generado en `graphify-out/` (5161 nodos,
 8699 relaciones, generado el 8 ago 2026 — vigente, un día antes de este
-documento). Dos cosas importantes que **corrigen lo heredado del SGI**:
+documento). Dos cosas importantes que **corrigen lo heredado del sistema de origen**:
 
 - **No es un binario de terminal.** `graphify query "..."` no existe como
-  comando — así lo tenía escrito el `CLAUDE.md` del SGI, y está mal. En Briela
+  comando — así lo tenía escrito el `CLAUDE.md` del sistema de origen, y está mal. En Briela
   es el **skill de Claude Code `/graphify`**, se invoca desde el chat.
 - `graphify-out/` está en `.gitignore` (se regenera, no se versiona).
 
@@ -239,6 +239,6 @@ documento). Dos cosas importantes que **corrigen lo heredado del SGI**:
 
 - Español colombiano neutro, prohibido el voseo — UI, código, commits.
 - Se construye en `C:\laragon\www\briela`, repo `gonzoita/briela`. **No tocar
-  el SGI** en este trabajo.
+  Briela** en este trabajo.
 - No asumir que existe la API general con Sanctum ni el licenciamiento por
   serial (Fase 2) — ambos siguen sin construirse.

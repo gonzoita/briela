@@ -15,7 +15,9 @@ class SmtpConfigService
         $enc      = Configuracion::get('smtp_encryption', 'ssl');
         $user     = Configuracion::get('smtp_username', '');
         $pass     = Configuracion::get('smtp_password', '');
-        $fromName = Configuracion::get('smtp_from_name', 'SGI');
+        // Sin remitente configurado, el nombre de la empresa de la instalación. Un nombre
+        // fijo haría que los correos de todos los clientes salieran firmados igual.
+        $fromName = Configuracion::get('smtp_from_name') ?: \App\Support\Marca::nombreEmpresa();
         $fromMail = Configuracion::get('smtp_from_email', '');
 
         if (!$host || !$user || !$pass) return;

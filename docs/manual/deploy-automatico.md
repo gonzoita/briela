@@ -1,65 +1,79 @@
-# Deploy automático (GitHub Actions)
+# Despliegue — el servidor jala los cambios
 
-Desde ahora, cada vez que se sube un cambio a la rama `main`, GitHub hace
-solo todo el proceso de deploy: compila los assets con Vite, guarda el
-build, se conecta por SSH al servidor de Hostinger y corre `git pull`, las
-migraciones y la limpieza de cachés. **Nadie tiene que hacer el build ni
-entrar por SSH a mano.**
+Cada vez que un cambio llega a la rama `main` en GitHub, el servidor lo trae solo: respalda la
+base, actualiza los archivos, corre las migraciones y limpia las cachés. **Nadie compila ni
+entra por SSH a mano.**
 
-El workflow vive en `.github/workflows/deploy.yml`.
+El script es `scripts/traer-cambios.sh` y lo llama una tarea programada del panel del hosting.
 
-## Configuración inicial — se hace UNA sola vez
+## Por qué el servidor jala en vez de que GitHub empuje
 
-Para que GitHub pueda entrar al servidor necesita las credenciales SSH,
-guardadas de forma segura (nunca en el código). Se pegan en la
-configuración del repositorio en GitHub:
+Hasta el 13 ago 2026 esto era un workflow de GitHub Actions que entraba por SSH al servidor.
+**No funcionaba de forma sostenida:** Hostinger agota el tiempo de las conexiones SSH que vienen
+de los servidores de GitHub. La misma llave desde otra máquina entra sin problema, y desde
+GitHub falla. No es algo que se arregle con código nuestro.
 
-1. Entrar al repositorio en GitHub: `github.com/gonzoita/briela`
-2. Arriba, ir a la pestaña **Settings** (Configuración).
-3. En el menú de la izquierda: **Secrets and variables** → **Actions**.
-4. Botón verde **New repository secret**. Crear estos cinco, uno por uno
-   (el nombre debe escribirse EXACTAMENTE así, en mayúsculas):
+Al invertir la dirección, el servidor solo necesita salida a internet —que sí tiene— y no hay
+nada que bloquear. De paso desaparecen los cuatro secretos de GitHub y la llave de acceso al
+servidor: en el hosting solo vive una llave de **lectura** del repositorio.
 
-   | Nombre (Name)   | Valor (Secret)                                       |
-   |-----------------|------------------------------------------------------|
-   | `SSH_HOST`      | la IP o el host del servidor                         |
-   | `SSH_PORT`      | el puerto SSH                                        |
-   | `SSH_USER`      | el usuario SSH                                       |
-   | `SSH_PASSWORD`  | la contraseña SSH                                    |
-   | `DEPLOY_PATH`   | la ruta de la instalación en el servidor             |
+## Lo que hace, en orden
 
-   Para cada uno: se escribe el nombre en "Name", el valor en "Secret", y
-   se aprieta **Add secret**.
+1. **Un candado por instalación.** Dos despliegues simultáneos sobre la misma carpeta se pisan.
+2. **¿Hay algo nuevo?** Compara el commit local con el remoto. Si son iguales, no hace nada — por
+   eso puede correr seguido sin costo.
+3. **Respalda la base.** Obligatorio y primero. Si el respaldo falla, no se despliega. Guarda los
+   diez últimos: en un hosting compartido el disco es finito.
+4. **Trae los archivos** y reinstala dependencias **solo si cambió `composer.lock`**.
+5. **Aplica**: `migrate --force`, y vuelve a cachear configuración, rutas y vistas.
+6. **Comprueba que la aplicación arranca.** Si no, lo dice en el registro y **no revierte solo**:
+   volver atrás a ciegas con migraciones ya aplicadas es peor que quedarse quieto y avisar.
 
-   > Los valores reales **nunca** se escriben en este manual ni en ningún
-   > archivo del repositorio: solo viven en los secretos de GitHub.
+## El registro
 
-Eso es todo. A partir del siguiente push a `main`, el deploy corre solo.
-Mientras `SSH_HOST` esté vacío, el workflow solo compila los assets y se salta
-el paso de deploy, así que no falla por no tener servidor todavía.
+Todo queda en `~/despliegue.log` del hosting. El script lo abre él mismo y no lo deja a la
+redirección de la tarea programada: el campo del panel puede recortar la línea al pegarla, y
+entonces el despliegue funciona pero no queda rastro de nada.
 
-> **Esto actualiza únicamente `sistema.briela.app`**, la instalación propia. Las
-> instalaciones de los clientes se actualizan con el botón de actualizar, desde
-> un paquete firmado — ver `docs/BRIELA-PLAN.md` sección 6.2.
+```bash
+tail -40 ~/despliegue.log
+```
 
-## Cómo saber si funcionó
+> Las dos instalaciones —el ERP y el superadmin— escriben en el **mismo** archivo, así que sus
+> líneas se entremezclan cuando despliegan a la vez.
 
-En el repositorio de GitHub, pestaña **Actions**. Ahí aparece cada deploy:
-un ✅ verde si salió bien, un ❌ rojo si algo falló (haciendo clic se ve
-en qué paso y por qué). Los deploys quedan registrados con fecha y el
-cambio que los disparó.
+## Comprometer no es desplegar
 
-## Notas
+El servidor jala de **GitHub**. Un commit sin `git push` se queda en la computadora y producción
+sigue igual por más veces que corra la tarea. Para comprobar que no falta empujar:
 
-- **Migraciones**: el workflow siempre corre `php artisan migrate --force`.
-  Si no hay migraciones nuevas, no hace nada — es seguro dejarlo siempre.
-- **Paquetes PHP nuevos** (composer): si algún día se agrega un paquete de
-  PHP, hay que correr `composer install --no-dev` en el servidor a mano esa
-  vez — el deploy automático no lo hace (es raro y se prefiere controlarlo).
-- **El build ya no se hace localmente**: antes había que correr
-  `npm run build` antes de cada commit. Ya no hace falta; GitHub lo hace y
-  guarda el resultado solo. El commit "build: assets compilados por CI" que
-  aparece en el historial es automático, es normal.
-- **La tarea programada (cron) de cotizaciones vencidas** es aparte de
-  esto — ver [Cotizaciones](./cotizaciones.md). Se configura una vez en el
-  `crontab` del servidor y no depende de GitHub Actions.
+```bash
+git log --oneline origin/main..main
+```
+
+Si no imprime nada, GitHub está al día.
+
+## Disparar el despliegue a mano
+
+Cuando no se quiere esperar a la tarea programada:
+
+```bash
+for A in $(find ~/domains -maxdepth 4 -name artisan 2>/dev/null); do R=$(dirname "$A"); [ -f "$R/scripts/traer-cambios.sh" ] && bash "$R/scripts/traer-cambios.sh" "$R" main; done; tail -15 ~/despliegue.log
+```
+
+Es seguro aunque la tarea acabe de pasar: el script no hace nada si no hay cambios y tiene su
+propio candado.
+
+## La tarea programada
+
+Se configura en el panel del hosting (Hostinger: **Cron Jobs**), no en el crontab del usuario —
+por eso `crontab -l` dice «no crontab» aunque el despliegue esté funcionando.
+
+```
+bash /home/USUARIO/domains/DOMINIO/public_html/scripts/traer-cambios.sh /home/USUARIO/domains/DOMINIO/public_html main
+```
+
+## Después de desplegar, en el navegador
+
+Briela tiene service worker. Una recarga normal puede servir el JavaScript viejo desde la caché;
+para ver un cambio de pantalla hay que recargar con **Ctrl+Shift+R**.

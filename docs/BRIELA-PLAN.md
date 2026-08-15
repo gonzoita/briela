@@ -31,7 +31,7 @@ Documento de partida: [BRIELA-CONTEXTO.md](./BRIELA-CONTEXTO.md)
 
 ### 2.1 Briela ERP — repo `gonzoita/briela`
 
-El código heredado del SGI, **single-tenant**. Una instalación por cliente, con
+El código heredado del sistema de origen, **single-tenant**. Una instalación por cliente, con
 su base de datos, su dominio y su marca. Es el 95 % del código y ya funciona.
 
 Lo que se le agrega: cliente de licencia, pantalla de bloqueo, asistente de
@@ -77,9 +77,9 @@ de tenants, el aprovisionamiento automático y todo el trabajo de volver
 instalación tiene los suyos.
 
 Queda vigente del análisis anterior una sola cosa, y conviene no perderla: el
-filtrado por sede del SGI es **opt-in** (`ContextoSede::aplicar()` llamado a mano
+filtrado por sede del sistema de origen es **opt-in** (`ContextoSede::aplicar()` llamado a mano
 en 33 archivos), y un enlace directo a un documento de otra sede sigue
-abriéndose. Dentro de una misma empresa eso es tolerable —es lo que el SGI
+abriéndose. Dentro de una misma empresa eso es tolerable —es lo que el sistema de origen
 decidió a propósito—, pero es una deuda heredada que conviene tener presente si
 algún cliente pide separación estricta entre sus sucursales.
 
@@ -395,13 +395,13 @@ muerto). El repositorio quedó en 180 migraciones y 96 modelos.
 | Correr las migraciones de cero sobre una base vacía | MySQL de Laragon no estaba arriba. Es la verificación que confirma que el borrado no rompió la cadena de FK |
 | Crear los repos en `gonzoita` y hacer push | `gh` no está instalado en la máquina |
 | Generar el grafo con `/graphify` | Es un skill de Claude Code, se lanza aparte |
-| Definir el email de los commits | Se usó el de la cuenta del SGI; si `gonzoita` usa otro, GitHub no atribuirá los commits |
+| Definir el email de los commits | Se usó el de la cuenta del sistema de origen; si `gonzoita` usa otro, GitHub no atribuirá los commits |
 
 **Hallazgos del camino** (no estaban previstos en el plan):
 
 - El `.env` de la copia **apuntaba a la base real del sistema de origen** y traía su llave
   de OpenRouter en texto plano. Un `migrate` en Briela habría escrito en la base
-  de producción del SGI.
+  de producción del sistema de origen.
 - 150 archivos temporales `.fuse_hidden` repartidos por `resources/` y `app/`.
 - Credenciales SSH del sistema de origen en tres documentos del manual y en
   `.claude/settings.local.json`.
@@ -429,7 +429,7 @@ producto que se va a vender.
 
 El resto de la fase:
 
-- `git init` con historial limpio. Nunca un fork: el historial del SGI lleva la
+- `git init` con historial limpio. Nunca un fork: el historial del sistema de origen lleva la
   contraseña de producción del sistema de origen en texto plano.
 - **Repos privados en `gonzoita`**: `briela` y `briela-superadmin`.
 - El `user.name` de git en esta máquina es `Blueffalo`. Definir con qué identidad
@@ -450,7 +450,7 @@ El resto de la fase:
 **Criterio de aceptación:** el primer commit no contiene ninguna credencial ni
 ningún dato del sistema de origen. Verificado leyendo el commit, no de memoria.
 
-*Aparte, para el SGI: esa contraseña de producción debería rotarse de todos modos.*
+*Aparte, para el sistema de origen: esa contraseña de producción debería rotarse de todos modos.*
 
 ### Fase 1 — Desacoplar del sistema de origen · **hecha el 2 ago 2026**
 
@@ -549,7 +549,7 @@ bloqueo posterior.
 
 > **Recomendación de orden:** esta fase se puede posponer hasta después del primer
 > cliente. Las primeras instalaciones las puedes hacer tú por git, como haces hoy
-> con el SGI. Construir un instalador pulido antes de tener a quién instalarle es
+> con el sistema de origen. Construir un instalador pulido antes de tener a quién instalarle es
 > trabajo que todavía no sabe qué necesita.
 
 ### Fase 5 — El botón de actualizar
@@ -563,7 +563,7 @@ Las dos mitades de la sección 6.2:
   pantalla, y el **rollback**.
 - **Para las instalaciones propias**: el comando que las recorre todas. Es el
   camino principal (sección 6.4) y el más barato de construir — es el deploy del
-  SGI puesto en un bucle.
+  el sistema de origen puesto en un bucle.
 
 **Criterio de aceptación:** una instalación en la versión anterior se actualiza
 sola desde el botón, sin acceso al servidor; y una actualización que falla a
@@ -605,7 +605,7 @@ es perfectamente viable con pocos clientes.
 
 ## 9. Reglas que no se rompen
 
-Heredadas del SGI. Van al `CLAUDE.md` nuevo de Briela:
+Heredadas del sistema de origen. Van al `CLAUDE.md` nuevo de Briela:
 
 1. **Español colombiano neutro, prohibido el voseo** — UI, código, commits, chat.
 2. Sin Ziggy · sin `resolvePageComponent` · sin CSS separado · vistas solo en Vue

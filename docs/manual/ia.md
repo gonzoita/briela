@@ -1,6 +1,6 @@
 # Integración de IA *(nuevo, 26 jul 2026)*
 
-La IA del SGI hace dos cosas hoy: **redactar textos** y **generar imágenes**.
+La IA de Briela hace dos cosas hoy: **redactar textos** y **generar imágenes**.
 Todo pasa por una sola cuenta y un solo saldo.
 
 ## Cómo está montado: una sola cuenta (OpenRouter)
@@ -155,7 +155,7 @@ Acceso: permiso **Multimedia → Crear**.
 Cuando generas una imagen en ChatGPT, tu texto **no** le llega tal cual al
 generador: el chat primero lo reescribe agregando composición, encuadre,
 iluminación y materiales. Por API eso no ocurre, y por eso la misma idea puede
-dar un resultado más pobre desde el SGI que desde ChatGPT, aunque el modelo sea
+dar un resultado más pobre desde Briela que desde ChatGPT, aunque el modelo sea
 el mismo.
 
 Esta casilla replica ese paso: el modelo de texto expande tu descripción corta
@@ -334,7 +334,7 @@ Está construida para sonar como alguien del equipo, no como un manual:
   pregunta por su nombre de pila.
 - **Responde a su nombre**: si le escribes "Ofe, ¿cómo van las ventas?", lo
   entiende y sigue natural, sin repetir su nombre en cada respuesta.
-- **No dice que es un modelo de lenguaje.** Es la asistente del SGI.
+- **No dice que es un modelo de lenguaje.** Es la asistente de Briela.
 - **Habla, no formatea.** Para preguntas simples responde en una o dos frases;
   los títulos y viñetas los reserva para los informes.
 - **Sin muletillas de robot** ("¡Claro!", "Aquí tienes", "Espero que te ayude").

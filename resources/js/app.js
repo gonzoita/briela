@@ -15,7 +15,7 @@ import { colorMarca } from '@/marca';
 // ejecución: se cambia desde la app y no hay que recompilar nada.
 const meta = (nombre) => document.querySelector(`meta[name="${nombre}"]`)?.content ?? '';
 
-const empresa   = meta('app-empresa') || 'SGI';
+const empresa   = meta('app-empresa') || 'Briela';
 const plantilla = meta('app-titulo-plantilla') || '{pagina} — {empresa}';
 
 function armarTitulo(pagina) {
