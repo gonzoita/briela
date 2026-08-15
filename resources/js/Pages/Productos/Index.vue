@@ -1,5 +1,8 @@
 <script setup>
 import AppLayout from '@/Layouts/AppLayout.vue'
+import BotonOrden from '@/Components/BotonOrden.vue'
+import OrdenarLista from '@/Components/OrdenarLista.vue'
+import { useOrden } from '@/composables/useOrden'
 import { router, usePage } from '@inertiajs/vue3'
 import { reactive, ref, computed, watch } from 'vue'
 import { colorMarca } from '@/marca'
@@ -11,6 +14,8 @@ const props = defineProps({
     productos:  Object,
     categorias: Array,
     filters:    Object,
+    // El orden vigente, que decide el servidor: { campo, dir }.
+    orden:      { type: Object, default: () => ({}) },
 })
 
 const form = reactive({
@@ -20,6 +25,16 @@ const form = reactive({
     es_vendible: props.filters?.es_vendible ?? '',
     es_insumo:   props.filters?.es_insumo   ?? '',
 })
+
+// Ordenar mantiene los filtros: reordenar no es empezar de cero.
+const { estadoDe, ordenarPor } = useOrden('/productos', props.orden, form)
+
+const camposOrden = [
+    { campo: 'nombre',       etiqueta: 'Nombre' },
+    { campo: 'referencia',   etiqueta: 'Referencia' },
+    { campo: 'precio_costo', etiqueta: 'Costo', texto: false },
+    { campo: 'created_at',   etiqueta: 'Más reciente', texto: false },
+]
 
 const mostrarFiltros   = ref(false)
 const mostrarMenuNuevo = ref(false)
@@ -393,8 +408,14 @@ const precioMostrar = (p) => {
             </button>
         </div>
 
-        <!-- ── Barra de búsqueda ───────────────────────────────────────────── -->
+        <!-- ── Barra de búsqueda y orden ───────────────────────────────────── -->
         <div class="sticky z-20 -mx-4 px-4 py-2 mb-4" style="top: 56px; background: var(--superficie-2);">
+            <!-- El selector de orden va aparte del buscador y no en el encabezado de la
+                 tabla: la lista también se ve como tarjetas, y en celular no hay encabezados
+                 donde hacer clic. En la tabla los dos caminos llevan al mismo sitio. -->
+            <div class="flex flex-col sm:flex-row sm:items-center gap-2 mb-2">
+                <OrdenarLista :campos="camposOrden" :orden="orden" @ordenar="ordenarPor" />
+            </div>
             <div class="flex items-center gap-2">
                 <div class="flex-1 relative">
                     <input
@@ -434,10 +455,16 @@ const precioMostrar = (p) => {
                                 title="Seleccionar todos los de esta página" />
                         </th>
                         <th class="text-left px-4 py-3 text-xs font-semibold text-tinta-400 uppercase w-12"></th>
-                        <th class="text-left px-4 py-3 text-xs font-semibold text-tinta-400 uppercase">Nombre</th>
-                        <th class="hidden sm:table-cell text-left px-3 py-3 text-xs font-semibold text-tinta-400 uppercase">Referencia</th>
+                        <th class="text-left px-4 py-3 text-xs font-semibold text-tinta-400 uppercase">
+                            <BotonOrden campo="nombre" :estado="estadoDe('nombre')" @ordenar="ordenarPor">Nombre</BotonOrden>
+                        </th>
+                        <th class="hidden sm:table-cell text-left px-3 py-3 text-xs font-semibold text-tinta-400 uppercase">
+                            <BotonOrden campo="referencia" :estado="estadoDe('referencia')" @ordenar="ordenarPor">Referencia</BotonOrden>
+                        </th>
                         <th class="hidden md:table-cell text-left px-3 py-3 text-xs font-semibold text-tinta-400 uppercase">Categoría</th>
-                        <th class="hidden lg:table-cell text-right px-3 py-3 text-xs font-semibold text-tinta-400 uppercase">Costo</th>
+                        <th class="hidden lg:table-cell text-right px-3 py-3 text-xs font-semibold text-tinta-400 uppercase">
+                            <BotonOrden campo="precio_costo" :estado="estadoDe('precio_costo')" derecha @ordenar="ordenarPor">Costo</BotonOrden>
+                        </th>
                         <th class="text-right px-4 py-3 text-xs font-semibold text-tinta-400 uppercase">Precio</th>
                         <th class="hidden sm:table-cell text-right px-4 py-3 text-xs font-semibold text-tinta-400 uppercase">Stock</th>
                     </tr>

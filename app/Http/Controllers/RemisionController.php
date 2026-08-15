@@ -19,8 +19,7 @@ class RemisionController extends Controller
     public function index(Request $request)
     {
         $query = \App\Support\ContextoSede::aplicar(Remision::query())
-            ->with(['op:id,numero', 'cliente:id,nombre,apellido', 'items', 'sede:id,nombre'])
-            ->orderByDesc('created_at');
+            ->with(['op:id,numero', 'cliente:id,nombre,apellido', 'items', 'sede:id,nombre']);
 
         if ($request->filled('estado')) {
             $query->where('estado', $request->estado);
@@ -29,10 +28,19 @@ class RemisionController extends Controller
             $query->where('tipo', $request->tipo);
         }
 
+        // El orden lo pide la pantalla. El campo se valida contra esta lista: lo que
+        // llegue por `?orden=` y no esté aquí se ignora y nunca toca el SQL.
+        $orden = \App\Support\Orden::aplicar($query, $request, [
+            'numero'     => 'numero',
+            'estado'     => 'estado',
+            'created_at' => 'created_at',
+        ]);
+
         $remisiones = $query->paginate(20)->withQueryString();
 
         return Inertia::render('Logistica/Remisiones/Index', [
             'remisiones' => $remisiones,
+            'orden' => $orden,
             'filtros'    => $request->only(['estado', 'tipo']),
         ]);
     }

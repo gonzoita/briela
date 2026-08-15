@@ -2,6 +2,8 @@
 import { ref, computed, watch } from 'vue'
 import { router, usePage } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
+import OrdenarLista from '@/Components/OrdenarLista.vue'
+import { useOrden } from '@/composables/useOrden'
 
 const props = defineProps({
     trabajos:               { type: Object, default: () => ({}) },
@@ -11,7 +13,18 @@ const props = defineProps({
     metricas:               { type: Object, default: () => ({}) },
     variables_disponibles:  { type: Array,  default: () => [] },
     pasos_disponibles:      { type: Array,  default: () => [] },
+    // El orden vigente, que decide el servidor: { campo, dir }.
+    orden: { type: Object, default: () => ({}) },
 })
+
+// Ordenar mantiene los filtros: reordenar no es empezar de cero.
+const { ordenarPor } = useOrden('/trabajos', props.orden, props.filters)
+
+const camposOrden = [
+    { campo: 'updated_at', etiqueta: 'Último movimiento', texto: false },
+    { campo: 'porcentaje_avance', etiqueta: 'Avance', texto: false },
+    { campo: 'numero_unidad', etiqueta: 'Unidad', texto: false },
+]
 
 const csrf = () => {
     const c = document.cookie.split('; ').find(r => r.startsWith('XSRF-TOKEN='))
@@ -142,6 +155,12 @@ async function eliminarTrabajo(t) {
                 <h2 class="text-lg font-semibold text-tinta-900">Trabajos de Producción</h2>
                 <p class="text-sm text-tinta-400 mt-0.5">{{ paginacion.total ?? 0 }} trabajo(s) registrado(s)</p>
             </div>
+        </div>
+
+        <!-- Ordenar. Vale para las listas que son tabla y para las que son tarjetas, y
+             en celular es el único camino: ahí no hay encabezados donde hacer clic. -->
+        <div class="mb-3">
+            <OrdenarLista :campos="camposOrden" :orden="orden" @ordenar="ordenarPor" />
         </div>
 
         <!-- ── Dashboard métricas ────────────────────────────────────────────── -->

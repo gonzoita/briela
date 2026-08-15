@@ -18,18 +18,28 @@ class SolicitudCompraController extends Controller
 {
     public function index(Request $request): Response
     {
-        $solicitudes = \App\Support\ContextoSede::aplicar(SolicitudCompra::query())
+        $query = \App\Support\ContextoSede::aplicar(SolicitudCompra::query())
             ->with(['solicitadoPor:id,name', 'aprobadoPor:id,name', 'op:id,numero', 'sede:id,nombre'])
             ->when($request->filled('estado'), fn ($q) => $q->where('estado', $request->estado))
             ->when($request->filled('buscar'), fn ($q) => $q->where('numero', 'like', "%{$request->buscar}%"))
             ->when($request->filled('desde'), fn ($q) => $q->whereDate('created_at', '>=', $request->desde))
             ->when($request->filled('hasta'), fn ($q) => $q->whereDate('created_at', '<=', $request->hasta))
-            ->latest()
-            ->paginate(20)
-            ->withQueryString();
+;
+
+        // El orden lo pide la pantalla. `Orden::aplicar` valida el campo contra esta
+        // lista: lo que llegue por `?orden=` y no esté aquí se ignora, así que el
+        // parámetro nunca toca el SQL.
+        $ordenLista = \App\Support\Orden::aplicar($query, $request, [
+            'numero'     => 'numero',
+            'estado'     => 'estado',
+            'created_at' => 'created_at',
+        ]);
+
+        $solicitudes = $query->paginate(20)->withQueryString();
 
         return Inertia::render('Compras/Solicitudes/Index', [
             'solicitudes' => $solicitudes,
+            'orden'      => $ordenLista,
             'filters'     => $request->only(['estado', 'buscar', 'desde', 'hasta']),
         ]);
     }

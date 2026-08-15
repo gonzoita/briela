@@ -2,13 +2,26 @@
 import { ref, computed } from 'vue'
 import { router } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
+import OrdenarLista from '@/Components/OrdenarLista.vue'
+import { useOrden } from '@/composables/useOrden'
 
 const props = defineProps({
     movimientos: Object,
     productos:   Array,
     bodegas:     Array,
     filters:     Object,
+    // El orden vigente, que decide el servidor: { campo, dir }.
+    orden: { type: Object, default: () => ({}) },
 })
+
+// Ordenar mantiene los filtros: reordenar no es empezar de cero.
+const { ordenarPor } = useOrden('/compras/inventario/movimientos', props.orden, props.filters)
+
+const camposOrden = [
+    { campo: 'created_at', etiqueta: 'Más reciente', texto: false },
+    { campo: 'tipo', etiqueta: 'Tipo' },
+    { campo: 'cantidad', etiqueta: 'Cantidad', texto: false },
+]
 
 const producto_id  = ref(props.filters?.producto_id  ?? '')
 const bodega_id    = ref(props.filters?.bodega_id    ?? '')
@@ -105,6 +118,12 @@ const hayFiltros = computed(() =>
                     </svg>
                     Exportar (próximamente)
                 </button>
+            </div>
+
+            <!-- Ordenar. Vale para las listas que son tabla y para las que son tarjetas, y
+                 en celular es el único camino: ahí no hay encabezados donde hacer clic. -->
+            <div class="mb-3">
+                <OrdenarLista :campos="camposOrden" :orden="orden" @ordenar="ordenarPor" />
             </div>
 
             <!-- Filtros -->

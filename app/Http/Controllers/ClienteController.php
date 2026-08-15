@@ -19,7 +19,7 @@ class ClienteController extends Controller
 {
     public function index(Request $request): Response
     {
-        $clientes = \App\Support\ContextoSede::aplicar(Cliente::query())
+        $query = \App\Support\ContextoSede::aplicar(Cliente::query())
             ->when($request->filled('tipo'), fn ($q) => $q->where('tipo', $request->tipo))
             ->when($request->filled('buscar'), fn ($q) => $q->where(function ($q) use ($request) {
                 $q->where('nombre', 'like', "%{$request->buscar}%")
@@ -30,12 +30,22 @@ class ClienteController extends Controller
             ->when($request->filled('industria'), fn ($q) => $q->whereJsonContains('industrias', $request->industria))
             ->when($request->filled('fuente_contacto'), fn ($q) => $q->whereJsonContains('fuentes_contacto', $request->fuente_contacto))
             ->when($request->filled('proceso_seguimiento'), fn ($q) => $q->whereJsonContains('proceso_seguimiento', $request->proceso_seguimiento))
-            ->latest()
-            ->paginate(15)
-            ->withQueryString();
+;
+
+        // El orden lo pide la pantalla. `Orden::aplicar` valida el campo contra esta
+        // lista: lo que llegue por `?orden=` y no esté aquí se ignora, así que el
+        // parámetro nunca toca el SQL.
+        $orden = \App\Support\Orden::aplicar($query, $request, [
+            'nombre'     => ['nombre', 'apellido'],
+            'ciudad'     => 'ciudad',
+            'created_at' => 'created_at',
+        ]);
+
+        $clientes = $query->paginate(15)->withQueryString();
 
         return Inertia::render('Clientes/Index', [
             'clientes'           => $clientes,
+            'orden'      => $orden,
             'filters'            => $request->only(['buscar', 'tipo', 'industria', 'fuente_contacto', 'proceso_seguimiento']),
             'segmentacion_opciones' => $this->getSegmentacionOpciones(),
         ]);

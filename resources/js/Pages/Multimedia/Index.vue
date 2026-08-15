@@ -1,5 +1,7 @@
 <script setup>
 import AppLayout from '@/Layouts/AppLayout.vue'
+import OrdenarLista from '@/Components/OrdenarLista.vue'
+import { useOrden } from '@/composables/useOrden'
 import ModalSubirArchivo from '@/Components/ModalSubirArchivo.vue'
 import { router } from '@inertiajs/vue3'
 import { ref, reactive, computed } from 'vue'
@@ -8,7 +10,18 @@ const props = defineProps({
     archivos: Object,
     filtros:  Object,
     stats:    Object,
+    // El orden vigente, que decide el servidor: { campo, dir }.
+    orden: { type: Object, default: () => ({}) },
 })
+
+// Ordenar mantiene los filtros: reordenar no es empezar de cero.
+const { ordenarPor } = useOrden('/multimedia', props.orden, props.filters)
+
+const camposOrden = [
+    { campo: 'nombre_original', etiqueta: 'Nombre' },
+    { campo: 'tamano', etiqueta: 'Tamaño', texto: false },
+    { campo: 'created_at', etiqueta: 'Más reciente', texto: false },
+]
 
 const form = reactive({
     buscar:    props.filtros?.buscar    ?? '',
@@ -152,6 +165,12 @@ const iconoExtension = (ext) => {
                     Subir archivo
                 </button>
             </div>
+        </div>
+
+        <!-- Ordenar. Vale para las listas que son tabla y para las que son tarjetas, y
+             en celular es el único camino: ahí no hay encabezados donde hacer clic. -->
+        <div class="mb-3">
+            <OrdenarLista :campos="camposOrden" :orden="orden" @ordenar="ordenarPor" />
         </div>
 
         <!-- Modal generar imagen con IA -->

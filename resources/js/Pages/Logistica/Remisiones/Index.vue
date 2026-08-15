@@ -2,11 +2,24 @@
 import { ref, computed } from 'vue'
 import { router, usePage } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
+import OrdenarLista from '@/Components/OrdenarLista.vue'
+import { useOrden } from '@/composables/useOrden'
 
 const props = defineProps({
     remisiones: Object,
     filtros:    Object,
+    // El orden vigente, que decide el servidor: { campo, dir }.
+    orden: { type: Object, default: () => ({}) },
 })
+
+// Ordenar mantiene los filtros: reordenar no es empezar de cero.
+const { ordenarPor } = useOrden('/logistica/remisiones', props.orden, props.filtros)
+
+const camposOrden = [
+    { campo: 'numero', etiqueta: 'Número' },
+    { campo: 'estado', etiqueta: 'Estado' },
+    { campo: 'created_at', etiqueta: 'Más reciente', texto: false },
+]
 
 const page    = usePage()
 const flash   = computed(() => page.props.flash)
@@ -82,6 +95,12 @@ function eliminar(id) {
                     </svg>
                     Nueva Remisión
                 </a>
+            </div>
+
+            <!-- Ordenar. Vale para las listas que son tabla y para las que son tarjetas, y
+                 en celular es el único camino: ahí no hay encabezados donde hacer clic. -->
+            <div class="mb-3">
+                <OrdenarLista :campos="camposOrden" :orden="orden" @ordenar="ordenarPor" />
             </div>
 
             <!-- Filtros -->

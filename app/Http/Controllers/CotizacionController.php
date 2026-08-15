@@ -28,7 +28,7 @@ class CotizacionController extends Controller
 {
     public function index(Request $request): Response
     {
-        $cotizaciones = \App\Support\ContextoSede::aplicar(Cotizacion::query())
+        $query = \App\Support\ContextoSede::aplicar(Cotizacion::query())
             ->with(['cliente', 'responsable', 'seguimientos', 'sede:id,nombre'])
             ->withCount('items')
             ->when($request->filled('estado'), function ($q) use ($request) {
@@ -45,9 +45,20 @@ class CotizacionController extends Controller
             }))
             ->when($request->filled('desde'), fn ($q) => $q->whereDate('fecha_creacion', '>=', $request->desde))
             ->when($request->filled('hasta'), fn ($q) => $q->whereDate('fecha_creacion', '<=', $request->hasta))
-            ->latest()
-            ->paginate(15)
-            ->withQueryString();
+;
+
+        // El orden lo pide la pantalla. `Orden::aplicar` valida el campo contra esta
+        // lista: lo que llegue por `?orden=` y no esté aquí se ignora, así que el
+        // parámetro nunca toca el SQL.
+        $orden = \App\Support\Orden::aplicar($query, $request, [
+            'numero'          => 'numero',
+            'fecha_creacion'  => 'fecha_creacion',
+            'total'           => 'total',
+            'estado'          => 'estado',
+            'created_at'      => 'created_at',
+        ]);
+
+        $cotizaciones = $query->paginate(15)->withQueryString();
 
         $cotizaciones->getCollection()->transform(fn ($c) => [
             ...$c->toArray(),
@@ -93,6 +104,7 @@ class CotizacionController extends Controller
         ];
 
         return Inertia::render('Cotizaciones/Index', [
+            'orden'      => $orden,
             'cotizaciones' => $cotizaciones,
             'filters'      => $request->only(['estado', 'responsable_id', 'buscar', 'desde', 'hasta']),
             'responsables' => User::whereIn('rol', ['administrador', 'jefe_produccion', 'vendedor'])

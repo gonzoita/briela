@@ -2,13 +2,26 @@
 import { reactive, watch } from 'vue'
 import { router } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
+import OrdenarLista from '@/Components/OrdenarLista.vue'
+import { useOrden } from '@/composables/useOrden'
 
 const props = defineProps({
     registros: Object,
     filtros:   Object,
     usuarios:  Array,
     modelos:   Array,
+    // El orden vigente, que decide el servidor: { campo, dir }.
+    orden: { type: Object, default: () => ({}) },
 })
+
+// Ordenar mantiene los filtros: reordenar no es empezar de cero.
+const { ordenarPor } = useOrden('/auditoria', props.orden, props.filtros)
+
+const camposOrden = [
+    { campo: 'created_at', etiqueta: 'Más reciente', texto: false },
+    { campo: 'accion', etiqueta: 'Acción' },
+    { campo: 'modelo', etiqueta: 'Módulo' },
+]
 
 const filtros = reactive({
     usuario_id: props.filtros?.usuario_id ?? '',
@@ -60,6 +73,12 @@ const formatFecha = (d) => d
                     <h1 class="text-lg font-semibold text-tinta-900">Bitácora de actividad</h1>
                     <p class="text-xs text-tinta-300 mt-0.5">Registro de acciones de los usuarios: creación, edición, movimiento y eliminación de datos.</p>
                 </div>
+            </div>
+
+            <!-- Ordenar. Vale para las listas que son tabla y para las que son tarjetas, y
+                 en celular es el único camino: ahí no hay encabezados donde hacer clic. -->
+            <div class="mb-3">
+                <OrdenarLista :campos="camposOrden" :orden="orden" @ordenar="ordenarPor" />
             </div>
 
             <!-- Filtros -->

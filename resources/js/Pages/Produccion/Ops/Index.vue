@@ -2,13 +2,28 @@
 import { ref, reactive, watch } from 'vue'
 import { router } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
+import OrdenarLista from '@/Components/OrdenarLista.vue'
+import { useOrden } from '@/composables/useOrden'
 
 const props = defineProps({
     ops:          Object,
     filters:      Object,
     responsables: Array,
     metricas:     Object,
+    // El orden vigente, que decide el servidor: { campo, dir }.
+    orden: { type: Object, default: () => ({}) },
 })
+
+// Ordenar mantiene los filtros: reordenar no es empezar de cero.
+const { ordenarPor } = useOrden('/produccion/ops', props.orden, props.filters)
+
+const camposOrden = [
+    { campo: 'numero', etiqueta: 'Número' },
+    { campo: 'estado', etiqueta: 'Estado' },
+    { campo: 'porcentaje_avance', etiqueta: 'Avance', texto: false },
+    { campo: 'fecha_entrega_estimada', etiqueta: 'Entrega', texto: false },
+    { campo: 'created_at', etiqueta: 'Más reciente', texto: false },
+]
 
 const filters = reactive({
     buscar:         props.filters?.buscar         ?? '',
@@ -85,6 +100,12 @@ function fmt(v) { return Number(v || 0).toLocaleString('es-CO') }
                 </svg>
                 Nueva OP
             </a>
+        </div>
+
+        <!-- Ordenar. Vale para las listas que son tabla y para las que son tarjetas, y
+             en celular es el único camino: ahí no hay encabezados donde hacer clic. -->
+        <div class="mb-3">
+            <OrdenarLista :campos="camposOrden" :orden="orden" @ordenar="ordenarPor" />
         </div>
 
         <!-- Métricas clickeables por estado -->

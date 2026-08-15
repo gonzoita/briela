@@ -13,7 +13,7 @@ class ArchivoController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Archivo::with('subidoPor')->orderBy('created_at', 'desc');
+        $query = Archivo::with('subidoPor');
 
         if ($request->filled('categoria')) {
             $query->where('categoria', $request->categoria);
@@ -21,6 +21,14 @@ class ArchivoController extends Controller
         if ($request->filled('buscar')) {
             $query->where('nombre_original', 'like', '%' . $request->buscar . '%');
         }
+
+        // El orden lo pide la pantalla. El campo se valida contra esta lista: lo que
+        // llegue por `?orden=` y no esté aquí se ignora y nunca toca el SQL.
+        $orden = \App\Support\Orden::aplicar($query, $request, [
+            'nombre_original' => 'nombre_original',
+            'tamano'          => 'tamano',
+            'created_at'      => 'created_at',
+        ]);
 
         $archivos = $query->paginate(24)->withQueryString();
 
@@ -38,6 +46,7 @@ class ArchivoController extends Controller
         ]);
 
         return Inertia::render('Multimedia/Index', [
+            'orden' => $orden,
             'archivos' => $archivosData,
             'filtros'  => $request->only(['categoria', 'buscar']),
             'stats'    => [

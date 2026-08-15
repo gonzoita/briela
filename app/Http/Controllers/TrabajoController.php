@@ -67,7 +67,15 @@ class TrabajoController extends Controller
             $query->whereHas('pasos', fn ($q) => $q->where('nombre', $request->paso));
         }
 
-        $trabajos = $query->orderByDesc('updated_at')->paginate(20)->through(function ($t) {
+        // El orden lo pide la pantalla. El campo se valida contra esta lista: lo que
+        // llegue por `?orden=` y no esté aquí se ignora y nunca toca el SQL.
+        $orden = \App\Support\Orden::aplicar($query, $request, [
+            'updated_at'        => 'updated_at',
+            'porcentaje_avance' => 'porcentaje_avance',
+            'numero_unidad'     => 'numero_unidad',
+        ], 'updated_at', 'desc');   // como estaba: lo ultimo que se movio
+
+        $trabajos = $query->paginate(20)->through(function ($t) {
             $campos             = $t->opItem?->ensamble?->plantilla?->campos ?? collect();
             $variablesInstancia = $t->opItem?->variables_instancia ?? [];
 
@@ -112,6 +120,7 @@ class TrabajoController extends Controller
         }
 
         return Inertia::render('Trabajos/Index', [
+            'orden' => $orden,
             'trabajos'   => $trabajos,
             'operarios'  => Operario::where('estado', 'activo')->get(['id', 'nombre']),
             'templates'  => TemplateTrabajo::where('activo', true)->get(['id', 'nombre']),

@@ -21,8 +21,17 @@ class EnsambleController extends Controller
     {
         $query = Ensamble::with(['plantilla', 'creadoPor', 'categoria'])
             ->when($request->filled('plantilla_id'), fn ($q) => $q->where('plantilla_id', $request->plantilla_id))
-            ->when($request->filled('buscar'), fn ($q) => $q->where('nombre', 'like', "%{$request->buscar}%"))
-            ->latest();
+            ->when($request->filled('buscar'), fn ($q) => $q->where('nombre', 'like', "%{$request->buscar}%"));
+
+        // El orden lo pide la pantalla. `Orden::aplicar` valida el campo contra esta
+        // lista: lo que llegue por `?orden=` y no esté aquí se ignora, así que el
+        // parámetro nunca toca el SQL.
+        $orden = \App\Support\Orden::aplicar($query, $request, [
+            'nombre'       => 'nombre',
+            'precio_costo' => 'precio_costo',
+            'created_at'   => 'created_at',
+        ]);
+
 
         $ensambles = $query->paginate(15)->withQueryString();
 
@@ -39,6 +48,7 @@ class EnsambleController extends Controller
 
         return Inertia::render('Ensambles/Index', [
             'ensambles'  => $ensambles,
+            'orden'      => $orden,
             'plantillas' => $plantillas,
             'categorias' => $categorias,
             'filters'    => $request->only(['plantilla_id', 'buscar']),

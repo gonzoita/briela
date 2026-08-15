@@ -13,16 +13,24 @@ class PublicacionRrssController extends Controller
 {
     public function index(Request $request)
     {
-        $query = PublicacionRrss::with(['cuentasDestino.cuenta', 'archivos', 'creadoPor:id,name'])
-            ->orderByDesc('fecha_programada');
+        $query = PublicacionRrss::with(['cuentasDestino.cuenta', 'archivos', 'creadoPor:id,name']);
 
         if ($request->filled('estado')) {
             $query->where('estado', $request->estado);
         }
 
+        // El orden lo pide la pantalla. El campo se valida contra esta lista: lo que
+        // llegue por `?orden=` y no esté aquí se ignora y nunca toca el SQL.
+        $orden = \App\Support\Orden::aplicar($query, $request, [
+            'fecha_programada' => 'fecha_programada',
+            'estado'           => 'estado',
+            'created_at'       => 'created_at',
+        ], 'fecha_programada', 'desc');   // como estaba
+
         $publicaciones = $query->paginate(20)->withQueryString();
 
         return Inertia::render('Rrss/Index', [
+            'orden' => $orden,
             'publicaciones' => $publicaciones->through(fn (PublicacionRrss $p) => $this->serializar($p)),
             'filtros'       => $request->only(['estado']),
             'cuentasActivas' => CuentaRrss::activas()->count(),

@@ -44,7 +44,7 @@ class OpController extends Controller
         $hoyStr     = now()->setTimezone('America/Bogota')->toDateString();
         $umbralStr  = now()->setTimezone('America/Bogota')->addDays($diasAlerta)->toDateString();
 
-        $ops = \App\Support\ContextoSede::aplicar(Op::query())
+        $query = \App\Support\ContextoSede::aplicar(Op::query())
             ->with(['cliente', 'responsable', 'cotizacion', 'sede:id,nombre'])
             ->withSum('pagos as pagos_sum', 'valor')
             ->when($request->filled('estado'),        fn ($q) => $q->where('estado', $request->estado))
@@ -62,9 +62,20 @@ class OpController extends Controller
                 ->whereNotNull('fecha_entrega_estimada')
                 ->whereDate('fecha_entrega_estimada', '<', now()->toDateString())
                 ->whereNotIn('estado', ['despachada', 'cerrada', 'rechazada']))
-            ->latest()
-            ->paginate(20)
-            ->withQueryString();
+;
+
+        // El orden lo pide la pantalla. `Orden::aplicar` valida el campo contra esta
+        // lista: lo que llegue por `?orden=` y no esté aquí se ignora, así que el
+        // parámetro nunca toca el SQL.
+        $orden = \App\Support\Orden::aplicar($query, $request, [
+            'numero'                  => 'numero',
+            'estado'                  => 'estado',
+            'porcentaje_avance'       => 'porcentaje_avance',
+            'fecha_entrega_estimada'  => 'fecha_entrega_estimada',
+            'created_at'              => 'created_at',
+        ]);
+
+        $ops = $query->paginate(20)->withQueryString();
 
         // Cargar datos de cuotas en batch (2 queries para toda la página)
         $opIds = $ops->getCollection()->pluck('id')->toArray();
@@ -140,6 +151,7 @@ class OpController extends Controller
         ];
 
         return Inertia::render('Produccion/Ops/Index', [
+            'orden'      => $orden,
             'ops'          => $ops,
             'filters'      => $request->only(['estado', 'responsable_id', 'buscar', 'desde', 'hasta', 'entrega']),
             'responsables' => User::whereIn('rol', ['administrador', 'jefe_produccion', 'vendedor'])

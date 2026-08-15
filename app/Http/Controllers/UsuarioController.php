@@ -15,11 +15,19 @@ use Inertia\Response;
 
 class UsuarioController extends Controller
 {
-    public function index(): Response
+    public function index(Request $request): Response
     {
-        $usuarios = User::with(['sede:id,nombre,codigo', 'rolConfigurable:id,nombre'])
-            ->orderBy('name')
-            ->paginate(10)
+        $query = User::with(['sede:id,nombre,codigo', 'rolConfigurable:id,nombre']);
+
+        // El orden lo pide la pantalla. El campo se valida contra esta lista: lo que
+        // llegue por `?orden=` y no esté aquí se ignora y nunca toca el SQL.
+        $orden = \App\Support\Orden::aplicar($query, $request, [
+            'name'       => 'name',
+            'email'      => 'email',
+            'created_at' => 'created_at',
+        ], 'name', 'asc');   // como estaba: alfabetico
+
+        $usuarios = $query->paginate(10)
             ->through(fn ($u) => [
                 'id'       => $u->id,
                 'name'     => $u->name,
@@ -33,6 +41,7 @@ class UsuarioController extends Controller
 
         return Inertia::render('Usuarios/Index', [
             'usuarios' => $usuarios,
+            'orden' => $orden,
         ]);
     }
 

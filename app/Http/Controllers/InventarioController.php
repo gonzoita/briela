@@ -23,10 +23,19 @@ class InventarioController extends Controller
                 $q->where('nombre', 'like', "%{$request->buscar}%")
                   ->orWhere('referencia', 'like', "%{$request->buscar}%");
             }))
-            ->when($request->filled('tipo'), fn ($q) => $q->where('tipo', $request->tipo))
-            ->latest()
-            ->paginate(25)
-            ->withQueryString();
+            ->when($request->filled('tipo'), fn ($q) => $q->where('tipo', $request->tipo));
+
+        // El orden lo pide la pantalla. El campo se valida contra esta lista: lo que
+        // llegue por `?orden=` y no esté aquí se ignora y nunca toca el SQL.
+        $orden = \App\Support\Orden::aplicar($query, $request, [
+            'nombre'        => 'nombre',
+            'referencia'    => 'referencia',
+            'precio_costo'  => 'precio_costo',
+            'stock_minimo'  => 'stock_minimo',
+            'created_at'    => 'created_at',
+        ], 'created_at', 'desc');
+
+        $query = $query->paginate(25)->withQueryString();
 
         // Solo se cuenta el stock de las bodegas visibles en la sede activa:
         // el inventario de otra sede no es el de esta.
@@ -57,6 +66,7 @@ class InventarioController extends Controller
 
         return Inertia::render('Compras/Inventario/Index', [
             'items'       => $items,
+            'orden'       => $orden,
             'filters'     => $request->only(['buscar', 'tipo', 'bajo_stock']),
             'proveedores' => Proveedor::where('activo', true)->select('id', 'nombre')->orderBy('nombre')->get(),
             'bodegas'     => ContextoSede::bodegasVisibles(),
@@ -186,10 +196,17 @@ class InventarioController extends Controller
             }))
             ->when($request->filled('tipo'),         fn ($q) => $q->where('tipo', $request->tipo))
             ->when($request->filled('fecha_desde'),  fn ($q) => $q->whereDate('created_at', '>=', $request->fecha_desde))
-            ->when($request->filled('fecha_hasta'),  fn ($q) => $q->whereDate('created_at', '<=', $request->fecha_hasta))
-            ->latest()
-            ->paginate(30)
-            ->withQueryString();
+            ->when($request->filled('fecha_hasta'),  fn ($q) => $q->whereDate('created_at', '<=', $request->fecha_hasta));
+
+        // El orden lo pide la pantalla. El campo se valida contra esta lista: lo que
+        // llegue por `?orden=` y no esté aquí se ignora y nunca toca el SQL.
+        $ordenMovs = \App\Support\Orden::aplicar($query, $request, [
+            'created_at' => 'created_at',
+            'tipo'       => 'tipo',
+            'cantidad'   => 'cantidad',
+        ], 'created_at', 'desc');
+
+        $query = $query->paginate(30)->withQueryString();
 
         $productos = Producto::insumos()
             ->seleccionables()
@@ -200,6 +217,7 @@ class InventarioController extends Controller
 
         return Inertia::render('Compras/Inventario/Movimientos', [
             'movimientos' => $query,
+            'orden'       => $ordenMovs,
             'productos'   => $productos,
             'bodegas'     => ContextoSede::bodegasVisibles(),
             'filters'     => $request->only(['producto_id', 'bodega_id', 'tipo', 'fecha_desde', 'fecha_hasta']),

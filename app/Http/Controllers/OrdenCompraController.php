@@ -17,19 +17,30 @@ class OrdenCompraController extends Controller
 {
     public function index(Request $request): Response
     {
-        $ordenes = \App\Support\ContextoSede::aplicar(OrdenCompra::query())
+        $query = \App\Support\ContextoSede::aplicar(OrdenCompra::query())
             ->with(['proveedor:id,nombre', 'creadoPor:id,name', 'sede:id,nombre'])
             ->when($request->filled('estado'), fn ($q) => $q->where('estado', $request->estado))
             ->when($request->filled('proveedor_id'), fn ($q) => $q->where('proveedor_id', $request->proveedor_id))
             ->when($request->filled('buscar'), fn ($q) => $q->where('numero', 'like', "%{$request->buscar}%"))
             ->when($request->filled('desde'), fn ($q) => $q->whereDate('created_at', '>=', $request->desde))
             ->when($request->filled('hasta'), fn ($q) => $q->whereDate('created_at', '<=', $request->hasta))
-            ->latest()
-            ->paginate(20)
-            ->withQueryString();
+;
+
+        // El orden lo pide la pantalla. `Orden::aplicar` valida el campo contra esta
+        // lista: lo que llegue por `?orden=` y no esté aquí se ignora, así que el
+        // parámetro nunca toca el SQL.
+        $ordenLista = \App\Support\Orden::aplicar($query, $request, [
+            'numero'     => 'numero',
+            'estado'     => 'estado',
+            'total'      => 'total',
+            'created_at' => 'created_at',
+        ]);
+
+        $ordenes = $query->paginate(20)->withQueryString();
 
         return Inertia::render('Compras/Ordenes/Index', [
             'ordenes'     => $ordenes,
+            'orden'      => $ordenLista,
             'filters'     => $request->only(['estado', 'proveedor_id', 'buscar', 'desde', 'hasta']),
             'proveedores' => Proveedor::where('activo', true)->select('id', 'nombre')->orderBy('nombre')->get(),
         ]);

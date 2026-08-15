@@ -85,6 +85,29 @@ viaja al servidor del cliente.
 
 ---
 
+## Listas: el orden lo pide la pantalla
+
+Toda lista paginada se ordena por lo que elija el usuario. Tres piezas, y no hay que
+inventar una cuarta:
+
+- **`App\Support\Orden::aplicar($query, $request, $permitidos, $defecto, $dir)`** en el
+  `index()` del controlador. El campo llega del navegador, así que **jamás** entra al SQL
+  tal cual: cada lista declara qué columnas se pueden ordenar y lo que no esté en esa lista
+  se ignora en silencio. Devuelve `['campo' => …, 'dir' => …]`, que va a la vista como
+  `'orden'`.
+- **`useOrden(url, orden, filtros)`** (`resources/js/composables/useOrden.js`) en la
+  pantalla. El orden viaja en la URL, no en memoria: así el enlace se puede compartir, el
+  botón de atrás funciona y recargar no pierde lo elegido.
+- **`OrdenarLista.vue`** para el control visible, y **`BotonOrden.vue`** dentro de un `<th>`
+  cuando la lista es una tabla. El botón va **dentro** del `<th>` que ya existe: cada lista
+  tiene su propio estilo de encabezado, y reemplazarlo entero obligaba a copiar esas clases
+  dieciséis veces.
+
+Siempre hay desempate por `id`: dos filas con el mismo nombre tienen que salir siempre en
+el mismo orden, o la paginación repite unas y esconde otras. Y al agregar orden a una lista
+que ya existía, el **orden por omisión no cambia** — mover las filas de sitio en una
+pantalla que nadie pidió tocar se siente como un error.
+
 ## Reglas del producto instalable
 
 Propias de Briela; no existían en el SGI. Si se rompen, el producto se vuelve

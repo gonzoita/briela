@@ -12,7 +12,7 @@ class ProveedorController extends Controller
 {
     public function index(Request $request): Response
     {
-        $proveedores = Proveedor::query()
+        $query = Proveedor::query()
             ->when($request->filled('buscar'), fn ($q) => $q->where(function ($q) use ($request) {
                 $q->where('nombre', 'like', "%{$request->buscar}%")
                   ->orWhere('nit', 'like', "%{$request->buscar}%")
@@ -21,12 +21,22 @@ class ProveedorController extends Controller
             }))
             ->when($request->filled('tipo'), fn ($q) => $q->where('tipo', $request->tipo))
             ->when($request->filled('activo'), fn ($q) => $q->where('activo', $request->activo === 'true'))
-            ->latest()
-            ->paginate(20)
-            ->withQueryString();
+;
+
+        // El orden lo pide la pantalla. `Orden::aplicar` valida el campo contra esta
+        // lista: lo que llegue por `?orden=` y no esté aquí se ignora, así que el
+        // parámetro nunca toca el SQL.
+        $orden = \App\Support\Orden::aplicar($query, $request, [
+            'nombre'     => 'nombre',
+            'ciudad'     => 'ciudad',
+            'created_at' => 'created_at',
+        ]);
+
+        $proveedores = $query->paginate(20)->withQueryString();
 
         return Inertia::render('Compras/Proveedores/Index', [
             'proveedores' => $proveedores,
+            'orden'      => $orden,
             'filters'     => $request->only(['buscar', 'tipo', 'activo']),
         ]);
     }

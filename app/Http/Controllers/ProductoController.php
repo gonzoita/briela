@@ -29,8 +29,17 @@ class ProductoController extends Controller
             ->when($request->filled('buscar'), fn ($q) => $q->where(function ($q) use ($request) {
                 $q->where('nombre', 'like', "%{$request->buscar}%")
                   ->orWhere('referencia', 'like', "%{$request->buscar}%");
-            }))
-            ->latest();
+            }));
+
+        // El orden lo pide la pantalla. `Orden::aplicar` valida el campo contra esta lista:
+        // lo que llegue por `?orden=` y no esté aquí se ignora, así que el parámetro no puede
+        // tocar el SQL.
+        $orden = \App\Support\Orden::aplicar($query, $request, [
+            'nombre'       => 'nombre',
+            'referencia'   => 'referencia',
+            'precio_costo' => 'precio_costo',
+            'created_at'   => 'created_at',
+        ], 'created_at', 'desc');
 
         $productos = $query->paginate(12)->withQueryString();
 
@@ -64,6 +73,7 @@ class ProductoController extends Controller
         return Inertia::render('Productos/Index', [
             'productos'  => $productos,
             'categorias' => $categorias,
+            'orden'      => $orden,
             'filters'    => $request->only(['buscar', 'tipo', 'categoria', 'es_vendible', 'es_insumo']),
         ]);
     }

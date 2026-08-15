@@ -2,6 +2,8 @@
 import { ref, computed, watch } from 'vue'
 import { router, usePage } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
+import OrdenarLista from '@/Components/OrdenarLista.vue'
+import { useOrden } from '@/composables/useOrden'
 import { usePublicacionWeb } from '@/composables/usePublicacionWeb'
 
 const props = defineProps({
@@ -9,7 +11,18 @@ const props = defineProps({
     plantillas: { type: Array, default: () => [] },
     categorias: { type: Array, default: () => [] },
     filters:    { type: Object, default: () => ({}) },
+    // El orden vigente, que decide el servidor: { campo, dir }.
+    orden: { type: Object, default: () => ({}) },
 })
+
+// Ordenar mantiene los filtros: reordenar no es empezar de cero.
+const { ordenarPor } = useOrden('/ensambles', props.orden, props.filters)
+
+const camposOrden = [
+    { campo: 'nombre', etiqueta: 'Nombre' },
+    { campo: 'precio_costo', etiqueta: 'Costo', texto: false },
+    { campo: 'created_at', etiqueta: 'Más reciente', texto: false },
+]
 
 // ── Publicar en el sitio web, varios de una vez ────────────────────────────────
 //
@@ -107,6 +120,12 @@ function inicial(nombre) {
                         Nuevo ensamble
                     </a>
                 </div>
+            </div>
+
+            <!-- Ordenar. Vale para las listas que son tabla y para las que son tarjetas, y
+                 en celular es el único camino: ahí no hay encabezados donde hacer clic. -->
+            <div class="mb-3">
+                <OrdenarLista :campos="camposOrden" :orden="orden" @ordenar="ordenarPor" />
             </div>
 
             <!-- Filtros -->
