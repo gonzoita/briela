@@ -4,14 +4,17 @@ import OrdenarLista from '@/Components/OrdenarLista.vue'
 import { useOrden } from '@/composables/useOrden'
 import { router } from '@inertiajs/vue3'
 
-defineProps({
+// Con `const props =`, no `defineProps` a secas: la línea de abajo lee `props.orden`, y sin la
+// asignación eso es un ReferenceError al montar. No falla al compilar —es JavaScript válido—
+// así que el build pasa y la pantalla queda en negro.
+const props = defineProps({
     usuarios: Object,
     // El orden vigente, que decide el servidor: { campo, dir }.
     orden: { type: Object, default: () => ({}) },
 })
 
-// Ordenar mantiene los filtros: reordenar no es empezar de cero.
-const { ordenarPor } = useOrden('/usuarios', props.orden, props.filters)
+// Esta lista no tiene filtros, así que no hay nada que conservar al reordenar.
+const { ordenarPor } = useOrden('/usuarios', props.orden, {})
 
 const camposOrden = [
     { campo: 'name', etiqueta: 'Nombre' },

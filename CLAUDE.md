@@ -129,7 +129,12 @@ inventar una cuarta:
   dieciséis veces.
 
 Siempre hay desempate por `id`: dos filas con el mismo nombre tienen que salir siempre en
-el mismo orden, o la paginación repite unas y esconde otras. Y al agregar orden a una lista
+el mismo orden, o la paginación repite unas y esconde otras.
+
+> Al agregar el orden a una pantalla, **`const props = defineProps(...)`**, no `defineProps`
+> a secas. Varias pantallas lo tenían sin asignar, y `useOrden(url, props.orden, …)` sobre un
+> `props` que no existe es un `ReferenceError` **al montar**: el build pasa —es JavaScript
+> válido— y la pantalla queda en negro. Le pasó a Usuarios el 15 ago 2026. Y al agregar orden a una lista
 que ya existía, el **orden por omisión no cambia** — mover las filas de sitio en una
 pantalla que nadie pidió tocar se siente como un error.
 
