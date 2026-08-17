@@ -113,6 +113,90 @@ class PreciosPorCanalService
     }
 
     /**
+     * Cuánto del excedente se le propone al vendedor cuando vende sin descuento.
+     *
+     * Es una sugerencia, no un tope: los dos campos quedan editables en la ficha. El canal
+     * de precio público lleva más porque traer un cliente nuevo cuesta más que atender a uno
+     * que ya compra.
+     */
+    private const REPARTO_MAX         = 50.0;
+    private const REPARTO_MAX_PUBLICO = 70.0;
+
+    /**
+     * Propone las comisiones y el descuento máximo de un ítem, canal por canal.
+     *
+     * **La misma regla que el botón «Sugerir comisiones» de la ficha**, que vive en
+     * `resources/js/composables/usePreciosPorCanal.js`. Están escritas dos veces a propósito:
+     * la pantalla la necesita instantánea mientras se teclean los márgenes, y el comando
+     * `comisiones:recalcular` la necesita sin navegador para arreglar un catálogo entero. Si
+     * se cambia una, se cambia la otra — `tests/Unit/SugerirComisionesTest.php` fija los
+     * números de las dos.
+     *
+     * El porcentaje se cobra SOBRE EL EXCEDENTE por encima del canal base, que es como lo
+     * calculan la cotización y la liquidación. Y el piso de cada canal es la plata que ya
+     * paga el de abajo en su tope: vender un canal con su descuento máximo deja el mismo
+     * precio que vender el de abajo sin descuento, y la misma venta no puede pagar dos
+     * comisiones distintas.
+     *
+     * @param  array<int, array<string, mixed>>  $filas  En el orden de los canales.
+     * @return array<int, array<string, mixed>>
+     */
+    public function sugerirComisiones(array $filas): array
+    {
+        $precioBase = (float) (collect($filas)->firstWhere('es_canal_base', true)['precio'] ?? 0);
+
+        // El precio de la fila anterior, para el descuento máximo, y la plata que paga en su
+        // tope el canal con comisión anterior, para el piso. Son dos cosas distintas: el
+        // descuento se mide contra el canal de al lado y el piso contra el que sí comisiona.
+        $precioAnterior = 0.0;
+        $pisoValor      = 0.0;
+
+        foreach ($filas as $i => $fila) {
+            $precio    = (float) ($fila['precio'] ?? 0);
+            $excedente = max(0, $precio - $precioBase);
+
+            if ($fila['es_canal_base'] ?? false) {
+                $filas[$i]['comision_min_pct']  = 0.0;
+                $filas[$i]['comision_max_pct']  = 0.0;
+                $filas[$i]['descuento_max_pct'] = 0.0;
+                $precioAnterior                 = $precio;
+
+                continue;
+            }
+
+            // Cada canal descuenta hasta el precio del canal de abajo, nunca más: un
+            // descuento no puede dejar a un cliente pagando menos que el canal que tiene
+            // mejor precio por derecho.
+            $filas[$i]['descuento_max_pct'] = $precio > 0
+                ? round(max(0, ($precio - $precioAnterior) / $precio * 100), 2)
+                : 0.0;
+
+            if ($excedente <= 0) {
+                // Vale lo mismo que el canal base: no hay nada que repartir, y el canal
+                // siguiente tampoco hereda piso de este.
+                $filas[$i]['comision_min_pct'] = 0.0;
+                $filas[$i]['comision_max_pct'] = 0.0;
+                $pisoValor                     = 0.0;
+            } else {
+                $reparto = ($fila['es_precio_publico'] ?? false)
+                    ? self::REPARTO_MAX_PUBLICO
+                    : self::REPARTO_MAX;
+
+                $min = min(100, round($pisoValor / $excedente * 100, 2));
+                $max = min(100, round(max($min, $reparto), 2));
+
+                $filas[$i]['comision_min_pct'] = $min;
+                $filas[$i]['comision_max_pct'] = $max;
+                $pisoValor                     = $excedente * $max / 100;
+            }
+
+            $precioAnterior = $precio;
+        }
+
+        return $filas;
+    }
+
+    /**
      * Con qué margen nace un canal en un producto nuevo.
      *
      * Lo pone la empresa en Segmentación. Estuvo escrito primero en la pantalla (25/30/35) y

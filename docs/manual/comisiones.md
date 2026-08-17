@@ -46,8 +46,29 @@ compra. Es una sugerencia: los dos campos quedan editables.
 
 > Hasta el 17 ago 2026 esa sugerencia sacaba el porcentaje que el excedente representa **del
 > precio** —49.000 de 1.375.000 es 3,56 %— y ese porcentaje se cobraba después otra vez sobre el
-> excedente. El vendedor terminaba con 1.137 de los 49.000 que había en juego. Los productos y
-> ensambles configurados antes de esa fecha conservan los porcentajes viejos: hay que volver a
-> pulsar «Sugerir comisiones» o escribirlos a mano.
+> excedente. El vendedor terminaba con 1.137 de los 49.000 que había en juego.
+
+## Arreglar el catálogo entero de una vez
+
+El botón de la ficha solo toca el producto que se está editando, así que un cambio en la regla
+del reparto deja atrás todo lo ya guardado. Para eso está el comando:
+
+```bash
+php artisan comisiones:recalcular --simular
+```
+
+Con `--simular` no escribe nada: enseña una tabla con lo que cambiaría, canal por canal.
+Quitando la opción lo aplica, y vuelve a escribir también las columnas viejas por canal. Es
+idempotente —correrlo dos veces no mueve nada la segunda— y **solo toca los canales que el ítem
+ya tiene configurados**: no inventa filas.
+
+Si nadie marcó un canal base en Segmentación, el comando se niega a correr. Sin ese piso, todo
+el precio contaría como excedente y las comisiones saldrían disparadas.
+
+> La regla del reparto está escrita dos veces: en `PreciosPorCanalService::sugerirComisiones()`
+> para el comando, y en `resources/js/composables/usePreciosPorCanal.js` para el botón de la
+> ficha, que tiene que responder mientras se teclean los márgenes. Si se cambia una hay que
+> cambiar la otra, y `tests/Unit/SugerirComisionesTest.php` fija los números para que no se
+> separen en silencio.
 
 Ver [Segmentación y precios](./segmentacion-y-precios.md) y [Cotizaciones](./cotizaciones.md).
