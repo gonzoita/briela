@@ -25,6 +25,11 @@ use App\Services\LeadEntranteService;
  *  3. Crea el lead en el CRM y lo reparte, con el mismo mecanismo de los
  *     formularios web (fijo / round robin / ponderado).
  *
+ * **El dueño del número manda sobre el reparto.** Si la línea tiene un usuario
+ * asignado, el aviso y el lead son suyos: le escribieron a SU número. El reparto
+ * configurado solo entra cuando el número no tiene dueño, que es el caso normal
+ * del número central de la empresa.
+ *
  * **Solo actúa con desconocidos.** Si el número ya es de un cliente registrado
  * o ya tiene un lead abierto, no crea nada: si no, el CRM se llenaría de leads
  * repetidos cada vez que un cliente escribe para preguntar por su pedido.
@@ -92,7 +97,7 @@ class WhatsappAutomatizacionService
         // el lead, ni que un error del CRM deje al cliente sin respuesta.
         try {
             if ($cfg['avisar'] && $esNueva) {
-                $this->avisar($conversacion);
+                $this->avisar($numero, $conversacion);
             }
         } catch (\Throwable $e) {
             Log::error('WhatsApp automatización: falló el aviso', ['error' => $e->getMessage()]);
@@ -108,7 +113,7 @@ class WhatsappAutomatizacionService
 
         try {
             if ($cfg['crear_lead'] && $esNueva) {
-                $this->crearLeadSiHaceFalta($conversacion, $texto, $cfg);
+                $this->crearLeadSiHaceFalta($numero, $conversacion, $texto, $cfg);
             }
         } catch (\Throwable $e) {
             Log::error('WhatsApp automatización: falló la creación del lead', ['error' => $e->getMessage()]);
@@ -117,15 +122,51 @@ class WhatsappAutomatizacionService
 
     // ─── 1. Aviso ─────────────────────────────────────────────────────────────
 
-    private function avisar(WhatsappConversacion $conversacion): void
+    /**
+     * Si el número tiene un dueño, el aviso es suyo y de nadie más: le
+     * escribieron a SU línea. Avisarle a todo el rol convierte cada mensaje en
+     * ruido para gente que no lo puede atender, y hace que nadie se sienta
+     * responsable de contestarlo.
+     *
+     * Sin dueño —el número central, o uno recién creado— se cae al rol, que es
+     * lo que había antes.
+     */
+    private function avisar(WhatsappNumero $numero, WhatsappConversacion $conversacion): void
     {
         $quien = $conversacion->nombre_contacto ?: $conversacion->numero_contacto;
+        $dueno = $this->duenoDelNumero($numero);
+
+        if ($dueno) {
+            $this->notificaciones->crear($dueno, 'whatsapp_mensaje_nuevo',
+                'Mensaje nuevo de WhatsApp',
+                "{$quien} escribió a tu línea ({$numero->nombre}).",
+                '/whatsapp'
+            );
+
+            return;
+        }
 
         $this->notificaciones->paraRol('vendedor', 'whatsapp_mensaje_nuevo',
             'Mensaje nuevo de WhatsApp',
             "{$quien} escribió por WhatsApp.",
             '/whatsapp'
         );
+    }
+
+    /**
+     * El usuario asignado al número, solo si sigue activo. Mandarle avisos a
+     * alguien que ya no entra al sistema es peor que no asignar: el mensaje
+     * queda con dueño y sin atender.
+     */
+    private function duenoDelNumero(WhatsappNumero $numero): ?int
+    {
+        if (! $numero->usuario_id) {
+            return null;
+        }
+
+        $usuario = $numero->usuario;
+
+        return ($usuario && $usuario->activo) ? $usuario->id : null;
     }
 
     // ─── 2. Respuestas automáticas ────────────────────────────────────────────
@@ -191,7 +232,7 @@ class WhatsappAutomatizacionService
 
     // ─── 3. Lead en el CRM ────────────────────────────────────────────────────
 
-    private function crearLeadSiHaceFalta(WhatsappConversacion $conversacion, string $texto, array $cfg): void
+    private function crearLeadSiHaceFalta(WhatsappNumero $numero, WhatsappConversacion $conversacion, string $texto, array $cfg): void
     {
         $telefono = $conversacion->numero_contacto;
 
@@ -214,7 +255,7 @@ class WhatsappAutomatizacionService
             'telefono'       => $telefono,
             'mensaje'        => $texto,
             'etapa_id'       => $etapaId,
-            'responsable_id' => $this->resolverResponsable($cfg),
+            'responsable_id' => $this->resolverResponsable($numero, $cfg),
             // El identificador de la conversación evita registrar dos veces el
             // mismo contacto si el webhook de WhatsApp se repite, que pasa.
             'referencia_externa' => 'conv-' . $conversacion->id,
@@ -291,12 +332,22 @@ class WhatsappAutomatizacionService
     }
 
     /**
-     * Mismo reparto que los formularios web: fijo, rotación o rotación con
-     * pesos. Se reutiliza el criterio para no tener dos formas distintas de
-     * asignar leads en el mismo sistema.
+     * A quién le queda el lead.
+     *
+     * Primero manda el dueño del número: si un cliente escribió a la línea de
+     * un asesor, la venta es de ese asesor, y repartirla por rotación se la
+     * quitaría delante de él.
+     *
+     * Si el número no tiene dueño se usa el reparto configurado, que es el
+     * mismo de los formularios web: fijo o rotación. Se reutiliza el criterio
+     * para no tener dos formas distintas de asignar leads en el mismo sistema.
      */
-    private function resolverResponsable(array $cfg): ?int
+    private function resolverResponsable(WhatsappNumero $numero, array $cfg): ?int
     {
+        if ($dueno = $this->duenoDelNumero($numero)) {
+            return $dueno;
+        }
+
         $ids = array_values(array_filter($cfg['responsables'] ?? []));
 
         if (empty($ids)) {

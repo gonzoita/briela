@@ -54,18 +54,80 @@ class AgentePublicoService
         }
 
         try {
-            $respuesta = $this->ia->texto(
-                $this->armarPrompt($mensaje, $historial),
-                $this->instrucciones($cfg),
-                400,
-                true // rápido: al otro lado hay alguien esperando en un chat
-            );
+            $respuesta = $this->generar($mensaje, $historial, $cfg);
         } catch (\Throwable $e) {
             Log::error('Agente público: la IA no respondió', ['error' => $e->getMessage()]);
             return null;
         }
 
-        $respuesta = trim($respuesta);
+        return $respuesta;
+    }
+
+    /**
+     * Lo mismo, pero para probar desde la pantalla de configuración.
+     *
+     * Se diferencia en tres cosas, y las tres son a propósito:
+     *  - **No exige que el agente esté encendido.** Calibrar las indicaciones
+     *    antes de soltarlo a atender clientes es justo el momento en que uno
+     *    quiere probar.
+     *  - **Acepta el nombre y las indicaciones sin guardar**, para poder
+     *    ajustar el texto y ver el efecto sin dejar a medias lo que ya funciona.
+     *  - **Dice por qué no pudo**, en vez del null mudo que necesita el webhook.
+     *
+     * No manda nada a nadie, no toca conversaciones y no crea leads.
+     */
+    public function previsualizar(string $mensaje, array $sobreescribir = []): array
+    {
+        if (trim($mensaje) === '') {
+            return ['ok' => false, 'mensaje' => 'Escribe primero un mensaje de ejemplo.'];
+        }
+
+        if (! $this->ia->configurado()) {
+            return [
+                'ok'      => false,
+                'mensaje' => 'La conexión con la IA no está configurada.',
+                'detalle' => ['Se carga en Configuración → Perfil de marca y asistente → Conexión con la IA.'],
+            ];
+        }
+
+        $cfg = array_merge(static::config(), array_filter(
+            [
+                'nombre'       => $sobreescribir['nombre'] ?? null,
+                'indicaciones' => $sobreescribir['indicaciones'] ?? null,
+            ],
+            fn ($v) => $v !== null
+        ));
+
+        try {
+            $respuesta = $this->generar($mensaje, [], $cfg);
+        } catch (\Throwable $e) {
+            return [
+                'ok'      => false,
+                'mensaje' => 'La IA no respondió: ' . $e->getMessage(),
+                'detalle' => ['Cuando esto pasa con un cliente de verdad, salen los mensajes fijos: nadie se queda sin respuesta.'],
+            ];
+        }
+
+        if ($respuesta === null) {
+            return [
+                'ok'      => false,
+                'mensaje' => 'La IA respondió vacío.',
+                'detalle' => ['Suele ser el modelo de texto configurado. Prueba con otro en Configuración → IA.'],
+            ];
+        }
+
+        return ['ok' => true, 'mensaje' => $respuesta];
+    }
+
+    /** El camino común: armar el prompt, llamar a la IA y limpiar la respuesta. */
+    private function generar(string $mensaje, array $historial, array $cfg): ?string
+    {
+        $respuesta = trim($this->ia->texto(
+            $this->armarPrompt($mensaje, $historial),
+            $this->instrucciones($cfg),
+            400,
+            true // rápido: al otro lado hay alguien esperando en un chat
+        ));
 
         return $respuesta !== '' ? $respuesta : null;
     }

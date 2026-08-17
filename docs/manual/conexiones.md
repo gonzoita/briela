@@ -58,8 +58,15 @@ estas mismas APIs; solo que hicieron el registro una vez del lado de ellas.
 Las conexiones que se pueden probar **sin afectar a nadie**:
 
 - **Correo** — manda un mensaje de prueba a la dirección que se indique.
-- **WhatsApp** — pregunta a Meta por el número y devuelve su nombre verificado,
-  sin enviarle un mensaje a ningún cliente.
+- **WhatsApp** — tiene cuatro probadores, y cada uno responde por una pieza
+  distinta: el **webhook** (que Meta pueda llegar y que el token coincida), cada
+  **número** (que Meta reconozca el identificador y sea la línea correcta), el
+  **agente de IA** (qué contestaría) y el **envío real**, el único que sí manda
+  un mensaje. Ver [WhatsApp](./whatsapp.md).
+
+Que una conexión "esté configurada" y que funcione son cosas distintas: los
+campos llenos solo dicen que hay texto guardado. Por eso las pantallas dicen
+además **qué falta**, en el orden en que hay que resolverlo.
 
 Y las que se pueden desconectar y volver a conectar:
 

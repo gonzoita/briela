@@ -106,7 +106,8 @@ tiene ninguno, con el precio público.
 
 Lo que se le debe a cada vendedor, calculado sobre el excedente por encima del canal base y
 con la comisión que se negoció en cada ítem. Resumen del mes y detalle por documento, los dos
-en PDF.
+en PDF. Al configurar un producto o un ensamble, el porcentaje de cada canal se cobra **sobre
+su propio excedente**, y ningún canal puede pagar menos plata que el de abajo.
 
 ---
 

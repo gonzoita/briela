@@ -3,36 +3,54 @@
 namespace App\Http\Controllers;
 
 use App\Models\WhatsappNumero;
+use App\Services\WhatsappDiagnosticoService;
 use App\Support\CredencialesRrss;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Http;
 use Inertia\Inertia;
 
 class WhatsappNumeroController extends Controller
 {
+    public function __construct(private readonly WhatsappDiagnosticoService $diagnostico) {}
+
     public function index()
     {
         return Inertia::render('Configuracion/WhatsappNumeros', [
-            'numeros' => WhatsappNumero::with('usuario:id,name')
+            'numeros' => WhatsappNumero::with('usuario:id,name,activo')
                 ->orderByDesc('rol')
                 ->orderBy('nombre')
                 ->get(),
-            'usuarios' => \App\Models\User::orderBy('name')->get(['id', 'name']),
-            // Mismo trato que las redes sociales: la pantalla dice si la
-            // conexión está lista y da los datos que hay que pegar en Meta.
-            'conexion' => [
-                'lista'          => CredencialesRrss::lista('whatsapp'),
-                'faltantes'      => CredencialesRrss::faltantes('whatsapp'),
-                'id_actual'      => CredencialesRrss::valor('whatsapp', 'id'),
+            'usuarios' => $this->usuariosAsignables(),
+            // La pantalla pinta un semáforo con lo que falta, en el orden en
+            // que hay que resolverlo. Ver WhatsappDiagnosticoService::estado().
+            'conexion' => array_merge($this->diagnostico->estado(), [
                 'tiene_secreto'  => CredencialesRrss::valor('whatsapp', 'secret') !== '',
                 'verify_actual'  => CredencialesRrss::valor('whatsapp', 'redirect'),
-                'url_webhook'    => url('/webhook/whatsapp'),
-            ],
+                'token_sugerido' => WhatsappDiagnosticoService::tokenSugerido(),
+            ]),
             'automatizacion' => \App\Services\WhatsappAutomatizacionService::config(),
             'agente'         => \App\Services\IA\AgentePublicoService::config(),
             'etapas'         => \App\Models\CrmEtapa::where('activa', true)
                 ->orderBy('orden')->get(['id', 'nombre']),
         ]);
+    }
+
+    /**
+     * A quién se le puede asignar un número: los usuarios activos, más los que
+     * ya tienen un número asignado aunque estén inactivos.
+     *
+     * Sin ese segundo grupo, abrir un número de alguien que se fue mostraría el
+     * selector vacío, y al guardar cualquier otro cambio se perdería la
+     * asignación sin que nadie lo pidiera.
+     */
+    private function usuariosAsignables()
+    {
+        $asignados = WhatsappNumero::whereNotNull('usuario_id')->pluck('usuario_id');
+
+        return \App\Models\User::where('activo', true)
+            ->orWhereIn('id', $asignados)
+            ->orderBy('name')
+            ->get(['id', 'name', 'activo']);
     }
 
     /**
@@ -99,19 +117,28 @@ class WhatsappNumeroController extends Controller
 
     /**
      * Guarda las credenciales de WhatsApp desde la interfaz, sin tocar el .env.
-     * El token solo se reemplaza si se envía uno nuevo.
+     *
+     * Solo se piden las dos que son de la **aplicación** de Meta: el token de
+     * acceso y el token de verificación del webhook. El identificador del
+     * número vive en cada número, que es donde de verdad se usa para enviar.
+     * Se pedía también acá, y pegar el mismo dato en dos sitios con nombres
+     * distintos hacía creer que la conexión estaba lista cuando el número que
+     * enviaba era otro.
+     *
+     * El campo viejo se sigue leyendo (instalaciones que ya lo tenían), pero no
+     * se toca desde acá: borrarlo al guardar rompería esas instalaciones.
      */
     public function guardarCredenciales(Request $request)
     {
         $datos = $request->validate([
-            'id'       => 'nullable|string|max:255',
             'secret'   => 'nullable|string|max:500',
             'redirect' => 'nullable|string|max:255',
         ]);
 
-        CredencialesRrss::guardar('whatsapp', 'id', $datos['id'] ?? '');
         CredencialesRrss::guardar('whatsapp', 'redirect', $datos['redirect'] ?? '');
 
+        // El token solo se reemplaza si llega uno nuevo: la pantalla no lo
+        // vuelve a mostrar, y dejar el campo vacío significa "consérvalo".
         if (filled($datos['secret'] ?? null)) {
             CredencialesRrss::guardar('whatsapp', 'secret', $datos['secret']);
         }
@@ -119,37 +146,54 @@ class WhatsappNumeroController extends Controller
         return back()->with('success', 'Conexión de WhatsApp guardada.');
     }
 
-    /**
-     * Comprueba contra Meta que el token y el número sirven de verdad.
-     * Sin esto solo se sabe si algo está mal cuando falla un envío real.
-     */
-    public function probarConexion()
+    // ─── Los probadores ───────────────────────────────────────────────────────
+    // Responden JSON y se pintan en la misma pantalla: una prueba que obliga a
+    // recargar para leer el resultado se deja de usar.
+
+    /** Le pregunta a Meta por ESE número. No le manda nada a nadie. */
+    public function probarNumero(WhatsappNumero $whatsappNumero): JsonResponse
     {
-        $token   = CredencialesRrss::valor('whatsapp', 'secret');
-        $phoneId = CredencialesRrss::valor('whatsapp', 'id');
+        return response()->json($this->diagnostico->probarNumero($whatsappNumero));
+    }
 
-        if ($token === '' || $phoneId === '') {
-            return back()->with('error', 'Faltan datos: carga primero el identificador del número y el token.');
-        }
+    /** Repite lo que hace Meta al suscribirse al webhook. */
+    public function probarWebhook(): JsonResponse
+    {
+        return response()->json($this->diagnostico->probarWebhook());
+    }
 
-        try {
-            $resp = Http::withToken($token)->timeout(15)
-                ->get("https://graph.facebook.com/v21.0/{$phoneId}", [
-                    'fields' => 'display_phone_number,verified_name',
-                ]);
-        } catch (\Throwable $e) {
-            return back()->with('error', 'No se pudo contactar a Meta: ' . $e->getMessage());
-        }
+    /** Manda un mensaje de verdad al número que escriba quien está probando. */
+    public function enviarPrueba(Request $request, WhatsappNumero $whatsappNumero): JsonResponse
+    {
+        $datos = $request->validate([
+            'destino' => 'required|string|max:30',
+            'texto'   => 'nullable|string|max:900',
+        ]);
 
-        if (! $resp->successful()) {
-            $detalle = $resp->json('error.message') ?? $resp->body();
-            return back()->with('error', 'Meta rechazó la conexión: ' . $detalle);
-        }
+        $texto = trim((string) ($datos['texto'] ?? ''))
+            ?: 'Mensaje de prueba enviado desde ' . \App\Support\Marca::nombreEmpresa() . '.';
 
-        $nombre  = $resp->json('verified_name') ?? '';
-        $numero  = $resp->json('display_phone_number') ?? '';
+        return response()->json(
+            $this->diagnostico->enviarPrueba($whatsappNumero, $datos['destino'], $texto)
+        );
+    }
 
-        return back()->with('success', trim("Conexión correcta con {$nombre} {$numero}") . '.');
+    /**
+     * Qué contestaría el agente de IA. No manda nada, no crea leads y funciona
+     * con el agente apagado: es para calibrarlo ANTES de encenderlo.
+     */
+    public function probarAgente(Request $request, \App\Services\IA\AgentePublicoService $agente): JsonResponse
+    {
+        $datos = $request->validate([
+            'mensaje'      => 'required|string|max:900',
+            'nombre'       => 'nullable|string|max:60',
+            'indicaciones' => 'nullable|string|max:4000',
+        ]);
+
+        return response()->json($agente->previsualizar($datos['mensaje'], [
+            'nombre'       => $datos['nombre'] ?? null,
+            'indicaciones' => $datos['indicaciones'] ?? null,
+        ]));
     }
 
     /**

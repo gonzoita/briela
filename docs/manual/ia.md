@@ -550,6 +550,23 @@ Todo lo que ese catálogo entrega **ya es público por otro lado** (el catálogo
 `/catalogo` y los datos de contacto), así que responderlo por chat no expone
 nada nuevo. No incluye costos, márgenes ni existencias.
 
+### Probarlo antes de encenderlo
+
+En la pantalla de WhatsApp, dentro de la automatización, se le puede escribir lo
+que preguntaría un cliente y ver qué contestaría. **No manda nada a nadie y no
+crea ningún lead.**
+
+Dos detalles a propósito:
+
+- **Funciona con el agente apagado.** Calibrar las indicaciones es justo lo que
+  uno hace antes de soltarlo a atender clientes.
+- **Usa lo escrito en pantalla aunque no se haya guardado**, para poder ajustar
+  el texto y ver el efecto sin dejar a medias lo que ya está funcionando.
+
+Y dice **por qué** no pudo responder —IA sin configurar, sin saldo, modelo que
+devuelve vacío— en vez del silencio que necesita el webhook, donde lo correcto
+es caer a los mensajes fijos sin molestar a nadie.
+
 ### El flujo con un desconocido
 
 1. Alguien escribe por WhatsApp (o por donde sea) y **no sabemos quién es**.
