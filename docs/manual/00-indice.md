@@ -75,7 +75,7 @@ módulo por módulo.
 
 - [Despliegue — el servidor jala los cambios](./deploy-automatico.md)
 - [Copias de seguridad (backups)](./backups.md)
-- [Montar el proyecto en otra computadora](./montar-en-otra-pc.md)
+- [Operación — SSH, montaje en otro computador, git, grafo y chats](../OPERACION.md)
 - [Mantenimiento de equipos](./mantenimiento.md)
 - [Checklist de verificación (QA)](./verificacion-qa.md)
 

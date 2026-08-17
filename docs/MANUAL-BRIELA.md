@@ -361,7 +361,7 @@ El servidor **jala** los cambios de GitHub —no al revés— y antes de aplicar
 base.
 
 → [Despliegue](./manual/deploy-automatico.md) · [Respaldos](./manual/backups.md) ·
-[Montar en otra computadora](./manual/montar-en-otra-pc.md)
+[Operación y montaje](./OPERACION.md)
 
 ---
 

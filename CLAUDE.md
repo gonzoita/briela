@@ -14,6 +14,8 @@ Rama principal: main | Cuenta: gonzoita
 - `docs/MANUAL-BRIELA.md` — **el sistema completo de una sola lectura**, módulo por módulo,
   incluida la IA. Es el mejor punto de entrada para entender qué existe.
 - `docs/manual/00-indice.md` — el detalle, una página por módulo (42).
+- `docs/OPERACION.md` — **cómo trabajar**: SSH al servidor, montar el proyecto en otro
+  computador, git y despliegue, el grafo, y cómo arrancar un chat nuevo sin gastar de más.
 
 ---
 
