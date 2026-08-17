@@ -509,7 +509,7 @@ Que `sistema.briela.app` quede en pie como instalación propia y presentable.
 - Revisar `docs/manual/` uno por uno: la mayoría sirve como base, pero hablan de
   el sistema de origen.
 
-### Fase 2 — Superadmin y licencias
+### Fase 2 — Superadmin y licencias · **hecha el 13 ago 2026**
 
 La app nueva (`briela-superadmin`) y el cliente de licencia en el ERP:
 
@@ -522,7 +522,7 @@ La app nueva (`briela-superadmin`) y el cliente de licencia en el ERP:
 siguiente latido; y con el servidor de licencias apagado, la instalación sigue
 trabajando los días de gracia y **no** se bloquea.
 
-### Fase 3 — Proxy de IA
+### Fase 3 — Proxy de IA · **hecha el 13 ago 2026**
 
 El modelo de ganancia. Los cuatro puntos de salida de `IaService` apuntando al
 superadmin, con streaming que no se rompa, medición de consumo por cliente y
@@ -541,6 +541,29 @@ cortes funcionando — suscripción vencida, tope del día y llave apagada.
 Falta antes de cobrarle a alguien: la voz se mide en caracteres pero con costo cero,
 porque el proveedor no informa costo en `audio/speech`; sale en la conciliación como
 diferencia hasta que se resuelva.
+
+### Lo que se construyó fuera del plan · ago 2026
+
+El plan cubría el licenciamiento y el modelo de ganancia. Sobre el producto en sí se
+construyó bastante más, y conviene tenerlo aquí porque cambia decisiones de arquitectura:
+
+| Qué | Por qué importa para lo que venga |
+|---|---|
+| **Precios por canal** (`canal_precios`, morph) | El precio dejó de ser tres columnas fijas. Cada empresa define sus canales y marca el **base** (piso de utilidad) y el **público** (respaldo y catálogo web). Las columnas viejas siguen por compatibilidad, escritas por un espejo |
+| **Ensamble directo** (`tipo_armado`) | Una receta a mano, sin plantilla ni fórmulas. Guarda componentes con la MISMA forma que los calculados: la OP, el inventario y los PDF no los distinguen |
+| **Producción entra a bodega** | El último paso del flujo declara su bodega; al cerrarlo se descuentan los materiales de esa unidad y entra como **producto terminado**. El material se consume al fabricar, no al despachar |
+| **Producto terminado de un ensamble** (`productos.ensamble_id`) | En vez de duplicar el módulo de inventario para ensambles, el ensamble obtiene su fila en `productos` y hereda stock, movimientos, mínimos e informes |
+| **Orden configurable en las 16 listas** (`App\Support\Orden`) | El campo llega del navegador y se valida contra una lista blanca por pantalla |
+| **`costos.ver`** | El costo es un permiso aparte y no se manda al navegador de quien no lo tiene |
+| **Tonos del tema completos** | Separador, realce y las seis familias de aviso con cuatro tonos cada una. Se eliminaron 2.063 colores fijos de Tailwind |
+
+**Deuda conocida y medida**, para no redescubrirla:
+
+- Las **plantillas de ensamble** llevan margen solo para los tres canales originales; los
+  canales adicionales arrancan con el margen sugerido de Segmentación.
+- Las unidades armadas **entran a bodega al cerrar el último paso**, pero nadie las suma al
+  aprobar calidad: si el flujo no tiene paso final marcado, entran a la bodega principal.
+- El **filtrado por sede sigue siendo opt-in** (`ContextoSede::aplicar()` a mano).
 
 ### Fase 4 — Asistente de instalación
 

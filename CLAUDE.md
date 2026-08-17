@@ -11,7 +11,9 @@ Rama principal: main | Cuenta: gonzoita
 **Documentos maestros del proyecto** — leerlos antes de diseñar algo nuevo:
 - `docs/BRIELA-PLAN.md` — arquitectura decidida y plan por fases. **Fuente de verdad.**
 - `docs/BRIELA-CONTEXTO.md` — documento de arranque y decisiones de origen.
-- `docs/manual/00-indice.md` — manual funcional módulo por módulo.
+- `docs/MANUAL-BRIELA.md` — **el sistema completo de una sola lectura**, módulo por módulo,
+  incluida la IA. Es el mejor punto de entrada para entender qué existe.
+- `docs/manual/00-indice.md` — el detalle, una página por módulo (42).
 
 ---
 
@@ -317,18 +319,39 @@ proceso. Al construir algo nuevo, evaluarlo también bajo ese criterio.
 
 ## Estado actual
 
-**Fase 0 en curso** (higiene y arranque del repo). Plan completo en
-`docs/BRIELA-PLAN.md` sección 7. Resumen:
+Plan completo en `docs/BRIELA-PLAN.md` sección 7.
 
-| Fase | Qué |
-|---|---|
-| 0 | Higiene, `git init`, repos en `gonzoita`, este archivo |
-| 1 | Desacoplar la marca: identidad configurable, salir de Google Drive |
-| 2 | Superadmin + licencias (serial, latido, gracia offline, bloqueo) |
-| 3 | Proxy de IA — el modelo de ganancia |
-| 4 | Asistente de instalación (`/instalar`) |
-| 5 | El botón de actualizar (zip firmado) + rollback |
-| 6 | Cobros recurrentes |
+| Fase | Qué | Estado |
+|---|---|---|
+| 0 | Higiene, `git init`, repos en `gonzoita`, este archivo | **hecha** |
+| 1 | Desacoplar la marca: identidad configurable, salir de Google Drive | **hecha** |
+| 2 | Superadmin + licencias (serial, latido, gracia offline, bloqueo) | **hecha** |
+| 3 | Proxy de IA — el modelo de ganancia | **hecha** |
+| 4 | Asistente de instalación (`/instalar`) | pendiente |
+| 5 | El botón de actualizar (zip firmado) + rollback | pendiente |
+| 6 | Cobros recurrentes | pendiente |
+
+**Hasta que el usuario declare la primera versión, se despliega directo:** el servidor jala de
+GitHub por cron y no hay paquetes ni actualizador. Ver `docs/manual/deploy-automatico.md`. Y
+comprometer no es desplegar — sin `git push` el cambio no sale de la PC.
+
+Lo construido después de la fase 3, que conviene conocer antes de tocar algo cerca:
+
+- **Precios por canal** (`canal_precios`, morph a producto y ensamble). La empresa define sus
+  canales en Segmentación y marca dos papeles: **canal base** (piso de utilidad, sin comisión ni
+  descuento) y **precio público** (respaldo del cliente sin segmentar, y precio del catálogo web).
+  Las columnas viejas `precio_mayorista` y compañía siguen existiendo por compatibilidad y las
+  escribe un espejo; no se leen para cotizar.
+- **Ensamble directo** (`ensambles.tipo_armado`): receta escrita a mano, sin plantilla ni
+  fórmulas. Guarda sus componentes con la MISMA forma que los calculados, y por eso la OP, el
+  inventario y los PDF no los distinguen.
+- **Producción entra a bodega.** El último paso del flujo declara su `bodega_destino_id`; al
+  cerrarlo, `EntregaAlmacenService` descuenta los materiales de esa unidad y registra su entrada
+  como **producto terminado** (`productos.ensamble_id`). El despacho ya no vuelve a consumir
+  material. `op_item_trabajos.entregado_at` es el candado contra la doble entrada.
+- **`costos.ver`** es un permiso aparte: el costo no se manda al navegador de quien no lo tiene.
+- **Una OP con trabajo hecho no cambia sus ítems** (`Op::itemsBloqueados()`), y el candado está
+  en el servidor.
 
 **Pendiente de negocio sin resolver, y es la más importante: a quién se le
 vende.** El sistema está hecho a la medida de fabricar por pedido con medidas
@@ -381,4 +404,6 @@ decían lo contrario y estaban equivocadas.
   relaciones entre archivos antes de leer código a mano.
 - Conviene regenerarlo después de cambios que muevan estructura (borrar módulos,
   mover carpetas), porque un grafo desactualizado es peor que no tenerlo.
-- Al 2 ago 2026 **todavía no se ha generado** para Briela.
+- **Generado y al día.** Al 15 ago 2026: 778 archivos de código, 6.050 nodos, 10.229 aristas,
+  587 comunidades. Se reconstruye entero con la extracción AST (gratis, sin LLM) y
+  `parallel=False`.
