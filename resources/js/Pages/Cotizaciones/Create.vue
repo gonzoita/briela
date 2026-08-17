@@ -221,7 +221,15 @@ watch(canalCliente, () => {
 
         // Sin nada negociado, se arranca en el máximo: es lo que gana el vendedor si no
         // regala descuento. Y si lo guardado se salió del rango nuevo, se recorta.
-        item.comision_pct_actual = aplicada > 0
+        //
+        // Una comisión en cero **con descuento** sí es una negociación real —el vendedor
+        // entregó todo— y se respeta. Cero con descuento cero es una cotización que nunca la
+        // tuvo, y esa sí arranca en el máximo. Sin esta distinción, reabrir un documento
+        // negociado al mínimo lo devolvía al máximo dejando el descuento máximo intacto: la
+        // empresa pagaba las dos cosas.
+        const negociado = aplicada > 0 || (parseFloat(item.descuento_pct) || 0) > 0
+
+        item.comision_pct_actual = negociado
             ? Math.min(Math.max(aplicada, min), max)
             : max
     })
@@ -329,7 +337,10 @@ const precioCalculadoDelCanal = computed(() => {
 function itemTieneComision(item) {
     if (!canalCliente.value || canalCliente.value.es_canal_base) return false
 
-    return (parseFloat(item.comision_pct_maxima) || 0) > 0
+    // De la fila del canal, igual que el rango y la barra. La copia del ítem
+    // (`comision_pct_maxima`) solo se llena cuando cambia el canal del cliente, y con ella
+    // el panel aparecía o no según un dato que podía haber quedado atrás.
+    return getCanalComisionMax(item) > 0
 }
 
 /** El canal base no admite descuento: su precio es el piso. */
@@ -823,58 +834,87 @@ function excedenteUnitario(item) {
     const base   = parseFloat(item.precio_mayorista_base) || 0
     return Math.max(0, precio - base)
 }
+const dosDecimales = (v) => parseFloat((v).toFixed(2))
+
+/**
+ * El rango de negociación de un ítem, saneado y salido de UNA sola fuente: la fila del canal.
+ *
+ * La barra leía sus topes del canal y el manejador los leía de la copia que el ítem guarda
+ * en `comision_pct_minima` / `comision_pct_maxima`. Con las dos fuentes desalineadas, el
+ * navegador movía la barra a un valor que el manejador no aceptaba: el modelo no cambiaba,
+ * Vue no volvía a dibujar y la barra quedaba donde la soltaron enseñando otro número.
+ *
+ * Un mínimo por encima del máximo es una configuración contradictoria del producto: manda el
+ * techo, y la barra se apaga en vez de fingir que hay algo que negociar.
+ */
+function rangoComisionDe(item) {
+    const max = getCanalComisionMax(item)
+    const min = Math.min(getCanalComisionMin(item), max)
+
+    return { min, max, hayRango: max > min }
+}
+
+/**
+ * La comisión negociada hoy, siempre dentro del rango y nunca vacía.
+ *
+ * Con `Number.isFinite` y no con `||`: una comisión negociada en 0 —el vendedor entregó todo
+ * el descuento— es un valor legítimo, y `||` la leía como «sin negociar» y saltaba al
+ * máximo. Por eso la barra parecía rebotar al tope apenas se la llevaba a la izquierda.
+ */
+function comisionActualDe(item) {
+    const { min, max } = rangoComisionDe(item)
+    const actual       = parseFloat(item.comision_pct_actual)
+
+    return Number.isFinite(actual) ? Math.max(min, Math.min(max, actual)) : max
+}
+
 function comisionActualValor(item) {
     const cantidad = parseFloat(item.cantidad) || 1
-    const pct      = parseFloat(item.comision_pct_actual) || parseFloat(item.comision_pct_maxima) || 0
-    return Math.round(excedenteUnitario(item) * cantidad * (pct / 100))
+
+    return Math.round(excedenteUnitario(item) * cantidad * (comisionActualDe(item) / 100))
 }
-function comisionMaxValor(item) {
-    return Math.round(excedenteUnitario(item) * (getCanalComisionMax(item) / 100))
-}
-function comisionMinValor(item) {
-    return Math.round(excedenteUnitario(item) * (getCanalComisionMin(item) / 100))
-}
-function descuentoDisponible(item) {
-    const actual = parseFloat(item.comision_pct_actual) || getCanalComisionMax(item)
-    return getCanalComisionMax(item) - actual
-}
+
 function descuentoMaxDisponible(item) {
     return getDescuentoMaxSegunCanal(item)
 }
-function onComisionChange(item, index, nuevoPct) {
-    const pct = Math.max(
-        parseFloat(item.comision_pct_minima),
-        Math.min(parseFloat(item.comision_pct_maxima), parseFloat(nuevoPct) || 0)
-    )
-    form.items[index].comision_pct_actual = pct
 
-    // Descuento proporcional: cuando comisión = max → descuento = 0; cuando = min → descuento = max
-    const rangoComision = parseFloat(item.comision_pct_maxima) - parseFloat(item.comision_pct_minima)
-    if (rangoComision > 0) {
-        const factorSacrificado = (parseFloat(item.comision_pct_maxima) - pct) / rangoComision
-        const descuentoMax = getDescuentoMaxSegunCanal(item)
-        form.items[index].descuento_pct = parseFloat((factorSacrificado * descuentoMax).toFixed(2))
-    }
+/**
+ * Mover la comisión llena el descuento, y al revés.
+ *
+ * En el tope de comisión el descuento es cero; en el mínimo, el descuento es todo el que el
+ * canal permite. Es la negociación del vendedor: lo que deja de ganar se lo lleva el cliente.
+ *
+ * El descuento se escribe SIEMPRE que haya rango. Antes iba dentro de un `if` que lo saltaba
+ * cuando el rango era cero o negativo, y ahí el ítem quedaba con la barra muerta y el
+ * descuento congelado en cero sin decir por qué.
+ */
+function onComisionChange(item, index, nuevoPct) {
+    const { min, max, hayRango } = rangoComisionDe(item)
+
+    if (! hayRango) return
+
+    const pct = Math.max(min, Math.min(max, parseFloat(nuevoPct) || 0))
+
+    form.items[index].comision_pct_actual = pct
+    form.items[index].descuento_pct       = dosDecimales((max - pct) / (max - min) * descuentoMaxDisponible(item))
 }
+
 function ajustarComision(item, index, delta) {
-    const actual = parseFloat(item.comision_pct_actual) || parseFloat(item.comision_pct_maxima) || 0
-    onComisionChange(item, index, actual + delta)
+    onComisionChange(item, index, comisionActualDe(item) + delta)
 }
+
 function onDescuentoChange(item, index, nuevoPct) {
     if (canalSinDescuento.value) return
 
-    const descuentoMax = getDescuentoMaxSegunCanal(item)
-    const descPct = Math.max(0, Math.min(descuentoMax, parseFloat(nuevoPct) || 0))
+    const descuentoMax = descuentoMaxDisponible(item)
+    const descPct      = Math.max(0, Math.min(descuentoMax, parseFloat(nuevoPct) || 0))
+
     form.items[index].descuento_pct = descPct
 
-    // Comisión proporcional: cuando descuento = 0 → comisión = max; cuando = max → comisión = min
-    const rangoComision = parseFloat(item.comision_pct_maxima) - parseFloat(item.comision_pct_minima)
-    if (descuentoMax > 0) {
-        const factorUsado    = descPct / descuentoMax
-        const nuevaComision  = parseFloat(item.comision_pct_maxima) - (factorUsado * rangoComision)
-        form.items[index].comision_pct_actual = parseFloat(
-            Math.max(parseFloat(item.comision_pct_minima), nuevaComision).toFixed(2)
-        )
+    const { min, max, hayRango } = rangoComisionDe(item)
+
+    if (hayRango && descuentoMax > 0) {
+        form.items[index].comision_pct_actual = dosDecimales(max - (descPct / descuentoMax) * (max - min))
     }
 }
 
@@ -897,12 +937,13 @@ function submit() {
     }
 
     markClean()
-    // Mapear comision_pct_actual → comision_pct_aplicada antes de enviar al backend
+    // Mapear comision_pct_actual → comision_pct_aplicada antes de enviar al backend.
+    // Con `comisionActualDe` y no con `actual || maxima`: una comisión negociada en 0 es
+    // legítima —el vendedor entregó todo el descuento— y el `||` la reemplazaba por el
+    // máximo, así que se guardaba el descuento máximo Y la comisión máxima a la vez.
     form.items = form.items.map(item => {
-        const comisionPct = parseFloat(item.comision_pct_actual)
-                           || parseFloat(item.comision_pct_maxima)
-                           || 0
-        const cantidad   = parseFloat(item.cantidad) || 1
+        const comisionPct = itemTieneComision(item) ? comisionActualDe(item) : 0
+        const cantidad    = parseFloat(item.cantidad) || 1
         return {
             ...item,
             comision_pct_aplicada: comisionPct,
@@ -1232,28 +1273,48 @@ function submit() {
                                 </div>
 
                                 <!-- Panel comisión compacto -->
-                                <div v-if="itemTieneComision(item)"
-                                    class="mt-2 flex items-center gap-2 px-3 py-2 rounded-xl"
-                                    style="background:var(--pastel-ambar);border:1px solid #FCD34D;">
-                                    <span class="text-xs font-medium shrink-0" style="color:var(--texto-ambar);">Com.</span>
-                                    <button type="button" @click="ajustarComision(item, idx, -0.5)"
-                                        :disabled="(item.comision_pct_actual || getCanalComisionMax(item)) <= getCanalComisionMin(item)"
-                                        class="w-6 h-6 rounded-full flex items-center justify-center font-semibold text-sm disabled:opacity-40 shrink-0 hover:bg-pastel-ambar-2 transition-colors"
-                                        style="border:1px solid #FCD34D;color:var(--texto-ambar);">−</button>
-                                    <input type="range"
-                                        :min="getCanalComisionMin(item)"
-                                        :max="getCanalComisionMax(item)"
-                                        :step="0.01"
-                                        :value="item.comision_pct_actual || getCanalComisionMax(item)"
-                                        @input="onComisionChange(item, idx, $event.target.value)"
-                                        class="flex-1 h-1.5 accent-amber-500 cursor-pointer" />
-                                    <button type="button" @click="ajustarComision(item, idx, 0.5)"
-                                        :disabled="(item.comision_pct_actual || getCanalComisionMax(item)) >= getCanalComisionMax(item)"
-                                        class="w-6 h-6 rounded-full flex items-center justify-center font-semibold text-sm disabled:opacity-40 shrink-0 hover:bg-pastel-ambar-2 transition-colors"
-                                        style="border:1px solid #FCD34D;color:var(--texto-ambar);">+</button>
-                                    <span class="text-xs font-semibold shrink-0 text-right" style="color:var(--texto-ambar);min-width:5.5rem;">
-                                        {{ formatPct(item.comision_pct_actual || getCanalComisionMax(item)) }}% · ${{ formatCOP(comisionActualValor(item)) }}
-                                    </span>
+                                <div v-if="itemTieneComision(item)" class="mt-2">
+                                    <div class="flex items-center gap-2 px-3 py-2 rounded-xl"
+                                        style="background:var(--pastel-ambar);border:1px solid #FCD34D;">
+                                        <span class="text-xs font-medium shrink-0" style="color:var(--texto-ambar);">Com.</span>
+                                        <button type="button" @click="ajustarComision(item, idx, -0.5)"
+                                            :disabled="comisionActualDe(item) <= rangoComisionDe(item).min"
+                                            class="w-6 h-6 rounded-full flex items-center justify-center font-semibold text-sm disabled:opacity-40 shrink-0 hover:bg-pastel-ambar-2 transition-colors"
+                                            style="border:1px solid #FCD34D;color:var(--texto-ambar);">−</button>
+                                        <!-- El valor se vuelve a escribir en el elemento después de mover la barra: si
+                                             el recorte deja el mismo número que ya había, el modelo no cambia, Vue no
+                                             vuelve a dibujar y la barra se queda donde la soltó el dedo, enseñando un
+                                             valor que no es el guardado. -->
+                                        <input type="range"
+                                            :min="rangoComisionDe(item).min"
+                                            :max="rangoComisionDe(item).max"
+                                            :step="0.01"
+                                            :value="comisionActualDe(item)"
+                                            :disabled="! rangoComisionDe(item).hayRango"
+                                            @input="onComisionChange(item, idx, $event.target.value); $event.target.value = comisionActualDe(item)"
+                                            class="flex-1 h-1.5 accent-amber-500 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed" />
+                                        <button type="button" @click="ajustarComision(item, idx, 0.5)"
+                                            :disabled="comisionActualDe(item) >= rangoComisionDe(item).max"
+                                            class="w-6 h-6 rounded-full flex items-center justify-center font-semibold text-sm disabled:opacity-40 shrink-0 hover:bg-pastel-ambar-2 transition-colors"
+                                            style="border:1px solid #FCD34D;color:var(--texto-ambar);">+</button>
+                                        <span class="text-xs font-semibold shrink-0 text-right" style="color:var(--texto-ambar);min-width:5.5rem;">
+                                            {{ formatPct(comisionActualDe(item)) }}% · ${{ formatCOP(comisionActualValor(item)) }}
+                                        </span>
+                                    </div>
+
+                                    <!-- Una barra que no se puede mover tiene que decir por qué. Antes se quedaba
+                                         quieta y el descuento no se llenaba, y eso se lee como que está dañada. -->
+                                    <p v-if="! rangoComisionDe(item).hayRango" class="text-xs text-aviso-ambar mt-1">
+                                        Comisión fija en {{ formatPct(rangoComisionDe(item).max) }}%: el canal
+                                        {{ canalCliente?.etiqueta }} tiene la comisión mínima igual a la máxima en este
+                                        {{ item.tipo === 'ensamble' ? 'ensamble' : 'producto' }}. Cámbialas ahí para poder
+                                        negociarla contra el descuento.
+                                    </p>
+                                    <p v-else-if="! descuentoMaxDisponible(item)" class="text-xs text-aviso-ambar mt-1">
+                                        Sin espacio para descuento: este {{ item.tipo === 'ensamble' ? 'ensamble' : 'producto' }}
+                                        vale lo mismo en {{ canalCliente?.etiqueta }} que en el canal de abajo, así que bajar la
+                                        comisión no le rebaja nada al cliente. Sube su margen para abrir el espacio.
+                                    </p>
                                 </div>
                             </div>
                         </div>

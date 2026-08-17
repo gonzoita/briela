@@ -122,6 +122,26 @@ Distribuidor y Cliente final (Mayorista nunca tiene comisión). El botón
 disponible. La vista previa en pesos de esa pantalla también se corrigió
 para mostrar el valor sobre el excedente, igual que en la cotización.
 
+## La barra de negociar, y las dos veces que no se puede mover
+
+La barra ámbar del ítem mueve la comisión entre el mínimo y el máximo del canal, y **el
+descuento se llena solo**: en el tope de comisión el descuento es cero, en el mínimo es todo
+el que el canal permite. Lo que el vendedor deja de ganar se lo lleva el cliente. Funciona en
+los dos sentidos: escribir el Dto. % mueve la barra.
+
+Hay dos configuraciones en las que no hay nada que negociar, y desde el 17 ago 2026 la
+pantalla lo **dice** en vez de quedarse quieta:
+
+- **La comisión mínima es igual a la máxima** en ese canal. La barra queda apagada y la
+  comisión es fija. Se arregla en el producto o el ensamble, en «Comisión vendedor por canal».
+- **El canal vale lo mismo que el de abajo**, así que su descuento máximo es 0 y bajar la
+  comisión no le rebaja nada al cliente. Se arregla subiéndole el margen a ese canal.
+
+> Antes las dos situaciones se veían igual: la barra no respondía, el Dto. % se quedaba en
+> cero y nada explicaba por qué. Se lee como una pantalla dañada. Además, llevar la barra al
+> mínimo cuando ese mínimo era 0 rebotaba al máximo —un cero se leía como «sin negociar»—, y
+> al guardar se escribía el descuento máximo **y** la comisión máxima a la vez.
+
 ## Cron del servidor (una sola vez)
 
 El comando `cotizaciones:marcar-vencidas` (punto 7 arriba) solo corre si el

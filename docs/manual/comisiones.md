@@ -29,9 +29,25 @@ el producto subió de precio en el medio, el vendedor no ganó más por eso.
 
 ## La escalera entre canales
 
-Al configurar las comisiones de un producto, cada canal debe pagar **al menos** lo que paga el
-anterior. Traer un cliente nuevo cuesta más que atender a uno que ya compra, así que el canal
-de precio público suele llevar la comisión más alta. El sistema avisa si la escalera se rompe y
-tiene un botón que propone un reparto que la respeta.
+Al configurar las comisiones de un producto o un ensamble, cada canal debe pagar **al menos la
+misma plata** que el anterior. La razón no es solo el incentivo: vender un canal con su
+descuento máximo deja exactamente el precio del canal de abajo sin descuento, y la misma venta
+no puede pagar dos comisiones distintas.
+
+Como cada canal cobra su porcentaje **sobre su propio excedente**, los porcentajes de dos
+canales no se comparan crudos: el piso se convierte por la plata. Si Distribuidor tiene 49.000
+de excedente y paga hasta el 50 % —24.500—, un canal con 102.000 de excedente arranca en
+24.500, que sobre 102.000 es 24,02 %.
+
+El sistema avisa si la escalera se rompe y tiene un botón, «Sugerir comisiones», que propone un
+reparto que la respeta: hasta la mitad del excedente para el vendedor, y hasta el 70 % en el
+canal de precio público, porque traer un cliente nuevo cuesta más que atender a uno que ya
+compra. Es una sugerencia: los dos campos quedan editables.
+
+> Hasta el 17 ago 2026 esa sugerencia sacaba el porcentaje que el excedente representa **del
+> precio** —49.000 de 1.375.000 es 3,56 %— y ese porcentaje se cobraba después otra vez sobre el
+> excedente. El vendedor terminaba con 1.137 de los 49.000 que había en juego. Los productos y
+> ensambles configurados antes de esa fecha conservan los porcentajes viejos: hay que volver a
+> pulsar «Sugerir comisiones» o escribirlos a mano.
 
 Ver [Segmentación y precios](./segmentacion-y-precios.md) y [Cotizaciones](./cotizaciones.md).

@@ -28,7 +28,7 @@ const canalesRef = computed(() => props.canales)
 const costoRef   = computed(() => Number(props.precioCosto) || 0)
 
 const {
-    canalBase, canalesConComision, excedenteDe, minimoExigido,
+    canalBase, canalesConComision, excedenteDe, minimoExigido, pisoComisionValor,
     errorEscalera, descuentoMaxDe, sugerirComisiones,
 } = usePreciosPorCanal(canalesRef, costoRef)
 
@@ -143,9 +143,10 @@ const formatCOP = (v) =>
                 <div class="grid grid-cols-2 gap-3">
                     <div>
                         <label class="text-xs text-tinta-400 mb-1 block">
-                            Comisión mínima (%)
+                            Comisión mínima (% del excedente)
                             <span v-if="minimoExigido(i) > 0" class="text-aviso-naranja ml-1">
-                                ← mín = máx {{ canalesConComision[i - 1].etiqueta }} ({{ minimoExigido(i) }}%)
+                                ← no baja de {{ minimoExigido(i) }}%: es lo que ya paga
+                                {{ canalesConComision[i - 1].etiqueta }} ({{ formatCOP(pisoComisionValor(i)) }})
                             </span>
                         </label>
                         <div class="flex items-center gap-2">
@@ -156,7 +157,7 @@ const formatCOP = (v) =>
                         </div>
                     </div>
                     <div>
-                        <label class="text-xs text-tinta-400 mb-1 block">Comisión máxima (%)</label>
+                        <label class="text-xs text-tinta-400 mb-1 block">Comisión máxima (% del excedente)</label>
                         <div class="flex items-center gap-2">
                             <input type="number" step="0.01" :min="canal.comision_min_pct" v-model.number="canal.comision_max_pct"
                                 class="w-24 border border-tinta-200 rounded-lg px-2 py-1.5 text-sm focus:ring-2 focus:ring-[var(--marca-suave)] focus:outline-none" />
@@ -166,14 +167,17 @@ const formatCOP = (v) =>
                 </div>
 
                 <p v-if="errorEscalera(i)" class="text-xs text-aviso-rojo">
-                    La comisión mínima debe ser mayor o igual a la máxima de
-                    {{ canalesConComision[i - 1].etiqueta }} ({{ minimoExigido(i) }}%): mientras más lejos del
-                    canal base, más incentivo para el vendedor.
+                    La comisión mínima no puede bajar de {{ minimoExigido(i) }}%: vender
+                    {{ canal.etiqueta }} con su descuento máximo deja el mismo precio que vender
+                    {{ canalesConComision[i - 1].etiqueta }} sin descuento, y tiene que pagar lo mismo
+                    ({{ formatCOP(pisoComisionValor(i)) }}).
                 </p>
-                <p v-else-if="canal.comision_min_pct > 0 && canal.comision_max_pct > 0"
+                <p v-else-if="canal.comision_max_pct > 0"
                     class="text-xs" :style="`color:${canal.color};`">
-                    El vendedor gana entre {{ formatCOP(excedenteDe(canal) * canal.comision_min_pct / 100) }}
-                    y {{ formatCOP(excedenteDe(canal) * canal.comision_max_pct / 100) }}
+                    De los {{ formatCOP(excedenteDe(canal)) }} de excedente, el vendedor gana entre
+                    {{ formatCOP(excedenteDe(canal) * canal.comision_min_pct / 100) }} y
+                    {{ formatCOP(excedenteDe(canal) * canal.comision_max_pct / 100) }};
+                    el resto se queda en la empresa.
                 </p>
             </div>
         </div>
