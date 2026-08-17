@@ -58,7 +58,7 @@ class EnsambleController extends Controller
     public function create(): Response
     {
         return Inertia::render('Ensambles/Create', [
-            'plantillas' => PlantillaEnsamble::with(['campos', 'componentes'])
+            'plantillas' => PlantillaEnsamble::with(['campos', 'componentes', 'templateTrabajo.pasos'])
                 ->where('activo', true)
                 ->orderBy('nombre')
                 ->get(),
@@ -102,7 +102,7 @@ class EnsambleController extends Controller
         $base['nombre'] = mb_substr($ensamble->nombre.' (copia)', 0, 150);
 
         return Inertia::render('Ensambles/Create', [
-            'plantillas' => PlantillaEnsamble::with(['campos', 'componentes'])
+            'plantillas' => PlantillaEnsamble::with(['campos', 'componentes', 'templateTrabajo.pasos'])
                 ->where('activo', true)
                 ->orderBy('nombre')
                 ->get(),
@@ -112,6 +112,8 @@ class EnsambleController extends Controller
             'canales'    => app(\App\Services\PreciosPorCanalService::class)->paraFormulario($ensamble),
             'base'       => $base,
             'origen'     => ['id' => $ensamble->id, 'nombre' => $ensamble->nombre],
+            // El flujo de produccion tambien se copia: un ensamble parecido se fabrica igual.
+            'pasos_trabajo' => $this->pasosTrabajoDe($ensamble),
         ]);
     }
 
@@ -173,6 +175,20 @@ class EnsambleController extends Controller
             'descuento_max_cliente_final' => 'nullable|numeric|min:0|max:100',
             'descuento_max_distribuidor'  => 'nullable|numeric|min:0|max:100',
             'descuento_max_mayorista'     => 'nullable|numeric|min:0|max:100',
+            // El flujo de produccion es obligatorio: un ensamble sin pasos llega a la OP
+            // como un trabajo vacio, sin nada que el operario pueda marcar.
+            'pasos_trabajo'                     => 'required|array|min:1',
+            'pasos_trabajo.*.nombre'            => 'required|string|max:150',
+            'pasos_trabajo.*.objetivo'          => 'nullable|string|max:255',
+            'pasos_trabajo.*.descripcion'       => 'nullable|string|max:2000',
+            'pasos_trabajo.*.peso_porcentaje'   => 'nullable|numeric|min:0|max:100',
+            'pasos_trabajo.*.orden'             => 'nullable|integer|min:0',
+            'pasos_trabajo.*.nivel_dificultad'  => 'nullable|integer|min:1|max:5',
+            'pasos_trabajo.*.depende_de'        => 'nullable|array',
+            'pasos_trabajo.*.es_paso_final'     => 'nullable|boolean',
+            'pasos_trabajo.*.bodega_destino_id' => 'nullable|exists:bodegas,id',
+            'pasos_trabajo.*.imagen'            => 'nullable|string|max:255',
+            'pasos_trabajo.*.archivo_plano'     => 'nullable|string|max:255',
         ]);
 
         $esDirecto = $request->input('tipo_armado', 'plantilla') === 'directo';
@@ -224,6 +240,7 @@ class EnsambleController extends Controller
         ]);
 
         $this->guardarCanales($request, $ensamble);
+        $this->guardarPasosTrabajo($ensamble, $request->input('pasos_trabajo', []));
         $this->guardarImagenes($request, $ensamble);
         // Si se guarda en bodega, nace su producto terminado y con él todo el inventario.
         $ensamble->sincronizarProductoTerminado();
@@ -327,13 +344,136 @@ class EnsambleController extends Controller
 
         return Inertia::render('Ensambles/Create', [
             'ensamble'   => $ensamble,
-            'plantillas' => PlantillaEnsamble::with(['campos', 'componentes'])
+            // El flujo de produccion que ya tiene, para poder verlo y cambiarlo aqui mismo.
+            'pasos_trabajo' => $this->pasosTrabajoDe($ensamble),
+            'plantillas' => PlantillaEnsamble::with(['campos', 'componentes', 'templateTrabajo.pasos'])
                 ->where('activo', true)
                 ->orderBy('nombre')
                 ->get(),
             'categorias' => CategoriaProducto::orderBy('nombre')->get(['id', 'nombre', 'color']),
             'canales'    => app(\App\Services\PreciosPorCanalService::class)->paraFormulario($ensamble),
         ]);
+    }
+
+    /**
+     * Los pasos de produccion que le corresponden a un ensamble.
+     *
+     * Directo: los suyos. Con plantilla: los de la plantilla, que comparten todos los
+     * ensambles que la usan. Se leen sin crear nada — abrir una ficha no debe escribir.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    private function pasosTrabajoDe(Ensamble $ensamble): array
+    {
+        $template = $ensamble->esDirecto()
+            ? $ensamble->templateTrabajo
+            : $ensamble->plantilla?->templateTrabajo;
+
+        return $template
+            ? $template->pasos()->orderBy('orden')->get()->toArray()
+            : [];
+    }
+
+    /**
+     * Guarda el flujo de produccion del ensamble.
+     *
+     * Antes un ensamble se podia guardar sin ninguno. El servidor le inventaba un paso unico
+     * la primera vez que una OP lo necesitaba —y solo si era directo—: los de plantilla
+     * llegaban a produccion con el trabajo vacio, sin nada que el operario pudiera marcar y
+     * con la OP quieta en «confirmada» sin explicacion. Ahora la ficha los exige.
+     *
+     * Solo escribe si algo cambio. `sincronizarPasos()` borra y recrea las filas, y cada
+     * recreacion deja en null el `template_paso_id` de los trabajos que esten en curso: no
+     * pierden sus pasos —cada uno guarda su copia— pero si el hilo con la plantilla.
+     */
+    private function guardarPasosTrabajo(Ensamble $ensamble, array $pasos): void
+    {
+        $pasos = array_values(array_filter($pasos, fn ($p) => trim((string) ($p['nombre'] ?? '')) !== ''));
+
+        if ($pasos === []) {
+            return;
+        }
+
+        $template = $ensamble->esDirecto()
+            ? $ensamble->obtenerOCrearTemplateTrabajo()
+            : $ensamble->plantilla?->obtenerOCrearTemplateTrabajo();
+
+        if (! $template) {
+            return;
+        }
+
+        $pasos = $this->normalizarPasos($pasos);
+
+        if ($this->mismosPasos($template, $pasos)) {
+            return;
+        }
+
+        $template->sincronizarPasos($pasos);
+    }
+
+    /**
+     * Ordena la lista y deja un unico paso final.
+     *
+     * El paso final es el que entrega la unidad a bodega: `EntregaAlmacenService` descuenta
+     * los materiales y registra el producto terminado al cerrarlo. Con dos marcados la
+     * entrega se haria dos veces, y con ninguno no se haria nunca.
+     *
+     * @param  array<int, array<string, mixed>>  $pasos
+     * @return array<int, array<string, mixed>>
+     */
+    private function normalizarPasos(array $pasos): array
+    {
+        $final = null;
+
+        foreach ($pasos as $i => $paso) {
+            if (filter_var($paso['es_paso_final'] ?? false, FILTER_VALIDATE_BOOLEAN)) {
+                $final = $i;
+            }
+        }
+
+        $final ??= count($pasos) - 1;
+
+        foreach ($pasos as $i => $paso) {
+            $pasos[$i]['orden']           = $i;
+            $pasos[$i]['peso_porcentaje'] = (float) ($paso['peso_porcentaje'] ?? 0);
+            $pasos[$i]['es_paso_final']   = $i === $final;
+        }
+
+        return $pasos;
+    }
+
+    /**
+     * Si la lista que llega dice lo mismo que la guardada.
+     *
+     * @param  array<int, array<string, mixed>>  $pasos
+     */
+    private function mismosPasos(\App\Models\TemplateTrabajo $template, array $pasos): bool
+    {
+        $guardados = $template->pasos()->orderBy('orden')->get();
+
+        if ($guardados->count() !== count($pasos)) {
+            return false;
+        }
+
+        foreach ($guardados as $i => $g) {
+            $p = $pasos[$i];
+
+            $igual = $g->nombre === ($p['nombre'] ?? null)
+                && (string) $g->descripcion === (string) ($p['descripcion'] ?? '')
+                && (string) $g->objetivo === (string) ($p['objetivo'] ?? '')
+                && abs((float) $g->peso_porcentaje - (float) ($p['peso_porcentaje'] ?? 0)) < 0.01
+                && (bool) $g->es_paso_final === (bool) ($p['es_paso_final'] ?? false)
+                && (int) $g->nivel_dificultad === (int) ($p['nivel_dificultad'] ?? 1)
+                && $g->bodega_destino_id == ($p['bodega_destino_id'] ?? null)
+                && (string) $g->imagen === (string) ($p['imagen'] ?? '')
+                && (string) $g->archivo_plano === (string) ($p['archivo_plano'] ?? '');
+
+            if (! $igual) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**
@@ -370,7 +510,7 @@ class EnsambleController extends Controller
      */
     private function desempacar(Request $request): void
     {
-        foreach (['variables', 'lineas', 'canales'] as $campo) {
+        foreach (['variables', 'lineas', 'canales', 'pasos_trabajo'] as $campo) {
             $valor = $request->input($campo);
 
             if (is_string($valor)) {
@@ -459,6 +599,20 @@ class EnsambleController extends Controller
             'descuento_max_cliente_final' => 'nullable|numeric|min:0|max:100',
             'descuento_max_distribuidor'  => 'nullable|numeric|min:0|max:100',
             'descuento_max_mayorista'     => 'nullable|numeric|min:0|max:100',
+            // El flujo de produccion es obligatorio: un ensamble sin pasos llega a la OP
+            // como un trabajo vacio, sin nada que el operario pueda marcar.
+            'pasos_trabajo'                     => 'required|array|min:1',
+            'pasos_trabajo.*.nombre'            => 'required|string|max:150',
+            'pasos_trabajo.*.objetivo'          => 'nullable|string|max:255',
+            'pasos_trabajo.*.descripcion'       => 'nullable|string|max:2000',
+            'pasos_trabajo.*.peso_porcentaje'   => 'nullable|numeric|min:0|max:100',
+            'pasos_trabajo.*.orden'             => 'nullable|integer|min:0',
+            'pasos_trabajo.*.nivel_dificultad'  => 'nullable|integer|min:1|max:5',
+            'pasos_trabajo.*.depende_de'        => 'nullable|array',
+            'pasos_trabajo.*.es_paso_final'     => 'nullable|boolean',
+            'pasos_trabajo.*.bodega_destino_id' => 'nullable|exists:bodegas,id',
+            'pasos_trabajo.*.imagen'            => 'nullable|string|max:255',
+            'pasos_trabajo.*.archivo_plano'     => 'nullable|string|max:255',
         ]);
 
         if ($ensamble->esDirecto()) {
@@ -503,6 +657,7 @@ class EnsambleController extends Controller
         ]);
 
         $this->guardarCanales($request, $ensamble);
+        $this->guardarPasosTrabajo($ensamble, $request->input('pasos_trabajo', []));
         $ensamble->sincronizarProductoTerminado();
 
         return redirect("/ensambles/{$ensamble->id}")->with('success', 'Ensamble actualizado.');

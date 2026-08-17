@@ -27,16 +27,33 @@ por cada unidad de la cantidad pedida. Nadie tiene que acordarse de nada.
 Si la plantilla todavía no tiene pasos cargados, el trabajo se crea igual, vacío.
 Prefiere quedar disponible a no existir.
 
-### Un ensamble directo trae su propio flujo
+### El flujo se define en la ficha del ensamble, y es obligatorio
 
-Un **ensamble directo** (sin plantilla, ver
-[Plantillas de Ensamble](./plantillas-ensamble.md)) tiene los pasos colgados de él
-mismo. Nace con un paso único que pesa el 100% —«Fabricación»— para que el operario
-pueda escanear su QR y la OP avance sola hasta calidad. Se editan como cualquier
-otro flujo en `/produccion/templates`, donde aparece con el nombre del ensamble.
+La ficha del ensamble tiene la sección **«Cómo se fabrica»**, y no deja guardar sin
+al menos un paso. Arranca con uno ya escrito —«Fabricación», 100 %, final—, así que
+cumplir el requisito no cuesta nada, y quien quiera detallar la producción parte de
+ahí: agrega pasos, los ordena, reparte los pesos y marca cuál es el final.
 
-Sin esto, una OP con un ensamble directo nacía con **cero trabajos**: sin QR, sin
-avance, y quieta en `confirmada` sin nada que explicara por qué.
+**De quién son los pasos** depende de cómo se arma el ensamble:
+
+- **Directo** (sin plantilla): los pasos son suyos y no los comparte con nadie.
+- **Con plantilla**: los pasos son **de la plantilla**, y los comparten todos los
+  ensambles que la usan. La ficha lo advierte en ámbar antes de que alguien los
+  cambie creyendo que toca uno solo.
+
+Se pueden editar también en `/produccion/templates`, donde el flujo de un ensamble
+directo aparece con el nombre del ensamble.
+
+> Hasta el 17 ago 2026 nada obligaba a tenerlos. El servidor le inventaba un paso
+> único al ensamble directo la primera vez que una OP lo necesitaba, y los de
+> plantilla llegaban a producción con el **trabajo vacío**: el operario escaneaba su
+> QR y no tenía nada que marcar, el avance se quedaba en cero y la OP quieta en
+> `confirmada` sin nada que lo explicara.
+
+Guardar la ficha **no reescribe los pasos si no cambiaron**. Reescribirlos borra y
+recrea las filas, y eso deja sin referencia a la plantilla los trabajos que estén en
+curso —no pierden sus pasos, cada uno guarda su copia—, así que cambiarle el precio a
+un ensamble no puede arrastrar eso.
 
 ### Las descripciones se rellenan con las medidas
 

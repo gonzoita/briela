@@ -8,12 +8,16 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 /**
- * El cotizador decide el precio (y con él la comisión del vendedor) mirando el
- * `tipos_contacto` del cliente contra los textos «mayorista» y «distribuidor».
+ * Qué canal de precio se puede borrar desde Listas de segmentación.
  *
- * Si alguien borrara esas opciones desde Listas de segmentación, los clientes
- * que las tuvieran pasarían a cotizarse como cliente final sin ningún aviso.
- * Estas pruebas fijan el candado.
+ * El sistema necesita saber cuál es el **canal base** —el piso de utilidad contra el que se
+ * calcula la comisión— y cuál es el **precio público**, que es el que ve un desconocido. Esos
+ * dos están atados; los demás son de la empresa y se borran cuando quiera.
+ *
+ * Estas pruebas se escribieron cuando el canal se decidía comparando los textos «mayorista» y
+ * «distribuidor», y por eso fallaban desde que los canales son configurables: creaban la
+ * opción sin ninguna marca y esperaban que el candado igual la protegiera. El candado mira el
+ * papel, no el nombre — ver `SegmentacionOpcion::getAtadaAPreciosAttribute()`.
  */
 class SegmentacionCanalPrecioTest extends TestCase
 {
@@ -24,12 +28,31 @@ class SegmentacionCanalPrecioTest extends TestCase
         return User::factory()->create(['rol' => 'administrador']);
     }
 
-    public function test_no_se_puede_borrar_una_opcion_que_define_el_precio(): void
+    public function test_no_se_puede_borrar_el_canal_base(): void
     {
         $opcion = SegmentacionOpcion::create([
-            'tipo'     => 'tipo_contacto',
-            'valor'    => 'mayorista',
-            'etiqueta' => 'Mayorista',
+            'tipo'          => 'tipo_contacto',
+            'valor'         => 'mayorista',
+            'etiqueta'      => 'Mayorista',
+            'define_precio' => true,
+            'es_canal_base' => true,
+        ]);
+
+        $this->actingAs($this->admin())
+            ->deleteJson("/api/segmentacion-opciones/{$opcion->id}")
+            ->assertStatus(422);
+
+        $this->assertDatabaseHas('segmentacion_opciones', ['id' => $opcion->id]);
+    }
+
+    public function test_tampoco_se_puede_borrar_el_precio_publico(): void
+    {
+        $opcion = SegmentacionOpcion::create([
+            'tipo'              => 'tipo_contacto',
+            'valor'             => 'cliente_directo',
+            'etiqueta'          => 'Cliente directo',
+            'define_precio'     => true,
+            'es_precio_publico' => true,
         ]);
 
         $this->actingAs($this->admin())
@@ -56,11 +79,13 @@ class SegmentacionCanalPrecioTest extends TestCase
 
     public function test_el_mismo_valor_en_otro_tipo_no_queda_bloqueado(): void
     {
-        // «mayorista» solo manda sobre el precio cuando es un tipo de contacto.
+        // El papel de canal solo existe entre los tipos de contacto: una industria llamada
+        // «Mayorista» no tiene nada que ver con el precio.
         $opcion = SegmentacionOpcion::create([
-            'tipo'     => 'industria',
-            'valor'    => 'mayorista',
-            'etiqueta' => 'Mayorista',
+            'tipo'          => 'industria',
+            'valor'         => 'mayorista',
+            'etiqueta'      => 'Mayorista',
+            'es_canal_base' => true,
         ]);
 
         $this->actingAs($this->admin())
@@ -71,9 +96,11 @@ class SegmentacionCanalPrecioTest extends TestCase
     public function test_la_pantalla_recibe_la_marca_de_atada_a_precios(): void
     {
         SegmentacionOpcion::create([
-            'tipo'     => 'tipo_contacto',
-            'valor'    => 'distribuidor',
-            'etiqueta' => 'Distribuidor',
+            'tipo'          => 'tipo_contacto',
+            'valor'         => 'distribuidor',
+            'etiqueta'      => 'Distribuidor',
+            'define_precio' => true,
+            'es_canal_base' => true,
         ]);
 
         $respuesta = $this->actingAs($this->admin())

@@ -277,6 +277,17 @@ class Ensamble extends Model
     }
 
     /**
+     * El flujo de producción propio, que solo tienen los ensambles directos.
+     *
+     * Los de plantilla lo heredan de ella —ver `PlantillaEnsamble::templateTrabajo()`—, y por
+     * eso lo comparten todos los ensambles que usan esa plantilla.
+     */
+    public function templateTrabajo(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(\App\Models\TemplateTrabajo::class, 'ensamble_id');
+    }
+
+    /**
      * El flujo de producción propio de un ensamble directo, creándolo si no existe.
      *
      * En un ensamble con plantilla, los pasos cuelgan de la plantilla —una por producto que

@@ -8,6 +8,7 @@ import EditorTexto from '@/Components/EditorTexto.vue'
 import GeneradorFichaIa from '@/Components/GeneradorFichaIa.vue'
 import PreciosPorCanal from '@/Components/PreciosPorCanal.vue'
 import LineasEnsambleDirecto from '@/Components/LineasEnsambleDirecto.vue'
+import PasosProduccion from '@/Components/PasosProduccion.vue'
 import SelectorUnidad from '@/Components/SelectorUnidad.vue'
 import { usePreciosPorCanal } from '@/composables/usePreciosPorCanal'
 import { colorMarca } from '@/marca'
@@ -24,6 +25,8 @@ const props = defineProps({
     // crear, así que todo se lee de `inicial` y `esEdicion` sigue siendo «tiene id».
     base:       { type: Object, default: null },
     origen:     { type: Object, default: null },
+    // El flujo de producción que ya tiene: el suyo si es directo, el de su plantilla si no.
+    pasos_trabajo: { type: Array, default: () => [] },
 })
 
 const esEdicion = computed(() => !!props.ensamble)
@@ -83,6 +86,7 @@ const costoDeLineas = computed(() =>
 // El costo de un ensamble directo es la suma de su receta, y tiene que llegar al
 // componente de precios para que los márgenes calculen sobre algo.
 watch(costoDeLineas, (v) => { if (esDirecto.value) totalCosto.value = v })
+
 
 // ── Precios por canal ─────────────────────────────────────────────────────────
 const canales = ref((props.canales ?? []).map(c => ({ ...c })))
@@ -293,7 +297,48 @@ watch(plantillaId, (nuevoId) => {
 
     componentes.value = []
     calculado.value   = false
+
+    // Los pasos de producción de un ensamble con plantilla son los de la plantilla. Al
+    // cambiarla se traen los suyos; si esa plantilla todavía no tiene ninguno, se deja el
+    // paso por omisión para que el ensamble no nazca sin flujo.
+    if (! esDirecto.value) {
+        const suyos = plantilla.template_trabajo?.pasos ?? []
+
+        pasosTrabajo.value = suyos.length ? suyos.map(p => ({ ...p })) : [pasoPorOmision()]
+    }
 })
+
+// ── Cómo se fabrica ───────────────────────────────────────────────────────────
+//
+// Un ensamble se podía guardar sin flujo de producción, y entonces su OP nacía con el trabajo
+// vacío: el operario escaneaba el QR y no tenía nada que marcar, el avance se quedaba en cero
+// y la orden quieta en «confirmada» sin que nada lo explicara. Ahora la ficha lo exige.
+//
+// Para que exigirlo no cueste nada, arranca con el mismo paso único que el servidor creaba
+// solo —«Fabricación», 100 %, final—: quien no quiera detallar la producción guarda y ya.
+function pasoPorOmision() {
+    return {
+        nombre:            'Fabricación',
+        descripcion:       'Armar el ensamble con los componentes de su lista de materiales.',
+        peso_porcentaje:   100,
+        orden:             0,
+        nivel_dificultad:  2,
+        depende_de:        [],
+        es_paso_final:     true,
+        bodega_destino_id: null,
+    }
+}
+
+const pasosTrabajo = ref(
+    (props.pasos_trabajo ?? []).length
+        ? props.pasos_trabajo.map(p => ({ ...p }))
+        : [pasoPorOmision()]
+)
+
+/** Con plantilla, los pasos son de la plantilla y los comparten todos sus ensambles. */
+const pasosCompartidos = computed(() => ! esDirecto.value && !! plantillaSeleccionada.value)
+
+const hayPasos = computed(() => pasosTrabajo.value.some(p => (p.nombre ?? '').trim()))
 
 function onNombreInput() { nombreEditadoManualmente.value = true }
 
@@ -379,6 +424,11 @@ async function guardar() {
             return
         }
     }
+    // Sin pasos, la OP nace con un trabajo vacío y se queda quieta sin explicar por qué.
+    if (! hayPasos.value) {
+        errorMsg.value = 'Escribe al menos un paso de producción en «Cómo se fabrica»: sin pasos, el operario no tiene nada que marcar y la orden nunca avanza.'
+        return
+    }
     // La escalera de comisiones se valida sobre la lista de canales, no sobre dos nombres
     // fijos: la empresa puede tener cuatro.
     if (hayErrorDeEscalera.value) {
@@ -408,6 +458,10 @@ async function guardar() {
         variables:           esDirecto.value ? {} : { ...variables },
         lineas:              esDirecto.value ? lineas.value : [],
         canales:             canales.value,
+        // Los pasos viajan enteros, con los campos que esta pantalla no muestra —objetivo,
+        // dificultad, dependencias, imagen, plano—: el servidor borra y reescribe la lista, y
+        // si aquí se perdieran, guardar el precio de un ensamble borraría el plano de un paso.
+        pasos_trabajo:       pasosTrabajo.value.filter(p => (p.nombre ?? '').trim()),
         precio_costo:                  totalCosto.value,
         margen_aplicado:               margenDefault,
         categoria_id:                  categoriaId.value || null,
@@ -438,10 +492,11 @@ async function guardar() {
     if (imagenesNuevas.value.length) {
         router.post('/ensambles', {
             ...payload,
-            variables: JSON.stringify(payload.variables),
-            lineas:    JSON.stringify(payload.lineas),
-            canales:   JSON.stringify(payload.canales),
-            imagenes:  imagenesNuevas.value.map(i => i.file),
+            variables:     JSON.stringify(payload.variables),
+            lineas:        JSON.stringify(payload.lineas),
+            canales:       JSON.stringify(payload.canales),
+            pasos_trabajo: JSON.stringify(payload.pasos_trabajo),
+            imagenes:      imagenesNuevas.value.map(i => i.file),
         }, { forceFormData: true, onError })
 
         return
@@ -452,8 +507,11 @@ async function guardar() {
 
 const formatCOP = (v) => new Intl.NumberFormat('es-CO', { maximumFractionDigits: 0 }).format(v ?? 0)
 
-// Un ensamble con plantilla necesita el cálculo hecho; uno directo, su receta escrita.
-const puedeGuardar = computed(() => (esDirecto.value ? lineas.value.length > 0 : calculado.value))
+// Un ensamble con plantilla necesita el cálculo hecho; uno directo, su receta escrita. Y los
+// dos necesitan su flujo de producción: sin pasos no hay nada que fabricar.
+const puedeGuardar = computed(() =>
+    (esDirecto.value ? lineas.value.length > 0 : calculado.value) && hayPasos.value
+)
 
 onMounted(() => {
     setOriginal({ plantillaId: plantillaId.value, nombre: nombre.value, variables: { ...variables } })
@@ -862,6 +920,18 @@ onMounted(() => {
                     </table>
                 </div>
 
+            </div>
+
+            <!-- ── Cómo se fabrica ─────────────────────────────────────────── -->
+            <!-- Obligatorio: un ensamble sin pasos llega a la OP como un trabajo vacío, sin
+                 nada que el operario pueda marcar y sin avance que mostrar. -->
+            <div v-if="esDirecto || plantillaSeleccionada" class="bg-superficie rounded-2xl shadow-sm p-5 mb-4">
+                <PasosProduccion
+                    :pasos="pasosTrabajo"
+                    :compartidos="pasosCompartidos"
+                    :nombre-plantilla="plantillaSeleccionada?.nombre ?? ''">
+                    <template #titulo>{{ esDirecto ? '4' : '5' }}. Cómo se fabrica</template>
+                </PasosProduccion>
             </div>
 
             <!-- ═══ Precios y comisiones por canal ════════════════════ -->

@@ -138,6 +138,12 @@ Un ensamble es un producto concreto salido de una receta. Dos formas de armarlo:
 El directo admite materiales del inventario —que descuentan al fabricar— y **conceptos
 libres** como mano de obra o transporte, que suman al costo y no descuentan nada.
 
+**«Cómo se fabrica» es obligatorio.** La ficha pide los pasos que el operario va a marcar, y no
+deja guardar sin al menos uno. Arranca con un paso «Fabricación» al 100 % ya escrito, así que
+detallarlos es opcional pero tenerlos no. En un ensamble directo los pasos son suyos; en uno con
+plantilla son **de la plantilla**, y los comparten todos los ensambles que la usan — la pantalla
+lo advierte antes de que alguien los cambie sin saberlo.
+
 Un ensamble tiene referencia, unidad de medida, precios por canal, ficha con IA, publicación
 web y duplicado, **igual que un producto**.
 

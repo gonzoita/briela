@@ -40,7 +40,12 @@ class EnsambleDirectoService
 
         return collect($lineas)
             ->map(function (array $linea) use ($productos) {
-                $producto = $linea['producto_id'] ? $productos->get((int) $linea['producto_id']) : null;
+                // Con `??`: la validación acepta que la línea llegue sin `producto_id` —es
+                // `nullable`— y leerla a secas reventaba con un 500 en vez de guardar el
+                // concepto libre. La pantalla siempre manda la clave; otro cliente, no.
+                $producto = ($linea['producto_id'] ?? null)
+                    ? $productos->get((int) $linea['producto_id'])
+                    : null;
                 $cantidad = round((float) ($linea['cantidad'] ?? 0), 6);
 
                 // El precio unitario se guarda congelado, no se lee del producto al cotizar:
