@@ -935,7 +935,10 @@ onMounted(() => {
             <!-- ── Cómo se fabrica ─────────────────────────────────────────── -->
             <!-- Obligatorio: un ensamble sin pasos llega a la OP como un trabajo vacío, sin
                  nada que el operario pueda marcar y sin avance que mostrar. -->
-            <div v-if="esDirecto || plantillaSeleccionada" class="bg-superficie rounded-2xl shadow-sm p-5 mb-4">
+            <div class="bg-superficie rounded-2xl shadow-sm p-5 mb-4">
+                <p v-if="! esDirecto && ! plantillaSeleccionada" class="text-xs text-aviso-ambar mb-3">
+                    Elige primero la plantilla: los pasos son de ella y los comparten todos sus ensambles.
+                </p>
                 <PasosProduccion
                     :pasos="pasosTrabajo"
                     :compartidos="pasosCompartidos"
@@ -945,7 +948,10 @@ onMounted(() => {
             </div>
 
             <!-- ── Revisión de calidad ─────────────────────────────────────── -->
-            <div v-if="esDirecto || plantillaSeleccionada" class="bg-superficie rounded-2xl shadow-sm p-5 mb-4">
+            <div class="bg-superficie rounded-2xl shadow-sm p-5 mb-4">
+                <p v-if="! esDirecto && ! plantillaSeleccionada" class="text-xs text-aviso-ambar mb-3">
+                    Elige primero la plantilla: la lista de revisión es de ella.
+                </p>
                 <ChecksCalidad
                     :checks="checksCalidad"
                     :compartidos="pasosCompartidos"

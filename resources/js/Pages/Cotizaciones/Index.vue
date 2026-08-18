@@ -212,6 +212,10 @@ const chartPoints = computed(() => {
                 </div>
             </div>
 
+                <!-- Los gráficos que la empresa arma para este tablero. Van aquí arriba, con el
+                     resto del tablero: al final de la lista nadie baja a buscarlos. -->
+                <GraficosPersonalizados modulo="cotizaciones" :puede-gestionar="$page.props.auth?.permisosLista?.includes('graficos.gestionar') ?? false" />
+
             <!-- Filtros -->
             <div class="bg-superficie rounded-xl border border-linea p-4 mb-5">
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
@@ -377,8 +381,6 @@ const chartPoints = computed(() => {
             </div>
 
         </div>
-            <!-- Los graficos que la empresa arma para este tablero. -->
-            <GraficosPersonalizados modulo="cotizaciones" :puede-gestionar="$page.props.auth?.permisosLista?.includes('graficos.gestionar') ?? false" />
 
     </AppLayout>
 </template>
