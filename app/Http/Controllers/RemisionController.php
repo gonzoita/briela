@@ -343,12 +343,16 @@ class RemisionController extends Controller
      */
     private function itemsRemisionables($q)
     {
-        return $q->where(function ($q) {
-            $q->whereHas('trabajos', fn ($t) => $t->where('porcentaje_avance', 100)->where('remisionado', false))
-              ->orWhere(fn ($q2) => $q2->doesntHave('trabajos')
-                  ->where('estado_item', 'terminado')
-                  ->whereRaw('COALESCE(cantidad_remisionada, 0) < cantidad'));
-        });
+        return $q
+            // Un servicio se alista —alguien declara que está hecho— pero no viaja: no hay
+            // nada que cargar en el camión, y ofrecerlo en la remisión solo confunde.
+            ->whereNotIn('tipo', ['texto_libre', 'servicio'])
+            ->where(function ($q) {
+                $q->whereHas('trabajos', fn ($t) => $t->where('porcentaje_avance', 100)->where('remisionado', false))
+                  ->orWhere(fn ($q2) => $q2->doesntHave('trabajos')
+                      ->where('estado_item', 'terminado')
+                      ->whereRaw('COALESCE(cantidad_remisionada, 0) < cantidad'));
+            });
     }
 
     // ─── Búsqueda de OPs para el formulario ───────────────────────────────────

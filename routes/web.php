@@ -204,6 +204,14 @@ Route::middleware('auth')->group(function () {
         Route::get('ops/{op}/items/{item}/pdf',          [OpController::class, 'generarPdfItem'])->name('ops.pdf.item');
         Route::get('ops/{op}/etiqueta/{item}',           [OpController::class, 'generarEtiqueta'])->name('ops.etiqueta');
         Route::patch('ops/{op}/items/{item}/componentes/{componente}', [OpComponenteController::class, 'update'])->name('ops.items.componentes.update');
+        // ─── Alistamiento ────────────────────────────────────────────────────
+        // Lo que el almacenista deja listo para despachar, sin entrar orden por orden.
+        Route::middleware('permiso:alistamiento.ver')->group(function () {
+            Route::get('/alistamiento', [\App\Http\Controllers\AlistamientoController::class, 'index'])->name('alistamiento.index');
+            Route::patch('/alistamiento/{item}', [\App\Http\Controllers\AlistamientoController::class, 'alternar'])
+                ->middleware('permiso:alistamiento.alistar')->name('alistamiento.alternar');
+        });
+
         Route::patch('ops/{op}/items/{item}/terminar', [OpController::class, 'marcarTerminado'])->middleware('permiso:ops.editar')->name('ops.items.terminar');
     });
 

@@ -29,6 +29,9 @@ class Permisos
             'Producción' => [
                 'ops'         => ['label' => 'Órdenes de Producción', 'acciones' => ['ver', 'crear', 'editar', 'eliminar', 'calidad']],
                 'trabajos'    => ['label' => 'Trabajos',              'acciones' => ['ver', 'editar']],
+                // El almacenista alista sin tener que entrar a cada orden: ver la lista es
+                // una cosa y marcar alistado es otra, porque de eso depende qué se despacha.
+                'alistamiento'=> ['label' => 'Alistamiento',           'acciones' => ['ver', 'alistar']],
                 'programador' => ['label' => 'Programador',           'acciones' => ['ver', 'editar']],
             ],
             'Inventario y Compras' => [
@@ -122,6 +125,7 @@ class Permisos
                 'crm'           => ['ver', 'crear', 'editar'],
                 'cotizaciones'  => ['ver', 'crear', 'editar'],
                 'ops'           => ['ver', 'crear', 'editar', 'calidad'],
+                'alistamiento'  => ['ver', 'alistar'],
                 'trabajos'      => ['ver', 'editar'],
                 'programador'   => ['ver', 'editar'],
                 'productos'     => ['ver', 'crear', 'editar'],
@@ -145,6 +149,7 @@ class Permisos
                 'cotizaciones' => ['ver', 'crear', 'editar'],
                 'comisiones'   => ['ver'],
                 'ops'          => ['ver', 'crear'],
+                'alistamiento' => ['ver', 'alistar'],
                 'productos'    => ['ver'],
                 'ensambles'    => ['ver'],
                 'solicitudes'  => ['ver', 'crear', 'editar'],

@@ -125,7 +125,8 @@ const navItems = computed(() => {
         ]},
         { label: 'Producción', items: [
             { label: 'Órdenes de Producción', href: '/produccion/ops',         icon: 'clipboard', permiso: 'ops.ver' },
-            { label: 'Programador',           href: '/produccion/programador', icon: 'calendar',  permiso: 'programador.ver' },
+            { label: 'Alistamiento',          href: '/produccion/alistamiento', icon: 'clipboard', permiso: 'alistamiento.ver', sub: true },
+            { label: 'Programador',           href: '/produccion/programador', icon: 'calendar',  permiso: 'programador.ver', sub: true },
             { label: 'Trabajos',              href: '/trabajos',               icon: 'trabajos',  permiso: 'trabajos.ver' },
             // Panel personal del operario: no depende de permisos de módulo.
             ...(rol === 'operario' ? [{ label: 'Mi Panel', href: '/mi-panel', icon: 'mi-panel' }] : []),
