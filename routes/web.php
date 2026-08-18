@@ -133,6 +133,12 @@ Route::get('/catalogo/ensambles/{id}/pdf',      [CatalogoController::class, 'ens
 Route::get('/webhook/whatsapp',  [WhatsappWebhookController::class, 'verify']);
 Route::post('/webhook/whatsapp', [WhatsappWebhookController::class, 'receive']);
 
+// El chat público de la web. Con throttle porque es la ruta más expuesta del sistema: es
+// pública, no tiene sesión que limite quién escribe, y cada mensaje cuesta tokens.
+Route::post('/api/agente/web', [\App\Http\Controllers\AgenteWebController::class, 'chat'])
+    ->middleware('throttle:20,1')
+    ->name('agente.web');
+
 // ─── Capacitación — registro/login de estudiantes externos (público) ────────
 Route::get('/capacitacion/invitacion/{token}',  [EstudianteAuthController::class, 'mostrarInvitacion'])->name('capacitacion.invitacion.show');
 Route::post('/capacitacion/invitacion/{token}', [EstudianteAuthController::class, 'registrar'])->name('capacitacion.invitacion.registrar');

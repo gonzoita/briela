@@ -182,18 +182,29 @@ class WhatsappNumeroController extends Controller
      * Qué contestaría el agente de IA. No manda nada, no crea leads y funciona
      * con el agente apagado: es para calibrarlo ANTES de encenderlo.
      */
-    public function probarAgente(Request $request, \App\Services\IA\AgentePublicoService $agente): JsonResponse
+    public function probarAgente(Request $request, \App\Services\IA\AgenteConversacionService $agentes): JsonResponse
     {
         $datos = $request->validate([
             'mensaje'      => 'required|string|max:900',
-            'nombre'       => 'nullable|string|max:60',
+            'agente_id'    => 'nullable|exists:agentes_ia,id',
             'indicaciones' => 'nullable|string|max:4000',
         ]);
 
-        return response()->json($agente->previsualizar($datos['mensaje'], [
-            'nombre'       => $datos['nombre'] ?? null,
-            'indicaciones' => $datos['indicaciones'] ?? null,
-        ]));
+        // El agente que se está probando: el elegido, o el que hoy atendería por WhatsApp.
+        $agente = $datos['agente_id']
+            ? \App\Models\AgenteIa::find($datos['agente_id'])
+            : \App\Models\AgenteIa::paraCanal('whatsapp', 'publico');
+
+        if (! $agente) {
+            return response()->json([
+                'respuesta' => null,
+                'motivo'    => 'No hay ningún agente configurado para WhatsApp. Créalo en Ajustes → Agentes.',
+            ]);
+        }
+
+        // Funciona con el agente apagado a propósito: calibrar las indicaciones es justo lo que
+        // uno hace ANTES de soltarlo a atender clientes. Y no manda nada a nadie ni crea leads.
+        return response()->json($agentes->previsualizar($agente, $datos['mensaje'], $datos['indicaciones'] ?? null));
     }
 
     /**

@@ -277,4 +277,104 @@ class AgenteConversacionService
 
         return implode("\n\n", $partes);
     }
+
+    /**
+     * El chat de la web: siempre perfil público.
+     *
+     * En WhatsApp el número da una pista de quién escribe. En un widget anónimo no hay ninguna,
+     * y montar ahí la verificación de identidad sería pedirle el documento a cualquiera que
+     * pase por la página — un formulario de recolección de datos disfrazado de chat. Quien
+     * quiera hablar de lo suyo entra por WhatsApp o por el portal de seguimiento, que ya exigen
+     * demostrar quién son.
+     *
+     * @param  array<int, array{rol: string, texto: string}>  $historial
+     */
+    public function responderWeb(string $texto, array $historial = []): ?string
+    {
+        if (trim($texto) === '') {
+            return null;
+        }
+
+        $agente = AgenteIa::paraCanal('web', 'publico');
+
+        if (! $agente) {
+            return null;
+        }
+
+        $contexto = collect($historial)->take(-6)
+            ->map(fn ($m) => ($m['rol'] === 'agente' ? 'Tú' : 'Cliente') . ': ' . $m['texto'])
+            ->implode("
+");
+
+        try {
+            $salida = trim($this->ia->texto(
+                prompt: ($contexto !== '' ? "Conversación hasta ahora:
+{$contexto}
+
+" : '')
+                    . "Mensaje del cliente:
+{$texto}",
+                instrucciones: $this->instrucciones($agente, null),
+                maxTokens: 500,
+                rapido: true,
+            ));
+        } catch (\Throwable $e) {
+            Log::error('Agente web: la IA no respondió', ['error' => $e->getMessage()]);
+
+            return null;
+        }
+
+        if ($salida === '') {
+            return null;
+        }
+
+        // En la web no hay a quién pasarle la conversación en caliente: se le dice al visitante
+        // que alguien lo va a contactar, que es lo que de verdad va a pasar con su lead.
+        if (str_contains(mb_strtolower($salida), '[escalar]')) {
+            $salida = trim(str_ireplace('[escalar]', '', $salida));
+            $salida = ($salida !== '' ? $salida . "
+
+" : '')
+                . 'Déjame tu nombre y un teléfono o correo y una persona del equipo te contacta.';
+        }
+
+        return $salida;
+    }
+
+    /**
+     * La respuesta que daría, sin mandarle nada a nadie ni crear ningún lead.
+     *
+     * Es el probador: calibrar las indicaciones es justo lo que uno hace ANTES de soltar un
+     * agente a atender clientes. Dice por qué no pudo, en vez del silencio que necesita el
+     * webhook.
+     */
+    public function previsualizar(AgenteIa $agente, string $mensaje, ?string $indicaciones = null): array
+    {
+        if (! $this->ia->configurado()) {
+            return ['respuesta' => null, 'motivo' => 'La IA no está configurada.'];
+        }
+
+        // Se usa lo escrito en pantalla aunque no se haya guardado: así se ajusta el texto y se
+        // ve el efecto sin dejar a medias lo que ya está atendiendo.
+        if (filled($indicaciones)) {
+            $agente = clone $agente;
+            $agente->instrucciones = $indicaciones;
+        }
+
+        try {
+            $salida = trim($this->ia->texto(
+                prompt: "Mensaje del cliente:
+{$mensaje}",
+                instrucciones: $this->instrucciones($agente, null),
+                maxTokens: 500,
+                rapido: true,
+            ));
+        } catch (\Throwable $e) {
+            return ['respuesta' => null, 'motivo' => $e->getMessage()];
+        }
+
+        return $salida !== ''
+            ? ['respuesta' => trim(str_ireplace('[escalar]', '', $salida)), 'motivo' => null]
+            : ['respuesta' => null, 'motivo' => 'El modelo devolvió una respuesta vacía.'];
+    }
 }

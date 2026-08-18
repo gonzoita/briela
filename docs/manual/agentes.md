@@ -58,6 +58,27 @@ Una conversación soltada queda marcada y ni siquiera cae a los mensajes fijos.
 - **No aprueba cotizaciones por chat.** Entrega el enlace público, que es donde ya se aprueba.
 - **No inventa.** Lo que no esté en su catálogo no existe para él.
 
+## El chat de la web
+
+La ruta pública `/api/agente/web` recibe el mensaje y el historial corto de la conversación, y
+responde con el agente marcado para el canal **web**.
+
+**Siempre con perfil público, y a propósito.** En WhatsApp el número da una pista de quién
+escribe; en un widget anónimo no hay ninguna, y montar ahí la verificación de identidad sería
+pedirle el documento a cualquiera que pase por la página — un formulario de recolección de datos
+disfrazado de chat. Quien quiera hablar de lo suyo entra por WhatsApp o por el portal de
+seguimiento, que ya exigen demostrar quién son.
+
+Va con límite de peticiones: es la ruta más expuesta del sistema —pública, sin sesión que limite
+quién escribe, y cada mensaje cuesta tokens—.
+
+## Probarlo antes de encenderlo
+
+En la pantalla de WhatsApp se le escribe lo que preguntaría un cliente y se ve qué contestaría.
+**No manda nada a nadie y no crea ningún lead.** Funciona con el agente apagado —calibrar las
+indicaciones es justo lo que uno hace antes de soltarlo— y usa lo escrito en pantalla aunque no
+se haya guardado, para poder ajustar el texto sin dejar a medias lo que ya está atendiendo.
+
 ## Dónde se engancha
 
 En WhatsApp entra por `WhatsappAutomatizacionService`, donde antes respondía el agente público

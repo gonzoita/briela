@@ -536,7 +536,7 @@ onUnmounted(() => {
             </div>
 
             <!-- Navegación -->
-            <nav class="flex-1 overflow-y-auto px-3 py-4 space-y-1">
+            <nav class="flex-1 overflow-y-auto px-2.5 py-3 space-y-0.5">
                 <template v-for="sec in navItems" :key="sec.label ?? 'inicio'">
                     <!-- El título de la sección la despliega. Es un botón, no un rótulo:
                          Ventas se abre y se cierra, y lo mismo cada categoría. -->
@@ -544,7 +544,7 @@ onUnmounted(() => {
                         v-if="sec.label"
                         type="button"
                         @click="alternarRama('seccion:' + sec.label)"
-                        class="w-full flex items-center justify-between gap-2 px-3 pt-4 pb-1 group"
+                        class="w-full flex items-center justify-between gap-2 px-2.5 pt-3 pb-1 rounded-lg group hover:bg-realce transition-colors"
                         :aria-expanded="seccionAbierta(sec)"
                     >
                         <span class="flex items-center gap-2.5 min-w-0">
@@ -554,7 +554,7 @@ onUnmounted(() => {
                                 :class="seccionAbierta(sec) ? 'text-[var(--marca)]' : 'text-tinta-300 group-hover:text-tinta-500'"
                             />
                             <span
-                                class="text-[11px] font-semibold uppercase tracking-[0.12em] transition-colors truncate"
+                                class="text-[11px] font-semibold tracking-wide transition-colors truncate"
                                 :class="seccionAbierta(sec) ? 'text-tinta-600' : 'text-tinta-400 group-hover:text-tinta-600'"
                             >{{ sec.label }}</span>
                         </span>
@@ -581,8 +581,8 @@ onUnmounted(() => {
                         <div class="flex items-stretch gap-0.5">
                             <a
                                 :href="item.href"
-                                class="flex-1 min-w-0 flex items-center gap-3 rounded-lg pl-3 pr-3 py-2 text-sm font-medium transition-colors relative
-                                       before:absolute before:left-0 before:top-1.5 before:bottom-1.5 before:w-[3px] before:rounded-full before:transition-colors"
+                                class="flex-1 min-w-0 flex items-center gap-2.5 rounded-lg pl-2.5 pr-2.5 py-1.5 text-[13px] font-medium transition-colors relative
+                                       before:absolute before:left-0 before:top-1 before:bottom-1 before:w-[2px] before:rounded-full before:transition-colors"
                                 :class="isActive(item.href)
                                     ? 'bg-realce text-[var(--marca)] font-semibold before:bg-[var(--marca)]'
                                     : 'text-tinta-500 hover:bg-realce hover:text-tinta-900 before:bg-transparent'"
@@ -621,7 +621,7 @@ onUnmounted(() => {
                                 : 'grid-rows-[0fr] opacity-0'"
                         >
                             <div class="overflow-hidden">
-                                <div class="pl-4 mt-0.5 space-y-0.5 border-l border-linea ml-4">
+                                <div class="pl-3 mt-0.5 space-y-0.5 ml-5">
                                     <a
                                         v-for="hijo in item.hijos"
                                         :key="hijo.href"
