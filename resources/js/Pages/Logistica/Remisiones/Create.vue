@@ -55,18 +55,33 @@ if (props.op) {
 
 // ── Búsqueda de OP ────────────────────────────────────────────────────────
 let debounceOp = null
-async function buscarOp() {
+
+/**
+ * Trae las órdenes con algo listo para despachar.
+ *
+ * Con el campo vacío trae las que hay: al abrir la pantalla se necesita ver la lista, no
+ * adivinar un número. Antes no salía nada hasta escribir dos letras, teniendo el sistema
+ * la lista completa.
+ */
+async function buscarOp(inmediato = false) {
     clearTimeout(debounceOp)
-    if (!busquedaOp.value || busquedaOp.value.length < 2) { resultadosOp.value = []; return }
-    debounceOp = setTimeout(async () => {
+
+    const traer = async () => {
         buscandoOp.value = true
         try {
-            const res  = await fetch(`/logistica/api/ops/buscar?q=${encodeURIComponent(busquedaOp.value)}`, {
+            const res = await fetch(`/logistica/api/ops/buscar?q=${encodeURIComponent(busquedaOp.value ?? '')}`, {
                 headers: { Accept: 'application/json' }, credentials: 'same-origin',
             })
             resultadosOp.value = await res.json()
         } catch { resultadosOp.value = [] } finally { buscandoOp.value = false }
-    }, 300)
+    }
+
+    inmediato ? await traer() : (debounceOp = setTimeout(traer, 300))
+}
+
+// Al abrir sin una OP ya elegida, se enseñan las que están listas.
+if (! props.op) {
+    buscarOp(true)
 }
 
 async function seleccionarOp(op) {
@@ -242,18 +257,29 @@ watch(() => form.tipo, () => {
                                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/>
                                 </svg>
                             </div>
-                            <!-- Dropdown resultados -->
-                            <div v-if="resultadosOp.length"
-                                class="absolute z-10 w-full mt-1 bg-superficie border border-linea rounded-xl shadow-lg overflow-hidden">
-                                <button v-for="op in resultadosOp" :key="op.id"
-                                    @click="seleccionarOp(op)"
-                                    class="w-full text-left px-4 py-2.5 hover:bg-tinta-50 transition-colors border-b border-separador last:border-0">
+                        </div>
+
+                        <!-- Las órdenes con algo listo, a la vista. No es un desplegable que
+                             aparece al escribir: al entrar aquí lo que se quiere es ver qué hay
+                             para despachar, y el buscador sirve para acortar la lista. -->
+                        <div v-if="resultadosOp.length && ! opCargada"
+                            class="mt-2 border border-linea rounded-xl overflow-hidden divide-y divide-separador">
+                            <button v-for="op in resultadosOp" :key="op.id"
+                                @click="seleccionarOp(op)"
+                                class="w-full text-left px-4 py-2.5 hover:bg-realce transition-colors flex items-center justify-between gap-3">
+                                <span class="min-w-0">
                                     <span class="font-mono text-xs font-semibold text-tinta-900">{{ op.numero }}</span>
                                     <span class="text-xs text-tinta-400 ml-2">{{ op.cliente_nombre }}</span>
-                                    <span class="text-xs text-aviso-azul ml-2">{{ op.items_count }} ítems disponibles</span>
-                                </button>
-                            </div>
+                                </span>
+                                <span class="text-xs text-aviso-verde shrink-0">{{ op.items_count }} listo(s)</span>
+                            </button>
                         </div>
+
+                        <p v-else-if="! buscandoOp && ! opCargada" class="text-xs text-tinta-300 mt-2">
+                            No hay órdenes con ítems listos para despachar. Se alistan en
+                            <button type="button" @click="router.visit('/produccion/alistamiento')"
+                                class="underline underline-offset-2 font-medium">Alistamiento</button>.
+                        </p>
                         <p v-if="errors.op_id" class="text-xs text-aviso-rojo mt-1">{{ errors.op_id }}</p>
                     </div>
 

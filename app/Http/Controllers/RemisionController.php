@@ -356,22 +356,44 @@ class RemisionController extends Controller
     }
 
     // ─── Búsqueda de OPs para el formulario ───────────────────────────────────
+    /**
+     * Las órdenes que tienen algo listo para despachar.
+     *
+     * **Sin escribir nada devuelve las que hay**, que es lo que se necesita al abrir la
+     * pantalla: antes había que adivinar un número de OP para que apareciera algo, teniendo el
+     * sistema la lista completa. Con texto, filtra por número de orden o por nombre de cliente.
+     *
+     * Y solo salen las que de verdad tienen ítems remisionables. Antes se listaban órdenes en
+     * producción aunque no tuvieran ni una unidad terminada, y al elegirlas la pantalla quedaba
+     * vacía sin explicar por qué.
+     */
     public function buscarOp(Request $request)
     {
-        $ops = Op::with(['cliente:id,nombre,apellido,tipo', 'items' => fn ($q) => $this->itemsRemisionables($q)])
-        ->where(function ($q) use ($request) {
-            $q->where('numero', 'like', "%{$request->q}%")
-              ->orWhereHas('cliente', fn ($c) => $c->where('nombre', 'like', "%{$request->q}%"));
-        })
-        ->whereIn('estado', ['en_produccion', 'calidad', 'despachada'])
-        ->limit(10)
-        ->get()
-        ->map(fn ($op) => [
-            'id'            => $op->id,
-            'numero'        => $op->numero,
-            'cliente_nombre'=> $op->cliente?->nombreCompleto() ?? '—',
-            'items_count'   => $op->items->count(),
-        ]);
+        $ops = Op::with([
+                'cliente:id,nombre,apellido,tipo',
+                'items' => fn ($q) => $this->itemsRemisionables($q),
+            ])
+            ->whereHas('items', fn ($q) => $this->itemsRemisionables($q))
+            ->when($request->filled('q'), function ($q) use ($request) {
+                $texto = $request->q;
+
+                $q->where(function ($q2) use ($texto) {
+                    $q2->where('numero', 'like', "%{$texto}%")
+                       ->orWhereHas('cliente', fn ($c) => $c->where('nombre', 'like', "%{$texto}%")
+                           ->orWhere('apellido', 'like', "%{$texto}%"));
+                });
+            })
+            ->whereIn('estado', ['confirmada', 'en_produccion', 'calidad', 'reproceso', 'despachada'])
+            ->orderByDesc('id')
+            ->limit(20)
+            ->get()
+            ->map(fn ($op) => [
+                'id'             => $op->id,
+                'numero'         => $op->numero,
+                'estado'         => $op->estado,
+                'cliente_nombre' => $op->cliente?->nombreCompleto() ?? '—',
+                'items_count'    => $op->items->count(),
+            ]);
 
         return response()->json($ops);
     }
