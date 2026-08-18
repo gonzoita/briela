@@ -605,6 +605,9 @@ Route::middleware('auth')->group(function () {
         Route::get('/trabajos/{trabajo}',      [TrabajoController::class, 'show'])->name('trabajos.show');
         Route::delete('/trabajos/{trabajo}',   [TrabajoController::class, 'destroy'])->name('trabajos.destroy');
         Route::put('/trabajos/pasos/{paso}',          [TrabajoPasoController::class, 'update'])->name('trabajos.pasos.update');
+        // Revisión de calidad, punto por punto y por unidad física.
+        Route::patch('/trabajos/checks/{check}',       [\App\Http\Controllers\CalidadCheckController::class, 'actualizar'])->name('trabajos.checks.actualizar');
+        Route::post('/trabajos/checks/{check}/fotos',  [\App\Http\Controllers\CalidadCheckController::class, 'fotos'])->name('trabajos.checks.fotos');
         Route::post('/trabajos/pasos/{paso}/fotos',   [PasoFotoController::class, 'store'])->name('trabajos.pasos.fotos.store');
         Route::delete('/trabajos/pasos/{paso}/fotos', [PasoFotoController::class, 'destroy'])->name('trabajos.pasos.fotos.destroy');
     });

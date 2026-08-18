@@ -3,6 +3,7 @@ import { ref, computed } from 'vue'
 import { router } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
 import PasoFotos from '@/Components/PasoFotos.vue'
+import RevisionCalidad from '@/Components/RevisionCalidad.vue'
 
 const props = defineProps({
     trabajo:   { type: Object, required: true },
@@ -295,6 +296,10 @@ const circuloPaso = (paso) => {
                  COLUMNA DERECHA — lista de pasos
             ══════════════════════════════════════════════════════════════════ -->
             <div class="flex-1 min-w-0">
+                <!-- La revisión de calidad de esta unidad. Sale de la lista que el ensamble
+                     definió, y sin ella todo sigue como antes: calidad aprueba la orden entera. -->
+                <RevisionCalidad v-if="trabajo.checks?.length" :checks="trabajo.checks" class="mb-4" />
+
                 <h3 class="text-sm font-semibold text-tinta-900 mb-3">Pasos del trabajo</h3>
 
                 <div class="space-y-3">

@@ -26,6 +26,7 @@ módulo por módulo.
 
 - [Producción — Orden de Producción y control de calidad](./produccion-op.md)
 - [Trabajos y pasos de trabajo](./trabajos-pasos.md)
+- [Alistamiento](./alistamiento.md) — lo que el almacenista deja listo para despachar
 - [Programador de planta y pantalla de planta](./programador-planta.md)
 
 ## Inventario y compras

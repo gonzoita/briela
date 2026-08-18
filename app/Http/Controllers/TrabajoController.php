@@ -211,6 +211,8 @@ class TrabajoController extends Controller
             'opItem.ensamble',
             'template',
             'pasos' => fn ($q) => $q->orderBy('orden'),
+            'checks' => fn ($q) => $q->orderBy('orden'),
+            'checks.revisadoPor:id,name',
             'pasos.operario',
             'pasos.operarios.operario',
         ]);
@@ -228,6 +230,11 @@ class TrabajoController extends Controller
                 'cliente_nombre'    => $trabajo->opItem?->op?->cliente?->nombre,
                 'item_descripcion'  => $trabajo->opItem?->descripcion,
                 'template_nombre'   => $trabajo->template?->nombre,
+                // La revisión de calidad de ESTA unidad. Se copió de la plantilla al generar
+                // el trabajo y se llena aquí, punto por punto.
+                'checks'            => $trabajo->checks->map(
+                    fn ($c) => app(\App\Http\Controllers\CalidadCheckController::class)->fila($c)
+                )->values(),
                 'pasos'             => $trabajo->pasos->map(fn ($p) => [
                     'id'                  => $p->id,
                     'nombre'              => $p->nombre,

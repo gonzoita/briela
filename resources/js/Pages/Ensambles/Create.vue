@@ -9,6 +9,7 @@ import GeneradorFichaIa from '@/Components/GeneradorFichaIa.vue'
 import PreciosPorCanal from '@/Components/PreciosPorCanal.vue'
 import LineasEnsambleDirecto from '@/Components/LineasEnsambleDirecto.vue'
 import PasosProduccion from '@/Components/PasosProduccion.vue'
+import ChecksCalidad from '@/Components/ChecksCalidad.vue'
 import SelectorUnidad from '@/Components/SelectorUnidad.vue'
 import { usePreciosPorCanal } from '@/composables/usePreciosPorCanal'
 import { colorMarca } from '@/marca'
@@ -27,6 +28,8 @@ const props = defineProps({
     origen:     { type: Object, default: null },
     // El flujo de producción que ya tiene: el suyo si es directo, el de su plantilla si no.
     pasos_trabajo: { type: Array, default: () => [] },
+    // Y la lista de revisión de calidad, que sigue la misma regla.
+    checks_calidad: { type: Array, default: () => [] },
 })
 
 const esEdicion = computed(() => !!props.ensamble)
@@ -305,6 +308,7 @@ watch(plantillaId, (nuevoId) => {
         const suyos = plantilla.template_trabajo?.pasos ?? []
 
         pasosTrabajo.value = suyos.length ? suyos.map(p => ({ ...p })) : [pasoPorOmision()]
+        checksCalidad.value = (plantilla.checks_calidad ?? []).map(c => ({ ...c }))
     }
 })
 
@@ -339,6 +343,10 @@ const pasosTrabajo = ref(
 const pasosCompartidos = computed(() => ! esDirecto.value && !! plantillaSeleccionada.value)
 
 const hayPasos = computed(() => pasosTrabajo.value.some(p => (p.nombre ?? '').trim()))
+
+// La lista de revisión de calidad. A diferencia de los pasos, puede quedar vacía: no todo lo
+// que se fabrica se revisa punto por punto, y exigirla frenaría a quien todavía no la definió.
+const checksCalidad = ref((props.checks_calidad ?? []).map(c => ({ ...c })))
 
 function onNombreInput() { nombreEditadoManualmente.value = true }
 
@@ -462,6 +470,7 @@ async function guardar() {
         // dificultad, dependencias, imagen, plano—: el servidor borra y reescribe la lista, y
         // si aquí se perdieran, guardar el precio de un ensamble borraría el plano de un paso.
         pasos_trabajo:       pasosTrabajo.value.filter(p => (p.nombre ?? '').trim()),
+        checks_calidad:      checksCalidad.value.filter(c => (c.titulo ?? '').trim()),
         precio_costo:                  totalCosto.value,
         margen_aplicado:               margenDefault,
         categoria_id:                  categoriaId.value || null,
@@ -496,6 +505,7 @@ async function guardar() {
             lineas:        JSON.stringify(payload.lineas),
             canales:       JSON.stringify(payload.canales),
             pasos_trabajo: JSON.stringify(payload.pasos_trabajo),
+            checks_calidad: JSON.stringify(payload.checks_calidad),
             imagenes:      imagenesNuevas.value.map(i => i.file),
         }, { forceFormData: true, onError })
 
@@ -932,6 +942,16 @@ onMounted(() => {
                     :nombre-plantilla="plantillaSeleccionada?.nombre ?? ''">
                     <template #titulo>{{ esDirecto ? '4' : '5' }}. Cómo se fabrica</template>
                 </PasosProduccion>
+            </div>
+
+            <!-- ── Revisión de calidad ─────────────────────────────────────── -->
+            <div v-if="esDirecto || plantillaSeleccionada" class="bg-superficie rounded-2xl shadow-sm p-5 mb-4">
+                <ChecksCalidad
+                    :checks="checksCalidad"
+                    :compartidos="pasosCompartidos"
+                    :nombre-plantilla="plantillaSeleccionada?.nombre ?? ''">
+                    <template #titulo>{{ esDirecto ? '5' : '6' }}. Revisión de calidad</template>
+                </ChecksCalidad>
             </div>
 
             <!-- ═══ Precios y comisiones por canal ════════════════════ -->

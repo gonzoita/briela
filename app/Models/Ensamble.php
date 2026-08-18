@@ -338,4 +338,15 @@ class Ensamble extends Model
             ? $this->preciosPorCanal->firstWhere("segmentacion_opcion_id", $canal->id)
             : null;
     }
+
+    /**
+     * Los puntos que calidad revisa en cada unidad.
+     *
+     * Misma regla que los pasos de producción: un ensamble directo los tiene propios; uno con
+     * plantilla usa los de la plantilla, y los comparten todos los ensambles que la usan.
+     */
+    public function checksCalidad(): \Illuminate\Database\Eloquent\Relations\MorphMany
+    {
+        return $this->morphMany(\App\Models\ChecklistCalidad::class, 'checkeable')->orderBy('orden');
+    }
 }

@@ -110,6 +110,22 @@ también leía de `OrdenProduccion` en vez de `Op` — se corrigió ese día, pe
 es un buen ejemplo de por qué es importante no dejar código muerto sin
 marcar: nadie notó durante meses que las métricas de inicio no eran reales.
 
+
+## Calidad, unidad por unidad
+
+Calidad era una decisión de una sola pieza sobre la orden entera: aprobada o a reproceso, con
+una foto y un comentario. En una orden de diez puertas eso no dice nada — no queda registro de
+qué se revisó, ni de cuál unidad salió mal, ni de qué le faltaba.
+
+Desde el 18 ago 2026, si el ensamble tiene lista de revisión, **cada unidad se revisa punto por
+punto** desde su hoja de producción, y la orden no se puede aprobar mientras quede algo sin
+resolver. El aviso dice cuántos puntos faltan, que es lo único que sirve cuando son diez
+puertas.
+
+Un ensamble sin lista de revisión sigue funcionando como siempre: calidad aprueba la orden
+completa. La lista se define en la ficha del ensamble, sección «Revisión de calidad».
+
+
 ## Seguimiento público — dos caminos, un solo resultado *(reconstruido 23 jul 2026)*
 
 Hay dos formas de que un cliente consulte el estado de su pedido, y ahora

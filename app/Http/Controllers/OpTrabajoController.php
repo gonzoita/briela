@@ -74,9 +74,27 @@ class OpTrabajoController extends Controller
     public function completarPaso(Request $request, Op $op, OpItem $item, OpItemTrabajoPaso $paso): RedirectResponse
     {
         $request->validate([
-            'operarios'   => 'nullable|array',
-            'operarios.*' => 'integer|exists:operarios,id',
+            'operarios'         => 'nullable|array',
+            'operarios.*'       => 'integer|exists:operarios,id',
+            'bodega_destino_id' => 'nullable|exists:bodegas,id',
         ]);
+
+        // El paso final entrega la unidad a una bodega: al cerrarlo se descuentan los
+        // materiales y entra el producto terminado. Antes, si nadie la había declarado, el
+        // sistema la mandaba a la principal — y en una empresa con varias bodegas eso es
+        // inventario que aparece donde no es, sin que nadie lo haya decidido.
+        if ($paso->es_paso_final) {
+            $bodega = $request->bodega_destino_id ?: $paso->bodega_destino_id;
+
+            if (! $bodega) {
+                return back()->withErrors([
+                    'bodega_destino_id' => 'Elige a qué bodega entra la unidad: este es el paso que la entrega. '
+                        . 'Se puede dejar predefinida en el paso de la plantilla del ensamble.',
+                ]);
+            }
+
+            $paso->update(['bodega_destino_id' => $bodega]);
+        }
 
         $paso->update([
             'completado'    => true,

@@ -127,4 +127,19 @@ class OpItemTrabajo extends Model
             $op->revisarTransicionCalidad();
         }
     }
+
+    /** Lo que calidad tiene que revisar en esta unidad. */
+    public function checks(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(\App\Models\OpItemTrabajoCheck::class, 'op_item_trabajo_id')->orderBy('orden');
+    }
+
+    /** Si a esta unidad todavía le falta calidad: algo sin revisar, o una falla crítica. */
+    public function calidadPendiente(): bool
+    {
+        return $this->checks()->where(function ($q) {
+            $q->where('resultado', 'pendiente')
+              ->orWhere(fn ($q2) => $q2->where('resultado', 'falla')->where('es_critico', true));
+        })->exists();
+    }
 }

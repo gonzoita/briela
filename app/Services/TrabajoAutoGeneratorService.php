@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Ensamble;
 use App\Models\OpItem;
 use App\Models\OpItemTrabajo;
+use App\Models\OpItemTrabajoCheck;
 use App\Models\OpItemTrabajoPaso;
 
 /**
@@ -54,6 +55,12 @@ class TrabajoAutoGeneratorService
 
         $pasos = $template->pasos()->orderBy('orden')->get();
 
+        // La lista de revisión de calidad vive donde viven los pasos: en el ensamble si es
+        // directo, en la plantilla si no. Se copia a cada unidad y se congela ahí — cambiar la
+        // plantilla después no puede reescribir lo que alguien ya revisó.
+        $checks = ($ensamble->esDirecto() ? $ensamble : $ensamble->plantilla)
+            ?->checksCalidad()->where('activo', true)->get() ?? collect();
+
         $variables = $item->variables_instancia ?? [];
         $cantidad = (int) max(1, floor((float) $item->cantidad));
 
@@ -65,6 +72,18 @@ class TrabajoAutoGeneratorService
                 'numero_unidad'     => $unidad,
                 'total_unidades'    => $cantidad,
             ]);
+
+            foreach ($checks as $check) {
+                OpItemTrabajoCheck::create([
+                    'op_item_trabajo_id'   => $trabajo->id,
+                    'checklist_calidad_id' => $check->id,
+                    'titulo'               => $check->titulo,
+                    'descripcion'          => $check->descripcion,
+                    'orden'                => $check->orden,
+                    'exige_foto'           => $check->exige_foto,
+                    'es_critico'           => $check->es_critico,
+                ]);
+            }
 
             foreach ($pasos as $paso) {
                 $desc = preg_replace_callback('/\{(\w+)\}/', function ($m) use ($variables) {

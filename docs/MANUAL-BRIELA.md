@@ -139,6 +139,11 @@ Un ensamble es un producto concreto salido de una receta. Dos formas de armarlo:
 El directo admite materiales del inventario —que descuentan al fabricar— y **conceptos
 libres** como mano de obra o transporte, que suman al costo y no descuentan nada.
 
+**«Revisión de calidad»**: la lista de lo que hay que mirar en cada unidad antes de darla por
+buena —si trae la llave, si le falta un empaque—. Se copia a cada unidad al generar su trabajo y
+se llena desde la hoja de producción, con foto y observación. Un punto crítico que falla no deja
+aprobar la orden. Es opcional: sin lista, calidad aprueba la orden completa como siempre.
+
 **«Cómo se fabrica» es obligatorio.** La ficha pide los pasos que el operario va a marcar, y no
 deja guardar sin al menos uno. Arranca con un paso «Fabricación» al 100 % ya escrito, así que
 detallarlos es opcional pero tenerlos no. En un ensamble directo los pasos son suyos; en uno con
@@ -175,6 +180,16 @@ operario ya cerró algún paso aunque el estado siga en «confirmada». Fechas, 
 sí se siguen pudiendo cambiar.
 
 → [Producción — OP y calidad](./manual/produccion-op.md)
+
+### Alistamiento
+`/produccion/alistamiento`
+
+Todos los ítems de todas las órdenes en una sola lista, para que el almacenista alistе sin
+entrar orden por orden — lo que se despacha son ítems, no órdenes. Con su tablero y sus filtros
+(orden, cliente, tipo, plantilla, estado). **Lo que queda alistado es lo que el remisionador
+deja escoger.** Los servicios se alistan pero no viajan.
+
+→ [Alistamiento](./manual/alistamiento.md)
 
 ### Trabajos y pasos
 `/trabajos` · el operario entra por `/trabajo/{token}`

@@ -114,6 +114,7 @@ class EnsambleController extends Controller
             'origen'     => ['id' => $ensamble->id, 'nombre' => $ensamble->nombre],
             // El flujo de produccion tambien se copia: un ensamble parecido se fabrica igual.
             'pasos_trabajo' => $this->pasosTrabajoDe($ensamble),
+            'checks_calidad' => $this->checksCalidadDe($ensamble),
         ]);
     }
 
@@ -189,6 +190,14 @@ class EnsambleController extends Controller
             'pasos_trabajo.*.bodega_destino_id' => 'nullable|exists:bodegas,id',
             'pasos_trabajo.*.imagen'            => 'nullable|string|max:255',
             'pasos_trabajo.*.archivo_plano'     => 'nullable|string|max:255',
+            // La revisión de calidad es opcional: no todo lo que se fabrica se revisa punto
+            // por punto, y obligarla dejaría sin guardar a quien todavía no la definió.
+            'checks_calidad'                    => 'nullable|array',
+            'checks_calidad.*.titulo'           => 'required|string|max:150',
+            'checks_calidad.*.descripcion'      => 'nullable|string|max:2000',
+            'checks_calidad.*.orden'            => 'nullable|integer|min:0',
+            'checks_calidad.*.exige_foto'       => 'nullable|boolean',
+            'checks_calidad.*.es_critico'       => 'nullable|boolean',
         ]);
 
         $esDirecto = $request->input('tipo_armado', 'plantilla') === 'directo';
@@ -241,6 +250,7 @@ class EnsambleController extends Controller
 
         $this->guardarCanales($request, $ensamble);
         $this->guardarPasosTrabajo($ensamble, $request->input('pasos_trabajo', []));
+        $this->guardarChecksCalidad($ensamble, $request->input('checks_calidad', []));
         $this->guardarImagenes($request, $ensamble);
         // Si se guarda en bodega, nace su producto terminado y con él todo el inventario.
         $ensamble->sincronizarProductoTerminado();
@@ -346,6 +356,7 @@ class EnsambleController extends Controller
             'ensamble'   => $ensamble,
             // El flujo de produccion que ya tiene, para poder verlo y cambiarlo aqui mismo.
             'pasos_trabajo' => $this->pasosTrabajoDe($ensamble),
+            'checks_calidad' => $this->checksCalidadDe($ensamble),
             'plantillas' => PlantillaEnsamble::with(['campos', 'componentes', 'templateTrabajo.pasos'])
                 ->where('activo', true)
                 ->orderBy('nombre')
@@ -372,6 +383,52 @@ class EnsambleController extends Controller
         return $template
             ? $template->pasos()->orderBy('orden')->get()->toArray()
             : [];
+    }
+
+    /**
+     * La lista de revisión de calidad que le corresponde a un ensamble.
+     *
+     * Directo: la suya. Con plantilla: la de la plantilla, compartida con todos los ensambles
+     * que la usan — la misma regla que los pasos de producción.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    private function checksCalidadDe(Ensamble $ensamble): array
+    {
+        $dueno = $ensamble->esDirecto() ? $ensamble : $ensamble->plantilla;
+
+        return $dueno ? $dueno->checksCalidad()->get()->toArray() : [];
+    }
+
+    /**
+     * Guarda la lista de revisión de calidad.
+     *
+     * Borra y reescribe, como los pasos. Lo ya revisado no se toca: cada unidad guarda su copia
+     * del punto —título, descripción y si exigía foto— justo para que cambiar la plantilla no
+     * reescriba un historial de calidad.
+     */
+    private function guardarChecksCalidad(Ensamble $ensamble, array $checks): void
+    {
+        $dueno = $ensamble->esDirecto() ? $ensamble : $ensamble->plantilla;
+
+        if (! $dueno) {
+            return;
+        }
+
+        $checks = array_values(array_filter($checks, fn ($c) => trim((string) ($c['titulo'] ?? '')) !== ''));
+
+        $dueno->checksCalidad()->delete();
+
+        foreach ($checks as $i => $check) {
+            $dueno->checksCalidad()->create([
+                'titulo'      => $check['titulo'],
+                'descripcion' => $check['descripcion'] ?? null,
+                'orden'       => $i,
+                'exige_foto'  => filter_var($check['exige_foto'] ?? false, FILTER_VALIDATE_BOOLEAN),
+                'es_critico'  => filter_var($check['es_critico'] ?? true, FILTER_VALIDATE_BOOLEAN),
+                'activo'      => true,
+            ]);
+        }
     }
 
     /**
@@ -510,7 +567,7 @@ class EnsambleController extends Controller
      */
     private function desempacar(Request $request): void
     {
-        foreach (['variables', 'lineas', 'canales', 'pasos_trabajo'] as $campo) {
+        foreach (['variables', 'lineas', 'canales', 'pasos_trabajo', 'checks_calidad'] as $campo) {
             $valor = $request->input($campo);
 
             if (is_string($valor)) {
@@ -613,6 +670,14 @@ class EnsambleController extends Controller
             'pasos_trabajo.*.bodega_destino_id' => 'nullable|exists:bodegas,id',
             'pasos_trabajo.*.imagen'            => 'nullable|string|max:255',
             'pasos_trabajo.*.archivo_plano'     => 'nullable|string|max:255',
+            // La revisión de calidad es opcional: no todo lo que se fabrica se revisa punto
+            // por punto, y obligarla dejaría sin guardar a quien todavía no la definió.
+            'checks_calidad'                    => 'nullable|array',
+            'checks_calidad.*.titulo'           => 'required|string|max:150',
+            'checks_calidad.*.descripcion'      => 'nullable|string|max:2000',
+            'checks_calidad.*.orden'            => 'nullable|integer|min:0',
+            'checks_calidad.*.exige_foto'       => 'nullable|boolean',
+            'checks_calidad.*.es_critico'       => 'nullable|boolean',
         ]);
 
         if ($ensamble->esDirecto()) {
@@ -658,6 +723,7 @@ class EnsambleController extends Controller
 
         $this->guardarCanales($request, $ensamble);
         $this->guardarPasosTrabajo($ensamble, $request->input('pasos_trabajo', []));
+        $this->guardarChecksCalidad($ensamble, $request->input('checks_calidad', []));
         $ensamble->sincronizarProductoTerminado();
 
         return redirect("/ensambles/{$ensamble->id}")->with('success', 'Ensamble actualizado.');

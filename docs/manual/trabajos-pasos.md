@@ -55,6 +55,30 @@ recrea las filas, y eso deja sin referencia a la plantilla los trabajos que est�
 curso —no pierden sus pasos, cada uno guarda su copia—, así que cambiarle el precio a
 un ensamble no puede arrastrar eso.
 
+### La bodega del paso final ya no se adivina
+
+El paso final entrega la unidad: al cerrarlo se descuentan los materiales y entra el producto
+terminado. **Desde el 18 ago 2026 no se puede cerrar sin decir a qué bodega entra.** Se puede
+dejar predefinida en el paso de la plantilla, y quien cierra el trabajo puede cambiarla.
+
+Antes, si nadie la había declarado, el sistema la mandaba a la principal. En una empresa con
+varias bodegas eso es inventario apareciendo donde no es, sin que nadie lo haya decidido.
+
+### La revisión de calidad de cada unidad
+
+Si el ensamble tiene lista de revisión (ver [Plantillas de Ensamble](./plantillas-ensamble.md)),
+cada unidad llega con **su propia copia** de esos puntos, y en la hoja de producción aparece la
+sección «Revisión de calidad»: cada punto se marca **cumple** o **falla**, con observación y
+fotos, y queda firmado por quien lo revisó.
+
+- Un punto **crítico** que falla no deja aprobar esa unidad.
+- Un punto que **exige foto** no se puede dar por cumplido sin ella.
+- Las fallas se guardan. Es lo que hace falta cuando el cliente reclama, y antes no quedaba
+  registrado en ninguna parte.
+
+La copia se congela al generar el trabajo: cambiar la lista del ensamble después no reescribe
+lo que alguien ya revisó.
+
 ### Las descripciones se rellenan con las medidas
 
 En la descripción de un paso de la plantilla se pueden escribir variables entre

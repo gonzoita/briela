@@ -91,7 +91,12 @@ class EntregaAlmacenService
     }
 
     /**
-     * A qué bodega entra: la que dijo el último paso, y si no dijo nada, la principal.
+     * A qué bodega entra: la que dijo el último paso.
+     *
+     * El respaldo a la principal se conserva para las unidades viejas, cuyos pasos se crearon
+     * cuando la bodega no se pedía. Para las nuevas ya no aplica: cerrar el paso final exige
+     * elegirla, porque mandar inventario a una bodega que nadie decidió es hacerlo aparecer
+     * donde no es.
      *
      * La principal como respaldo y no un error: una unidad terminada existe en algún estante
      * aunque nadie haya configurado el paso, y negarse a registrarla la dejaría invisible —

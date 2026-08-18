@@ -418,6 +418,25 @@ class OpController extends Controller
 
         $estadoAnterior = $op->estado;
 
+        // Con lista de revisión, calidad deja de ser una decisión de una sola pieza: cada
+        // unidad tiene que estar revisada. Se cuenta lo que falta para poder decirlo con
+        // números, que es lo único que sirve cuando son diez puertas.
+        if ($data['accion'] === 'aprobar') {
+            $pendientes = \App\Models\OpItemTrabajoCheck::whereHas(
+                'trabajo.opItem', fn ($q) => $q->where('op_id', $op->id)
+            )->where(function ($q) {
+                $q->where('resultado', 'pendiente')
+                  ->orWhere(fn ($q2) => $q2->where('resultado', 'falla')->where('es_critico', true));
+            })->count();
+
+            if ($pendientes > 0) {
+                return back()->withErrors([
+                    'accion' => "Faltan {$pendientes} punto(s) de revisión por resolver en las unidades de esta OP. "
+                        . 'Revísalos en cada trabajo: un punto crítico que falla no deja aprobar.',
+                ]);
+            }
+        }
+
         if ($data['accion'] === 'aprobar') {
             $op->update([
                 'observaciones_calidad' => $data['observaciones_calidad'] ?? $op->observaciones_calidad,
