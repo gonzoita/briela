@@ -2,8 +2,9 @@
 
 Permiso para armarlos: `graficos.gestionar` · Verlos: cualquiera con acceso al módulo
 
-Cada tablero —Cotizaciones, Comisiones, Alistamiento— tiene una sección donde la empresa arma
-sus propios gráficos.
+Cada tablero —Cotizaciones, Comisiones, Alistamiento y Financiero— tiene una sección donde la
+empresa arma sus propios gráficos. En **Financiero** salen lo recaudado por mes, por día y por
+medio de pago, y la cartera por estado y por mes de vencimiento.
 
 ## Cómo se arma uno
 
@@ -11,7 +12,7 @@ Cuatro decisiones, y ninguna es escribir una consulta:
 
 | Decisión | Ejemplo |
 |---|---|
-| **Fuente** | Cotizaciones, Órdenes de producción, Comisiones, Ítems de producción |
+| **Fuente** | Cotizaciones, Órdenes de producción, Comisiones, Ítems de producción, **Recaudo**, **Cartera** |
 | **Qué se mide** | Cantidad, valor total, ticket promedio, unidades, avance promedio |
 | **Agrupado por** | Estado, mes, responsable, vendedor, tipo — o sin agrupar, y es un solo número |
 | **Forma** | Barras, línea, dona o número |

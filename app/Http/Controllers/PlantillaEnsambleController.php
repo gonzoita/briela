@@ -416,4 +416,51 @@ class PlantillaEnsambleController extends Controller
             'url'  => asset('storage/' . $ruta),
         ]);
     }
+
+    /**
+     * La lista de revisión de calidad de la plantilla.
+     *
+     * Vive donde viven los pasos —en la plantilla, compartida por todos sus ensambles— porque
+     * es la misma pregunta: qué se revisa de esto que se fabrica. Definirla ensamble por
+     * ensamble obligaría a repetirla en cada uno.
+     */
+    public function checksCalidad(PlantillaEnsamble $plantilla): JsonResponse
+    {
+        return response()->json([
+            'checks' => $plantilla->checksCalidad()->get([
+                'id', 'titulo', 'descripcion', 'orden', 'exige_foto', 'es_critico', 'activo',
+            ]),
+        ]);
+    }
+
+    public function guardarChecksCalidad(Request $request, PlantillaEnsamble $plantilla): JsonResponse
+    {
+        $data = $request->validate([
+            'checks'                 => 'nullable|array',
+            'checks.*.titulo'        => 'required|string|max:150',
+            'checks.*.descripcion'   => 'nullable|string|max:2000',
+            'checks.*.orden'         => 'nullable|integer|min:0',
+            'checks.*.exige_foto'    => 'boolean',
+            'checks.*.es_critico'    => 'boolean',
+        ]);
+
+        $checks = array_values(array_filter($data['checks'] ?? [], fn ($c) => trim((string) ($c['titulo'] ?? '')) !== ''));
+
+        // Se borra y se reescribe. Lo ya revisado no se toca: cada unidad guarda su copia del
+        // punto justo para que editar la plantilla no reescriba un historial de calidad.
+        $plantilla->checksCalidad()->delete();
+
+        foreach ($checks as $i => $check) {
+            $plantilla->checksCalidad()->create([
+                'titulo'      => $check['titulo'],
+                'descripcion' => $check['descripcion'] ?? null,
+                'orden'       => $i,
+                'exige_foto'  => filter_var($check['exige_foto'] ?? false, FILTER_VALIDATE_BOOLEAN),
+                'es_critico'  => filter_var($check['es_critico'] ?? true, FILTER_VALIDATE_BOOLEAN),
+                'activo'      => true,
+            ]);
+        }
+
+        return response()->json(['guardados' => count($checks)]);
+    }
 }

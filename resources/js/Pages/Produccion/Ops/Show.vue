@@ -7,6 +7,7 @@ import ModalAnticipo from '@/Components/ModalAnticipo.vue'
 import BtnPdf from '@/Components/BtnPdf.vue'
 import HiloComentarios from '@/Components/HiloComentarios.vue'
 import { useUnsavedChanges } from '@/composables/useUnsavedChanges'
+import RevisionCalidad from '@/Components/RevisionCalidad.vue'
 
 const props = defineProps({
     op:           Object,
@@ -789,6 +790,19 @@ function marcarTerminado(item) {
                                                 </button>
                                             </div>
 
+                                            <!-- La revisión de calidad de ESTE ítem, con la lista
+                                                 que definió su plantilla. Una unidad por bloque:
+                                                 de cinco puertas, una puede pasar y otra no, y
+                                                 eso hay que poder decirlo. -->
+                                            <div v-if="item.unidades_calidad?.length" class="mb-3 space-y-3" @click.stop>
+                                                <div v-for="u in item.unidades_calidad" :key="u.trabajo_id">
+                                                    <p v-if="u.total > 1" class="text-xs text-tinta-400 mb-1">
+                                                        Unidad {{ u.numero }} de {{ u.total }}
+                                                    </p>
+                                                    <RevisionCalidad :checks="u.checks" />
+                                                </div>
+                                            </div>
+
                                             <!-- Template de trabajo por ítem -->
                                             <div v-if="item.tipo === 'ensamble' && item.trabajos?.length" class="flex items-center gap-2 flex-wrap mb-3">
                                                 <span class="text-xs px-2 py-1 rounded-full bg-pastel-azul text-aviso-azul font-medium">
@@ -1233,86 +1247,11 @@ function marcarTerminado(item) {
                 <p class="text-sm text-tinta-500 whitespace-pre-line">{{ op.notas_internas }}</p>
             </div>
 
-            <!-- Control de calidad -->
-            <div v-if="['calidad', 'reproceso', 'despachada'].includes(op.estado) && (op.observaciones_calidad || op.motivo_rechazo || op.fotos_calidad?.length || op.estado === 'calidad')"
-                class="bg-superficie rounded-2xl border border-linea p-5 mb-4">
-                <div class="flex items-center gap-2 mb-3">
-                    <svg class="w-4 h-4 text-aviso-violeta" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                    </svg>
-                    <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">Control de calidad</p>
-                </div>
-
-                <div v-if="op.motivo_rechazo" class="mb-3 px-3 py-2 rounded-xl text-xs" style="background:var(--pastel-naranja); color:#9A3412;">
-                    <span class="font-semibold">Motivo de rechazo:</span> {{ op.motivo_rechazo }}
-                </div>
-
-                <div v-if="op.calidad_aprobada_at" class="mb-3 px-3 py-2 rounded-xl text-xs flex items-center gap-2" style="background:var(--pastel-verde); color:var(--texto-verde);">
-                    <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                    </svg>
-                    Calidad aprobada — ya se puede generar la remisión y despachar.
-                </div>
-
-                <!-- Fotos de evidencia -->
-                <div class="flex flex-wrap gap-2 mb-3">
-                    <a v-for="f in op.fotos_calidad" :key="f.id" :href="f.url" target="_blank"
-                        class="w-16 h-16 rounded-lg overflow-hidden border border-linea bg-tinta-50 shrink-0">
-                        <img :src="f.url" :alt="f.nombre" class="w-full h-full object-cover"/>
-                    </a>
-                </div>
-
-                <!-- Dos botones separados en vez de uno solo: el navegador del
-                     celular no siempre ofrece elegir entre cámara y galería con
-                     un único input, así que aquí se fuerza cada opción por
-                     separado y siempre queda clara. -->
-                <div v-if="op.estado === 'calidad' && !op.calidad_aprobada_at && puedeGestionar" class="flex gap-2 mb-3">
-                    <label class="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl border-2 border-dashed border-linea text-tinta-400 hover:border-tinta-200 hover:text-tinta-500 cursor-pointer text-xs font-medium">
-                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 17a4 4 0 100-8 4 4 0 000 8z"/>
-                        </svg>
-                        Tomar foto
-                        <input type="file" accept="image/*" capture="environment" class="hidden" @change="subirFotoCalidad"/>
-                    </label>
-                    <label class="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl border-2 border-dashed border-linea text-tinta-400 hover:border-tinta-200 hover:text-tinta-500 cursor-pointer text-xs font-medium">
-                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14M14 8h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                        </svg>
-                        Subir foto
-                        <input type="file" accept="image/*" multiple class="hidden" @change="subirFotoCalidad"/>
-                    </label>
-                    <div v-if="subiendoFoto" class="flex items-center px-2">
-                        <div class="w-4 h-4 border-2 border-tinta-200 border-t-transparent rounded-full animate-spin"></div>
-                    </div>
-                </div>
-
-                <template v-if="op.estado === 'calidad' && !op.calidad_aprobada_at && puedeGestionar">
-                    <label class="block text-xs font-medium text-tinta-500 mb-1.5">Observaciones (medidas, acabado, hermeticidad...)</label>
-                    <textarea v-model="obsCalidad" rows="2" placeholder="Qué se revisó y en qué estado quedó..."
-                        class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm mb-3 focus:ring-2 focus:outline-none"></textarea>
-
-                    <div v-if="mostrarRechazo" class="mb-3">
-                        <label class="block text-xs font-medium text-tinta-500 mb-1.5">Motivo del rechazo *</label>
-                        <textarea v-model="motivoRechazo" rows="2" placeholder="Qué falló y qué hay que corregir..."
-                            class="w-full rounded-xl border border-borde-aviso-naranja px-3 py-2 text-sm focus:outline-none"></textarea>
-                    </div>
-
-                    <div class="flex gap-2">
-                        <button @click="decidirCalidad('aprobar')" :disabled="guardandoCalidad"
-                            class="flex-1 py-2.5 rounded-xl text-white text-sm font-medium disabled:opacity-50"
-                            style="background:#059669;">
-                            Aprobar calidad
-                        </button>
-                        <button @click="decidirCalidad('rechazar')" :disabled="guardandoCalidad || (mostrarRechazo && !motivoRechazo.trim())"
-                            class="flex-1 py-2.5 rounded-xl text-white text-sm font-medium disabled:opacity-50"
-                            style="background:#EA580C;">
-                            {{ mostrarRechazo ? 'Confirmar rechazo' : 'Rechazar (reproceso)' }}
-                        </button>
-                    </div>
-                </template>
-                <p v-else-if="op.observaciones_calidad" class="text-sm text-tinta-500 whitespace-pre-line">{{ op.observaciones_calidad }}</p>
-            </div>
+            <!-- El control de calidad de la orden entera se quitó el 18 ago 2026.
+                 Era una foto, un comentario y aprobar: en una orden de diez puertas eso no
+                 dice qué se revisó ni cuál salió mal. Ahora la revisión está en cada ítem, con
+                 la lista que definió su plantilla, y la orden queda aprobada sola cuando no
+                 queda nada por resolver. -->
 
             <!-- Módulo Financiero -->
             <FinancieroOP

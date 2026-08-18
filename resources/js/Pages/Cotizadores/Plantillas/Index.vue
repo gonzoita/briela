@@ -9,6 +9,7 @@ import ResultadosBuscadorProducto from '@/Components/ResultadosBuscadorProducto.
 import RichTextEditor from '@/Components/RichTextEditor.vue'
 import { useClipboard } from '@/composables/useClipboard'
 import AsistenteIaPaso from '@/Components/AsistenteIaPaso.vue'
+import ChecksCalidad from '@/Components/ChecksCalidad.vue'
 
 const { copyText } = useClipboard()
 
@@ -23,6 +24,51 @@ const props = defineProps({
 const plantillas      = ref(props.plantillas.map(p => ({ ...p })))
 const plantillaActual = ref(null)
 const tabActivo       = ref('info')
+
+// ── Revisión de calidad de la plantilla ──────────────────────────────────────
+// Va aquí y no en cada ensamble porque es la misma pregunta que los pasos: qué se revisa
+// de esto que se fabrica. Definirla ensamble por ensamble obligaría a repetirla en todos.
+const checksCalidad   = ref([])
+const guardandoChecks = ref(false)
+const avisoChecks     = ref('')
+
+async function cargarChecksCalidad() {
+    if (! plantillaActual.value?.id) return
+
+    try {
+        const res  = await fetch(`${BASE}/${plantillaActual.value.id}/checks-calidad`, {
+            headers: { Accept: 'application/json' }, credentials: 'same-origin',
+        })
+        const data = await res.json()
+        checksCalidad.value = (data.checks ?? []).map(c => ({ ...c }))
+    } catch {
+        checksCalidad.value = []
+    }
+}
+
+async function guardarChecksCalidad() {
+    guardandoChecks.value = true
+    avisoChecks.value     = ''
+
+    try {
+        const res = await fetch(`${BASE}/${plantillaActual.value.id}/checks-calidad`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                Accept: 'application/json',
+                'X-XSRF-TOKEN': decodeURIComponent(document.cookie.split('; ').find(c => c.startsWith('XSRF-TOKEN='))?.split('=')[1] ?? ''),
+            },
+            credentials: 'same-origin',
+            body: JSON.stringify({ checks: checksCalidad.value }),
+        })
+
+        avisoChecks.value = res.ok ? 'Lista de revisión guardada.' : 'No se pudo guardar.'
+    } catch {
+        avisoChecks.value = 'No se pudo guardar.'
+    } finally {
+        guardandoChecks.value = false
+    }
+}
 const tabMobile       = ref('plantillas')
 const guardando       = ref(false)
 const errorGlobal     = ref('')
@@ -71,6 +117,7 @@ function seleccionar(p) {
     editandoComponente.value = null
     pasoActivo.value          = null
     tabActivo.value          = 'info'
+    cargarChecksCalidad()
     tabMobile.value          = 'editor'
 }
 
@@ -1092,7 +1139,7 @@ const badgesTipo = {
 
                     <!-- Tabs del editor -->
                     <div class="flex border-b border-linea mb-4 bg-superficie rounded-t-2xl overflow-hidden">
-                        <button v-for="tab in [['info','Info'],['campos','Campos'],['componentes','Componentes'],['produccion','Producción'],['salida','Salida']]"
+                        <button v-for="tab in [['info','Info'],['campos','Campos'],['componentes','Componentes'],['produccion','Producción'],['calidad','Calidad'],['salida','Salida']]"
                             :key="tab[0]"
                             @click="tabActivo = tab[0]"
                             :class="['px-4 py-3 text-sm font-medium transition-colors border-b-2 -mb-px', tabActivo === tab[0] ? 'text-aviso-azul border-blue-600' : 'text-tinta-400 border-transparent hover:text-tinta-700']">
@@ -2606,6 +2653,23 @@ const badgesTipo = {
                     </div>
 
                     <!-- ══════════════ Tab: Config. Salida ════════════════════ -->
+                    <!-- Revisión de calidad: qué se mira en cada unidad antes de darla por
+                         buena. Se copia a cada unidad al generar su trabajo. -->
+                    <div v-if="tabActivo === 'calidad'" class="bg-superficie rounded-b-2xl shadow-sm p-5 space-y-4">
+                        <ChecksCalidad :checks="checksCalidad">
+                            <template #titulo>Revisión de calidad</template>
+                        </ChecksCalidad>
+
+                        <div class="flex items-center gap-3 pt-2 border-t border-linea">
+                            <button type="button" @click="guardarChecksCalidad" :disabled="guardandoChecks"
+                                class="px-4 py-2 rounded-xl text-white text-sm font-semibold disabled:opacity-60"
+                                style="background:var(--marca);">
+                                {{ guardandoChecks ? 'Guardando…' : 'Guardar lista' }}
+                            </button>
+                            <span v-if="avisoChecks" class="text-xs text-aviso-verde">{{ avisoChecks }}</span>
+                        </div>
+                    </div>
+
                     <div v-if="tabActivo === 'salida' && plantillaActual.config_salida" class="bg-superficie rounded-b-2xl shadow-sm p-5 space-y-5">
                         <div>
                             <h3 class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-3">Comportamiento en cotización</h3>

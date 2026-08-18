@@ -111,6 +111,19 @@ es un buen ejemplo de por qué es importante no dejar código muerto sin
 marcar: nadie notó durante meses que las métricas de inicio no eran reales.
 
 
+## Calidad, ítem por ítem
+
+**El bloque de «Control de calidad» de la orden entera se quitó el 18 ago 2026.** Era una foto,
+un comentario y aprobar; en una orden de diez puertas no decía qué se revisó ni cuál salió mal.
+
+Ahora la revisión está **dentro de cada ítem**, con la lista que definió su plantilla, y una
+unidad por bloque: de cinco puertas, una puede pasar y otra no, y eso hay que poder decirlo.
+
+**La orden se aprueba sola** cuando no queda ningún punto sin resolver, y el sello se retira si
+algo se marca como falla después. Es el principio del sistema: cada acción real dispara el
+siguiente paso. Un botón de «aprobar» al final de una revisión punto por punto termina siendo un
+trámite que se aprieta sin mirar.
+
 ## Calidad, unidad por unidad
 
 Calidad era una decisión de una sola pieza sobre la orden entera: aprobada o a reproceso, con

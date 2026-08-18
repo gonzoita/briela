@@ -304,6 +304,25 @@ tiempo de secado.
 - Pide el nombre del paso antes de arrancar: pregunta sobre ese paso, no sobre uno cualquiera.
 
 
+
+## La pestaña Calidad
+
+Junto a Info · Campos · Componentes · Producción está **Calidad**: la lista de lo que hay que
+revisar en cada unidad antes de darla por buena —si trae la llave, si le falta un empaque—.
+
+Vive aquí y no en cada ensamble por la misma razón que los pasos: es la misma pregunta para
+todos los ensambles que salen de esta receta, y definirla uno por uno obligaría a repetirla.
+
+Cada punto tiene dos marcas:
+
+- **Exige foto**: no se puede dar por cumplido sin ella. Para lo que después se discute con el
+  cliente.
+- **Crítico**: si falla, la unidad no pasa. Uno no crítico se anota y no bloquea.
+
+La lista se copia a **cada unidad** al generar su trabajo y se congela ahí: cambiarla después no
+reescribe lo que alguien ya revisó.
+
+
 ## Nota técnica
 
 - Tablas: `plantillas_ensamble`, `plantilla_campos`, `plantilla_componentes`,

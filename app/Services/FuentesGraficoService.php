@@ -83,6 +83,42 @@ class FuentesGraficoService
                 'filtros' => ['estado' => 'estado', 'desde' => 'created_at', 'hasta' => 'created_at'],
             ],
 
+            'recaudo' => [
+                'label'   => 'Recaudo',
+                'modulo'  => 'financiero',
+                'tabla'   => 'op_pagos',
+                'fecha'   => 'fecha_pago',
+                'medidas' => [
+                    'suma_total' => ['label' => 'Recaudado', 'sql' => 'SUM(valor)', 'dinero' => true],
+                    'conteo'     => ['label' => 'Cantidad de pagos', 'sql' => 'COUNT(*)'],
+                    'promedio'   => ['label' => 'Pago promedio', 'sql' => 'AVG(valor)', 'dinero' => true],
+                ],
+                'dimensiones' => [
+                    'mes'        => ['label' => 'Mes',          'sql' => "DATE_FORMAT(fecha_pago, '%Y-%m')", 'orden' => 'asc'],
+                    'dia'        => ['label' => 'Día',          'sql' => 'DATE(fecha_pago)', 'orden' => 'asc'],
+                    'medio_pago' => ['label' => 'Medio de pago','sql' => 'medio_pago'],
+                ],
+                'filtros' => ['desde' => 'fecha_pago', 'hasta' => 'fecha_pago'],
+            ],
+
+            'cartera' => [
+                'label'   => 'Cartera',
+                'modulo'  => 'financiero',
+                'tabla'   => 'op_cuotas',
+                'fecha'   => 'fecha_vencimiento',
+                'medidas' => [
+                    'suma_total'    => ['label' => 'Valor de las cuotas', 'sql' => 'SUM(valor)', 'dinero' => true],
+                    'suma_pagado'   => ['label' => 'Pagado', 'sql' => 'SUM(valor_pagado)', 'dinero' => true],
+                    'suma_pendiente'=> ['label' => 'Por cobrar', 'sql' => 'SUM(valor - valor_pagado)', 'dinero' => true],
+                    'conteo'        => ['label' => 'Cantidad de cuotas', 'sql' => 'COUNT(*)'],
+                ],
+                'dimensiones' => [
+                    'estado' => ['label' => 'Estado', 'sql' => 'estado'],
+                    'mes'    => ['label' => 'Mes de vencimiento', 'sql' => "DATE_FORMAT(fecha_vencimiento, '%Y-%m')", 'orden' => 'asc'],
+                ],
+                'filtros' => ['estado' => 'estado', 'desde' => 'fecha_vencimiento', 'hasta' => 'fecha_vencimiento'],
+            ],
+
             'alistamiento' => [
                 'label'   => 'Ítems de producción',
                 'modulo'  => 'alistamiento',

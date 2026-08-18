@@ -204,6 +204,7 @@ class OpController extends Controller
             'items.operario',
             'items.componentes.producto',
             'items.trabajos.template',
+            'items.trabajos.checks.revisadoPor:id,name',
             'archivos' => fn ($q) => $q->where('categoria', 'foto_calidad'),
         ]);
 
@@ -238,6 +239,20 @@ class OpController extends Controller
                     }
 
                     return [
+                        // La revisión de calidad de este ítem, unidad por unidad.
+                        //
+                        // Calidad era una decisión de una sola pieza sobre la orden entera: una
+                        // foto, un comentario y aprobar. En una orden de diez puertas eso no dice
+                        // nada. Ahora cada ítem trae su lista —la que definió la plantilla— y la
+                        // orden se aprueba cuando no queda nada por resolver.
+                        'unidades_calidad' => $item->trabajos->map(fn ($t) => [
+                            'trabajo_id' => $t->id,
+                            'numero'     => $t->numero_unidad,
+                            'total'      => $t->total_unidades,
+                            'checks'     => $t->checks->map(
+                                fn ($c) => app(\App\Http\Controllers\CalidadCheckController::class)->fila($c)
+                            )->values(),
+                        ])->filter(fn ($u) => count($u['checks']) > 0)->values(),
                         ...$item->toArray(),
                         'codigo_item' => $op->numero . '-' . str_pad($idx + 1, 2, '0', STR_PAD_LEFT),
                         'descripcion_larga_texto' => $item->descripcion_larga

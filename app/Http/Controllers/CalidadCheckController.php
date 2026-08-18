@@ -41,7 +41,42 @@ class CalidadCheckController extends Controller
             'revisado_at'   => $datos['resultado'] === 'pendiente' ? null : now(),
         ]);
 
+        $this->sellarCalidadSiTerminó($check);
+
         return response()->json($this->fila($check->fresh('revisadoPor')));
+    }
+
+    /**
+     * Cuando la última unidad de la OP queda revisada, la orden queda aprobada sola.
+     *
+     * Es el principio del sistema: cada acción real dispara el siguiente paso. Nadie debería
+     * tener que entrar a la orden a apretar «aprobar» después de haber revisado punto por punto
+     * cada unidad — y si tuviera que hacerlo, ese botón terminaría siendo un trámite que se
+     * aprieta sin mirar.
+     *
+     * Si algo se marca como falla después, el sello se retira: la orden vuelve a no estar
+     * aprobada, que es lo honesto.
+     */
+    private function sellarCalidadSiTerminó(OpItemTrabajoCheck $check): void
+    {
+        $op = $check->trabajo?->opItem?->op;
+
+        if (! $op) {
+            return;
+        }
+
+        $pendientes = OpItemTrabajoCheck::whereHas(
+            'trabajo.opItem', fn ($q) => $q->where('op_id', $op->id)
+        )->where(function ($q) {
+            $q->where('resultado', 'pendiente')
+              ->orWhere(fn ($q2) => $q2->where('resultado', 'falla')->where('es_critico', true));
+        })->count();
+
+        if ($pendientes === 0 && ! $op->calidad_aprobada_at) {
+            $op->update(['calidad_aprobada_at' => now(), 'estado' => $op->estado === 'calidad' ? 'calidad' : $op->estado]);
+        } elseif ($pendientes > 0 && $op->calidad_aprobada_at) {
+            $op->update(['calidad_aprobada_at' => null]);
+        }
     }
 
     public function fotos(Request $request, OpItemTrabajoCheck $check): JsonResponse

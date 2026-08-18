@@ -467,6 +467,9 @@ Route::middleware('auth')->group(function () {
             // Pasos de producción — fusión con Plantillas de Trabajo (1 a 1, automático)
             Route::get('/{plantilla}/pasos-trabajo',                   [PlantillaEnsambleController::class, 'pasosTrabajo'])->name('pasos-trabajo.show');
             Route::post('/{plantilla}/pasos-trabajo',                  [PlantillaEnsambleController::class, 'guardarPasosTrabajo'])->name('pasos-trabajo.store');
+            // La lista de revisión de calidad, junto a los pasos: las dos son de la plantilla.
+            Route::get('/{plantilla}/checks-calidad',                  [PlantillaEnsambleController::class, 'checksCalidad'])->name('checks-calidad.show');
+            Route::post('/{plantilla}/checks-calidad',                 [PlantillaEnsambleController::class, 'guardarChecksCalidad'])->name('checks-calidad.store');
             Route::post('/{plantilla}/pasos-trabajo/adjunto',          [PlantillaEnsambleController::class, 'subirAdjuntoPaso'])->name('pasos-trabajo.adjunto');
 
         });
