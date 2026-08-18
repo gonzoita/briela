@@ -1,1 +1,0 @@
-function e(e){let t=Number(e)||0;return new Intl.NumberFormat(`es-CO`,{minimumFractionDigits:0,maximumFractionDigits:2}).format(t)}export{e as t};

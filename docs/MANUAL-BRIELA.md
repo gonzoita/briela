@@ -102,6 +102,14 @@ tiene ninguno, con el precio público.
 
 → [Cotizaciones](./manual/cotizaciones.md) · [Cotización aprobada → OP](./manual/cotizacion-a-op.md)
 
+### Gráficos del tablero
+
+Cotizaciones, Comisiones y Alistamiento tienen una sección donde la empresa **arma sus propios
+gráficos**: elige fuente, qué se mide, cómo se agrupa y la forma —barras, línea, dona o un solo
+número—. Guarda la pregunta, no la respuesta: los números se calculan al abrir la pantalla.
+
+→ [Gráficos del tablero](./manual/graficos-tablero.md)
+
 ### Comisiones
 `/comisiones`
 

@@ -4,6 +4,7 @@ import { router } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
 import OrdenarLista from '@/Components/OrdenarLista.vue'
 import { useOrden } from '@/composables/useOrden'
+import GraficosPersonalizados from '@/Components/GraficosPersonalizados.vue'
 
 const props = defineProps({
     cotizaciones: Object,
@@ -376,5 +377,8 @@ const chartPoints = computed(() => {
             </div>
 
         </div>
+            <!-- Los graficos que la empresa arma para este tablero. -->
+            <GraficosPersonalizados modulo="cotizaciones" :puede-gestionar="$page.props.auth?.permisos?.includes('graficos.gestionar') ?? false" />
+
     </AppLayout>
 </template>

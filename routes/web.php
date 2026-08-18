@@ -750,6 +750,12 @@ Route::middleware('auth')->group(function () {
     Route::post('/api/ia/ficha-tecnica', [IaController::class, 'fichaTecnica'])
         ->name('ia.ficha-tecnica');
 
+    // Los gráficos que la empresa arma para sus tableros. Ver es de cualquiera con acceso
+    // al módulo; crear y borrar exige permiso, porque lo que uno arma lo ven todos.
+    Route::get('/api/graficos',                [\App\Http\Controllers\GraficoDashboardController::class, 'index'])->name('graficos.index');
+    Route::post('/api/graficos',               [\App\Http\Controllers\GraficoDashboardController::class, 'store'])->middleware('permiso:graficos.gestionar')->name('graficos.store');
+    Route::delete('/api/graficos/{grafico}',   [\App\Http\Controllers\GraficoDashboardController::class, 'destroy'])->middleware('permiso:graficos.gestionar')->name('graficos.destroy');
+
     // El asistente que redacta un paso de producción: pregunta primero, redacta después.
     Route::post('/api/ia/paso-produccion', [IaController::class, 'pasoProduccion'])
         ->name('ia.paso-produccion');

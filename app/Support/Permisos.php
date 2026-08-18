@@ -25,6 +25,8 @@ class Permisos
                 'crm'          => ['label' => 'CRM / Leads',  'acciones' => ['ver', 'crear', 'editar', 'eliminar']],
                 'cotizaciones' => ['label' => 'Cotizaciones', 'acciones' => ['ver', 'crear', 'editar', 'eliminar']],
                 'comisiones'   => ['label' => 'Comisiones',   'acciones' => ['ver', 'liquidar']],
+                // Un grafico que uno arma lo ven todos: por eso gestionarlo es un permiso.
+                'graficos'     => ['label' => 'Gráficos del tablero', 'acciones' => ['gestionar']],
             ],
             'Producción' => [
                 'ops'         => ['label' => 'Órdenes de Producción', 'acciones' => ['ver', 'crear', 'editar', 'eliminar', 'calidad']],

@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import { router } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
+import GraficosPersonalizados from '@/Components/GraficosPersonalizados.vue'
 
 const props = defineProps({
     comisiones:       { type: Array,   default: () => [] },
@@ -208,5 +209,8 @@ async function liquidar(id) {
             </div>
 
         </div>
+            <!-- Los graficos que la empresa arma para este tablero. -->
+            <GraficosPersonalizados modulo="comisiones" :puede-gestionar="$page.props.auth?.permisos?.includes('graficos.gestionar') ?? false" />
+
     </AppLayout>
 </template>

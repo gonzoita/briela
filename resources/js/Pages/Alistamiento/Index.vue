@@ -12,6 +12,7 @@ import AppLayout from '@/Layouts/AppLayout.vue'
 import OrdenarLista from '@/Components/OrdenarLista.vue'
 import BotonOrden from '@/Components/BotonOrden.vue'
 import { useOrden } from '@/composables/useOrden'
+import GraficosPersonalizados from '@/Components/GraficosPersonalizados.vue'
 
 const props = defineProps({
     items:        { type: Object, default: () => ({ data: [] }) },
@@ -230,5 +231,8 @@ const colorTipo = (t) => t === 'ensamble'
             </div>
 
         </div>
+            <!-- Los graficos que la empresa arma para este tablero. -->
+            <GraficosPersonalizados modulo="alistamiento" :puede-gestionar="$page.props.auth?.permisos?.includes('graficos.gestionar') ?? false" />
+
     </AppLayout>
 </template>
