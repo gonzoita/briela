@@ -88,6 +88,12 @@ fi
 
 # ─── Aplicar ─────────────────────────────────────────────────────────────────
 php artisan migrate --force
+
+# Los permisos que trae una actualizacion no llegan solos a ningun rol: el catalogo vive en
+# codigo y lo que un rol puede hacer vive en la base, escrita cuando se creo la instalacion.
+# Sin esto, un modulo nuevo queda instalado e invisible — sin menu y con las rutas en 403.
+# Solo agrega: lo que la empresa le quito a un rol a mano se queda quitado.
+php artisan permisos:sincronizar
 php artisan config:cache
 php artisan route:cache
 php artisan view:cache

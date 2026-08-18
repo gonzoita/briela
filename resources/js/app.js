@@ -54,9 +54,36 @@ createInertiaApp({
             throw new Error(`No existe la pantalla Pages/${name}.vue`);
         }
 
-        return cargar();
+        return cargar().catch((error) => {
+            // **La pantalla en negro después de un despliegue.**
+            //
+            // Cada pantalla es su propio archivo con un nombre que incluye un hash, y al
+            // desplegar cambian todos. Una pestaña que quedó abierta —o el service worker con
+            // su copia vieja— sigue pidiendo el archivo anterior, que ya no está en el
+            // servidor: la importación falla, Inertia no tiene qué dibujar y el área de la
+            // página queda vacía. En negro, sin un mensaje que lo explique.
+            //
+            // Recargar una vez trae el HTML nuevo, con los nombres nuevos. La marca en
+            // `sessionStorage` evita el bucle si el fallo era otro y la recarga no lo cura.
+            const clave = 'briela:recarga-por-version';
+
+            if (! sessionStorage.getItem(clave)) {
+                sessionStorage.setItem(clave, '1');
+                window.location.reload();
+
+                // No se resuelve a propósito: la página se está yendo, y devolver un
+                // componente vacío pintaría el negro que estamos evitando.
+                return new Promise(() => {});
+            }
+
+            throw error;
+        });
     },
     setup({ el, App, props, plugin }) {
+        // Se montó: lo que sea que hubiera fallado, ya no falla. Se borra la marca para que
+        // el próximo despliegue pueda recuperarse igual.
+        sessionStorage.removeItem('briela:recarga-por-version');
+
         return createApp({ render: () => h(App, props) })
             .use(plugin)
             .mount(el);

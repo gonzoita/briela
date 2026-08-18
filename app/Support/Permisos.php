@@ -151,7 +151,6 @@ class Permisos
                 'cotizaciones' => ['ver', 'crear', 'editar'],
                 'comisiones'   => ['ver'],
                 'ops'          => ['ver', 'crear'],
-                'alistamiento' => ['ver', 'alistar'],
                 'productos'    => ['ver'],
                 'ensambles'    => ['ver'],
                 'solicitudes'  => ['ver', 'crear', 'editar'],
