@@ -218,6 +218,8 @@ class TrabajoController extends Controller
         ]);
 
         return Inertia::render('Trabajos/Show', [
+            // Para elegir a que bodega entra la unidad al cerrar el ultimo paso.
+            'bodegas' => \App\Models\Bodega::orderBy('nombre')->get(['id', 'nombre']),
             'trabajo'   => [
                 'id'                => $trabajo->id,
                 'porcentaje_avance' => (float) $trabajo->porcentaje_avance,
@@ -251,6 +253,10 @@ class TrabajoController extends Controller
                     'tiempo_minutos'      => $p->tiempo_minutos,
                     'es_extra'            => (bool) $p->es_extra,
                     'orden'               => $p->orden,
+                    // El paso final es el que entrega la unidad a una bodega, y por eso es el
+                    // unico que muestra el selector.
+                    'es_paso_final'       => (bool) $p->es_paso_final,
+                    'bodega_destino_id'   => $p->bodega_destino_id,
                     // Las fotos se guardan como ruta relativa —«pasos/2/foto.jpg»— y el
                     // navegador necesita la URL pública. Sin `Storage::url()` el `src` quedaba
                     // relativo a la dirección de la pantalla y resolvía a

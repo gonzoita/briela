@@ -228,6 +228,39 @@ function ramaAbierta(item) {
 }
 
 // ─── Menú usuario (desktop topbar) ───────────────────────────────────────────
+/**
+ * Forzar la actualización: borra el service worker y sus cachés, y recarga.
+ *
+ * Existe porque un PWA puede quedarse con una copia vieja de la aplicación —el service worker
+ * sirve los archivos que guardó, y los del despliegue anterior ya no están en el servidor: la
+ * pantalla queda en negro o simplemente no aparece lo nuevo—. Sin este botón, la salida es
+ * explicarle a alguien cómo se limpia el caché del navegador.
+ *
+ * Al lado va el número de versión: si el que se ve aquí no es el que sirve el servidor, el
+ * navegador tiene una copia vieja, y eso deja de ser una discusión a ciegas.
+ */
+const actualizando = ref(false)
+
+async function forzarActualizacion() {
+    actualizando.value = true
+
+    try {
+        if ('serviceWorker' in navigator) {
+            const registros = await navigator.serviceWorker.getRegistrations()
+            await Promise.all(registros.map(r => r.unregister()))
+        }
+
+        if ('caches' in window) {
+            const nombres = await caches.keys()
+            await Promise.all(nombres.map(n => caches.delete(n)))
+        }
+    } finally {
+        // `reload(true)` ya no hace nada en los navegadores modernos: se le agrega un
+        // parámetro para que la navegación no salga del caché del navegador.
+        window.location.replace(window.location.pathname + '?v=' + Date.now())
+    }
+}
+
 const menuUsuario = ref(false)
 const cerrarSesion = () => router.post('/logout')
 const irPerfil    = () => { menuUsuario.value = false; drawerAbierto.value = false; router.visit('/profile') }
@@ -595,6 +628,20 @@ onUnmounted(() => {
 
             <!-- Usuario (pie del sidebar) -->
             <div class="px-3 py-3 border-t border-linea shrink-0">
+                <div class="flex items-center justify-between gap-2 px-3 pb-2">
+                    <span class="text-[10px] text-tinta-300 font-mono" :title="'Versión del frontend cargado'">
+                        v{{ $page.props.version_app }}
+                    </span>
+                    <button
+                        type="button"
+                        @click="forzarActualizacion"
+                        :disabled="actualizando"
+                        class="text-[10px] text-tinta-300 hover:text-[var(--marca)] transition-colors disabled:opacity-50"
+                        title="Borra la copia guardada en el navegador y vuelve a cargar la versión del servidor"
+                    >
+                        {{ actualizando ? 'Actualizando…' : 'Forzar actualización' }}
+                    </button>
+                </div>
                 <button
                     @click="irPerfil"
                     class="flex items-center gap-3 w-full px-3 py-2 rounded-lg transition-colors hover:bg-tinta-50"

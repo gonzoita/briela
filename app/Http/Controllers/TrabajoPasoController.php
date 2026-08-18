@@ -21,7 +21,34 @@ class TrabajoPasoController extends Controller
             'operarios.*.operario_id'    => 'required|exists:operarios,id',
             'operarios.*.tiempo_minutos' => 'nullable|integer|min:0',
             'operarios.*.observaciones'  => 'nullable|string|max:500',
+            // A que bodega entra la unidad. Solo significa algo en el paso final.
+            'bodega_destino_id'          => 'sometimes|nullable|exists:bodegas,id',
         ]);
+
+        // ─── El paso final entrega la unidad ─────────────────────────────────────
+        //
+        // Esta es la pantalla que de verdad usa la planta, y aqui no pasaba nada al cerrar
+        // el ultimo paso: el avance llegaba a 100 y la unidad no entraba a ninguna bodega ni
+        // se descontaba un solo material. La entrega estaba escrita en OTRO endpoint, el de
+        // la orden de produccion, que esta pantalla no llama.
+        //
+        // Se pide la bodega aqui porque es quien cierra el paso el que fisicamente deja la
+        // unidad en el estante, y es el unico que sabe en cual.
+        $cerrandoFinal = ($data['completado'] ?? false) && $paso->es_paso_final && ! $paso->completado;
+
+        if ($cerrandoFinal) {
+            $bodega = $data['bodega_destino_id'] ?? $paso->bodega_destino_id;
+
+            if (! $bodega) {
+                return response()->json([
+            'entregada_en' => $entregadaEn ?? null,
+                    'success' => false,
+                    'message' => 'Elige a que bodega entra la unidad: este es el paso que la entrega.',
+                ], 422);
+            }
+
+            $data['bodega_destino_id'] = $bodega;
+        }
 
         // Fecha/hora de inicio y fin siempre las pone el servidor con now() —
         // nadie las escribe a mano. "iniciado" marca el arranque; si se marca
@@ -108,6 +135,14 @@ class TrabajoPasoController extends Controller
         $paso->load('operario', 'operarios.operario');
         $trabajo = $paso->trabajo;
         $trabajo->recalcularAvance();
+
+        // Cerrado el ultimo paso: se descuentan los materiales de ESTA unidad y entra como
+        // producto terminado. `entregado_at` es el candado contra la doble entrega.
+        $entregadaEn = null;
+
+        if ($cerrandoFinal) {
+            $entregadaEn = app(\App\Services\EntregaAlmacenService::class)->entregar($trabajo->fresh())?->nombre;
+        }
         $trabajo->refresh();
 
         return response()->json([

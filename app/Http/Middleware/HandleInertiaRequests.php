@@ -27,6 +27,13 @@ class HandleInertiaRequests extends Middleware
 
         return [
             ...parent::share($request),
+            // Qué versión del frontend está corriendo el navegador.
+            //
+            // Existe porque «no veo el cambio» y «el cambio no se desplegó» se ven igual desde
+            // el chat, y sin este número se discuten a ciegas. Es el hash del bundle: si el que
+            // se ve en pantalla no es el que sirve el servidor, el navegador tiene una copia
+            // vieja y el problema es de caché, no de código.
+            'version_app' => $this->versionDelBundle(),
             'auth' => [
                 'user' => $user ? [
                     'id'         => $user->id,
@@ -103,5 +110,40 @@ class HandleInertiaRequests extends Middleware
                 'error'   => fn () => $request->session()->get('error'),
             ],
         ];
+    }
+
+    /**
+     * El hash del bundle compilado, leído del manifiesto de Vite.
+     *
+     * En memoria por petición: el manifiesto es un archivo pequeño, pero leerlo en cada
+     * componente compartido sería tocar disco sin razón.
+     */
+    private function versionDelBundle(): string
+    {
+        static $version = null;
+
+        if ($version !== null) {
+            return $version;
+        }
+
+        $ruta = public_path('build/manifest.json');
+
+        if (! is_file($ruta)) {
+            return $version = 'sin compilar';
+        }
+
+        $manifiesto = json_decode((string) file_get_contents($ruta), true) ?: [];
+
+        foreach ($manifiesto as $clave => $entrada) {
+            if (str_ends_with($clave, 'app.js') && isset($entrada['file'])) {
+                // De «assets/app-BsxvAlu5.js» queda «BsxvAlu5», que es lo que cambia en cada
+                // compilación y lo único que hace falta comparar.
+                preg_match('/app-([^.]+)\.js$/', $entrada['file'], $m);
+
+                return $version = $m[1] ?? 'desconocida';
+            }
+        }
+
+        return $version = 'desconocida';
     }
 }

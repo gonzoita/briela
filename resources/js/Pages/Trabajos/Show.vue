@@ -8,7 +8,15 @@ import RevisionCalidad from '@/Components/RevisionCalidad.vue'
 const props = defineProps({
     trabajo:   { type: Object, required: true },
     operarios: { type: Array,  default: () => [] },
+    bodegas:   { type: Array,  default: () => [] },
 })
+
+// A qué bodega entra la unidad al cerrar el último paso. Arranca con la que dejó
+// predefinida la plantilla, y quien cierra el paso puede cambiarla: es quien deja la unidad
+// en el estante, y es el único que sabe en cuál.
+const bodegaEntrega = ref(
+    props.trabajo?.pasos?.find(p => p.es_paso_final)?.bodega_destino_id ?? ''
+)
 
 const csrf = () => {
     const c = document.cookie.split('; ').find(r => r.startsWith('XSRF-TOKEN='))
@@ -100,7 +108,19 @@ const actualizarPasoConOperarios = async (paso, payload) => {
             body: JSON.stringify(payload),
         })
         const data = await res.json()
+
+        if (! data.success && data.message) {
+            avisoEntrega.value = data.message
+
+            return
+        }
+
         if (data.success) {
+            // Cerrar el último paso descuenta los materiales y mete la unidad a bodega. Que
+            // eso pasó no se puede quedar en silencio: es un movimiento de inventario.
+            avisoEntrega.value = data.entregada_en
+                ? `La unidad entró a ${data.entregada_en} y sus materiales se descontaron.`
+                : ''
             porcentaje.value = data.porcentaje_avance
             const idx = pasos.value.findIndex(p => p.id === paso.id)
             if (idx >= 0) {
@@ -123,6 +143,8 @@ const actualizarPasoConOperarios = async (paso, payload) => {
     }
 }
 
+const avisoEntrega = ref('')
+
 const marcarCompletado = (paso) => {
     const entries = (operariosPorPaso.value[paso.id] ?? [])
         .filter(o => o.operario_id)
@@ -130,7 +152,12 @@ const marcarCompletado = (paso) => {
             ...o,
             tiempo_minutos: o.tiempo_minutos === '' ? null : parseInt(o.tiempo_minutos) || null,
         }))
-    actualizarPasoConOperarios(paso, { completado: true, operarios: entries })
+    actualizarPasoConOperarios(paso, {
+        completado: true,
+        operarios: entries,
+        // Solo significa algo en el paso final; el servidor lo ignora en los demás.
+        ...(paso.es_paso_final ? { bodega_destino_id: bodegaEntrega.value || null } : {}),
+    })
 }
 
 const desmarcarCompletado = (paso) => {
@@ -493,6 +520,25 @@ const circuloPaso = (paso) => {
                                 >
                                     {{ guardando.has(paso.id) ? '...' : 'Quitar inicio' }}
                                 </button>
+                                <!-- El paso final entrega la unidad: aquí se dice a qué bodega.
+                                     Antes esto solo existía en la plantilla, así que quien
+                                     cerraba el paso —el que físicamente deja la unidad en el
+                                     estante— no tenía forma de decir en cuál la dejó. -->
+                                <div v-if="paso.es_paso_final && ! paso.completado" class="w-full mb-2">
+                                    <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1">
+                                        Entrega en
+                                    </label>
+                                    <select v-model="bodegaEntrega" @click.stop
+                                        class="w-full border border-linea rounded-xl px-3 py-2 text-sm bg-superficie focus:outline-none focus:border-[var(--marca)]">
+                                        <option value="">Elige la bodega…</option>
+                                        <option v-for="b in bodegas" :key="b.id" :value="b.id">{{ b.nombre }}</option>
+                                    </select>
+                                    <p class="text-xs text-tinta-300 mt-1">
+                                        Al cerrar este paso la unidad entra a esa bodega y se descuentan
+                                        los materiales que se gastaron en ella.
+                                    </p>
+                                </div>
+
                                 <button
                                     v-if="!paso.completado"
                                     class="flex-1 py-2.5 rounded-xl text-sm font-semibold text-white transition-colors disabled:opacity-60"
@@ -517,6 +563,11 @@ const circuloPaso = (paso) => {
                                     {{ guardando.has(paso.id) ? '...' : 'Desmarcar' }}
                                 </button>
                             </div>
+
+                            <p v-if="avisoEntrega && paso.es_paso_final"
+                                class="text-xs mt-2 px-3 py-2 rounded-lg bg-pastel-verde border border-borde-aviso-verde text-aviso-verde">
+                                {{ avisoEntrega }}
+                            </p>
                         </div>
 
                         <!-- Footer mini si completado y no expandido -->
