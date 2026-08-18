@@ -16,6 +16,7 @@ class ComisionVendedor extends Model
         'estado',
         'periodo_mes',
         'liquidada_at',
+        'liquidacion_id',
     ];
 
     protected $casts = [
@@ -31,5 +32,11 @@ class ComisionVendedor extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    /** En qué pago entró, si ya entró en alguno. */
+    public function liquidacion(): BelongsTo
+    {
+        return $this->belongsTo(LiquidacionComision::class, 'liquidacion_id');
     }
 }

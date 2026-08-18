@@ -58,6 +58,29 @@ Eso tiene una consecuencia que conviene conocer: **la utilidad de la empresa no 
 el vendedor la barra donde la mueva. Siempre es `precio − costo − comisión máxima`. Lo único
 que se decide con la barra es quién se queda con esa parte: el vendedor o el cliente.
 
+## Liquidar varias de una vez
+
+Ruta: `/comisiones/liquidaciones`
+
+A un vendedor no se le paga cotización por cotización: se le paga el corte, con todo lo que haya
+entrado en él. Una **liquidación** agrupa varias comisiones en un solo documento.
+
+1. **Nueva liquidación** → se elige el vendedor. Salen sus comisiones sin pagar: las que no
+   están liquidadas, no entraron en otra liquidación y tienen valor. Una comisión en cero no se
+   paga, y ofrecerla solo ensucia la lista.
+2. Se marcan las que entran —vienen todas marcadas— y se ve el total mientras se elige.
+3. Queda en **borrador**: se puede deshacer, y sus comisiones vuelven a quedar disponibles.
+4. **Marcar pagada** cierra el documento y deja sus comisiones liquidadas.
+
+Una liquidación pagada **no se borra**: es el registro de una plata que ya salió, y borrarla
+dejaría comisiones liquidadas sin nada que las explique.
+
+> El servidor vuelve a comprobar qué se puede pagar al guardar, no solo al mostrar la lista:
+> entre que la pantalla cargó y alguien pulsó el botón, otra persona pudo haber liquidado una de
+> esas comisiones.
+
+Ver una liquidación es de quien ve comisiones; armarla y pagarla exige `comisiones.liquidar`.
+
 ## Arreglar el catálogo entero de una vez
 
 El botón de la ficha solo toca el producto que se está editando, así que un cambio en la regla

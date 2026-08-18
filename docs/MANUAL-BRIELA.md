@@ -114,7 +114,8 @@ número—. Guarda la pregunta, no la respuesta: los números se calculan al abr
 `/comisiones`
 
 Lo que se le debe a cada vendedor: un porcentaje del precio de venta de cada ítem, con la
-comisión que se negoció ahí. Resumen del mes y detalle por documento, los dos en PDF. El tope de
+comisión que se negoció ahí. Se pagan con una **liquidación**, que agrupa varias comisiones en
+un solo documento —a un vendedor se le paga el corte, no cotización por cotización—. Resumen del mes y detalle por documento, los dos en PDF. El tope de
 cada canal sale de su **excedente sobre el canal base** —el piso de utilidad de la empresa— y
 ningún canal puede pagar menos plata que el de abajo.
 

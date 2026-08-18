@@ -74,6 +74,10 @@ async function liquidar(id) {
                         <option :value="null">Todos los vendedores</option>
                         <option v-for="v in vendedores" :key="v.id" :value="v.id">{{ v.name }}</option>
                     </select>
+                    <button type="button" @click="router.visit('/comisiones/liquidaciones')"
+                        class="px-3 py-2 rounded-xl border border-linea text-sm text-tinta-600 hover:bg-realce transition-colors">
+                        Liquidaciones
+                    </button>
                     <a :href="`/comisiones/resumen-pdf?mes=${mesSeleccionado}${vendedorSel ? '&vendedor_id=' + vendedorSel : ''}`"
                        target="_blank"
                        class="flex items-center gap-2 px-4 py-1.5 bg-[var(--marca)] text-white

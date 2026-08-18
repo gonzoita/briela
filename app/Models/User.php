@@ -236,4 +236,10 @@ class User extends Authenticatable
             ->orderBy('nombre')
             ->get();
     }
+
+    /** Las comisiones de este vendedor. */
+    public function comisiones(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(\App\Models\ComisionVendedor::class, 'user_id');
+    }
 }

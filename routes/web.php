@@ -257,11 +257,23 @@ Route::middleware('auth')->group(function () {
         Route::get('/comisiones',                    [ComisionController::class, 'index'])->name('comisiones.index');
         // resumen-pdf DEBE ir antes de {comision} para evitar model binding con la cadena literal
         Route::get('/comisiones/resumen-pdf',        [ComisionController::class, 'pdfResumenMes'])->name('comisiones.resumen-pdf');
+        // Antes de la ruta con {comision}: Laravel resuelve por orden de registro, y
+        // «/comisiones/liquidaciones» encajaría en «/comisiones/{comision}» como si
+        // «liquidaciones» fuera el id de una comisión.
+        Route::get('/comisiones/liquidaciones',              [\App\Http\Controllers\LiquidacionComisionController::class, 'index'])->name('liquidaciones.index');
+        Route::get('/comisiones/liquidaciones/nueva',        [\App\Http\Controllers\LiquidacionComisionController::class, 'create'])->name('liquidaciones.create');
+        Route::get('/comisiones/liquidaciones/{liquidacion}',[\App\Http\Controllers\LiquidacionComisionController::class, 'show'])->name('liquidaciones.show');
         Route::get('/comisiones/{comision}',         [ComisionController::class, 'show'])->name('comisiones.show');
         Route::get('/comisiones/{comision}/pdf',     [ComisionController::class, 'pdfDetalle'])->name('comisiones.pdf');
         Route::post('/api/comisiones/calcular',      [ComisionController::class, 'calcular'])->name('comisiones.calcular');
         Route::post('/api/comisiones/sugerir-topes', [ComisionController::class, 'sugerirTopes'])->name('comisiones.sugerir');
     });
+    Route::middleware('permiso:comisiones.liquidar')->group(function () {
+        Route::post('/comisiones/liquidaciones',                    [\App\Http\Controllers\LiquidacionComisionController::class, 'store'])->name('liquidaciones.store');
+        Route::patch('/comisiones/liquidaciones/{liquidacion}/pagar',[\App\Http\Controllers\LiquidacionComisionController::class, 'pagar'])->name('liquidaciones.pagar');
+        Route::delete('/comisiones/liquidaciones/{liquidacion}',     [\App\Http\Controllers\LiquidacionComisionController::class, 'destroy'])->name('liquidaciones.destroy');
+    });
+
     Route::middleware('permiso:comisiones.liquidar')->group(function () {
         Route::post('/comisiones/{comision}/liquidar', [ComisionController::class, 'liquidar'])->name('comisiones.liquidar');
     });
