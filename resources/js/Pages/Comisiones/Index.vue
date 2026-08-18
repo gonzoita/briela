@@ -214,7 +214,7 @@ async function liquidar(id) {
 
         </div>
             <!-- Los graficos que la empresa arma para este tablero. -->
-            <GraficosPersonalizados modulo="comisiones" :puede-gestionar="$page.props.auth?.permisos?.includes('graficos.gestionar') ?? false" />
+            <GraficosPersonalizados modulo="comisiones" :puede-gestionar="$page.props.auth?.permisosLista?.includes('graficos.gestionar') ?? false" />
 
     </AppLayout>
 </template>

@@ -84,9 +84,28 @@ createInertiaApp({
         // el próximo despliegue pueda recuperarse igual.
         sessionStorage.removeItem('briela:recarga-por-version');
 
-        return createApp({ render: () => h(App, props) })
-            .use(plugin)
-            .mount(el);
+        const app = createApp({ render: () => h(App, props) });
+
+        /**
+         * Un error al dibujar no puede quedarse en una pantalla vacía.
+         *
+         * Vue, cuando el render revienta, desmonta el árbol y deja el hueco: negro, sin una
+         * palabra. Pasó de verdad —una pantalla llamaba `.includes()` sobre algo que no era
+         * una lista— y desde el chat es indistinguible de «no se desplegó». Ahora el error se
+         * ve, con el nombre del archivo, que es lo único que hace falta para arreglarlo.
+         */
+        app.config.errorHandler = (error, instancia, info) => {
+            console.error('[Briela] error al dibujar la pantalla:', error, info);
+
+            const caja = document.createElement('div');
+            caja.style.cssText = 'position:fixed;left:0;right:0;bottom:0;z-index:9999;padding:14px 18px;'
+                + 'background:#7f1d1d;color:#fff;font:13px/1.5 system-ui;box-shadow:0 -2px 12px rgba(0,0,0,.35)';
+            caja.textContent = 'Esta pantalla no se pudo dibujar: ' + (error?.message ?? error)
+                + ' — dile esto a soporte, o pulsa «Forzar actualización» en el menú.';
+            document.body.appendChild(caja);
+        };
+
+        return app.use(plugin).mount(el);
     },
     progress: {
         // La barra de carga necesita un color real, no una variable CSS.
