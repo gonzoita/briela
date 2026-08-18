@@ -486,10 +486,11 @@ onUnmounted(() => {
                         <div class="flex items-stretch gap-0.5">
                             <a
                                 :href="item.href"
-                                class="flex-1 min-w-0 flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors"
+                                class="flex-1 min-w-0 flex items-center gap-3 rounded-lg pl-3 pr-3 py-2 text-sm font-medium transition-colors relative
+                                       before:absolute before:left-0 before:top-1.5 before:bottom-1.5 before:w-[3px] before:rounded-full before:transition-colors"
                                 :class="isActive(item.href)
-                                    ? 'bg-[var(--marca-suave)] text-[var(--marca)] font-semibold'
-                                    : 'text-tinta-500 hover:bg-tinta-50 hover:text-tinta-900'"
+                                    ? 'bg-realce text-[var(--marca)] font-semibold before:bg-[var(--marca)]'
+                                    : 'text-tinta-500 hover:bg-realce hover:text-tinta-900 before:bg-transparent'"
                                 @click.prevent="router.visit(item.href)"
                             >
                                 <IconoMenu :nombre="item.icon" clase="w-5 h-5 shrink-0" />
@@ -502,7 +503,7 @@ onUnmounted(() => {
                                 v-if="item.hijos?.length"
                                 type="button"
                                 @click="alternarRama(item.href ?? item.label)"
-                                class="shrink-0 w-7 rounded-lg flex items-center justify-center text-tinta-300 hover:text-tinta-700 hover:bg-tinta-50 transition-colors"
+                                class="shrink-0 w-7 rounded-lg flex items-center justify-center text-tinta-300 hover:text-tinta-700 hover:bg-realce transition-colors"
                                 :aria-expanded="ramaAbierta(item)"
                                 :aria-label="ramaAbierta(item) ? 'Plegar ' + item.label : 'Desplegar ' + item.label"
                             >
@@ -532,8 +533,8 @@ onUnmounted(() => {
                                         :href="hijo.href"
                                         class="flex items-center gap-2.5 rounded-lg pl-3 pr-3 py-1.5 text-[13px] transition-colors"
                                         :class="isActive(hijo.href)
-                                            ? 'bg-[var(--marca-suave)] text-[var(--marca)] font-semibold'
-                                            : 'text-tinta-400 hover:bg-tinta-50 hover:text-tinta-900'"
+                                            ? 'bg-realce text-[var(--marca)] font-semibold'
+                                            : 'text-tinta-400 hover:bg-realce hover:text-tinta-900'"
                                         @click.prevent="router.visit(hijo.href)"
                                     >
                                         <IconoMenu :nombre="hijo.icon" clase="w-4 h-4 shrink-0 opacity-70" />
@@ -1085,10 +1086,11 @@ onUnmounted(() => {
                             <div class="flex items-stretch gap-1">
                                 <a
                                     :href="item.href"
-                                    class="flex-1 min-w-0 flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition-colors"
+                                    class="flex-1 min-w-0 flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition-colors relative
+                                           before:absolute before:left-0 before:top-2 before:bottom-2 before:w-[3px] before:rounded-full before:transition-colors"
                                     :class="isActive(item.href)
-                                        ? 'bg-[var(--marca-suave)] text-[var(--marca)] font-semibold'
-                                        : 'text-tinta-700 hover:bg-tinta-100'"
+                                        ? 'bg-realce text-[var(--marca)] font-semibold before:bg-[var(--marca)]'
+                                        : 'text-tinta-700 hover:bg-realce before:bg-transparent'"
                                     @click.prevent="navegar(item.href)"
                                 >
                                     <IconoMenu :nombre="item.icon" clase="w-5 h-5 shrink-0" />
@@ -1127,8 +1129,8 @@ onUnmounted(() => {
                                             :href="hijo.href"
                                             class="flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-[13px] transition-colors"
                                             :class="isActive(hijo.href)
-                                                ? 'bg-[var(--marca-suave)] text-[var(--marca)] font-semibold'
-                                                : 'text-tinta-500 hover:bg-tinta-100'"
+                                                ? 'bg-realce text-[var(--marca)] font-semibold'
+                                                : 'text-tinta-500 hover:bg-realce'"
                                             @click.prevent="navegar(hijo.href)"
                                         >
                                             <IconoMenu :nombre="hijo.icon" clase="w-4 h-4 shrink-0 opacity-70" />
@@ -1329,7 +1331,7 @@ onUnmounted(() => {
                 <div class="px-4 py-3 flex gap-2">
                     <button
                         @click="descartarPWA"
-                        class="flex-1 py-2 text-sm font-medium rounded-xl hover:bg-tinta-50 transition-colors"
+                        class="flex-1 py-2 text-sm font-medium rounded-xl hover:bg-realce transition-colors"
                         style="color: var(--texto-3);"
                     >
                         Ahora no

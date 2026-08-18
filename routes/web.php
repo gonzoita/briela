@@ -750,6 +750,10 @@ Route::middleware('auth')->group(function () {
     Route::post('/api/ia/ficha-tecnica', [IaController::class, 'fichaTecnica'])
         ->name('ia.ficha-tecnica');
 
+    // El asistente que redacta un paso de producción: pregunta primero, redacta después.
+    Route::post('/api/ia/paso-produccion', [IaController::class, 'pasoProduccion'])
+        ->name('ia.paso-produccion');
+
     // Generar imagen sí guarda el archivo en Multimedia para poder reutilizarlo.
     Route::post('/api/ia/imagen', [IaController::class, 'imagen'])
         ->middleware('permiso:multimedia.crear')

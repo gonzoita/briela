@@ -283,6 +283,27 @@ libres se quedan como están, porque no hay de dónde releerlos.
 > La comisión del vendedor se calcula sobre el **excedente por encima del precio
 > mayorista**, no sobre el total de la venta. Ver [Cotizaciones](./cotizaciones.md).
 
+
+## El asistente que redacta un paso
+
+Junto al campo **Objetivo** de cada paso hay un botón «Redactar con IA», y lo primero que hace
+es **preguntar**. Tres o cuatro cosas concretas de ese paso —con qué herramienta se hace, qué
+tolerancia se acepta, cómo se sabe que quedó bien— y recién con eso escribe el objetivo y la
+descripción.
+
+El orden importa: un instructivo redactado sin preguntar sale genérico —«realizar el corte con
+precisión»— y el operario que lo lee ya sabía eso. Las preguntas salen del paso concreto, no de
+un cuestionario fijo: para «cortar lámina» pregunta por la herramienta, para «pintar» por el
+tiempo de secado.
+
+- Lo que se deje en blanco **no se menciona**. Un instructivo corto es mejor que uno con un dato
+  inventado.
+- El tono sale del **perfil de marca**, igual que la ficha técnica.
+- Si la plantilla tiene variables, el texto las usa entre llaves y el sistema las reemplaza con
+  las medidas de cada venta.
+- Pide el nombre del paso antes de arrancar: pregunta sobre ese paso, no sobre uno cualquiera.
+
+
 ## Nota técnica
 
 - Tablas: `plantillas_ensamble`, `plantilla_campos`, `plantilla_componentes`,

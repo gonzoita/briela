@@ -8,6 +8,7 @@ import AppLayout from '@/Layouts/AppLayout.vue'
 import ResultadosBuscadorProducto from '@/Components/ResultadosBuscadorProducto.vue'
 import RichTextEditor from '@/Components/RichTextEditor.vue'
 import { useClipboard } from '@/composables/useClipboard'
+import AsistenteIaPaso from '@/Components/AsistenteIaPaso.vue'
 
 const { copyText } = useClipboard()
 
@@ -2484,7 +2485,21 @@ const badgesTipo = {
                                     </div>
 
                                     <div>
-                                        <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1">Objetivo</label>
+                                        <div class="flex items-center justify-between gap-2 mb-1 flex-wrap">
+                                            <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">Objetivo</label>
+                                            <!-- Pregunta primero y redacta después: el objetivo y la
+                                                 descripción salen de lo que responda quien conoce el paso. -->
+                                            <AsistenteIaPaso
+                                                :paso="paso"
+                                                :plantilla="plantillaActual?.nombre ?? ''"
+                                                :anteriores="(plantillaActual?.pasosTrabajo ?? []).slice(0, idx).map(p => p.nombre).filter(Boolean)"
+                                                :siguientes="(plantillaActual?.pasosTrabajo ?? []).slice(idx + 1).map(p => p.nombre).filter(Boolean)"
+                                                :variables="variablesDisponibles"
+                                                @redactado="({ objetivo, descripcion }) => {
+                                                    if (objetivo) paso.objetivo = objetivo
+                                                    if (descripcion) paso.descripcion = descripcion
+                                                }" />
+                                        </div>
                                         <input v-model="paso.objetivo" placeholder="Qué se busca lograr con este paso"
                                             class="w-full border border-linea rounded-lg px-3 py-2 text-sm focus:outline-none" />
                                     </div>

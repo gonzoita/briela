@@ -28,6 +28,55 @@ class IaController extends Controller
      *
      * Devuelve el texto para que el usuario lo revise; no guarda nada.
      */
+    /**
+     * El asistente que redacta un paso de producción.
+     *
+     * Dos pasadas y a propósito: primero pregunta lo que hace falta saber de ESE paso
+     * —herramienta, tolerancia, criterio de bien hecho— y solo después redacta. Un
+     * instructivo escrito sin preguntar es un texto genérico, y el operario que lo lee ya
+     * sabe menos de lo que sabía.
+     */
+    public function pasoProduccion(Request $request, \App\Services\IA\PasoProduccionIaService $pasos): JsonResponse
+    {
+        // La piden las pantallas de plantillas y de ensambles, con permisos distintos.
+        $permisos = $request->user()->permisos();
+
+        if (array_intersect(['plantillas.crear', 'plantillas.editar', 'ensambles.crear', 'ensambles.editar'], $permisos) === []) {
+            return response()->json(['error' => 'No tienes permiso para usar el asistente de pasos.'], 403);
+        }
+
+        $datos = $request->validate([
+            'accion'                  => 'required|in:preguntar,redactar',
+            'paso'                    => 'required|string|max:150',
+            'plantilla'               => 'nullable|string|max:200',
+            'objetivo'                => 'nullable|string|max:500',
+            'descripcion'             => 'nullable|string|max:4000',
+            'anteriores'              => 'nullable|array',
+            'anteriores.*'            => 'string|max:150',
+            'siguientes'              => 'nullable|array',
+            'siguientes.*'            => 'string|max:150',
+            'variables'               => 'nullable|array',
+            'variables.*'             => 'string|max:80',
+            'materiales'              => 'nullable|array',
+            'materiales.*'            => 'string|max:150',
+            'respuestas'              => 'nullable|array',
+            'respuestas.*.pregunta'   => 'required_with:respuestas|string|max:300',
+            'respuestas.*.respuesta'  => 'nullable|string|max:600',
+        ]);
+
+        $contexto = collect($datos)->except(['accion', 'respuestas'])->all();
+
+        try {
+            return response()->json(
+                $datos['accion'] === 'preguntar'
+                    ? ['preguntas' => $pasos->preguntas($contexto)]
+                    : $pasos->redactar($contexto, $datos['respuestas'] ?? [])
+            );
+        } catch (\App\Exceptions\IaException $e) {
+            return response()->json(['error' => $e->getMessage()], 422);
+        }
+    }
+
     public function fichaTecnica(Request $request, \App\Services\IA\FichaTecnicaService $fichas): JsonResponse
     {
         // La piden cuatro pantallas con permisos distintos —crear y editar, producto y
