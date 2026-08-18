@@ -53,13 +53,45 @@ class OpItem extends Model
         'cantidad_remisionada' => 'decimal:3',
     ];
 
+    /**
+     * Un ítem que nadie fabrica: un producto de bodega o un concepto libre.
+     *
+     * Los trabajos se generan solo para los ensambles —uno por unidad física, con sus pasos—,
+     * así que un producto suelto de la OP no tiene ninguno. Eso no significa que no se pueda
+     * despachar: significa que su estado lo lleva el ítem, no sus trabajos.
+     */
+    public function sinTrabajos(): bool
+    {
+        return $this->trabajos()->count() === 0;
+    }
+
+    /**
+     * Cuántas unidades se pueden meter hoy en una remisión.
+     *
+     * Un ensamble las cuenta por sus trabajos: terminados y todavía sin remisionar. Un
+     * producto no tiene trabajos, así que lo que manda es que esté marcado como alistado en la
+     * OP, y lo que quede por remisionar.
+     *
+     * Hasta el 18 ago 2026 esto solo miraba los trabajos, y por eso **un producto nunca
+     * aparecía en el remisionador**: la OP lo listaba y la remisión no lo dejaba escoger.
+     */
     public function cantidadDisponible(): int
     {
+        if ($this->sinTrabajos()) {
+            return $this->estado_item === 'terminado'
+                ? max(0, (int) $this->cantidad - (int) $this->cantidad_remisionada)
+                : 0;
+        }
+
         return $this->trabajos()->disponiblesParaRemision()->count();
     }
 
     public function estaRemisionado(): bool
     {
+        if ($this->sinTrabajos()) {
+            return (int) $this->cantidad_remisionada >= (int) $this->cantidad && (int) $this->cantidad > 0;
+        }
+
         $total = $this->trabajos()->count();
         if ($total === 0) return false;
         return $this->trabajos()->disponiblesParaRemision()->count() === 0
@@ -68,11 +100,19 @@ class OpItem extends Model
 
     public function unidadesCompletadas(): int
     {
+        if ($this->sinTrabajos()) {
+            return $this->estado_item === 'terminado' ? (int) $this->cantidad : 0;
+        }
+
         return $this->trabajos()->completados()->count();
     }
 
     public function unidadesRemisionadas(): int
     {
+        if ($this->sinTrabajos()) {
+            return (int) $this->cantidad_remisionada;
+        }
+
         return $this->trabajos()->where('remisionado', true)->count();
     }
 

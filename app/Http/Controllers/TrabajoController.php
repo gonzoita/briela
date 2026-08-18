@@ -10,6 +10,7 @@ use App\Models\OpItemTrabajoPasoOperario;
 use App\Models\TemplateTrabajo;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\Storage;
 
 class TrabajoController extends Controller
 {
@@ -243,7 +244,13 @@ class TrabajoController extends Controller
                     'tiempo_minutos'      => $p->tiempo_minutos,
                     'es_extra'            => (bool) $p->es_extra,
                     'orden'               => $p->orden,
-                    'fotos'               => $p->fotos ?? [],
+                    // Las fotos se guardan como ruta relativa —«pasos/2/foto.jpg»— y el
+                    // navegador necesita la URL pública. Sin `Storage::url()` el `src` quedaba
+                    // relativo a la dirección de la pantalla y resolvía a
+                    // «/trabajos/pasos/2/foto.jpg», que no existe: la foto se veía rota al
+                    // recargar, aunque al subirla se viera bien —el endpoint de subida sí
+                    // devuelve la URL completa—.
+                    'fotos'               => collect($p->fotos ?? [])->map(fn ($f) => Storage::url($f))->all(),
                     'operarios_pivot'     => $p->operarios->map(fn ($o) => [
                         'operario_id'    => $o->operario_id,
                         'nombre'         => $o->operario?->nombre,

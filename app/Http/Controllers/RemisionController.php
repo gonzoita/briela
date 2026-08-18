@@ -167,11 +167,18 @@ class RemisionController extends Controller
                             $t->update(['remisionado' => true]);
                         }
 
-                        // Recalcular campos del ítem
-                        $totalRemisionados = $opItem->trabajos()->where('remisionado', true)->count();
+                        // Recalcular campos del ítem. Un producto no tiene trabajos que
+                        // contar, así que lleva su propia cuenta: si se contara por trabajos,
+                        // su `cantidad_remisionada` volvería a cero en cada remisión y se
+                        // podría despachar la misma unidad muchas veces.
                         $totalTrabajos     = $opItem->trabajos()->count();
-                        $estaCompleto      = $totalTrabajos > 0 && $opItem->trabajos()->disponiblesParaRemision()->count() === 0
-                                             && $opItem->trabajos()->where('porcentaje_avance', 100)->count() > 0;
+                        $totalRemisionados = $totalTrabajos > 0
+                            ? $opItem->trabajos()->where('remisionado', true)->count()
+                            : (int) $opItem->cantidad_remisionada + $cantidadUnidades;
+                        $estaCompleto      = $totalTrabajos > 0
+                            ? ($opItem->trabajos()->disponiblesParaRemision()->count() === 0
+                               && $opItem->trabajos()->where('porcentaje_avance', 100)->count() > 0)
+                            : $totalRemisionados >= (int) $opItem->cantidad;
 
                         $opItem->update([
                             'cantidad_remisionada' => $totalRemisionados,
@@ -325,14 +332,29 @@ class RemisionController extends Controller
         return $pdf->stream("remision-{$remision->numero}.pdf");
     }
 
+    /**
+     * Qué ítems de una OP se pueden remisionar.
+     *
+     * Dos casos, y hasta el 18 ago 2026 solo existía el primero: un ensamble tiene un trabajo
+     * por unidad y se remisiona cuando el trabajo está terminado; un producto o un concepto
+     * libre no genera trabajos —nadie los fabrica, salen de bodega— y se remisionan cuando el
+     * ítem quedó marcado como alistado en la OP. Sin la segunda rama, **los productos no
+     * aparecían nunca** en el remisionador: solo salían los ensambles.
+     */
+    private function itemsRemisionables($q)
+    {
+        return $q->where(function ($q) {
+            $q->whereHas('trabajos', fn ($t) => $t->where('porcentaje_avance', 100)->where('remisionado', false))
+              ->orWhere(fn ($q2) => $q2->doesntHave('trabajos')
+                  ->where('estado_item', 'terminado')
+                  ->whereRaw('COALESCE(cantidad_remisionada, 0) < cantidad'));
+        });
+    }
+
     // ─── Búsqueda de OPs para el formulario ───────────────────────────────────
     public function buscarOp(Request $request)
     {
-        $ops = Op::with(['cliente:id,nombre,apellido,tipo', 'items' => function ($q) {
-            $q->whereHas('trabajos', function ($q2) {
-                $q2->where('porcentaje_avance', 100)->where('remisionado', false);
-            });
-        }])
+        $ops = Op::with(['cliente:id,nombre,apellido,tipo', 'items' => fn ($q) => $this->itemsRemisionables($q)])
         ->where(function ($q) use ($request) {
             $q->where('numero', 'like', "%{$request->q}%")
               ->orWhereHas('cliente', fn ($c) => $c->where('nombre', 'like', "%{$request->q}%"));
@@ -352,10 +374,7 @@ class RemisionController extends Controller
 
     public function itemsOp(Op $op)
     {
-        $items = $op->items()
-            ->whereHas('trabajos', function ($q) {
-                $q->where('porcentaje_avance', 100)->where('remisionado', false);
-            })
+        $items = $this->itemsRemisionables($op->items())
             ->with('trabajos')
             ->orderBy('orden')
             ->get()
