@@ -70,25 +70,16 @@ export default defineConfig({
                 maximumFileSizeToCacheInBytes: 3 * 1024 * 1024,
                 globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
                 navigateFallback: null,
+                // Las paginas NO se cachean.
+                //
+                // Estuvieron con NetworkFirst sobre /dashboard y /produccion, y eso guarda el
+                // HTML de la pantalla — que apunta a archivos con hash en el nombre—. Tras un
+                // despliegue esos archivos ya no existen: el HTML viejo pedia un archivo
+                // borrado, la importacion fallaba y la pantalla quedaba EN NEGRO. Un ERP
+                // autenticado no gana nada sirviendo su HTML sin conexion: sin servidor no hay
+                // datos que mostrar.
+                cleanupOutdatedCaches: true,
                 runtimeCaching: [
-                    {
-                        urlPattern: ({ url }) => url.pathname.startsWith('/dashboard'),
-                        handler: 'NetworkFirst',
-                        options: {
-                            cacheName: 'pages-cache',
-                            expiration: { maxEntries: 20, maxAgeSeconds: 86400 },
-                            networkTimeoutSeconds: 5,
-                        },
-                    },
-                    {
-                        urlPattern: ({ url }) => url.pathname.startsWith('/produccion'),
-                        handler: 'NetworkFirst',
-                        options: {
-                            cacheName: 'ops-cache',
-                            expiration: { maxEntries: 50, maxAgeSeconds: 3600 },
-                            networkTimeoutSeconds: 5,
-                        },
-                    },
                     {
                         urlPattern: ({ url }) => url.pathname.startsWith('/storage'),
                         handler: 'CacheFirst',

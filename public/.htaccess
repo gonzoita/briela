@@ -1,3 +1,23 @@
+# ─── Cache del navegador ──────────────────────────────────────────────────────
+#
+# El hosting sirve TODO con «max-age=604800»: siete dias. Para un archivo con hash en el
+# nombre esta bien —nunca cambia—, pero para el service worker es la causa de un fallo que
+# se ve como una pantalla en negro: el navegador se queda con el SW viejo hasta una semana,
+# ese SW pide los archivos de pantalla anteriores, el despliegue ya los borro, el import
+# falla y el area de la pagina queda vacia.
+#
+# El service worker y el manifiesto se revalidan siempre. Los assets con hash se quedan con
+# su cache larga: son inmutables por definicion.
+<IfModule mod_headers.c>
+    <FilesMatch "^(sw|workbox-[^.]+)\.js$">
+        Header set Cache-Control "no-cache, must-revalidate, max-age=0"
+    </FilesMatch>
+
+    <FilesMatch "\.(webmanifest|json)$">
+        Header set Cache-Control "no-cache, must-revalidate, max-age=0"
+    </FilesMatch>
+</IfModule>
+
 <IfModule mod_rewrite.c>
     <IfModule mod_negotiation.c>
         Options -MultiViews -Indexes
