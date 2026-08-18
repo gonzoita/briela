@@ -96,6 +96,10 @@ const colorTipo = (t) => t === 'ensamble'
                 </div>
             </div>
 
+            <!-- Los gráficos que la empresa arma para este tablero. Van con el resto del
+                 tablero: al final de la lista nadie baja a buscarlos. -->
+            <GraficosPersonalizados modulo="alistamiento" :puede-gestionar="$page.props.auth?.permisosLista?.includes('graficos.gestionar') ?? false" />
+
             <!-- Filtros -->
             <div class="bg-superficie rounded-2xl shadow-sm p-4 mb-4">
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
@@ -231,8 +235,6 @@ const colorTipo = (t) => t === 'ensamble'
             </div>
 
         </div>
-            <!-- Los graficos que la empresa arma para este tablero. -->
-            <GraficosPersonalizados modulo="alistamiento" :puede-gestionar="$page.props.auth?.permisosLista?.includes('graficos.gestionar') ?? false" />
 
     </AppLayout>
 </template>

@@ -124,6 +124,10 @@ async function liquidar(id) {
                 <span class="text-xl font-semibold" style="color:var(--marca);">{{ formatCOP(totalMes) }}</span>
             </div>
 
+            <!-- Los gráficos que la empresa arma para este tablero. Van con el resto del
+                 tablero: al final de la lista nadie baja a buscarlos. -->
+            <GraficosPersonalizados modulo="comisiones" :puede-gestionar="$page.props.auth?.permisosLista?.includes('graficos.gestionar') ?? false" />
+
             <!-- Tabla de comisiones — desktop -->
             <div class="bg-superficie rounded-xl border border-linea overflow-hidden hidden sm:block">
                 <table class="w-full text-sm">
@@ -213,8 +217,6 @@ async function liquidar(id) {
             </div>
 
         </div>
-            <!-- Los graficos que la empresa arma para este tablero. -->
-            <GraficosPersonalizados modulo="comisiones" :puede-gestionar="$page.props.auth?.permisosLista?.includes('graficos.gestionar') ?? false" />
 
     </AppLayout>
 </template>

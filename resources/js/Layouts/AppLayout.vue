@@ -99,31 +99,31 @@ const navItems = computed(() => {
             { label: 'Clientes',   href: '/clientes',   icon: 'clientes',   permiso: 'clientes.ver' },
             { label: 'Multimedia', href: '/multimedia', icon: 'multimedia', permiso: 'multimedia.ver' },
         ]},
-        { label: 'Ventas', items: [
+        { label: 'Ventas', icon: 'crm', items: [
             { label: 'CRM',          href: '/crm',             icon: 'crm',        permiso: 'crm.ver' },
             { label: 'Reportes',     href: '/crm/reportes',    icon: 'reportes',   permiso: 'crm.ver', sub: true },
             { label: 'Formularios',  href: '/crm/formularios', icon: 'formulario', permiso: 'crm.editar', sub: true },
             { label: 'Cotizaciones', href: '/cotizaciones',    icon: 'cotizacion', permiso: 'cotizaciones.ver' },
             { label: 'Comisiones',   href: '/comisiones',      icon: 'comisiones', permiso: 'comisiones.ver' },
         ]},
-        { label: 'Inventario', items: [
+        { label: 'Inventario', icon: 'inventario', items: [
             { label: 'Productos',         href: '/productos',              icon: 'productos',   permiso: 'productos.ver' },
             { label: 'Ensambles',         href: '/ensambles',              icon: 'ensamble',    permiso: 'ensambles.ver' },
             { label: 'Stock & Materiales',href: '/inventario',             icon: 'inventario',  permiso: 'inventario.ver', sub: true },
             { label: 'Movimientos',       href: '/inventario/movimientos', icon: 'movimientos', permiso: 'inventario.ver', sub: true },
         ]},
-        { label: 'Compras', items: [
+        { label: 'Compras', icon: 'oc', items: [
             { label: 'Proveedores',       href: '/compras/proveedores', icon: 'proveedor', permiso: 'proveedores.ver' },
             { label: 'Solicitudes',       href: '/compras/solicitudes', icon: 'solicitud', permiso: 'solicitudes.ver', sub: true },
             { label: 'Órdenes de Compra', href: '/compras/ordenes',     icon: 'oc',        permiso: 'ordenes.ver',     sub: true },
         ]},
-        { label: 'Logística', items: [
+        { label: 'Logística', icon: 'camion', items: [
             { label: 'Remisiones', href: '/logistica/remisiones', icon: 'camion', permiso: 'remisiones.ver' },
         ]},
-        { label: 'Financiero', items: [
+        { label: 'Financiero', icon: 'cartera', items: [
             { label: 'Cartera', href: '/financiero/cartera', icon: 'cartera', permiso: 'cartera.ver' },
         ]},
-        { label: 'Producción', items: [
+        { label: 'Producción', icon: 'clipboard', items: [
             { label: 'Órdenes de Producción', href: '/produccion/ops',         icon: 'clipboard', permiso: 'ops.ver' },
             { label: 'Alistamiento',          href: '/produccion/alistamiento', icon: 'clipboard', permiso: 'alistamiento.ver', sub: true },
             { label: 'Programador',           href: '/produccion/programador', icon: 'calendar',  permiso: 'programador.ver', sub: true },
@@ -131,31 +131,31 @@ const navItems = computed(() => {
             // Panel personal del operario: no depende de permisos de módulo.
             ...(rol === 'operario' ? [{ label: 'Mi Panel', href: '/mi-panel', icon: 'mi-panel' }] : []),
         ]},
-        { label: 'RRHH', items: [
+        { label: 'RRHH', icon: 'gear', items: [
             { label: 'Colaboradores', href: '/rrhh/operarios', icon: 'workers', permiso: 'rrhh.ver' },
         ]},
-        { label: 'Mantenimiento', items: [
+        { label: 'Mantenimiento', icon: 'gear', items: [
             { label: 'Dashboard',      href: '/mantenimiento',                icon: 'wrench',   permiso: 'mantenimiento.ver' },
             { label: 'Equipos',        href: '/mantenimiento/equipos',        icon: 'gear',     permiso: 'mantenimiento.ver' },
             { label: 'Mantenimientos', href: '/mantenimiento/mantenimientos', icon: 'calendar', permiso: 'mantenimiento.ver' },
         ]},
-        { label: 'Reportes', items: [
+        { label: 'Reportes', icon: 'gear', items: [
             { label: 'Informes', href: '/informes', icon: 'chart', permiso: 'informes.ver' },
         ]},
-        { label: 'Capacitación', items: [
+        { label: 'Capacitación', icon: 'gear', items: [
             // Todos pueden ver sus propios cursos.
             { label: 'Mi Capacitación', href: '/mi-capacitacion',              icon: 'capacitacion' },
             { label: 'Cursos',          href: '/capacitacion/cursos',          icon: 'capacitacion', permiso: 'capacitacion.editar' },
             { label: 'Invitaciones',    href: '/capacitacion/invitaciones',    icon: 'capacitacion', permiso: 'capacitacion.crear', sub: true },
         ]},
-        { label: 'Marketing', items: [
+        { label: 'Marketing', icon: 'gear', items: [
             { label: 'Redes Sociales', href: '/rrss', icon: 'megaphone', permiso: 'rrss.ver' },
         ]},
-        { label: 'Asistente', items: [
+        { label: 'Asistente', icon: 'gear', items: [
             // Disponible para todos: responde sobre la marca, no sobre datos.
             { label: nombreAsistente.value, href: '/asistente', icon: 'chat' },
         ]},
-        { label: 'Sistema', items: [
+        { label: 'Sistema', icon: 'gear', items: [
             { label: 'Configuración',  href: '/configuracion',                icon: 'configurador', permiso: 'configuracion.ver' },
             { label: 'Plantillas PDF', href: '/configuracion/plantillas-pdf', icon: 'pdf',          permiso: 'configuracion.editar' },
             { label: 'Auditoría',      href: '/auditoria',                    icon: 'chart',        permiso: 'auditoria.ver' },
@@ -183,7 +183,7 @@ const navItems = computed(() => {
         // Una sección sin título —Dashboard, Clientes, Multimedia— es la de arriba y va
         // siempre abierta. Tratarla como sección igual que a las demás deja UN solo camino
         // para dibujar el menú, en vez de dos que hay que mantener a la par.
-        secciones.push({ label: grupo.label, ramas })
+        secciones.push({ label: grupo.label, icon: grupo.icon ?? 'gear', ramas })
     }
 
     return secciones
@@ -197,6 +197,17 @@ const ramasAbiertas = ref(new Set(
 ))
 
 function alternarRama(clave) {
+    const abriendo = ! ramasAbiertas.value.has(clave)
+
+    // Acordeón: abrir una categoría cierra las demás. Con seis abiertas a la vez el menú
+    // vuelve a ser la lista de treinta enlaces que esto vino a evitar, y hay que desplazar
+    // para llegar a Ajustes. Las ramas internas no entran en la regla: son de otra escala.
+    if (abriendo && clave.startsWith('seccion:')) {
+        ramasAbiertas.value.forEach(c => {
+            if (c.startsWith('seccion:')) ramasAbiertas.value.delete(c)
+        })
+    }
+
     ramasAbiertas.value.has(clave)
         ? ramasAbiertas.value.delete(clave)
         : ramasAbiertas.value.add(clave)
@@ -535,16 +546,23 @@ onUnmounted(() => {
                         class="w-full flex items-center justify-between gap-2 px-3 pt-4 pb-1 group"
                         :aria-expanded="seccionAbierta(sec)"
                     >
-                        <span
-                            class="text-[11px] font-semibold uppercase tracking-[0.12em] transition-colors"
-                            :class="seccionAbierta(sec) ? 'text-tinta-400' : 'text-tinta-300 group-hover:text-tinta-500'"
-                        >{{ sec.label }}</span>
+                        <span class="flex items-center gap-2.5 min-w-0">
+                            <IconoMenu
+                                :nombre="sec.icon"
+                                clase="w-4 h-4 shrink-0 transition-colors"
+                                :class="seccionAbierta(sec) ? 'text-[var(--marca)]' : 'text-tinta-300 group-hover:text-tinta-500'"
+                            />
+                            <span
+                                class="text-[11px] font-semibold uppercase tracking-[0.12em] transition-colors truncate"
+                                :class="seccionAbierta(sec) ? 'text-tinta-600' : 'text-tinta-400 group-hover:text-tinta-600'"
+                            >{{ sec.label }}</span>
+                        </span>
                         <svg
                             class="w-3 h-3 shrink-0 text-tinta-300 transition-transform duration-300"
-                            :class="seccionAbierta(sec) ? 'rotate-90' : ''"
-                            fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"
+                            :class="seccionAbierta(sec) ? 'rotate-180' : ''"
+                            fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"
                         >
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
                         </svg>
                     </button>
 
@@ -1175,13 +1193,18 @@ onUnmounted(() => {
                             class="w-full flex items-center justify-between gap-2 px-3 mt-4 mb-1"
                             :aria-expanded="seccionAbierta(sec)"
                         >
-                            <span class="text-xs font-semibold uppercase tracking-[0.12em] text-tinta-300">{{ sec.label }}</span>
+                            <span class="flex items-center gap-2.5 min-w-0">
+                                <IconoMenu :nombre="sec.icon" clase="w-4 h-4 shrink-0"
+                                    :class="seccionAbierta(sec) ? 'text-[var(--marca)]' : 'text-tinta-300'" />
+                                <span class="text-xs font-semibold uppercase tracking-[0.12em] truncate"
+                                    :class="seccionAbierta(sec) ? 'text-tinta-600' : 'text-tinta-400'">{{ sec.label }}</span>
+                            </span>
                             <svg
                                 class="w-3 h-3 shrink-0 text-tinta-300 transition-transform duration-300"
-                                :class="seccionAbierta(sec) ? 'rotate-90' : ''"
-                                fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"
+                                :class="seccionAbierta(sec) ? 'rotate-180' : ''"
+                                fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"
                             >
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
                             </svg>
                         </button>
 

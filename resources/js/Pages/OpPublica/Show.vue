@@ -14,7 +14,7 @@ const ESTADOS = {
 const ESTADOS_ITEM = {
     pendiente:  { label: 'Pendiente',  bg: '#F3F4F6', text: '#6B7280' },
     en_proceso: { label: 'En proceso', bg: '#DBEAFE', text: '#1D4ED8' },
-    terminado:  { label: 'Terminado',  bg: '#D1FAE5', text: '#065F46' },
+    terminado:  { label: 'Alistado',  bg: '#D1FAE5', text: '#065F46' },
 }
 
 const badge    = (e) => ESTADOS[e] ?? ESTADOS.borrador

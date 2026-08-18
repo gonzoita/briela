@@ -399,7 +399,7 @@ const ESTADOS_OP = [
 const ESTADOS_ITEM = [
     { value: 'pendiente',  label: 'Pendiente'  },
     { value: 'en_proceso', label: 'En proceso' },
-    { value: 'terminado',  label: 'Terminado'  },
+    { value: 'terminado',  label: 'Alistado'  },
 ]
 
 // ── Submit ────────────────────────────────────────────────────────────────────
@@ -659,7 +659,7 @@ function submit() {
                                             }">
                                             {{ item.estado_item === 'pendiente' ? 'Sin iniciar'
                                                : item.estado_item === 'en_proceso' ? 'En proceso'
-                                               : 'Terminado' }}
+                                               : 'Alistado' }}
                                         </span>
                                     </div>
                                 </div>

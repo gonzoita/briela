@@ -44,7 +44,7 @@ const ESTADOS = [
 const ESTADOS_ITEM = {
     pendiente:  { label: 'Pendiente',  bg: '#F3F4F6', text: '#374151' },
     en_proceso: { label: 'En proceso', bg: '#DBEAFE', text: '#1D4ED8' },
-    terminado:  { label: 'Terminado',  bg: '#D1FAE5', text: '#065F46' },
+    terminado:  { label: 'Alistado',  bg: '#D1FAE5', text: '#065F46' },
 }
 
 const badgeOp    = (e) => BADGE[e] ?? BADGE.borrador
@@ -283,7 +283,7 @@ function eliminarTrabajos(item) {
 }
 
 function marcarTerminado(item) {
-    if (!confirm('¿Marcar este ítem como terminado?')) return
+    if (!confirm('¿Marcar este ítem como alistado? Solo lo alistado se puede remisionar.')) return
     router.patch(
         `/produccion/ops/${op.value.id}/items/${item.id}/terminar`,
         {},
