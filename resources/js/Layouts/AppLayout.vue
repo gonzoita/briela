@@ -162,26 +162,31 @@ const navItems = computed(() => {
         ]},
     ]
 
-    const items = []
+    const secciones = []
 
     for (const grupo of grupos) {
         const visibles = grupo.items.filter(i => puede(i.permiso))
         if (!visibles.length) continue
-        if (grupo.label) items.push({ divider: true, label: grupo.label })
 
-        // Los ítems marcados como `sub` cuelgan del ítem anterior: así el menú se
-        // puede plegar por rama en vez de mostrar una lista de treinta enlaces
-        // seguidos, que era lo que obligaba a desplazar para llegar a Ajustes.
+        // Los ítems marcados como `sub` cuelgan del anterior: el menú se pliega por rama en
+        // vez de mostrar una lista de treinta enlaces seguidos.
+        const ramas = []
+
         for (const item of visibles) {
-            if (item.sub && items.length && items[items.length - 1].hijos) {
-                items[items.length - 1].hijos.push(item)
+            if (item.sub && ramas.length) {
+                ramas[ramas.length - 1].hijos.push(item)
             } else {
-                items.push({ ...item, hijos: [] })
+                ramas.push({ ...item, hijos: [] })
             }
         }
+
+        // Una sección sin título —Dashboard, Clientes, Multimedia— es la de arriba y va
+        // siempre abierta. Tratarla como sección igual que a las demás deja UN solo camino
+        // para dibujar el menú, en vez de dos que hay que mantener a la par.
+        secciones.push({ label: grupo.label, ramas })
     }
 
-    return items
+    return secciones
 })
 
 // ─── Ramas del menú abiertas ─────────────────────────────────────────────────
@@ -199,6 +204,20 @@ function alternarRama(clave) {
     // El Set no es reactivo al mutar: se reemplaza para que Vue lo note.
     ramasAbiertas.value = new Set(ramasAbiertas.value)
     localStorage.setItem('briela.menu.abiertas', JSON.stringify([...ramasAbiertas.value]))
+}
+
+/**
+ * Una sección está abierta si el usuario la abrió, o si la pantalla en la que estás vive
+ * dentro. Lo segundo importa: navegar a algo y no ver dónde quedaste es peor que el menú
+ * largo que esto vino a resolver.
+ *
+ * La de arriba —sin título— no se pliega: son tres enlaces y son los de todos los días.
+ */
+function seccionAbierta(seccion) {
+    if (! seccion.label) return true
+
+    return ramasAbiertas.value.has('seccion:' + seccion.label)
+        || seccion.ramas.some(r => isActive(r.href) || r.hijos?.some(h => isActive(h.href)))
 }
 
 /** Una rama está abierta si el usuario la abrió, o si estás dentro de ella. */
@@ -473,16 +492,40 @@ onUnmounted(() => {
 
             <!-- Navegación -->
             <nav class="flex-1 overflow-y-auto px-3 py-4 space-y-1">
-                <template v-for="item in navItems" :key="item.href ?? item.label">
-                    <!-- Separador de sección -->
-                    <p
-                        v-if="item.divider"
-                        class="text-[11px] font-semibold uppercase tracking-[0.12em] px-3 pt-5 pb-1.5 text-tinta-300"
+                <template v-for="sec in navItems" :key="sec.label ?? 'inicio'">
+                    <!-- El título de la sección la despliega. Es un botón, no un rótulo:
+                         Ventas se abre y se cierra, y lo mismo cada categoría. -->
+                    <button
+                        v-if="sec.label"
+                        type="button"
+                        @click="alternarRama('seccion:' + sec.label)"
+                        class="w-full flex items-center justify-between gap-2 px-3 pt-4 pb-1 group"
+                        :aria-expanded="seccionAbierta(sec)"
                     >
-                        {{ item.label }}
-                    </p>
+                        <span
+                            class="text-[11px] font-semibold uppercase tracking-[0.12em] transition-colors"
+                            :class="seccionAbierta(sec) ? 'text-tinta-400' : 'text-tinta-300 group-hover:text-tinta-500'"
+                        >{{ sec.label }}</span>
+                        <svg
+                            class="w-3 h-3 shrink-0 text-tinta-300 transition-transform duration-300"
+                            :class="seccionAbierta(sec) ? 'rotate-90' : ''"
+                            fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"
+                        >
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+                        </svg>
+                    </button>
+
+                    <!-- El contenido, con la misma animación de las ramas: de 0fr a 1fr, que
+                         es la única forma de animar una altura que no se conoce. -->
+                    <div
+                        class="grid transition-all duration-300 ease-out"
+                        :class="seccionAbierta(sec) ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'"
+                    >
+                        <div class="overflow-hidden">
+                            <div class="space-y-1">
+                
                     <!-- Rama del menú -->
-                    <div v-else>
+                    <div v-for="item in sec.ramas" :key="item.href ?? item.label">
                         <div class="flex items-stretch gap-0.5">
                             <a
                                 :href="item.href"
@@ -541,6 +584,9 @@ onUnmounted(() => {
                                         <span class="truncate">{{ hijo.label }}</span>
                                     </a>
                                 </div>
+                            </div>
+                        </div>
+                    </div>
                             </div>
                         </div>
                     </div>
@@ -1073,16 +1119,33 @@ onUnmounted(() => {
                 <!-- Ítems de navegación -->
                 <nav class="flex-1 px-3 py-3">
                     <p class="text-xs font-semibold text-tinta-300 uppercase tracking-[0.12em] px-3 mb-2">Navegación</p>
-                    <template v-for="item in navItems" :key="item.href ?? item.label">
-                        <!-- Separador de sección -->
-                        <p
-                            v-if="item.divider"
-                            class="text-xs font-semibold text-tinta-300 uppercase tracking-[0.12em] px-3 mt-4 mb-2"
+                    <template v-for="sec in navItems" :key="sec.label ?? 'inicio'">
+                        <!-- Igual que en el escritorio: el título despliega su categoría. -->
+                        <button
+                            v-if="sec.label"
+                            type="button"
+                            @click="alternarRama('seccion:' + sec.label)"
+                            class="w-full flex items-center justify-between gap-2 px-3 mt-4 mb-1"
+                            :aria-expanded="seccionAbierta(sec)"
                         >
-                            {{ item.label }}
-                        </p>
+                            <span class="text-xs font-semibold uppercase tracking-[0.12em] text-tinta-300">{{ sec.label }}</span>
+                            <svg
+                                class="w-3 h-3 shrink-0 text-tinta-300 transition-transform duration-300"
+                                :class="seccionAbierta(sec) ? 'rotate-90' : ''"
+                                fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"
+                            >
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+                            </svg>
+                        </button>
+
+                        <div
+                            class="grid transition-all duration-300 ease-out"
+                            :class="seccionAbierta(sec) ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'"
+                        >
+                            <div class="overflow-hidden">
+                    
                         <!-- Rama del menú -->
-                        <div v-else class="mb-1">
+                        <div v-for="item in sec.ramas" :key="item.href ?? item.label" class="mb-1">
                             <div class="flex items-stretch gap-1">
                                 <a
                                     :href="item.href"
@@ -1138,6 +1201,8 @@ onUnmounted(() => {
                                         </a>
                                     </div>
                                 </div>
+                            </div>
+                        </div>
                             </div>
                         </div>
                     </template>
