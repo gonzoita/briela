@@ -90,57 +90,54 @@ política comercial del ensamble— y no se estaban incluyendo. La barra de nego
 nada que mover. Ahora se toman de las filas guardadas del ensamble y se mezclan con el
 precio recalculado.
 
-## Cómo se calcula la comisión *(corregido 23 jul 2026)*
+## Cómo se calcula la comisión
 
-La comisión del vendedor **no** se calcula sobre el precio de venta
-completo del ítem. Se calcula sobre el **excedente** por encima del precio
-del canal base:
+Es un **porcentaje del precio de venta** del ítem:
 
 ```
-excedente   = precio de venta del ítem − precio del canal base
-comisión    = excedente × cantidad × % de comisión aplicado
+comisión = precio unitario × cantidad × % de comisión aplicado
+descuento que puede dar = comisión máxima − comisión aplicada   (los dos, del mismo precio)
 ```
 
-El canal base es la utilidad garantizada e intocable de la empresa —de fábrica
-es Mayorista, y se cambia marcándolo en Segmentación. Cualquier venta por
-encima de ese valor en los otros canales genera un excedente, que se reparte
-entre más utilidad para la empresa y comisión para el vendedor. Por eso **el
-canal base nunca genera comisión**: ahí no hay excedente que repartir.
+De dónde sale esa plata es otra pregunta, y la responde el **canal base**: es el piso de
+utilidad de la empresa, y lo que se vende por encima de él —el excedente— es lo único que hay
+para repartir. Por eso el canal base no paga comisión, y por eso el tope que propone el sistema
+nunca pasa del excedente.
 
-Antes la fórmula usaba el precio de venta completo en vez del excedente,
-lo que inflaba muchísimo la comisión mostrada (ej. 28,5% de $1.630.000 =
-$464.550, cuando el excedente real sobre el mayorista era mucho menor). El
-precio del canal base queda guardado en la cotización al momento de agregar
-cada ítem, y no se recalcula después: una comisión que se liquida meses más
-tarde tiene que calcularse con el precio que había al vender.
+El precio del canal base queda guardado en la cotización al agregar cada ítem y no se recalcula
+después: una comisión que se liquida meses más tarde tiene que poder explicarse con los precios
+que había al vender.
 
-**Dónde se configura el % de comisión por producto/ensamble**: en el
-detalle del producto o ensamble → botón "Editar" → sección "Comisión
-Vendedor por Canal". Ahí se define el rango mínimo/máximo de comisión para
-Distribuidor y Cliente final (Mayorista nunca tiene comisión). El botón
-"Sugerir comisiones" calcula un rango automático según el margen
-disponible. La vista previa en pesos de esa pantalla también se corrigió
-para mostrar el valor sobre el excedente, igual que en la cotización.
+> Cambió dos veces. El 23 jul 2026 se dejó de calcular sobre el precio completo porque inflaba
+> la comisión, y pasó a calcularse sobre el excedente. El 17 ago 2026 volvió al precio, pero con
+> el porcentaje ya convertido: la misma plata, en la unidad que permite deducir el descuento de
+> la comisión.
 
-## La barra de negociar, y las dos veces que no se puede mover
+## La barra de negociar, y el Dto. %
 
-La barra ámbar del ítem mueve la comisión entre el mínimo y el máximo del canal, y **el
-descuento se llena solo**: en el tope de comisión el descuento es cero, en el mínimo es todo
-el que el canal permite. Lo que el vendedor deja de ganar se lo lleva el cliente. Funciona en
-los dos sentidos: escribir el Dto. % mueve la barra.
+La barra ámbar del ítem mueve la comisión entre el mínimo y el máximo del canal, y **el Dto. %
+se llena solo con lo que el vendedor deja de ganar**. Funciona en los dos sentidos: escribir el
+descuento mueve la barra.
 
-Hay dos configuraciones en las que no hay nada que negociar, y desde el 17 ago 2026 la
-pantalla lo **dice** en vez de quedarse quieta:
+Sobre un precio de 1.430.000 con una comisión de 3,57 % a 5 %:
 
-- **La comisión mínima es igual a la máxima** en ese canal. La barra queda apagada y la
-  comisión es fija. Se arregla en el producto o el ensamble, en «Comisión vendedor por canal».
-- **El canal vale lo mismo que el de abajo**, así que su descuento máximo es 0 y bajar la
-  comisión no le rebaja nada al cliente. Se arregla subiéndole el margen a ese canal.
+| La barra en | El vendedor gana | Dto. % | Paga el cliente | Gana la empresa |
+|---|---|---|---|---|
+| 5 % | 71.500 | 0 % | 1.430.000 | 1.358.500 |
+| 4,28 % | 61.204 | 0,72 % | 1.419.704 | 1.358.500 |
+| 3,57 % | 51.051 | 1,43 % | 1.409.551 | 1.358.500 |
 
-> Antes las dos situaciones se veían igual: la barra no respondía, el Dto. % se quedaba en
-> cero y nada explicaba por qué. Se lee como una pantalla dañada. Además, llevar la barra al
-> mínimo cuando ese mínimo era 0 rebotaba al máximo —un cero se leía como «sin negociar»—, y
-> al guardar se escribía el descuento máximo **y** la comisión máxima a la vez.
+La última columna es el punto: **la empresa gana lo mismo en las tres filas**. La barra solo
+decide si esa parte se la queda el vendedor o se la lleva el cliente.
+
+La barra se apaga, y lo dice, cuando el canal tiene la comisión mínima igual a la máxima: ahí no
+hay nada que negociar, y se arregla en la ficha del producto o del ensamble.
+
+> Antes el descuento salía del `descuento_max_pct` del canal —la distancia con el canal de
+> abajo—, y cuando dos canales valían lo mismo quedaba en cero: la barra se movía y el Dto. % no
+> se llenaba nunca. Y los ítems recién agregados a una cotización **no llevaban sus filas por
+> canal**, así que el panel de comisión no aparecía: se podía editar una cotización vieja pero no
+> crear una nueva con comisión.
 
 ## Cron del servidor (una sola vez)
 

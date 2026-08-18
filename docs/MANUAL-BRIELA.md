@@ -92,8 +92,9 @@ tiene ninguno, con el precio público.
   hasta el mínimo, rojo sin stock. Si la cantidad cotizada pasa lo disponible, lo dice.
 - **El costo no se ve** sin el permiso «Ver costos»: un vendedor necesita el precio, no el
   costo. El servidor tampoco lo envía.
-- La **comisión se negocia con una barra**, entre el mínimo y el máximo del canal. Se paga
-  sobre el excedente por encima del precio del canal base, no sobre la venta completa.
+- La **comisión se negocia con una barra**, entre el mínimo y el máximo del canal. Es un
+  porcentaje del precio de venta, y el **Dto. % se llena solo** con lo que el vendedor deja de
+  ganar: la empresa gana lo mismo esté la barra donde esté.
 - **Condiciones comerciales** editables por cotización, con un texto general por omisión.
 - Un **ensamble se puede volver a medir** con el lápiz del ítem: reabre el panel de medidas,
   recalcula y congela la receta nueva, conservando lo negociado.
@@ -104,10 +105,10 @@ tiene ninguno, con el precio público.
 ### Comisiones
 `/comisiones`
 
-Lo que se le debe a cada vendedor, calculado sobre el excedente por encima del canal base y
-con la comisión que se negoció en cada ítem. Resumen del mes y detalle por documento, los dos
-en PDF. Al configurar un producto o un ensamble, el porcentaje de cada canal se cobra **sobre
-su propio excedente**, y ningún canal puede pagar menos plata que el de abajo.
+Lo que se le debe a cada vendedor: un porcentaje del precio de venta de cada ítem, con la
+comisión que se negoció ahí. Resumen del mes y detalle por documento, los dos en PDF. El tope de
+cada canal sale de su **excedente sobre el canal base** —el piso de utilidad de la empresa— y
+ningún canal puede pagar menos plata que el de abajo.
 
 ---
 

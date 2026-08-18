@@ -72,22 +72,21 @@ export function usePreciosPorCanal(canales, precioCosto) {
 
         const anterior = canalesConComision.value[i - 1]
 
-        return excedenteDe(anterior) * (Number(anterior.comision_max_pct) || 0) / 100
+        return (Number(anterior.precio) || 0) * (Number(anterior.comision_max_pct) || 0) / 100
     }
 
     /**
      * Ese mismo piso, dicho en el porcentaje de ESTE canal.
      *
-     * Cada canal cobra su porcentaje sobre su propio excedente, así que los porcentajes de
-     * dos canales no se pueden comparar crudos —es lo que se hacía antes, y comparaba dos
-     * bases distintas—: hay que convertirlos por la plata.
+     * El porcentaje es del PRECIO de cada canal, así que el piso se convierte por la plata:
+     * dos canales con precios distintos no se comparan por el número suelto.
      */
     function minimoExigido(i) {
-        const excedente = i > 0 ? excedenteDe(canalesConComision.value[i]) : 0
+        const precio = i > 0 ? (Number(canalesConComision.value[i].precio) || 0) : 0
 
-        if (! excedente) return 0
+        if (! precio) return 0
 
-        return Math.min(100, parseFloat((pisoComisionValor(i) / excedente * 100).toFixed(2)))
+        return Math.min(100, parseFloat((pisoComisionValor(i) / precio * 100).toFixed(2)))
     }
 
     function errorEscalera(i) {
@@ -119,29 +118,42 @@ export function usePreciosPorCanal(canales, precioCosto) {
     /**
      * Propone comisiones que reparten el excedente y respetan la escalera.
      *
-     * El porcentaje guardado se cobra SOBRE EL EXCEDENTE, no sobre el precio: así lo
-     * calculan la cotización y la liquidación. Hasta el 17 ago 2026 la sugerencia sacaba el
-     * porcentaje que el excedente representa del precio —49.000 de 1.375.000 es 3,56 %— y
-     * ese 3,56 % después se gastaba otra vez sobre el excedente: el vendedor terminaba con
-     * 1.137 de los 49.000 que había en juego. El excedente entraba dos veces.
+     * El porcentaje que se guarda es **del precio de venta**, no del excedente: es como lo lee
+     * un vendedor —«gano el 5 % de lo que vendo»— y hace que el descuento sea la resta de dos
+     * porcentajes. La plata sigue saliendo del excedente; lo que cambia es la unidad, y por eso
+     * el reparto se divide por el precio al final.
      *
-     * El tope es el reparto directo; el piso es lo que ya paga el canal de abajo.
+     * Hasta el 17 ago 2026 el porcentaje salía de lo que el excedente representa del precio y
+     * ese mismo porcentaje se volvía a cobrar sobre el excedente: el vendedor terminaba con
+     * 1.137 de los 49.000 que había en juego. El excedente entraba dos veces.
      */
     function sugerirComisiones() {
-        canalesConComision.value.forEach((canal, i) => {
+        let pisoValor = 0
+
+        canalesConComision.value.forEach(canal => {
+            const precio    = Number(canal.precio) || 0
+            const excedente = excedenteDe(canal)
+
             // Sin excedente no hay nada que repartir: el canal vale lo mismo que el base.
-            if (! excedenteDe(canal)) {
+            if (! excedente || ! precio) {
                 canal.comision_min_pct = 0
                 canal.comision_max_pct = 0
+                pisoValor              = 0
 
                 return
             }
 
-            const minimo  = minimoExigido(i)
-            const reparto = (canal.es_precio_publico ? REPARTO_MAX_PUBLICO : REPARTO_MAX) * 100
+            const reparto = canal.es_precio_publico ? REPARTO_MAX_PUBLICO : REPARTO_MAX
 
-            canal.comision_min_pct = minimo
-            canal.comision_max_pct = parseFloat(Math.min(100, Math.max(minimo, reparto)).toFixed(2))
+            // El tope no baja del piso ni pasa del excedente: más que eso saldría de la
+            // utilidad garantizada de la empresa.
+            const topeValor = Math.min(Math.max(excedente * reparto, pisoValor), excedente)
+            const piso      = Math.min(pisoValor, topeValor)
+
+            canal.comision_min_pct = parseFloat((piso / precio * 100).toFixed(2))
+            canal.comision_max_pct = parseFloat((topeValor / precio * 100).toFixed(2))
+
+            pisoValor = topeValor
         })
     }
 

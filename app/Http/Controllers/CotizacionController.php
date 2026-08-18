@@ -759,12 +759,17 @@ class CotizacionController extends Controller
                 'impuesto_valor'          => $impuesto,
                 'total_linea'             => $baseDesc + $impuesto,
                 'comision_pct_aplicada'   => $datos['comision_pct_aplicada'] ?? 0,
-                // La comisión se paga sobre el excedente por encima del precio
-                // mayorista (la utilidad garantizada e intocable de la
-                // empresa), no sobre el precio de venta completo — si se
-                // vende al precio mayorista no hay excedente que repartir,
-                // por eso ese canal no genera comisión.
-                'comision_valor'          => max(0, (float) ($datos['precio_unitario'] ?? 0) - (float) ($datos['precio_mayorista_base'] ?? 0))
+                // La comisión es un porcentaje DEL PRECIO de venta: 5 % de 1.428.000 son
+                // 71.400. Se dice así porque es como la lee un vendedor, y porque con la
+                // misma unidad el descuento que puede dar es una resta —su tope menos lo que
+                // se conforme cobrar— en vez de una regla de tres.
+                //
+                // De dónde sale esa plata no cambió: del excedente por encima del canal base,
+                // que es la utilidad garantizada de la empresa. Por eso el canal base no paga
+                // comisión, y por eso el tope de cada canal se propone como una parte de su
+                // excedente. Hasta el 17 ago 2026 el porcentaje se multiplicaba por el
+                // excedente en vez de por el precio.
+                'comision_valor'          => (float) ($datos['precio_unitario'] ?? 0)
                                              * (float) ($datos['cantidad'] ?? 1)
                                              * ((float) ($datos['comision_pct_aplicada'] ?? 0) / 100),
             ];
@@ -798,11 +803,9 @@ class CotizacionController extends Controller
 
     private function sincronizarComision(Cotizacion $cot): void
     {
-        // Misma regla que en syncItems(): comisión = excedente sobre el
-        // precio mayorista (utilidad garantizada de la empresa), no el
-        // precio de venta completo.
+        // Misma regla que en syncItems(): la comisión es un porcentaje del precio de venta.
         $totalComision = $cot->items->sum(fn ($item) =>
-            max(0, (float) $item->precio_unitario - (float) $item->precio_mayorista_base)
+            (float) $item->precio_unitario
             * (float) $item->cantidad
             * ((float) $item->comision_pct_aplicada / 100)
         );

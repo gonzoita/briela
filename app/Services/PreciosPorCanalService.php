@@ -132,11 +132,14 @@ class PreciosPorCanalService
      * se cambia una, se cambia la otra — `tests/Unit/SugerirComisionesTest.php` fija los
      * números de las dos.
      *
-     * El porcentaje se cobra SOBRE EL EXCEDENTE por encima del canal base, que es como lo
-     * calculan la cotización y la liquidación. Y el piso de cada canal es la plata que ya
-     * paga el de abajo en su tope: vender un canal con su descuento máximo deja el mismo
-     * precio que vender el de abajo sin descuento, y la misma venta no puede pagar dos
-     * comisiones distintas.
+     * **El porcentaje guardado es del PRECIO de venta**, no del excedente: es como lo lee un
+     * vendedor —«gano el 5 % de lo que vendo»— y hace que el descuento sea una resta de dos
+     * porcentajes. La plata sale del excedente igual que antes; solo cambia la unidad en que
+     * se dice, y por eso el reparto se divide por el precio al final.
+     *
+     * El piso de cada canal es la plata que ya paga el de abajo en su tope: vender un canal
+     * con su descuento máximo deja el mismo precio que vender el de abajo sin descuento, y la
+     * misma venta no puede pagar dos comisiones distintas.
      *
      * @param  array<int, array<string, mixed>>  $filas  En el orden de los canales.
      * @return array<int, array<string, mixed>>
@@ -171,7 +174,7 @@ class PreciosPorCanalService
                 ? round(max(0, ($precio - $precioAnterior) / $precio * 100), 2)
                 : 0.0;
 
-            if ($excedente <= 0) {
+            if ($excedente <= 0 || $precio <= 0) {
                 // Vale lo mismo que el canal base: no hay nada que repartir, y el canal
                 // siguiente tampoco hereda piso de este.
                 $filas[$i]['comision_min_pct'] = 0.0;
@@ -182,12 +185,18 @@ class PreciosPorCanalService
                     ? self::REPARTO_MAX_PUBLICO
                     : self::REPARTO_MAX;
 
-                $min = min(100, round($pisoValor / $excedente * 100, 2));
-                $max = min(100, round(max($min, $reparto), 2));
+                // Primero la plata, y al final se dice en porcentaje del precio.
+                //
+                // El tope nunca baja del piso —el canal de arriba no puede pagar menos que el
+                // de abajo— ni pasa del excedente, que es lo unico que hay para repartir: mas
+                // que eso saldria de la utilidad garantizada de la empresa.
+                $topeValor = min(max($excedente * $reparto / 100, $pisoValor), $excedente);
+                $piso      = min($pisoValor, $topeValor);
 
-                $filas[$i]['comision_min_pct'] = $min;
-                $filas[$i]['comision_max_pct'] = $max;
-                $pisoValor                     = $excedente * $max / 100;
+                $filas[$i]['comision_min_pct'] = round($piso / $precio * 100, 2);
+                $filas[$i]['comision_max_pct'] = round($topeValor / $precio * 100, 2);
+
+                $pisoValor = $topeValor;
             }
 
             $precioAnterior = $precio;

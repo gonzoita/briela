@@ -110,7 +110,7 @@ class ComisionController extends Controller
         $desglose = $comision->cotizacion->items->map(function ($item) {
             // Comisión sobre el excedente por encima del precio mayorista,
             // no sobre el precio de venta completo (ver CotizacionController).
-            $comisionValor = max(0, (float) $item->precio_unitario - (float) $item->precio_mayorista_base)
+            $comisionValor = (float) $item->precio_unitario
                            * (float) $item->cantidad
                            * ((float) $item->comision_pct_aplicada / 100);
             return [
@@ -151,7 +151,7 @@ class ComisionController extends Controller
                 'precio_unitario' => (float) $item->precio_unitario,
                 'descuento_pct'   => (float) $item->descuento_pct,
                 'comision_pct'    => (float) $item->comision_pct_aplicada,
-                'comision_valor'  => max(0, (float) $item->precio_unitario - (float) $item->precio_mayorista_base)
+                'comision_valor'  => (float) $item->precio_unitario
                                    * (float) $item->cantidad
                                    * ((float) $item->comision_pct_aplicada / 100),
             ])->values();
@@ -193,7 +193,7 @@ class ComisionController extends Controller
                     'precio_unitario' => (float) $item->precio_unitario,
                     'descuento_pct'   => (float) $item->descuento_pct,
                     'comision_pct'    => (float) $item->comision_pct_aplicada,
-                    'comision_valor'  => max(0, (float) $item->precio_unitario - (float) $item->precio_mayorista_base)
+                    'comision_valor'  => (float) $item->precio_unitario
                                        * (float) $item->cantidad
                                        * ((float) $item->comision_pct_aplicada / 100),
                 ])->values();

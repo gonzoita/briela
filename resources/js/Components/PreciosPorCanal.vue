@@ -12,6 +12,7 @@
 import { computed } from 'vue'
 import { router } from '@inertiajs/vue3'
 import { usePreciosPorCanal } from '@/composables/usePreciosPorCanal'
+import { formatPct } from '@/formato'
 
 const props = defineProps({
     // Las filas por canal. Se mutan aquí: es el mismo arreglo del formulario del padre.
@@ -121,8 +122,8 @@ const formatCOP = (v) =>
                 </div>
                 <p class="text-xs text-blue-400 mt-1">
                     Su margen ({{ canalBase.margen_pct }}%) es la utilidad mínima garantizada de la empresa.
-                    No hay comisión en este canal, y la de los demás se calcula sobre lo que se venda por
-                    encima de {{ formatCOP(canalBase.precio) }}.
+                    No hay comisión en este canal. La de los demás es un porcentaje de SU precio de
+                    venta, y sale de lo que se venda por encima de {{ formatCOP(canalBase.precio) }}.
                 </p>
             </div>
 
@@ -135,15 +136,16 @@ const formatCOP = (v) =>
                         <span v-if="canal.es_precio_publico" class="bg-pastel-verde-2 text-aviso-verde text-xs px-2 py-0.5 rounded-full">★ Mayor incentivo</span>
                     </div>
                     <span class="text-xs text-tinta-400">
-                        Base: {{ formatCOP(canal.precio) }} · Excedente: {{ formatCOP(excedenteDe(canal)) }} ·
-                        Desc. máx: {{ descuentoMaxDe(canal) }}%
+                        Precio: {{ formatCOP(canal.precio) }} · Excedente sobre el canal base:
+                        {{ formatCOP(excedenteDe(canal)) }} · Tope sin tocar ese piso:
+                        {{ formatPct(canal.precio ? excedenteDe(canal) / canal.precio * 100 : 0) }}%
                     </span>
                 </div>
 
                 <div class="grid grid-cols-2 gap-3">
                     <div>
                         <label class="text-xs text-tinta-400 mb-1 block">
-                            Comisión mínima (% del excedente)
+                            Comisión mínima (% del precio)
                             <span v-if="minimoExigido(i) > 0" class="text-aviso-naranja ml-1">
                                 ← no baja de {{ minimoExigido(i) }}%: es lo que ya paga
                                 {{ canalesConComision[i - 1].etiqueta }} ({{ formatCOP(pisoComisionValor(i)) }})
@@ -153,15 +155,15 @@ const formatCOP = (v) =>
                             <input type="number" step="0.01" :min="minimoExigido(i)" v-model.number="canal.comision_min_pct"
                                 :class="['w-24 border rounded-lg px-2 py-1.5 text-sm focus:ring-2 focus:outline-none',
                                     errorEscalera(i) ? 'border-red-400 focus:ring-red-300' : 'border-tinta-200 focus:ring-[var(--marca-suave)]']" />
-                            <span class="text-xs text-tinta-300">= {{ formatCOP(excedenteDe(canal) * canal.comision_min_pct / 100) }}</span>
+                            <span class="text-xs text-tinta-300">= {{ formatCOP(canal.precio * canal.comision_min_pct / 100) }}</span>
                         </div>
                     </div>
                     <div>
-                        <label class="text-xs text-tinta-400 mb-1 block">Comisión máxima (% del excedente)</label>
+                        <label class="text-xs text-tinta-400 mb-1 block">Comisión máxima (% del precio)</label>
                         <div class="flex items-center gap-2">
                             <input type="number" step="0.01" :min="canal.comision_min_pct" v-model.number="canal.comision_max_pct"
                                 class="w-24 border border-tinta-200 rounded-lg px-2 py-1.5 text-sm focus:ring-2 focus:ring-[var(--marca-suave)] focus:outline-none" />
-                            <span class="text-xs text-tinta-300">= {{ formatCOP(excedenteDe(canal) * canal.comision_max_pct / 100) }}</span>
+                            <span class="text-xs text-tinta-300">= {{ formatCOP(canal.precio * canal.comision_max_pct / 100) }}</span>
                         </div>
                     </div>
                 </div>
@@ -174,10 +176,11 @@ const formatCOP = (v) =>
                 </p>
                 <p v-else-if="canal.comision_max_pct > 0"
                     class="text-xs" :style="`color:${canal.color};`">
-                    De los {{ formatCOP(excedenteDe(canal)) }} de excedente, el vendedor gana entre
-                    {{ formatCOP(excedenteDe(canal) * canal.comision_min_pct / 100) }} y
-                    {{ formatCOP(excedenteDe(canal) * canal.comision_max_pct / 100) }};
-                    el resto se queda en la empresa.
+                    Sobre {{ formatCOP(canal.precio) }} el vendedor gana entre
+                    {{ formatCOP(canal.precio * canal.comision_min_pct / 100) }} y
+                    {{ formatCOP(canal.precio * canal.comision_max_pct / 100) }}, y puede convertir en
+                    descuento hasta {{ formatPct(canal.comision_max_pct - canal.comision_min_pct) }}%
+                    de esa venta. El resto del excedente se queda en la empresa.
                 </p>
             </div>
         </div>

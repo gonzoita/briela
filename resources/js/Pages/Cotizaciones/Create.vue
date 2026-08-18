@@ -443,6 +443,10 @@ function agregarItemDesdeProducto(prod) {
         precio_lista:                precio,
         precio_mayorista_base:       getPrecioBase(prod),
         precio_minimo_absoluto:      getPrecioMinimo(prod),
+        // Las filas por canal del producto, que son de donde salen el rango de comisión y el
+        // precio base. Sin ellas el ítem recién agregado no tenía canal que consultar y el
+        // panel de comisión no aparecía: la cotización se podía editar pero no crear.
+        canales:                     prod.canales ?? [],
         comision_pct_minima:         getCanalComisionMin(prod),
         comision_pct_maxima:         getCanalComisionMax(prod),
         comision_pct_aplicada:       getCanalComisionMax(prod),
@@ -711,6 +715,9 @@ function agregarItemDesdeEnsambleInstancia(precio) {
         // producto vendido al mismo cliente.
         precio_mayorista_base:       getPrecioBase(preciosCalculados.value) || parseFloat(preciosCalculados.value?.precio_mayorista) || 0,
         precio_minimo_absoluto:      getPrecioMinimo(e),
+        // Del cálculo, que ya trae el precio de estas medidas y la comisión del ensamble
+        // —la comisión no depende de las medidas: es la política comercial del ensamble—.
+        canales:                     preciosCalculados.value?.canales ?? e.canales ?? [],
         comision_pct_minima:         getCanalComisionMin(e),
         comision_pct_maxima:         getCanalComisionMax(e),
         comision_pct_aplicada:       getCanalComisionMax(e),
@@ -740,6 +747,7 @@ function agregarItemDesdeEnsamble(ensamble, precio) {
         precio_lista:                precio,
         precio_mayorista_base:       getPrecioBase(ensamble) || parseFloat(ensamble.precio_mayorista) || 0,
         precio_minimo_absoluto:      getPrecioMinimo(ensamble),
+        canales:                     ensamble.canales ?? [],
         comision_pct_minima:         getCanalComisionMin(ensamble),
         comision_pct_maxima:         getCanalComisionMax(ensamble),
         comision_pct_aplicada:       getCanalComisionMax(ensamble),
@@ -822,18 +830,19 @@ function toggleDescripcion(idx) {
     expandedDescriptions.value = { ...expandedDescriptions.value, [idx]: !expandedDescriptions.value[idx] }
 }
 
-// ─── Panel de comisión con slider ─────────────────────────────────────────────
-// La comisión se paga sobre el EXCEDENTE por encima del precio mayorista
-// (la utilidad garantizada e intocable de la empresa), no sobre el precio
-// de venta completo. Por eso el canal mayorista no genera comisión: ahí no
-// hay excedente que repartir. Cualquier venta por encima de ese precio en
-// Distribuidor/Cliente final sí genera un excedente que se reparte entre
-// más utilidad para la empresa y comisión para el vendedor.
-function excedenteUnitario(item) {
-    const precio = parseFloat(item.precio_lista || item.precio_unitario) || 0
-    const base   = parseFloat(item.precio_mayorista_base) || 0
-    return Math.max(0, precio - base)
-}
+// ─── Panel de comisión con barra ──────────────────────────────────────────────
+//
+// La comisión es un **porcentaje del precio de venta** del ítem: 5 % de 1.428.000 son 71.400.
+// Se dice así porque es como la lee un vendedor, y porque con la misma unidad el descuento es
+// una resta —tope menos lo que se conforme cobrar— en vez de una regla de tres.
+//
+// De dónde sale esa plata no cambió: del excedente por encima del canal base, que es la
+// utilidad garantizada e intocable de la empresa. Por eso el canal base no paga comisión —ahí
+// no hay excedente que repartir— y por eso el tope de cada canal se propone como una parte de
+// su excedente, dicha en porcentaje del precio.
+//
+// La consecuencia buena de acoplar las dos cosas: la utilidad de la empresa es siempre
+// precio − costo − comisión máxima, mueva el vendedor la barra donde la mueva.
 const dosDecimales = (v) => parseFloat((v).toFixed(2))
 
 /**
@@ -870,23 +879,33 @@ function comisionActualDe(item) {
 
 function comisionActualValor(item) {
     const cantidad = parseFloat(item.cantidad) || 1
+    const precio   = parseFloat(item.precio_lista || item.precio_unitario) || 0
 
-    return Math.round(excedenteUnitario(item) * cantidad * (comisionActualDe(item) / 100))
+    // Del PRECIO de venta, no del excedente: es la unidad en que la lee un vendedor y la que
+    // hace que el descuento sea la resta de dos porcentajes.
+    return Math.round(precio * cantidad * (comisionActualDe(item) / 100))
 }
 
+/**
+ * Cuánto descuento puede dar el vendedor: exactamente lo que puede dejar de ganar.
+ *
+ * Los dos porcentajes son del mismo precio, así que la resta se lee directo. Antes esto salía
+ * del `descuento_max_pct` del canal —la distancia con el canal de abajo—, y cuando dos canales
+ * valían lo mismo quedaba en cero: la barra se movía y el descuento no se llenaba nunca.
+ */
 function descuentoMaxDisponible(item) {
-    return getDescuentoMaxSegunCanal(item)
+    const { min, max } = rangoComisionDe(item)
+
+    return dosDecimales(Math.max(0, max - min))
 }
 
 /**
  * Mover la comisión llena el descuento, y al revés.
  *
- * En el tope de comisión el descuento es cero; en el mínimo, el descuento es todo el que el
- * canal permite. Es la negociación del vendedor: lo que deja de ganar se lo lleva el cliente.
- *
- * El descuento se escribe SIEMPRE que haya rango. Antes iba dentro de un `if` que lo saltaba
- * cuando el rango era cero o negativo, y ahí el ítem quedaba con la barra muerta y el
- * descuento congelado en cero sin decir por qué.
+ * El descuento es lo que el vendedor deja de ganar: si su tope es el 5 % de la venta y se
+ * conforma con el 3 %, el cliente se lleva el 2 %. Con eso la utilidad de la empresa **no
+ * cambia** —siempre es precio − costo − comisión máxima— y el vendedor decide si se queda la
+ * comisión o se la entrega al cliente para cerrar.
  */
 function onComisionChange(item, index, nuevoPct) {
     const { min, max, hayRango } = rangoComisionDe(item)
@@ -896,7 +915,7 @@ function onComisionChange(item, index, nuevoPct) {
     const pct = Math.max(min, Math.min(max, parseFloat(nuevoPct) || 0))
 
     form.items[index].comision_pct_actual = pct
-    form.items[index].descuento_pct       = dosDecimales((max - pct) / (max - min) * descuentoMaxDisponible(item))
+    form.items[index].descuento_pct       = dosDecimales(max - pct)
 }
 
 function ajustarComision(item, index, delta) {
@@ -906,15 +925,13 @@ function ajustarComision(item, index, delta) {
 function onDescuentoChange(item, index, nuevoPct) {
     if (canalSinDescuento.value) return
 
-    const descuentoMax = descuentoMaxDisponible(item)
-    const descPct      = Math.max(0, Math.min(descuentoMax, parseFloat(nuevoPct) || 0))
+    const { min, max, hayRango } = rangoComisionDe(item)
+    const descPct = Math.max(0, Math.min(descuentoMaxDisponible(item), parseFloat(nuevoPct) || 0))
 
     form.items[index].descuento_pct = descPct
 
-    const { min, max, hayRango } = rangoComisionDe(item)
-
-    if (hayRango && descuentoMax > 0) {
-        form.items[index].comision_pct_actual = dosDecimales(max - (descPct / descuentoMax) * (max - min))
+    if (hayRango) {
+        form.items[index].comision_pct_actual = dosDecimales(max - descPct)
     }
 }
 
@@ -947,7 +964,7 @@ function submit() {
         return {
             ...item,
             comision_pct_aplicada: comisionPct,
-            comision_valor: excedenteUnitario(item) * cantidad * (comisionPct / 100),
+            comision_valor: (parseFloat(item.precio_unitario) || 0) * cantidad * (comisionPct / 100),
         }
     })
     esEdicion.value ? form.put(`/cotizaciones/${props.cotizacion.id}`) : form.post('/cotizaciones')
@@ -1309,11 +1326,6 @@ function submit() {
                                         {{ canalCliente?.etiqueta }} tiene la comisión mínima igual a la máxima en este
                                         {{ item.tipo === 'ensamble' ? 'ensamble' : 'producto' }}. Cámbialas ahí para poder
                                         negociarla contra el descuento.
-                                    </p>
-                                    <p v-else-if="! descuentoMaxDisponible(item)" class="text-xs text-aviso-ambar mt-1">
-                                        Sin espacio para descuento: este {{ item.tipo === 'ensamble' ? 'ensamble' : 'producto' }}
-                                        vale lo mismo en {{ canalCliente?.etiqueta }} que en el canal de abajo, así que bajar la
-                                        comisión no le rebaja nada al cliente. Sube su margen para abrir el espacio.
                                     </p>
                                 </div>
                             </div>
