@@ -765,6 +765,17 @@ Route::middleware('auth')->group(function () {
     Route::post('/api/ia/ficha-tecnica', [IaController::class, 'fichaTecnica'])
         ->name('ia.ficha-tecnica');
 
+    // Los agentes que atienden por fuera: la web y WhatsApp.
+    Route::middleware('permiso:agentes.ver')->group(function () {
+        Route::get('/configuracion/agentes', [\App\Http\Controllers\AgenteIaController::class, 'index'])->name('agentes.index');
+    });
+
+    Route::middleware('permiso:agentes.gestionar')->group(function () {
+        Route::post('/configuracion/agentes',           [\App\Http\Controllers\AgenteIaController::class, 'store'])->name('agentes.store');
+        Route::put('/configuracion/agentes/{agente}',   [\App\Http\Controllers\AgenteIaController::class, 'update'])->name('agentes.update');
+        Route::delete('/configuracion/agentes/{agente}',[\App\Http\Controllers\AgenteIaController::class, 'destroy'])->name('agentes.destroy');
+    });
+
     // Los gráficos que la empresa arma para sus tableros. Ver es de cualquiera con acceso
     // al módulo; crear y borrar exige permiso, porque lo que uno arma lo ven todos.
     Route::get('/api/graficos',                [\App\Http\Controllers\GraficoDashboardController::class, 'index'])->name('graficos.index');

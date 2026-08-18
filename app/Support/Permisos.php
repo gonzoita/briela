@@ -27,6 +27,9 @@ class Permisos
                 'comisiones'   => ['label' => 'Comisiones',   'acciones' => ['ver', 'liquidar']],
                 // Un grafico que uno arma lo ven todos: por eso gestionarlo es un permiso.
                 'graficos'     => ['label' => 'Gráficos del tablero', 'acciones' => ['gestionar']],
+                // Los agentes atienden a clientes a nombre de la empresa: configurarlos no es
+                // lo mismo que ver el tablero.
+                'agentes'      => ['label' => 'Agentes de IA', 'acciones' => ['ver', 'gestionar']],
             ],
             'Producción' => [
                 'ops'         => ['label' => 'Órdenes de Producción', 'acciones' => ['ver', 'crear', 'editar', 'eliminar', 'calidad']],

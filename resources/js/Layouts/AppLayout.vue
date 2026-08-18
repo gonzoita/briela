@@ -157,6 +157,7 @@ const navItems = computed(() => {
         ]},
         { label: 'Sistema', icon: 'gear', items: [
             { label: 'Configuración',  href: '/configuracion',                icon: 'configurador', permiso: 'configuracion.ver' },
+            { label: 'Agentes',        href: '/configuracion/agentes',        icon: 'chat',         permiso: 'agentes.ver' },
             { label: 'Plantillas PDF', href: '/configuracion/plantillas-pdf', icon: 'pdf',          permiso: 'configuracion.editar' },
             { label: 'Auditoría',      href: '/auditoria',                    icon: 'chart',        permiso: 'auditoria.ver' },
         ]},

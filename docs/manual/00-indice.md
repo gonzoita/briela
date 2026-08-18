@@ -51,6 +51,7 @@ módulo por módulo.
 ## Inteligencia artificial
 
 - [Integración de IA (fichas, recomendación, asistente y voz)](./ia.md)
+- [Agentes](./agentes.md) — quién atiende por WhatsApp y por la web, y hasta dónde
 
 ## Transversal
 

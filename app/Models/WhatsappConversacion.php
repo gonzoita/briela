@@ -13,10 +13,15 @@ class WhatsappConversacion extends Model
     protected $fillable = [
         'whatsapp_numero_id', 'numero_contacto', 'nombre_contacto',
         'crm_lead_id', 'cliente_id', 'ultimo_mensaje_at', 'leido',
+        // Qué agente la atiende, cuándo el cliente demostró quién es, y cuándo la tomó una
+        // persona —desde ahí el agente no vuelve a hablar—.
+        'agente_id', 'verificado_at', 'escalada_at',
     ];
 
     protected $casts = [
         'ultimo_mensaje_at' => 'datetime',
+        'verificado_at'     => 'datetime',
+        'escalada_at'       => 'datetime',
         'leido'             => 'boolean',
     ];
 

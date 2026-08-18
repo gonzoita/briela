@@ -193,17 +193,22 @@ class WhatsappAutomatizacionService
         // en vez de comparar palabras. Los mensajes fijos quedan como respaldo
         // para cuando la IA no conteste — dejar a alguien sin respuesta es peor
         // que mandarle algo genérico.
-        $agente = app(\App\Services\IA\AgentePublicoService::class);
+        // El orquestador decide quién atiende: el agente público si no sabemos quién escribe, o
+        // el de clientes cuando la persona ya demostró quién es. Y calla del todo cuando la
+        // conversación ya la tomó alguien del equipo.
+        $respuestaIa = app(\App\Services\IA\AgenteConversacionService::class)
+            ->responder($conversacion, $texto);
 
-        if ($agente->activo()) {
-            $respuestaIa = $agente->responder($texto, $this->historial($conversacion));
+        if ($respuestaIa !== null) {
+            $whatsapp->enviarMensaje($numero, $conversacion->numero_contacto, $respuestaIa);
 
-            if ($respuestaIa !== null) {
-                $whatsapp->enviarMensaje($numero, $conversacion->numero_contacto, $respuestaIa);
-                return;
-            }
+            return;
+        }
 
-            Log::warning('Agente público: sin respuesta, se usan los mensajes fijos.');
+        // Sin agente configurado —o con la conversación ya en manos de una persona— quedan los
+        // mensajes fijos. Dejar a alguien sin respuesta es peor que mandarle algo genérico.
+        if ($conversacion->escalada_at !== null) {
+            return;
         }
 
         foreach ($respuestas as $r) {
