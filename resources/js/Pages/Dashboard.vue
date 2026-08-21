@@ -3,12 +3,16 @@ import { ref, computed } from 'vue'
 import { router, Link } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
 import ChatResumen from '@/Components/ChatResumen.vue'
+import GraficosPersonalizados from '@/Components/GraficosPersonalizados.vue'
 
 const props = defineProps({
     metricas:      Object,
     atencion:      { type: Array,  default: () => [] },
     ops_recientes: Array,
     contexto:      { type: Object, default: () => ({}) },
+    // Las secciones que la empresa armo: titulo, clave y nada mas. Los graficos de cada una los
+    // pide el componente al abrir la pantalla.
+    secciones:     { type: Array,  default: () => [] },
     permisos:      Object,
 })
 
@@ -60,6 +64,52 @@ function doRefresh() {
     if (refreshing.value) return
     refreshing.value = true
     router.reload({ onFinish: () => { refreshing.value = false } })
+}
+
+// --- Secciones del tablero --------------------------------------------------
+// Cada seccion es una tarjeta con sus propios graficos. Para el motor de graficos, la clave de
+// la seccion es un modulo mas: por eso el tablero de inicio no tiene codigo de calculo propio.
+const puedeGestionar = computed(() => !! props.permisos?.puedeGestionarGraficos)
+
+const nuevaSeccion   = ref('')
+const creandoSeccion = ref(false)
+const renombrando    = ref(null)   // id de la seccion que se esta renombrando
+const tituloEditado  = ref('')
+
+function crearSeccion() {
+    const titulo = nuevaSeccion.value.trim()
+    if (! titulo) return
+
+    router.post('/dashboard/secciones', { titulo }, {
+        preserveScroll: true,
+        onSuccess: () => { nuevaSeccion.value = ''; creandoSeccion.value = false },
+    })
+}
+
+function abrirRenombrar(seccion) {
+    renombrando.value   = seccion.id
+    tituloEditado.value = seccion.titulo
+}
+
+function guardarTitulo(seccion) {
+    const titulo = tituloEditado.value.trim()
+    if (! titulo || titulo === seccion.titulo) { renombrando.value = null; return }
+
+    router.put(`/dashboard/secciones/${seccion.id}`, { titulo }, {
+        preserveScroll: true,
+        onSuccess: () => { renombrando.value = null },
+    })
+}
+
+function moverSeccion(seccion, direccion) {
+    router.put(`/dashboard/secciones/${seccion.id}/mover`, { direccion }, { preserveScroll: true })
+}
+
+function borrarSeccion(seccion) {
+    // Se lleva los graficos de la seccion, y eso no se deshace: por eso se pregunta.
+    if (! confirm(`¿Eliminar la sección «${seccion.titulo}» y sus gráficos?`)) return
+
+    router.delete(`/dashboard/secciones/${seccion.id}`, { preserveScroll: true })
 }
 
 // ─── Tarjetas OPs ───────────────────────────────────────────────────────────
@@ -302,6 +352,72 @@ const badgeClass = (estado) => ({
                     </svg>
                     Seguimiento
                 </Link>
+            </div>
+
+            <!-- Secciones configurables -->
+            <div>
+                <div v-if="puedeGestionar" class="flex items-center justify-between gap-2 flex-wrap mb-3">
+                    <h2 class="font-semibold text-tinta-900 text-sm">Mi tablero</h2>
+                    <button type="button" @click="creandoSeccion = ! creandoSeccion"
+                        class="text-xs text-[var(--marca)] border border-[var(--marca)] rounded-lg px-3 py-1.5 hover:bg-realce transition-colors">
+                        {{ creandoSeccion ? 'Cancelar' : '+ Nueva sección' }}
+                    </button>
+                </div>
+
+                <div v-if="creandoSeccion" class="bg-superficie rounded-2xl shadow-sm p-4 mb-4">
+                    <label class="block text-xs text-tinta-400 mb-1">Nombre de la sección</label>
+                    <div class="flex flex-col sm:flex-row gap-2">
+                        <input v-model="nuevaSeccion" type="text" maxlength="80" placeholder="Cotizaciones, Producción, Cartera..."
+                            @keyup.enter="crearSeccion"
+                            class="flex-1 border border-linea rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[var(--marca)]" />
+                        <button type="button" @click="crearSeccion" :disabled="! nuevaSeccion.trim()"
+                            class="text-sm px-4 py-2 rounded-xl text-white disabled:opacity-50" style="background:var(--marca);">
+                            Crear sección
+                        </button>
+                    </div>
+                    <p class="text-xs text-tinta-300 mt-2">
+                        Después, dentro de la sección, agrega los gráficos y datos que quieras ver.
+                    </p>
+                </div>
+
+                <GraficosPersonalizados
+                    v-for="(seccion, i) in secciones"
+                    :key="seccion.id"
+                    :modulo="seccion.clave"
+                    :titulo="seccion.titulo"
+                    :puede-gestionar="puedeGestionar"
+                >
+                    <template #acciones>
+                        <template v-if="puedeGestionar">
+                            <!-- Renombrar en el sitio: el campo reemplaza al titulo, sin abrir nada -->
+                            <template v-if="renombrando === seccion.id">
+                                <input v-model="tituloEditado" type="text" maxlength="80"
+                                    @keyup.enter="guardarTitulo(seccion)" @keyup.escape="renombrando = null"
+                                    class="border border-linea rounded-lg px-2 py-1 text-xs w-40 focus:outline-none focus:border-[var(--marca)]" />
+                                <button type="button" @click="guardarTitulo(seccion)" class="text-xs text-[var(--marca)]">Guardar</button>
+                            </template>
+                            <template v-else>
+                                <button type="button" @click="abrirRenombrar(seccion)"
+                                    class="text-xs text-tinta-300 hover:text-tinta-700" title="Renombrar la sección">Renombrar</button>
+                                <button type="button" @click="moverSeccion(seccion, 'arriba')" :disabled="i === 0"
+                                    class="text-xs text-tinta-300 hover:text-tinta-700 disabled:opacity-30" title="Subir">↑</button>
+                                <button type="button" @click="moverSeccion(seccion, 'abajo')" :disabled="i === secciones.length - 1"
+                                    class="text-xs text-tinta-300 hover:text-tinta-700 disabled:opacity-30" title="Bajar">↓</button>
+                                <button type="button" @click="borrarSeccion(seccion)"
+                                    class="text-xs text-tinta-300 hover:text-aviso-rojo" title="Eliminar la sección">Quitar</button>
+                            </template>
+                        </template>
+                    </template>
+                </GraficosPersonalizados>
+
+                <div v-if="! secciones.length && puedeGestionar && ! creandoSeccion"
+                    class="bg-superficie rounded-2xl shadow-sm px-5 py-8 text-center">
+                    <p class="text-sm text-tinta-500">Arma tu propio tablero.</p>
+                    <p class="text-xs text-tinta-300 mt-1">
+                        Crea una sección por módulo —Cotizaciones, Producción, Cartera— y dentro de cada una
+                        elige los datos y gráficos que quieres ver al entrar.
+                    </p>
+                </div>
             </div>
 
             <!-- OPs recientes ───────────────────────────────────────────── -->
