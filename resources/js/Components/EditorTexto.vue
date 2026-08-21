@@ -11,6 +11,9 @@ const props = defineProps({
     placeholder: { type: String, default: 'Escribe aquí...' },
     minHeight:   { type: String, default: '120px' },
     maxLength:   { type: Number, default: null },
+    // Muestra los botones de Título y Subtítulo. Apagado por omisión: en la descripción de un
+    // producto los títulos estorban, y en un documento largo son los que arman el índice.
+    titulos:     { type: Boolean, default: false },
 })
 const emit = defineEmits(['update:modelValue'])
 
@@ -67,6 +70,22 @@ function toggleLink() {
     <div class="border border-tinta-200 rounded-xl overflow-hidden focus-within:ring-2 focus-within:ring-blue-400 focus-within:border-blue-400 transition-colors bg-superficie">
         <!-- Toolbar -->
         <div class="flex flex-wrap gap-0.5 p-1.5 border-b border-linea bg-tinta-50">
+
+            <!-- Títulos. Son los que arman el índice de un documento largo: sin ellos un
+                 capítulo en negrita se ve igual, pero el índice no lo encuentra. -->
+            <template v-if="titulos">
+                <button type="button"
+                    @mousedown.prevent="editor?.chain().focus().toggleHeading({ level: 2 }).run()"
+                    :class="['px-2 py-1 rounded text-xs font-bold transition-colors hover:bg-tinta-200', editor?.isActive('heading', { level: 2 }) ? 'bg-tinta-200 text-[var(--marca)]' : '']"
+                    title="Título de capítulo">T1</button>
+
+                <button type="button"
+                    @mousedown.prevent="editor?.chain().focus().toggleHeading({ level: 3 }).run()"
+                    :class="['px-2 py-1 rounded text-xs font-semibold transition-colors hover:bg-tinta-200', editor?.isActive('heading', { level: 3 }) ? 'bg-tinta-200 text-[var(--marca)]' : '']"
+                    title="Subtítulo">T2</button>
+
+                <span class="w-px h-4 bg-linea mx-1"></span>
+            </template>
 
             <!-- Bold -->
             <button type="button"

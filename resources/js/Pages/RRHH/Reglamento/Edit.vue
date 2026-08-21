@@ -57,6 +57,90 @@ function regenerar() {
 }
 
 const flash = computed(() => page.props.flash ?? {})
+
+const avisoTitulos = ref('')
+
+/**
+ * Convierte en títulos de verdad los párrafos que se ven como títulos.
+ *
+ * Un reglamento casi nunca se escribe aquí: se pega de Word o de un PDF, y ahí los capítulos
+ * vienen como párrafos en negrita y centrados. Se ven igual, pero el índice del enlace público
+ * lee `h2` y `h3` — así que un documento pegado tal cual sale sin índice.
+ *
+ * Marcar sesenta títulos a mano es lo que hace que nadie lo haga. Esto los reconoce por cómo
+ * están escritos:
+ *
+ * - **CAPÍTULO / TÍTULO / ANEXO** → título de capítulo (`h2`)
+ * - **ARTÍCULO 12** → subtítulo (`h3`)
+ * - Un párrafo **corto y todo en negrita** → título de capítulo
+ *
+ * No toca el texto: solo cambia la etiqueta. Y no es automático a propósito — se aprieta, se
+ * mira el resultado y si no gustó, se deshace sin guardar.
+ */
+function detectarTitulos() {
+    const doc = new DOMParser().parseFromString(form.contenido || '', 'text/html')
+    const parrafos = Array.from(doc.querySelectorAll('p'))
+
+    let capitulos = 0
+    let articulos = 0
+
+    for (const p of parrafos) {
+        const texto = (p.textContent || '').trim()
+
+        if (! texto || texto.length > 160) continue
+
+        // Sin tildes y en mayúsculas, para que «Artículo» y «ARTICULO» caigan igual.
+        const plano = texto.normalize('NFD').replace(/[̀-ͯ]/g, '').toUpperCase()
+
+        let nivel = null
+
+        if (/^(CAPITULO|TITULO|ANEXO|SECCION)/.test(plano) && texto.length <= 90) {
+            nivel = 'h2'
+        } else {
+            // El resto se saca del texto ORIGINAL, no del que ya pasó a mayúsculas: preguntar
+            // «¿está en mayúsculas?» a una cadena que acabo de poner en mayúsculas siempre da
+            // que sí, y entonces el cuerpo de cada artículo se volvía un título.
+            const art = texto.match(/^\s*(?:art[ií]culo|art\.)\s*\d+[.\-–)]?\s*(.*)$/i)
+
+            if (art) {
+                const resto = art[1].trim()
+
+                // Es el nombre del artículo si no trae texto, o si lo que trae es corto y va en
+                // mayúsculas —«ARTÍCULO 5. JORNADA DE TRABAJO»—. Si trae una frase normal, eso
+                // es el cuerpo del artículo y convertirlo dejaría un encabezado con un párrafo
+                // adentro.
+                if (resto.length === 0 || (resto.length <= 45 && resto === resto.toUpperCase())) {
+                    nivel = 'h3'
+                }
+            } else if (texto.length <= 90 && p.querySelector('strong, b')) {
+                const negrita = (p.querySelector('strong, b').textContent || '').trim()
+
+                // Todo el párrafo en negrita y corto: así vienen los encabezados de Word.
+                if (negrita.length >= texto.length - 2) nivel = 'h2'
+            }
+        }
+
+        if (! nivel) continue
+
+        const titulo = doc.createElement(nivel)
+
+        // Se pasa el texto plano: un título no necesita la negrita, ya es un título.
+        titulo.textContent = texto
+        p.replaceWith(titulo)
+
+        if (nivel === 'h2') capitulos++
+        else articulos++
+    }
+
+    if (! capitulos && ! articulos) {
+        avisoTitulos.value = 'No se reconoció ningún título. Márcalos a mano con los botones T1 y T2 del editor.'
+        return
+    }
+
+    form.contenido = doc.body.innerHTML
+    avisoTitulos.value = `Se marcaron ${capitulos} capítulo(s) y ${articulos} artículo(s). Revisa el resultado antes de guardar.`
+}
+
 </script>
 
 <template>
@@ -168,15 +252,27 @@ const flash = computed(() => page.props.flash ?? {})
                 </div>
 
                 <div>
-                    <div class="flex items-center justify-between mb-1.5">
+                    <div class="flex items-center justify-between mb-1.5 gap-2 flex-wrap">
                         <label class="block text-sm font-medium text-tinta-700">Contenido</label>
-                        <span class="text-xs text-tinta-300">
-                            Los títulos arman solos el índice que ve el colaborador
-                        </span>
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs text-tinta-300 hidden sm:inline">
+                                Los títulos arman solos el índice
+                            </span>
+                            <!-- Para el documento que se pega de Word: reconoce los capítulos y
+                                 los artículos y los marca como títulos de una vez. -->
+                            <button type="button" @click="detectarTitulos"
+                                class="text-xs font-semibold border border-linea rounded-lg px-2.5 py-1.5 text-tinta-500 hover:bg-realce hover:text-[var(--marca)] transition-colors">
+                                Detectar títulos
+                            </button>
+                        </div>
                     </div>
 
-                    <EditorTexto v-model="form.contenido"
-                        placeholder="Escribe o pega aquí el reglamento. Usa títulos para separar los capítulos…"
+                    <p v-if="avisoTitulos" class="text-xs mb-1.5 px-3 py-2 rounded-lg bg-pastel-azul text-aviso-azul">
+                        {{ avisoTitulos }}
+                    </p>
+
+                    <EditorTexto v-model="form.contenido" titulos
+                        placeholder="Escribe o pega aquí el reglamento. Los botones T1 y T2 marcan los títulos…"
                         min-height="420px" />
                 </div>
 

@@ -14,6 +14,39 @@ negrillas, tablas. También se puede **pegar** desde Word y conserva el formato.
 Lleva además **versión** y **fecha de vigencia**, que salen en la portada de la versión
 pública. Un reglamento sin versión se puede confundir con el anterior.
 
+## El índice sale de los títulos
+
+El índice que ve el colaborador **no se escribe**: se arma solo con los títulos del documento.
+La página pública lee los `h2` y los `h3` del contenido y los lista en orden.
+
+Por eso un documento **pegado de Word o de un PDF sale sin índice**: ahí los capítulos vienen
+como párrafos en negrita y centrados. Se ven igual que un título, pero no lo son.
+
+### Marcarlos a mano
+
+En la barra del editor están **T1** (título de capítulo) y **T2** (subtítulo). Se pone el
+cursor en la línea y se aprieta: la línea pasa a ser un título y aparece en el índice.
+
+### Marcarlos de una vez
+
+El botón **«Detectar títulos»** recorre el documento y marca lo que reconoce:
+
+| Se convierte en | Cuándo |
+|---|---|
+| Título de capítulo (`T1`) | La línea empieza por **CAPÍTULO, TÍTULO, ANEXO o SECCIÓN** |
+| Título de capítulo (`T1`) | Es una línea **corta y toda en negrita** — así vienen los encabezados de Word |
+| Subtítulo (`T2`) | Empieza por **ARTÍCULO N** y lo que sigue es corto y en mayúsculas, o no sigue nada |
+
+Lo que **no** convierte, a propósito: un artículo cuyo texto viene en el mismo párrafo
+—«ARTÍCULO 2. Las condiciones de admisión son las siguientes…»—. Convertirlo dejaría un
+encabezado enorme con un párrafo adentro y un índice ilegible; ahí el artículo se queda como
+texto.
+
+No cambia una palabra del documento: solo cambia la etiqueta de la línea. Y **no se guarda
+solo** — se aprieta, se mira el resultado y, si no gustó, se sale sin guardar y queda como
+estaba.
+
+
 ## Publicarlo
 
 El interruptor **Publicado** es lo único que hace responder el enlace. Apagado, el enlace no
