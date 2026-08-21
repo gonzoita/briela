@@ -8,7 +8,6 @@ import GraficosPersonalizados from '@/Components/GraficosPersonalizados.vue'
 const props = defineProps({
     metricas:      Object,
     atencion:      { type: Array,  default: () => [] },
-    ops_recientes: Array,
     contexto:      { type: Object, default: () => ({}) },
     // Las secciones que la empresa armo: titulo, clave y nada mas. Los graficos de cada una los
     // pide el componente al abrir la pantalla.
@@ -112,35 +111,12 @@ function borrarSeccion(seccion) {
     router.delete(`/dashboard/secciones/${seccion.id}`, { preserveScroll: true })
 }
 
-// ─── Tarjetas OPs ───────────────────────────────────────────────────────────
-const tarjetasOps = [
-    { key: 'en_produccion',   label: 'En producción',   color: 'var(--marca)', bg: '#EFF6FF', href: '/produccion/ops?estado=en_produccion', icon: 'clipboard' },
-    { key: 'borrador',        label: 'Por confirmar',   color: '#D97706', bg: '#FFFBEB', href: '/produccion/ops?estado=borrador',      icon: 'clock'     },
-    { key: 'calidad',         label: 'Ctrl. calidad',   color: '#7C3AED', bg: '#F5F3FF', href: '/produccion/ops?estado=calidad',       icon: 'check'     },
-    { key: 'despachadas_mes', label: 'Despachadas/mes', color: '#059669', bg: '#ECFDF5', href: '/produccion/ops?estado=despachada',    icon: 'truck'     },
-]
-
-// ─── Tarjetas Cotizaciones ───────────────────────────────────────────────────
-const tarjetasCots = [
-    { key: 'cots_enviadas', label: 'Cots. enviadas', color: '#1D4ED8', bg: '#DBEAFE', href: '/cotizaciones?estado=enviada', icon: 'doc-sent' },
-    { key: 'cots_mes',      label: 'Cots. del mes',  color: '#4F46E5', bg: '#EEF2FF', href: '/cotizaciones',               icon: 'doc-list' },
-]
-
 // ─── Alertas mantenimiento ──────────────────────────────────────────────────
 const hayAlertasMant = computed(() =>
     (props.metricas?.mant_vencidos ?? 0) > 0 ||
     (props.metricas?.mant_proximos ?? 0) > 0
 )
 
-// ─── Badge estado OP ────────────────────────────────────────────────────────
-const badgeClass = (estado) => ({
-    borrador:      'bg-tinta-100 text-tinta-500',
-    confirmada:    'bg-pastel-azul-2 text-aviso-azul',
-    en_produccion: 'bg-pastel-ambar-2 text-aviso-ambar',
-    calidad:       'bg-pastel-violeta-2 text-aviso-violeta',
-    reproceso:     'bg-pastel-naranja-2 text-aviso-naranja',
-    despachada:    'bg-pastel-verde-2 text-aviso-verde',
-}[estado] ?? 'bg-tinta-100 text-tinta-500')
 </script>
 
 <template>
@@ -205,64 +181,6 @@ const badgeClass = (estado) => ({
                         <svg class="w-4 h-4 shrink-0 opacity-40" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
                         </svg>
-                    </Link>
-                </div>
-            </div>
-
-            <!-- Sección: Producción ─────────────────────────────────────── -->
-            <div class="mb-5">
-                <p class="text-[11px] font-semibold text-tinta-300 uppercase tracking-[0.12em] mb-2.5">Producción</p>
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-                    <Link
-                        v-for="t in tarjetasOps"
-                        :key="t.key"
-                        :href="t.href"
-                        class="bg-superficie rounded-lg border border-linea p-4 flex flex-col gap-3 hover:border-tinta-200 active:scale-[.99] transition-all cursor-pointer no-underline"
-                    >
-                        <div class="w-9 h-9 rounded-lg bg-tinta-50 flex items-center justify-center text-tinta-400">
-                            <svg v-if="t.icon === 'clipboard'" class="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
-                            </svg>
-                            <svg v-if="t.icon === 'clock'" class="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                            </svg>
-                            <svg v-if="t.icon === 'check'" class="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                            </svg>
-                            <svg v-if="t.icon === 'truck'" class="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 17H3a2 2 0 01-2-2V5a2 2 0 012-2h11a2 2 0 012 2v3m0 0h4l3 3v4h-7m0-7H8m9 7a2 2 0 11-4 0 2 2 0 014 0zM7 17a2 2 0 11-4 0 2 2 0 014 0z"/>
-                            </svg>
-                        </div>
-                        <div>
-                            <p class="text-[13px] text-tinta-400 leading-snug">{{ t.label }}</p>
-                            <p class="text-[26px] font-semibold text-tinta-900 leading-none mt-1.5 tracking-[-0.02em]">{{ metricas?.[t.key] ?? 0 }}</p>
-                        </div>
-                    </Link>
-                </div>
-            </div>
-
-            <!-- Sección: Cotizaciones (admin/vendedor) ──────────────────── -->
-            <div v-if="permisos?.esCotizador" class="mb-5">
-                <p class="text-[11px] font-semibold text-tinta-300 uppercase tracking-[0.12em] mb-2.5">Cotizaciones</p>
-                <div class="grid grid-cols-2 gap-3">
-                    <Link
-                        v-for="t in tarjetasCots"
-                        :key="t.key"
-                        :href="t.href"
-                        class="bg-superficie rounded-lg border border-linea p-4 flex flex-col gap-3 hover:border-tinta-200 active:scale-[.99] transition-all cursor-pointer no-underline"
-                    >
-                        <div class="w-9 h-9 rounded-lg bg-tinta-50 flex items-center justify-center text-tinta-400">
-                            <svg v-if="t.icon === 'doc-sent'" class="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                            </svg>
-                            <svg v-if="t.icon === 'doc-list'" class="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 10h16M4 14h16M4 18h16"/>
-                            </svg>
-                        </div>
-                        <div>
-                            <p class="text-[13px] text-tinta-400 leading-snug">{{ t.label }}</p>
-                            <p class="text-[26px] font-semibold text-tinta-900 leading-none mt-1.5 tracking-[-0.02em]">{{ metricas?.[t.key] ?? 0 }}</p>
-                        </div>
                     </Link>
                 </div>
             </div>
@@ -420,76 +338,6 @@ const badgeClass = (estado) => ({
                 </div>
             </div>
 
-            <!-- OPs recientes ───────────────────────────────────────────── -->
-            <div class="bg-superficie rounded-2xl shadow-sm overflow-hidden">
-                <div class="flex items-center justify-between px-4 py-3 border-b border-linea">
-                    <h2 class="font-semibold text-tinta-900 text-sm">OPs recientes</h2>
-                    <Link href="/produccion/ops" class="text-xs font-medium" style="color: var(--marca);">
-                        Ver todas →
-                    </Link>
-                </div>
-
-                <!-- Cards (mobile) -->
-                <div v-if="ops_recientes?.length" class="divide-y divide-linea md:hidden">
-                    <Link
-                        v-for="op in ops_recientes"
-                        :key="op.id"
-                        :href="`/produccion/ops/${op.id}`"
-                        class="flex items-center gap-3 px-4 py-3 active:bg-tinta-50 transition-colors no-underline"
-                    >
-                        <div class="flex-1 min-w-0">
-                            <div class="flex items-center gap-2 mb-0.5">
-                                <span class="font-mono text-sm font-semibold" style="color: var(--marca);">{{ op.numero_op }}</span>
-                                <span
-                                    class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium"
-                                    :class="badgeClass(op.estado)"
-                                >{{ op.estado_label }}</span>
-                            </div>
-                            <p class="text-sm text-tinta-700 truncate">{{ op.cliente }}</p>
-                            <p class="text-xs text-tinta-300 mt-0.5">{{ op.created_at }}</p>
-                        </div>
-                        <svg class="w-4 h-4 text-tinta-200 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
-                        </svg>
-                    </Link>
-                </div>
-
-                <!-- Tabla (desktop) -->
-                <div v-if="ops_recientes?.length" class="hidden md:block overflow-x-auto">
-                    <table class="w-full text-sm">
-                        <thead class="bg-tinta-50 text-xs text-tinta-400 uppercase tracking-wide">
-                            <tr>
-                                <th class="px-5 py-3 text-left">Número OP</th>
-                                <th class="px-5 py-3 text-left">Cliente</th>
-                                <th class="px-5 py-3 text-left">Estado</th>
-                                <th class="px-5 py-3 text-left">Fecha</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-linea">
-                            <tr
-                                v-for="op in ops_recientes"
-                                :key="op.id"
-                                class="hover:bg-tinta-50 transition-colors cursor-pointer"
-                                @click="router.visit(`/produccion/ops/${op.id}`)"
-                            >
-                                <td class="px-5 py-3 font-mono font-semibold" style="color: var(--marca);">{{ op.numero_op }}</td>
-                                <td class="px-5 py-3 text-tinta-700">{{ op.cliente }}</td>
-                                <td class="px-5 py-3">
-                                    <span
-                                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
-                                        :class="badgeClass(op.estado)"
-                                    >{{ op.estado_label }}</span>
-                                </td>
-                                <td class="px-5 py-3 text-tinta-400">{{ op.created_at }}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-
-                <div v-else class="px-5 py-10 text-center text-tinta-300 text-sm">
-                    No hay órdenes de producción aún.
-                </div>
-            </div>
 
         </div>
 

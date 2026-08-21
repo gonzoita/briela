@@ -29,17 +29,28 @@ Hoy avisa de dos cosas:
 Cada aviso lleva al listado ya filtrado, así que el número que ves en el
 dashboard es el mismo que cuentas al entrar.
 
-## Tarjetas de conteo
+## Ya no hay tarjetas fijas de conteo
 
-Producción (en producción, por confirmar, control de calidad, despachadas del
-mes) y Cotizaciones (enviadas, del mes). Cada una abre su listado filtrado.
+Hasta el 21 de agosto de 2026 el dashboard traía seis tarjetas escritas en el código
+—producción, por confirmar, control de calidad, despachadas del mes, cotizaciones enviadas,
+cotizaciones del mes— y debajo una tabla con las últimas cinco OPs. Se retiraron.
 
-Las alertas de mantenimiento aparecen solo para administrador y jefe de
-producción, y solo si hay equipos vencidos o próximos a vencer.
+El motivo es el mismo que dio origen a las secciones: **lo que una empresa necesita ver al
+entrar no lo puede decidir el código**. Un taller de dos personas y uno de cuarenta no miran lo
+mismo, y ninguno de los dos miraba exactamente esas seis cifras. Cualquiera de ellas se
+reconstruye como gráfico —«OPs, conteo, agrupado por estado» da las cuatro primeras de una
+sola vez—, y quien no la quiera ya no la tiene encima.
+
+Lo que sí quedó fijo es lo que **no es un tablero sino un aviso**: el bloque de arriba y las
+alertas de mantenimiento. Un aviso aparece solo cuando hay algo y pide una acción; no compite
+con lo que tú configuraste.
+
+Los accesos rápidos —Nueva OP, Verificar, Nueva Cot., Seguimiento— también se quedan: son
+navegación, no datos.
 
 ## Mi tablero — las secciones que armas tú
 
-Debajo de las tarjetas fijas hay un espacio vacío que cada empresa llena a su manera. Se
+Debajo de los accesos rápidos hay un espacio vacío que cada empresa llena a su manera. Se
 organiza en **secciones**, y una sección es lo que tú digas que es: «Cotizaciones»,
 «Producción», «Cartera», «Lo del lunes».
 
@@ -81,16 +92,17 @@ pregunta antes.
 El dashboard se recorta según los permisos:
 
 - Quien no puede ver todas las OPs solo cuenta las suyas.
-- Las tarjetas de cotizaciones son para administrador y vendedor.
 - Un vendedor cuenta solo sus propias cotizaciones.
 - Las alertas de mantenimiento son para administrador y jefe de producción.
+- Crear, renombrar, mover y quitar secciones exige `graficos.gestionar`. Sin ese permiso se
+  ven las secciones y sus números, pero no los botones.
 
 ## Detalles de uso
 
 **Pull-to-refresh**: en el celular, hala hacia abajo desde arriba del todo para
 recargar los números.
 
-**Navegación instantánea**: las tarjetas ya no recargan la aplicación completa
-en cada toque. Antes cada tarjeta era un enlace normal y volvía a bajar todo el
-JavaScript; ahora navegan dentro de la misma sesión, que en celular con datos
-móviles se nota bastante.
+**Navegación instantánea**: los accesos rápidos y los avisos no recargan la aplicación
+completa en cada toque. Antes cada uno era un enlace normal y volvía a bajar todo el
+JavaScript; ahora navegan dentro de la misma sesión, que en celular con datos móviles se nota
+bastante.

@@ -33,15 +33,11 @@ class DashboardController extends Controller
             $baseOps->where('responsable_id', $user->id);
         }
 
-        $metricas = [
-            'en_produccion'   => (clone $baseOps)->where('estado', 'en_produccion')->count(),
-            'borrador'        => (clone $baseOps)->where('estado', 'borrador')->count(),
-            'calidad'         => (clone $baseOps)->where('estado', 'calidad')->count(),
-            'despachadas_mes' => (clone $baseOps)->where('estado', 'despachada')
-                                        ->whereMonth('updated_at', now()->month)
-                                        ->whereYear('updated_at', now()->year)
-                                        ->count(),
-        ];
+        // Las tarjetas fijas de conteo se retiraron el 21 ago 2026: lo que se mira al entrar
+        // ahora lo arma cada empresa en sus propias secciones, y esas cuentas se pueden
+        // reconstruir como gráficos de la fuente «OPs». Aquí solo quedan las alertas, que no
+        // son un tablero sino un aviso.
+        $metricas = [];
 
         // ─── Lo que requiere atención hoy ────────────────────────────────────
         // Un conteo dice cuántas hay; esto dice cuáles hay que mirar.
@@ -68,12 +64,6 @@ class DashboardController extends Controller
             if ($user->esVendedor()) {
                 $baseCots->where('responsable_id', $user->id);
             }
-            $metricas['cots_enviadas'] = (clone $baseCots)->where('estado', 'enviada')->count();
-            $metricas['cots_mes']      = (clone $baseCots)
-                                            ->whereMonth('fecha_creacion', now()->month)
-                                            ->whereYear('fecha_creacion', now()->year)
-                                            ->count();
-
             // Enviadas que se vencen esta semana: es plata que se puede perder
             // por no llamar a tiempo.
             $cotsPorVencer = (clone $baseCots)
@@ -111,25 +101,9 @@ class DashboardController extends Controller
             $metricas['mant_en_proceso'] = Mantenimiento::where('estado', 'en_proceso')->count();
         }
 
-        // ─── OPs recientes ────────────────────────────────────────────────────
-        $ops_recientes = ContextoSede::aplicar(Op::with('cliente:id,nombre,apellido'))
-            ->when(! $user->puedeVerTodasOps(), fn ($q) => $q->where('responsable_id', $user->id))
-            ->latest()
-            ->take(5)
-            ->get()
-            ->map(fn ($op) => [
-                'id'           => $op->id,
-                'numero_op'    => $op->numero,
-                'cliente'      => $op->cliente ? trim($op->cliente->nombre . ' ' . $op->cliente->apellido) : '—',
-                'estado'       => $op->estado,
-                'estado_label' => $op->estadoBadge()['label'],
-                'created_at'   => $op->created_at->format('d/m/Y'),
-            ]);
-
         return Inertia::render('Dashboard', [
             'metricas'      => $metricas,
             'atencion'      => array_values($atencion),
-            'ops_recientes' => $ops_recientes,
             'contexto'      => [
                 'usuario' => $user->name,
                 'sede'    => ContextoSede::viendoTodas()

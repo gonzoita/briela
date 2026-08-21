@@ -341,7 +341,7 @@ informa el proveedor.
 
 | Módulo | Ruta | Qué hace |
 |---|---|---|
-| **Dashboard** | `/dashboard` | Lo que hay que mirar hoy |
+| **Dashboard** | `/dashboard` | Los avisos de hoy y las secciones que armó la empresa |
 | **Buscador global** | Ctrl+K | Encuentra cualquier documento y encadena entre módulos |
 | **Notificaciones** | la campanita | Punto único de avisos, con su catálogo |
 | **Hilos internos** | en cada documento | Comentar sobre una cotización o una OP |
