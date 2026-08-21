@@ -4,6 +4,7 @@ import { router } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
 import OrdenarLista from '@/Components/OrdenarLista.vue'
 import { useOrden } from '@/composables/useOrden'
+import BuscadorModulo from '@/Components/BuscadorModulo.vue'
 
 const props = defineProps({
     clientes:               Object,
@@ -99,12 +100,12 @@ function iniciales(c) {
             <!-- Filtros -->
             <div class="bg-superficie rounded-xl border border-linea p-3 mb-4 space-y-2">
                 <div class="flex flex-col sm:flex-row gap-2">
-                    <input
+                    <BuscadorModulo
                         v-model="buscar"
-                        type="text"
+                        tipos="cliente"
                         placeholder="Buscar por nombre, ID, email..."
-                        class="flex-1 rounded-lg border border-tinta-200 px-3 py-2 text-sm focus:ring-4 focus:ring-[var(--marca-suave)] focus:outline-none"
-                        @keyup.enter="aplicarFiltros"
+                        @filtrar="aplicarFiltros"
+                        class="flex-1"
                     />
                     <select v-model="tipo" class="rounded-lg border border-tinta-200 px-3 py-2 text-sm" @change="aplicarFiltros">
                         <option value="">Todos los tipos</option>

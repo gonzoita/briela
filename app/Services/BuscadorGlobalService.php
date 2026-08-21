@@ -34,13 +34,20 @@ use Illuminate\Support\Facades\Log;
  */
 class BuscadorGlobalService
 {
-    /** Cuántos resultados por tipo. Suficiente para reconocer, sin abrumar. */
-    private const POR_TIPO = 5;
+    /**
+     * Cuántos resultados por tipo. Suficiente para reconocer, sin abrumar.
+     *
+     * Es propiedad y no constante porque el buscador de un módulo pide más: ahí el usuario ya
+     * sabe qué está buscando y no hay otros tipos compitiendo por el espacio de la lista.
+     */
+    private int $porTipo = 5;
 
     /**
+     * @param  array<int, string>  $tipos  Limita la búsqueda a estas fuentes. Vacío = todas.
+     * @param  int|null  $limite  Cuántos resultados por tipo. Null deja el de siempre.
      * @return array<int, array{tipo:string, etiqueta:string, color:string, resultados:array}>
      */
-    public function buscar(string $termino): array
+    public function buscar(string $termino, array $tipos = [], ?int $limite = null): array
     {
         $termino = trim($termino);
 
@@ -49,9 +56,21 @@ class BuscadorGlobalService
             return [];
         }
 
+        if ($limite !== null) {
+            // Con tope, para que un `limite` grande escrito en la URL no vuelva la sugerencia
+            // una consulta pesada por cada tecla.
+            $this->porTipo = max(1, min($limite, 20));
+        }
+
         $grupos = [];
 
         foreach ($this->fuentes() as $fuente) {
+            // El filtro por tipo es del lado del servidor, no de la pantalla: pedir un solo
+            // módulo tiene que ahorrar las once consultas de los demás, no solo esconderlas.
+            if ($tipos && ! in_array($fuente['tipo'], $tipos, true)) {
+                continue;
+            }
+
             if (! auth()->user()?->tienePermiso($fuente['permiso'])) {
                 continue;
             }
@@ -117,7 +136,7 @@ class BuscadorGlobalService
                 'permiso' => 'clientes.ver',
                 'buscar' => fn ($t) => $this->porSede(Cliente::query())
                     ->where(fn ($q) => $this->comoEn($q, ['nombre', 'apellido', 'numero_identificacion', 'email', 'celular', 'telefono'], $t))
-                    ->limit(self::POR_TIPO)->get()
+                    ->limit($this->porTipo)->get()
                     ->map(fn (Cliente $c) => [
                         'titulo'   => $c->nombreCompleto(),
                         'detalle'  => trim($c->identificacionCompleta() . ($c->ciudad ? " · {$c->ciudad}" : '')),
@@ -130,7 +149,7 @@ class BuscadorGlobalService
                 'buscar' => fn ($t) => $this->porSede(Op::with('cliente:id,nombre,apellido'))
                     ->where(fn ($q) => $q->where('numero', 'like', "%{$t}%")
                         ->orWhereHas('cliente', fn ($c) => $this->comoEn($c, ['nombre', 'apellido', 'numero_identificacion'], $t)))
-                    ->latest()->limit(self::POR_TIPO)->get()
+                    ->latest()->limit($this->porTipo)->get()
                     ->map(fn (Op $o) => [
                         'titulo'  => $o->numero,
                         'detalle' => trim(($o->cliente?->nombre ?? 'Sin cliente') . ' · ' . str_replace('_', ' ', $o->estado)),
@@ -143,7 +162,7 @@ class BuscadorGlobalService
                 'buscar' => fn ($t) => $this->porSede(Cotizacion::with('cliente:id,nombre,apellido'))
                     ->where(fn ($q) => $q->where('numero', 'like', "%{$t}%")
                         ->orWhereHas('cliente', fn ($c) => $this->comoEn($c, ['nombre', 'apellido', 'numero_identificacion'], $t)))
-                    ->latest()->limit(self::POR_TIPO)->get()
+                    ->latest()->limit($this->porTipo)->get()
                     ->map(fn (Cotizacion $c) => [
                         'titulo'  => $c->numero,
                         'detalle' => trim(($c->cliente?->nombre ?? 'Sin cliente') . ' · ' . str_replace('_', ' ', $c->estado)),
@@ -156,7 +175,7 @@ class BuscadorGlobalService
                 'buscar' => fn ($t) => $this->porSede(Remision::with('cliente:id,nombre,apellido'))
                     ->where(fn ($q) => $this->comoEn($q, ['numero', 'transportista', 'placa'], $t)
                         ->orWhereHas('cliente', fn ($c) => $this->comoEn($c, ['nombre', 'apellido'], $t)))
-                    ->latest()->limit(self::POR_TIPO)->get()
+                    ->latest()->limit($this->porTipo)->get()
                     ->map(fn (Remision $r) => [
                         'titulo'  => $r->numero,
                         'detalle' => trim(($r->cliente?->nombre ?? '') . ' · ' . str_replace('_', ' ', $r->estado)),
@@ -171,7 +190,7 @@ class BuscadorGlobalService
                     ->whereNotNull('numero_serie')
                     ->where('numero_serie', 'like', "%{$t}%")
                     ->whereHas('op', fn ($q) => $this->porSede($q))
-                    ->limit(self::POR_TIPO)->get()
+                    ->limit($this->porTipo)->get()
                     ->map(fn (OpItem $i) => [
                         'titulo'  => $i->numero_serie,
                         'detalle' => trim(($i->descripcion ?? '') . ' · ' . ($i->op?->numero ?? '')),
@@ -184,7 +203,7 @@ class BuscadorGlobalService
                 // Catálogo compartido: no se filtra por sede.
                 'buscar' => fn ($t) => Producto::query()
                     ->where(fn ($q) => $this->comoEn($q, ['nombre', 'referencia', 'descripcion_corta'], $t))
-                    ->limit(self::POR_TIPO)->get()
+                    ->limit($this->porTipo)->get()
                     ->map(fn (Producto $p) => [
                         'titulo'  => $p->nombre,
                         'detalle' => trim(($p->referencia ?? '') . ' · ' . $p->tipo),
@@ -196,7 +215,7 @@ class BuscadorGlobalService
                 'permiso' => 'proveedores.ver',
                 'buscar' => fn ($t) => Proveedor::query()
                     ->where(fn ($q) => $this->comoEn($q, ['nombre', 'nit', 'contacto', 'email', 'telefono'], $t))
-                    ->limit(self::POR_TIPO)->get()
+                    ->limit($this->porTipo)->get()
                     ->map(fn (Proveedor $p) => [
                         'titulo'  => $p->nombre,
                         'detalle' => trim(($p->nit ?? '') . ($p->ciudad ? " · {$p->ciudad}" : '')),
@@ -209,7 +228,7 @@ class BuscadorGlobalService
                 'buscar' => fn ($t) => $this->porSede(OrdenCompra::with('proveedor:id,nombre'))
                     ->where(fn ($q) => $q->where('numero', 'like', "%{$t}%")
                         ->orWhereHas('proveedor', fn ($p) => $p->where('nombre', 'like', "%{$t}%")))
-                    ->latest()->limit(self::POR_TIPO)->get()
+                    ->latest()->limit($this->porTipo)->get()
                     ->map(fn (OrdenCompra $o) => [
                         'titulo'  => $o->numero,
                         'detalle' => trim(($o->proveedor?->nombre ?? '') . ' · ' . str_replace('_', ' ', $o->estado)),
@@ -221,7 +240,7 @@ class BuscadorGlobalService
                 'permiso' => 'solicitudes.ver',
                 'buscar' => fn ($t) => $this->porSede(SolicitudCompra::query())
                     ->where(fn ($q) => $this->comoEn($q, ['numero', 'motivo'], $t))
-                    ->latest()->limit(self::POR_TIPO)->get()
+                    ->latest()->limit($this->porTipo)->get()
                     ->map(fn (SolicitudCompra $s) => [
                         'titulo'  => $s->numero,
                         'detalle' => str_replace('_', ' ', $s->estado),
@@ -233,7 +252,7 @@ class BuscadorGlobalService
                 'permiso' => 'crm.ver',
                 'buscar' => fn ($t) => $this->porSede(CrmLead::query())
                     ->where(fn ($q) => $this->comoEn($q, ['titulo', 'nombre_contacto', 'empresa_contacto', 'email_contacto', 'telefono_contacto'], $t))
-                    ->latest()->limit(self::POR_TIPO)->get()
+                    ->latest()->limit($this->porTipo)->get()
                     ->map(fn (CrmLead $l) => [
                         'titulo'  => $l->titulo,
                         'detalle' => trim(($l->empresa_contacto ?? $l->nombre_contacto ?? '')),
@@ -245,7 +264,7 @@ class BuscadorGlobalService
                 'permiso' => 'usuarios.ver',
                 'buscar' => fn ($t) => User::query()
                     ->where(fn ($q) => $this->comoEn($q, ['name', 'email'], $t))
-                    ->limit(self::POR_TIPO)->get()
+                    ->limit($this->porTipo)->get()
                     ->map(fn (User $u) => [
                         'titulo'  => $u->name,
                         'detalle' => $u->email,

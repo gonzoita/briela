@@ -76,3 +76,55 @@ Estas relaciones **no existían** en el modelo. Las llaves foráneas siempre
 estuvieron en las tablas hijas (`cotizaciones.cliente_id`, `ops.cliente_id`,
 etc.), pero desde el cliente no había forma de llegar a ellas: para saber qué
 se le había vendido a alguien tocaba ir módulo por módulo filtrando a mano.
+
+---
+
+## El buscador de cada módulo
+
+Desde el 21 de agosto de 2026 el campo de búsqueda de cada listado **sugiere mientras
+escribes**, en vez de esperar a que termines y presiones Enter. Al escribir dos letras aparece
+una lista debajo del campo, y desde ahí se salta directo al registro.
+
+Está en Productos, Clientes, Cotizaciones, Órdenes de producción, Proveedores y el pipeline
+del CRM. Cada uno busca **solo lo suyo**: en Productos no salen clientes.
+
+### Enter hace dos cosas, y esa es la idea
+
+- **Con una sugerencia resaltada** —flechas ↑ ↓, o un clic— abre ese registro directo. Es el
+  caso frecuente: ya sabes cuál quieres.
+- **Sin nada resaltado**, Enter filtra el listado con lo que escribiste, como funcionó siempre.
+  Es el caso de «muéstrame todos los que digan bisagra».
+
+Ninguna de las dos rutas se perdió, y ninguna estorba a la otra.
+
+### Es el mismo motor del buscador global
+
+No es un buscador nuevo por módulo: es el buscador global de Ctrl+K apuntado a un solo tipo.
+Eso no se hizo por ahorrar código, sino porque **es lo que garantiza que la sugerencia respete
+los mismos permisos y la misma sede que el listado que está debajo**. Un buscador propio por
+módulo terminaría, tarde o temprano, mostrando algo que el listado esconde.
+
+El filtro por tipo se aplica en el servidor, no en la pantalla: pedir un solo módulo ahorra las
+consultas de los otros diez, no solo las esconde.
+
+### Agregar el buscador a un listado
+
+Dos piezas:
+
+1. La fuente tiene que existir en `BuscadorGlobalService::fuentes()`. Si el módulo no está en
+   el catálogo del buscador global, tampoco puede tener sugerencias — y agregarlo al catálogo
+   lo habilita en los dos lados a la vez.
+2. En la pantalla, reemplazar el `<input>` por `BuscadorModulo.vue`:
+
+```vue
+<BuscadorModulo
+    v-model="form.buscar"
+    tipos="producto"
+    placeholder="Buscar por nombre o referencia..."
+    @filtrar="filtrar"
+/>
+```
+
+`@filtrar` se omite en los listados que ya filtran solos con un `watch` sobre los filtros: ahí
+Enter sin nada resaltado solo cierra la sugerencia, porque la lista de abajo ya se filtró.
+

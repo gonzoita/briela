@@ -7,6 +7,7 @@ import { router, usePage } from '@inertiajs/vue3'
 import { reactive, ref, computed, watch } from 'vue'
 import { colorMarca } from '@/marca'
 import { usePublicacionWeb } from '@/composables/usePublicacionWeb'
+import BuscadorModulo from '@/Components/BuscadorModulo.vue'
 
 const page = usePage()
 
@@ -418,16 +419,12 @@ const precioMostrar = (p) => {
             </div>
             <div class="flex items-center gap-2">
                 <div class="flex-1 relative">
-                    <input
+                    <BuscadorModulo
                         v-model="form.buscar"
-                        type="text"
+                        tipos="producto"
                         placeholder="Buscar por nombre o referencia..."
-                        class="w-full rounded-xl border border-linea pl-9 pr-3 py-2.5 text-sm bg-superficie focus:outline-none"
-                        @keyup.enter="filtrar"
+                        @filtrar="filtrar"
                     />
-                    <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-tinta-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-                    </svg>
                 </div>
                 <button
                     v-if="hayFiltros"

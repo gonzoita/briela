@@ -4,6 +4,7 @@ import { router } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
 import OrdenarLista from '@/Components/OrdenarLista.vue'
 import { useOrden } from '@/composables/useOrden'
+import BuscadorModulo from '@/Components/BuscadorModulo.vue'
 
 const props = defineProps({
     ops:          Object,
@@ -129,8 +130,12 @@ function fmt(v) { return Number(v || 0).toLocaleString('es-CO') }
         <!-- Filtros -->
         <div class="bg-superficie rounded-2xl border border-linea shadow-sm p-4 mb-4 space-y-3">
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-                <input v-model="filters.buscar" type="text" placeholder="Buscar número o cliente..."
-                    class="border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[var(--marca)]" />
+                <BuscadorModulo
+                    v-model="filters.buscar"
+                    tipos="op"
+                    placeholder="Buscar número o cliente..."
+                    class="flex-1"
+                />
                 <select v-model="filters.estado" class="border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[var(--marca)]">
                     <option v-for="e in ESTADOS" :key="e.value" :value="e.value">{{ e.label }}</option>
                 </select>

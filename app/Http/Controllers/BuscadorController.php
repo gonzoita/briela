@@ -20,11 +20,17 @@ class BuscadorController extends Controller
     public function buscar(Request $request, BuscadorGlobalService $buscador): JsonResponse
     {
         $data = $request->validate([
-            'q' => 'nullable|string|max:100',
+            'q'      => 'nullable|string|max:100',
+            // Uno o varios tipos separados por coma: `productos`, `clientes`, `op,cotizacion`.
+            // Es lo que convierte este mismo endpoint en el buscador de cada módulo.
+            'tipos'  => 'nullable|string|max:200',
+            'limite' => 'nullable|integer|min:1|max:20',
         ]);
 
+        $tipos = array_values(array_filter(array_map('trim', explode(',', $data['tipos'] ?? ''))));
+
         try {
-            $grupos = $buscador->buscar($data['q'] ?? '');
+            $grupos = $buscador->buscar($data['q'] ?? '', $tipos, $data['limite'] ?? null);
 
             return response()->json([
                 'grupos' => $grupos,

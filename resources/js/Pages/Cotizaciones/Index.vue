@@ -5,6 +5,7 @@ import AppLayout from '@/Layouts/AppLayout.vue'
 import OrdenarLista from '@/Components/OrdenarLista.vue'
 import { useOrden } from '@/composables/useOrden'
 import GraficosPersonalizados from '@/Components/GraficosPersonalizados.vue'
+import BuscadorModulo from '@/Components/BuscadorModulo.vue'
 
 const props = defineProps({
     cotizaciones: Object,
@@ -219,8 +220,12 @@ const chartPoints = computed(() => {
             <!-- Filtros -->
             <div class="bg-superficie rounded-xl border border-linea p-4 mb-5">
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-                    <input v-model="filters.buscar" type="text" placeholder="Buscar número o cliente..."
-                        class="rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:border-[var(--marca)]"/>
+                    <BuscadorModulo
+                        v-model="filters.buscar"
+                        tipos="cotizacion"
+                        placeholder="Buscar número o cliente..."
+                        class="flex-1"
+                    />
                     <select v-model="filters.estado"
                         class="rounded-xl border border-tinta-200 px-3 py-2 text-sm text-tinta-700 focus:outline-none focus:border-[var(--marca)]">
                         <option v-for="e in estados" :key="e.value" :value="e.value">{{ e.label }}</option>
