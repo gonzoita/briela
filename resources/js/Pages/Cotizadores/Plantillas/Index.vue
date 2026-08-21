@@ -179,7 +179,7 @@ async function eliminarPlantilla(p) {
 }
 
 async function duplicarPlantilla(p) {
-    if (!confirm(`¿Duplicar la plantilla "${p.nombre}"? Se creará una copia inactiva.`)) return
+    if (!confirm(`¿Duplicar la plantilla "${p.nombre}"? Se copia completa —campos, secciones, componentes, pasos de producción, lista de calidad y configuración de salida— y la copia nace inactiva.`)) return
     try {
         const res  = await fetch(`${BASE}/${p.id}/duplicar`, { method: 'POST', headers: jsonHdr() })
         const data = await parseRes(res)
@@ -348,6 +348,10 @@ async function eliminarImagenOpcionSelector(opcionIndex) {
 // ── CRUD Componentes ──────────────────────────────────────────────────────────
 const editandoComponente  = ref(null)
 const compErrorProducto   = ref('')
+// Por qué no se guardó el componente. Vive aquí y no en errorGlobal porque el aviso de
+// arriba queda fuera de pantalla cuando el formulario está al final de una lista larga:
+// el usuario llenaba los datos, el guardado fallaba y no veía ningún mensaje.
+const compError           = ref('')
 const compBorrador = reactive({
     producto_id: null, etiqueta: '', formula: '', formula_real: '', sub_formulas: [], condicion: '',
     unidad: '', incluir_en_precio: true, visible_cliente: false, visible_op: true, notas: '', activo: true,
@@ -380,19 +384,37 @@ function abrirNuevoComponente() {
     Object.assign(compBorrador, { producto_id: null, etiqueta: '', formula: '', formula_real: '', sub_formulas: [], condicion: '', unidad: '', incluir_en_precio: true, visible_cliente: false, visible_op: true, notas: '', activo: true, seccion_id: null })
     busqProducto.value       = ''
     compErrorProducto.value  = ''
+    compError.value          = ''
     editandoComponente.value = 'nuevo'
     formulaQuery.value       = ''
     inicializarProbarVals()
 }
 function abrirEditarComponente(c) {
-    Object.assign(compBorrador, { ...c, seccion_id: c.seccion_id ?? null, sub_formulas: Array.isArray(c.sub_formulas) ? c.sub_formulas.map(s => ({ ...s, _probando: false, _resultado: null, _error: null, _probando_real: false, _resultado_real: null, _error_real: null })) : [] })
+    // Solo los campos del formulario: al copiar el componente entero (...c) el borrador
+    // se quedaba con id, producto y timestamps, y los arrastraba al siguiente componente nuevo.
+    Object.assign(compBorrador, {
+        producto_id:       c.producto_id ?? null,
+        etiqueta:          c.etiqueta ?? '',
+        formula:           c.formula ?? '',
+        formula_real:      c.formula_real ?? '',
+        condicion:         c.condicion ?? '',
+        unidad:            c.unidad ?? '',
+        notas:             c.notas ?? '',
+        incluir_en_precio: c.incluir_en_precio ?? true,
+        visible_cliente:   c.visible_cliente ?? false,
+        visible_op:        c.visible_op ?? true,
+        activo:            c.activo ?? true,
+        seccion_id:        c.seccion_id ?? null,
+        sub_formulas: Array.isArray(c.sub_formulas) ? c.sub_formulas.map(s => ({ ...s, _probando: false, _resultado: null, _error: null, _probando_real: false, _resultado_real: null, _error_real: null })) : [],
+    })
     busqProducto.value       = c.producto?.nombre ?? (c.etiqueta ?? '')
     compErrorProducto.value  = ''
+    compError.value          = ''
     editandoComponente.value = c.id
     formulaQuery.value       = ''
     inicializarProbarVals()
 }
-function cancelarComponente() { editandoComponente.value = null; formulaQuery.value = '' }
+function cancelarComponente() { editandoComponente.value = null; formulaQuery.value = ''; compError.value = '' }
 
 async function moverComponente(idx, dir) {
     const ni = idx + dir
@@ -412,9 +434,17 @@ function limpiarSubFormulasParaGuardar(subFormulas) {
     }))
 }
 
+// crypto.randomUUID() solo existe en contexto seguro (https o localhost). En una
+// instalación servida por http plano es undefined, y agregar una sub-fórmula
+// reventaba en silencio: el usuario la escribía y nunca aparecía.
+function nuevoIdSubFormula() {
+    if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') return crypto.randomUUID()
+    return 'sf-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 10)
+}
+
 function agregarSubFormula(comp) {
     comp.sub_formulas.push({
-        id: crypto.randomUUID(),
+        id: nuevoIdSubFormula(),
         etiqueta: '', formula: '', formula_real: '', unidad: '',
         _probando: false, _resultado: null, _error: null,
         _probando_real: false, _resultado_real: null, _error_real: null,
@@ -451,12 +481,31 @@ async function probarSubFormula(sub, campo = 'formula') {
 }
 
 async function guardarComponente() {
-    if (!plantillaActual.value || !compBorrador.formula) return
+    if (!plantillaActual.value) return
+
+    // Se valida aquí y no solo con el botón deshabilitado: un botón apagado sin
+    // explicación se lee como "no me guarda".
+    compError.value         = ''
+    compErrorProducto.value = ''
+
     if (!compBorrador.producto_id) {
         compErrorProducto.value = 'Debes vincular un producto para calcular el costo.'
+        compError.value         = 'Falta el producto vinculado.'
         return
     }
-    compErrorProducto.value = ''
+    const tieneSubs = (compBorrador.sub_formulas ?? []).length > 0
+    if (!tieneSubs && !String(compBorrador.formula ?? '').trim()) {
+        compError.value = 'Falta la fórmula. Escribe una, o agrega al menos una sub-fórmula.'
+        return
+    }
+    const subIncompleta = (compBorrador.sub_formulas ?? []).findIndex(
+        s => !String(s.etiqueta ?? '').trim() || !String(s.formula ?? '').trim()
+    )
+    if (subIncompleta >= 0) {
+        compError.value = `La sub-fórmula #${subIncompleta + 1} está incompleta: necesita etiqueta y fórmula.`
+        return
+    }
+
     guardando.value = true
     try {
         const esNuevo = editandoComponente.value === 'nuevo'
@@ -465,7 +514,7 @@ async function guardarComponente() {
             : `${BASE}/${plantillaActual.value.id}/componentes/${editandoComponente.value}`
         const payload = {
             ...compBorrador,
-            formula:      normalizarFormula(compBorrador.formula),
+            formula:      normalizarFormula(compBorrador.formula || '0'),
             sub_formulas: limpiarSubFormulasParaGuardar(compBorrador.sub_formulas),
         }
         const res  = await fetch(url, { method: esNuevo ? 'POST' : 'PUT', headers: jsonHdr(), body: JSON.stringify(payload) })
@@ -478,7 +527,11 @@ async function guardarComponente() {
         }
         editandoComponente.value = null
         errorGlobal.value        = ''
-    } catch (e) { errorGlobal.value = e.message || 'Error al guardar componente.' }
+        compError.value          = ''
+    } catch (e) {
+        compError.value   = e.message || 'Error al guardar componente.'
+        errorGlobal.value = compError.value
+    }
     finally { guardando.value = false }
 }
 
@@ -2051,9 +2104,10 @@ const badgesTipo = {
                                         </label>
                                     </div>
 
+                                    <p v-if="compError" class="bg-pastel-rojo border border-borde-aviso-rojo rounded-lg px-3 py-2 text-xs text-aviso-rojo">{{ compError }}</p>
                                     <div class="flex gap-2">
                                         <button @click="cancelarComponente" class="flex-1 py-2 rounded-xl border border-linea text-xs text-tinta-500 hover:bg-tinta-50">Cancelar</button>
-                                        <button @click="guardarComponente" :disabled="guardando || !compBorrador.formula || !compBorrador.producto_id"
+                                        <button @click="guardarComponente" :disabled="guardando"
                                             class="flex-1 py-2 rounded-xl text-xs text-white font-semibold disabled:opacity-60" style="background:var(--marca);">
                                             {{ guardando ? '...' : 'Actualizar componente' }}
                                         </button>
@@ -2219,9 +2273,10 @@ const badgesTipo = {
                                             <label class="flex items-center gap-2 text-xs text-tinta-500 cursor-pointer"><input v-model="compBorrador.visible_op" type="checkbox" class="rounded" /> Visible en OP</label>
                                             <label class="flex items-center gap-2 text-xs text-tinta-500 cursor-pointer"><input v-model="compBorrador.activo" type="checkbox" class="rounded" /> Activo</label>
                                         </div>
+                                        <p v-if="compError" class="bg-pastel-rojo border border-borde-aviso-rojo rounded-lg px-3 py-2 text-xs text-aviso-rojo">{{ compError }}</p>
                                         <div class="flex gap-2">
                                             <button @click="cancelarComponente" class="flex-1 py-2 rounded-xl border border-linea text-xs text-tinta-500 hover:bg-tinta-50">Cancelar</button>
-                                            <button @click="guardarComponente" :disabled="guardando || !compBorrador.formula || !compBorrador.producto_id"
+                                            <button @click="guardarComponente" :disabled="guardando"
                                                 class="flex-1 py-2 rounded-xl text-xs text-white font-semibold disabled:opacity-60" style="background:var(--marca);">
                                                 {{ guardando ? '...' : 'Actualizar componente' }}
                                             </button>
@@ -2431,9 +2486,10 @@ const badgesTipo = {
                                 </label>
                             </div>
 
+                            <p v-if="compError" class="bg-pastel-rojo border border-borde-aviso-rojo rounded-lg px-3 py-2 text-xs text-aviso-rojo">{{ compError }}</p>
                             <div class="flex gap-2">
                                 <button @click="cancelarComponente" class="flex-1 py-2 rounded-xl border border-linea text-xs text-tinta-500 hover:bg-tinta-50">Cancelar</button>
-                                <button @click="guardarComponente" :disabled="guardando || !compBorrador.formula || !compBorrador.producto_id"
+                                <button @click="guardarComponente" :disabled="guardando"
                                     class="flex-1 py-2 rounded-xl text-xs text-white font-semibold disabled:opacity-60" style="background:var(--marca);">
                                     {{ guardando ? '...' : 'Guardar componente' }}
                                 </button>

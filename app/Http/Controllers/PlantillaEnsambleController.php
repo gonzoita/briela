@@ -99,29 +99,132 @@ class PlantillaEnsambleController extends Controller
         return response()->json(['ok' => true]);
     }
 
+    /**
+     * Copia una plantilla completa: no solo sus campos, sino todo lo que la hace
+     * funcionar — secciones, componentes, pasos de producción, lista de calidad y
+     * configuración de salida.
+     *
+     * Copiaba únicamente campos y componentes, y los componentes se quedaban
+     * apuntando a las secciones de la plantilla ORIGINAL: existían en la base pero
+     * no se veían en pantalla, porque la lista los agrupa por sección y ninguna de
+     * esas secciones pertenecía a la copia. Por eso el orden importa: primero las
+     * secciones, y con el mapa viejo→nuevo se enlazan los componentes.
+     *
+     * Los archivos (imágenes de referencia, imágenes de opción, planos de los pasos)
+     * se duplican en disco en vez de compartir la ruta: borrar la imagen del original
+     * dejaría a la copia con un archivo que ya no existe.
+     */
     public function duplicar(PlantillaEnsamble $plantilla)
     {
-        $plantilla->load(['campos', 'componentes']);
+        $plantilla->load([
+            'campos', 'componentes', 'secciones',
+            'templateTrabajo.pasos', 'checksCalidad',
+        ]);
 
-        $nueva = $plantilla->replicate();
-        $nueva->nombre = $plantilla->nombre . ' (copia)';
-        $nueva->activo = false;
-        $nueva->save();
+        $nueva = DB::transaction(function () use ($plantilla) {
+            $nueva = $plantilla->replicate();
+            $nueva->nombre = $plantilla->nombre . ' (copia)';
+            $nueva->activo = false;
+            $nueva->save();
 
-        foreach ($plantilla->campos as $campo) {
-            $nuevoCampo = $campo->replicate();
-            $nuevoCampo->plantilla_id = $nueva->id;
-            $nuevoCampo->save();
-        }
+            // 1. Secciones primero: los componentes las necesitan para enlazarse.
+            $idSeccionNueva = [];
+            foreach ($plantilla->secciones as $seccion) {
+                $nuevaSeccion = $seccion->replicate();
+                $nuevaSeccion->plantilla_id = $nueva->id;
+                $nuevaSeccion->save();
+                $idSeccionNueva[$seccion->id] = $nuevaSeccion->id;
+            }
 
-        foreach ($plantilla->componentes as $componente) {
-            $nuevoComp = $componente->replicate();
-            $nuevoComp->plantilla_id = $nueva->id;
-            $nuevoComp->save();
-        }
+            // 2. Campos, con copia física de sus imágenes.
+            foreach ($plantilla->campos as $campo) {
+                $nuevoCampo = $campo->replicate();
+                $nuevoCampo->plantilla_id = $nueva->id;
 
-        $nueva->load(['campos', 'componentes.producto']);
+                if ($campo->imagen_referencia) {
+                    $nuevoCampo->imagen_referencia = $this->copiarArchivo($campo->imagen_referencia);
+                }
+
+                $opciones = $campo->opciones_selector;
+                if (is_array($opciones)) {
+                    foreach ($opciones as $i => $opcion) {
+                        if (! empty($opcion['imagen'])) {
+                            $opciones[$i]['imagen'] = $this->copiarArchivo($opcion['imagen']);
+                        }
+                    }
+                    $nuevoCampo->opciones_selector = $opciones;
+                }
+
+                $nuevoCampo->save();
+            }
+
+            // 3. Componentes, reapuntados a la sección equivalente de la copia.
+            foreach ($plantilla->componentes as $componente) {
+                $nuevoComp = $componente->replicate();
+                $nuevoComp->plantilla_id = $nueva->id;
+                $nuevoComp->seccion_id   = $componente->seccion_id !== null
+                    ? ($idSeccionNueva[$componente->seccion_id] ?? null)
+                    : null;
+                $nuevoComp->save();
+            }
+
+            // 4. Pasos de producción. `depende_de` guarda posiciones, no ids, así que
+            //    se copia tal cual y sigue siendo válido en la copia.
+            if ($plantilla->templateTrabajo) {
+                $nuevoTemplate = $plantilla->templateTrabajo->replicate();
+                $nuevoTemplate->plantilla_ensamble_id = $nueva->id;
+                $nuevoTemplate->nombre = $nueva->nombre;
+                $nuevoTemplate->save();
+
+                foreach ($plantilla->templateTrabajo->pasos as $paso) {
+                    $nuevoPaso = $paso->replicate();
+                    $nuevoPaso->template_id = $nuevoTemplate->id;
+
+                    if ($paso->imagen) {
+                        $nuevoPaso->imagen = $this->copiarArchivo($paso->imagen);
+                    }
+                    if ($paso->archivo_plano) {
+                        $nuevoPaso->archivo_plano = $this->copiarArchivo($paso->archivo_plano);
+                    }
+
+                    $nuevoPaso->save();
+                }
+            }
+
+            // 5. Lista de revisión de calidad.
+            foreach ($plantilla->checksCalidad as $check) {
+                $nuevoCheck = $check->replicate();
+                $nuevoCheck->checkeable_id = $nueva->id;
+                $nuevoCheck->save();
+            }
+
+            return $nueva;
+        });
+
+        $nueva->load(['campos', 'componentes.producto', 'secciones', 'templateTrabajo.pasos', 'checksCalidad']);
+
         return response()->json($nueva);
+    }
+
+    /**
+     * Duplica un archivo del disco público junto al original y devuelve la ruta nueva.
+     * Devuelve la ruta original si el archivo ya no está: una imagen perdida no puede
+     * tumbar la copia de la plantilla entera.
+     */
+    private function copiarArchivo(string $ruta): string
+    {
+        if (! Storage::disk('public')->exists($ruta)) {
+            return $ruta;
+        }
+
+        $extension = pathinfo($ruta, PATHINFO_EXTENSION);
+        $destino   = trim(pathinfo($ruta, PATHINFO_DIRNAME), '.') . '/' . Str::random(40)
+                   . ($extension ? '.' . $extension : '');
+        $destino   = ltrim($destino, '/');
+
+        Storage::disk('public')->copy($ruta, $destino);
+
+        return $destino;
     }
 
     public function exportar(PlantillaEnsamble $plantilla): JsonResponse

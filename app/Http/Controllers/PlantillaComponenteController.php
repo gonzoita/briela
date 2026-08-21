@@ -8,6 +8,7 @@ use App\Rules\ProductoSeleccionable;
 use App\Services\FormulaEvaluatorService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class PlantillaComponenteController extends Controller
 {
@@ -33,7 +34,9 @@ class PlantillaComponenteController extends Controller
             'activo'                      => 'boolean',
             'notas'                       => 'nullable|string|max:255',
             'seccion'                     => 'nullable|string|max:100',
-            'seccion_id'                  => 'nullable|integer|exists:plantilla_secciones,id',
+            // La sección tiene que ser de ESTA plantilla: una de otra deja el componente
+            // guardado pero invisible, porque la lista agrupa por las secciones propias.
+            'seccion_id'                  => ['nullable', 'integer', Rule::exists('plantilla_secciones', 'id')->where('plantilla_id', $plantilla->id)],
         ]);
 
         $comp = $plantilla->componentes()->create($data);
@@ -66,7 +69,9 @@ class PlantillaComponenteController extends Controller
             'activo'                      => 'boolean',
             'notas'                       => 'nullable|string|max:255',
             'seccion'                     => 'nullable|string|max:100',
-            'seccion_id'                  => 'nullable|integer|exists:plantilla_secciones,id',
+            // La sección tiene que ser de ESTA plantilla: una de otra deja el componente
+            // guardado pero invisible, porque la lista agrupa por las secciones propias.
+            'seccion_id'                  => ['nullable', 'integer', Rule::exists('plantilla_secciones', 'id')->where('plantilla_id', $plantilla->id)],
         ]);
 
         $componente->update($data);

@@ -242,9 +242,19 @@ el log y sigue con cero en vez de tumbar la cotización.
 
 ## Duplicar, exportar e importar
 
-- **Duplicar**: copia una plantilla completa. Es la forma sensata de crear una
-  variante ("puerta batiente" → "puerta batiente doble") sin volver a escribir
-  cuarenta fórmulas.
+- **Duplicar**: copia la plantilla **entera** —campos, secciones, componentes,
+  pasos de producción, lista de revisión de calidad y configuración de salida—, y
+  la copia nace inactiva para que se pueda ajustar antes de que alguien cotice con
+  ella. Es la forma sensata de crear una variante ("puerta batiente" → "puerta
+  batiente doble") sin volver a escribir cuarenta fórmulas.
+  Las imágenes de referencia y los planos de los pasos se duplican también en
+  disco: si compartieran la ruta, borrar la imagen del original dejaría a la copia
+  apuntando a un archivo que ya no existe.
+
+  > Hasta el 21 ago 2026 copiaba solo campos y componentes, y los componentes
+  > seguían colgando de las secciones de la plantilla ORIGINAL: quedaban guardados
+  > pero **invisibles**, porque la pantalla los agrupa por las secciones propias.
+  > Producción, calidad y salida no se copiaban en absoluto.
 - **Exportar**: baja la plantilla como archivo. Sirve de respaldo antes de un
   cambio grande, y para pasar plantillas entre el ambiente local y producción.
 - **Importar**: sube ese archivo y recrea la plantilla, con sus secciones,
