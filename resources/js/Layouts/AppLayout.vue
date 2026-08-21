@@ -133,6 +133,9 @@ const navItems = computed(() => {
         ]},
         { label: 'RRHH', icon: 'gear', items: [
             { label: 'Colaboradores', href: '/rrhh/operarios', icon: 'workers', permiso: 'rrhh.ver' },
+            // Lo ve cualquiera de RRHH; editarlo pide su propio permiso, y eso lo resuelve la
+            // pantalla. Esconder la entrada dejaría a quien solo lee sin cómo consultarlo.
+            { label: 'Reglamento interno', href: '/rrhh/reglamento', icon: 'doc', permiso: 'rrhh.ver' },
         ]},
         { label: 'Mantenimiento', icon: 'gear', items: [
             { label: 'Dashboard',      href: '/mantenimiento',                icon: 'wrench',   permiso: 'mantenimiento.ver' },

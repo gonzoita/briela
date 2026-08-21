@@ -45,6 +45,7 @@ módulo por módulo.
 ## Personas
 
 - [Recursos Humanos (colaboradores, disciplina, bonos, gamificación)](./rrhh.md)
+- [Reglamento interno de trabajo](./reglamento-interno.md) — con enlace público y QR
 - [Capacitación (cursos, evaluaciones y certificados)](./capacitacion.md)
 - [Roles y permisos configurables](./roles-permisos.md)
 

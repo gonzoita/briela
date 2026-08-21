@@ -58,6 +58,10 @@ class Permisos
             ],
             'Personas' => [
                 'rrhh'         => ['label' => 'Colaboradores', 'acciones' => ['ver', 'crear', 'editar', 'eliminar']],
+                // El reglamento interno es un documento de la empresa entera, no la ficha
+                // de una persona: editarlo es su propio permiso. Solo el administrador lo
+                // trae por omisión, y se le puede dar a alguien más desde Roles.
+                'reglamento'   => ['label' => 'Reglamento interno',  'acciones' => ['editar']],
                 'capacitacion' => ['label' => 'Capacitación',  'acciones' => ['ver', 'crear', 'editar', 'eliminar']],
             ],
             'Otros módulos' => [

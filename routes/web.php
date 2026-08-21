@@ -13,6 +13,7 @@ use App\Http\Controllers\CrmTareaController;
 use App\Http\Controllers\InformeController;
 use App\Http\Controllers\OpCuotaController;
 use App\Http\Controllers\OpPagoController;
+use App\Http\Controllers\ReglamentoController;
 use App\Http\Controllers\RemisionController;
 use App\Http\Controllers\ArchivoController;
 use App\Http\Controllers\AuditoriaController;
@@ -110,6 +111,9 @@ Route::get('/seguimiento/{codigo}', [SeguimientoController::class, 'show'])->nam
 
 // ─── QR público — estado general de la OP ────────────────────────────────────
 Route::get('/op/{token}', [OpPublicaController::class, 'show'])->name('op.publica');
+
+// ─── Reglamento interno de trabajo (público, sin auth) ───────────────────────
+Route::get('/reglamento/{token}', [ReglamentoController::class, 'publico'])->name('reglamento.publico');
 
 // ─── Verificación pública de certificados de capacitación ────────────────────
 Route::get('/verificar-certificado/{codigo?}', [CertificadoPublicoController::class, 'verificar'])->name('certificado.verificar');
@@ -584,6 +588,15 @@ Route::middleware('auth')->group(function () {
         Route::post('/rrhh/operarios/{operario}/calcular-bono',              [OperarioController::class, 'calcularBono']);
         Route::post('/rrhh/operarios/{operario}/subir-archivo',               [OperarioController::class, 'subirArchivo']);
         Route::delete('/rrhh/operarios/{operario}/eliminar-archivo',          [OperarioController::class, 'eliminarArchivo']);
+
+        // El reglamento se VE con permiso de RRHH y se EDITA con el suyo propio.
+        Route::get('/rrhh/reglamento', [ReglamentoController::class, 'edit'])->name('reglamento.edit');
+
+        Route::middleware('permiso:reglamento.editar')->group(function () {
+            Route::put('/rrhh/reglamento',            [ReglamentoController::class, 'update'])->name('reglamento.update');
+            Route::post('/rrhh/reglamento/token',     [ReglamentoController::class, 'regenerarToken'])->name('reglamento.token');
+            Route::get('/rrhh/reglamento/qr',         [ReglamentoController::class, 'qrDescargar'])->name('reglamento.qr');
+        });
 
         Route::get('/rrhh/configuracion',           [RRHHConfigController::class, 'index']);
         Route::post('/rrhh/configuracion/turnos',   [RRHHConfigController::class, 'storeTurno']);
