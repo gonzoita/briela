@@ -43,3 +43,14 @@ ordenamiento de las listas (`App\Support\Orden`), y por la misma razón: sin esa
 armar un gráfico sería escribir SQL desde el navegador.
 
 La sede activa se respeta en las fuentes que tienen sede, igual que en el resto del sistema.
+
+## El tablero de inicio se arma con esto mismo
+
+Desde el 21 de agosto de 2026 la pantalla de inicio también se configura, y no trajo un motor
+propio: reusa este entero. Cada **sección** del inicio es, para el sistema, un módulo más —su
+clave lleva el prefijo `panel.` para distinguirla—, y sus gráficos se guardan en la misma tabla
+`graficos_dashboard`.
+
+La única diferencia es cuáles fuentes se ofrecen. El tablero de un módulo muestra solo las
+suyas; una sección del inicio muestra las seis, porque su nombre lo puso el usuario y no
+significa nada para el sistema. Ver [Dashboard](./dashboard.md).

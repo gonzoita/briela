@@ -47,7 +47,10 @@ class DashboardSeccion extends Model
      */
     public static function generarClave(string $titulo): string
     {
-        $base  = 'panel.'.(Str::slug($titulo) ?: 'seccion');
+        // Recortada a 34: la clave viaja como `modulo` al guardar un grafico, y alli la
+        // validacion admite 40 caracteres. Un titulo largo generaba una clave que la seccion
+        // aceptaba y el grafico rechazaba.
+        $base  = 'panel.'.Str::limit(Str::slug($titulo) ?: 'seccion', 28, '');
         $clave = $base;
         $n     = 1;
 

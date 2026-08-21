@@ -108,7 +108,13 @@ Cotizaciones, Comisiones y Alistamiento tienen una sección donde la empresa **a
 gráficos**: elige fuente, qué se mide, cómo se agrupa y la forma —barras, línea, dona o un solo
 número—. Guarda la pregunta, no la respuesta: los números se calculan al abrir la pantalla.
 
-→ [Gráficos del tablero](./manual/graficos-tablero.md)
+**La pantalla de inicio se arma con esto mismo.** Debajo de las tarjetas fijas, quien tenga el
+permiso crea **secciones** —«Cotizaciones», «Producción», «Cartera»— y dentro de cada una pone
+los gráficos que quiera. Una sección es un módulo más para este motor, así que el inicio no
+trajo código de cálculo propio. Renombrar una sección no toca sus gráficos; quitarla sí se los
+lleva.
+
+→ [Gráficos del tablero](./manual/graficos-tablero.md) · [Dashboard](./manual/dashboard.md)
 
 ### Comisiones
 `/comisiones`

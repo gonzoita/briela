@@ -138,11 +138,22 @@ class FuentesGraficoService
         ];
     }
 
-    /** Lo que necesita la pantalla para armar el formulario, sin exponer una sola columna. */
+    /**
+     * Lo que necesita la pantalla para armar el formulario, sin exponer una sola columna.
+     *
+     * El tablero de cada modulo muestra solo sus propias fuentes: en Cotizaciones no tiene
+     * sentido ofrecer las ordenes de compra. Las secciones del tablero de inicio son la
+     * excepcion, y por eso su clave lleva el prefijo `panel.`: ahi el nombre lo puso el usuario
+     * y no significa nada para el sistema, asi que se ofrecen todas las fuentes. Una seccion
+     * llamada «Cotizaciones» puede llevar adentro un grafico de cartera si asi lo quiso quien
+     * la armo.
+     */
     public function paraPantalla(?string $modulo = null): array
     {
+        $propio = $modulo && ! str_starts_with($modulo, 'panel.') ? $modulo : null;
+
         return collect($this->catalogo())
-            ->when($modulo, fn ($c) => $c->where('modulo', $modulo))
+            ->when($propio, fn ($c) => $c->where('modulo', $propio))
             ->map(fn ($f, $clave) => [
                 'clave'       => $clave,
                 'label'       => $f['label'],

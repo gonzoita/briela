@@ -37,6 +37,45 @@ mes) y Cotizaciones (enviadas, del mes). Cada una abre su listado filtrado.
 Las alertas de mantenimiento aparecen solo para administrador y jefe de
 producción, y solo si hay equipos vencidos o próximos a vencer.
 
+## Mi tablero — las secciones que armas tú
+
+Debajo de las tarjetas fijas hay un espacio vacío que cada empresa llena a su manera. Se
+organiza en **secciones**, y una sección es lo que tú digas que es: «Cotizaciones»,
+«Producción», «Cartera», «Lo del lunes».
+
+El orden de trabajo es el mismo siempre:
+
+1. **+ Nueva sección** y le pones nombre.
+2. Dentro de la sección, **+ Nuevo gráfico**, y armas el dato con las mismas cuatro
+   decisiones de siempre: de dónde sale, qué se mide, cómo se agrupa y qué forma tiene.
+   El detalle de esas cuatro decisiones está en [Gráficos del tablero](./graficos-tablero.md).
+3. Repites por cada módulo que quieras ver al entrar.
+
+Cada sección lleva sus botones al lado del título: **Renombrar**, **↑** y **↓** para moverla, y
+**Quitar**.
+
+### Una sección puede llevar dentro lo que sea
+
+En el tablero de Cotizaciones solo se ofrecen fuentes de cotizaciones, porque ahí el módulo lo
+puso el sistema. En el tablero de inicio el nombre lo pusiste tú, así que **no limita nada**:
+una sección llamada «Cotizaciones» puede llevar adentro un gráfico de cartera si eso es lo que
+quieres mirar. Las seis fuentes —cotizaciones, OPs, comisiones, recaudo, cartera y
+alistamiento— están disponibles en cualquier sección.
+
+### Lo que agregas lo ven todos
+
+No es una preferencia personal: es la decisión de la empresa sobre qué se mira al entrar. Por eso
+crear, renombrar, mover y quitar secciones exige el permiso **`graficos.gestionar`**, el mismo
+que arma los gráficos de los demás tableros. Quien no lo tenga ve las secciones y sus números,
+pero no los botones.
+
+### Renombrar no rompe nada
+
+Los gráficos de una sección no cuelgan de su nombre sino de una clave interna que se genera una
+sola vez y nunca cambia. Puedes renombrar «Producción» a «Planta y producción» y sus gráficos
+siguen ahí. **Quitar una sección sí se lleva sus gráficos**, y eso no se deshace: por eso se
+pregunta antes.
+
 ## Qué ve cada rol
 
 El dashboard se recorta según los permisos:
