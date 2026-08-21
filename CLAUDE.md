@@ -406,8 +406,8 @@ decían lo contrario y estaban equivocadas.
   relaciones entre archivos antes de leer código a mano.
 - Conviene regenerarlo después de cambios que muevan estructura (borrar módulos,
   mover carpetas), porque un grafo desactualizado es peor que no tenerlo.
-- **Generado y al día.** Al 18 ago 2026: 6.525 nodos, 11.042 aristas, 647 comunidades,
-  anclado al commit `3c4ee851`. Se reconstruye entero con la extracción AST
+- **Generado y al día.** Al 21 ago 2026: 6.479 nodos, 11.026 aristas, 628 comunidades,
+  anclado al commit `52dd5b7d`. Se reconstruye entero con la extracción AST
   (gratis, sin LLM) y `parallel=False`.
 - La parte semántica —documentos e imágenes— **no se reextrae en cada reconstrucción**: exige
   subagentes y se paga en tokens. Lo que hay en caché se reaprovecha; el resto queda fuera, y
