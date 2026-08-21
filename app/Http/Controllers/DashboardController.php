@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Cotizacion;
+use App\Models\DashboardSeccion;
 use App\Models\EquipoMantenimiento;
 use App\Models\Mantenimiento;
 use App\Models\Op;
@@ -135,12 +136,18 @@ class DashboardController extends Controller
                     ? 'Todas las sedes'
                     : ContextoSede::actual()?->nombre,
             ],
+            // Las secciones que la empresa armó para su tablero. Cada una es un «módulo» para
+            // el motor de gráficos que ya existe, y su clave es lo que sus gráficos guardan.
+            'secciones'     => DashboardSeccion::where('activa', true)
+                ->orderBy('orden')->orderBy('id')
+                ->get(['id', 'titulo', 'clave']),
             'permisos'      => [
                 'puedeCrearOps'    => $user->puedeCrearOps(),
                 'puedeVerificarOps'=> $user->puedeVerificarOps(),
                 'puedeVerTodasOps' => $user->puedeVerTodasOps(),
                 'esCotizador'      => $user->esAdmin() || $user->esVendedor(),
                 'esMantenimiento'  => $user->esAdmin() || $user->esJefeProduccion(),
+                'puedeGestionarGraficos' => $user->tienePermiso('graficos.gestionar'),
             ],
         ]);
     }

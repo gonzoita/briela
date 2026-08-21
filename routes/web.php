@@ -801,6 +801,13 @@ Route::middleware('auth')->group(function () {
     Route::post('/api/graficos',               [\App\Http\Controllers\GraficoDashboardController::class, 'store'])->middleware('permiso:graficos.gestionar')->name('graficos.store');
     Route::delete('/api/graficos/{grafico}',   [\App\Http\Controllers\GraficoDashboardController::class, 'destroy'])->middleware('permiso:graficos.gestionar')->name('graficos.destroy');
 
+    // Las secciones del tablero de inicio. Solo agrupan gráficos: los datos siguen saliendo
+    // del mismo motor de arriba.
+    Route::post('/dashboard/secciones',                 [\App\Http\Controllers\DashboardSeccionController::class, 'store'])->middleware('permiso:graficos.gestionar')->name('dashboard.secciones.store');
+    Route::put('/dashboard/secciones/{seccion}',        [\App\Http\Controllers\DashboardSeccionController::class, 'update'])->middleware('permiso:graficos.gestionar')->name('dashboard.secciones.update');
+    Route::put('/dashboard/secciones/{seccion}/mover',  [\App\Http\Controllers\DashboardSeccionController::class, 'mover'])->middleware('permiso:graficos.gestionar')->name('dashboard.secciones.mover');
+    Route::delete('/dashboard/secciones/{seccion}',     [\App\Http\Controllers\DashboardSeccionController::class, 'destroy'])->middleware('permiso:graficos.gestionar')->name('dashboard.secciones.destroy');
+
     // El asistente que redacta un paso de producción: pregunta primero, redacta después.
     Route::post('/api/ia/paso-produccion', [IaController::class, 'pasoProduccion'])
         ->name('ia.paso-produccion');

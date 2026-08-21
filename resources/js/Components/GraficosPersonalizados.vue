@@ -15,9 +15,13 @@ import { router } from '@inertiajs/vue3'
 import { formatCOP } from '@/formato'
 
 const props = defineProps({
-    // A qué tablero pertenece: cotizaciones, ops, comisiones, alistamiento.
+    // A qué tablero pertenece: cotizaciones, ops, comisiones, alistamiento — o la clave de una
+    // sección del tablero de inicio, que para este motor es un módulo más.
     modulo:        { type: String, required: true },
     puedeGestionar:{ type: Boolean, default: false },
+    // El encabezado de la tarjeta. En el tablero de inicio es el nombre de la sección, para que
+    // el título de la sección y la caja de sus gráficos sean una sola cosa y no dos.
+    titulo:        { type: String, default: 'Gráficos del tablero' },
 })
 
 const cargando = ref(true)
@@ -108,11 +112,15 @@ onMounted(cargar)
 <template>
     <div class="bg-superficie rounded-2xl shadow-sm overflow-hidden mb-4">
         <div class="px-5 py-3 border-b border-linea flex items-center justify-between gap-2 flex-wrap">
-            <h3 class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">Gráficos del tablero</h3>
-            <button v-if="puedeGestionar" type="button" @click="abierto = ! abierto"
-                class="text-xs text-[var(--marca)] border border-[var(--marca)] rounded-lg px-3 py-1.5 hover:bg-realce transition-colors">
-                {{ abierto ? 'Cancelar' : '+ Nuevo gráfico' }}
-            </button>
+            <h3 class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] min-w-0 truncate">{{ titulo }}</h3>
+            <div class="flex items-center gap-2 shrink-0">
+                <!-- Renombrar, mover y quitar la sección viven aquí, junto al título que afectan. -->
+                <slot name="acciones" />
+                <button v-if="puedeGestionar" type="button" @click="abierto = ! abierto"
+                    class="text-xs text-[var(--marca)] border border-[var(--marca)] rounded-lg px-3 py-1.5 hover:bg-realce transition-colors">
+                    {{ abierto ? 'Cancelar' : '+ Nuevo gráfico' }}
+                </button>
+            </div>
         </div>
 
         <div class="p-5">
