@@ -37,23 +37,29 @@ const submit = () => {
         <div class="flex-1 flex items-center justify-center px-5 py-12">
             <div class="w-full max-w-[380px]">
 
-                <!-- La marca de la empresa, no la del producto. Si no subió logo,
-                     su nombre en tipografía se ve mejor que un icono de nadie. -->
+                <!-- La marca de la empresa, no la del producto.
+                     **Con logo, el logo y nada más.** El logo ya lleva el nombre dentro, así que
+                     repetirlo debajo lo decía dos veces, y el «Entra con tu cuenta» sobra en una
+                     pantalla que solo tiene dos campos y un botón: no hay otra cosa que hacer
+                     aquí. Quitarlo es lo que la deja limpia.
+                     Sin logo sí va el nombre: es lo único que dice de quién es esta entrada, y
+                     una pantalla con dos campos y nada más no se sabe de dónde es. -->
                 <div class="flex flex-col items-center text-center mb-9">
                     <img
                         v-if="marca.logo_propio"
                         :src="marca.logo"
                         :alt="marca.nombre"
-                        class="h-12 w-auto object-contain mb-5"
+                        class="h-16 w-auto max-w-[260px] object-contain"
                     />
-                    <span
-                        v-else
-                        class="mb-5 inline-flex items-center justify-center w-12 h-12 rounded-lg text-lg font-semibold"
-                        :style="{ background: 'var(--marca-suave)', color: 'var(--marca)' }"
-                    >{{ (marca.nombre || 'B').charAt(0).toUpperCase() }}</span>
 
-                    <h1 class="text-2xl font-semibold text-tinta-900">{{ marca.nombre }}</h1>
-                    <p class="text-sm text-tinta-400 mt-1.5">Entra con tu cuenta para continuar</p>
+                    <template v-else>
+                        <span
+                            class="mb-5 inline-flex items-center justify-center w-12 h-12 rounded-lg text-lg font-semibold"
+                            :style="{ background: 'var(--marca-suave)', color: 'var(--marca)' }"
+                        >{{ (marca.nombre || 'B').charAt(0).toUpperCase() }}</span>
+
+                        <h1 class="text-2xl font-semibold text-tinta-900">{{ marca.nombre }}</h1>
+                    </template>
                 </div>
 
                 <div v-if="status" class="mb-5 text-sm rounded-lg px-4 py-3 bg-pastel-verde text-aviso-verde border border-borde-aviso-verde">
