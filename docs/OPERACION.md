@@ -19,15 +19,22 @@ panel del hosting; lo que está aquí es el procedimiento.
 | Dato | Valor |
 |---|---|
 | Usuario | `u787912762` |
-| Servidor | `br-asc-web1078` (el nombre que muestra el prompt al entrar) |
+| Servidor | `62.72.62.4`, puerto **65002** |
+| Máquina | `br-asc-web1078` (el nombre que muestra el prompt al entrar) |
 | Panel | hPanel de Hostinger |
-| Contraseña / IP / puerto | hPanel → **Avanzado → Acceso SSH** |
+| Contraseña | hPanel → **Avanzado → Acceso SSH**, o tu gestor de contraseñas |
 
-Hostinger no usa el puerto 22 estándar: suele ser **65002**, y la IP la da el panel. Confírmalo
-ahí la primera vez y anótalo en tu gestor de contraseñas.
+Con la llave ya autorizada —`~/.ssh/briela_deploy` en el computador de trabajo— no pide
+contraseña:
 
 ```bash
-ssh -p 65002 u787912762@LA_IP_DEL_PANEL
+ssh -i ~/.ssh/briela_deploy 62.72.62.4
+```
+
+Desde un computador nuevo, sin la llave, va con contraseña:
+
+```bash
+ssh -p 65002 u787912762@62.72.62.4
 ```
 
 Sabes que entraste porque el prompt cambia a:
@@ -39,12 +46,13 @@ Sabes que entraste porque el prompt cambia a:
 ### Dónde vive cada cosa
 
 ```
-~/domains/                    ← todos los sitios
-   briela.app/                ← el ERP y el superadmin viven aquí dentro
-   abaco.briela.app/
-   ...otros dominios
-~/despliegue.log              ← el registro del despliegue, de las DOS instalaciones
+~/domains/briela.app/public_html/sistema/      ← el ERP  (sistema.briela.app)
+~/domains/briela.app/public_html/superadmin/   ← el superadmin
+~/despliegue.log                               ← el registro, de las DOS instalaciones
 ```
+
+En el mismo hosting viven otros dominios que no son de Briela. El `find` de abajo solo
+encuentra los que tienen `artisan`, así que no hay riesgo de tocar lo que no es.
 
 Para encontrar la raíz de una instalación sin adivinar la carpeta:
 
