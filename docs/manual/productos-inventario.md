@@ -311,3 +311,21 @@ El **aviso de stock bajo no cambia**: sigue midiéndose contra el total de la se
 un producto es cuánto necesitas tener en total, y si está repartido entre dos bodegas igual lo
 tienes.
 
+## «Solo bajo stock» y el semáforo
+
+El botón **«Solo bajo stock»** deja en la lista lo que está en su mínimo o por debajo. Se mide
+contra las mismas bodegas que muestra la columna: sin filtro, el total de la sede; con una
+bodega elegida, la de esa bodega.
+
+**Un producto sin mínimo definido no está bajo: está sin configurar.** Su etiqueta dice «Sin
+mínimo» y el filtro no lo trae.
+
+> Las dos cosas estuvieron mal hasta el 22 ago 2026, y la segunda se veía en pantalla. El botón
+> «Solo bajo stock» estaba conectado a un `if` **vacío**: se marcaba y no filtraba nada. Y el
+> semáforo, cuando el mínimo era cero, caía a un valor que entraba por la condición de «bajo»,
+> así que pintaba **🔴 Bajo** a todo lo que nadie había configurado — una lámina con 250
+> unidades en bodega salía en rojo. Un tablero que siempre grita deja de leerse.
+>
+> El aviso diario por correo nunca tuvo el error: ese ya exigía mínimo mayor que cero. Era la
+> pantalla la que no coincidía con él.
+

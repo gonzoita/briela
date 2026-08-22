@@ -25,6 +25,11 @@ class InventarioController extends Controller
         $elegida  = (int) $request->query('bodega_id', 0);
         $mirando  = in_array($elegida, $visibles, true) ? $elegida : 0;
 
+        // Contra qué bodegas se cuenta el stock: la elegida, o todas las visibles. Es el mismo
+        // conjunto que después arma la columna, para que el filtro y el número que se ve digan
+        // lo mismo.
+        $bodegasContadas = $mirando ? [$mirando] : $visibles;
+
         $query = Producto::insumos()
             ->with(['proveedor:id,nombre', 'stocks.bodega'])
             ->when($request->filled('buscar'), fn ($q) => $q->where(function ($q) use ($request) {
@@ -38,7 +43,25 @@ class InventarioController extends Controller
             ->when($mirando, fn ($q) => $q->whereHas(
                 'stocks',
                 fn ($s) => $s->where('bodega_id', $mirando)->where('cantidad', '>', 0)
-            ));
+            ))
+            // «Solo bajo stock»: lo que hay es menor o igual al mínimo del producto.
+            //
+            // Va en la consulta, contra la suma de las bodegas que se están mirando. Estuvo
+            // escrito como un `if` **vacío** después de paginar, con un comentario que decía
+            // que faltaba: el botón existía, se marcaba, y no filtraba nada. Filtrar después
+            // de `paginate()` tampoco habría servido — la página ya viene con 25 filas
+            // elegidas, así que se irían quedando páginas de dos y tres renglones y el
+            // contador diría otra cosa.
+            //
+            // El mínimo en cero no cuenta: un producto sin mínimo definido no está bajo, está
+            // sin configurar. Sin esta condición, todo lo que nadie configuró saldría en rojo.
+            ->when($request->bajo_stock === 'true', fn ($q) => $q
+                ->where('stock_minimo', '>', 0)
+                ->whereRaw(
+                    '(select coalesce(sum(ps.cantidad), 0) from producto_stock ps
+                        where ps.producto_id = productos.id and ps.bodega_id in ('
+                        . implode(',', array_map('intval', $bodegasContadas ?: [0])) . ')) <= productos.stock_minimo'
+                ));
 
         // El orden lo pide la pantalla. El campo se valida contra esta lista: lo que
         // llegue por `?orden=` y no esté aquí se ignora y nunca toca el SQL.
@@ -52,9 +75,9 @@ class InventarioController extends Controller
 
         $query = $query->paginate(25)->withQueryString();
 
-        // Solo se cuenta el stock de las bodegas visibles en la sede activa: el inventario de
-        // otra sede no es el de esta. Y si hay una bodega elegida, solo la de ella.
-        $bodegasVisibles = $mirando ? [$mirando] : $visibles;
+        // El inventario de otra sede no es el de esta, y si hay una bodega elegida, la columna
+        // es la de ella. Misma lista con la que se filtró arriba.
+        $bodegasVisibles = $bodegasContadas;
 
         $query->through(function ($p) use ($bodegasVisibles) {
             $stocks = $p->stocks->whereIn('bodega_id', $bodegasVisibles);
@@ -62,7 +85,10 @@ class InventarioController extends Controller
 
             return array_merge($p->toArray(), [
                 'stock_total' => $stockTotal,
-                'bajo_stock'  => $stockTotal <= (float) $p->stock_minimo,
+                // Sin mínimo definido no está bajo: está sin configurar. Con `<=` a secas,
+                // todo producto con mínimo en cero salía resaltado en rojo —incluido uno con
+                // 250 unidades en bodega—, y un tablero que siempre grita deja de leerse.
+                'bajo_stock'  => (float) $p->stock_minimo > 0 && $stockTotal <= (float) $p->stock_minimo,
                 'stocks'      => $stocks->map(fn ($s) => [
                     'bodega_id'     => $s->bodega_id,
                     'bodega_nombre' => $s->bodega?->nombre ?? '—',
@@ -71,16 +97,8 @@ class InventarioController extends Controller
             ]);
         });
 
-        // Si hay filtro bajo_stock, necesitamos filtrar después del cálculo
-        $items = $query;
-        if ($request->filled('bajo_stock') && $request->bajo_stock === 'true') {
-            // Re-query filtrando en colección — sencillo dado que paginate ya corrió
-            // Esta es una limitación: el filtro bajo_stock requiere recalcular en PHP
-            // Para datasets grandes usar una columna virtual o subquery
-        }
-
         return Inertia::render('Compras/Inventario/Index', [
-            'items'       => $items,
+            'items'       => $query,
             'orden'       => $orden,
             'filters'     => $request->only(['buscar', 'tipo', 'bajo_stock']),
             'proveedores' => Proveedor::where('activo', true)->select('id', 'nombre')->orderBy('nombre')->get(),

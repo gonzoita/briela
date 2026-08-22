@@ -437,7 +437,7 @@ decían lo contrario y estaban equivocadas.
 - Conviene regenerarlo después de cambios que muevan estructura (borrar módulos,
   mover carpetas), porque un grafo desactualizado es peor que no tenerlo.
 - **Generado y al día.** Al 22 ago 2026: 6.657 nodos, 11.310 aristas, 650 comunidades,
-  anclado al commit `422f73ad`. Se reconstruye entero con la extracción AST
+  anclado al commit `12d7d624`. Se reconstruye entero con la extracción AST
   (gratis, sin LLM) y `parallel=False`.
 - La parte semántica —documentos e imágenes— **no se reextrae en cada reconstrucción**: exige
   subagentes y se paga en tokens. Lo que hay en caché se reaprovecha; el resto queda fuera, y

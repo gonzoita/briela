@@ -138,11 +138,23 @@ async function verMovimientos(item) {
     }
 }
 
+/**
+ * El semaforo de un insumo, contra su stock minimo.
+ *
+ * Sin minimo definido no dice nada. Antes caia a `pct = 1`, que entra por `pct <= 1` y pintaba
+ * «Bajo» a todo lo que nadie habia configurado: una lamina con 250 unidades en bodega salia en
+ * rojo. Un tablero que siempre grita deja de leerse.
+ */
 function semaforo(item) {
-    const stock = item.stock_total ?? 0
-    const pct   = item.stock_minimo > 0 ? stock / item.stock_minimo : 1
+    const minimo = Number(item.stock_minimo) || 0
+
+    if (minimo <= 0) return { bg: 'bg-tinta-100', text: 'text-tinta-400', label: 'Sin mínimo' }
+
+    const pct = (item.stock_total ?? 0) / minimo
+
     if (pct <= 1)   return { bg: 'bg-pastel-rojo-2',    text: 'text-aviso-rojo',    label: '🔴 Bajo' }
     if (pct <= 1.5) return { bg: 'bg-pastel-ambar-2', text: 'text-aviso-ambar', label: '🟡 Cerca' }
+
     return { bg: 'bg-pastel-verde-2', text: 'text-aviso-verde', label: '🟢 OK' }
 }
 
