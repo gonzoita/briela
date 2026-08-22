@@ -599,42 +599,68 @@ class CotizacionController extends Controller
      *
      * @param  array<string, mixed>  $conf  El config_salida de la plantilla.
      */
-    private function canalesDeInstancia(array $conf, float $costo, callable $redondear, ?Ensamble $ensamble = null): array
+    /**
+     * Los canales de un ensamble ya medido, con su precio recalculado.
+     *
+     * El margen sale de `PreciosPorCanalService::margenDe()`: primero el que el ensamble tenga
+     * guardado para ese canal, y si no, el que la empresa puso en Segmentación. Antes salía de
+     * un mapa de tres claves internas con 30/32,5/35 de respaldo, y ese respaldo era lo que
+     * terminaba aplicándose siempre que la empresa hubiera creado sus propios canales.
+     *
+     * Las comisiones y el descuento máximo **no** dependen de las medidas: son la política
+     * comercial del ensamble y se toman de sus filas guardadas. Sin esto, un ensamble medido
+     * llegaba a la cotización sin rango de comisión y la barra de negociar no tenía qué mover.
+     */
+    private function canalesDeInstancia(float $costo, ?Ensamble $ensamble = null): array
     {
-        // Las comisiones y el descuento de cada canal NO dependen de las medidas: son la
-        // política comercial del ensamble. Se toman de sus filas guardadas y se mezclan con el
-        // precio recalculado. Sin esto, un ensamble medido llegaba a la cotización sin rango
-        // de comisión, y la barra de negociar no tenía nada que mover.
+        $precios   = app(\App\Services\PreciosPorCanalService::class);
         $guardadas = $ensamble
             ? $ensamble->preciosPorCanal()->get()->keyBy('segmentacion_opcion_id')
             : collect();
 
-        // El nombre del margen en la plantilla, para los canales que ya existían.
-        $heredados = [
-            'mayorista'       => 'margen_mayorista',
-            'distribuidor'    => 'margen_distribuidor',
-            'cliente_directo' => 'margen_cliente_final',
-        ];
+        return app(\App\Services\CanalesPrecioService::class)->canales()
+            ->map(function ($canal) use ($costo, $ensamble, $precios, $guardadas) {
+                $margen = $precios->margenDe($ensamble, $canal);
+                $fila   = $guardadas->get($canal->id);
 
-        return app(\App\Services\CanalesPrecioService::class)->canales()->map(function ($canal) use ($conf, $costo, $redondear, $heredados, $guardadas) {
-            $clave  = $heredados[$canal->valor] ?? null;
-            $margen = $clave !== null && isset($conf[$clave])
-                ? (float) $conf[$clave]
-                : ($canal->es_canal_base ? 30 : ($canal->es_precio_publico ? 35 : 32.5));
+                return [
+                    'segmentacion_opcion_id' => $canal->id,
+                    'etiqueta'               => $canal->etiqueta,
+                    'es_canal_base'          => (bool) $canal->es_canal_base,
+                    'margen_pct'             => $margen,
+                    'precio'                 => $precios->precioDesdeCosto($costo, $margen),
+                    'comision_min_pct'       => (float) ($fila->comision_min_pct ?? 0),
+                    'comision_max_pct'       => (float) ($fila->comision_max_pct ?? 0),
+                    'descuento_max_pct'      => (float) ($fila->descuento_max_pct ?? 0),
+                ];
+            })->values()->all();
+    }
 
-            $fila = $guardadas->get($canal->id);
+    /**
+     * Los precios recalculados, indexados por la columna vieja que le toca a cada canal.
+     *
+     * La correspondencia la decide `PreciosPorCanalService::columnaDe()`, que la resuelve por
+     * el PAPEL del canal y no por su nombre: una empresa que renombró sus canales sigue
+     * llenando las tres claves correctas.
+     *
+     * @param  array<int, array<string, mixed>>  $canales  Lo que devuelve canalesDeInstancia().
+     * @return array<string, float>
+     */
+    private function preciosPorColumnaVieja(array $canales): array
+    {
+        $precios = app(\App\Services\PreciosPorCanalService::class);
+        $porId   = collect($canales)->keyBy('segmentacion_opcion_id');
+        $mapa    = [];
 
-            return [
-                'segmentacion_opcion_id' => $canal->id,
-                'etiqueta'               => $canal->etiqueta,
-                'es_canal_base'          => (bool) $canal->es_canal_base,
-                'margen_pct'             => $margen,
-                'precio'                 => $redondear($costo, $margen),
-                'comision_min_pct'       => (float) ($fila->comision_min_pct ?? 0),
-                'comision_max_pct'       => (float) ($fila->comision_max_pct ?? 0),
-                'descuento_max_pct'      => (float) ($fila->descuento_max_pct ?? 0),
-            ];
-        })->values()->all();
+        foreach (app(\App\Services\CanalesPrecioService::class)->canales() as $canal) {
+            $columna = $precios->columnaDe($canal);
+
+            if ($columna && isset($porId[$canal->id])) {
+                $mapa[$columna] = (float) $porId[$canal->id]['precio'];
+            }
+        }
+
+        return $mapa;
     }
 
     public function calcularEnsamble(Request $request, FormulaEvaluatorService $svc): JsonResponse
@@ -647,23 +673,26 @@ class CotizacionController extends Controller
             ]);
             $ensamble  = Ensamble::with('plantilla')->findOrFail($request->ensamble_id);
             $variables = array_merge((array) ($ensamble->variables ?? []), (array) ($request->variables_instancia ?? []));
-            $conf      = $ensamble->plantilla?->config_salida ?? [];
-            $mmay      = (float) ($conf['margen_mayorista']    ?? 30);
-            $mdist     = (float) ($conf['margen_distribuidor']  ?? 32.5);
-            $mfinal    = (float) ($conf['margen_cliente_final'] ?? 35);
 
             $componentes = $svc->calcularPlantilla($ensamble->plantilla_id, $variables);
             $totalCosto  = $svc->totalCosto($componentes);
-            $ceil5k      = fn ($c, $m) => (int) (ceil($c / (1 - $m / 100) / 5000) * 5000);
+            $canales     = $this->canalesDeInstancia($totalCosto, $ensamble);
+
+            // Las tres claves de siempre siguen viajando por compatibilidad, pero ya no salen
+            // de márgenes escritos en el código: son el precio del canal que hace ese papel,
+            // con la misma regla que usa `PreciosPorCanalService::columnaDe()` para el puente
+            // con las columnas viejas. Si no hay canal para alguna, va en cero — mejor que un
+            // número inventado con un margen que nadie configuró.
+            $viejas = $this->preciosPorColumnaVieja($canales);
 
             return response()->json([
                 'componentes'          => $componentes,
                 'precio_costo'         => $totalCosto,
                 'total_costo'          => $totalCosto,
-                'precio_mayorista'     => $ceil5k($totalCosto, $mmay),
-                'precio_distribuidor'  => $ceil5k($totalCosto, $mdist),
-                'precio_cliente_final' => $ceil5k($totalCosto, $mfinal),
-                'canales'              => $this->canalesDeInstancia($conf, $totalCosto, $ceil5k, $ensamble),
+                'precio_mayorista'     => $viejas['mayorista'] ?? 0,
+                'precio_distribuidor'  => $viejas['distribuidor'] ?? 0,
+                'precio_cliente_final' => $viejas['cliente_final'] ?? 0,
+                'canales'              => $canales,
             ]);
         }
 

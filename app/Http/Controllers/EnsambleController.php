@@ -768,7 +768,7 @@ class EnsambleController extends Controller
                 $margen = (float) $fila['margen_pct'];
 
                 $fila['precio'] = $margen > 0 && $margen < 100
-                    ? ceil($totalCosto / (1 - $margen / 100) / 1000) * 1000
+                    ? app(\App\Services\PreciosPorCanalService::class)->precioDesdeCosto($totalCosto, $margen)
                     : $fila['precio'];
 
                 return $fila;
@@ -872,21 +872,33 @@ class EnsambleController extends Controller
         $componentes = $svc->calcularPlantilla((int) $data['plantilla_id'], $data['variables']);
         $totalCosto  = $svc->totalCosto($componentes);
         $conf        = $plantilla->config_salida ?? [];
-        $mmay        = (float) ($conf['margen_mayorista']    ?? 30);
-        $mdist       = (float) ($conf['margen_distribuidor']  ?? 32.5);
-        $mfinal      = (float) ($conf['margen_cliente_final'] ?? 35);
+
+        // Los márgenes son los que la empresa puso en Segmentación, no tres números escritos
+        // aquí. Y el precio se saca con la misma cuenta que el resto del sistema: este método
+        // usaba `costo * (1 + margen)`, que es un recargo sobre el costo y no un margen sobre
+        // la venta — con 32,5 % daba un precio distinto al que mostraba la ficha del mismo
+        // ensamble.
+        $precios = app(\App\Services\PreciosPorCanalService::class);
+        $canales = app(\App\Services\CanalesPrecioService::class)->canales();
+        $base    = $canales->firstWhere('es_canal_base', true);
+        $publico = $canales->firstWhere('es_precio_publico', true);
+        // El del medio es el primero que no es ninguno de los dos, en el orden que puso la
+        // empresa: la misma regla de `PreciosPorCanalService::columnaDe()`.
+        $medio   = $canales->reject(fn ($c) => $c->es_canal_base || $c->es_precio_publico)->first() ?? $base;
+
+        $margenDe = fn ($canal) => $canal ? (float) $canal->margen_sugerido : 0.0;
 
         return response()->json([
             'componentes'          => $componentes,
             // El costo solo viaja si quien pregunta puede verlo. Esconderlo en la pantalla
             // y mandarlo igual lo deja a la vista en el código fuente de la página.
             'total_costo'          => auth()->user()?->tienePermiso('costos.ver') ? $totalCosto : null,
-            'precio_mayorista'     => round($totalCosto * (1 + $mmay   / 100), 0),
-            'precio_distribuidor'  => round($totalCosto * (1 + $mdist  / 100), 0),
-            'precio_cliente_final' => round($totalCosto * (1 + $mfinal / 100), 0),
-            'margen_mayorista'     => $mmay,
-            'margen_distribuidor'  => $mdist,
-            'margen_cliente_final' => $mfinal,
+            'precio_mayorista'     => $precios->precioDesdeCosto($totalCosto, $margenDe($base)),
+            'precio_distribuidor'  => $precios->precioDesdeCosto($totalCosto, $margenDe($medio)),
+            'precio_cliente_final' => $precios->precioDesdeCosto($totalCosto, $margenDe($publico)),
+            'margen_mayorista'     => $margenDe($base),
+            'margen_distribuidor'  => $margenDe($medio),
+            'margen_cliente_final' => $margenDe($publico),
             'precio_por_defecto'   => $conf['precio_defecto_cotizar'] ?? 'distribuidor',
         ]);
     }

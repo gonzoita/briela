@@ -37,6 +37,28 @@ Cada canal lleva además un **margen sugerido**, que es el que traerá un produc
 nuevo. Se edita en la misma fila y se puede cambiar producto por producto al
 crearlo: es con qué arranca el formulario, no un tope.
 
+### Qué significa ese porcentaje
+
+Es un **recargo sobre el costo**. Con 30 %, el precio es el costo más un 30 % de ese costo:
+
+```
+costo 1.209.954 × 1,30 = 1.572.940  →  se sube al millar  →  $1.573.000
+```
+
+Se redondea **hacia arriba al millar**, porque redondear un precio hacia abajo regala margen.
+
+Conviene saberlo porque en contabilidad la palabra «margen» significa otra cosa —el porcentaje
+del precio de venta, que con 30 % daría 1.729.000— y hasta el 21 ago 2026 el sistema la
+interpretaba así. Se cambió a recargo sobre el costo porque es lo que espera quien escribe el
+número en esta pantalla.
+
+Un recargo mayor al 100 % es válido: un producto que se vende al doble de su costo lleva 100 %.
+
+> **La cuenta vive en un solo lugar**, `PreciosPorCanalService::precioDesdeCosto()`. Estuvo
+> escrita tres veces con tres resultados distintos —dos formas de redondear y dos fórmulas—, y
+> el mismo ensamble valía tres precios según por qué pantalla se entrara.
+> `tests/Unit/PrecioDesdeCostoTest.php` fija los números.
+
 ## Cuando cotizas
 
 El sistema mira el tipo de contacto del cliente y **muestra solo el precio que
@@ -162,6 +184,17 @@ Un ensamble cotizado **por medidas** (con variables de instancia) sigue
 calculándose al vuelo: sus materiales dependen de las medidas de ese cliente, así
 que el precio se rearma con el costo de esa instancia.
 
+El margen que usa ese recálculo es, en este orden: el que el ensamble tenga guardado para ese
+canal, y si no tiene, el margen sugerido del canal en esta pantalla.
+
+> **Esto estuvo mal hasta el 21 ago 2026 y vale la pena saber por qué.** El configurador elegía
+> el margen con un mapa de tres claves internas —`mayorista`, `distribuidor`, `cliente_directo`—
+> y, si no encontraba la clave, caía a 30/32,5/35 escritos en el código. En cuanto la empresa
+> creaba o renombraba sus canales —que es justamente lo que esta pantalla ofrece— ninguna clave
+> coincidía, y **todos los ensambles medidos se cotizaban al 32,5 %** aunque en Segmentación
+> dijera 30 %. Es el mismo error que ya se había arreglado en el puente con las columnas viejas,
+> repetido en otro archivo.
+
 ## Cuando un precio no sale como debe
 
 Hay un comando que imprime de una vez todo lo que hace falta para entenderlo, sin tocar
@@ -186,3 +219,31 @@ Sirve para soporte: es lo que hay que pegar cuando alguien reporta «no me trae 
 El importador de clientes trae las cuatro columnas, y admite varias opciones
 separadas por coma en la misma celda. Ver
 [Importar clientes desde CSV](./importar-clientes.md).
+
+## Después de cambiar un margen, recalcula
+
+El precio se guarda **calculado**, no como fórmula. Cambiar un margen en esta pantalla no
+mueve lo que ya está guardado en el catálogo: eso sería repreciar cientos de productos sin que
+nadie lo haya pedido.
+
+Para bajarlo al catálogo hay dos comandos, y el orden importa:
+
+```bash
+php artisan precios:recalcular --simular
+```
+
+Imprime ítem por ítem qué cambiaría, con el costo, el margen, el precio de antes y el de
+ahora. **Míralo antes de escribir nada.** Sin `--simular` lo aplica.
+
+Después, siempre:
+
+```bash
+php artisan comisiones:recalcular
+```
+
+Las comisiones se miden contra el precio: moverlo sin repartir de nuevo deja a los vendedores
+con porcentajes que ya no cuadran.
+
+Ninguno de los dos inventa precios. Solo tocan ítems que ya tienen costo y margen guardados;
+un precio escrito a mano sobre un ítem sin margen se queda como está.
+

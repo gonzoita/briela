@@ -351,6 +351,17 @@ Lo construido después de la fase 3, que conviene conocer antes de tocar algo ce
   cerrarlo, `EntregaAlmacenService` descuenta los materiales de esa unidad y registra su entrada
   como **producto terminado** (`productos.ensamble_id`). El despacho ya no vuelve a consumir
   material. `op_item_trabajos.entregado_at` es el candado contra la doble entrada.
+- **El margen es un recargo sobre el costo**, y la cuenta vive en **un solo lugar**:
+  `PreciosPorCanalService::precioDesdeCosto()` — `ceil(costo × (1 + m/100) / 1000) × 1000`.
+  `usePreciosPorCanal.js` la repite porque la pantalla la necesita mientras se teclea; si se
+  cambia una, se cambia la otra, y `tests/Unit/PrecioDesdeCostoTest.php` fija los números.
+  Estuvo escrita tres veces con tres resultados y el mismo ensamble valía tres precios.
+  **El margen de un canal jamás se escribe en el código**: sale de
+  `PreciosPorCanalService::margenDe()` —la fila guardada del ítem, y si no, el margen del canal
+  en Segmentación—. Un mapa de claves internas con respaldo fijo 30/32,5/35 hacía que todo
+  ensamble medido se cotizara al 32,5 % en cuanto la empresa creaba sus propios canales.
+  Cambiar un margen no reprecia lo guardado: eso lo hace `php artisan precios:recalcular`,
+  y después **siempre** `comisiones:recalcular`.
 - **`costos.ver`** es un permiso aparte: el costo no se manda al navegador de quien no lo tiene.
 - **Una OP con trabajo hecho no cambia sus ítems** (`Op::itemsBloqueados()`), y el candado está
   en el servidor.
@@ -406,8 +417,8 @@ decían lo contrario y estaban equivocadas.
   relaciones entre archivos antes de leer código a mano.
 - Conviene regenerarlo después de cambios que muevan estructura (borrar módulos,
   mover carpetas), porque un grafo desactualizado es peor que no tenerlo.
-- **Generado y al día.** Al 21 ago 2026: 6.624 nodos, 11.240 aristas, 649 comunidades,
-  anclado al commit `ea6a9e02`. Se reconstruye entero con la extracción AST
+- **Generado y al día.** Al 22 ago 2026: 6.641 nodos, 11.281 aristas, 644 comunidades,
+  anclado al commit `a19bccb2`. Se reconstruye entero con la extracción AST
   (gratis, sin LLM) y `parallel=False`.
 - La parte semántica —documentos e imágenes— **no se reextrae en cada reconstrucción**: exige
   subagentes y se paga en tokens. Lo que hay en caché se reaprovecha; el resto queda fuera, y

@@ -23,11 +23,24 @@ const REPARTO_MAX         = 0.5
 const REPARTO_MAX_PUBLICO = 0.7
 
 export function usePreciosPorCanal(canales, precioCosto) {
-    /** El precio de venta a partir del costo y el margen, redondeado al millar. */
+    /**
+     * El precio de venta a partir del costo y el margen, redondeado al millar hacia arriba.
+     *
+     * El margen es un RECARGO SOBRE EL COSTO: con 30 %, el precio es el costo mas un 30 % de
+     * ese costo. Decidido el 21 ago 2026; antes se calculaba como porcentaje del precio de
+     * venta y daba unos 13 % mas caro.
+     */
     const calcPrecio = (costo, margenPct) => {
-        if (! costo || margenPct >= 100) return 0
+        if (! costo || margenPct <= 0) return 0
 
-        return Math.ceil(costo / (1 - margenPct / 100) / 1000) * 1000
+        // Se redondea a dos decimales antes de subir al millar. Sin eso, un costo que da un
+        // precio exacto se pasa por el error de la coma flotante y sube mil pesos de mas:
+        // 700.000 al 30 % da 1.000.000,0000000001 y terminaba cobrando 1.001.000.
+        // La misma cuenta vive en PreciosPorCanalService::precioDesdeCosto(); si se cambia
+        // una, se cambia la otra, y tests/Unit/PrecioDesdeCostoTest.php fija los numeros.
+        const exacto = Math.round(costo * (1 + margenPct / 100) * 100) / 100
+
+        return Math.ceil(exacto / 1000) * 1000
     }
 
     // El precio se recalcula cuando cambia el costo o un margen. `immediate` a propósito:

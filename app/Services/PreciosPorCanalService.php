@@ -206,6 +206,73 @@ class PreciosPorCanalService
     }
 
     /**
+     * El precio de venta a partir del costo y el margen. **La única definición.**
+     *
+     * El margen es un **recargo sobre el costo**: con 30 %, el precio es el costo más un 30 %
+     * de ese costo. Es como lo lee quien pone los precios en esta empresa, y es la decision
+     * que se tomo el 21 ago 2026.
+     *
+     * Antes se interpretaba al reves —como porcentaje del precio de venta, `costo / (1 - m)`—,
+     * que en contabilidad es lo que significa la palabra «margen» pero no es lo que la
+     * pantalla de Segmentacion le promete a quien escribe el numero. Con 30 % sobre un costo
+     * de 1.209.954 daba 1.729.000 en vez de 1.573.000.
+     *
+     * Estuvo escrita tres veces con tres resultados distintos —`/(1-m)` redondeando al millar,
+     * `/(1-m)` redondeando a cinco mil, y `*(1+m)`—, así que el mismo ensamble valía tres
+     * precios según por qué pantalla se entrara. Ahora sale de aquí, y `usePreciosPorCanal.js`
+     * repite la misma cuenta en la pantalla porque la necesita instantánea mientras se teclea:
+     * si se cambia una, se cambia la otra, y `tests/Unit/PrecioDesdeCostoTest.php` fija los
+     * números de las dos.
+     *
+     * Se redondea hacia arriba al millar. Hacia arriba porque redondear un precio hacia abajo
+     * regala margen, y al millar porque es lo que ya hacían la ficha del producto y el
+     * recálculo del ensamble.
+     */
+    public function precioDesdeCosto(float $costo, float $margenPct): float
+    {
+        // Ya no hay tope en 100: como recargo, un 140 % es un precio legítimo —el de un
+        // producto que se vende a dos veces y media su costo—. Con la fórmula vieja ese
+        // número era una división por un negativo y por eso se cortaba aquí.
+        if ($costo <= 0 || $margenPct <= 0) {
+            return 0.0;
+        }
+
+        // Se redondea a dos decimales antes de subir al millar. Sin eso, un costo que da un
+        // precio exacto se pasa por el error de la coma flotante y sube mil pesos de más.
+        $exacto = round($costo * (1 + $margenPct / 100), 2);
+
+        return (float) (ceil($exacto / 1000) * 1000);
+    }
+
+    /**
+     * Con qué margen se vende este ítem por este canal.
+     *
+     * Manda lo que el ítem tenga guardado —es su política comercial, decidida en su ficha— y
+     * si no tiene fila, el margen que la empresa puso en Segmentación.
+     *
+     * **Lo que no manda es un número escrito en el código.** El configurador de ensambles
+     * elegía el margen con un mapa de tres claves internas —`mayorista`, `distribuidor`,
+     * `cliente_directo`— y, cuando no encontraba la clave, caía a 30/32,5/35 fijos. Es el
+     * mismo error que ya está documentado en `columnaDe()`: funcionaba en una instalación de
+     * fábrica y fallaba en silencio en cuanto la empresa creaba sus propios canales, que es
+     * justamente lo que el sistema le ofrece hacer. Con los canales renombrados, ninguna clave
+     * coincidía y **todos los ensambles medidos se cotizaban al 32,5 %** aunque en la pantalla
+     * dijera 30 %.
+     */
+    public function margenDe(?Model $item, SegmentacionOpcion $canal): float
+    {
+        if ($item) {
+            $fila = $item->preciosPorCanal()->where('segmentacion_opcion_id', $canal->id)->first();
+
+            if ($fila && (float) $fila->margen_pct > 0) {
+                return (float) $fila->margen_pct;
+            }
+        }
+
+        return (float) $canal->margen_sugerido;
+    }
+
+    /**
      * Con qué margen nace un canal en un producto nuevo.
      *
      * Lo pone la empresa en Segmentación. Estuvo escrito primero en la pantalla (25/30/35) y
