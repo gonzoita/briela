@@ -10,11 +10,38 @@ const props = defineProps({
     canales:  { type: Array,  default: () => [] },
     // Cuántas unidades alcanzan a armarse hoy, y qué material se agota primero.
     disponibilidad: { type: Object, default: null },
+    // Las bodegas de la sede y cuál se está mirando. 0 = todas, que es como abre la ficha.
+    bodegas:        { type: Array, default: () => [] },
+    bodega_id:      { type: Number, default: 0 },
     // Cuántas hay YA armadas y en qué bodega. Null cuando el ensamble no se guarda en
     // bodega: ahí la pregunta no aplica, y una tarjeta en cero se leería como un faltante.
     stock: { type: Object, default: null },
     web:      { type: Object, default: null },
 })
+
+// ─── Desde qué bodega se mira «se puede armar» ──────────────────────────────
+// El filtro viaja en la URL y no en memoria: así el enlace se puede compartir con quien va a
+// armar, el botón de atrás funciona y recargar no pierde lo elegido. Es la misma regla que
+// sigue el orden de las listas.
+//
+// Solo se recarga lo que cambia. El resto de la ficha —precios, receta, imágenes— no depende
+// de la bodega y volver a traerlo en cada cambio del selector es tráfico que nadie pidió.
+/** El nombre de la bodega mirada, o vacío cuando se ven todas. */
+const bodegaMirada = computed(() =>
+    props.bodegas.find(b => b.id === props.bodega_id)?.nombre ?? ''
+)
+
+function verBodega(id) {
+    const url = Number(id) > 0
+        ? `/ensambles/${props.ensamble.id}?bodega_id=${id}`
+        : `/ensambles/${props.ensamble.id}`
+
+    router.get(url, {}, {
+        preserveScroll: true,
+        preserveState:  true,
+        only: ['disponibilidad', 'bodega_id'],
+    })
+}
 
 // Publicar en la web es una decisión sobre el ensamble: pide el mismo permiso que editarlo.
 const page = usePage()
@@ -207,7 +234,19 @@ const variablesEntries = Object.entries(props.ensamble.variables ?? {})
 
             <div v-if="disponibilidad && disponibilidad.unidades !== null"
                 class="bg-superficie rounded-2xl shadow-sm p-5 mb-4">
-                <h2 class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-3">Se puede armar</h2>
+                <div class="flex items-center justify-between gap-2 flex-wrap mb-3">
+                    <h2 class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">Se puede armar</h2>
+
+                    <!-- Desde qué bodega. Quien va a armar no necesita saber cuánto hay en la
+                         sede entera: necesita saber si el material está donde él está. -->
+                    <select v-if="bodegas.length > 1" :value="bodega_id" @change="verBodega($event.target.value)"
+                        class="text-xs border border-linea rounded-lg px-2 py-1.5 bg-superficie focus:outline-none focus:border-[var(--marca)]">
+                        <option :value="0">Todas las bodegas de la sede</option>
+                        <option v-for="b in bodegas" :key="b.id" :value="b.id">
+                            {{ b.nombre }}{{ b.es_principal ? ' · principal' : '' }}
+                        </option>
+                    </select>
+                </div>
 
                 <div class="flex items-baseline gap-2 flex-wrap">
                     <span class="text-3xl font-semibold"
@@ -215,7 +254,8 @@ const variablesEntries = Object.entries(props.ensamble.variables ?? {})
                         {{ disponibilidad.unidades }}
                     </span>
                     <span class="text-sm text-tinta-400">
-                        {{ disponibilidad.unidades === 1 ? 'unidad' : 'unidades' }} con el inventario de esta sede
+                        {{ disponibilidad.unidades === 1 ? 'unidad' : 'unidades' }}
+                        {{ bodegaMirada ? `con lo que hay en ${bodegaMirada}` : 'con el inventario de esta sede' }}
                     </span>
                 </div>
 

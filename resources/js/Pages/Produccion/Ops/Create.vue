@@ -9,6 +9,7 @@ const props = defineProps({
     op:             { type: Object, default: null },
     responsables:   Array,
     operarios:      { type: Array, default: () => [] },
+    bodegas:       { type: Array, default: () => [] },
     usuario_actual: Number,
 })
 
@@ -20,6 +21,9 @@ const hoy = new Date().toISOString().slice(0, 10)
 const form = reactive({
     cliente_id:             props.op?.cliente_id              ?? null,
     responsable_id:         props.op?.responsable_id          ?? props.usuario_actual ?? '',
+    // A qué bodega entra lo que fabrique esta orden. Se exige al confirmar, no al guardar el
+    // borrador: mientras se arma la orden todavía no hay nada que guardar en ninguna parte.
+    bodega_entrega_id:      props.op?.bodega_entrega_id       ?? '',
     estado:                 props.op?.estado                  ?? 'borrador',
     fecha_creacion:         props.op?.fecha_creacion          ?? hoy,
     fecha_entrega_estimada: props.op?.fecha_entrega_estimada  ?? '',
@@ -503,6 +507,28 @@ function submit() {
                             <option v-for="r in responsables" :key="r.id" :value="r.id">{{ r.name }}</option>
                         </select>
                         <p v-if="errores.responsable_id" class="mt-1 text-xs text-aviso-rojo">{{ errores.responsable_id }}</p>
+                    </div>
+
+                    <!-- Bodega de entrega.
+                         Todo lo que se fabrica queda en algún estante, así que la orden dice en
+                         cuál. Antes lo elegía el operario al cerrar el último paso de cada
+                         unidad, y era una decisión de quien planea, no de quien arma. -->
+                    <div>
+                        <label class="block text-xs font-medium text-tinta-400 mb-1">
+                            Bodega de entrega <span class="text-aviso-rojo">*</span>
+                        </label>
+                        <select v-model="form.bodega_entrega_id"
+                            class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[var(--marca)]">
+                            <option value="">Seleccionar...</option>
+                            <option v-for="b in bodegas" :key="b.id" :value="b.id">
+                                {{ b.nombre }}{{ b.es_principal ? ' · principal' : '' }}
+                            </option>
+                        </select>
+                        <p class="mt-1 text-xs text-tinta-300">
+                            Ahí entra cada unidad al cerrarse su último paso, como producto terminado.
+                            Se puede guardar el borrador sin elegirla, pero no confirmar la orden.
+                        </p>
+                        <p v-if="errores.bodega_entrega_id" class="mt-1 text-xs text-aviso-rojo">{{ errores.bodega_entrega_id }}</p>
                     </div>
 
                     <!-- Estado -->

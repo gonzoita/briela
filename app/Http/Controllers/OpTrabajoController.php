@@ -84,12 +84,16 @@ class OpTrabajoController extends Controller
         // sistema la mandaba a la principal — y en una empresa con varias bodegas eso es
         // inventario que aparece donde no es, sin que nadie lo haya decidido.
         if ($paso->es_paso_final) {
-            $bodega = $request->bodega_destino_id ?: $paso->bodega_destino_id;
+            // La OP manda: si ya declaró su bodega, el operario no tiene nada que elegir.
+            // Solo se le pregunta a quien cierra el paso de una OP vieja, nacida antes de que
+            // el campo existiera.
+            $bodega = $op->bodega_entrega_id ?: ($request->bodega_destino_id ?: $paso->bodega_destino_id);
 
             if (! $bodega) {
                 return back()->withErrors([
                     'bodega_destino_id' => 'Elige a qué bodega entra la unidad: este es el paso que la entrega. '
-                        . 'Se puede dejar predefinida en el paso de la plantilla del ensamble.',
+                        . 'Lo normal es que lo declare la orden de producción; esta no lo hace porque '
+                        . 'se creó antes de que ese campo existiera.',
                 ]);
             }
 

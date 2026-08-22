@@ -50,10 +50,11 @@ const nombre                   = ref(inicial?.nombre ?? '')
 // duplicar tampoco se copia — dos ensambles con el mismo código no se pueden distinguir.
 const referencia               = ref(props.ensamble?.referencia ?? '')
 const unidadMedida             = ref(inicial?.unidad_medida ?? 'unidad')
-// Si de este ensamble se guardan unidades ya armadas en bodega. Al prenderlo, el ensamble
-// obtiene su producto terminado en el catálogo y con él todo el inventario que ya existe:
-// stock por bodega, movimientos, traslados, mínimos y el aviso de stock bajo.
-const manejaStock              = ref(!!inicial?.maneja_stock)
+// Ya no se pregunta si el ensamble «se guarda en bodega»: todo lo que produce una OP entra a
+// una bodega, y cuál es lo dice la propia OP. El ensamble es un catálogo, y lo mismo se
+// fabrica hoy para una bodega y mañana para otra. La marca `maneja_stock` sigue existiendo en
+// la base y la prende sola `EntregaAlmacenService` la primera vez que se entrega una unidad:
+// de ahí sale la ficha de inventario del producto terminado, con su stock y sus movimientos.
 const margenesActuales         = ref({ mayorista: 30, distribuidor: 32.5, cliente_final: 35, por_defecto: 'distribuidor' })
 const variables                = reactive({})
 const componentes              = ref(inicial?.componentes_resultado ?? [])
@@ -462,7 +463,6 @@ async function guardar() {
         nombre:              nombre.value,
         referencia:          referencia.value || null,
         unidad_medida:       unidadMedida.value || 'unidad',
-        maneja_stock:        manejaStock.value,
         variables:           esDirecto.value ? {} : { ...variables },
         lineas:              esDirecto.value ? lineas.value : [],
         canales:             canales.value,
@@ -639,33 +639,6 @@ onMounted(() => {
                         </div>
                     </div>
 
-                    <!-- Se guarda en bodega. La mayoría de los ensambles se arman contra
-                         pedido y no viven en un estante; este interruptor es para los que
-                         sí se fabrican por adelantado y se guardan. -->
-                    <div class="border-t border-linea pt-4">
-                        <div class="flex items-start justify-between gap-3">
-                            <div class="min-w-0">
-                                <p class="text-sm font-medium text-tinta-700">Se guarda en bodega</p>
-                                <p class="text-xs text-tinta-400 mt-0.5">
-                                    Para lo que se fabrica por adelantado y se deja armado. Queda en el
-                                    inventario como producto terminado, con su stock por bodega, sus
-                                    movimientos y su aviso de stock bajo.
-                                </p>
-                            </div>
-                            <button type="button" @click="manejaStock = !manejaStock"
-                                class="relative w-11 h-6 rounded-full transition-colors shrink-0 mt-0.5"
-                                :style="manejaStock ? 'background:var(--marca);' : 'background:var(--tinta-200);'"
-                                :aria-pressed="manejaStock">
-                                <span class="absolute top-0.5 w-5 h-5 bg-superficie rounded-full shadow transition-transform"
-                                    :style="manejaStock ? 'transform:translateX(22px);' : 'transform:translateX(2px);'" />
-                            </button>
-                        </div>
-
-                        <p v-if="manejaStock && !esEdicion" class="text-xs text-aviso-azul mt-2">
-                            Al guardar se crea su ficha en inventario. Las unidades se cargan desde ahí:
-                            entrada, traslado o ajuste, como cualquier producto.
-                        </p>
-                    </div>
                 </div>
             </div>
 

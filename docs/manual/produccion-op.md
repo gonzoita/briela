@@ -159,3 +159,35 @@ secuencial y predecible, `/seguimiento` ahora exige, además del número, un
 orden). Si no coincide, no muestra nada. Así nadie puede espiar pedidos
 ajenos probando números. El link por QR (`/op/{token}`) no pide esto porque
 el token ya es imposible de adivinar.
+
+## La bodega de entrega
+
+Cada OP declara **a qué bodega entra lo que fabrica**. El campo está en la orden, junto al
+responsable, y es obligatorio para **confirmarla**: se puede guardar un borrador sin elegirla
+—mientras se arma la orden todavía no hay nada que guardar en ninguna parte—, pero confirmar es
+decir «esto se fabrica», y todo lo que se fabrica queda en algún estante.
+
+Al cerrarse el último paso de cada unidad, esa unidad entra ahí como producto terminado y los
+materiales se descuentan. El operario ya no elige nada.
+
+### Por qué se movió aquí
+
+Hasta el 22 ago 2026 la bodega se preguntaba en dos sitios equivocados:
+
+- **En el último paso de cada unidad**, en la pantalla del operario. Es una decisión de quien
+  planea la producción, no de quien la arma.
+- **Predefinida en el ensamble.** El ensamble es un catálogo, y lo mismo se fabrica hoy para una
+  bodega y mañana para otra. Por eso el interruptor «se guarda en bodega» desapareció de su
+  ficha.
+
+Ya no se pregunta si un ensamble «se guarda en bodega»: **todo lo que produce una OP entra a una
+bodega**, y su ficha de inventario —con stock, movimientos y aviso de stock bajo— nace sola la
+primera vez que se entrega una unidad.
+
+### Las órdenes viejas
+
+Las OPs creadas antes de que el campo existiera no tienen bodega declarada, y ponerles una a la
+fuerza sería inventar dónde quedó algo que ya se fabricó. Para ellas sigue valiendo el orden de
+respaldo de siempre: la bodega del paso final y, si tampoco la hay, la principal. Al operario
+solo se le pregunta en ese caso.
+

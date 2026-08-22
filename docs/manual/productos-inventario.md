@@ -275,3 +275,21 @@ al sistema.
 - Las tablas `inventario_items` e `inventario_movimientos` son del sistema
   anterior de stock y **ya no las usa ningún flujo activo**. Se dejaron sin
   borrar para no romper nada. Todo lo descrito acá corre sobre `productos`.
+
+## «Se puede armar», por bodega
+
+La ficha de un ensamble dice cuántas unidades alcanzan a armarse con lo que hay, y cuál es el
+material que primero se agota. Desde el 22 ago 2026 esa cifra **se puede mirar por bodega**.
+
+Al abrir la ficha sale como siempre: todo el inventario de la sede. El selector al lado del
+título filtra a una bodega puntual, y con eso se recalculan las unidades y el faltante. Quien va
+a armar no necesita saber cuánto hay en la sede entera: necesita saber si el material está donde
+él está.
+
+El filtro viaja en la URL (`?bodega_id=…`), así que el enlace se puede compartir con quien va a
+armar, el botón de atrás funciona y recargar no pierde lo elegido. Solo se recarga esa cifra —el
+resto de la ficha no depende de la bodega—.
+
+Un id de bodega que no exista, o que sea de otra sede, se ignora en silencio y vuelve a mostrar
+todas: el número que llega del navegador nunca entra tal cual a la consulta.
+

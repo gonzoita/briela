@@ -91,19 +91,29 @@ class EntregaAlmacenService
     }
 
     /**
-     * A qué bodega entra: la que dijo el último paso.
+     * A qué bodega entra, en este orden: la de la OP, la del último paso, la principal.
      *
-     * El respaldo a la principal se conserva para las unidades viejas, cuyos pasos se crearon
-     * cuando la bodega no se pedía. Para las nuevas ya no aplica: cerrar el paso final exige
-     * elegirla, porque mandar inventario a una bodega que nadie decidió es hacerlo aparecer
-     * donde no es.
+     * **Manda la OP.** Es la decisión de quien planea la producción y se toma al confirmar la
+     * orden, así que vale para todo lo que esa orden fabrique. Antes la tomaba el operario al
+     * cerrar el último paso de cada unidad, o venía predefinida en la plantilla del ensamble:
+     * los dos sitios estaban mal, porque el mismo ensamble se fabrica hoy para una bodega y
+     * mañana para otra.
      *
-     * La principal como respaldo y no un error: una unidad terminada existe en algún estante
-     * aunque nadie haya configurado el paso, y negarse a registrarla la dejaría invisible —
-     * que es justo el problema que esto viene a resolver.
+     * El paso sigue valiendo como respaldo, no como capricho: las OPs que ya existían nacieron
+     * sin el campo, y sus unidades a medio fabricar tienen que poder terminar de entrar.
+     *
+     * La principal al final, y no un error: una unidad terminada existe en algún estante
+     * aunque nadie haya configurado nada, y negarse a registrarla la dejaría invisible — que
+     * es justo el problema que esto viene a resolver.
      */
     private function bodegaDeEntrega(OpItemTrabajo $trabajo): ?Bodega
     {
+        $deLaOp = $trabajo->opItem?->op?->bodega_entrega_id;
+
+        if ($deLaOp && $bodega = Bodega::find($deLaOp)) {
+            return $bodega;
+        }
+
         $paso = $trabajo->pasos()
             ->whereNotNull('bodega_destino_id')
             ->orderByDesc('es_paso_final')

@@ -165,6 +165,13 @@ class OpController extends Controller
         return Inertia::render('Produccion/Ops/Create', [
             'responsables'   => User::whereIn('rol', ['administrador', 'jefe_produccion', 'vendedor'])->where('activo', true)->get(['id', 'name']),
             'operarios'      => User::where('rol', 'operario')->where('activo', true)->get(['id', 'name']),
+            // Las bodegas de la sede activa. Una OP de una sede no entrega en la bodega de
+            // otra. Si la sede no filtra ninguna —bodegas sin sede asignada— salen todas las
+            // activas: un selector vacío aquí impediría confirmar cualquier orden.
+            'bodegas'        => \App\Support\ContextoSede::bodegasParaElegir()
+                ->sortBy([['es_principal', 'desc'], ['nombre', 'asc']])
+                ->map(fn ($b) => ['id' => $b->id, 'nombre' => $b->nombre, 'es_principal' => (bool) $b->es_principal])
+                ->values(),
             'usuario_actual' => auth()->id(),
         ]);
     }
@@ -177,6 +184,7 @@ class OpController extends Controller
             'cliente_id'              => $data['cliente_id'] ?? null,
             'cotizacion_id'           => $data['cotizacion_id'] ?? null,
             'responsable_id'          => $data['responsable_id'],
+            'bodega_entrega_id'       => $data['bodega_entrega_id'] ?? null,
             'estado'                  => $data['estado'] ?? 'borrador',
             'fecha_creacion'          => $data['fecha_creacion'],
             'fecha_entrega_estimada'  => $data['fecha_entrega_estimada'] ?? null,
@@ -330,6 +338,13 @@ class OpController extends Controller
             'op'            => $opData,
             'responsables'  => User::whereIn('rol', ['administrador', 'jefe_produccion', 'vendedor'])->where('activo', true)->get(['id', 'name']),
             'operarios'     => User::where('rol', 'operario')->where('activo', true)->get(['id', 'name']),
+            // Las bodegas de la sede activa. Una OP de una sede no entrega en la bodega de
+            // otra. Si la sede no filtra ninguna —bodegas sin sede asignada— salen todas las
+            // activas: un selector vacío aquí impediría confirmar cualquier orden.
+            'bodegas'        => \App\Support\ContextoSede::bodegasParaElegir()
+                ->sortBy([['es_principal', 'desc'], ['nombre', 'asc']])
+                ->map(fn ($b) => ['id' => $b->id, 'nombre' => $b->nombre, 'es_principal' => (bool) $b->es_principal])
+                ->values(),
             'usuario_actual'=> auth()->id(),
         ]);
     }
@@ -353,6 +368,7 @@ class OpController extends Controller
         $op->update([
             'cliente_id'             => $data['cliente_id'] ?? null,
             'responsable_id'         => $data['responsable_id'],
+            'bodega_entrega_id'      => $data['bodega_entrega_id'] ?? $op->bodega_entrega_id,
             'estado'                 => $data['estado'] ?? $op->estado,
             'fecha_creacion'         => $data['fecha_creacion'],
             'fecha_entrega_estimada' => $data['fecha_entrega_estimada'] ?? null,
@@ -391,6 +407,21 @@ class OpController extends Controller
                 return response()->json(['error' => $mensaje], 422);
             }
             return back()->withErrors(['estado' => $mensaje]);
+        }
+
+        // Confirmar es decir «esto se fabrica», y todo lo que se fabrica queda en una bodega.
+        // Se exige aquí y no antes: en borrador todavía se está armando la orden y obligar a
+        // elegir bodega para guardar un borrador estorba. Las OPs viejas, que nacieron sin el
+        // campo, no se bloquean si ya pasaron de borrador.
+        if ($nuevoEstado === 'confirmada' && ! $op->bodega_entrega_id) {
+            $mensaje = 'Antes de confirmar, elige a qué bodega entra lo que fabrique esta orden. '
+                . 'Se edita en la orden, junto al responsable.';
+
+            if ($request->wantsJson()) {
+                return response()->json(['error' => $mensaje], 422);
+            }
+
+            return back()->withErrors(['bodega_entrega_id' => $mensaje]);
         }
 
         $op->update(['estado' => $nuevoEstado]);
@@ -973,6 +1004,7 @@ class OpController extends Controller
             'cliente_id'             => 'nullable|exists:clientes,id',
             'cotizacion_id'          => 'nullable|exists:cotizaciones,id',
             'responsable_id'         => 'required|exists:users,id',
+            'bodega_entrega_id'      => 'nullable|exists:bodegas,id',
             'estado'                 => 'nullable|in:borrador,confirmada,en_produccion,calidad,reproceso,despachada',
             'fecha_creacion'         => 'required|date',
             'fecha_entrega_estimada' => 'nullable|date',

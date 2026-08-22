@@ -122,4 +122,30 @@ class ContextoSede
     {
         return static::bodegasVisibles()->pluck('id')->all();
     }
+
+    /**
+     * Las bodegas que se le pueden ofrecer a alguien para que elija una.
+     *
+     * Son las visibles de la sede activa y, **si esa lista sale vacía, todas las activas**.
+     *
+     * El respaldo no es un adorno. `bodegasVisibles()` cruza las bodegas con las sedes del
+     * usuario, así que en una instalación donde las bodegas no tienen sede asignada —que es
+     * el estado natural de una empresa de una sola sede que nunca tocó ese campo— devuelve
+     * cero. Un selector vacío ahí no es «no hay bodegas»: es una pantalla que no deja
+     * trabajar. Con la bodega de entrega obligatoria para confirmar una OP, sería no poder
+     * confirmar ninguna.
+     *
+     * Es el mismo criterio que ya sigue `Producto::stockEnBodegas([])`, que ante una lista
+     * vacía devuelve el stock total en vez de cero.
+     */
+    public static function bodegasParaElegir()
+    {
+        $visibles = static::bodegasVisibles();
+
+        if ($visibles->isNotEmpty()) {
+            return $visibles;
+        }
+
+        return \App\Models\Bodega::where('activa', true)->orderBy('nombre')->get();
+    }
 }

@@ -137,7 +137,6 @@ class EnsambleController extends Controller
             'referencia'                => 'nullable|string|max:60',
             'unidad_medida'             => 'nullable|string|max:30',
             // Si de este ensamble se guardan unidades armadas en bodega.
-            'maneja_stock'              => 'nullable|boolean',
             'variables'                 => 'required_if:tipo_armado,plantilla|nullable|array',
             // Sin `min:1`: la pantalla manda `lineas: []` cuando el ensamble es con
             // plantilla, y `min:1` lo rechazaba aunque las líneas no vinieran al caso.
@@ -221,7 +220,6 @@ class EnsambleController extends Controller
         $ensamble = Ensamble::create([
             'plantilla_id'              => $plantillaId,
             'tipo_armado'               => $esDirecto ? 'directo' : 'plantilla',
-            'maneja_stock'              => $request->boolean('maneja_stock'),
             'nombre'                    => $request->nombre,
             // Si no la escriben, se genera: un ensamble sin código no se puede buscar ni
             // dictar por teléfono, y era la única línea sin referencia en una cotización.
@@ -260,9 +258,27 @@ class EnsambleController extends Controller
             : 'Ensamble creado correctamente.');
     }
 
-    public function show(int $id): Response
+    public function show(int $id, \Illuminate\Http\Request $request): Response
     {
         $ensamble = Ensamble::with(['plantilla.campos', 'creadoPor', 'categoria', 'preciosPorCanal'])->findOrFail($id);
+
+        // Desde qué bodega se mira el «se puede armar». Vacío = todas las de la sede, que es
+        // lo que se ve al entrar; elegir una responde la pregunta real de quien va a armar,
+        // que es si el material está donde él está.
+        //
+        // El id llega del navegador, así que **jamás** se usa tal cual: solo se acepta si está
+        // entre las bodegas visibles de la sede activa. Sin ese filtro, cambiar un número en
+        // la URL dejaría ver el inventario de otra sede.
+        $bodegas  = \App\Support\ContextoSede::bodegasParaElegir()
+            ->sortBy([['es_principal', 'desc'], ['nombre', 'asc']])
+            ->values();
+        $visibles = $bodegas->pluck('id')->all();
+        $elegida  = (int) $request->query('bodega_id', 0);
+        $mirando  = in_array($elegida, $visibles, true) ? $elegida : 0;
+
+        // Sin bodega elegida se pasa la lista completa, que es lo que hacía la ficha antes de
+        // que existiera el selector.
+        $enfoque = $mirando ? [$mirando] : $visibles;
 
         return Inertia::render('Ensambles/Show', [
             'ensamble' => [
@@ -278,7 +294,13 @@ class EnsambleController extends Controller
             // Cuántas unidades alcanzan a armarse con lo que hay en bodega, y qué material
             // es el que primero se agota. Es la respuesta honesta a «¿está disponible?»
             // para algo que se fabrica: un ensamble no vive en un estante.
-            'disponibilidad' => $ensamble->unidadesArmables(\App\Support\ContextoSede::idsBodegasVisibles()),
+            'disponibilidad' => $ensamble->unidadesArmables($enfoque),
+            // Para el selector: las bodegas de la sede y cuál se está mirando. Cero significa
+            // «todas», que es como abre la ficha.
+            'bodegas'        => $bodegas->map(fn ($b) => [
+                'id' => $b->id, 'nombre' => $b->nombre, 'es_principal' => (bool) $b->es_principal,
+            ])->values(),
+            'bodega_id'      => $mirando,
             // Y lo complementario: cuántas hay YA armadas y en qué bodega. Sale del producto
             // terminado, que es donde vive el stock de lo que la empresa fabrica y guarda.
             // Las dos cifras responden preguntas distintas: «cuántas puedo armar hoy» y
@@ -701,7 +723,6 @@ class EnsambleController extends Controller
             'descripcion_corta'    => $request->descripcion_corta,
             'descripcion_larga'    => $request->descripcion_larga,
             'descripcion_cotizacion' => $request->descripcion_cotizacion,
-            'maneja_stock'         => $request->boolean('maneja_stock'),
             'variables'            => $variables,
             'componentes_resultado'=> $componentes,
             'precio_costo'         => $totalCosto,

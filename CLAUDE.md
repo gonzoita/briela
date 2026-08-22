@@ -347,10 +347,20 @@ Lo construido después de la fase 3, que conviene conocer antes de tocar algo ce
 - **Ensamble directo** (`ensambles.tipo_armado`): receta escrita a mano, sin plantilla ni
   fórmulas. Guarda sus componentes con la MISMA forma que los calculados, y por eso la OP, el
   inventario y los PDF no los distinguen.
-- **Producción entra a bodega.** El último paso del flujo declara su `bodega_destino_id`; al
-  cerrarlo, `EntregaAlmacenService` descuenta los materiales de esa unidad y registra su entrada
-  como **producto terminado** (`productos.ensamble_id`). El despacho ya no vuelve a consumir
-  material. `op_item_trabajos.entregado_at` es el candado contra la doble entrada.
+- **Producción entra a bodega, y la bodega la decide la OP.** `ops.bodega_entrega_id`, exigido
+  al **confirmar** la orden y no antes. Al cerrar el último paso, `EntregaAlmacenService`
+  descuenta los materiales de esa unidad y registra su entrada como **producto terminado**
+  (`productos.ensamble_id`). El despacho ya no vuelve a consumir material.
+  `op_item_trabajos.entregado_at` es el candado contra la doble entrada.
+  El `bodega_destino_id` del paso y la principal siguen como respaldo **solo** para las OPs
+  nacidas antes del campo. El ensamble ya **no** pregunta «se guarda en bodega»: `maneja_stock`
+  la prende sola la primera entrega, y por eso el formulario del ensamble **no debe volver a
+  escribir esa columna** — mandarla en `false` desactivaría el producto terminado de un ensamble
+  que sí tiene unidades en una estantería.
+- **Una lista de bodegas para elegir sale de `ContextoSede::bodegasParaElegir()`**, nunca de
+  `idsBodegasVisibles()` a secas: esa cruza bodegas con sedes y devuelve **cero** en una
+  instalación donde las bodegas no tienen sede asignada, que es el estado natural de una empresa
+  de una sola sede. Un selector vacío ahí no deja confirmar ninguna OP.
 - **El margen es un recargo sobre el costo**, y la cuenta vive en **un solo lugar**:
   `PreciosPorCanalService::precioDesdeCosto()` — `ceil(costo × (1 + m/100) / 1000) × 1000`.
   `usePreciosPorCanal.js` la repite porque la pantalla la necesita mientras se teclea; si se
@@ -417,8 +427,8 @@ decían lo contrario y estaban equivocadas.
   relaciones entre archivos antes de leer código a mano.
 - Conviene regenerarlo después de cambios que muevan estructura (borrar módulos,
   mover carpetas), porque un grafo desactualizado es peor que no tenerlo.
-- **Generado y al día.** Al 22 ago 2026: 6.641 nodos, 11.281 aristas, 644 comunidades,
-  anclado al commit `a19bccb2`. Se reconstruye entero con la extracción AST
+- **Generado y al día.** Al 22 ago 2026: 6.647 nodos, 11.291 aristas, 660 comunidades,
+  anclado al commit `1b71cbfa`. Se reconstruye entero con la extracción AST
   (gratis, sin LLM) y `parallel=False`.
 - La parte semántica —documentos e imágenes— **no se reextrae en cada reconstrucción**: exige
   subagentes y se paga en tokens. Lo que hay en caché se reaprovecha; el resto queda fuera, y

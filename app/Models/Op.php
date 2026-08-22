@@ -24,6 +24,7 @@ class Op extends Model
         'cliente_id',
         'cotizacion_id',
         'responsable_id',
+        'bodega_entrega_id',
         'estado',
         'fecha_creacion',
         'fecha_entrega_estimada',
@@ -86,6 +87,17 @@ class Op extends Model
     public function cotizacion(): BelongsTo
     {
         return $this->belongsTo(Cotizacion::class);
+    }
+
+    /**
+     * A qué bodega entra lo que fabrica esta OP.
+     *
+     * Es la decisión de quien planea la producción, y se toma al confirmar la orden. Antes la
+     * tomaba el operario al cerrar el último paso de cada unidad.
+     */
+    public function bodegaEntrega(): BelongsTo
+    {
+        return $this->belongsTo(Bodega::class, 'bodega_entrega_id');
     }
 
     public function responsable(): BelongsTo
