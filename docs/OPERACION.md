@@ -390,3 +390,30 @@ Pendientes concretos al 15 ago 2026:
 - Decidir si las unidades armadas deben sumarse solas al aprobar calidad.
 - **La pregunta de negocio sin resolver, y es la más importante: a quién se le vende.** El
   sistema está hecho a la medida de fabricar por pedido con medidas variables.
+
+## Correr las pruebas
+
+La suite usa una base aparte, `briela_test`, declarada en `phpunit.xml`. **Nunca toca `briela`.**
+Si no existe, las 51 pruebas de Feature fallan todas con «no se puede establecer una conexión» y
+solo corren las 16 unitarias.
+
+Se crea una vez, con Laragon arriba:
+
+```bash
+mysql -u root -e "CREATE DATABASE IF NOT EXISTS briela_test"
+```
+
+Y desde ahí:
+
+```bash
+php artisan test
+```
+
+Al 22 ago 2026: **67 pruebas, 214 comprobaciones, todas en verde.**
+
+Para correr solo las que no tocan la base, que son instantáneas:
+
+```bash
+php artisan test --testsuite=Unit
+```
+

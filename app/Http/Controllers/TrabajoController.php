@@ -228,6 +228,10 @@ class TrabajoController extends Controller
                 'op_numero'         => $trabajo->opItem?->op?->numero,
                 'op_id'             => $trabajo->opItem?->op?->id,
                 'op_estado'         => $trabajo->opItem?->op?->estado,
+                // La bodega la declara la OP. Viaja para que la pantalla la muestre en vez de
+                // pedirla: al operario solo se le pregunta en las órdenes viejas, nacidas
+                // antes de que el campo existiera.
+                'op_bodega_entrega' => $trabajo->opItem?->op?->bodegaEntrega?->nombre,
                 'op_fecha'          => $trabajo->opItem?->op?->fecha_creacion?->format('d/m/Y'),
                 'cliente_nombre'    => $trabajo->opItem?->op?->cliente?->nombre,
                 'item_descripcion'  => $trabajo->opItem?->descripcion,

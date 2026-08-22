@@ -206,6 +206,15 @@ Ya no se pregunta si un ensamble «se guarda en bodega»: **todo lo que produce 
 bodega**, y su ficha de inventario —con stock, movimientos y aviso de stock bajo— nace sola la
 primera vez que se entrega una unidad.
 
+### La plantilla ya no la predefine
+
+Hasta el 22 ago 2026 el paso final de una plantilla llevaba un campo «Entrega en», y la
+pantalla del operario lo dejaba cambiar al cerrar el paso. Los dos desaparecieron: la bodega la
+declara la OP y punto.
+
+En la pantalla del operario, donde antes había un selector, ahora dice a qué bodega va y quién
+lo decidió. El selector solo reaparece en las órdenes viejas, que no tienen el campo.
+
 ### Las órdenes viejas
 
 Las OPs creadas antes de que el campo existiera no tienen bodega declarada, y ponerles una a la

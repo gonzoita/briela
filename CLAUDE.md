@@ -281,6 +281,11 @@ tocar los seeders.
 - `Auditable` (trait) — auto-registra create/update/delete.
 - `SmtpConfigService::aplicar()` — carga el SMTP desde `Configuracion`.
 
+> **Las pruebas corren contra `briela_test`**, declarada en `phpunit.xml`; nunca contra
+> `briela`. Si esa base no existe, las 51 de Feature fallan todas por conexión y solo pasan las
+> 16 unitarias — parece un código roto y es una base que falta. Se crea una vez:
+> `mysql -u root -e "CREATE DATABASE IF NOT EXISTS briela_test"`. Al 22 ago 2026: 67 en verde.
+
 **Tareas programadas** (`routes/console.php`, requieren cron):
 `cotizaciones:marcar-vencidas` · `notificaciones:entregas-proximas` ·
 `notificaciones:cursos-por-vencer` · `notificaciones:recordatorios` ·
@@ -436,8 +441,8 @@ decían lo contrario y estaban equivocadas.
   relaciones entre archivos antes de leer código a mano.
 - Conviene regenerarlo después de cambios que muevan estructura (borrar módulos,
   mover carpetas), porque un grafo desactualizado es peor que no tenerlo.
-- **Generado y al día.** Al 22 ago 2026: 6.657 nodos, 11.310 aristas, 650 comunidades,
-  anclado al commit `12d7d624`. Se reconstruye entero con la extracción AST
+- **Generado y al día.** Al 22 ago 2026: 6.658 nodos, 11.311 aristas, 627 comunidades,
+  anclado al commit `0ae65801`. Se reconstruye entero con la extracción AST
   (gratis, sin LLM) y `parallel=False`.
 - La parte semántica —documentos e imágenes— **no se reextrae en cada reconstrucción**: exige
   subagentes y se paga en tokens. Lo que hay en caché se reaprovecha; el resto queda fuera, y
