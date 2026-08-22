@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { router } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
 import OrdenarLista from '@/Components/OrdenarLista.vue'
@@ -10,6 +10,8 @@ const props = defineProps({
     filters:     Object,
     proveedores: Array,
     bodegas:     Array,
+    // Qué bodega se está mirando. 0 = todas las de la sede, que es como abre la pantalla.
+    bodega_id:   { type: Number, default: 0 },
     // El orden vigente, que decide el servidor: { campo, dir }.
     orden: { type: Object, default: () => ({}) },
 })
@@ -46,13 +48,23 @@ const form = ref({
     stock_minimo: 0, stock_maximo: '', proveedor_id: '', activo: true,
 })
 
+// Desde qué bodega se mira. Viaja en la URL y no en memoria: el enlace se puede compartir con
+// quien está en esa bodega, el botón de atrás funciona y recargar no pierde lo elegido.
+const bodegaVista = ref(props.bodega_id || '')
+
 function aplicarFiltros() {
     router.get('/inventario', {
         buscar:     buscar.value || undefined,
         tipo:       tipo.value   || undefined,
         bajo_stock: bajo_stock.value ? 'true' : undefined,
+        bodega_id:  bodegaVista.value || undefined,
     }, { preserveState: true, replace: true })
 }
+
+/** El nombre de la bodega mirada, o vacío cuando se ven todas. */
+const nombreBodega = computed(() =>
+    props.bodegas?.find(b => b.id === props.bodega_id)?.nombre ?? ''
+)
 
 function abrirCrear() {
     editandoItem.value = null
@@ -181,6 +193,14 @@ function fmt(n) {
                         <option value="consumible">Consumible</option>
                         <option value="herramienta">Herramienta</option>
                     </select>
+                    <!-- Desde qué bodega. Al elegir una, la lista pasa a ser el contenido de esa
+                         bodega: lo que tiene cero ahí no está ahí. -->
+                    <select v-model="bodegaVista" class="rounded-lg border border-tinta-200 px-3 py-2 text-sm" @change="aplicarFiltros">
+                        <option value="">Todas las bodegas</option>
+                        <option v-for="b in bodegas" :key="b.id" :value="b.id">
+                            {{ b.nombre }}{{ b.es_principal ? ' · principal' : '' }}
+                        </option>
+                    </select>
                     <label class="flex items-center gap-2 text-sm text-tinta-700 whitespace-nowrap cursor-pointer">
                         <input v-model="bajo_stock" type="checkbox" class="rounded" @change="aplicarFiltros" />
                         Solo bajo stock
@@ -196,7 +216,9 @@ function fmt(n) {
                         <tr>
                             <th class="text-left px-4 py-3 font-semibold text-tinta-500">Referencia</th>
                             <th class="text-left px-4 py-3 font-semibold text-tinta-500">Material / Insumo</th>
-                            <th class="text-right px-4 py-3 font-semibold text-tinta-500">Stock total</th>
+                            <th class="text-right px-4 py-3 font-semibold text-tinta-500">
+                                {{ nombreBodega ? `En ${nombreBodega}` : 'Stock total' }}
+                            </th>
                             <th class="text-right px-4 py-3 font-semibold text-tinta-500">Mínimo</th>
                             <th class="text-right px-4 py-3 font-semibold text-tinta-500">Precio Prom.</th>
                             <th class="text-center px-4 py-3 font-semibold text-tinta-500">Estado</th>

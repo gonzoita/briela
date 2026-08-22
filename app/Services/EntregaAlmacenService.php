@@ -56,7 +56,7 @@ class EntregaAlmacenService
             return null;
         }
 
-        return DB::transaction(function () use ($trabajo, $item, $ensamble, $bodega) {
+        $entregada = DB::transaction(function () use ($trabajo, $item, $ensamble, $bodega) {
             // Se relee con candado: dos operarios cerrando el último paso a la vez llegarían
             // los dos hasta aquí, y el `entregado_at` que ya se revisó arriba estaría viejo.
             $fresco = OpItemTrabajo::whereKey($trabajo->getKey())->lockForUpdate()->first();
@@ -65,7 +65,7 @@ class EntregaAlmacenService
                 return null;
             }
 
-            $this->descontarMateriales($item, $bodega, $trabajo);
+            $this->descontarMateriales($item, $this->bodegaDelMaterial($trabajo, $bodega), $trabajo);
 
             $terminado = $ensamble->sincronizarProductoTerminado()
                 ?? $this->forzarProductoTerminado($ensamble);
@@ -88,6 +88,15 @@ class EntregaAlmacenService
 
             return $bodega;
         });
+
+        // Fuera de la transacción a propósito: un aviso no debe poder tumbar una entrega que
+        // ya está bien registrada, y una notificación creada dentro de una transacción que
+        // luego se revierte avisa de algo que no pasó.
+        if ($entregada) {
+            $this->avisarFaltantes($trabajo, $this->bodegaDelMaterial($trabajo, $entregada));
+        }
+
+        return $entregada;
     }
 
     /**
@@ -132,6 +141,26 @@ class EntregaAlmacenService
     }
 
     /**
+     * De qué bodega sale el material, que **no es la misma** a la que entra lo fabricado.
+     *
+     * Una bodega de producto terminado no guarda insumos. Mientras las dos fueron la misma, el
+     * descuento se hacía contra una bodega en cero, `registrarMovimiento()` lo recortaba con
+     * `max(0, …)` y el material seguía figurando entero donde de verdad estaba: un descuento
+     * que no descontaba nada, sin error y sin stock en rojo.
+     *
+     * La declara la OP, y es obligatoria para confirmarla. El respaldo a la bodega de entrega
+     * es para las órdenes nacidas antes del campo: para ellas se conserva el comportamiento
+     * que tenían, que es lo único honesto — cambiarles el sitio de descuento a mitad de
+     * fabricación movería inventario que ya se contó de otra manera.
+     */
+    private function bodegaDelMaterial(OpItemTrabajo $trabajo, Bodega $entrega): Bodega
+    {
+        $id = $trabajo->opItem?->op?->bodega_material_id;
+
+        return ($id ? Bodega::find($id) : null) ?? $entrega;
+    }
+
+    /**
      * Descuenta los materiales que se gastaron en esta unidad.
      *
      * Se descuenta **una unidad de la receta**, no el ítem completo: cada trabajo es una unidad
@@ -158,16 +187,72 @@ class EntregaAlmacenService
                 continue;
             }
 
-            $material->registrarMovimiento(
-                tipo: 'consumo_ensamble',
-                cantidad: $cantidad,
-                bodegaId: $bodega->id,
-                usuarioId: auth()->id(),
-                origenTipo: 'op',
-                origenId: $item->op_id,
-                notas: "Consumo al fabricar · OP #{$item->op_id} · unidad {$trabajo->numero_unidad}",
-            );
+            // Lo que de verdad hay ahí. `registrarMovimiento()` corta en `max(0, …)`, así que
+            // pedirle más de lo que existe no falla ni deja negativo: descuenta hasta cero y
+            // se calla. Ese silencio es el problema, no el recorte — la unidad ya está armada
+            // y el material se gastó de verdad. Se mide antes para poder decirlo.
+            $hay      = (float) $material->stockEnBodega($bodega->id);
+            $descontar = min($cantidad, $hay);
+
+            if ($descontar > 0) {
+                $material->registrarMovimiento(
+                    tipo: 'consumo_ensamble',
+                    cantidad: $descontar,
+                    bodegaId: $bodega->id,
+                    usuarioId: auth()->id(),
+                    origenTipo: 'op',
+                    origenId: $item->op_id,
+                    notas: "Consumo al fabricar · OP #{$item->op_id} · unidad {$trabajo->numero_unidad}",
+                );
+            }
+
+            if ($cantidad - $descontar > 0.0001) {
+                $this->sinDescontar[] = [
+                    'nombre'   => $comp['nombre'] ?? $material->nombre,
+                    'unidad'   => $comp['unidad'] ?? $material->unidad_medida,
+                    'pedia'    => $cantidad,
+                    'habia'    => $hay,
+                    'falto'    => round($cantidad - $descontar, 4),
+                ];
+            }
         }
+    }
+
+    /** @var array<int, array<string, mixed>> Lo que no alcanzó a descontarse en esta entrega. */
+    private array $sinDescontar = [];
+
+    /**
+     * Avisa lo que quedó sin descontar.
+     *
+     * No bloquea nada: la unidad ya está armada y el trabajo del operario ya está hecho.
+     * Negarse a registrarlo no devuelve el material, solo esconde dos problemas en vez de uno.
+     * Lo que corresponde es dejar el inventario lo más cerca posible de la realidad y **decir
+     * en qué quedó corto**, para que alguien lo cuadre.
+     *
+     * Va a administración y jefe de producción, que es quien puede hacer algo: el operario no
+     * arregla un inventario descuadrado desde la pantalla del código QR.
+     */
+    private function avisarFaltantes(OpItemTrabajo $trabajo, Bodega $bodega): void
+    {
+        if ($this->sinDescontar === []) {
+            return;
+        }
+
+        $op      = $trabajo->opItem?->op;
+        $lineas  = collect($this->sinDescontar)
+            ->map(fn ($f) => "{$f['nombre']}: faltaron {$f['falto']} {$f['unidad']} (pedía {$f['pedia']}, había {$f['habia']})")
+            ->implode(' · ');
+
+        app(\App\Services\NotificacionService::class)->paraRol(
+            ['administrador', 'jefe_produccion'],
+            'material_faltante',
+            'Inventario descuadrado en ' . ($op?->numero ?? 'una OP'),
+            'Se fabricó una unidad pero ' . count($this->sinDescontar)
+                . ' insumo(s) no alcanzaron en ' . $bodega->nombre . '. ' . $lineas,
+            $op ? "/produccion/ops/{$op->id}" : null,
+        );
+
+        $this->sinDescontar = [];
     }
 
     /**

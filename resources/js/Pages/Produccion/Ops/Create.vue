@@ -24,6 +24,9 @@ const form = reactive({
     // A qué bodega entra lo que fabrique esta orden. Se exige al confirmar, no al guardar el
     // borrador: mientras se arma la orden todavía no hay nada que guardar en ninguna parte.
     bodega_entrega_id:      props.op?.bodega_entrega_id       ?? '',
+    // Y de cuál sale el material. Son dos bodegas distintas a propósito: una de producto
+    // terminado no guarda insumos, y confundirlas descuenta contra una bodega vacía.
+    bodega_material_id:     props.op?.bodega_material_id      ?? '',
     estado:                 props.op?.estado                  ?? 'borrador',
     fecha_creacion:         props.op?.fecha_creacion          ?? hoy,
     fecha_entrega_estimada: props.op?.fecha_entrega_estimada  ?? '',
@@ -507,6 +510,27 @@ function submit() {
                             <option v-for="r in responsables" :key="r.id" :value="r.id">{{ r.name }}</option>
                         </select>
                         <p v-if="errores.responsable_id" class="mt-1 text-xs text-aviso-rojo">{{ errores.responsable_id }}</p>
+                    </div>
+
+                    <!-- Bodega del material.
+                         De aquí salen los insumos que se gastan al fabricar. Va antes que la de
+                         entrega porque es el orden del proceso: primero se saca material, después
+                         se guarda lo armado. -->
+                    <div>
+                        <label class="block text-xs font-medium text-tinta-400 mb-1">
+                            Bodega del material <span class="text-aviso-rojo">*</span>
+                        </label>
+                        <select v-model="form.bodega_material_id"
+                            class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[var(--marca)]">
+                            <option value="">Seleccionar...</option>
+                            <option v-for="b in bodegas" :key="b.id" :value="b.id">
+                                {{ b.nombre }}{{ b.es_principal ? ' · principal' : '' }}
+                            </option>
+                        </select>
+                        <p class="mt-1 text-xs text-tinta-300">
+                            De aquí se descuentan los insumos de cada unidad al cerrarse su último paso.
+                        </p>
+                        <p v-if="errores.bodega_material_id" class="mt-1 text-xs text-aviso-rojo">{{ errores.bodega_material_id }}</p>
                     </div>
 
                     <!-- Bodega de entrega.

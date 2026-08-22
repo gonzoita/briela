@@ -160,6 +160,28 @@ orden). Si no coincide, no muestra nada. Así nadie puede espiar pedidos
 ajenos probando números. El link por QR (`/op/{token}`) no pide esto porque
 el token ya es imposible de adivinar.
 
+## Las dos bodegas de una OP
+
+Cada OP declara **dos** bodegas, y responden preguntas contrarias:
+
+| Campo | Qué dice |
+|---|---|
+| **Bodega del material** | De dónde salen los insumos que se gastan al fabricar |
+| **Bodega de entrega** | A dónde entra lo fabricado, como producto terminado |
+
+Las dos son obligatorias para **confirmar** la orden. Pueden ser la misma —quien fabrica y
+guarda en un solo sitio elige la misma dos veces— pero el sistema no lo asume.
+
+### Por qué son dos y no una
+
+Hasta el 22 ago 2026 eran la misma, y eso producía un **descuento fantasma**. Si la OP entregaba
+en una bodega de producto terminado —que por definición no guarda insumos— el descuento se hacía
+contra una bodega con cero. Como el inventario no admite negativos, el descuento se recortaba a
+cero y el material seguía figurando entero en la bodega donde de verdad estaba.
+
+Sin error, sin stock en rojo, sin nada raro en pantalla: simplemente no pasaba. El almacén decía
+tener 250 láminas que ya se habían usado.
+
 ## La bodega de entrega
 
 Cada OP declara **a qué bodega entra lo que fabrica**. El campo está en la orden, junto al
@@ -190,4 +212,21 @@ Las OPs creadas antes de que el campo existiera no tienen bodega declarada, y po
 fuerza sería inventar dónde quedó algo que ya se fabricó. Para ellas sigue valiendo el orden de
 respaldo de siempre: la bodega del paso final y, si tampoco la hay, la principal. Al operario
 solo se le pregunta en ese caso.
+
+## Cuando no alcanza el material
+
+Al cerrarse el último paso, si en la bodega del material no hay lo suficiente, **el trabajo se
+registra igual**: la unidad ya está físicamente armada y negarlo no devuelve el material. Se
+descuenta hasta donde alcance y sale un aviso a administración y jefatura de producción con el
+detalle exacto:
+
+> Se fabricó una unidad pero 1 insumo(s) no alcanzaron en Bodega 1.
+> Lamina: faltaron 5 m2 (pedía 5, había 0)
+
+Antes pasaba lo mismo pero **en silencio**, y ese silencio era el problema: nadie se enteraba de
+que el inventario había quedado descuadrado.
+
+No se bloquea al operario a propósito. Él no puede arreglar un inventario descuadrado desde la
+pantalla del código QR, y frenarle el cierre esconde dos problemas en vez de uno: el material
+que falta y el trabajo que no queda registrado.
 

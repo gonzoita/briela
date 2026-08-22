@@ -347,6 +347,15 @@ Lo construido después de la fase 3, que conviene conocer antes de tocar algo ce
 - **Ensamble directo** (`ensambles.tipo_armado`): receta escrita a mano, sin plantilla ni
   fórmulas. Guarda sus componentes con la MISMA forma que los calculados, y por eso la OP, el
   inventario y los PDF no los distinguen.
+- **Una OP declara DOS bodegas, y confundirlas descuenta contra el vacío.**
+  `ops.bodega_material_id` es de dónde salen los insumos; `ops.bodega_entrega_id`, a dónde entra
+  lo fabricado. Las dos exigidas al **confirmar** y no antes. Mientras fueron una sola, una OP
+  que entregaba en bodega de producto terminado descontaba contra una bodega en cero,
+  `registrarMovimiento()` lo recortaba con `max(0, …)` y el material seguía figurando entero
+  donde estaba: un descuento que no descontaba nada, sin error y sin stock en rojo.
+  Si el material no alcanza, se descuenta lo que hay y **se avisa** (`material_faltante` a
+  administración y jefatura); no se bloquea al operario, que no puede arreglar un inventario
+  desde la pantalla del QR.
 - **Producción entra a bodega, y la bodega la decide la OP.** `ops.bodega_entrega_id`, exigido
   al **confirmar** la orden y no antes. Al cerrar el último paso, `EntregaAlmacenService`
   descuenta los materiales de esa unidad y registra su entrada como **producto terminado**
@@ -427,8 +436,8 @@ decían lo contrario y estaban equivocadas.
   relaciones entre archivos antes de leer código a mano.
 - Conviene regenerarlo después de cambios que muevan estructura (borrar módulos,
   mover carpetas), porque un grafo desactualizado es peor que no tenerlo.
-- **Generado y al día.** Al 22 ago 2026: 6.649 nodos, 11.295 aristas, 648 comunidades,
-  anclado al commit `92643315`. Se reconstruye entero con la extracción AST
+- **Generado y al día.** Al 22 ago 2026: 6.657 nodos, 11.310 aristas, 650 comunidades,
+  anclado al commit `422f73ad`. Se reconstruye entero con la extracción AST
   (gratis, sin LLM) y `parallel=False`.
 - La parte semántica —documentos e imágenes— **no se reextrae en cada reconstrucción**: exige
   subagentes y se paga en tokens. Lo que hay en caché se reaprovecha; el resto queda fuera, y

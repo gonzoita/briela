@@ -293,3 +293,21 @@ resto de la ficha no depende de la bodega—.
 Un id de bodega que no exista, o que sea de otra sede, se ignora en silencio y vuelve a mostrar
 todas: el número que llega del navegador nunca entra tal cual a la consulta.
 
+## Ver el inventario de una bodega
+
+En **Inventario** hay un selector **«Todas las bodegas»**. Al elegir una, la lista pasa a ser el
+contenido de esa bodega:
+
+- La columna de stock deja de decir «Stock total» y pasa a decir **«En ‹nombre›»**, con la
+  cantidad que hay ahí.
+- **Lo que tiene cero en esa bodega desaparece de la lista.** Al elegir «Bodega 3» ves lo que hay
+  en la Bodega 3, que es la pregunta que uno hace cuando va a esa bodega.
+
+El filtro se aplica en la consulta, no sobre la página ya traída: la paginación cuenta lo que de
+verdad se va a mostrar. Y viaja en la URL (`?bodega_id=…`), así que el enlace se puede compartir
+con quien está en esa bodega.
+
+El **aviso de stock bajo no cambia**: sigue midiéndose contra el total de la sede. El mínimo de
+un producto es cuánto necesitas tener en total, y si está repartido entre dos bodegas igual lo
+tienes.
+

@@ -17,13 +17,28 @@ class InventarioController extends Controller
 {
     public function index(Request $request): Response
     {
+        // Desde qué bodega se mira el inventario. El id llega del navegador, así que **jamás**
+        // entra tal cual a la consulta: solo se acepta si está entre las visibles de la sede.
+        // Sin ese filtro, cambiar un número en la URL dejaría ver el inventario de otra sede.
+        $bodegas  = ContextoSede::bodegasParaElegir();
+        $visibles = $bodegas->pluck('id')->all();
+        $elegida  = (int) $request->query('bodega_id', 0);
+        $mirando  = in_array($elegida, $visibles, true) ? $elegida : 0;
+
         $query = Producto::insumos()
             ->with(['proveedor:id,nombre', 'stocks.bodega'])
             ->when($request->filled('buscar'), fn ($q) => $q->where(function ($q) use ($request) {
                 $q->where('nombre', 'like', "%{$request->buscar}%")
                   ->orWhere('referencia', 'like', "%{$request->buscar}%");
             }))
-            ->when($request->filled('tipo'), fn ($q) => $q->where('tipo', $request->tipo));
+            ->when($request->filled('tipo'), fn ($q) => $q->where('tipo', $request->tipo))
+            // Mirando una bodega, la lista **es** el contenido de esa bodega: lo que tiene cero
+            // ahí no está ahí. El filtro va en la consulta y no sobre la página ya traída, o la
+            // paginación contaría filas que después desaparecen.
+            ->when($mirando, fn ($q) => $q->whereHas(
+                'stocks',
+                fn ($s) => $s->where('bodega_id', $mirando)->where('cantidad', '>', 0)
+            ));
 
         // El orden lo pide la pantalla. El campo se valida contra esta lista: lo que
         // llegue por `?orden=` y no esté aquí se ignora y nunca toca el SQL.
@@ -37,9 +52,9 @@ class InventarioController extends Controller
 
         $query = $query->paginate(25)->withQueryString();
 
-        // Solo se cuenta el stock de las bodegas visibles en la sede activa:
-        // el inventario de otra sede no es el de esta.
-        $bodegasVisibles = ContextoSede::idsBodegasVisibles();
+        // Solo se cuenta el stock de las bodegas visibles en la sede activa: el inventario de
+        // otra sede no es el de esta. Y si hay una bodega elegida, solo la de ella.
+        $bodegasVisibles = $mirando ? [$mirando] : $visibles;
 
         $query->through(function ($p) use ($bodegasVisibles) {
             $stocks = $p->stocks->whereIn('bodega_id', $bodegasVisibles);
@@ -69,7 +84,9 @@ class InventarioController extends Controller
             'orden'       => $orden,
             'filters'     => $request->only(['buscar', 'tipo', 'bajo_stock']),
             'proveedores' => Proveedor::where('activo', true)->select('id', 'nombre')->orderBy('nombre')->get(),
-            'bodegas'     => ContextoSede::bodegasVisibles(),
+            'bodegas'     => $bodegas->values(),
+            // Cuál se está mirando. Cero significa «todas», que es como abre la pantalla.
+            'bodega_id'   => $mirando,
         ]);
     }
 

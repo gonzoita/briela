@@ -185,6 +185,7 @@ class OpController extends Controller
             'cotizacion_id'           => $data['cotizacion_id'] ?? null,
             'responsable_id'          => $data['responsable_id'],
             'bodega_entrega_id'       => $data['bodega_entrega_id'] ?? null,
+            'bodega_material_id'      => $data['bodega_material_id'] ?? null,
             'estado'                  => $data['estado'] ?? 'borrador',
             'fecha_creacion'          => $data['fecha_creacion'],
             'fecha_entrega_estimada'  => $data['fecha_entrega_estimada'] ?? null,
@@ -369,6 +370,7 @@ class OpController extends Controller
             'cliente_id'             => $data['cliente_id'] ?? null,
             'responsable_id'         => $data['responsable_id'],
             'bodega_entrega_id'      => $data['bodega_entrega_id'] ?? $op->bodega_entrega_id,
+            'bodega_material_id'     => $data['bodega_material_id'] ?? $op->bodega_material_id,
             'estado'                 => $data['estado'] ?? $op->estado,
             'fecha_creacion'         => $data['fecha_creacion'],
             'fecha_entrega_estimada' => $data['fecha_entrega_estimada'] ?? null,
@@ -413,15 +415,26 @@ class OpController extends Controller
         // Se exige aquí y no antes: en borrador todavía se está armando la orden y obligar a
         // elegir bodega para guardar un borrador estorba. Las OPs viejas, que nacieron sin el
         // campo, no se bloquean si ya pasaron de borrador.
-        if ($nuevoEstado === 'confirmada' && ! $op->bodega_entrega_id) {
-            $mensaje = 'Antes de confirmar, elige a qué bodega entra lo que fabrique esta orden. '
-                . 'Se edita en la orden, junto al responsable.';
+        if ($nuevoEstado === 'confirmada') {
+            $faltan = [];
 
-            if ($request->wantsJson()) {
-                return response()->json(['error' => $mensaje], 422);
+            if (! $op->bodega_material_id) {
+                $faltan['bodega_material_id'] = 'Elige de qué bodega sale el material que consume esta orden.';
             }
 
-            return back()->withErrors(['bodega_entrega_id' => $mensaje]);
+            if (! $op->bodega_entrega_id) {
+                $faltan['bodega_entrega_id'] = 'Elige a qué bodega entra lo que fabrique esta orden.';
+            }
+
+            if ($faltan) {
+                $mensaje = implode(' ', $faltan) . ' Se editan en la orden, junto al responsable.';
+
+                if ($request->wantsJson()) {
+                    return response()->json(['error' => $mensaje], 422);
+                }
+
+                return back()->withErrors($faltan);
+            }
         }
 
         $op->update(['estado' => $nuevoEstado]);
@@ -1005,6 +1018,7 @@ class OpController extends Controller
             'cotizacion_id'          => 'nullable|exists:cotizaciones,id',
             'responsable_id'         => 'required|exists:users,id',
             'bodega_entrega_id'      => 'nullable|exists:bodegas,id',
+            'bodega_material_id'     => 'nullable|exists:bodegas,id',
             'estado'                 => 'nullable|in:borrador,confirmada,en_produccion,calidad,reproceso,despachada',
             'fecha_creacion'         => 'required|date',
             'fecha_entrega_estimada' => 'nullable|date',

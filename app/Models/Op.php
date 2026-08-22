@@ -25,6 +25,7 @@ class Op extends Model
         'cotizacion_id',
         'responsable_id',
         'bodega_entrega_id',
+        'bodega_material_id',
         'estado',
         'fecha_creacion',
         'fecha_entrega_estimada',
@@ -98,6 +99,17 @@ class Op extends Model
     public function bodegaEntrega(): BelongsTo
     {
         return $this->belongsTo(Bodega::class, 'bodega_entrega_id');
+    }
+
+    /**
+     * De qué bodega sale el material que consume esta OP.
+     *
+     * Es la pareja de `bodegaEntrega()`: una dice a dónde entra lo fabricado, esta de dónde
+     * salen los insumos. Confundirlas produce un descuento que no descuenta nada.
+     */
+    public function bodegaMaterial(): BelongsTo
+    {
+        return $this->belongsTo(Bodega::class, 'bodega_material_id');
     }
 
     public function responsable(): BelongsTo
