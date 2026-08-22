@@ -244,6 +244,16 @@ php artisan comisiones:recalcular
 Las comisiones se miden contra el precio: moverlo sin repartir de nuevo deja a los vendedores
 con porcentajes que ya no cuadran.
 
-Ninguno de los dos inventa precios. Solo tocan ítems que ya tienen costo y margen guardados;
-un precio escrito a mano sobre un ítem sin margen se queda como está.
+Ninguno de los dos inventa precios. Solo tocan ítems que ya tienen costo y margen guardados.
+
+### Un precio escrito a mano no se toca
+
+Si el precio guardado no se puede reproducir con el costo y el margen que tiene al lado, es
+porque alguien lo decidió a mano, y repreciarlo sería borrar esa decisión. El comando lo deja
+quieto y lo lista aparte al terminar, para que sepas cuáles son.
+
+Pasó de verdad: dos servicios estaban en 362.000 y 60.000 cuando la cuenta daba 389.000 y
+67.000 —el segundo se vende al costo a propósito—, y el recálculo los habría subido sin avisar.
+
+Si de todas formas quieres repreciarlos: `--incluir-manuales`.
 

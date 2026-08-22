@@ -27,7 +27,8 @@ use Illuminate\Database\Eloquent\Model;
 class RecalcularPrecios extends Command
 {
     protected $signature = 'precios:recalcular
-                            {--simular : Muestra lo que cambiaría sin escribir nada}';
+                            {--simular : Muestra lo que cambiaría sin escribir nada}
+                            {--incluir-manuales : Reprecia también lo que alguien escribió a mano}';
 
     protected $description = 'Recalcula los precios por canal de productos y ensambles desde su costo y su margen';
 
@@ -52,11 +53,14 @@ class RecalcularPrecios extends Command
 
         if ($cambios === []) {
             $this->info('Todo el catálogo ya está calculado con la regla vigente. Nada que cambiar.');
+            $this->avisarManuales();
 
             return self::SUCCESS;
         }
 
         $this->table(['Ítem', 'Canal', 'Costo', 'Margen', 'Antes', 'Ahora'], array_slice($cambios, 0, 40));
+
+        $this->avisarManuales();
 
         if (count($cambios) > 40) {
             $this->line('… y ' . (count($cambios) - 40) . ' filas más.');
@@ -118,6 +122,18 @@ class RecalcularPrecios extends Command
                 continue;
             }
 
+            if (! $this->option('incluir-manuales') && $this->escritoAMano($costo, $fila)) {
+                $this->aMano[] = [
+                    mb_strimwidth((string) ($item->nombre ?? $item->getKey()), 0, 30, '…'),
+                    $orden->get($fila['segmentacion_opcion_id'], '?'),
+                    $this->pesos($costo),
+                    rtrim(rtrim(number_format($fila['margen_pct'], 2, ',', '.'), '0'), ',') . ' %',
+                    $this->pesos($fila['precio']),
+                ];
+
+                continue;
+            }
+
             $nuevo = $precios->precioDesdeCosto($costo, $fila['margen_pct']);
 
             if ($nuevo <= 0 || abs($nuevo - $fila['precio']) < 0.01) {
@@ -141,6 +157,57 @@ class RecalcularPrecios extends Command
         }
 
         return $cambio;
+    }
+
+    /** Los precios que se dejaron quietos, para que quien corre el comando sepa cuáles son. */
+    private function avisarManuales(): void
+    {
+        if ($this->aMano === []) {
+            return;
+        }
+
+        $this->newLine();
+        $this->warn('Estos precios no se tocaron porque no salen de su costo y su margen: alguien los escribió a mano.');
+        $this->table(['Ítem', 'Canal', 'Costo', 'Margen', 'Precio a mano'], $this->aMano);
+        $this->line('Si quieres repreciarlos igual: <fg=yellow>--incluir-manuales</>.');
+    }
+
+    /** @var array<int, array<int, string>> Lo que alguien escribió a mano y no se toca. */
+    private array $aMano = [];
+
+    /**
+     * ¿Este precio lo escribió una persona, o lo calculó el sistema?
+     *
+     * Si no se puede reproducir con el costo y el margen que tiene guardados, alguien lo
+     * decidió a mano y **repreciarlo sería borrar esa decisión**. Pasó de verdad: dos
+     * servicios estaban en 362.000 y 60.000 cuando la cuenta daba 389.000 y 67.000 —el
+     * segundo se vende al costo a propósito—, y el recálculo los habría subido sin avisar.
+     *
+     * Se prueban las dos convenciones a propósito, y esto es del **período de transición**:
+     * hasta el 21 ago 2026 el margen era un porcentaje del precio de venta, así que todo lo
+     * guardado antes de esa fecha responde a `costo / (1 - m)` y no a `costo × (1 + m)`. Sin
+     * la segunda prueba, el día del cambio de convención **todo** el catálogo parecería
+     * escrito a mano y el comando no tocaría nada.
+     *
+     * Cuando ya no queden precios de antes de esa fecha —después de correr esto una vez en
+     * cada instalación— la segunda comparación se puede borrar.
+     */
+    private function escritoAMano(float $costo, array $fila): bool
+    {
+        $margen   = (float) $fila['margen_pct'];
+        $guardado = (float) $fila['precio'];
+
+        // Un precio en cero no es una decisión: es un dato que falta.
+        if ($guardado <= 0) {
+            return false;
+        }
+
+        $recargo = ceil(round($costo * (1 + $margen / 100), 2) / 1000) * 1000;
+        $sobreVenta = $margen < 100
+            ? ceil(round($costo / (1 - $margen / 100), 2) / 1000) * 1000
+            : 0;
+
+        return abs($recargo - $guardado) >= 0.01 && abs($sobreVenta - $guardado) >= 0.01;
     }
 
     private function pesos(float $v): string
