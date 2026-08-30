@@ -323,6 +323,41 @@ class FlujoTrabajoTest extends TestCase
         $this->assertSame(1, OpItemTrabajo::disponiblesParaRemision()->count());
     }
 
+    public function test_una_remision_parcial_no_despacha_la_orden(): void
+    {
+        $e = $this->escenario(cantidad: 2);
+
+        $this->actingAs($this->admin());
+        $svc = app(CierrePasoService::class);
+
+        foreach ($e['item']->trabajos()->orderBy('numero_unidad')->get() as $trabajo) {
+            $svc->cerrar($trabajo->pasos()->where('es_paso_final', false)->firstOrFail());
+            $svc->cerrar($trabajo->pasos()->where('es_paso_final', true)->firstOrFail());
+        }
+
+        $e['op']->update(['calidad_aprobada_at' => now()]);
+
+        // Se despacha UNA de las dos.
+        $this->actingAs($this->admin())
+            ->post('/logistica/remisiones', [
+                'tipo'  => 'op',
+                'op_id' => $e['op']->id,
+                'items' => [[
+                    'descripcion'       => $e['item']->descripcion,
+                    'cantidad'          => 1,
+                    'cantidad_unidades' => 1,
+                    'op_item_id'        => $e['item']->id,
+                ]],
+            ])
+            ->assertSessionHasNoErrors();
+
+        // La orden NO queda despachada, y el ítem no queda marcado como remisionado: si lo
+        // quedara, la unidad que falta desaparecería del remisionador y nadie podría sacarla.
+        $this->assertNotSame('despachada', $e['op']->fresh()->estado);
+        $this->assertFalse((bool) $e['item']->fresh()->remisionado);
+        $this->assertSame(1, $e['item']->fresh()->cantidadDisponible());
+    }
+
     public function test_se_puede_remisionar_la_unidad_aprobada_aunque_otra_siga_en_revision(): void
     {
         $e = $this->escenario(cantidad: 2);
