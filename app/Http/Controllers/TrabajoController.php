@@ -104,6 +104,25 @@ class TrabajoController extends Controller
                     ->values()
                     ->all(),
                 'template_nombre'       => $t->template?->nombre,
+                'fecha_entrega'         => $t->opItem?->op?->fecha_entrega_estimada?->format('d/m/Y'),
+                // La urgencia sale de la fecha de entrega, no de un campo que nadie llena.
+                'urgencia'              => \App\Support\Urgencia::de($t->opItem?->op?->fecha_entrega_estimada),
+                // Los pasos viajan enteros: el tablero los marca ahí mismo, sin abrir la hoja.
+                // Un paso que depende de otro sin terminar sale bloqueado, y eso se resuelve
+                // contra la colección ya cargada — preguntárselo a la base paso por paso serían
+                // ciento sesenta consultas para dibujar una página.
+                'pasos'                 => $t->pasos->map(fn ($p) => [
+                    'id'            => $p->id,
+                    'nombre'        => $p->nombre,
+                    'completado'    => (bool) $p->completado,
+                    'es_paso_final' => (bool) $p->es_paso_final,
+                    'orden'         => $p->orden,
+                    // Viaja la dependencia, no solo el resultado: al marcar un paso el tablero
+                    // recalcula qué se desbloqueó sin volver a preguntarle al servidor.
+                    'depende_de'    => $p->depende_de ?? [],
+                    'bloqueado'     => collect($p->depende_de ?? [])->isNotEmpty()
+                        && $t->pasos->whereIn('orden', $p->depende_de ?? [])->contains(fn ($d) => ! $d->completado),
+                ])->values(),
                 'pasos_total'           => $t->pasos->count(),
                 'pasos_completados'     => $t->pasos->where('completado', true)->count(),
                 'iniciado'              => $t->pasos->contains(fn ($p) => $p->completado || $p->iniciado_at),

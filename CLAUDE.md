@@ -386,6 +386,22 @@ Lo construido después de la fase 3, que conviene conocer antes de tocar algo ce
   ensamble medido se cotizara al 32,5 % en cuanto la empresa creaba sus propios canales.
   Cambiar un margen no reprecia lo guardado: eso lo hace `php artisan precios:recalcular`,
   y después **siempre** `comisiones:recalcular`.
+- **Trabajos y Calidad comparten la ficha**, `resources/js/Components/FichaProceso.vue`: una
+  tarjeta grande por unidad física con un botón por paso o por punto de revisión. Es el mismo
+  gesto —mirar la unidad, tocar el paso, seguir—, así que la pantalla es la misma; escribirla
+  dos veces habría hecho que se separaran al primer arreglo. Los botones marcados llevan color
+  saturado con texto blanco, que es lo único que se ve igual de día y de noche; el pendiente
+  lleva un tinte de su color con transparencia sobre la superficie. La urgencia sale de
+  `App\Support\Urgencia::de($fechaEntrega)`, no de un campo de prioridad que nadie llena.
+- **Calidad es un módulo con permiso propio** (`/calidad`, `ops.calidad`), separado de
+  `trabajos.ver`: quien revisa no siempre puede tocar la producción. Por eso los endpoints de
+  los puntos existen bajo **dos prefijos** —`/trabajos/checks/...` y `/calidad/checks/...`—
+  apuntando al mismo `CalidadCheckController`. `RevisionCalidad.vue` recibe cuál usar en su
+  propiedad `base`.
+- **Un punto de revisión con `exige_foto` no se marca sin foto**, y el servidor lo rechaza
+  igual que la pantalla: `ModalFoto.vue` la pide con la cámara o con un archivo, y las dos
+  entradas importan —en planta se toma con el celular, en la oficina se sube la que mandaron—.
+  El atajo «Terminar» de una unidad **no** cubre esos puntos: devuelve 422 con cuáles faltan.
 - **`costos.ver`** es un permiso aparte: el costo no se manda al navegador de quien no lo tiene.
 - **Una OP con trabajo hecho no cambia sus ítems** (`Op::itemsBloqueados()`), y el candado está
   en el servidor.

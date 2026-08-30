@@ -36,18 +36,23 @@ class TrabajoPasoController extends Controller
         // unidad en el estante, y es el unico que sabe en cual.
         $cerrandoFinal = ($data['completado'] ?? false) && $paso->es_paso_final && ! $paso->completado;
 
+        // La bodega la decide la OP y se exige al confirmarla, así que aquí no se vuelve a
+        // preguntar: `EntregaAlmacenService` la resuelve de la orden. Solo se reclama en las
+        // órdenes nacidas antes de ese campo, que son las únicas que pueden quedarse sin
+        // ninguna — y ahí sí quien cierra el paso es el único que sabe dónde dejó la unidad.
         if ($cerrandoFinal) {
             $bodega = $data['bodega_destino_id'] ?? $paso->bodega_destino_id;
 
-            if (! $bodega) {
+            if (! $bodega && ! $paso->trabajo?->opItem?->op?->bodega_entrega_id) {
                 return response()->json([
-            'entregada_en' => $entregadaEn ?? null,
                     'success' => false,
-                    'message' => 'Elige a que bodega entra la unidad: este es el paso que la entrega.',
+                    'message' => 'Elige a qué bodega entra la unidad: este es el paso que la entrega.',
                 ], 422);
             }
 
-            $data['bodega_destino_id'] = $bodega;
+            if ($bodega) {
+                $data['bodega_destino_id'] = $bodega;
+            }
         }
 
         // Fecha/hora de inicio y fin siempre las pone el servidor con now() —

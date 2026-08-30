@@ -126,8 +126,49 @@ defineProps({
         <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
         </template>
         <template v-if="nombre === 'wrench'">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+        <path stroke-linecap="round" stroke-linejoin="round" d="M14.7 6.3a4 4 0 105.05 5.05l-2.6-2.6-2.45-2.45z" />
+        <path stroke-linecap="round" stroke-linejoin="round" d="M15.5 11.5L5.8 21.2a2.1 2.1 0 01-3-3l9.7-9.7" />
+        </template>
+
+        <!-- Los que faltaban: `reportes`, `formulario` y `doc` se pedían desde el menú y no
+             existían aquí, así que salía un SVG vacío — un enlace sin icono al lado de otros
+             que sí lo tienen se lee como un error de carga. -->
+        <template v-if="nombre === 'reportes'">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M3 3v16a2 2 0 002 2h16" />
+        <path stroke-linecap="round" stroke-linejoin="round" d="M7 15l3.5-4 3 2.5L20 7" />
+        </template>
+        <template v-if="nombre === 'formulario'">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M5 4h14a1 1 0 011 1v14a1 1 0 01-1 1H5a1 1 0 01-1-1V5a1 1 0 011-1z" />
+        <path stroke-linecap="round" stroke-linejoin="round" d="M8 9h8M8 13h5M8 17h3" />
+        </template>
+        <template v-if="nombre === 'doc'">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M7 21h10a2 2 0 002-2V9.4a1 1 0 00-.3-.7l-5.4-5.4a1 1 0 00-.7-.3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+        <path stroke-linecap="round" stroke-linejoin="round" d="M13 3v5a1 1 0 001 1h5M9 13h6m-6 4h4" />
+        </template>
+
+        <!-- Los de las categorías. Antes casi todas llevaban `gear`, así que el menú plegado
+             era una columna de engranajes idénticos: no se podía volver a una categoría por su
+             icono, que es justo lo único que queda cuando el menú está en modo estrecho. -->
+        <template v-if="nombre === 'ventas'">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M3 13l4-4 4 3 7-7" />
+        <path stroke-linecap="round" stroke-linejoin="round" d="M14 5h5v5" />
+        <path stroke-linecap="round" stroke-linejoin="round" d="M3 21h18" />
+        </template>
+        <template v-if="nombre === 'bolsa'">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M6 8h12l-1 12a1 1 0 01-1 1H8a1 1 0 01-1-1L6 8z" />
+        <path stroke-linecap="round" stroke-linejoin="round" d="M9 8V6a3 3 0 116 0v2" />
+        </template>
+        <template v-if="nombre === 'fabrica'">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M3 20V11l5 3V11l5 3V11l5 3V6h3v14H3z" />
+        <path stroke-linecap="round" stroke-linejoin="round" d="M3 20h18" />
+        </template>
+        <template v-if="nombre === 'calidad'">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 3l7 3v5.5c0 4.2-2.9 8.1-7 9.5-4.1-1.4-7-5.3-7-9.5V6l7-3z" />
+        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4" />
+        </template>
+        <template v-if="nombre === 'panel'">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M4 5h16v14H4z" />
+        <path stroke-linecap="round" stroke-linejoin="round" d="M4 10h16M10 10v9" />
         </template>
     </svg>
 </template>

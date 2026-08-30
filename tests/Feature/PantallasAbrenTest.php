@@ -25,6 +25,8 @@ class PantallasAbrenTest extends TestCase
             'comisiones'    => ['/comisiones'],
             'liquidaciones' => ['/comisiones/liquidaciones'],
             'ops'           => ['/produccion/ops'],
+            'trabajos'      => ['/trabajos'],
+            'calidad'       => ['/calidad'],
             'ensamble nuevo'=> ['/ensambles/crear'],
             'agentes'       => ['/configuracion/agentes'],
             'plantillas'    => ['/cotizadores/plantillas'],

@@ -1,8 +1,17 @@
 <script setup>
+/**
+ * El tablero de Trabajos: una ficha grande por unidad, con un botón por paso.
+ *
+ * Es la misma pieza que usa Calidad, y a propósito: el gesto es el mismo —mirar la unidad,
+ * tocar el paso, seguir— y quien está en planta no tiene por qué aprender dos pantallas. Antes
+ * esto era una tabla con puntitos de progreso: para marcar un paso había que entrar al
+ * trabajo, bajar hasta el paso y abrirlo. Ocho toques para lo que ahora es uno.
+ */
 import { ref, computed, watch } from 'vue'
 import { router, usePage } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
 import OrdenarLista from '@/Components/OrdenarLista.vue'
+import FichaProceso from '@/Components/FichaProceso.vue'
 import { useOrden } from '@/composables/useOrden'
 
 const props = defineProps({
@@ -31,6 +40,12 @@ const csrf = () => {
     return c ? decodeURIComponent(c.split('=')[1]) : ''
 }
 
+const cabeceras = () => ({
+    Accept: 'application/json',
+    'X-XSRF-TOKEN': csrf(),
+    'X-Requested-With': 'XMLHttpRequest',
+})
+
 // ── Filtros ───────────────────────────────────────────────────────────────────
 const filtros = ref({
     op_numero:   props.filters?.op_numero   ?? '',
@@ -41,9 +56,11 @@ const filtros = ref({
     paso:        props.filters?.paso        ?? '',
 })
 
-const lista       = ref(props.trabajos?.data ?? [])
-const paginacion  = ref({ current_page: 1, last_page: 1, total: 0, ...(props.trabajos ?? {}) })
-const cargando    = ref(false)
+const lista      = ref(props.trabajos?.data ?? [])
+const paginacion = ref({ current_page: 1, last_page: 1, total: 0, ...(props.trabajos ?? {}) })
+const cargando   = ref(false)
+const ocupadas   = ref(new Set())
+const avisos     = ref({})
 
 const formatTiempo = (min) => {
     if (!min) return '0 min'
@@ -51,30 +68,6 @@ const formatTiempo = (min) => {
     const h = Math.floor(min / 60)
     const m = min % 60
     return m > 0 ? `${h}h ${m}min` : `${h}h`
-}
-
-// El estado se basa en actividad real de los pasos (iniciado/completado), no
-// solo en el porcentaje de avance — un paso con peso 0% puede estar
-// completado y dejar el porcentaje en 0, lo que antes mostraba "Sin iniciar"
-// aunque el trabajo ya estuviera en curso.
-const estadoLabel = (t) => {
-    if (t.pasos_total > 0 && t.pasos_completados === t.pasos_total) return 'completado'
-    if (t.iniciado) return 'en_progreso'
-    return 'sin_iniciar'
-}
-
-const badgeEstado = (t) => {
-    const e = estadoLabel(t)
-    if (e === 'completado')  return 'bg-pastel-verde-2 text-aviso-verde'
-    if (e === 'en_progreso') return 'bg-pastel-ambar-2 text-aviso-ambar'
-    return 'bg-tinta-100 text-tinta-500'
-}
-
-const textoEstado = (t) => {
-    const e = estadoLabel(t)
-    if (e === 'completado')  return 'Completado'
-    if (e === 'en_progreso') return 'En progreso'
-    return 'Sin iniciar'
 }
 
 // ── Fetch con filtros ─────────────────────────────────────────────────────────
@@ -92,10 +85,7 @@ const fetchTrabajo = async (page = 1) => {
         if (filtros.value.paso)        params.set('paso',        filtros.value.paso)
         params.set('page', page)
 
-        const res  = await fetch(`/trabajos?${params}`, {
-            headers: { Accept: 'application/json', 'X-XSRF-TOKEN': csrf(), 'X-Requested-With': 'XMLHttpRequest' },
-            credentials: 'same-origin',
-        })
+        const res  = await fetch(`/trabajos?${params}`, { headers: cabeceras(), credentials: 'same-origin' })
         const data = await res.json()
         lista.value      = data.data ?? []
         paginacion.value = data
@@ -116,6 +106,79 @@ const irPagina = (page) => {
     fetchTrabajo(page)
 }
 
+// ── Marcar pasos desde el tablero ─────────────────────────────────────────────
+function marcarOcupada(id, si) {
+    const s = new Set(ocupadas.value)
+    si ? s.add(id) : s.delete(id)
+    ocupadas.value = s
+}
+
+/**
+ * Marca o desmarca un paso. Devuelve si salió bien.
+ *
+ * El paso final descuenta materiales y mete la unidad a bodega, así que cuando eso pasa se
+ * dice: un movimiento de inventario no puede ocurrir en silencio.
+ */
+async function alternarPaso(t, paso) {
+    marcarOcupada(t.id, true)
+    avisos.value[t.id] = ''
+
+    try {
+        const res = await fetch(`/trabajos/pasos/${paso.id}`, {
+            method:  'PUT',
+            headers: { ...cabeceras(), 'Content-Type': 'application/json' },
+            credentials: 'same-origin',
+            body: JSON.stringify({ completado: ! paso.completado }),
+        })
+        const data = await res.json()
+
+        if (! data.success) {
+            avisos.value[t.id] = data.message ?? 'No se pudo guardar el paso.'
+            return false
+        }
+
+        aplicarPaso(t, paso.id, data)
+
+        if (data.entregada_en) {
+            avisos.value[t.id] = `La unidad entró a ${data.entregada_en} y sus materiales se descontaron.`
+        }
+
+        return true
+    } catch {
+        avisos.value[t.id] = 'No se pudo guardar el paso.'
+        return false
+    } finally {
+        marcarOcupada(t.id, false)
+    }
+}
+
+function aplicarPaso(t, pasoId, data) {
+    const p = t.pasos.find(x => x.id === pasoId)
+    if (p) p.completado = data.paso.completado
+
+    t.porcentaje_avance  = data.porcentaje_avance
+    t.pasos_completados  = t.pasos.filter(x => x.completado).length
+    t.iniciado           = t.pasos_completados > 0
+
+    // Una dependencia que se acaba de cumplir desbloquea lo que colgaba de ella. Recalcularlo
+    // aquí evita tener que recargar la página para poder tocar el paso siguiente.
+    t.pasos.forEach(x => {
+        x.bloqueado = (x.depende_de ?? []).length > 0
+            && t.pasos.some(d => (x.depende_de ?? []).includes(d.orden) && ! d.completado)
+    })
+}
+
+/** Cierra la unidad: marca lo que falte, en orden, respetando las dependencias. */
+async function terminarUnidad(t) {
+    if (t.pasos_completados === t.pasos.length) return
+
+    for (const paso of [...t.pasos].sort((a, b) => a.orden - b.orden)) {
+        if (paso.completado) continue
+        const ok = await alternarPaso(t, paso)
+        if (! ok) break
+    }
+}
+
 const page = usePage()
 const puedeEliminar = computed(() =>
     ['administrador', 'jefe_produccion'].includes(page.props.auth?.user?.rol)
@@ -127,11 +190,7 @@ async function eliminarTrabajo(t) {
         cargando.value = true
         const res = await fetch(`/trabajos/${t.id}`, {
             method: 'DELETE',
-            headers: {
-                'X-XSRF-TOKEN': csrf(),
-                'Accept': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest',
-            },
+            headers: cabeceras(),
             credentials: 'same-origin',
         })
         if (res.ok) {
@@ -144,6 +203,23 @@ async function eliminarTrabajo(t) {
         cargando.value = false
     }
 }
+
+// ── Lo que ve la ficha ────────────────────────────────────────────────────────
+const botonesDe = (t) => (t.pasos ?? []).map(p => ({
+    id:        p.id,
+    label:     p.nombre,
+    estado:    p.completado ? 'ok' : 'pendiente',
+    bloqueado: !! p.bloqueado,
+    nota:      p.bloqueado ? 'Espera a que termine el paso del que depende' : '',
+}))
+
+const chipsDe = (t) => (t.variables_etiquetadas ?? []).map(v => `${v.etiqueta}: ${v.valor}`)
+
+const sufijoDe = (t) => t.total_unidades > 1 ? `−${t.numero_unidad}` : ''
+
+// El número de la OP viene ya con «[1/3]» pegado desde el servidor para las listas viejas;
+// aquí el sufijo es su propia pieza, así que se quita para no decirlo dos veces.
+const numeroDe = (t) => (t.op_numero ?? '').replace(/\s*\[\d+\/\d+\]\s*/, '')
 </script>
 
 <template>
@@ -157,32 +233,26 @@ async function eliminarTrabajo(t) {
             </div>
         </div>
 
-        <!-- Ordenar. Vale para las listas que son tabla y para las que son tarjetas, y
-             en celular es el único camino: ahí no hay encabezados donde hacer clic. -->
-        <div class="mb-3">
-            <OrdenarLista :campos="camposOrden" :orden="orden" @ordenar="ordenarPor" />
-        </div>
-
         <!-- ── Dashboard métricas ────────────────────────────────────────────── -->
-        <div class="mb-5 space-y-4">
+        <div class="mb-4 space-y-4">
 
             <!-- Fila 1: cards de estado (clickeables) -->
             <div class="grid grid-cols-3 gap-3">
                 <button @click="filtros.estado = filtros.estado === 'sin_iniciar' ? '' : 'sin_iniciar'"
                     class="bg-superficie rounded-2xl border shadow-sm px-4 py-4 text-center w-full transition-all hover:shadow-md"
-                    :class="filtros.estado === 'sin_iniciar' ? 'border-gray-400 ring-2 ring-gray-300' : 'border-linea'">
+                    :class="filtros.estado === 'sin_iniciar' ? 'border-[var(--marca)] ring-2 ring-[var(--marca-suave)]' : 'border-linea'">
                     <p class="text-2xl font-semibold text-tinta-400">{{ metricas.sin_iniciar ?? 0 }}</p>
                     <p class="text-xs text-tinta-300 mt-1">Sin iniciar</p>
                 </button>
                 <button @click="filtros.estado = filtros.estado === 'en_progreso' ? '' : 'en_progreso'"
                     class="bg-superficie rounded-2xl border shadow-sm px-4 py-4 text-center w-full transition-all hover:shadow-md"
-                    :class="filtros.estado === 'en_progreso' ? 'border-yellow-400 ring-2 ring-yellow-200' : 'border-borde-aviso-ambar'">
+                    :class="filtros.estado === 'en_progreso' ? 'border-[var(--marca)] ring-2 ring-[var(--marca-suave)]' : 'border-borde-aviso-ambar'">
                     <p class="text-2xl font-semibold text-aviso-ambar">{{ metricas.en_progreso ?? 0 }}</p>
                     <p class="text-xs text-tinta-300 mt-1">En progreso</p>
                 </button>
                 <button @click="filtros.estado = filtros.estado === 'completado' ? '' : 'completado'"
                     class="bg-superficie rounded-2xl border shadow-sm px-4 py-4 text-center w-full transition-all hover:shadow-md"
-                    :class="filtros.estado === 'completado' ? 'border-green-400 ring-2 ring-green-200' : 'border-borde-aviso-verde'">
+                    :class="filtros.estado === 'completado' ? 'border-[var(--marca)] ring-2 ring-[var(--marca-suave)]' : 'border-borde-aviso-verde'">
                     <p class="text-2xl font-semibold text-aviso-verde">{{ metricas.completados ?? 0 }}</p>
                     <p class="text-xs text-tinta-300 mt-1">Completados</p>
                 </button>
@@ -191,7 +261,6 @@ async function eliminarTrabajo(t) {
             <!-- Fila 2: pasos + top operarios -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 
-                <!-- Pasos -->
                 <div class="bg-superficie rounded-2xl border border-linea shadow-sm p-5">
                     <h3 class="text-sm font-semibold text-tinta-700 mb-3">Pasos de trabajo</h3>
                     <div class="flex items-center gap-4 mb-3">
@@ -216,12 +285,10 @@ async function eliminarTrabajo(t) {
                     </p>
                 </div>
 
-                <!-- Top operarios -->
                 <div class="bg-superficie rounded-2xl border border-linea shadow-sm p-5">
                     <h3 class="text-sm font-semibold text-tinta-700 mb-3">Top operarios por tiempo</h3>
                     <div v-if="metricas.top_operarios?.length" class="space-y-2">
-                        <div v-for="(op, idx) in metricas.top_operarios" :key="idx"
-                            class="flex items-center gap-3">
+                        <div v-for="(op, idx) in metricas.top_operarios" :key="idx" class="flex items-center gap-3">
                             <span class="w-5 h-5 rounded-full flex items-center justify-center text-xs font-semibold shrink-0"
                                 :class="idx === 0 ? 'bg-pastel-ambar-2 text-aviso-ambar'
                                     : idx === 1 ? 'bg-tinta-100 text-tinta-500'
@@ -247,288 +314,117 @@ async function eliminarTrabajo(t) {
         <!-- ── Filtros ───────────────────────────────────────────────────────── -->
         <div class="bg-superficie rounded-2xl shadow-sm border border-linea p-4 mb-4">
             <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
-                <!-- OP numero -->
                 <div>
                     <label class="text-xs font-medium text-tinta-400 mb-1 block">Buscar OP</label>
-                    <input
-                        v-model="filtros.op_numero"
-                        type="text"
-                        placeholder="OP-0001..."
-                        class="w-full rounded-xl border border-linea px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--marca)]/30 focus:border-[var(--marca)]"
-                    />
+                    <input v-model="filtros.op_numero" type="text" placeholder="OP-0001..."
+                        class="w-full rounded-xl border border-linea px-3 py-2 text-sm bg-superficie focus:outline-none focus:ring-2 focus:ring-[var(--marca)]/30 focus:border-[var(--marca)]" />
                 </div>
-                <!-- Template -->
                 <div>
                     <label class="text-xs font-medium text-tinta-400 mb-1 block">Template</label>
-                    <select
-                        v-model="filtros.template_id"
-                        class="w-full rounded-xl border border-linea px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--marca)]/30 focus:border-[var(--marca)] bg-superficie"
-                    >
+                    <select v-model="filtros.template_id"
+                        class="w-full rounded-xl border border-linea px-3 py-2 text-sm bg-superficie focus:outline-none focus:ring-2 focus:ring-[var(--marca)]/30 focus:border-[var(--marca)]">
                         <option value="">Todos</option>
                         <option v-for="t in templates" :key="t.id" :value="t.id">{{ t.nombre }}</option>
                     </select>
                 </div>
-                <!-- Operario -->
                 <div>
                     <label class="text-xs font-medium text-tinta-400 mb-1 block">Operario</label>
-                    <select
-                        v-model="filtros.operario_id"
-                        class="w-full rounded-xl border border-linea px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--marca)]/30 focus:border-[var(--marca)] bg-superficie"
-                    >
+                    <select v-model="filtros.operario_id"
+                        class="w-full rounded-xl border border-linea px-3 py-2 text-sm bg-superficie focus:outline-none focus:ring-2 focus:ring-[var(--marca)]/30 focus:border-[var(--marca)]">
                         <option value="">Todos</option>
                         <option v-for="o in operarios" :key="o.id" :value="o.id">{{ o.nombre }}</option>
                     </select>
                 </div>
-                <!-- Estado -->
                 <div>
                     <label class="text-xs font-medium text-tinta-400 mb-1 block">Estado</label>
-                    <select
-                        v-model="filtros.estado"
-                        class="w-full rounded-xl border border-linea px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--marca)]/30 focus:border-[var(--marca)] bg-superficie"
-                    >
+                    <select v-model="filtros.estado"
+                        class="w-full rounded-xl border border-linea px-3 py-2 text-sm bg-superficie focus:outline-none focus:ring-2 focus:ring-[var(--marca)]/30 focus:border-[var(--marca)]">
                         <option value="">Todos</option>
                         <option value="sin_iniciar">Sin iniciar</option>
                         <option value="en_progreso">En progreso</option>
                         <option value="completado">Completado</option>
                     </select>
                 </div>
-                <!-- Variable -->
                 <div>
                     <label class="text-xs font-medium text-tinta-400 mb-1 block">Variable</label>
-                    <input
-                        v-model="filtros.variable"
-                        type="text"
-                        list="lista-variables"
-                        placeholder="Ej: ancho_vano..."
-                        class="w-full rounded-xl border border-linea px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--marca)]/30 focus:border-[var(--marca)]"
-                    />
+                    <input v-model="filtros.variable" type="text" list="lista-variables" placeholder="Ej: ancho_vano..."
+                        class="w-full rounded-xl border border-linea px-3 py-2 text-sm bg-superficie focus:outline-none focus:ring-2 focus:ring-[var(--marca)]/30 focus:border-[var(--marca)]" />
                     <datalist id="lista-variables">
                         <option v-for="v in variables_disponibles" :key="v" :value="v" />
                     </datalist>
                 </div>
-                <!-- Paso -->
                 <div>
                     <label class="text-xs font-medium text-tinta-400 mb-1 block">Paso de trabajo</label>
-                    <select
-                        v-model="filtros.paso"
-                        class="w-full rounded-xl border border-linea px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--marca)]/30 focus:border-[var(--marca)] bg-superficie"
-                    >
+                    <select v-model="filtros.paso"
+                        class="w-full rounded-xl border border-linea px-3 py-2 text-sm bg-superficie focus:outline-none focus:ring-2 focus:ring-[var(--marca)]/30 focus:border-[var(--marca)]">
                         <option value="">Todos los pasos</option>
                         <option v-for="p in pasos_disponibles" :key="p" :value="p">{{ p }}</option>
                     </select>
                 </div>
             </div>
+
+            <!-- Ordenar. En celular es el único camino: ahí no hay encabezados donde hacer clic. -->
+            <div class="mt-3 pt-3 border-t border-linea">
+                <OrdenarLista :campos="camposOrden" :orden="orden" @ordenar="ordenarPor" />
+            </div>
         </div>
 
-        <!-- ── Indicador cargando ────────────────────────────────────────────── -->
+        <!-- ── Las fichas ────────────────────────────────────────────────────── -->
         <div v-if="cargando" class="text-center py-8 text-tinta-300 text-sm">Cargando...</div>
 
-        <template v-else>
-
-        <div class="hidden md:block bg-superficie rounded-2xl shadow-sm border border-linea overflow-hidden">
-            <table class="w-full text-sm">
-                <thead>
-                    <tr class="border-b border-linea">
-                        <th class="text-left px-5 py-3 text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">OP</th>
-                        <th class="text-left px-5 py-3 text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">Ítem</th>
-                        <th class="text-left px-5 py-3 text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] w-40">Progreso</th>
-                        <th class="text-left px-5 py-3 text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">Operarios</th>
-                        <th class="text-left px-5 py-3 text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">Estado</th>
-                        <th class="px-5 py-3"></th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-separador">
-                    <tr v-if="lista.length === 0">
-                        <td colspan="6" class="text-center py-10 text-tinta-300 text-sm">No hay trabajos registrados</td>
-                    </tr>
-                    <tr v-for="t in lista" :key="t.id" class="hover:bg-tinta-50 transition-colors">
-                        <!-- OP -->
-                        <td class="px-5 py-3">
-                            <a
-                                :href="`/produccion/ops/${t.op_id}`"
-                                class="font-semibold text-[var(--marca)] hover:underline"
-                                @click.prevent="router.visit(`/produccion/ops/${t.op_id}`)"
-                            >{{ t.op_numero }}</a>
-                            <p class="text-xs text-tinta-300 mt-0.5 truncate max-w-[120px]">{{ t.cliente_nombre }}</p>
-                            <span v-if="t.op_item_codigo"
-                                class="inline-block mt-1 px-1.5 py-0.5 rounded bg-tinta-100 text-tinta-400 text-xs font-mono">
-                                {{ t.op_item_codigo }}
-                            </span>
-                        </td>
-                        <!-- Ítem -->
-                        <td class="px-5 py-3 max-w-[260px]">
-                            <span class="text-tinta-700 text-xs line-clamp-2">{{ t.item_descripcion ?? '—' }}</span>
-                            <div v-if="t.variables_etiquetadas?.length" class="flex flex-wrap gap-1.5 mt-2">
-                                <span
-                                    v-for="v in t.variables_etiquetadas"
-                                    :key="v.clave"
-                                    class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs bg-pastel-ambar border border-borde-aviso-ambar text-aviso-ambar"
-                                >
-                                    <span class="font-medium">{{ v.etiqueta }}:</span>
-                                    <span>{{ v.valor }}</span>
-                                </span>
-                            </div>
-                        </td>
-                        <!-- Progreso -->
-                        <td class="px-5 py-3">
-                            <div class="flex flex-wrap gap-1 mb-1">
-                                <template v-for="n in t.pasos_total" :key="n">
-                                    <span class="w-4 h-4 rounded-full flex items-center justify-center"
-                                        :class="n <= t.pasos_completados ? 'bg-green-500' : 'bg-tinta-200'">
-                                        <svg v-if="n <= t.pasos_completados"
-                                            class="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 24 24"
-                                            stroke="currentColor" stroke-width="3">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
-                                        </svg>
-                                    </span>
-                                </template>
-                            </div>
-                            <p class="text-xs text-tinta-300">{{ t.pasos_completados }}/{{ t.pasos_total }} · {{ Math.round(t.porcentaje_avance) }}%</p>
-                        </td>
-                        <!-- Operarios -->
-                        <td class="px-5 py-3">
-                            <div v-if="t.operarios?.length" class="flex flex-wrap gap-1">
-                                <span
-                                    v-for="op in t.operarios.slice(0,3)"
-                                    :key="op.id"
-                                    class="inline-block bg-pastel-azul text-[var(--marca)] rounded-lg px-2 py-0.5 text-xs font-medium"
-                                >{{ op.nombre?.split(' ')[0] }}</span>
-                                <span v-if="t.operarios.length > 3" class="text-xs text-tinta-300">+{{ t.operarios.length - 3 }}</span>
-                            </div>
-                            <span v-else class="text-xs text-tinta-300">Sin asignar</span>
-                        </td>
-                        <!-- Estado -->
-                        <td class="px-5 py-3">
-                            <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold" :class="badgeEstado(t)">
-                                {{ textoEstado(t) }}
-                            </span>
-                        </td>
-                        <!-- Acción -->
-                        <td class="px-5 py-3">
-                            <div class="flex items-center gap-2">
-                                <a
-                                    :href="`/trabajos/${t.id}`"
-                                    class="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-semibold text-white transition-colors"
-                                    style="background:var(--marca);"
-                                    @click.prevent="router.visit(`/trabajos/${t.id}`)"
-                                >
-                                    Ver detalle
-                                    <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
-                                    </svg>
-                                </a>
-                                <button
-                                    v-if="puedeEliminar"
-                                    @click.stop="eliminarTrabajo(t)"
-                                    class="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-medium text-aviso-rojo border border-borde-aviso-rojo hover:bg-pastel-rojo transition-colors"
-                                >
-                                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                                    </svg>
-                                    Eliminar
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+        <div v-else-if="! lista.length"
+            class="bg-superficie rounded-2xl border border-linea py-14 text-center text-sm text-tinta-400">
+            No hay trabajos registrados
         </div>
 
-        <div class="md:hidden space-y-3">
-            <div v-if="lista.length === 0" class="text-center py-10 text-tinta-300 text-sm bg-superficie rounded-2xl">
-                No hay trabajos registrados
-            </div>
-            <div
-                v-for="t in lista"
-                :key="t.id"
-                class="bg-superficie rounded-2xl shadow-sm border border-linea p-4"
-            >
-                <!-- Header -->
-                <div class="flex items-center justify-between mb-2">
-                    <div class="flex items-center gap-2 flex-wrap">
-                        <a
-                            :href="`/produccion/ops/${t.op_id}`"
-                            class="font-semibold text-[var(--marca)]"
-                            @click.prevent="router.visit(`/produccion/ops/${t.op_id}`)"
-                        >{{ t.op_numero }}</a>
-                        <span v-if="t.op_item_codigo"
-                            class="px-1.5 py-0.5 rounded bg-tinta-100 text-tinta-400 text-xs font-mono">
-                            {{ t.op_item_codigo }}
-                        </span>
-                    </div>
-                    <span class="inline-flex items-center px-2 py-0.5 rounded-lg text-xs font-semibold" :class="badgeEstado(t)">
-                        {{ textoEstado(t) }}
-                    </span>
-                </div>
-                <!-- Descripción ítem -->
-                <p class="text-sm text-tinta-500 mb-2 line-clamp-2">{{ t.item_descripcion ?? '—' }}</p>
-                <!-- Variables -->
-                <div v-if="t.variables_etiquetadas?.length" class="flex flex-wrap gap-1.5 mb-3">
-                    <span
-                        v-for="v in t.variables_etiquetadas"
-                        :key="v.clave"
-                        class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs bg-pastel-ambar border border-borde-aviso-ambar text-aviso-ambar"
-                    >
-                        <span class="font-medium">{{ v.etiqueta }}:</span>
-                        <span>{{ v.valor }}</span>
-                    </span>
-                </div>
-                <!-- Dots de pasos -->
-                <div class="mb-2">
-                    <div class="flex flex-wrap gap-1 my-2">
-                        <template v-for="n in t.pasos_total" :key="n">
-                            <span class="w-4 h-4 rounded-full"
-                                :class="n <= t.pasos_completados ? 'bg-green-500' : 'bg-tinta-200'">
-                            </span>
-                        </template>
-                    </div>
-                    <p class="text-xs text-tinta-300 mb-2">{{ t.pasos_completados }}/{{ t.pasos_total }} pasos · {{ Math.round(t.porcentaje_avance) }}%</p>
-                </div>
-                <!-- Operarios -->
-                <div v-if="t.operarios?.length" class="flex flex-wrap gap-1 mb-3">
-                    <span
-                        v-for="op in t.operarios"
-                        :key="op.id"
-                        class="inline-block bg-pastel-azul text-[var(--marca)] rounded-lg px-2 py-0.5 text-xs font-medium"
-                    >{{ op.nombre?.split(' ')[0] }}</span>
-                </div>
-                <!-- Botones acción -->
-                <div class="flex gap-2">
-                    <button
-                        class="flex-1 py-2.5 rounded-xl text-sm font-semibold text-white"
-                        style="background:var(--marca);"
-                        @click="router.visit(`/trabajos/${t.id}`)"
-                    >
-                        Ver detalle
-                    </button>
-                    <button
-                        v-if="puedeEliminar"
-                        @click.stop="eliminarTrabajo(t)"
-                        class="flex-1 py-2.5 rounded-xl text-sm font-medium text-aviso-rojo border border-borde-aviso-rojo hover:bg-pastel-rojo"
-                    >
-                        Eliminar
-                    </button>
-                </div>
+        <div v-else class="space-y-3">
+            <div v-for="t in lista" :key="t.id" class="relative group">
+                <FichaProceso
+                    :numero="numeroDe(t)"
+                    :sufijo="sufijoDe(t)"
+                    :titulo="t.item_descripcion ?? '—'"
+                    :subtitulo="t.cliente_nombre"
+                    :chips="chipsDe(t)"
+                    :urgencia="t.urgencia"
+                    :fecha="t.fecha_entrega"
+                    :contador="`${t.pasos_completados}/${t.pasos_total}`"
+                    :porcentaje="Math.round(t.porcentaje_avance)"
+                    :botones="botonesDe(t)"
+                    accion="Terminar"
+                    accion-hecha="Terminada"
+                    :hecha="t.pasos_total > 0 && t.pasos_completados === t.pasos_total"
+                    :ocupada="ocupadas.has(t.id)"
+                    :aviso="avisos[t.id] ?? ''"
+                    @boton="p => alternarPaso(t, t.pasos.find(x => x.id === p.id))"
+                    @accion="terminarUnidad(t)"
+                    @abrir="router.visit(`/trabajos/${t.id}`)" />
+
+                <!-- Eliminar vive fuera de la ficha: es lo único que no se deshace con otro
+                     toque, y no puede estar al lado de los botones que sí. -->
+                <button v-if="puedeEliminar" @click.stop="eliminarTrabajo(t)"
+                    class="absolute -top-2 -right-2 w-7 h-7 rounded-full bg-superficie border border-borde-aviso-rojo text-aviso-rojo
+                           opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity flex items-center justify-center shadow-sm"
+                    title="Eliminar el trabajo">
+                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                    </svg>
+                </button>
             </div>
         </div>
 
-        </template>
+        <p v-if="lista.length" class="text-xs text-tinta-300 mt-4 px-1">
+            Un toque marca el paso; otro lo deshace. «Terminar» cierra la unidad completa, y el
+            paso final descuenta los materiales y la mete a bodega. Toca el número para abrir la
+            hoja del trabajo con tiempos, operarios y fotos.
+        </p>
 
         <!-- ── Paginación ────────────────────────────────────────────────────── -->
         <div v-if="paginacion.last_page > 1" class="flex items-center justify-center gap-2 mt-5">
-            <button
-                @click="irPagina(paginacion.current_page - 1)"
-                :disabled="paginacion.current_page <= 1"
-                class="px-3 py-1.5 rounded-xl border border-linea text-sm font-medium disabled:opacity-40 hover:bg-tinta-50 transition-colors"
-            >‹ Anterior</button>
-            <span class="text-sm text-tinta-500">
-                Página {{ paginacion.current_page }} de {{ paginacion.last_page }}
-            </span>
-            <button
-                @click="irPagina(paginacion.current_page + 1)"
-                :disabled="paginacion.current_page >= paginacion.last_page"
-                class="px-3 py-1.5 rounded-xl border border-linea text-sm font-medium disabled:opacity-40 hover:bg-tinta-50 transition-colors"
-            >Siguiente ›</button>
+            <button @click="irPagina(paginacion.current_page - 1)" :disabled="paginacion.current_page <= 1"
+                class="px-3 py-1.5 rounded-xl border border-linea text-sm font-medium disabled:opacity-40 hover:bg-realce transition-colors">‹ Anterior</button>
+            <span class="text-sm text-tinta-500">Página {{ paginacion.current_page }} de {{ paginacion.last_page }}</span>
+            <button @click="irPagina(paginacion.current_page + 1)" :disabled="paginacion.current_page >= paginacion.last_page"
+                class="px-3 py-1.5 rounded-xl border border-linea text-sm font-medium disabled:opacity-40 hover:bg-realce transition-colors">Siguiente ›</button>
         </div>
 
     </AppLayout>

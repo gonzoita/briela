@@ -110,6 +110,29 @@ En la plantilla, cada paso lleva:
 **"Depende de"** es lo que impide que alguien marque "pintar" antes de "soldar".
 Un paso con dependencias sin cumplir no se puede iniciar.
 
+## El tablero: una ficha por unidad *(nuevo 30 ago 2026)*
+
+`/trabajos` es una **ficha grande por unidad física**, con un botón por paso. Un toque
+marca el paso, otro lo deshace, y **«Terminar»** cierra la unidad completa marcando lo
+que falte en orden y respetando las dependencias.
+
+Antes era una tabla con puntitos de progreso: para marcar un paso había que entrar al
+trabajo, bajar hasta él, abrirlo y guardarlo. Ocho toques para lo que ahora es uno, y por
+eso los pasos se marcaban en tandas al final del día en vez de a medida que pasaban.
+
+Cada ficha lleva el número de la orden, el sufijo de la unidad (`−2` cuando la orden pide
+varias), **las medidas de esa unidad** y el color de urgencia según la fecha de entrega.
+Sin las medidas, cinco fichas del mismo ensamble son cinco fichas idénticas.
+
+Un paso con dependencias sin cumplir sale bloqueado y no se deja tocar; al cerrarse el
+paso del que colgaba, se desbloquea en la misma pantalla. Cerrar el **paso final** desde
+aquí descuenta los materiales y mete la unidad a bodega igual que desde cualquier otro
+sitio, y el tablero lo dice: un movimiento de inventario no puede ocurrir en silencio.
+
+Es **la misma ficha** que usa [Calidad](./calidad.md) —
+`resources/js/Components/FichaProceso.vue` —, porque el gesto es el mismo y quien está en
+planta no tiene por qué aprender dos pantallas.
+
 ## El operario: entrar por QR
 
 Cada trabajo tiene su propio código QR. El operario lo escanea desde el celular

@@ -217,7 +217,30 @@ que lo hicieron.
 misma operación: se descuentan los materiales de esa unidad y se registra su entrada. No se
 puede entregar dos veces.
 
+**El tablero es una ficha grande por unidad, con un botón por paso.** Un toque marca el paso,
+otro lo deshace, y «Terminar» cierra la unidad completa. Antes era una tabla con puntitos de
+progreso: para marcar un paso había que entrar al trabajo, bajar hasta él y abrirlo — ocho
+toques para lo que ahora es uno.
+
 → [Trabajos y pasos](./manual/trabajos-pasos.md)
+
+### Calidad
+`/calidad` · permiso `ops.calidad`
+
+**El candado del despacho: sin el visto de calidad no hay remisión.** Y no es un botón sobre
+la orden entera, sino una revisión **por unidad física y punto por punto** — en una orden de
+diez puertas, «aprobada» no dice cuál se miró ni qué le faltaba.
+
+El mismo tablero de fichas grandes que Trabajos, con un botón por punto de revisión. Un punto
+puede ser **crítico** (si falla, bloquea) y puede **exigir foto**: ese no se marca hasta que la
+foto exista, y el toque abre la hoja para tomarla con la cámara o subirla de un archivo. El
+número de la orden abre la **ficha de verificación**, con las medidas, la receta congelada, y
+cómo se fabricó la unidad paso por paso con las fotos del operario.
+
+El sello `calidad_aprobada_at` se pone solo cuando la última unidad queda revisada, y se retira
+solo si algo se reabre.
+
+→ [Calidad](./manual/calidad.md)
 
 ### Programador de planta y pantalla de planta
 `/produccion/programador` · `/planta/{token}`
@@ -355,6 +378,20 @@ informa el proveedor.
 | **Plantillas PDF** | `/configuracion/plantillas-pdf` | El diseño de cada documento |
 | **Unidades de medida** | configuración | La lista editable de unidades |
 | **Respaldos** | `/configuracion/backups` | Copias de la base, y antes de cada actualización |
+
+### El menú
+
+Categorías que se despliegan, con una sola abierta a la vez: con seis abiertas el menú
+vuelve a ser la lista de treinta enlaces que esto vino a evitar. La categoría de la pantalla
+en la que estás se abre sola, y lo que abras a mano se recuerda entre visitas.
+
+**Se pliega**, y entonces queda solo la columna de iconos: devuelve 12 rem de ancho a la
+pantalla, que es mucho en una tabla de inventario o en el programador. Ningún enlace se
+pierde — la categoría se despliega al lado al pasar por encima. Lo que se pierde es el
+rótulo, que es lo que sobra cuando ya se sabe dónde está cada cosa. También se recuerda.
+
+Por eso **cada categoría tiene su propio icono** y ninguna comparte el engranaje genérico:
+plegado, el icono es lo único que queda para reconocerla.
 
 → [Índice completo del manual](./manual/00-indice.md)
 

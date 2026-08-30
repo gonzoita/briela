@@ -97,9 +97,11 @@ const navItems = computed(() => {
         { label: null, items: [
             { label: 'Dashboard',  href: '/dashboard',  icon: 'home' },
             { label: 'Clientes',   href: '/clientes',   icon: 'clientes',   permiso: 'clientes.ver' },
-            { label: 'Multimedia', href: '/multimedia', icon: 'multimedia', permiso: 'multimedia.ver' },
+            // El asistente era una categoría de un solo enlace. Una categoría que solo se
+            // despliega para mostrar una cosa es un clic de más y nada más.
+            { label: nombreAsistente.value, href: '/asistente', icon: 'chat' },
         ]},
-        { label: 'Ventas', icon: 'crm', items: [
+        { label: 'Ventas', icon: 'ventas', items: [
             { label: 'CRM',          href: '/crm',             icon: 'crm',        permiso: 'crm.ver' },
             { label: 'Reportes',     href: '/crm/reportes',    icon: 'reportes',   permiso: 'crm.ver', sub: true },
             { label: 'Formularios',  href: '/crm/formularios', icon: 'formulario', permiso: 'crm.editar', sub: true },
@@ -112,10 +114,21 @@ const navItems = computed(() => {
             { label: 'Stock & Materiales',href: '/inventario',             icon: 'inventario',  permiso: 'inventario.ver', sub: true },
             { label: 'Movimientos',       href: '/inventario/movimientos', icon: 'movimientos', permiso: 'inventario.ver', sub: true },
         ]},
-        { label: 'Compras', icon: 'oc', items: [
+        { label: 'Compras', icon: 'bolsa', items: [
             { label: 'Proveedores',       href: '/compras/proveedores', icon: 'proveedor', permiso: 'proveedores.ver' },
             { label: 'Solicitudes',       href: '/compras/solicitudes', icon: 'solicitud', permiso: 'solicitudes.ver', sub: true },
             { label: 'Órdenes de Compra', href: '/compras/ordenes',     icon: 'oc',        permiso: 'ordenes.ver',     sub: true },
+        ]},
+        { label: 'Producción', icon: 'fabrica', items: [
+            { label: 'Órdenes de Producción', href: '/produccion/ops',          icon: 'clipboard', permiso: 'ops.ver' },
+            { label: 'Alistamiento',          href: '/produccion/alistamiento', icon: 'solicitud', permiso: 'alistamiento.ver', sub: true },
+            { label: 'Programador',           href: '/produccion/programador',  icon: 'calendar',  permiso: 'programador.ver',  sub: true },
+            { label: 'Trabajos',              href: '/trabajos',                icon: 'trabajos',  permiso: 'trabajos.ver' },
+            // Calidad es el candado del despacho: sin su visto no hay remisión. Va aquí, al
+            // lado de Trabajos, porque es el paso siguiente del mismo recorrido.
+            { label: 'Calidad',               href: '/calidad',                 icon: 'calidad',   permiso: 'ops.calidad' },
+            // Panel personal del operario: no depende de permisos de módulo.
+            ...(rol === 'operario' ? [{ label: 'Mi Panel', href: '/mi-panel', icon: 'mi-panel' }] : []),
         ]},
         { label: 'Logística', icon: 'camion', items: [
             { label: 'Remisiones', href: '/logistica/remisiones', icon: 'camion', permiso: 'remisiones.ver' },
@@ -123,46 +136,38 @@ const navItems = computed(() => {
         { label: 'Financiero', icon: 'cartera', items: [
             { label: 'Cartera', href: '/financiero/cartera', icon: 'cartera', permiso: 'cartera.ver' },
         ]},
-        { label: 'Producción', icon: 'clipboard', items: [
-            { label: 'Órdenes de Producción', href: '/produccion/ops',         icon: 'clipboard', permiso: 'ops.ver' },
-            { label: 'Alistamiento',          href: '/produccion/alistamiento', icon: 'clipboard', permiso: 'alistamiento.ver', sub: true },
-            { label: 'Programador',           href: '/produccion/programador', icon: 'calendar',  permiso: 'programador.ver', sub: true },
-            { label: 'Trabajos',              href: '/trabajos',               icon: 'trabajos',  permiso: 'trabajos.ver' },
-            // Panel personal del operario: no depende de permisos de módulo.
-            ...(rol === 'operario' ? [{ label: 'Mi Panel', href: '/mi-panel', icon: 'mi-panel' }] : []),
-        ]},
-        { label: 'RRHH', icon: 'gear', items: [
+        // RRHH y Capacitación eran dos categorías que hablaban de lo mismo: la gente. Con una
+        // sola, el menú tiene una entrada menos y nadie tiene que adivinar en cuál de las dos
+        // está el curso de un colaborador.
+        { label: 'Personal', icon: 'workers', items: [
             { label: 'Colaboradores', href: '/rrhh/operarios', icon: 'workers', permiso: 'rrhh.ver' },
             // Lo ve cualquiera de RRHH; editarlo pide su propio permiso, y eso lo resuelve la
             // pantalla. Esconder la entrada dejaría a quien solo lee sin cómo consultarlo.
             { label: 'Reglamento interno', href: '/rrhh/reglamento', icon: 'doc', permiso: 'rrhh.ver' },
+            // Todos pueden ver sus propios cursos.
+            { label: 'Mi Capacitación', href: '/mi-capacitacion',           icon: 'capacitacion' },
+            { label: 'Cursos',          href: '/capacitacion/cursos',       icon: 'capacitacion', permiso: 'capacitacion.editar' },
+            { label: 'Invitaciones',    href: '/capacitacion/invitaciones', icon: 'formulario',   permiso: 'capacitacion.crear', sub: true },
         ]},
-        { label: 'Mantenimiento', icon: 'gear', items: [
-            { label: 'Dashboard',      href: '/mantenimiento',                icon: 'wrench',   permiso: 'mantenimiento.ver' },
-            { label: 'Equipos',        href: '/mantenimiento/equipos',        icon: 'gear',     permiso: 'mantenimiento.ver' },
+        { label: 'Mantenimiento', icon: 'wrench', items: [
+            { label: 'Tablero',        href: '/mantenimiento',                icon: 'panel',    permiso: 'mantenimiento.ver' },
+            { label: 'Equipos',        href: '/mantenimiento/equipos',        icon: 'wrench',   permiso: 'mantenimiento.ver' },
             { label: 'Mantenimientos', href: '/mantenimiento/mantenimientos', icon: 'calendar', permiso: 'mantenimiento.ver' },
         ]},
-        { label: 'Reportes', icon: 'gear', items: [
-            { label: 'Informes', href: '/informes', icon: 'chart', permiso: 'informes.ver' },
+        { label: 'Marketing', icon: 'megaphone', items: [
+            { label: 'Redes Sociales', href: '/rrss',       icon: 'megaphone',  permiso: 'rrss.ver' },
+            { label: 'Multimedia',     href: '/multimedia', icon: 'multimedia', permiso: 'multimedia.ver' },
         ]},
-        { label: 'Capacitación', icon: 'gear', items: [
-            // Todos pueden ver sus propios cursos.
-            { label: 'Mi Capacitación', href: '/mi-capacitacion',              icon: 'capacitacion' },
-            { label: 'Cursos',          href: '/capacitacion/cursos',          icon: 'capacitacion', permiso: 'capacitacion.editar' },
-            { label: 'Invitaciones',    href: '/capacitacion/invitaciones',    icon: 'capacitacion', permiso: 'capacitacion.crear', sub: true },
+        // Informes y Auditoría son la misma pregunta —qué pasó— y estaban en dos sitios: uno
+        // en su propia categoría y el otro escondido en Sistema.
+        { label: 'Reportes', icon: 'reportes', items: [
+            { label: 'Informes',  href: '/informes',  icon: 'chart', permiso: 'informes.ver' },
+            { label: 'Auditoría', href: '/auditoria', icon: 'doc',   permiso: 'auditoria.ver' },
         ]},
-        { label: 'Marketing', icon: 'gear', items: [
-            { label: 'Redes Sociales', href: '/rrss', icon: 'megaphone', permiso: 'rrss.ver' },
-        ]},
-        { label: 'Asistente', icon: 'gear', items: [
-            // Disponible para todos: responde sobre la marca, no sobre datos.
-            { label: nombreAsistente.value, href: '/asistente', icon: 'chat' },
-        ]},
-        { label: 'Sistema', icon: 'gear', items: [
+        { label: 'Sistema', icon: 'configurador', items: [
             { label: 'Configuración',  href: '/configuracion',                icon: 'configurador', permiso: 'configuracion.ver' },
             { label: 'Agentes',        href: '/configuracion/agentes',        icon: 'chat',         permiso: 'agentes.ver' },
             { label: 'Plantillas PDF', href: '/configuracion/plantillas-pdf', icon: 'pdf',          permiso: 'configuracion.editar' },
-            { label: 'Auditoría',      href: '/auditoria',                    icon: 'chart',        permiso: 'auditoria.ver' },
         ]},
     ]
 
@@ -199,6 +204,28 @@ const navItems = computed(() => {
 const ramasAbiertas = ref(new Set(
     JSON.parse(localStorage.getItem('briela.menu.abiertas') ?? '[]')
 ))
+
+// ─── Menú estrecho ───────────────────────────────────────────────────────────
+//
+// Plegado, el menú deja solo la columna de iconos y devuelve 12 rem de ancho a la pantalla —
+// que es mucho en una tabla de inventario o en el programador. La categoría se despliega al
+// pasar por encima, así que no se pierde ningún enlace: se pierde el rótulo, que es lo que
+// sobra cuando ya se sabe dónde está cada cosa.
+//
+// Se recuerda entre visitas, igual que las ramas abiertas: quien lo plegó lo plegó a propósito.
+const menuColapsado   = ref(localStorage.getItem('briela.menu.colapsado') === '1')
+const seccionFlotante = ref(null)
+
+function alternarColapso() {
+    menuColapsado.value   = ! menuColapsado.value
+    seccionFlotante.value = null
+    localStorage.setItem('briela.menu.colapsado', menuColapsado.value ? '1' : '0')
+}
+
+/** En el rail no hay sitio para ramas: los hijos salen aplanados dentro del desplegable. */
+const enlacesDe = (sec) => sec.ramas.flatMap(r => [r, ...(r.hijos ?? [])])
+
+const seccionActiva = (sec) => sec.ramas.some(r => isActive(r.href) || r.hijos?.some(h => isActive(h.href)))
 
 function alternarRama(clave) {
     const abriendo = ! ramasAbiertas.value.has(clave)
@@ -519,12 +546,13 @@ onUnmounted(() => {
              DESKTOP — Sidebar fijo izquierdo
         ═══════════════════════════════════════════════════════════════════ -->
         <aside
-            class="hidden md:flex fixed top-0 left-0 h-screen w-64 flex-col z-40 bg-superficie border-r border-linea"
+            class="hidden md:flex fixed top-0 left-0 h-screen flex-col z-40 bg-superficie border-r border-linea transition-[width] duration-200"
+            :class="menuColapsado ? 'w-16' : 'w-64'"
         >
             <!-- Logo -->
-            <div class="h-16 px-5 flex items-center shrink-0">
+            <div class="h-16 shrink-0 flex items-center" :class="menuColapsado ? 'px-3 justify-center' : 'px-5'">
                 <img
-                    v-if="marca.logo_propio"
+                    v-if="marca.logo_propio && ! menuColapsado"
                     :src="logoSegunTema"
                     class="h-8 w-auto object-contain"
                     :alt="marca.nombre"
@@ -534,12 +562,80 @@ onUnmounted(() => {
                         class="w-8 h-8 rounded-lg flex items-center justify-center text-sm font-semibold shrink-0"
                         :style="{ background: 'var(--marca-suave)', color: 'var(--marca)' }"
                     >{{ (marca.nombre || 'B').charAt(0).toUpperCase() }}</span>
-                    <span class="text-[15px] font-semibold text-tinta-900 truncate">{{ marca.nombre }}</span>
+                    <span v-if="! menuColapsado" class="text-[15px] font-semibold text-tinta-900 truncate">{{ marca.nombre }}</span>
                 </span>
             </div>
 
-            <!-- Navegación -->
-            <nav class="flex-1 overflow-y-auto px-2.5 py-3 space-y-0.5">
+            <!-- Plegar / desplegar. Va arriba del todo y no al pie: es lo primero que se busca
+                 cuando el menú estorba, y al pie queda debajo de treinta enlaces. -->
+            <button
+                type="button"
+                @click="alternarColapso"
+                class="mx-2.5 mb-1 h-8 rounded-lg flex items-center gap-2 text-tinta-300 hover:text-tinta-700 hover:bg-realce transition-colors shrink-0"
+                :class="menuColapsado ? 'justify-center px-0' : 'px-2.5'"
+                :title="menuColapsado ? 'Desplegar el menú' : 'Plegar el menú'"
+                :aria-label="menuColapsado ? 'Desplegar el menú' : 'Plegar el menú'"
+            >
+                <svg class="w-4 h-4 shrink-0 transition-transform duration-200"
+                     :class="menuColapsado ? 'rotate-180' : ''"
+                     fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M20 5v14"/>
+                </svg>
+                <span v-if="! menuColapsado" class="text-[11px] font-medium">Plegar menú</span>
+            </button>
+
+            <!-- ── Navegación, plegada: solo los iconos ─────────────────────────
+                 Cada categoría se despliega al lado al pasar por encima. Sin eso, el modo
+                 estrecho sería bonito e inservible: no habría forma de llegar a nada. -->
+            <nav v-if="menuColapsado" class="flex-1 overflow-y-auto overflow-x-visible px-2 py-2 space-y-1">
+                <div
+                    v-for="sec in navItems"
+                    :key="sec.label ?? 'inicio'"
+                    class="relative"
+                    @mouseenter="seccionFlotante = sec.label ?? 'inicio'"
+                    @mouseleave="seccionFlotante = null"
+                >
+                    <button
+                        type="button"
+                        @click="seccionFlotante = seccionFlotante === (sec.label ?? 'inicio') ? null : (sec.label ?? 'inicio')"
+                        class="w-full h-10 rounded-lg flex items-center justify-center transition-colors"
+                        :class="seccionActiva(sec)
+                            ? 'bg-realce text-[var(--marca)]'
+                            : 'text-tinta-400 hover:bg-realce hover:text-tinta-700'"
+                        :title="sec.label ?? 'Inicio'"
+                    >
+                        <IconoMenu :nombre="sec.icon" clase="w-5 h-5" />
+                    </button>
+
+                    <!-- El desplegable. Cuelga del mismo contenedor que dispara el hover, así
+                         que moverse hacia él no lo cierra. -->
+                    <div
+                        v-if="seccionFlotante === (sec.label ?? 'inicio')"
+                        class="absolute left-full top-0 ml-1 w-60 z-50 rounded-xl bg-superficie border border-linea shadow-flotante py-1.5"
+                    >
+                        <p v-if="sec.label" class="px-3 pb-1.5 text-[11px] font-semibold text-tinta-400 uppercase tracking-[0.1em]">
+                            {{ sec.label }}
+                        </p>
+                        <a
+                            v-for="enlace in enlacesDe(sec)"
+                            :key="enlace.href"
+                            :href="enlace.href"
+                            class="flex items-center gap-2.5 mx-1.5 px-2.5 py-1.5 rounded-lg text-[13px] transition-colors"
+                            :class="isActive(enlace.href)
+                                ? 'bg-realce text-[var(--marca)] font-semibold'
+                                : 'text-tinta-500 hover:bg-realce hover:text-tinta-900'"
+                            @click.prevent="seccionFlotante = null; router.visit(enlace.href)"
+                        >
+                            <IconoMenu :nombre="enlace.icon" clase="w-4 h-4 shrink-0" :class="enlace.sub ? 'opacity-60' : ''" />
+                            <span class="truncate">{{ enlace.label }}</span>
+                        </a>
+                    </div>
+                </div>
+            </nav>
+
+            <!-- ── Navegación, desplegada ───────────────────────────────────── -->
+            <nav v-else class="flex-1 overflow-y-auto px-2.5 py-3 space-y-0.5">
                 <template v-for="sec in navItems" :key="sec.label ?? 'inicio'">
                     <!-- El título de la sección la despliega. Es un botón, no un rótulo:
                          Ventas se abre y se cierra, y lo mismo cada categoría. -->
@@ -649,8 +745,8 @@ onUnmounted(() => {
             </nav>
 
             <!-- Usuario (pie del sidebar) -->
-            <div class="px-3 py-3 border-t border-linea shrink-0">
-                <div class="flex items-center justify-between gap-2 px-3 pb-2">
+            <div class="py-3 border-t border-linea shrink-0" :class="menuColapsado ? 'px-2' : 'px-3'">
+                <div v-if="! menuColapsado" class="flex items-center justify-between gap-2 px-3 pb-2">
                     <span class="text-[10px] text-tinta-300 font-mono" :title="'Versión del frontend cargado'">
                         v{{ $page.props.version_app }}
                     </span>
@@ -666,7 +762,9 @@ onUnmounted(() => {
                 </div>
                 <button
                     @click="irPerfil"
-                    class="flex items-center gap-3 w-full px-3 py-2 rounded-lg transition-colors hover:bg-tinta-50"
+                    class="flex items-center gap-3 w-full py-2 rounded-lg transition-colors hover:bg-realce"
+                    :class="menuColapsado ? 'px-0 justify-center' : 'px-3'"
+                    :title="menuColapsado ? user?.name : ''"
                 >
                     <div
                         class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold shrink-0"
@@ -674,14 +772,15 @@ onUnmounted(() => {
                     >
                         {{ inicial }}
                     </div>
-                    <div class="min-w-0 text-left">
+                    <div v-if="! menuColapsado" class="min-w-0 text-left">
                         <p class="text-tinta-900 text-sm font-medium truncate">{{ user?.name }}</p>
                         <p class="text-tinta-400 text-xs truncate">{{ rolLabel }}</p>
                     </div>
                 </button>
                 <!-- Día · Noche · Automático. Tres pastillas en vez de un menú:
-                     se ve de un vistazo cuál está puesto y se cambia en un toque. -->
-                <div class="mt-2 px-1">
+                     se ve de un vistazo cuál está puesto y se cambia en un toque.
+                     Plegado no caben tres, así que el tema se cambia desde el perfil. -->
+                <div v-if="! menuColapsado" class="mt-2 px-1">
                     <div class="flex items-center gap-0.5 p-0.5 rounded-lg bg-tinta-100">
                         <button
                             v-for="opcion in tema.opciones"
@@ -715,12 +814,14 @@ onUnmounted(() => {
 
                 <button
                     @click="cerrarSesion"
-                    class="flex items-center gap-3 w-full px-3 py-2 mt-1.5 rounded-lg text-sm text-tinta-400 hover:bg-tinta-50 hover:text-tinta-900 transition-colors"
+                    class="flex items-center gap-3 w-full py-2 mt-1.5 rounded-lg text-sm text-tinta-400 hover:bg-realce hover:text-tinta-900 transition-colors"
+                    :class="menuColapsado ? 'px-0 justify-center' : 'px-3'"
+                    :title="menuColapsado ? 'Cerrar sesión' : ''"
                 >
                     <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                     </svg>
-                    Cerrar sesión
+                    <span v-if="! menuColapsado">Cerrar sesión</span>
                 </button>
             </div>
         </aside>
@@ -729,7 +830,8 @@ onUnmounted(() => {
              DESKTOP — Topbar fijo (al lado del sidebar)
         ═══════════════════════════════════════════════════════════════════ -->
         <header
-            class="hidden md:flex fixed top-0 left-64 right-0 z-30 items-center justify-between px-8 border-b border-linea"
+            class="hidden md:flex fixed top-0 right-0 z-30 items-center justify-between px-8 border-b border-linea transition-[left] duration-200"
+            :class="menuColapsado ? 'left-16' : 'left-64'"
             style="height: 64px; background: var(--velo); backdrop-filter: saturate(180%) blur(20px);"
         >
             <!-- Título de la página. Se encoge antes que las acciones: el nombre de un
@@ -1035,13 +1137,13 @@ onUnmounted(() => {
         <!-- ══════════════════════════════════════════════════════════════════
              CONTENIDO PRINCIPAL
         ═══════════════════════════════════════════════════════════════════ -->
-        <AvisoLicencia class="md:ml-64 con-espacio-superior" />
+        <AvisoLicencia class="con-espacio-superior transition-[margin] duration-200" :class="menuColapsado ? 'md:ml-16' : 'md:ml-64'" />
 
         <!-- Los espacios los pone la clase `con-espacio-de-barras`, definida en
              app.blade.php: suma las zonas del sistema del teléfono en móvil y el alto de
              la barra fija en escritorio. En línea no funcionaba — un estilo en línea le
              gana a las clases, y el contenido se metía bajo la barra superior. -->
-        <main class="px-4 md:ml-64 md:px-8 con-espacio-de-barras">
+        <main class="px-4 md:px-8 con-espacio-de-barras transition-[margin] duration-200" :class="menuColapsado ? 'md:ml-16' : 'md:ml-64'">
             <slot />
         </main>
 

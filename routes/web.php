@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CalidadController;
 use App\Http\Controllers\BodegaController;
 use App\Http\Controllers\CarteraController;
 use App\Http\Controllers\PdfPlantillaController;
@@ -644,6 +645,23 @@ Route::middleware('auth')->group(function () {
         Route::post('/trabajos/checks/{check}/fotos',  [\App\Http\Controllers\CalidadCheckController::class, 'fotos'])->name('trabajos.checks.fotos');
         Route::post('/trabajos/pasos/{paso}/fotos',   [PasoFotoController::class, 'store'])->name('trabajos.pasos.fotos.store');
         Route::delete('/trabajos/pasos/{paso}/fotos', [PasoFotoController::class, 'destroy'])->name('trabajos.pasos.fotos.destroy');
+    });
+
+    // ─── Módulo Calidad ───────────────────────────────────────────────────────────
+    //
+    // Vive aparte de Trabajos a propósito: quien revisa calidad no siempre puede tocar la
+    // producción, y colgarlo del permiso de trabajos obligaba a darle el uno para darle el
+    // otro. Los endpoints de los puntos se repiten aquí bajo `ops.calidad` por lo mismo.
+    Route::middleware('permiso:ops.calidad')->prefix('calidad')->name('calidad.')->group(function () {
+        Route::get('/',                      [CalidadController::class, 'index'])->name('index');
+        Route::get('/datos',                 [CalidadController::class, 'datos'])->name('datos');
+        Route::get('/unidades/{trabajo}',    [CalidadController::class, 'show'])->name('show');
+        Route::post('/unidades/{trabajo}/terminar', [CalidadController::class, 'terminarUnidad'])->name('unidades.terminar');
+        Route::post('/unidades/{trabajo}/reabrir',  [CalidadController::class, 'reabrirUnidad'])->name('unidades.reabrir');
+        Route::post('/ops/{op}/terminar',    [CalidadController::class, 'terminarOp'])->name('ops.terminar');
+        Route::post('/ops/{op}/reprocesar',  [CalidadController::class, 'reprocesar'])->name('ops.reprocesar');
+        Route::patch('/checks/{check}',      [\App\Http\Controllers\CalidadCheckController::class, 'actualizar'])->name('checks.actualizar');
+        Route::post('/checks/{check}/fotos', [\App\Http\Controllers\CalidadCheckController::class, 'fotos'])->name('checks.fotos');
     });
 
     // ─── Dashboard del operario ───────────────────────────────────────────────

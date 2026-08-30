@@ -26,6 +26,7 @@ módulo por módulo.
 
 - [Producción — Orden de Producción y control de calidad](./produccion-op.md)
 - [Trabajos y pasos de trabajo](./trabajos-pasos.md)
+- [Calidad](./calidad.md) — la revisión por unidad, y el candado del despacho
 - [Alistamiento](./alistamiento.md) — lo que el almacenista deja listo para despachar
 - [Gráficos del tablero](./graficos-tablero.md) — los gráficos que la empresa arma para sus tableros
 - [Programador de planta y pantalla de planta](./programador-planta.md)

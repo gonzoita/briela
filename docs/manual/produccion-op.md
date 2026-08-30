@@ -138,6 +138,14 @@ puertas.
 Un ensamble sin lista de revisión sigue funcionando como siempre: calidad aprueba la orden
 completa. La lista se define en la ficha del ensamble, sección «Revisión de calidad».
 
+**Desde el 30 ago 2026 la revisión tiene su propio módulo**, `/calidad`, con permiso propio
+(`ops.calidad`): un tablero de fichas grandes con todas las unidades fabricadas y sin
+despachar, para marcar sin entrar orden por orden, y una ficha de verificación por unidad con
+toda la información del proyecto. Los dos cierres —el de la unidad y el de la orden— viven
+ahí. La hoja de producción sigue teniendo su bloque de revisión: es el mismo dato.
+
+→ [Calidad](./calidad.md)
+
 
 ## Seguimiento público — dos caminos, un solo resultado *(reconstruido 23 jul 2026)*
 
