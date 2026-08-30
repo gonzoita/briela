@@ -44,6 +44,10 @@ const emit = defineEmits(['boton', 'boton-alterno', 'accion', 'abrir'])
  * noche — un pastel fijo quedaría claro sobre claro en un tema y oscuro sobre oscuro en el
  * otro. El paso pendiente no lleva color de relleno: lleva un tinte del suyo con transparencia
  * sobre la superficie, así que se adapta al tema sin dejar de identificarse.
+ *
+ * Ese tinte usa `color-mix`, que una tableta vieja de planta puede no entender. Un valor que
+ * el navegador no entiende se descarta, así que el pendiente lleva además `bg-superficie
+ * border-linea` en las clases: ahí no se pierde el color, se pierde el matiz.
  */
 const PALETA = ['#1E3A8A', '#1D4ED8', '#0E7490', '#0F766E', '#047857', '#4338CA', '#6D28D9', '#A21CAF']
 
@@ -166,6 +170,7 @@ const fondoFicha = computed(() =>
                     class="relative flex-1 basis-[calc(50%-0.25rem)] sm:basis-[calc(33.333%-0.34rem)] md:basis-0 md:min-w-[110px]
                            rounded-xl border px-2 py-2.5 transition-all disabled:opacity-40
                            flex flex-col items-center justify-center gap-1 active:scale-[0.97]"
+                    :class="b.estado === 'pendiente' ? 'bg-superficie border-linea' : ''"
                     :style="estiloBoton(b, i)">
 
                     <!-- La marca de estado: círculo vacío, visto, o aspa. -->
