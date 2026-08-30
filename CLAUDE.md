@@ -479,9 +479,13 @@ decían lo contrario y estaban equivocadas.
   relaciones entre archivos antes de leer código a mano.
 - Conviene regenerarlo después de cambios que muevan estructura (borrar módulos,
   mover carpetas), porque un grafo desactualizado es peor que no tenerlo.
-- **Generado y al día.** Al 30 ago 2026: 6.770 nodos, 11.597 aristas, 667 comunidades,
-  anclado al commit `06a771e4`. Se reconstruye entero con la extracción AST
+- **Generado y al día.** Al 30 ago 2026: 6.775 nodos, 11.614 aristas, 650 comunidades,
+  anclado al commit `c6788b27`. Se reconstruye entero con la extracción AST
   (gratis, sin LLM) y `parallel=False`.
+- **Las comunidades se nombran solas, con su archivo dominante** —«Servicios · IaService»— y
+  **no** con una lista escrita a mano. Louvain las renumera en cada reconstrucción: el id 12 de
+  hoy no es el de ayer, así que un mapa de nombres a mano termina poniendo «Autenticación»
+  encima de otra cosa. Un nombre equivocado es peor que un número.
 - La parte semántica —documentos e imágenes— **no se reextrae en cada reconstrucción**: exige
   subagentes y se paga en tokens. Lo que hay en caché se reaprovecha; el resto queda fuera, y
   por eso al reconstruir salta el guardián de encogimiento de graphify. Se fuerza a propósito:
