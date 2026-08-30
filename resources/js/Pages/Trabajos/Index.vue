@@ -429,6 +429,7 @@ const numeroDe = (t) => (t.op_numero ?? '').replace(/\s*\[\d+\/\d+\]\s*/, '')
                     :subtitulo="t.cliente_nombre"
                     :chips="chipsDe(t)"
                     :urgencia="t.urgencia"
+                    :marca="t.en_reproceso ? 'En reproceso' : ''"
                     :fecha="t.fecha_entrega"
                     :contador="`${t.pasos_completados}/${t.pasos_total}`"
                     :porcentaje="Math.round(t.porcentaje_avance)"

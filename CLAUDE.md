@@ -284,7 +284,7 @@ tocar los seeders.
 > **Las pruebas corren contra `briela_test`**, declarada en `phpunit.xml`; nunca contra
 > `briela`. Si esa base no existe, las 51 de Feature fallan todas por conexión y solo pasan las
 > 16 unitarias — parece un código roto y es una base que falta. Se crea una vez:
-> `mysql -u root -e "CREATE DATABASE IF NOT EXISTS briela_test"`. Al 30 ago 2026: 88 en verde.
+> `mysql -u root -e "CREATE DATABASE IF NOT EXISTS briela_test"`. Al 30 ago 2026: 90 en verde.
 
 **Tareas programadas** (`routes/console.php`, requieren cron):
 `cotizaciones:marcar-vencidas` · `notificaciones:entregas-proximas` ·

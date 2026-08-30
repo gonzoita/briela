@@ -23,6 +23,7 @@ class TrabajoController extends Controller
             'opItem.ensamble.plantilla.campos',
             'template',
             'pasos.operario',
+            'checks:id,op_item_trabajo_id,resultado',
         ]);
 
         // Solo los trabajos de las OPs que se fabrican en la sede activa.
@@ -110,6 +111,10 @@ class TrabajoController extends Controller
                 // Con qué bodegas viene precargado su paso final: las de la orden, o las que
                 // se eligieron en la unidad anterior. El tablero las muestra ya puestas.
                 'bodegas_sugeridas'     => app(\App\Services\CierrePasoService::class)->bodegasSugeridas($t),
+                // Una unidad que calidad rechazó y volvió a planta. Se lee de la revisión, que
+                // ya lo dice: un campo aparte sería una segunda versión de la misma verdad.
+                'en_reproceso'          => $t->opItem?->op?->estado === 'reproceso'
+                    && $t->checks->contains(fn ($c) => $c->resultado === 'falla'),
                 // Los pasos viajan enteros: el tablero los marca ahí mismo, sin abrir la hoja.
                 // Un paso que depende de otro sin terminar sale bloqueado, y eso se resuelve
                 // contra la colección ya cargada — preguntárselo a la base paso por paso serían

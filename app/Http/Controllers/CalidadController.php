@@ -234,10 +234,31 @@ class CalidadController extends Controller
         return back()->with('success', "Calidad cerrada en {$op->numero} — ya se puede remisionar.");
     }
 
-    /** Devuelve la orden a reproceso: lo que salió mal se arregla en planta, no aquí. */
+    /**
+     * Devuelve la orden a reproceso, y **reabre las unidades que fallaron**.
+     *
+     * Mandar a reproceso era cambiar una etiqueta: la orden decía «reproceso» y en planta no
+     * pasaba nada. Las unidades seguían al 100 %, así que no aparecían como trabajo pendiente
+     * en ningún lado, y volver a producción dependía de que alguien se acordara.
+     *
+     * Ahora se reabre el paso de entrega de cada unidad con una falla. Con eso la unidad baja
+     * del 100 %, vuelve a salir en Trabajos con su código QR, y sale del listado de lo que se
+     * puede despachar — que es lo que de verdad significa «hay que rehacerla».
+     *
+     * **Las fallas no se borran.** La observación de qué salió mal es justo lo que quien
+     * corrige necesita leer, y lo que hace falta si el cliente reclama. Calidad las cambia a
+     * cumplido cuando vuelva a mirar la unidad, y ahí la orden se sella sola.
+     *
+     * Lo que **no** hace: devolver la unidad de la bodega ni reponer el material. Si ya se
+     * había entregado, la puerta existe en un estante y su material se gastó. Lo que consuma
+     * la reparación no queda registrado — eso es un ajuste de inventario, y es una decisión de
+     * quien cuenta el estante.
+     */
     public function reprocesar(Request $request, Op $op): RedirectResponse
     {
         $data = $request->validate(['motivo_rechazo' => 'required|string|max:2000']);
+
+        $unidades = $op->unidadesEnReproceso();
 
         $op->update([
             'motivo_rechazo'      => $data['motivo_rechazo'],
@@ -245,7 +266,31 @@ class CalidadController extends Controller
             'estado'              => 'reproceso',
         ]);
 
-        return back()->with('success', "{$op->numero} volvió a reproceso.");
+        $cierre = app(\App\Services\CierrePasoService::class);
+
+        foreach ($unidades as $unidad) {
+            $final = $unidad->pasos()->where('es_paso_final', true)->where('completado', true)->first();
+
+            if ($final) {
+                $cierre->reabrir($final);
+            }
+        }
+
+        $cuantas = $unidades->count();
+
+        app(NotificacionService::class)->paraRol(
+            ['administrador', 'jefe_produccion'],
+            'op_a_reproceso',
+            "OP {$op->numero} volvió a reproceso",
+            $cuantas > 0
+                ? "{$cuantas} unidad(es) para rehacer. Motivo: {$data['motivo_rechazo']}"
+                : "Motivo: {$data['motivo_rechazo']}",
+            "/trabajos?op_numero={$op->numero}",
+        );
+
+        return back()->with('success', $cuantas > 0
+            ? "{$op->numero} volvió a reproceso: {$cuantas} unidad(es) reabiertas en Trabajos."
+            : "{$op->numero} volvió a reproceso.");
     }
 
     // ─────────────────────────────────────────────────────────────────────────────
@@ -379,6 +424,9 @@ class CalidadController extends Controller
             'total_checks' => $checks->count(),
             'resueltos'    => $checks->where('resultado', '!=', 'pendiente')->count(),
             'fallas'       => $checks->where('resultado', 'falla')->count(),
+            // Una unidad que calidad rechazó y que planta está rehaciendo. No es un campo
+            // guardado: la revisión ya lo dice, punto por punto.
+            'en_reproceso' => $op?->estado === 'reproceso' && $checks->where('resultado', 'falla')->isNotEmpty(),
             'bloquean'     => $checks->filter(fn ($c) => $c->bloquea())->count(),
             'porcentaje'   => $checks->count() > 0
                 ? (int) round($checks->where('resultado', '!=', 'pendiente')->count() / $checks->count() * 100)

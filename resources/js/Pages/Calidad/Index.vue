@@ -423,6 +423,7 @@ const filtrarPor = (estado) => { filtros.value.estado = estado }
                         :subtitulo="ficha.cliente"
                         :chips="chipsDe(ficha)"
                         :urgencia="ficha.urgencia"
+                        :marca="ficha.en_reproceso ? 'En reproceso' : ''"
                         :fecha="ficha.fecha_entrega"
                         :contador="`${ficha.resueltos}/${ficha.total_checks}`"
                         :porcentaje="ficha.porcentaje"

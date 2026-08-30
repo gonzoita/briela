@@ -25,6 +25,7 @@ class NotificacionService
                 ['tipo' => 'material_faltante',   'label' => 'Material faltante en una OP'],
                 ['tipo' => 'op_a_calidad',        'label' => 'OP lista para control de calidad'],
                 ['tipo' => 'op_lista_despacho',   'label' => 'OP lista para despachar'],
+                ['tipo' => 'op_a_reproceso',      'label' => 'OP devuelta a reproceso por calidad'],
                 ['tipo' => 'trabajo_asignado',    'label' => 'Trabajo asignado a un colaborador'],
                 ['tipo' => 'entrega_proxima',     'label' => 'Entrega de OP próxima a vencer'],
             ],

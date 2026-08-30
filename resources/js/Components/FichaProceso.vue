@@ -22,6 +22,8 @@ const props = defineProps({
     chips:     { type: Array,  default: () => [] },   // las medidas de la instancia
     // Aviso de urgencia: { clave, etiqueta }
     urgencia:  { type: Object, default: () => ({ clave: 'normal', etiqueta: '' }) },
+    // Una insignia extra, para lo que no es urgencia: hoy, «en reproceso».
+    marca:     { type: String, default: '' },
     fecha:     { type: String, default: '' },
     contador:  { type: String, default: '' },     // «3/8»
     porcentaje:{ type: Number, default: 0 },
@@ -127,6 +129,12 @@ const fondoFicha = computed(() =>
                         <span v-if="i" class="text-tinta-200 mr-2">·</span>{{ c }}
                     </span>
                 </div>
+
+                <span v-if="marca"
+                    class="text-[10px] font-bold uppercase tracking-[0.08em] px-2 py-1 rounded-full shrink-0
+                           bg-pastel-naranja-2 text-aviso-naranja">
+                    {{ marca }}
+                </span>
 
                 <span v-if="urgencia?.etiqueta"
                     class="text-[10px] font-bold uppercase tracking-[0.08em] px-2 py-1 rounded-full shrink-0"

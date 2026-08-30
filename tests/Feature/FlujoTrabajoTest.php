@@ -302,6 +302,78 @@ class FlujoTrabajoTest extends TestCase
         $this->assertSame($antes, $e['item']->trabajos()->firstOrFail()->id);
     }
 
+    // ── El reproceso ─────────────────────────────────────────────────────────────
+
+    /** Fabrica una unidad de punta a punta y le deja un punto de revisión. */
+    private function fabricar(OpItemTrabajo $trabajo): void
+    {
+        $svc = app(CierrePasoService::class);
+        $svc->cerrar($trabajo->pasos()->where('es_paso_final', false)->firstOrFail());
+        $svc->cerrar($trabajo->pasos()->where('es_paso_final', true)->firstOrFail());
+        $trabajo->checks()->create(['titulo' => 'Escuadra', 'orden' => 0, 'es_critico' => true]);
+    }
+
+    public function test_reprocesar_reabre_solo_las_unidades_que_fallaron(): void
+    {
+        $e = $this->escenario(cantidad: 2);
+        $this->actingAs($this->admin());
+
+        $unidades = $e['item']->trabajos()->orderBy('numero_unidad')->get();
+        $unidades->each(fn ($t) => $this->fabricar($t));
+
+        // La primera falla, la segunda cumple.
+        $unidades[0]->checks()->update(['resultado' => 'falla', 'observaciones' => 'Descuadrada 3 mm']);
+        $unidades[1]->checks()->update(['resultado' => 'cumple']);
+
+        $this->actingAs($this->admin())
+            ->post("/calidad/ops/{$e['op']->id}/reprocesar", ['motivo_rechazo' => 'La primera vino descuadrada'])
+            ->assertSessionHasNoErrors();
+
+        $this->assertSame('reproceso', $e['op']->fresh()->estado);
+
+        // La que falló bajó del 100 % y volvió a ser trabajo pendiente…
+        $this->assertLessThan(100, (float) $unidades[0]->fresh()->porcentaje_avance);
+        // …y la que cumplió no se tocó: rehacer lo que estaba bien es trabajo inventado.
+        $this->assertSame(100.0, (float) $unidades[1]->fresh()->porcentaje_avance);
+
+        // Ninguna de las dos se puede despachar: una está en reproceso y la orden perdió el
+        // sello, que es lo que gobierna a la que cumplió mientras su compañera se rehace.
+        $this->assertSame(1, OpItemTrabajo::disponiblesParaRemision()->count());
+
+        // Y la falla NO se borra: la observación es lo que quien corrige necesita leer.
+        $this->assertSame('falla', $unidades[0]->fresh()->checks()->first()->resultado);
+        $this->assertStringContainsString('3 mm', $unidades[0]->fresh()->checks()->first()->observaciones);
+    }
+
+    public function test_al_rehacer_la_unidad_la_orden_vuelve_sola_a_calidad(): void
+    {
+        $e = $this->escenario();
+        $this->actingAs($this->admin());
+
+        $trabajo = $e['item']->trabajos()->firstOrFail();
+        $this->fabricar($trabajo);
+        $trabajo->checks()->update(['resultado' => 'falla']);
+
+        $this->actingAs($this->admin())
+            ->post("/calidad/ops/{$e['op']->id}/reprocesar", ['motivo_rechazo' => 'Descuadrada'])
+            ->assertSessionHasNoErrors();
+
+        $this->assertSame('reproceso', $e['op']->fresh()->estado);
+
+        // Planta la corrige y vuelve a cerrar el paso de entrega.
+        app(CierrePasoService::class)->cerrar(
+            $trabajo->fresh()->pasos()->where('es_paso_final', true)->firstOrFail()
+        );
+
+        // La orden regresa sola a calidad. Antes esto era manual y no había nada que lo
+        // recordara: la orden se quedaba en reproceso con el trabajo ya rehecho.
+        $this->assertSame('calidad', $e['op']->fresh()->estado);
+
+        // Y no entró dos veces a bodega por rehacerla.
+        $terminado = Producto::where('ensamble_id', $e['ensamble']->id)->firstOrFail();
+        $this->assertSame(1.0, (float) $terminado->stockEnBodega($e['terminado']->id));
+    }
+
     // ── La remisión es por unidad ────────────────────────────────────────────────
 
     public function test_una_unidad_sin_calidad_resuelta_no_esta_disponible_para_remision(): void

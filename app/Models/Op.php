@@ -405,9 +405,27 @@ class Op extends Model
      * la OP y cambiar el estado a mano aunque el trabajo ya estuviera
      * completo.
      */
+    /**
+     * Las unidades que calidad rechazó: las que tienen algún punto en falla.
+     *
+     * No hace falta una columna que lo marque — la revisión ya lo dice, punto por punto y por
+     * unidad. Un campo aparte sería una segunda versión de la misma verdad, y las dos se
+     * separarían el día que alguien corrija una falla sin acordarse de bajar la bandera.
+     */
+    public function unidadesEnReproceso()
+    {
+        return OpItemTrabajo::whereHas('opItem', fn ($q) => $q->where('op_id', $this->id))
+            ->whereHas('checks', fn ($q) => $q->where('resultado', 'falla'))
+            ->get();
+    }
+
     public function revisarTransicionCalidad(): void
     {
-        if ($this->estado !== 'en_produccion') return;
+        // También desde `reproceso`: una orden que volvió a planta a corregir algo tiene que
+        // poder regresar sola a calidad cuando lo corrigió. Mientras esto solo miraba
+        // `en_produccion`, el regreso era manual y no había nada que lo recordara — la orden
+        // se quedaba en reproceso con el trabajo ya rehecho.
+        if (! in_array($this->estado, ['en_produccion', 'reproceso'], true)) return;
 
         $totalItems = $this->items()->count();
         if ($totalItems === 0) return;

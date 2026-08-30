@@ -29,11 +29,11 @@ de aprobarla, y desde ahí vuelva a `en_produccion`.
    revisen. El botón manual de "Cambiar estado" sigue existiendo como
    respaldo, pero ya no debería hacer falta usarlo para este paso.
 
-   **Pendiente**: cuando calidad **rechaza** y la OP vuelve a "Reproceso",
-   el regreso de "Reproceso" a "En producción" (o directo a "Calidad" otra
-   vez, una vez corregido) todavía es manual — no hay hoy un marcador de
-   "qué ítem específico falló" para saber cuándo el reproceso terminó. Es
-   el siguiente punto de automatización pendiente en este módulo.
+   **Resuelto el 30 ago 2026.** Este era el pendiente del módulo: el regreso desde
+   "Reproceso" era manual porque no había forma de saber qué falló. Ahora sí la hay
+   —la revisión de calidad es punto por punto y por unidad—, así que mandar a
+   reproceso reabre las unidades que fallaron, y la orden **vuelve sola a "Calidad"**
+   cuando planta termina de rehacerlas. Ver [Calidad](./calidad.md).
 5. **"Confirmada" pasa directo a "En producción"** *(nuevo, 22 jul 2026)*:
    antes, después de confirmar la OP (con o sin anticipo), había que volver
    a entrar a "Cambiar estado" y elegir "En producción" a mano — un segundo

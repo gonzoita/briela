@@ -36,6 +36,11 @@ Formato: [versionado semántico](https://semver.org/lang/es/).
   sin las validaciones de la pantalla nueva.
 
 ### Cambiado
+- **Mandar una orden a reproceso ahora hace algo.** Antes solo cambiaba la
+  etiqueta: las unidades seguían figurando como terminadas y volver a producción
+  dependía de que alguien se acordara. Ahora reabre en Trabajos las unidades que
+  calidad rechazó —solo esas—, quedan marcadas «En reproceso», y la orden vuelve
+  sola a Calidad cuando planta las rehace.
 - **El último paso de producción ahora pregunta las dos bodegas**: a cuál entra el
   ensamble terminado y de cuál salieron los insumos que se gastaron en él. Llegan
   ya elegidas —las de la orden, o las de la unidad anterior— así que casi siempre

@@ -102,10 +102,37 @@ se quiere llevar una parte del pedido. Ver [Logística](./logistica.md).
 El sello de la orden (`calidad_aprobada_at`) sigue existiendo y sigue poniéndose solo, pero ya
 no es lo que abre el despacho: es el resumen de que no queda nada por revisar.
 
-## Reproceso
+## Reproceso *(completado el 30 ago 2026)*
 
-«A reproceso» pide el motivo, lo guarda en `ops.motivo_rechazo`, quita el sello y deja
-la orden en estado `reproceso`. Lo que salió mal se arregla en planta, no aquí.
+«A reproceso» pide el motivo, quita el sello y deja la orden en `reproceso`. Hasta ahora eso
+era **cambiar una etiqueta**: la orden decía «reproceso» y en planta no pasaba nada. Las
+unidades seguían al 100 %, así que no salían como trabajo pendiente en ningún lado, y volver a
+producción dependía de que alguien se acordara.
+
+Ahora se **reabre el paso de entrega de cada unidad que falló**. Con eso la unidad baja del
+100 %, vuelve a aparecer en [Trabajos](./trabajos-pasos.md) con su código QR y su insignia
+«En reproceso», y sale del listado de lo que se puede despachar — que es lo que de verdad
+significa «hay que rehacerla».
+
+**Solo las que fallaron.** Una unidad que pasó la revisión no se toca: rehacer lo que estaba
+bien es trabajo inventado. Cuáles son no necesita una columna que lo marque — la revisión ya lo
+dice, punto por punto (`Op::unidadesEnReproceso()`). Un campo aparte sería una segunda versión
+de la misma verdad, y las dos se separarían el día que alguien corrija una falla sin acordarse
+de bajar la bandera.
+
+**Las fallas no se borran.** La observación de qué salió mal es justo lo que quien corrige
+necesita leer, y lo que hace falta si el cliente reclama. Calidad las cambia a cumplido cuando
+vuelva a mirar la unidad.
+
+**Y la orden vuelve sola a calidad** cuando planta termina de rehacerla: el mismo principio de
+siempre, cada acción real dispara el paso siguiente. Antes ese regreso era manual y no había
+nada que lo recordara.
+
+> **Lo que el reproceso no hace, a propósito:** no devuelve la unidad de la bodega ni repone su
+> material. Si ya se había entregado, la puerta existe en un estante y su material se gastó de
+> verdad. Y **lo que consuma la reparación no queda registrado** — eso es un ajuste de
+> inventario, y es una decisión de quien cuenta el estante, no un efecto secundario de marcar
+> una falla.
 
 ## Lo que comparte con Trabajos
 
