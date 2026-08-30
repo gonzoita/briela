@@ -386,6 +386,28 @@ Lo construido después de la fase 3, que conviene conocer antes de tocar algo ce
   ensamble medido se cotizara al 32,5 % en cuanto la empresa creaba sus propios canales.
   Cambiar un margen no reprecia lo guardado: eso lo hace `php artisan precios:recalcular`,
   y después **siempre** `comisiones:recalcular`.
+- **Cerrar un paso pasa por `CierrePasoService`, y por ningún otro sitio.** Las cuatro
+  pantallas que cierran un paso —QR del operario, panel de la OP, hoja del trabajo, tablero—
+  llaman ahí. Antes cada una lo hacía distinto, y de eso salían tres problemas que parecían no
+  tener relación: la entrega a bodega ocurría en momentos distintos, los puntos solo se
+  otorgaban por el QR pero se devolvían desde la hoja, y la bodega se preguntaba de tres
+  maneras. **Un cierre nuevo se agrega llamando al servicio, nunca escribiendo `completado` a
+  mano.**
+- **El paso final entrega la unidad, y pide LAS DOS bodegas**: a dónde entra lo fabricado
+  (`op_item_trabajos.bodega_entrega_id`) y de dónde salió el material (`bodega_material_id`).
+  Se guardan por unidad porque un lote se puede partir. Llegan precargadas —de la unidad
+  anterior de la misma orden, o de la OP— y se pueden corregir: quien deja la unidad en el
+  estante es el único que sabe en cuál quedó. **No se cierra con otros pasos pendientes**:
+  entregar ahí metería al inventario una puerta sin marco.
+- **Las unidades siguen a la cantidad del ítem** (`TrabajoAutoGeneratorService::
+  sincronizarParaItem`), y la pantalla lo **pregunta** antes de guardar. Nunca se borra una
+  unidad con avance. Y `items.*.id` **tiene que seguir en las reglas de validación** de
+  `OpController`: `validate()` devuelve solo lo que valida, y sin esa regla cada guardado de
+  una OP recreaba sus ítems y se llevaba en cascada unidades, pasos y revisión.
+- **La remisión es por unidad, no por orden.** `OpItemTrabajo::disponiblesParaRemision()` exige
+  que la unidad no tenga puntos pendientes ni fallas críticas; el sello de la orden solo manda
+  para los ensambles **sin** lista de revisión. Es lo que deja que el cliente se lleve las tres
+  puertas aprobadas mientras las otras siete siguen en revisión.
 - **Trabajos y Calidad comparten la ficha**, `resources/js/Components/FichaProceso.vue`: una
   tarjeta grande por unidad física con un botón por paso o por punto de revisión. Es el mismo
   gesto —mirar la unidad, tocar el paso, seguir—, así que la pantalla es la misma; escribirla

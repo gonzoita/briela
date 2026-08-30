@@ -9,18 +9,19 @@ const props = defineProps({
     trabajo:   { type: Object, required: true },
     operarios: { type: Array,  default: () => [] },
     bodegas:   { type: Array,  default: () => [] },
+    bodegas_sugeridas: { type: Object, default: () => ({}) },
 })
 
-// A qué bodega entra la unidad al cerrar el último paso.
+// Las dos bodegas del paso final: a dónde entra la unidad y de dónde salió su material.
 //
-// Lo normal es que lo diga la OP, y entonces aquí no se pregunta nada: se muestra a dónde va.
-// El selector solo aparece en las órdenes viejas, nacidas antes de que la OP declarara su
-// bodega — ahí sigue valiendo lo que dejó la plantilla, y quien cierra el paso puede cambiarlo.
-const bodegaEntrega = ref(
-    props.trabajo?.pasos?.find(p => p.es_paso_final)?.bodega_destino_id ?? ''
-)
-
-const laDecideLaOp = computed(() => !! props.trabajo?.op_bodega_entrega)
+// Llegan ya elegidas —las de la orden, o las de la unidad anterior— y se pueden corregir: quien
+// cierra el paso es quien físicamente dejó la unidad en un estante y sacó el material de una
+// caja, y es el único que sabe si terminó donde se había planeado.
+//
+// Son dos porque una bodega de producto terminado no guarda insumos: descontar el material
+// contra ella lo recorta a cero en silencio y el inventario queda mintiendo por los dos lados.
+const bodegaEntrega  = ref(props.bodegas_sugeridas?.entrega  ?? '')
+const bodegaMaterial = ref(props.bodegas_sugeridas?.material ?? '')
 
 const csrf = () => {
     const c = document.cookie.split('; ').find(r => r.startsWith('XSRF-TOKEN='))
@@ -160,7 +161,10 @@ const marcarCompletado = (paso) => {
         completado: true,
         operarios: entries,
         // Solo significa algo en el paso final; el servidor lo ignora en los demás.
-        ...(paso.es_paso_final ? { bodega_destino_id: bodegaEntrega.value || null } : {}),
+        ...(paso.es_paso_final ? {
+            bodega_entrega_id:  bodegaEntrega.value  || null,
+            bodega_material_id: bodegaMaterial.value || null,
+        } : {}),
     })
 }
 
@@ -524,30 +528,35 @@ const circuloPaso = (paso) => {
                                 >
                                     {{ guardando.has(paso.id) ? '...' : 'Quitar inicio' }}
                                 </button>
-                                <!-- El paso final entrega la unidad: aquí se dice a qué bodega.
-                                     Antes esto solo existía en la plantilla, así que quien
-                                     cerraba el paso —el que físicamente deja la unidad en el
-                                     estante— no tenía forma de decir en cuál la dejó. -->
-                                <div v-if="paso.es_paso_final && ! paso.completado" class="w-full mb-2">
-                                    <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1">
-                                        Entrega en
-                                    </label>
+                                <!-- El paso final entrega la unidad, y para eso hacen falta las
+                                     dos bodegas. Vienen ya elegidas de la orden: casi siempre
+                                     es confirmar y seguir. -->
+                                <div v-if="paso.es_paso_final && ! paso.completado" class="w-full mb-2 space-y-3">
+                                    <div>
+                                        <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1">
+                                            La unidad entra en
+                                        </label>
+                                        <select v-model="bodegaEntrega" @click.stop
+                                            class="w-full border border-linea rounded-xl px-3 py-2 text-sm bg-superficie focus:outline-none focus:border-[var(--marca)]">
+                                            <option value="">Elige la bodega…</option>
+                                            <option v-for="b in bodegas" :key="b.id" :value="b.id">{{ b.nombre }}</option>
+                                        </select>
+                                    </div>
 
-                                    <!-- La orden ya lo decidió: aquí no se pregunta, se informa. -->
-                                    <p v-if="laDecideLaOp" class="text-sm font-medium text-tinta-800">
-                                        {{ trabajo.op_bodega_entrega }}
-                                        <span class="block text-xs text-tinta-300 font-normal mt-0.5">Lo decidió la orden de producción.</span>
-                                    </p>
-
-                                    <select v-else v-model="bodegaEntrega" @click.stop
-                                        class="w-full border border-linea rounded-xl px-3 py-2 text-sm bg-superficie focus:outline-none focus:border-[var(--marca)]">
-                                        <option value="">Elige la bodega…</option>
-                                        <option v-for="b in bodegas" :key="b.id" :value="b.id">{{ b.nombre }}</option>
-                                    </select>
-                                    <p v-if="! laDecideLaOp" class="text-xs text-tinta-300 mt-1">
-                                        Al cerrar este paso la unidad entra a esa bodega y se descuentan
-                                        los materiales que se gastaron en ella.
-                                    </p>
+                                    <div>
+                                        <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1">
+                                            El material salió de
+                                        </label>
+                                        <select v-model="bodegaMaterial" @click.stop
+                                            class="w-full border border-linea rounded-xl px-3 py-2 text-sm bg-superficie focus:outline-none focus:border-[var(--marca)]">
+                                            <option value="">Elige la bodega…</option>
+                                            <option v-for="b in bodegas" :key="b.id" :value="b.id">{{ b.nombre }}</option>
+                                        </select>
+                                        <p class="text-xs text-tinta-300 mt-1">
+                                            Al cerrar este paso la unidad entra a la primera y se descuenta
+                                            de la segunda el material que se gastó en ella.
+                                        </p>
+                                    </div>
                                 </div>
 
                                 <button

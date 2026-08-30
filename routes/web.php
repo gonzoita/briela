@@ -80,7 +80,6 @@ use App\Http\Controllers\ProductoImportController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RRHHConfigController;
 use App\Http\Controllers\SeguimientoController;
-use App\Http\Controllers\TemplateTrabajoController;
 use App\Http\Controllers\TrabajoController;
 use App\Http\Controllers\TrabajoOperarioController;
 use App\Http\Controllers\TrabajoPasoController;
@@ -620,18 +619,6 @@ Route::middleware('auth')->group(function () {
         Route::get('/datos',                         [ProgramadorController::class, 'datos'])->name('datos');
         Route::patch('/pasos/{paso}/programar',      [ProgramadorController::class, 'programarPaso'])->name('paso.programar');
         Route::patch('/pasos/{paso}/desprogramar',   [ProgramadorController::class, 'desprogramarPaso'])->name('paso.desprogramar');
-    });
-
-    // ─── Templates de Trabajo ─────────────────────────────────────────────────
-    Route::middleware('permiso:programador.editar')->group(function () {
-        Route::get('/produccion/templates',                       [TemplateTrabajoController::class, 'index']);
-        Route::get('/produccion/templates/crear',                 [TemplateTrabajoController::class, 'create']);
-        Route::post('/produccion/templates',                      [TemplateTrabajoController::class, 'store']);
-        Route::get('/produccion/templates/{template}/pasos',      [TemplateTrabajoController::class, 'pasos']);
-        Route::get('/produccion/templates/{template}/editar',     [TemplateTrabajoController::class, 'edit']);
-        Route::get('/produccion/templates/{template}',            [TemplateTrabajoController::class, 'show']);
-        Route::put('/produccion/templates/{template}',            [TemplateTrabajoController::class, 'update']);
-        Route::delete('/produccion/templates/{template}',         [TemplateTrabajoController::class, 'destroy']);
     });
 
     // ─── Módulo Trabajos ──────────────────────────────────────────────────────────

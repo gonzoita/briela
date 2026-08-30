@@ -28,7 +28,25 @@ Formato: [versionado semántico](https://semver.org/lang/es/).
   canal de origen (utm_source / utm_medium / utm_campaign) de la visita que
   los trajo. Se conecta desde Configuración → Integraciones → WordPress.
 
+### Corregido
+- Guardar una orden de producción **recreaba sus ítems** y se llevaba por delante
+  sus unidades, sus pasos y su revisión de calidad, en silencio. Ya no.
+- Se eliminó el módulo suelto de «Plantillas de trabajo», que llevaba sin enlace
+  desde que los pasos se cargan en la ficha del ensamble y editaba los mismos datos
+  sin las validaciones de la pantalla nueva.
+
 ### Cambiado
+- **El último paso de producción ahora pregunta las dos bodegas**: a cuál entra el
+  ensamble terminado y de cuál salieron los insumos que se gastaron en él. Llegan
+  ya elegidas —las de la orden, o las de la unidad anterior— así que casi siempre
+  es confirmar y seguir. Y ese paso ya no se puede cerrar si quedan otros pendientes.
+- **Se puede remisionar lo que ya pasó calidad, sin esperar al resto de la orden.**
+  Si el cliente quiere llevarse tres de las diez puertas y esas tres están
+  revisadas, se despachan hoy.
+- **Cambiar la cantidad de un ítem crea o elimina las unidades correspondientes**, y
+  lo avisa antes de guardar. Nunca elimina una unidad que ya tenga trabajo hecho.
+- Los puntos del colaborador se otorgan al cerrar un paso **desde cualquier
+  pantalla**, no solo desde el código QR.
 - **Trabajos se ve como Calidad**: el listado dejó de ser una tabla y ahora es
   la misma ficha grande, con un botón por paso. Marcar un paso pasó de ocho
   toques a uno.

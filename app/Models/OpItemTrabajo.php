@@ -22,12 +22,21 @@ class OpItemTrabajo extends Model
         // marcar el último paso meta la misma unidad dos veces al inventario.
         'entregado_at',
         'bodega_entrega_id',
+        // Y de cuál salió su material. Se guarda por unidad porque un lote se puede partir:
+        // tres puertas con material de la principal y dos con el de la sucursal.
+        'bodega_material_id',
     ];
 
     /** La bodega a la que entró esta unidad al terminarse. */
     public function bodegaEntrega(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(\App\Models\Bodega::class, 'bodega_entrega_id');
+    }
+
+    /** La bodega de la que salieron sus insumos. */
+    public function bodegaMaterial(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(\App\Models\Bodega::class, 'bodega_material_id');
     }
 
     protected static function booted(): void
@@ -65,9 +74,36 @@ class OpItemTrabajo extends Model
         return $query->where('porcentaje_avance', 100);
     }
 
+    /**
+     * Las unidades que se pueden despachar: armadas, sin remisionar y **con calidad resuelta**.
+     *
+     * El candado de calidad vive aquí, en la unidad, y no en el sello de la orden. Es lo que
+     * permite lo que de verdad pasa en el mostrador: de una orden de diez puertas el cliente
+     * se lleva las tres que ya están revisadas, y las otras siete siguen su curso. Con el
+     * candado en la orden, esas tres esperaban a que la última pasara calidad.
+     *
+     * Un ensamble **sin lista de revisión** no tiene nada que resolver por unidad, y ahí sigue
+     * mandando el sello de la orden: sin eso, no tendría ningún control de calidad y se
+     * despacharía apenas terminara de fabricarse.
+     */
     public function scopeDisponiblesParaRemision($query)
     {
-        return $query->where('porcentaje_avance', 100)->where('remisionado', false);
+        return $query->where('porcentaje_avance', 100)
+            ->where('remisionado', false)
+            ->where(function ($q) {
+                $q->where(function ($conLista) {
+                    $conLista->whereHas('checks')
+                        ->whereDoesntHave('checks', function ($bloquea) {
+                            $bloquea->where('resultado', 'pendiente')
+                                ->orWhere(function ($critico) {
+                                    $critico->where('resultado', 'falla')->where('es_critico', true);
+                                });
+                        });
+                })->orWhere(function ($sinLista) {
+                    $sinLista->whereDoesntHave('checks')
+                        ->whereHas('opItem.op', fn ($op) => $op->whereNotNull('calidad_aprobada_at'));
+                });
+            });
     }
 
     public function recalcularAvance(): void

@@ -9,6 +9,8 @@ const props = defineProps({
     operario_id:     Number,
     operario_nombre: String,
     operarios:       Array,
+    bodegas:           { type: Array,  default: () => [] },
+    bodegas_sugeridas: { type: Object, default: () => ({}) },
 })
 
 const BADGE = {
@@ -42,12 +44,25 @@ function quitarOperario(idx) {
     if (operariosModal.value.length > 1) operariosModal.value.splice(idx, 1)
 }
 
+// Las dos bodegas del paso final: llegan ya elegidas de la orden y solo se corrigen si la
+// unidad quedó en otro estante, o si el material salió de otra caja.
+const bodegaEntrega  = ref(props.bodegas_sugeridas?.entrega  ?? '')
+const bodegaMaterial = ref(props.bodegas_sugeridas?.material ?? '')
+
 function completarPaso() {
     if (guardando.value) return
     guardando.value = true
     router.post(
         `/trabajo/${props.trabajo.token}/pasos/${modalPaso.value.id}/completar`,
-        { operarios: operariosModal.value },
+        {
+            operarios: operariosModal.value,
+            // El paso final entrega la unidad: a dónde entra y de dónde salió su material.
+            // En los demás pasos el servidor los ignora.
+            ...(modalPaso.value?.es_paso_final ? {
+                bodega_entrega_id:  bodegaEntrega.value  || null,
+                bodega_material_id: bodegaMaterial.value || null,
+            } : {}),
+        },
         {
             preserveScroll: true,
             onSuccess: () => {
@@ -305,6 +320,31 @@ function desmarcarPaso(paso) {
                             </svg>
                             Agregar operario
                         </button>
+
+                        <!-- El paso final entrega la unidad: entra a bodega y su material se
+                             descuenta. Las dos llegan ya elegidas de la orden; el operario solo
+                             las corrige si terminó en otro estante del que se había planeado. -->
+                        <div v-if="modalPaso?.es_paso_final" class="space-y-3 pt-2 border-t border-linea">
+                            <p class="text-xs font-semibold text-tinta-500 uppercase tracking-[0.12em]">
+                                Este paso entrega la unidad
+                            </p>
+                            <div>
+                                <label class="text-xs text-tinta-400 block mb-1">La unidad entra en</label>
+                                <select v-model="bodegaEntrega"
+                                    class="w-full rounded-xl border border-linea px-3 py-2 text-sm bg-superficie focus:outline-none focus:border-[var(--marca)]">
+                                    <option value="">Elige la bodega...</option>
+                                    <option v-for="b in bodegas" :key="b.id" :value="b.id">{{ b.nombre }}</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="text-xs text-tinta-400 block mb-1">El material salió de</label>
+                                <select v-model="bodegaMaterial"
+                                    class="w-full rounded-xl border border-linea px-3 py-2 text-sm bg-superficie focus:outline-none focus:border-[var(--marca)]">
+                                    <option value="">Elige la bodega...</option>
+                                    <option v-for="b in bodegas" :key="b.id" :value="b.id">{{ b.nombre }}</option>
+                                </select>
+                            </div>
+                        </div>
 
                         <div class="flex gap-3 pt-2">
                             <button @click="cerrarModal"

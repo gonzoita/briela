@@ -52,10 +52,11 @@ class TemplateTrabajo extends Model
     }
 
     /**
-     * Reemplaza todos los pasos de este template por el array recibido
-     * (mismo contrato que usaba TemplateTrabajoController::syncPasos).
-     * Compartido entre el módulo viejo de Plantillas de Trabajo y la nueva
-     * pestaña "Pasos de producción" dentro de Plantillas de Ensamble.
+     * Reemplaza todos los pasos de este template por el array recibido.
+     *
+     * Lo usan los dos sitios donde se editan pasos: la ficha del ensamble —cuando es
+     * directo— y la pestaña de producción de la plantilla. Borra y recrea, así que quien
+     * guarda manda la lista completa, no un parche.
      */
     public function sincronizarPasos(array $pasos): void
     {

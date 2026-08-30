@@ -117,6 +117,13 @@ class EntregaAlmacenService
      */
     private function bodegaDeEntrega(OpItemTrabajo $trabajo): ?Bodega
     {
+        // Lo primero es lo que se eligió al cerrar el paso final de ESTA unidad. Viene ya
+        // precargado de la orden, así que casi siempre son el mismo valor; cuando no lo son es
+        // porque alguien corrigió a dónde quedó de verdad, y esa corrección manda.
+        if ($trabajo->bodega_entrega_id && $bodega = Bodega::find($trabajo->bodega_entrega_id)) {
+            return $bodega;
+        }
+
         $deLaOp = $trabajo->opItem?->op?->bodega_entrega_id;
 
         if ($deLaOp && $bodega = Bodega::find($deLaOp)) {
@@ -155,7 +162,9 @@ class EntregaAlmacenService
      */
     private function bodegaDelMaterial(OpItemTrabajo $trabajo, Bodega $entrega): Bodega
     {
-        $id = $trabajo->opItem?->op?->bodega_material_id;
+        // Igual que la de entrega: manda lo que se eligió al cerrar el paso final de esta
+        // unidad, y la orden es el respaldo.
+        $id = $trabajo->bodega_material_id ?: $trabajo->opItem?->op?->bodega_material_id;
 
         return ($id ? Bodega::find($id) : null) ?? $entrega;
     }

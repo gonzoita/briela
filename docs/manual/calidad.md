@@ -93,6 +93,15 @@ unidad — ese botón terminaría siendo un trámite que se aprieta sin mirar.
 Y se retira solo si algo se reabre: decir que una orden está aprobada cuando una de sus
 unidades volvió a estar sin revisar es mentir en el único sitio donde no se puede.
 
+## Lo que habilita: la remisión, unidad por unidad
+
+Revisar una unidad la deja **lista para despachar**, sin esperar a las demás. De una orden de
+diez puertas, las tres aprobadas se remisionan hoy: es lo que de verdad pasa cuando el cliente
+se quiere llevar una parte del pedido. Ver [Logística](./logistica.md).
+
+El sello de la orden (`calidad_aprobada_at`) sigue existiendo y sigue poniéndose solo, pero ya
+no es lo que abre el despacho: es el resumen de que no queda nada por revisar.
+
 ## Reproceso
 
 «A reproceso» pide el motivo, lo guarda en `ops.motivo_rechazo`, quita el sello y deja

@@ -776,7 +776,7 @@ async function eliminarSeccion(sec) {
 // Cada plantilla de ensamble tiene emparejado 1 a 1 su propio flujo de
 // producción — no hay que crear ni elegir ninguna "plantilla de trabajo"
 // aparte. El peso de cada paso se calcula solo a partir de la dificultad
-// (mismo criterio que usaba el editor viejo de /produccion/templates), nadie
+// (el mismo criterio de siempre), nadie
 // tiene que cuadrar porcentajes a mano. Los cambios se guardan todos juntos
 // con el botón "Guardar pasos" — igual que hacía el editor viejo.
 const templateTrabajoId = ref(null)

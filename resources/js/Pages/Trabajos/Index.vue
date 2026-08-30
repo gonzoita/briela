@@ -12,6 +12,7 @@ import { router, usePage } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
 import OrdenarLista from '@/Components/OrdenarLista.vue'
 import FichaProceso from '@/Components/FichaProceso.vue'
+import ModalBodegasEntrega from '@/Components/ModalBodegasEntrega.vue'
 import { useOrden } from '@/composables/useOrden'
 
 const props = defineProps({
@@ -22,6 +23,7 @@ const props = defineProps({
     metricas:               { type: Object, default: () => ({}) },
     variables_disponibles:  { type: Array,  default: () => [] },
     pasos_disponibles:      { type: Array,  default: () => [] },
+    bodegas:                { type: Array,  default: () => [] },
     // El orden vigente, que decide el servidor: { campo, dir }.
     orden: { type: Object, default: () => ({}) },
 })
@@ -119,7 +121,7 @@ function marcarOcupada(id, si) {
  * El paso final descuenta materiales y mete la unidad a bodega, así que cuando eso pasa se
  * dice: un movimiento de inventario no puede ocurrir en silencio.
  */
-async function alternarPaso(t, paso) {
+async function alternarPaso(t, paso, bodegas = null) {
     marcarOcupada(t.id, true)
     avisos.value[t.id] = ''
 
@@ -128,7 +130,7 @@ async function alternarPaso(t, paso) {
             method:  'PUT',
             headers: { ...cabeceras(), 'Content-Type': 'application/json' },
             credentials: 'same-origin',
-            body: JSON.stringify({ completado: ! paso.completado }),
+            body: JSON.stringify({ completado: ! paso.completado, ...(bodegas ?? {}) }),
         })
         const data = await res.json()
 
@@ -168,15 +170,56 @@ function aplicarPaso(t, pasoId, data) {
     })
 }
 
-/** Cierra la unidad: marca lo que falte, en orden, respetando las dependencias. */
+/**
+ * Cierra la unidad: marca lo que falte, en orden, respetando las dependencias.
+ *
+ * El paso final va aparte y al final: es el que entrega la unidad a bodega, y para eso hay que
+ * preguntar las dos bodegas. Cerrarlo dentro del recorrido lo intentaría sin respuesta.
+ */
 async function terminarUnidad(t) {
     if (t.pasos_completados === t.pasos.length) return
 
-    for (const paso of [...t.pasos].sort((a, b) => a.orden - b.orden)) {
-        if (paso.completado) continue
+    const pendientes = [...t.pasos]
+        .sort((a, b) => a.orden - b.orden)
+        .filter(p => ! p.completado)
+
+    for (const paso of pendientes.filter(p => ! p.es_paso_final)) {
         const ok = await alternarPaso(t, paso)
-        if (! ok) break
+        if (! ok) return
     }
+
+    const final = pendientes.find(p => p.es_paso_final)
+    if (final) pedirBodegas(t, final)
+}
+
+// ── El paso que entrega ───────────────────────────────────────────────────────
+const modalBodegas = ref({ abierto: false, trabajo: null, paso: null, error: '' })
+
+function pedirBodegas(t, paso) {
+    modalBodegas.value = { abierto: true, trabajo: t, paso, error: '' }
+}
+
+async function confirmarBodegas(valores) {
+    const { trabajo, paso } = modalBodegas.value
+    const ok = await alternarPaso(trabajo, paso, valores)
+
+    if (ok) modalBodegas.value = { abierto: false, trabajo: null, paso: null, error: '' }
+    else    modalBodegas.value.error = avisos.value[trabajo.id] || 'No se pudo cerrar la unidad.'
+}
+
+/**
+ * Un toque en un paso. El final abre la hoja de las bodegas en vez de cerrarse solo: entrega
+ * la unidad a inventario, y eso no puede pasar sin que alguien diga dónde.
+ */
+function tocarPaso(t, paso) {
+    if (! paso) return
+
+    if (paso.es_paso_final && ! paso.completado) {
+        pedirBodegas(t, paso)
+        return
+    }
+
+    alternarPaso(t, paso)
 }
 
 const page = usePage()
@@ -395,7 +438,7 @@ const numeroDe = (t) => (t.op_numero ?? '').replace(/\s*\[\d+\/\d+\]\s*/, '')
                     :hecha="t.pasos_total > 0 && t.pasos_completados === t.pasos_total"
                     :ocupada="ocupadas.has(t.id)"
                     :aviso="avisos[t.id] ?? ''"
-                    @boton="p => alternarPaso(t, t.pasos.find(x => x.id === p.id))"
+                    @boton="p => tocarPaso(t, t.pasos.find(x => x.id === p.id))"
                     @accion="terminarUnidad(t)"
                     @abrir="router.visit(`/trabajos/${t.id}`)" />
 
@@ -417,6 +460,17 @@ const numeroDe = (t) => (t.op_numero ?? '').replace(/\s*\[\d+\/\d+\]\s*/, '')
             paso final descuenta los materiales y la mete a bodega. Toca el número para abrir la
             hoja del trabajo con tiempos, operarios y fotos.
         </p>
+
+        <ModalBodegasEntrega
+            :abierto="modalBodegas.abierto"
+            :bodegas="bodegas"
+            :entrega="modalBodegas.trabajo?.bodegas_sugeridas?.entrega ?? ''"
+            :material="modalBodegas.trabajo?.bodegas_sugeridas?.material ?? ''"
+            :titulo="`Cerrar ${modalBodegas.paso?.nombre ?? 'el paso final'}`"
+            :guardando="modalBodegas.trabajo ? ocupadas.has(modalBodegas.trabajo.id) : false"
+            :error="modalBodegas.error"
+            @confirmar="confirmarBodegas"
+            @cerrar="modalBodegas = { abierto: false, trabajo: null, paso: null, error: '' }" />
 
         <!-- ── Paginación ────────────────────────────────────────────────────── -->
         <div v-if="paginacion.last_page > 1" class="flex items-center justify-center gap-2 mt-5">

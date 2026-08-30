@@ -111,6 +111,26 @@ es un buen ejemplo de por qué es importante no dejar código muerto sin
 marcar: nadie notó durante meses que las métricas de inicio no eran reales.
 
 
+## Las unidades siguen a la cantidad *(nuevo 30 ago 2026)*
+
+Cambiar la cantidad de un ítem **crea o borra unidades**, y la pantalla lo pregunta antes de
+guardar: cada unidad es una pieza física con su código QR, sus pasos y su revisión de calidad.
+
+- **Sube de 1 a 3**: se crean las dos que faltan, completas, y las tres pasan a decir «de 3».
+- **Baja**: se borran las últimas, y **solo las que nadie tocó**. Si la cantidad nueva queda por
+  debajo de las unidades que ya tienen trabajo registrado, se rechaza y se dice cuántas hay en
+  producción. Borrar trabajo real no se puede deshacer.
+- **Cambia el ensamble**: las unidades se rehacen con los pasos de la receta nueva, y si alguna
+  ya tiene avance no se deja: quedaría fabricándose con los pasos de la receta anterior.
+
+Antes esto no pasaba: corregir una OP de 1 a 3 puertas dejaba dos unidades sin trabajo — sin
+QR, sin pasos y sin calidad— y nada lo decía.
+
+> **De paso se corrigió algo peor.** El id del ítem no estaba en las reglas de validación, y
+> `validate()` devuelve solo lo que valida: cada guardado de una OP **creaba ítems nuevos y
+> borraba los viejos**, y con ellos sus unidades, sus pasos y su revisión, en cascada y en
+> silencio. Está fijado con una prueba.
+
 ## Calidad, ítem por ítem
 
 **El bloque de «Control de calidad» de la orden entera se quitó el 18 ago 2026.** Era una foto,

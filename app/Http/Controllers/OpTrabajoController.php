@@ -73,82 +73,45 @@ class OpTrabajoController extends Controller
 
     public function completarPaso(Request $request, Op $op, OpItem $item, OpItemTrabajoPaso $paso): RedirectResponse
     {
-        $request->validate([
-            'operarios'         => 'nullable|array',
-            'operarios.*'       => 'integer|exists:operarios,id',
-            'bodega_destino_id' => 'nullable|exists:bodegas,id',
+        $data = $request->validate([
+            'operarios'          => 'nullable|array',
+            'operarios.*'        => 'integer|exists:operarios,id',
+            // Las dos bodegas del paso final: a dónde entra la unidad terminada y de dónde
+            // salieron sus insumos. Llegan precargadas de la orden y aquí solo se corrigen.
+            'bodega_entrega_id'  => 'nullable|exists:bodegas,id',
+            'bodega_material_id' => 'nullable|exists:bodegas,id',
         ]);
 
-        // El paso final entrega la unidad a una bodega: al cerrarlo se descuentan los
-        // materiales y entra el producto terminado. Antes, si nadie la había declarado, el
-        // sistema la mandaba a la principal — y en una empresa con varias bodegas eso es
-        // inventario que aparece donde no es, sin que nadie lo haya decidido.
-        if ($paso->es_paso_final) {
-            // La OP manda: si ya declaró su bodega, el operario no tiene nada que elegir.
-            // Solo se le pregunta a quien cierra el paso de una OP vieja, nacida antes de que
-            // el campo existiera.
-            $bodega = $op->bodega_entrega_id ?: ($request->bodega_destino_id ?: $paso->bodega_destino_id);
+        // Esta pantalla manda los operarios como una lista de ids; el servicio los espera con
+        // su tiempo y su observación, igual que las demás.
+        $operarios = collect($data['operarios'] ?? [])
+            ->map(fn ($id) => ['operario_id' => $id])
+            ->all();
 
-            if (! $bodega) {
-                return back()->withErrors([
-                    'bodega_destino_id' => 'Elige a qué bodega entra la unidad: este es el paso que la entrega. '
-                        . 'Lo normal es que lo declare la orden de producción; esta no lo hace porque '
-                        . 'se creó antes de que ese campo existiera.',
-                ]);
-            }
+        // Cerrar un paso pasa por un solo sitio, venga del código QR, de aquí o del tablero.
+        $bodega = app(\App\Services\CierrePasoService::class)->cerrar(
+            $paso,
+            $operarios,
+            $data['bodega_entrega_id'] ?? null,
+            $data['bodega_material_id'] ?? null,
+        );
 
-            $paso->update(['bodega_destino_id' => $bodega]);
-        }
-
-        $paso->update([
-            'completado'    => true,
-            'completado_at' => now(),
+        $item->update([
+            'estado_item' => $paso->trabajo->fresh()->pasos()->where('completado', false)->exists()
+                ? 'en_proceso'
+                : 'terminado',
         ]);
-
-        if (!empty($request->operarios)) {
-            $paso->operarios()->delete();
-            foreach ($request->operarios as $operarioId) {
-                $paso->operarios()->create(['operario_id' => $operarioId]);
-            }
-        }
-
-        $trabajo = $paso->trabajo;
-        $trabajo->recalcularAvance();
-
-        $aviso = '';
-
-        if ($trabajo->pasos()->where('completado', false)->count() === 0) {
-            $item->update(['estado_item' => 'terminado']);
-
-            // La unidad terminó: entra a bodega y sus materiales se descuentan ahí. Antes el
-            // trabajo terminaba y la unidad no existía en ninguna parte del sistema hasta que
-            // alguien la despachaba.
-            $bodega = app(\App\Services\EntregaAlmacenService::class)->entregar($trabajo);
-
-            if ($bodega) {
-                $aviso = " La unidad entró a {$bodega->nombre}.";
-            }
-        }
 
         $this->recalcularProgresoOp($op);
+
+        $aviso = $bodega ? " La unidad entró a {$bodega->nombre}." : '';
 
         return back()->with('success', 'Paso completado.'.$aviso);
     }
 
     public function desmarcarPaso(Request $request, Op $op, OpItem $item, OpItemTrabajoPaso $paso): RedirectResponse
     {
-        $paso->operarios()->delete();
-        $paso->update([
-            'completado'    => false,
-            'completado_at' => null,
-        ]);
-
-        $trabajo = $paso->trabajo;
-        $trabajo->recalcularAvance();
-
-        if ($item->estado_item === 'terminado') {
-            $item->update(['estado_item' => 'en_proceso']);
-        }
+        app(\App\Services\CierrePasoService::class)->reabrir($paso);
 
         $this->recalcularProgresoOp($op);
 

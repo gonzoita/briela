@@ -454,6 +454,40 @@ class PlantillaEnsambleController extends Controller
     // 1 a 1 (por eso no hace falta que el usuario elija ni cree nada aparte:
     // se obtiene o se crea vacío la primera vez que se pide).
 
+    /**
+     * Garantiza que haya **exactamente un** paso final, y que sea el último si nadie lo marcó.
+     *
+     * El paso final es el que entrega la unidad a bodega: sin ninguno marcado, la unidad se
+     * fabricaba entera y no entraba a ningún lado, y el ensamble terminado no existía en el
+     * sistema hasta que alguien lo despachaba. La ficha del ensamble ya hacía esto para los
+     * ensambles directos; la plantilla lo dejaba pasar, y son la misma decisión.
+     *
+     * @param  array<int, array<string, mixed>>  $pasos
+     * @return array<int, array<string, mixed>>
+     */
+    private function conPasoFinal(array $pasos): array
+    {
+        if ($pasos === []) {
+            return $pasos;
+        }
+
+        $final = null;
+
+        foreach ($pasos as $i => $paso) {
+            if (filter_var($paso['es_paso_final'] ?? false, FILTER_VALIDATE_BOOLEAN)) {
+                $final = $i;
+            }
+        }
+
+        $final ??= count($pasos) - 1;
+
+        foreach ($pasos as $i => $paso) {
+            $pasos[$i]['es_paso_final'] = $i === $final;
+        }
+
+        return $pasos;
+    }
+
     public function pasosTrabajo(PlantillaEnsamble $plantilla): JsonResponse
     {
         $template = $plantilla->obtenerOCrearTemplateTrabajo();
@@ -490,7 +524,7 @@ class PlantillaEnsambleController extends Controller
         }
 
         $template = $plantilla->obtenerOCrearTemplateTrabajo();
-        $template->sincronizarPasos($data['pasos'] ?? []);
+        $template->sincronizarPasos($this->conPasoFinal($data['pasos'] ?? []));
 
         return response()->json([
             'template_id' => $template->id,

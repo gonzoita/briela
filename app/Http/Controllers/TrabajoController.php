@@ -107,6 +107,9 @@ class TrabajoController extends Controller
                 'fecha_entrega'         => $t->opItem?->op?->fecha_entrega_estimada?->format('d/m/Y'),
                 // La urgencia sale de la fecha de entrega, no de un campo que nadie llena.
                 'urgencia'              => \App\Support\Urgencia::de($t->opItem?->op?->fecha_entrega_estimada),
+                // Con qué bodegas viene precargado su paso final: las de la orden, o las que
+                // se eligieron en la unidad anterior. El tablero las muestra ya puestas.
+                'bodegas_sugeridas'     => app(\App\Services\CierrePasoService::class)->bodegasSugeridas($t),
                 // Los pasos viajan enteros: el tablero los marca ahí mismo, sin abrir la hoja.
                 // Un paso que depende de otro sin terminar sale bloqueado, y eso se resuelve
                 // contra la colección ya cargada — preguntárselo a la base paso por paso serían
@@ -141,6 +144,10 @@ class TrabajoController extends Controller
 
         return Inertia::render('Trabajos/Index', [
             'orden' => $orden,
+            // Para el paso final: sale de `bodegasParaElegir()` y no de `idsBodegasVisibles()`,
+            // que devuelve cero en una instalación donde las bodegas no tienen sede.
+            'bodegas'    => \App\Support\ContextoSede::bodegasParaElegir()
+                ->map(fn ($b) => ['id' => $b->id, 'nombre' => $b->nombre])->values(),
             'trabajos'   => $trabajos,
             'operarios'  => Operario::where('estado', 'activo')->get(['id', 'nombre']),
             'templates'  => TemplateTrabajo::where('activo', true)->get(['id', 'nombre']),
@@ -238,7 +245,9 @@ class TrabajoController extends Controller
 
         return Inertia::render('Trabajos/Show', [
             // Para elegir a que bodega entra la unidad al cerrar el ultimo paso.
-            'bodegas' => \App\Models\Bodega::orderBy('nombre')->get(['id', 'nombre']),
+            'bodegas' => \App\Support\ContextoSede::bodegasParaElegir()
+                ->map(fn ($b) => ['id' => $b->id, 'nombre' => $b->nombre])->values(),
+            'bodegas_sugeridas' => app(\App\Services\CierrePasoService::class)->bodegasSugeridas($trabajo),
             'trabajo'   => [
                 'id'                => $trabajo->id,
                 'porcentaje_avance' => (float) $trabajo->porcentaje_avance,

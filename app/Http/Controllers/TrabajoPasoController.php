@@ -3,12 +3,22 @@
 namespace App\Http\Controllers;
 
 use App\Models\OpItemTrabajoPaso;
+use App\Services\CierrePasoService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 
+/**
+ * Marcar un paso desde la hoja del trabajo y desde el tablero.
+ *
+ * Cerrar y reabrir no viven aquí: viven en `CierrePasoService`, que es el único sitio donde se
+ * decide qué pasa al cerrar un paso —los puntos, la entrega a bodega, las dos bodegas—. Aquí
+ * queda lo que sí es propio de esta pantalla: corregir a mano las horas y los tiempos por
+ * operario de un paso que ya está cerrado.
+ */
 class TrabajoPasoController extends Controller
 {
-    public function update(Request $request, OpItemTrabajoPaso $paso): JsonResponse
+    public function update(Request $request, OpItemTrabajoPaso $paso, CierrePasoService $cierre): JsonResponse
     {
         $data = $request->validate([
             'completado'                 => 'sometimes|boolean',
@@ -21,137 +31,124 @@ class TrabajoPasoController extends Controller
             'operarios.*.operario_id'    => 'required|exists:operarios,id',
             'operarios.*.tiempo_minutos' => 'nullable|integer|min:0',
             'operarios.*.observaciones'  => 'nullable|string|max:500',
-            // A que bodega entra la unidad. Solo significa algo en el paso final.
-            'bodega_destino_id'          => 'sometimes|nullable|exists:bodegas,id',
+            // Las dos bodegas del paso final: a dónde entra la unidad y de dónde salió su
+            // material. En los demás pasos no significan nada y se ignoran.
+            'bodega_entrega_id'          => 'sometimes|nullable|exists:bodegas,id',
+            'bodega_material_id'         => 'sometimes|nullable|exists:bodegas,id',
         ]);
 
-        // ─── El paso final entrega la unidad ─────────────────────────────────────
-        //
-        // Esta es la pantalla que de verdad usa la planta, y aqui no pasaba nada al cerrar
-        // el ultimo paso: el avance llegaba a 100 y la unidad no entraba a ninguna bodega ni
-        // se descontaba un solo material. La entrega estaba escrita en OTRO endpoint, el de
-        // la orden de produccion, que esta pantalla no llama.
-        //
-        // Se pide la bodega aqui porque es quien cierra el paso el que fisicamente deja la
-        // unidad en el estante, y es el unico que sabe en cual.
-        $cerrandoFinal = ($data['completado'] ?? false) && $paso->es_paso_final && ! $paso->completado;
+        $operarios = collect($data['operarios'] ?? [])
+            ->filter(fn ($o) => ! empty($o['operario_id']))
+            ->values()
+            ->all();
 
-        // La bodega la decide la OP y se exige al confirmarla, así que aquí no se vuelve a
-        // preguntar: `EntregaAlmacenService` la resuelve de la orden. Solo se reclama en las
-        // órdenes nacidas antes de ese campo, que son las únicas que pueden quedarse sin
-        // ninguna — y ahí sí quien cierra el paso es el único que sabe dónde dejó la unidad.
-        if ($cerrandoFinal) {
-            $bodega = $data['bodega_destino_id'] ?? $paso->bodega_destino_id;
+        $entregadaEn = null;
 
-            if (! $bodega && ! $paso->trabajo?->opItem?->op?->bodega_entrega_id) {
+        // ─── Cerrar o reabrir ────────────────────────────────────────────────────
+        if (array_key_exists('completado', $data)) {
+            try {
+                if ($data['completado']) {
+                    $entregadaEn = $cierre->cerrar(
+                        $paso,
+                        $operarios,
+                        $data['bodega_entrega_id']  ?? null,
+                        $data['bodega_material_id'] ?? null,
+                    )?->nombre;
+                } else {
+                    $cierre->reabrir($paso);
+                }
+            } catch (ValidationException $e) {
+                // La pantalla espera un mensaje que pueda mostrar tal cual, no el formato de
+                // errores de un formulario: aquí no hay campos donde pintarlos.
                 return response()->json([
                     'success' => false,
-                    'message' => 'Elige a qué bodega entra la unidad: este es el paso que la entrega.',
+                    'message' => collect($e->errors())->flatten()->implode(' '),
+                    'errores' => $e->errors(),
                 ], 422);
             }
 
-            if ($bodega) {
-                $data['bodega_destino_id'] = $bodega;
-            }
+            $paso->refresh();
         }
 
-        // Fecha/hora de inicio y fin siempre las pone el servidor con now() —
-        // nadie las escribe a mano. "iniciado" marca el arranque; si se marca
-        // completado sin haber pasado por "iniciado" antes, se rellena solo
-        // para que la línea de tiempo del paso nunca quede incompleta.
+        // ─── Iniciar / quitar el inicio ──────────────────────────────────────────
         if (array_key_exists('iniciado', $data)) {
             if ($data['iniciado'] && ! $paso->iniciado_at) {
-                $data['iniciado_at'] = now();
+                $paso->update(['iniciado_at' => now()]);
             } elseif (! $data['iniciado'] && ! $paso->completado) {
-                $data['iniciado_at'] = null;
-            }
-            unset($data['iniciado']);
-        }
-
-        if (array_key_exists('completado', $data)) {
-            if ($data['completado'] && ! $paso->completado_at) {
-                $data['completado_at'] = now();
-                if (! $paso->iniciado_at && ! ($data['iniciado_at'] ?? null)) {
-                    $data['iniciado_at'] = $data['completado_at'];
-                }
-            } elseif (! $data['completado']) {
-                $data['completado_at'] = null;
+                $paso->update(['iniciado_at' => null]);
             }
         }
 
-        // Corrección manual — por si el arranque/cierre automático no coincide
-        // con lo que pasó de verdad en planta.
+        // ─── Corrección manual de horas ──────────────────────────────────────────
+        //
+        // Por si el arranque o el cierre automático no coinciden con lo que pasó de verdad en
+        // planta. Es lo único de esta pantalla que no puede vivir en el servicio: el servicio
+        // cierra un paso ahora, no lo reescribe.
+        $correccion = [];
+
         if (array_key_exists('iniciado_at_manual', $data)) {
-            $data['iniciado_at'] = $data['iniciado_at_manual'] ? \Carbon\Carbon::parse($data['iniciado_at_manual']) : null;
-            unset($data['iniciado_at_manual']);
+            $correccion['iniciado_at'] = $data['iniciado_at_manual']
+                ? \Carbon\Carbon::parse($data['iniciado_at_manual'])
+                : null;
         }
+
         if (array_key_exists('completado_at_manual', $data)) {
-            $data['completado_at'] = $data['completado_at_manual'] ? \Carbon\Carbon::parse($data['completado_at_manual']) : null;
-            unset($data['completado_at_manual']);
+            $correccion['completado_at'] = $data['completado_at_manual']
+                ? \Carbon\Carbon::parse($data['completado_at_manual'])
+                : null;
         }
 
-        // Tiempo real (fin - inicio) — se usa como valor del tiempo por
-        // operario cuando no se escribió uno a mano. diffInMinutes() puede
-        // devolver float en Carbon reciente, por eso el round().
-        $inicioEfectivo = $data['iniciado_at']   ?? $paso->iniciado_at;
-        $finEfectivo    = $data['completado_at'] ?? $paso->completado_at;
-        $duracionAuto   = ($inicioEfectivo && $finEfectivo)
-            ? (int) round(\Carbon\Carbon::parse($inicioEfectivo)->diffInMinutes(\Carbon\Carbon::parse($finEfectivo)))
-            : null;
-
-        // Guardar operario principal (primero de la lista) para compatibilidad
-        if (!empty($data['operarios'])) {
-            $data['operario_id']    = $data['operarios'][0]['operario_id'];
-            $data['tiempo_minutos'] = $data['operarios'][0]['tiempo_minutos'] ?? $duracionAuto;
-        } elseif ($duracionAuto !== null && !$request->has('operarios')) {
-            // No se tocó el formulario de operarios en este guardado (ej. solo
-            // se corrigieron las horas de inicio/fin) — el tiempo se
-            // resincroniza solo con la nueva duración real.
-            $data['tiempo_minutos'] = $duracionAuto;
+        if (array_key_exists('es_extra', $data)) {
+            $correccion['es_extra'] = $data['es_extra'];
         }
 
-        unset($data['operarios']);
-        $paso->update($data);
+        if ($correccion !== []) {
+            $paso->update($correccion);
+            $paso->refresh();
+        }
 
-        // Sincronizar pivot de múltiples operarios
-        if ($request->has('operarios')) {
+        // El tiempo real (fin − inicio) es el valor por omisión del tiempo de cada operario
+        // cuando nadie escribió uno a mano.
+        $duracionAuto = $paso->duracionRealMinutos();
+
+        // ─── Operarios de un paso ya cerrado ─────────────────────────────────────
+        //
+        // Corregir un tiempo sin tener que desmarcar y volver a marcar. Solo entra aquí cuando
+        // el cierre no pasó ya por el servicio, que sincroniza lo mismo.
+        if ($request->has('operarios') && ! array_key_exists('completado', $data)) {
             $paso->operarios()->delete();
-            foreach ($request->operarios ?? [] as $op_data) {
+
+            foreach ($operarios as $quien) {
                 $paso->operarios()->create([
-                    'operario_id'    => $op_data['operario_id'],
-                    'tiempo_minutos' => $op_data['tiempo_minutos'] ?? $duracionAuto,
-                    'observaciones'  => $op_data['observaciones'] ?? null,
+                    'operario_id'    => $quien['operario_id'],
+                    'tiempo_minutos' => $quien['tiempo_minutos'] ?? $duracionAuto,
+                    'observaciones'  => $quien['observaciones'] ?? null,
                 ]);
             }
-        } elseif ($duracionAuto !== null && $paso->operarios()->exists()) {
-            // Mismo caso: si ya había operarios asignados y solo se corrigieron
-            // las horas, su tiempo individual también se resincroniza.
+
+            $paso->update([
+                'operario_id'    => $operarios[0]['operario_id']    ?? null,
+                'tiempo_minutos' => $operarios[0]['tiempo_minutos'] ?? $duracionAuto,
+            ]);
+        } elseif ($duracionAuto !== null && ! $request->has('operarios') && $paso->operarios()->exists()) {
+            // Solo se corrigieron las horas: el tiempo individual se resincroniza con la nueva
+            // duración real en vez de quedarse con la vieja.
             $paso->operarios()->update(['tiempo_minutos' => $duracionAuto]);
+            $paso->update(['tiempo_minutos' => $duracionAuto]);
         }
 
-        // Si se desmarca, limpiar operarios pivot y devolver los puntos que
-        // el paso hubiera otorgado (mismo criterio que al desmarcar desde el
-        // portal del operario, para no dejar puntos por un paso incompleto).
-        if (isset($data['completado']) && ! $data['completado']) {
-            app(\App\Services\PuntosColaboradorService::class)->revertirPuntosPorPaso($paso->id);
-            $paso->operarios()->delete();
+        if (array_key_exists('tiempo_minutos', $data)) {
+            $paso->update(['tiempo_minutos' => $data['tiempo_minutos']]);
         }
 
         $paso->load('operario', 'operarios.operario');
-        $trabajo = $paso->trabajo;
+        $trabajo = $paso->trabajo->fresh();
         $trabajo->recalcularAvance();
-
-        // Cerrado el ultimo paso: se descuentan los materiales de ESTA unidad y entra como
-        // producto terminado. `entregado_at` es el candado contra la doble entrega.
-        $entregadaEn = null;
-
-        if ($cerrandoFinal) {
-            $entregadaEn = app(\App\Services\EntregaAlmacenService::class)->entregar($trabajo->fresh())?->nombre;
-        }
         $trabajo->refresh();
 
         return response()->json([
             'success'           => true,
+            'entregada_en'      => $entregadaEn,
             'porcentaje_avance' => (float) $trabajo->porcentaje_avance,
             'paso'              => [
                 'id'                    => $paso->id,
@@ -161,11 +158,11 @@ class TrabajoPasoController extends Controller
                 'iniciado_at'           => $paso->iniciado_at?->format('d/m/Y H:i'),
                 'iniciado_at_iso'       => $paso->iniciado_at?->toIso8601String(),
                 'duracion_real_minutos' => $paso->duracionRealMinutos(),
-                'operario_id'     => $paso->operario_id,
-                'operario_nombre' => $paso->operario?->nombre,
-                'tiempo_minutos'  => $paso->tiempo_minutos,
-                'es_extra'        => (bool) $paso->es_extra,
-                'operarios_pivot' => $paso->operarios->map(fn ($o) => [
+                'operario_id'           => $paso->operario_id,
+                'operario_nombre'       => $paso->operario?->nombre,
+                'tiempo_minutos'        => $paso->tiempo_minutos,
+                'es_extra'              => (bool) $paso->es_extra,
+                'operarios_pivot'       => $paso->operarios->map(fn ($o) => [
                     'operario_id'    => $o->operario_id,
                     'nombre'         => $o->operario?->nombre,
                     'tiempo_minutos' => $o->tiempo_minutos,

@@ -13,15 +13,30 @@ como salida en cualquier punto antes de entregar.
 
 ## Flujo normal
 
-1. **Crear** desde una OP aprobada en calidad (ver [Producción](./produccion-op.md)):
-   se eligen los ítems/unidades a despachar. La remisión nace en "borrador".
+1. **Crear** desde una OP: se eligen las unidades a despachar. La remisión nace
+   en "borrador".
 2. **Confirmar**: el documento queda listo (ya no se edita).
 3. **Marcar en camino**: se registran transportista, celular, placa y costo
    de flete. Queda la fecha de salida.
 4. **Entregar**: el cliente firma en el celular al recibir.
 
-Solo se puede generar una remisión de una OP si esa OP ya tiene la calidad
-aprobada — es el mismo candado descrito en el módulo de Producción.
+## El candado de calidad es por unidad *(cambió el 30 ago 2026)*
+
+Se remisiona **lo que ya pasó calidad**, unidad por unidad. De una orden de diez puertas, las
+tres revisadas se despachan hoy y las otras siete siguen su curso: es lo que de verdad pasa en
+el mostrador cuando el cliente se quiere llevar una parte del pedido.
+
+Antes el candado era de la orden entera —`calidad_aprobada_at`— y esas tres esperaban a que la
+última pasara revisión. Ahora vive en `OpItemTrabajo::disponiblesParaRemision()`: una unidad
+está disponible si está armada, sin remisionar, y **sin ningún punto de revisión pendiente ni
+ninguna falla crítica**.
+
+Un ensamble **sin lista de revisión** no tiene nada que resolver por unidad, y para él sigue
+mandando el sello de la orden. Sin esa excepción no tendría ningún control de calidad: se
+despacharía apenas terminara de fabricarse.
+
+Si la orden no tiene ninguna unidad lista, el remisionador lo dice con precisión —«hay N
+fabricadas pero ninguna pasó calidad»— en vez de mostrar una pantalla vacía.
 
 ## Automatizaciones activas
 

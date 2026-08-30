@@ -14,6 +14,21 @@ const props = defineProps({
 })
 
 const esEdicion = computed(() => !!props.op)
+
+// Lo que el servidor avisa que le pasaría a las unidades si se guarda, y el sí del usuario.
+const avisoUnidades = ref('')
+const confirmadas   = ref(false)
+
+function aceptarCambioDeUnidades() {
+    confirmadas.value   = true
+    avisoUnidades.value = ''
+    submit()
+}
+
+function cancelarCambioDeUnidades() {
+    avisoUnidades.value = ''
+    confirmadas.value   = false
+}
 const { hasChanges, setOriginal, checkChanges, markClean } = useUnsavedChanges()
 
 const hoy = new Date().toISOString().slice(0, 10)
@@ -434,8 +449,18 @@ function submit() {
         })),
     }
     if (esEdicion.value) {
-        router.put(`/produccion/ops/${props.op.id}`, payload, {
-            onError: e => { errores.value = e; procesando.value = false },
+        router.put(`/produccion/ops/${props.op.id}`, { ...payload, confirmar_unidades: confirmadas.value }, {
+            onError: e => {
+                // Cambiar la cantidad de un ítem crea o borra unidades físicas: cada una es
+                // una puerta con su código QR, sus pasos y su revisión de calidad. El servidor
+                // no lo hace en silencio: avisa qué va a pasar y espera el sí.
+                if (e.confirmar_unidades) {
+                    avisoUnidades.value = e.confirmar_unidades
+                    delete e.confirmar_unidades
+                }
+                errores.value = e
+                procesando.value = false
+            },
             onFinish: () => { procesando.value = false },
         })
     } else {
@@ -999,5 +1024,38 @@ function submit() {
             </div>
         </Teleport>
 
+
+        <!-- Cambiar la cantidad de un ítem crea o borra unidades físicas. Se dice qué va a
+             pasar antes de que pase, y no después. -->
+        <Teleport to="body">
+            <div v-if="avisoUnidades" class="fixed inset-0 z-[70] flex items-end md:items-center justify-center p-0 md:p-6"
+                 style="background: rgba(16,24,40,.55); backdrop-filter: blur(4px);"
+                 @click.self="cancelarCambioDeUnidades">
+                <div class="w-full md:max-w-md bg-superficie rounded-t-3xl md:rounded-3xl shadow-flotante overflow-hidden">
+                    <div class="px-5 py-4 border-b border-linea">
+                        <h3 class="text-base font-semibold text-tinta-900">Esto cambia las unidades a fabricar</h3>
+                    </div>
+                    <div class="p-5">
+                        <p class="text-sm text-tinta-600 leading-relaxed">{{ avisoUnidades }}</p>
+                        <p class="text-xs text-tinta-300 mt-3 leading-snug">
+                            Cada unidad es una pieza física con su código QR, sus pasos de producción
+                            y su revisión de calidad.
+                        </p>
+                    </div>
+                    <div class="px-5 py-4 border-t border-linea flex items-center gap-2"
+                         style="padding-bottom: calc(16px + env(safe-area-inset-bottom));">
+                        <button type="button" @click="cancelarCambioDeUnidades"
+                            class="px-4 py-2.5 rounded-xl text-sm font-medium text-tinta-500 hover:bg-realce transition-colors">
+                            Cancelar
+                        </button>
+                        <button type="button" @click="aceptarCambioDeUnidades"
+                            class="flex-1 py-2.5 rounded-xl text-sm font-semibold text-white"
+                            style="background: var(--marca);">
+                            Guardar de todas formas
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </Teleport>
     </AppLayout>
 </template>

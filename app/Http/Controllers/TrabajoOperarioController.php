@@ -89,6 +89,8 @@ class TrabajoOperarioController extends Controller
                     'completado'           => (bool) $p->completado,
                     'completado_at'        => $p->completado_at?->format('d/m/Y H:i'),
                     'es_extra'             => (bool) $p->es_extra,
+                    // El paso final entrega la unidad: la pantalla le pide las dos bodegas.
+                    'es_paso_final'        => (bool) $p->es_paso_final,
                     // Las fotos se guardan como ruta relativa —«pasos/2/foto.jpg»— y el
                     // navegador necesita la URL pública. Sin `Storage::url()` el `src` quedaba
                     // relativo a la dirección de la pantalla y resolvía a
@@ -107,6 +109,10 @@ class TrabajoOperarioController extends Controller
             'operario_id'     => $operario?->id,
             'operario_nombre' => $operario?->nombre ?? $user->name,
             'operarios'       => Operario::where('estado', 'activo')->get(['id', 'nombre']),
+            // Las bodegas del paso final, con las de la orden ya elegidas.
+            'bodegas'           => \App\Support\ContextoSede::bodegasParaElegir()
+                ->map(fn ($b) => ['id' => $b->id, 'nombre' => $b->nombre])->values(),
+            'bodegas_sugeridas' => app(\App\Services\CierrePasoService::class)->bodegasSugeridas($trabajo),
         ]);
     }
 
@@ -121,62 +127,35 @@ class TrabajoOperarioController extends Controller
             if (!$operario) abort(403);
         }
 
-        $request->validate([
+        $data = $request->validate([
             'operarios'                  => 'nullable|array',
             'operarios.*.operario_id'    => 'required|exists:operarios,id',
             'operarios.*.tiempo_minutos' => 'nullable|integer|min:0',
             'operarios.*.observaciones'  => 'nullable|string|max:500',
+            // Las dos bodegas del paso final. Llegan precargadas de la orden y el operario
+            // solo las corrige si la unidad quedó en otro estante del que se planeó.
+            'bodega_entrega_id'          => 'nullable|exists:bodegas,id',
+            'bodega_material_id'         => 'nullable|exists:bodegas,id',
         ]);
 
-        $paso->update([
-            'completado'     => true,
-            'completado_at'  => now(),
-            'operario_id'    => $request->operarios[0]['operario_id'] ?? null,
-            'tiempo_minutos' => $request->operarios[0]['tiempo_minutos'] ?? null,
+        // Cerrar un paso pasa por un solo sitio, venga del código QR, del panel de la orden o
+        // del tablero: ahí se deciden los puntos, la entrega a bodega y sus dos bodegas.
+        $bodega = app(\App\Services\CierrePasoService::class)->cerrar(
+            $paso,
+            $data['operarios'] ?? [],
+            $data['bodega_entrega_id'] ?? null,
+            $data['bodega_material_id'] ?? null,
+        );
+
+        $item = $trabajo->opItem;
+
+        $item->update([
+            'estado_item' => $trabajo->fresh()->pasos()->where('completado', false)->exists()
+                ? 'en_proceso'
+                : 'terminado',
         ]);
 
-        $paso->operarios()->delete();
-        foreach ($request->operarios ?? [] as $op_data) {
-            $paso->operarios()->create([
-                'operario_id'    => $op_data['operario_id'],
-                'tiempo_minutos' => $op_data['tiempo_minutos'] ?? null,
-                'observaciones'  => $op_data['observaciones'] ?? null,
-            ]);
-        }
-
-        $trabajo->recalcularAvance();
-
-        $item  = $trabajo->opItem;
-        $aviso = '';
-
-        if ($trabajo->pasos()->where('completado', false)->count() === 0) {
-            $item->update(['estado_item' => 'terminado']);
-
-            // La unidad terminó: entra a bodega y sus materiales se descuentan ahí. Va aquí y
-            // en el panel de la OP porque los dos cierran pasos; la lógica está en un solo
-            // sitio para que no se separen.
-            $bodega = app(\App\Services\EntregaAlmacenService::class)->entregar($trabajo);
-
-            if ($bodega) {
-                $aviso = " La unidad entró a {$bodega->nombre}.";
-            }
-        } else {
-            $item->update(['estado_item' => 'en_proceso']);
-        }
-
-        $op = $item->op;
-        $trabajosOp = \App\Models\OpItemTrabajo::whereHas('opItem', fn ($q) => $q->where('op_id', $op->id))->get();
-        if ($trabajosOp->isNotEmpty()) {
-            $op->update(['porcentaje_avance' => round($trabajosOp->avg('porcentaje_avance'), 2)]);
-        }
-
-        // Otorgar puntos a cada operario asignado al paso
-        $svc = app(\App\Services\PuntosColaboradorService::class);
-        foreach ($paso->operarios as $opData) {
-            if ($opData->operario_id) {
-                $svc->otorgarPuntosPorPaso($paso, $opData->operario_id);
-            }
-        }
+        $aviso = $bodega ? " La unidad entró a {$bodega->nombre}." : '';
 
         return back()->with('success', 'Paso completado.'.$aviso);
     }
@@ -192,14 +171,9 @@ class TrabajoOperarioController extends Controller
             if (!$operario) abort(403);
         }
 
-        // Devolver los puntos que este paso había otorgado — si no, al
-        // recompletarlo se sumarían de nuevo y quedaría doble conteo.
-        app(\App\Services\PuntosColaboradorService::class)->revertirPuntosPorPaso($paso->id);
-
-        $paso->operarios()->delete();
-        $paso->update(['completado' => false, 'completado_at' => null]);
-        $trabajo->recalcularAvance();
-        $trabajo->opItem->update(['estado_item' => 'en_proceso']);
+        // Reabrir también pasa por el servicio: ahí se devuelven los puntos que el paso
+        // había otorgado, que si no se sumarían de nuevo al recompletarlo.
+        app(\App\Services\CierrePasoService::class)->reabrir($paso);
 
         return back()->with('success', 'Paso desmarcado.');
     }

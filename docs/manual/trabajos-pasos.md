@@ -41,9 +41,6 @@ ahí: agrega pasos, los ordena, reparte los pesos y marca cuál es el final.
   ensambles que la usan. La ficha lo advierte en ámbar antes de que alguien los
   cambie creyendo que toca uno solo.
 
-Se pueden editar también en `/produccion/templates`, donde el flujo de un ensamble
-directo aparece con el nombre del ensamble.
-
 > Hasta el 17 ago 2026 nada obligaba a tenerlos. El servidor le inventaba un paso
 > único al ensamble directo la primera vez que una OP lo necesitaba, y los de
 > plantilla llegaban a producción con el **trabajo vacío**: el operario escaneaba su
@@ -54,15 +51,6 @@ Guardar la ficha **no reescribe los pasos si no cambiaron**. Reescribirlos borra
 recrea las filas, y eso deja sin referencia a la plantilla los trabajos que estén en
 curso —no pierden sus pasos, cada uno guarda su copia—, así que cambiarle el precio a
 un ensamble no puede arrastrar eso.
-
-### La bodega del paso final ya no se adivina
-
-El paso final entrega la unidad: al cerrarlo se descuentan los materiales y entra el producto
-terminado. **Desde el 18 ago 2026 no se puede cerrar sin decir a qué bodega entra.** Se puede
-dejar predefinida en el paso de la plantilla, y quien cierra el trabajo puede cambiarla.
-
-Antes, si nadie la había declarado, el sistema la mandaba a la principal. En una empresa con
-varias bodegas eso es inventario apareciendo donde no es, sin que nadie lo haya decidido.
 
 ### La revisión de calidad de cada unidad
 
@@ -132,6 +120,53 @@ sitio, y el tablero lo dice: un movimiento de inventario no puede ocurrir en sil
 Es **la misma ficha** que usa [Calidad](./calidad.md) —
 `resources/js/Components/FichaProceso.vue` —, porque el gesto es el mismo y quien está en
 planta no tiene por qué aprender dos pantallas.
+
+## Cerrar un paso pasa por un solo sitio *(nuevo 30 ago 2026)*
+
+Hay cuatro pantallas que cierran un paso: el código QR del operario, el panel de la orden, la
+hoja del trabajo y el tablero. Las cuatro llaman a **`CierrePasoService`**, y por eso hacen
+exactamente lo mismo. Antes cada una lo hacía a su manera, y de ahí salían tres problemas que
+parecían no tener relación:
+
+- **La entrega a bodega ocurría en momentos distintos.** Dos entregaban cuando no quedaba
+  ningún paso pendiente; la tercera, al cerrar el marcado como final. Con una plantilla sin
+  paso final, dos entregaban y una nunca.
+- **Los puntos solo se otorgaban por el código QR**, pero se devolvían desde la hoja del
+  trabajo: se perdían por un camino que nunca los daba. Ahora se otorgan **cierre quien
+  cierre**, a los operarios registrados en el paso. Si no hay ninguno registrado —el toque
+  único del tablero— no se otorgan: no hay a quién.
+- **La bodega se preguntaba distinto** en cada una.
+
+Reabrir un paso también pasa por ahí: devuelve los puntos y desmarca. **No devuelve la unidad
+de la bodega ni repone el material** — se gastó de verdad, y la unidad está armada en un
+estante. Deshacer ese movimiento diría que no existe algo que sí existe; lo que corresponde es
+un ajuste de inventario, que lo decide quien cuenta el estante.
+
+## El paso final pide las dos bodegas
+
+El paso marcado como final es el que **entrega la unidad**. Al cerrarlo se pregunta:
+
+| Pregunta | Para qué |
+|---|---|
+| ¿A qué bodega entra la unidad terminada? | Ahí se registra la entrada del producto terminado |
+| ¿De qué bodega salieron los insumos? | De ahí se descuenta el material que se gastó |
+
+**Son dos y no una.** Una bodega de producto terminado no guarda insumos: descontar el material
+contra ella lo recorta a cero en silencio y el inventario queda mintiendo por los dos lados.
+
+Llegan **ya elegidas**, en este orden: lo que se eligió en la unidad anterior de la misma
+orden, y si no, lo que declaró la orden al confirmarse. Casi siempre es confirmar y seguir; el
+selector está para el caso real de que la puerta terminara en otro estante del que se planeó, o
+de que el material saliera de otra caja. En una orden de diez puertas, sin esa memoria serían
+veinte respuestas idénticas, y a la tercera se contestan sin leer.
+
+Se guardan **por unidad** (`op_item_trabajos.bodega_entrega_id` y `bodega_material_id`) porque
+un lote se puede partir: tres puertas con material de la principal y dos con el de la sucursal.
+
+**El paso final no se cierra con trabajo por delante.** Si quedan otros pasos pendientes, se
+rechaza y se dice cuántos faltan: entregar ahí metería al inventario una puerta que todavía no
+tiene marco. Y toda plantilla tiene garantizado un paso final —si nadie lo marca, lo es el
+último—, así que una unidad nunca se queda sin entrar a ninguna parte.
 
 ## El operario: entrar por QR
 

@@ -49,17 +49,13 @@ class RemisionController extends Controller
     {
         $op = null;
         if ($request->filled('op_id')) {
-            $opRevisar = Op::find($request->op_id);
-            if ($opRevisar && ! $opRevisar->calidad_aprobada_at) {
-                return redirect("/produccion/ops/{$opRevisar->id}")
-                    ->with('error', 'Esta OP no puede remisionarse todavía: falta la aprobación de control de calidad.');
-            }
-
+            // El candado de calidad ya no es de la orden entera: es de cada unidad, y vive en
+            // `disponiblesParaRemision()`. Aquí solo se avisa cuando no hay ninguna lista,
+            // que es la misma situación de antes contada con más precisión.
             $op = Op::with([
                 'items' => function ($q) {
-                    $q->whereHas('trabajos', function ($q2) {
-                        $q2->where('porcentaje_avance', 100)->where('remisionado', false);
-                    })->orderBy('orden');
+                    $q->whereHas('trabajos', fn ($q2) => $q2->disponiblesParaRemision())
+                        ->orderBy('orden');
                 },
                 'items.trabajos',
                 'cliente',
@@ -71,6 +67,19 @@ class RemisionController extends Controller
                 $item->unidades_remisionadas = $item->unidadesRemisionadas();
                 $item->total                 = (int) $item->cantidad;
             });
+
+            // Ninguna unidad lista. Se dice por qué —está a medio fabricar, o esperando
+            // calidad— en vez de mostrar una pantalla vacía que parece un error.
+            if ($op->items->isEmpty()) {
+                $fabricadas = OpItemTrabajo::whereHas('opItem', fn ($q) => $q->where('op_id', $op->id))
+                    ->where('porcentaje_avance', 100)->where('remisionado', false)->count();
+
+                return redirect("/produccion/ops/{$op->id}")->with('error', $fabricadas > 0
+                    ? "Esta orden tiene {$fabricadas} unidad(es) fabricadas, pero ninguna pasó control de calidad "
+                        . 'todavía. Revísalas en Calidad y vuelve: se puede remisionar lo que ya esté aprobado, '
+                        . 'sin esperar al resto.'
+                    : 'Esta orden no tiene todavía ninguna unidad terminada para remisionar.');
+            }
         }
 
         $clientes = Cliente::select('id', 'nombre', 'apellido', 'tipo')
@@ -101,15 +110,6 @@ class RemisionController extends Controller
             'items.*.op_item_id'        => 'nullable|exists:op_items,id',
             'items.*.producto_id'       => ['nullable', new ProductoSeleccionable],
         ]);
-
-        if ($request->filled('op_id')) {
-            $opRevisar = Op::find($request->op_id);
-            if ($opRevisar && ! $opRevisar->calidad_aprobada_at) {
-                return back()->withErrors([
-                    'op_id' => 'Esta OP no puede remisionarse todavía: falta la aprobación de control de calidad.',
-                ]);
-            }
-        }
 
         // Validar unidades disponibles para ítems de OP
         foreach ($request->items as $idx => $item) {
@@ -175,9 +175,14 @@ class RemisionController extends Controller
                         $totalRemisionados = $totalTrabajos > 0
                             ? $opItem->trabajos()->where('remisionado', true)->count()
                             : (int) $opItem->cantidad_remisionada + $cantidadUnidades;
+                        // «Completo» es que **no quede ninguna unidad sin remisionar**, y no que
+                        // no queden disponibles. Desde que el candado de calidad es por unidad,
+                        // «sin disponibles» también significa «las que faltan siguen en
+                        // revisión»: con el criterio viejo, despachar tres de diez marcaba el
+                        // ítem entero como remisionado y las otras siete desaparecían del
+                        // remisionador.
                         $estaCompleto      = $totalTrabajos > 0
-                            ? ($opItem->trabajos()->disponiblesParaRemision()->count() === 0
-                               && $opItem->trabajos()->where('porcentaje_avance', 100)->count() > 0)
+                            ? $opItem->trabajos()->where('remisionado', false)->doesntExist()
                             : $totalRemisionados >= (int) $opItem->cantidad;
 
                         $opItem->update([

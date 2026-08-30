@@ -1355,10 +1355,10 @@ const configPuntos = computed(() =>
                     </div>
                 </div>
 
-                <!-- Producción: "Templates de Trabajo" queda oculto del menú desde la
-                     fusión con Plantillas de Ensamble (los pasos se cargan ahora en
-                     Cotizadores > Plantillas, pestaña "Producción"). La ruta
-                     /produccion/templates sigue viva para no romper historial. -->
+                <!-- Los pasos de producción se cargan en la ficha del ensamble y en
+                     Cotizadores > Plantillas. El módulo suelto que los editaba aparte se
+                     eliminó el 30 ago 2026: llevaba sin enlace desde la fusión, y editaba
+                     los mismos pasos sin las validaciones de la pantalla nueva. -->
 
                 <!-- RRHH -->
                 <div>

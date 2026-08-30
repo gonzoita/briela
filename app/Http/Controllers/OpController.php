@@ -380,6 +380,21 @@ class OpController extends Controller
         ]);
 
         if (! $op->itemsBloqueados()) {
+            // Cambiar la cantidad de un ítem crea o borra unidades físicas: cada una es una
+            // puerta con su código QR, sus pasos y su revisión de calidad. Eso no puede pasar
+            // como efecto secundario de guardar — se dice qué va a pasar y se pregunta.
+            $cambios = $this->cambiosEnUnidades($data['items'] ?? []);
+
+            if ($imposible = collect($cambios)->firstWhere('bloqueado', true)) {
+                return back()->withErrors(['items' => $imposible['mensaje']])->withInput();
+            }
+
+            if ($cambios !== [] && ! $request->boolean('confirmar_unidades')) {
+                return back()
+                    ->withErrors(['confirmar_unidades' => collect($cambios)->pluck('mensaje')->implode(' ')])
+                    ->withInput();
+            }
+
             $this->syncItems($op, $data['items'] ?? []);
             $op->recalcularTotales();
         }
@@ -1017,6 +1032,9 @@ class OpController extends Controller
             'cliente_id'             => 'nullable|exists:clientes,id',
             'cotizacion_id'          => 'nullable|exists:cotizaciones,id',
             'responsable_id'         => 'required|exists:users,id',
+            // La pantalla vuelve a mandar el formulario con esto en true cuando el usuario ya
+            // aceptó que se creen o se borren unidades.
+            'confirmar_unidades'     => 'sometimes|boolean',
             'bodega_entrega_id'      => 'nullable|exists:bodegas,id',
             'bodega_material_id'     => 'nullable|exists:bodegas,id',
             'estado'                 => 'nullable|in:borrador,confirmada,en_produccion,calidad,reproceso,despachada',
@@ -1026,6 +1044,11 @@ class OpController extends Controller
             'condiciones'            => 'nullable|string',
             'notas_internas'         => 'nullable|string',
             'items'                  => 'nullable|array',
+            // El id del ítem, y no es un detalle: `validate()` devuelve SOLO lo que valida, así
+            // que sin esta regla el id nunca llegaba a `syncItems()`. Cada guardado de una OP
+            // creaba ítems nuevos y borraba los viejos — y con ellos sus unidades, sus pasos y
+            // su revisión de calidad, en cascada y sin decir nada.
+            'items.*.id'             => 'nullable|integer|exists:op_items,id',
             'items.*.tipo'           => 'required|in:producto,ensamble,servicio',
             'items.*.descripcion'    => 'required|string',
             'items.*.descripcion_larga' => 'nullable|string',
@@ -1043,6 +1066,43 @@ class OpController extends Controller
             'items.*.estado_item'    => 'nullable|in:pendiente,en_proceso,terminado',
             'items.*.notas_item'     => 'nullable|string',
         ]);
+    }
+
+    /**
+     * Lo que le pasaría a las unidades si se guardaran estos ítems.
+     *
+     * Solo mira los ítems que ya existen y ya tienen unidades: uno nuevo las crea todas, y eso
+     * no hay que preguntarlo. Devuelve una entrada por ítem que cambia.
+     */
+    private function cambiosEnUnidades(array $items): array
+    {
+        $svc     = app(TrabajoAutoGeneratorService::class);
+        $cambios = [];
+
+        foreach ($items as $datos) {
+            if (empty($datos['id'])) {
+                continue;
+            }
+
+            $item = OpItem::find($datos['id']);
+
+            if (! $item) {
+                continue;
+            }
+
+            $cambio = $svc->cambiosPorCantidad(
+                $item,
+                (int) max(1, floor((float) ($datos['cantidad'] ?? $item->cantidad))),
+                array_key_exists('ensamble_id', $datos) ? $datos['ensamble_id'] : null,
+            );
+
+            if ($cambio) {
+                $cambio['mensaje'] = ($item->descripcion ? "«{$item->descripcion}»: " : '') . $cambio['mensaje'];
+                $cambios[] = $cambio;
+            }
+        }
+
+        return $cambios;
     }
 
     private function syncItems(Op $op, array $items): void
@@ -1082,8 +1142,18 @@ class OpController extends Controller
             ];
 
             if ($item && $item->op_id === $op->id) {
+                $cambioDeEnsamble = array_key_exists('ensamble_id', $datos)
+                    && (int) ($datos['ensamble_id'] ?? 0) !== (int) $item->ensamble_id;
+
                 $item->update($fill);
                 $idsEnviados[] = $item->id;
+
+                // Las unidades siguen a la cantidad: se crean las que faltan y se borran las
+                // que sobran. Antes esto no pasaba, y corregir una OP de 1 a 3 puertas dejaba
+                // dos unidades sin trabajo — sin QR, sin pasos y sin calidad.
+                if ($item->ensamble_id) {
+                    app(TrabajoAutoGeneratorService::class)->sincronizarParaItem($item, $cambioDeEnsamble);
+                }
             } else {
                 $nuevo = OpItem::create($fill);
                 $idsEnviados[] = $nuevo->id;
