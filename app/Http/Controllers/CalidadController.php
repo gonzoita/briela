@@ -172,6 +172,10 @@ class CalidadController extends Controller
             ]);
         }
 
+        // La firma es lo que abre el despacho, y va aunque la unidad no tenga ni un punto que
+        // revisar: alguien la miró y la dio por buena, que es de lo que se trata.
+        $trabajo->firmarCalidad();
+
         $this->sellarSiTermino($trabajo->opItem?->op);
 
         return response()->json([
@@ -187,6 +191,8 @@ class CalidadController extends Controller
             'revisado_por' => null,
             'revisado_at'  => null,
         ]);
+
+        $trabajo->firmarCalidad(false);
 
         // El sello de la orden se cae con ella: decir que está aprobada cuando una de sus
         // unidades volvió a estar sin revisar es mentir en el único sitio donde no se puede.
@@ -222,6 +228,13 @@ class CalidadController extends Controller
             'motivo_rechazo'        => null,
             'calidad_aprobada_at'   => now(),
         ]);
+
+        // Cerrar la orden firma sus unidades: es el atajo de la orden entera, igual que
+        // «Terminar» lo es de una. Sin esto el sello de la orden no abriría ningún despacho,
+        // porque quien decide eso es la firma de cada unidad.
+        foreach (OpItemTrabajo::whereHas('opItem', fn ($q) => $q->where('op_id', $op->id))->get() as $unidad) {
+            $unidad->firmarCalidad();
+        }
 
         app(NotificacionService::class)->paraRol(
             ['administrador', 'jefe_produccion'],
@@ -274,6 +287,9 @@ class CalidadController extends Controller
             if ($final) {
                 $cierre->reabrir($final);
             }
+
+            // Y pierde la firma de calidad: una unidad que vuelve a planta no está aprobada.
+            $unidad->firmarCalidad(false);
         }
 
         $cuantas = $unidades->count();
@@ -328,12 +344,16 @@ class CalidadController extends Controller
         // no el archivo. Lo ya cerrado se pide aparte.
         $estado = $request->input('estado', 'pendientes');
 
+        // «Pendiente» es **sin firmar**, y no «con puntos pendientes». La diferencia se lo
+        // llevaba todo: una unidad sin lista de revisión no tiene puntos, así que nunca
+        // entraba al tablero — y como no entraba, no había dónde aprobarla ni forma de
+        // despacharla. En una instalación real esas son la mayoría.
         if ($estado === 'pendientes') {
-            $query->whereHas('checks', fn ($q) => $q->where('resultado', 'pendiente'));
+            $query->whereNull('calidad_revisada_at');
         } elseif ($estado === 'fallas') {
             $query->whereHas('checks', fn ($q) => $q->where('resultado', 'falla'));
         } elseif ($estado === 'listas') {
-            $query->whereHas('checks')->whereDoesntHave('checks', fn ($q) => $q->where('resultado', 'pendiente'));
+            $query->whereNotNull('calidad_revisada_at');
         }
 
         return $query->limit(300)->get()->sortBy([
@@ -353,10 +373,9 @@ class CalidadController extends Controller
     {
         return [
             'unidades'   => $unidades->count(),
-            'pendientes' => $unidades->filter(fn ($t) => $t->checks->contains(fn ($c) => $c->resultado === 'pendiente'))->count(),
+            'pendientes' => $unidades->filter(fn ($t) => ! $t->calidad_revisada_at)->count(),
             'fallas'     => $unidades->filter(fn ($t) => $t->checks->contains(fn ($c) => $c->resultado === 'falla'))->count(),
-            'listas'     => $unidades->filter(fn ($t) => $t->checks->isNotEmpty()
-                && ! $t->checks->contains(fn ($c) => $c->bloquea()))->count(),
+            'listas'     => $unidades->filter(fn ($t) => (bool) $t->calidad_revisada_at)->count(),
             'ops'        => $unidades->map(fn ($t) => $t->opItem?->op_id)->filter()->unique()->count(),
         ];
     }
@@ -427,6 +446,10 @@ class CalidadController extends Controller
             // Una unidad que calidad rechazó y que planta está rehaciendo. No es un campo
             // guardado: la revisión ya lo dice, punto por punto.
             'en_reproceso' => $op?->estado === 'reproceso' && $checks->where('resultado', 'falla')->isNotEmpty(),
+            // La firma de calidad de esta unidad: es lo que decide si el botón dice «Terminar»
+            // o «Terminada», y lo que abre su despacho.
+            'revisada'     => (bool) $trabajo->calidad_revisada_at,
+            'revisada_at'  => $trabajo->calidad_revisada_at?->format('d/m/Y H:i'),
             'bloquean'     => $checks->filter(fn ($c) => $c->bloquea())->count(),
             'porcentaje'   => $checks->count() > 0
                 ? (int) round($checks->where('resultado', '!=', 'pendiente')->count() / $checks->count() * 100)

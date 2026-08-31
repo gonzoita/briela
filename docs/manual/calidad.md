@@ -93,6 +93,33 @@ unidad — ese botón terminaría siendo un trámite que se aprieta sin mirar.
 Y se retira solo si algo se reabre: decir que una orden está aprobada cuando una de sus
 unidades volvió a estar sin revisar es mentir en el único sitio donde no se puede.
 
+## La firma de la unidad *(corregido el 30 ago 2026)*
+
+Lo que abre el despacho de una unidad es **su firma**: `op_item_trabajos.calidad_revisada_at`,
+puesta por quien apretó «Terminar». No es «no le quedan puntos pendientes».
+
+La diferencia se lo llevaba todo. **Casi ninguna plantilla tiene cargada su lista de revisión**
+—se carga una por una—, así que la mayoría de las unidades no tiene ningún punto. Con la regla
+vieja esas unidades no tenían nada que resolver, así que nunca quedaban «listas»; el tablero
+tampoco las mostraba, porque filtraba por puntos pendientes; y su botón «Terminar» no cambiaba
+nada al apretarlo, porque el servidor no tenía qué marcar. El resultado era el peor posible:
+nada se podía aprobar y nada se podía despachar.
+
+Con una firma propia la regla es **una sola y vale para las dos**: una unidad se despacha
+cuando calidad la firmó. Los puntos de revisión siguen siendo lo que hay que mirar para
+firmarla, pero dejaron de ser la firma.
+
+La firma se pone de tres maneras, y todas terminan en el mismo sitio:
+
+| Acción | Qué firma |
+|---|---|
+| «Terminar» en una ficha | Esa unidad |
+| Resolver su último punto pendiente | Esa unidad, sola |
+| «Cerrar calidad de la orden» | Todas las unidades de la orden |
+
+Y se retira sola: al reabrir la unidad, al marcarle un punto en falla, y al mandar la orden a
+reproceso. Una unidad que volvió a planta no está aprobada.
+
 ## Lo que habilita: la remisión, unidad por unidad
 
 Revisar una unidad la deja **lista para despachar**, sin esperar a las demás. De una orden de
@@ -100,7 +127,8 @@ diez puertas, las tres aprobadas se remisionan hoy: es lo que de verdad pasa cua
 se quiere llevar una parte del pedido. Ver [Logística](./logistica.md).
 
 El sello de la orden (`calidad_aprobada_at`) sigue existiendo y sigue poniéndose solo, pero ya
-no es lo que abre el despacho: es el resumen de que no queda nada por revisar.
+no es lo que abre el despacho: es el resumen de que no queda nada por revisar. Lo que abre el
+despacho de cada unidad es su propia firma.
 
 ## Reproceso *(completado el 30 ago 2026)*
 

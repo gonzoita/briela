@@ -321,9 +321,10 @@ class FlujoTrabajoTest extends TestCase
         $unidades = $e['item']->trabajos()->orderBy('numero_unidad')->get();
         $unidades->each(fn ($t) => $this->fabricar($t));
 
-        // La primera falla, la segunda cumple.
+        // La primera falla, la segunda la aprueba calidad por su pantalla —que es lo que pone
+        // la firma de la unidad, y sin firma no hay despacho—.
         $unidades[0]->checks()->update(['resultado' => 'falla', 'observaciones' => 'Descuadrada 3 mm']);
-        $unidades[1]->checks()->update(['resultado' => 'cumple']);
+        $this->actingAs($this->admin())->post("/calidad/unidades/{$unidades[1]->id}/terminar")->assertOk();
 
         $this->actingAs($this->admin())
             ->post("/calidad/ops/{$e['op']->id}/reprocesar", ['motivo_rechazo' => 'La primera vino descuadrada'])
@@ -390,9 +391,69 @@ class FlujoTrabajoTest extends TestCase
 
         $this->assertSame(0, OpItemTrabajo::disponiblesParaRemision()->count());
 
-        $trabajo->checks()->update(['resultado' => 'cumple']);
+        $this->actingAs($this->admin())->post("/calidad/unidades/{$trabajo->id}/terminar")->assertOk();
 
         $this->assertSame(1, OpItemTrabajo::disponiblesParaRemision()->count());
+    }
+
+    public function test_una_unidad_sin_lista_de_revision_se_puede_aprobar_y_despachar(): void
+    {
+        // El caso que estaba roto, y es el mayoritario: casi ninguna plantilla tiene cargada su
+        // lista de revisión. Esas unidades no tenían puntos, así que el tablero de Calidad ni
+        // las mostraba, su botón «Terminar» no cambiaba nada, y no había forma de despacharlas.
+        $e       = $this->escenario();
+        $trabajo = $e['item']->trabajos()->firstOrFail();
+
+        $this->actingAs($this->admin());
+        $svc = app(CierrePasoService::class);
+        $svc->cerrar($trabajo->pasos()->where('es_paso_final', false)->firstOrFail());
+        $svc->cerrar($trabajo->pasos()->where('es_paso_final', true)->firstOrFail());
+
+        $this->assertSame(0, $trabajo->checks()->count());
+
+        // Aparece en el tablero aunque no tenga ni un punto que revisar.
+        $this->actingAs($this->admin())
+            ->get('/calidad')
+            ->assertInertia(fn ($p) => $p->component('Calidad/Index')
+                ->has('fichas', 1)
+                ->where('fichas.0.revisada', false));
+
+        // Y «Terminar» la firma de verdad: el botón deja de estar muerto.
+        $this->actingAs($this->admin())
+            ->post("/calidad/unidades/{$trabajo->id}/terminar")
+            ->assertOk()
+            ->assertJsonPath('ficha.revisada', true);
+
+        $this->assertNotNull($trabajo->fresh()->calidad_revisada_at);
+        $this->assertSame(1, OpItemTrabajo::disponiblesParaRemision()->count());
+    }
+
+    public function test_marcar_los_puntos_uno_por_uno_tambien_firma_la_unidad(): void
+    {
+        $e       = $this->escenario();
+        $trabajo = $e['item']->trabajos()->firstOrFail();
+
+        $this->actingAs($this->admin());
+        $svc = app(CierrePasoService::class);
+        $svc->cerrar($trabajo->pasos()->where('es_paso_final', false)->firstOrFail());
+        $svc->cerrar($trabajo->pasos()->where('es_paso_final', true)->firstOrFail());
+
+        $check = $trabajo->checks()->create(['titulo' => 'Escuadra', 'orden' => 0, 'es_critico' => true]);
+
+        // Sin esto, marcar los ocho puntos a mano dejaba la unidad igual de bloqueada que antes
+        // de empezar: solo el atajo «Terminar» la abría.
+        $this->actingAs($this->admin())
+            ->patchJson("/calidad/checks/{$check->id}", ['resultado' => 'cumple'])
+            ->assertOk();
+
+        $this->assertNotNull($trabajo->fresh()->calidad_revisada_at);
+
+        // Y marcarlo en falla se la quita.
+        $this->actingAs($this->admin())
+            ->patchJson("/calidad/checks/{$check->id}", ['resultado' => 'falla'])
+            ->assertOk();
+
+        $this->assertNull($trabajo->fresh()->calidad_revisada_at);
     }
 
     public function test_una_remision_parcial_no_despacha_la_orden(): void
@@ -407,7 +468,10 @@ class FlujoTrabajoTest extends TestCase
             $svc->cerrar($trabajo->pasos()->where('es_paso_final', true)->firstOrFail());
         }
 
-        $e['op']->update(['calidad_aprobada_at' => now()]);
+        // Calidad cierra la orden entera: eso firma sus dos unidades.
+        $this->actingAs($this->admin())
+            ->post("/calidad/ops/{$e['op']->id}/terminar")
+            ->assertSessionHasNoErrors();
 
         // Se despacha UNA de las dos.
         $this->actingAs($this->admin())
@@ -445,7 +509,7 @@ class FlujoTrabajoTest extends TestCase
 
         // Solo la primera pasa calidad. Es el caso real: el cliente se lleva lo que está listo.
         $primera = $e['item']->trabajos()->orderBy('numero_unidad')->first();
-        $primera->checks()->update(['resultado' => 'cumple']);
+        $this->actingAs($this->admin())->post("/calidad/unidades/{$primera->id}/terminar")->assertOk();
 
         $this->assertSame(1, $e['item']->cantidadDisponible());
         // Y la orden NO tiene el sello: con el candado viejo, esta unidad esperaría a la otra.

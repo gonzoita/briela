@@ -29,6 +29,14 @@ Formato: [versionado semántico](https://semver.org/lang/es/).
   los trajo. Se conecta desde Configuración → Integraciones → WordPress.
 
 ### Corregido
+- **El botón «Terminar» de Calidad no hacía nada** en las unidades cuyo ensamble no
+  tiene lista de revisión cargada — que son casi todas. Esas unidades tampoco
+  aparecían en el tablero, así que no había dónde aprobarlas, y sin aprobación no
+  se podía remisionar nada. Ahora el tablero muestra todo lo fabricado que falta
+  por revisar, con lista o sin ella, y «Terminar» la aprueba de verdad.
+- En Trabajos, «Terminar» tampoco hacía nada en una unidad sin pasos de producción:
+  ahora lo dice en vez de quedarse mudo. Y si la plantilla no marcó ningún paso
+  como final, el último entrega igual.
 - Guardar una orden de producción **recreaba sus ítems** y se llevaba por delante
   sus unidades, sus pasos y su revisión de calidad, en silencio. Ya no.
 - Se eliminó el módulo suelto de «Plantillas de trabajo», que llevaba sin enlace

@@ -223,7 +223,10 @@ async function subirFoto(archivo) {
 
 // ── Cerrar una unidad ─────────────────────────────────────────────────────────
 async function terminarUnidad(ficha) {
-    if (ficha.bloquean === 0 && ficha.resueltos === ficha.checks.length && ficha.checks.length) {
+    // «Terminada» se lee de la FIRMA de la unidad, no de su cuenta de puntos. Una unidad sin
+    // lista de revisión no tiene puntos que contar, y con el criterio viejo su botón no
+    // cambiaba nunca: se apretaba, el servidor no tenía nada que marcar, y volvía igual.
+    if (ficha.revisada) {
         // Ya estaba cerrada: el botón la vuelve a abrir, que es lo que se espera de un botón
         // que dice «Terminada».
         return reabrirUnidad(ficha)
@@ -315,7 +318,7 @@ const chipsDe = (ficha) => ficha.variables.map(v => `${v.etiqueta}: ${v.valor}`)
 
 const sufijoDe = (ficha) => ficha.total_unidades > 1 ? `−${ficha.numero_unidad}` : ''
 
-const cerrada = (ficha) => ficha.checks.length > 0 && ficha.resueltos === ficha.checks.length && ficha.bloquean === 0
+const cerrada = (ficha) => !! ficha.revisada
 
 const filtrarPor = (estado) => { filtros.value.estado = estado }
 </script>
@@ -425,8 +428,8 @@ const filtrarPor = (estado) => { filtros.value.estado = estado }
                         :urgencia="ficha.urgencia"
                         :marca="ficha.en_reproceso ? 'En reproceso' : ''"
                         :fecha="ficha.fecha_entrega"
-                        :contador="`${ficha.resueltos}/${ficha.total_checks}`"
-                        :porcentaje="ficha.porcentaje"
+                        :contador="ficha.total_checks ? `${ficha.resueltos}/${ficha.total_checks}` : ''"
+                        :porcentaje="ficha.total_checks ? ficha.porcentaje : (ficha.revisada ? 100 : 0)"
                         :botones="botonesDe(ficha)"
                         accion="Terminar"
                         accion-hecha="Terminada"

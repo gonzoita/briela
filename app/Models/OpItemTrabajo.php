@@ -25,6 +25,9 @@ class OpItemTrabajo extends Model
         // Y de cuál salió su material. Se guarda por unidad porque un lote se puede partir:
         // tres puertas con material de la principal y dos con el de la sucursal.
         'bodega_material_id',
+        // Cuándo calidad firmó ESTA unidad, y quién. Es el candado del despacho.
+        'calidad_revisada_at',
+        'calidad_revisada_por',
     ];
 
     /** La bodega a la que entró esta unidad al terminarse. */
@@ -49,7 +52,8 @@ class OpItemTrabajo extends Model
     }
 
     protected $casts = [
-        'entregado_at'      => 'datetime',
+        'entregado_at'        => 'datetime',
+        'calidad_revisada_at' => 'datetime',
         'porcentaje_avance' => 'decimal:2',
         'remisionado'       => 'boolean',
     ];
@@ -75,35 +79,53 @@ class OpItemTrabajo extends Model
     }
 
     /**
-     * Las unidades que se pueden despachar: armadas, sin remisionar y **con calidad resuelta**.
+     * Las unidades que se pueden despachar: armadas, sin remisionar y **firmadas por calidad**.
      *
-     * El candado de calidad vive aquí, en la unidad, y no en el sello de la orden. Es lo que
-     * permite lo que de verdad pasa en el mostrador: de una orden de diez puertas el cliente
-     * se lleva las tres que ya están revisadas, y las otras siete siguen su curso. Con el
-     * candado en la orden, esas tres esperaban a que la última pasara calidad.
+     * El candado vive aquí, en la unidad, y no en el sello de la orden. Es lo que permite lo
+     * que de verdad pasa en el mostrador: de una orden de diez puertas el cliente se lleva las
+     * tres que ya están revisadas, y las otras siete siguen su curso.
      *
-     * Un ensamble **sin lista de revisión** no tiene nada que resolver por unidad, y ahí sigue
-     * mandando el sello de la orden: sin eso, no tendría ningún control de calidad y se
-     * despacharía apenas terminara de fabricarse.
+     * La firma es `calidad_revisada_at`, y **no** «no le quedan puntos pendientes». Esa segunda
+     * versión dejaba fuera a las unidades sin lista de revisión, que en una instalación real
+     * son la mayoría: no tenían nada que resolver, así que nunca quedaban listas, y no había
+     * dónde firmarlas. Con un sello propio la regla es una sola y vale para las dos.
+     *
+     * La falla crítica se revisa aparte porque puede aparecer **después** de firmada: calidad
+     * vuelve a mirar la unidad y marca un punto en falla. Ahí deja de poder despacharse aunque
+     * la firma siga puesta, hasta que se resuelva.
      */
     public function scopeDisponiblesParaRemision($query)
     {
         return $query->where('porcentaje_avance', 100)
             ->where('remisionado', false)
-            ->where(function ($q) {
-                $q->where(function ($conLista) {
-                    $conLista->whereHas('checks')
-                        ->whereDoesntHave('checks', function ($bloquea) {
-                            $bloquea->where('resultado', 'pendiente')
-                                ->orWhere(function ($critico) {
-                                    $critico->where('resultado', 'falla')->where('es_critico', true);
-                                });
-                        });
-                })->orWhere(function ($sinLista) {
-                    $sinLista->whereDoesntHave('checks')
-                        ->whereHas('opItem.op', fn ($op) => $op->whereNotNull('calidad_aprobada_at'));
-                });
+            ->whereNotNull('calidad_revisada_at')
+            ->whereDoesntHave('checks', function ($bloquea) {
+                $bloquea->where('resultado', 'pendiente')
+                    ->orWhere(function ($critico) {
+                        $critico->where('resultado', 'falla')->where('es_critico', true);
+                    });
             });
+    }
+
+    /** Quién firmó la revisión de esta unidad. */
+    public function calidadRevisadaPor(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'calidad_revisada_por');
+    }
+
+    /**
+     * Firma la revisión de esta unidad, o la retira.
+     *
+     * Retirarla es tan importante como ponerla: una unidad que vuelve a reproceso, o a la que
+     * le reabren un punto, deja de estar aprobada. Decir lo contrario es mentir en el único
+     * sitio donde no se puede — es lo que abre el despacho.
+     */
+    public function firmarCalidad(bool $firmada = true): void
+    {
+        $this->update([
+            'calidad_revisada_at'  => $firmada ? ($this->calidad_revisada_at ?? now()) : null,
+            'calidad_revisada_por' => $firmada ? ($this->calidad_revisada_por ?? auth()->id()) : null,
+        ]);
     }
 
     public function recalcularAvance(): void

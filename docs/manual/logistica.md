@@ -28,12 +28,13 @@ el mostrador cuando el cliente se quiere llevar una parte del pedido.
 
 Antes el candado era de la orden entera —`calidad_aprobada_at`— y esas tres esperaban a que la
 última pasara revisión. Ahora vive en `OpItemTrabajo::disponiblesParaRemision()`: una unidad
-está disponible si está armada, sin remisionar, y **sin ningún punto de revisión pendiente ni
-ninguna falla crítica**.
+está disponible si está armada, sin remisionar, **firmada por calidad**, y sin ninguna falla
+crítica abierta.
 
-Un ensamble **sin lista de revisión** no tiene nada que resolver por unidad, y para él sigue
-mandando el sello de la orden. Sin esa excepción no tendría ningún control de calidad: se
-despacharía apenas terminara de fabricarse.
+La firma vale igual para un ensamble con lista de revisión y para uno sin ella — ver
+[Calidad](./calidad.md). Que sea una sola regla importa: mientras la disponibilidad se dedujo
+de «no le quedan puntos pendientes», las unidades sin lista quedaban fuera y no había forma de
+despacharlas.
 
 Si la orden no tiene ninguna unidad lista, el remisionador lo dice con precisión —«hay N
 fabricadas pero ninguna pasó calidad»— en vez de mostrar una pantalla vacía.

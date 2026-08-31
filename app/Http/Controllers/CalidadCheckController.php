@@ -41,6 +41,15 @@ class CalidadCheckController extends Controller
             'revisado_at'   => $datos['resultado'] === 'pendiente' ? null : now(),
         ]);
 
+        // Marcar los puntos uno por uno también firma la unidad cuando ya no queda ninguno sin
+        // resolver — si no, marcar los ocho a mano dejaría la unidad igual de bloqueada que
+        // antes de empezar, y solo el atajo «Terminar» la abriría.
+        $trabajo = $check->trabajo;
+
+        if ($trabajo) {
+            $trabajo->firmarCalidad(! $trabajo->calidadPendiente());
+        }
+
         $this->sellarCalidadSiTerminó($check);
 
         return response()->json($this->fila($check->fresh('revisadoPor')));

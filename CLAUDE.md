@@ -284,7 +284,7 @@ tocar los seeders.
 > **Las pruebas corren contra `briela_test`**, declarada en `phpunit.xml`; nunca contra
 > `briela`. Si esa base no existe, las 51 de Feature fallan todas por conexión y solo pasan las
 > 16 unitarias — parece un código roto y es una base que falta. Se crea una vez:
-> `mysql -u root -e "CREATE DATABASE IF NOT EXISTS briela_test"`. Al 30 ago 2026: 90 en verde.
+> `mysql -u root -e "CREATE DATABASE IF NOT EXISTS briela_test"`. Al 30 ago 2026: 92 en verde.
 
 **Tareas programadas** (`routes/console.php`, requieren cron):
 `cotizaciones:marcar-vencidas` · `notificaciones:entregas-proximas` ·
@@ -404,10 +404,11 @@ Lo construido después de la fase 3, que conviene conocer antes de tocar algo ce
   unidad con avance. Y `items.*.id` **tiene que seguir en las reglas de validación** de
   `OpController`: `validate()` devuelve solo lo que valida, y sin esa regla cada guardado de
   una OP recreaba sus ítems y se llevaba en cascada unidades, pasos y revisión.
-- **La remisión es por unidad, no por orden.** `OpItemTrabajo::disponiblesParaRemision()` exige
-  que la unidad no tenga puntos pendientes ni fallas críticas; el sello de la orden solo manda
-  para los ensambles **sin** lista de revisión. Es lo que deja que el cliente se lleve las tres
-  puertas aprobadas mientras las otras siete siguen en revisión.
+- **La remisión es por unidad, y lo que la abre es `op_item_trabajos.calidad_revisada_at`** —
+  la firma de calidad sobre ESA unidad—, no «no le quedan puntos pendientes». Esa segunda
+  versión dejaba fuera a las unidades **sin lista de revisión**, que son casi todas: no tenían
+  puntos, así que nunca quedaban listas, el tablero no las mostraba y su botón «Terminar» no
+  cambiaba nada. **Los puntos son lo que hay que mirar para firmar; no son la firma.**
 - **Trabajos y Calidad comparten la ficha**, `resources/js/Components/FichaProceso.vue`: una
   tarjeta grande por unidad física con un botón por paso o por punto de revisión. Es el mismo
   gesto —mirar la unidad, tocar el paso, seguir—, así que la pantalla es la misma; escribirla

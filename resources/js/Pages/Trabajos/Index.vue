@@ -177,18 +177,29 @@ function aplicarPaso(t, pasoId, data) {
  * preguntar las dos bodegas. Cerrarlo dentro del recorrido lo intentaría sin respuesta.
  */
 async function terminarUnidad(t) {
+    // Una unidad sin pasos no se puede terminar, y el botón no puede quedarse mudo: la
+    // plantilla se guardó sin flujo de producción y eso hay que decirlo, no esconderlo.
+    if (! t.pasos?.length) {
+        avisos.value[t.id] = 'Esta unidad no tiene pasos de producción. '
+            + 'Cárgalos en la ficha del ensamble y vuelve a generar el trabajo.'
+        return
+    }
+
     if (t.pasos_completados === t.pasos.length) return
 
     const pendientes = [...t.pasos]
         .sort((a, b) => a.orden - b.orden)
         .filter(p => ! p.completado)
 
-    for (const paso of pendientes.filter(p => ! p.es_paso_final)) {
+    // El que entrega es el marcado como final; si la plantilla es vieja y no marcó ninguno,
+    // lo es el último. Sin este respaldo la unidad se cerraba entera y no entraba a bodega.
+    const final = pendientes.find(p => p.es_paso_final) ?? pendientes[pendientes.length - 1]
+
+    for (const paso of pendientes.filter(p => p !== final)) {
         const ok = await alternarPaso(t, paso)
         if (! ok) return
     }
 
-    const final = pendientes.find(p => p.es_paso_final)
     if (final) pedirBodegas(t, final)
 }
 
@@ -214,7 +225,11 @@ async function confirmarBodegas(valores) {
 function tocarPaso(t, paso) {
     if (! paso) return
 
-    if (paso.es_paso_final && ! paso.completado) {
+    // El último paso de una plantilla que no marcó ninguno como final entrega igual.
+    const esElQueEntrega = paso.es_paso_final
+        || (! t.pasos.some(p => p.es_paso_final) && paso.orden === Math.max(...t.pasos.map(p => p.orden)))
+
+    if (esElQueEntrega && ! paso.completado) {
         pedirBodegas(t, paso)
         return
     }
