@@ -316,6 +316,17 @@ const botonesDe = (ficha) => ficha.checks.map(c => ({
 
 const chipsDe = (ficha) => ficha.variables.map(v => `${v.etiqueta}: ${v.valor}`)
 
+/**
+ * Cuándo llegó la unidad a calidad, y cuándo se firmó.
+ *
+ * La de llegada es la hora en que salió de producción: una unidad entra a revisión en el
+ * mismo instante en que deja de fabricarse, así que no hay dos fechas que llevar.
+ */
+const fechasDe = (ficha) => [
+    ficha.recibida_at && { etiqueta: 'Recibida', valor: ficha.recibida_at },
+    ficha.revisada_at && { etiqueta: 'Revisada', valor: ficha.revisada_at },
+].filter(Boolean)
+
 const sufijoDe = (ficha) => ficha.total_unidades > 1 ? `−${ficha.numero_unidad}` : ''
 
 const cerrada = (ficha) => !! ficha.revisada
@@ -427,6 +438,7 @@ const filtrarPor = (estado) => { filtros.value.estado = estado }
                         :chips="chipsDe(ficha)"
                         :urgencia="ficha.urgencia"
                         :marca="ficha.en_reproceso ? 'En reproceso' : ''"
+                        :fechas="fechasDe(ficha)"
                         :fecha="ficha.fecha_entrega"
                         :contador="ficha.total_checks ? `${ficha.resueltos}/${ficha.total_checks}` : ''"
                         :porcentaje="ficha.total_checks ? ficha.porcentaje : (ficha.revisada ? 100 : 0)"

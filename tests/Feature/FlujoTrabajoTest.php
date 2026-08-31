@@ -302,6 +302,58 @@ class FlujoTrabajoTest extends TestCase
         $this->assertSame($antes, $e['item']->trabajos()->firstOrFail()->id);
     }
 
+    // ── Las fechas se ponen solas ────────────────────────────────────────────────
+
+    public function test_la_unidad_registra_sola_cuando_arranco_y_cuando_salio_a_calidad(): void
+    {
+        $e       = $this->escenario();
+        $trabajo = $e['item']->trabajos()->firstOrFail();
+
+        $this->assertNull($trabajo->iniciado_at);
+        $this->assertNull($trabajo->terminado_at);
+
+        $this->actingAs($this->admin());
+        $svc = app(CierrePasoService::class);
+
+        // Primer paso: arranca. Nadie escribe la fecha.
+        $svc->cerrar($trabajo->pasos()->where('es_paso_final', false)->firstOrFail());
+
+        $trabajo->refresh();
+        $this->assertNotNull($trabajo->iniciado_at);
+        $this->assertNull($trabajo->terminado_at, 'Todavía le falta un paso: no ha terminado nada.');
+
+        // Último paso: sale de producción. Esa misma hora es la de llegada a calidad.
+        $svc->cerrar($trabajo->pasos()->where('es_paso_final', true)->firstOrFail());
+
+        $trabajo->refresh();
+        $this->assertNotNull($trabajo->terminado_at);
+
+        // Y es lo que ve el tablero de Calidad como hora de recibido.
+        $this->actingAs($this->admin())
+            ->get('/calidad')
+            ->assertInertia(fn ($p) => $p->component('Calidad/Index')
+                ->where('fichas.0.recibida_at', $trabajo->terminado_at->format('d/m/Y H:i')));
+    }
+
+    public function test_reabrir_un_paso_le_quita_la_fecha_de_salida(): void
+    {
+        $e       = $this->escenario();
+        $trabajo = $e['item']->trabajos()->firstOrFail();
+
+        $this->actingAs($this->admin());
+        $svc = app(CierrePasoService::class);
+        $svc->cerrar($trabajo->pasos()->where('es_paso_final', false)->firstOrFail());
+        $svc->cerrar($trabajo->pasos()->where('es_paso_final', true)->firstOrFail());
+
+        $this->assertNotNull($trabajo->fresh()->terminado_at);
+
+        // Una unidad que vuelve a planta no terminó nada, y decir lo contrario es mentir.
+        $svc->reabrir($trabajo->fresh()->pasos()->where('es_paso_final', true)->firstOrFail());
+
+        $this->assertNull($trabajo->fresh()->terminado_at);
+        $this->assertNotNull($trabajo->fresh()->iniciado_at, 'Pero sí arrancó, y eso no se borra.');
+    }
+
     // ── El reproceso ─────────────────────────────────────────────────────────────
 
     /** Fabrica una unidad de punta a punta y le deja un punto de revisión. */

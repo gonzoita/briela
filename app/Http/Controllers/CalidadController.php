@@ -459,6 +459,9 @@ class CalidadController extends Controller
             // o «Terminada», y lo que abre su despacho.
             'revisada'     => (bool) $trabajo->calidad_revisada_at,
             'revisada_at'  => $trabajo->calidad_revisada_at?->format('d/m/Y H:i'),
+            // Cuándo llegó a calidad es cuándo salió de producción: es el mismo instante.
+            'recibida_at'  => $trabajo->terminado_at?->format('d/m/Y H:i'),
+            'iniciado_at'  => $trabajo->iniciado_at?->format('d/m/Y H:i'),
             'bloquean'     => $checks->filter(fn ($c) => $c->bloquea())->count(),
             'porcentaje'   => $checks->count() > 0
                 ? (int) round($checks->where('resultado', '!=', 'pendiente')->count() / $checks->count() * 100)

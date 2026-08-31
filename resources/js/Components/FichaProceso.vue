@@ -24,6 +24,9 @@ const props = defineProps({
     urgencia:  { type: Object, default: () => ({ clave: 'normal', etiqueta: '' }) },
     // Una insignia extra, para lo que no es urgencia: hoy, «en reproceso».
     marca:     { type: String, default: '' },
+    // Las fechas reales del proceso: [{ etiqueta, valor }]. Se ponen solas al marcar los
+    // pasos — nadie las escribe— y son lo que dice cuánto tardó de verdad esta unidad.
+    fechas:    { type: Array,  default: () => [] },
     fecha:     { type: String, default: '' },
     contador:  { type: String, default: '' },     // «3/8»
     porcentaje:{ type: Number, default: 0 },
@@ -161,6 +164,14 @@ const fondoFicha = computed(() =>
                         : 'border-[var(--marca)] text-[var(--marca)] hover:bg-realce'">
                     {{ ocupada ? '…' : (hecha ? accionHecha : accion) }}
                 </button>
+            </div>
+
+            <!-- Cuándo arrancó, cuándo salió de producción, cuándo la firmó calidad. -->
+            <div v-if="fechas.length" class="flex flex-wrap items-center gap-x-4 gap-y-1 mt-2">
+                <span v-for="f in fechas" :key="f.etiqueta" class="text-xs text-tinta-400">
+                    <span class="uppercase tracking-[0.08em] text-[10px] text-tinta-300 mr-1">{{ f.etiqueta }}</span>
+                    <span class="tabular-nums text-tinta-600">{{ f.valor }}</span>
+                </span>
             </div>
 
             <p v-if="aviso" class="text-xs text-aviso-ambar bg-pastel-ambar border border-borde-aviso-ambar rounded-xl px-3 py-2 mt-3">

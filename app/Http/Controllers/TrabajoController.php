@@ -106,6 +106,9 @@ class TrabajoController extends Controller
                     ->all(),
                 'template_nombre'       => $t->template?->nombre,
                 'fecha_entrega'         => $t->opItem?->op?->fecha_entrega_estimada?->format('d/m/Y'),
+                // Las fechas reales del proceso: se ponen solas al marcar los pasos.
+                'iniciado_at'           => $t->iniciado_at?->format('d/m/Y H:i'),
+                'terminado_at'          => $t->terminado_at?->format('d/m/Y H:i'),
                 // La urgencia sale de la fecha de entrega, no de un campo que nadie llena.
                 'urgencia'              => \App\Support\Urgencia::de($t->opItem?->op?->fecha_entrega_estimada),
                 // Con qué bodegas viene precargado su paso final: las de la orden, o las que

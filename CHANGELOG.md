@@ -29,6 +29,9 @@ Formato: [versionado semántico](https://semver.org/lang/es/).
   los trajo. Se conecta desde Configuración → Integraciones → WordPress.
 
 ### Corregido
+- **En Trabajos, «Terminada» no respondía** en una unidad ya completa: se tocaba y
+  no pasaba nada, que se ve igual que estar roto. Ahora acusa recibo diciendo a qué
+  hora salió a Calidad.
 - **El botón «Terminar» de Calidad no hacía nada** en las unidades cuyo ensamble no
   tiene lista de revisión cargada — que son casi todas. Esas unidades tampoco
   aparecían en el tablero, así que no había dónde aprobarlas, y sin aprobación no
@@ -44,6 +47,10 @@ Formato: [versionado semántico](https://semver.org/lang/es/).
   sin las validaciones de la pantalla nueva.
 
 ### Cambiado
+- **Las fechas del proceso se ponen solas.** Cada unidad registra cuándo arrancó
+  —la primera vez que se toca uno de sus pasos— y cuándo salió de producción, que
+  es la misma hora a la que llegó a Calidad. Las dos se ven en el tablero, junto
+  con la hora en que calidad la firmó. Nadie las escribe.
 - **Mandar una orden a reproceso ahora hace algo.** Antes solo cambiaba la
   etiqueta: las unidades seguían figurando como terminadas y volver a producción
   dependía de que alguien se acordara. Ahora reabre en Trabajos las unidades que

@@ -185,7 +185,15 @@ async function terminarUnidad(t) {
         return
     }
 
-    if (t.pasos_completados === t.pasos.length) return
+    // Ya está toda cerrada: el botón «Terminada» es el acuse de que salió a calidad, y lo
+    // dice con su hora. Antes se quedaba mudo al tocarlo y parecía roto — que es exactamente
+    // lo que era: un botón que no responde no está terminado, está muerto.
+    if (t.pasos_completados === t.pasos.length) {
+        avisos.value[t.id] = t.terminado_at
+            ? `Esta unidad salió de producción el ${t.terminado_at} y está en Calidad.`
+            : 'Esta unidad ya tiene todos sus pasos cerrados.'
+        return
+    }
 
     const pendientes = [...t.pasos]
         .sort((a, b) => a.orden - b.orden)
@@ -272,6 +280,17 @@ const botonesDe = (t) => (t.pasos ?? []).map(p => ({
 }))
 
 const chipsDe = (t) => (t.variables_etiquetadas ?? []).map(v => `${v.etiqueta}: ${v.valor}`)
+
+/**
+ * Las fechas del proceso, tal como quedaron registradas.
+ *
+ * Nadie las escribe: se ponen solas al marcar el primer paso y al cerrar el último. La de
+ * cierre es además la hora en que la unidad llegó a Calidad — es el mismo instante.
+ */
+const fechasDe = (t) => [
+    t.iniciado_at  && { etiqueta: 'Inicio', valor: t.iniciado_at },
+    t.terminado_at && { etiqueta: 'A calidad', valor: t.terminado_at },
+].filter(Boolean)
 
 const sufijoDe = (t) => t.total_unidades > 1 ? `−${t.numero_unidad}` : ''
 
@@ -445,6 +464,7 @@ const numeroDe = (t) => (t.op_numero ?? '').replace(/\s*\[\d+\/\d+\]\s*/, '')
                     :chips="chipsDe(t)"
                     :urgencia="t.urgencia"
                     :marca="t.en_reproceso ? 'En reproceso' : ''"
+                    :fechas="fechasDe(t)"
                     :fecha="t.fecha_entrega"
                     :contador="`${t.pasos_completados}/${t.pasos_total}`"
                     :porcentaje="Math.round(t.porcentaje_avance)"

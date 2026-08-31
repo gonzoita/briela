@@ -121,6 +121,29 @@ Es **la misma ficha** que usa [Calidad](./calidad.md) —
 `resources/js/Components/FichaProceso.vue` —, porque el gesto es el mismo y quien está en
 planta no tiene por qué aprender dos pantallas.
 
+## Las fechas del proceso se ponen solas *(nuevo 30 ago 2026)*
+
+Nadie las escribe. La unidad guarda dos:
+
+| Fecha | Cuándo se pone |
+|---|---|
+| **Inicio** | La primera vez que alguien toca cualquiera de sus pasos |
+| **A calidad** | Cuando se cierra el último. **Es también la hora en que llegó a Calidad** |
+
+La segunda es una sola fecha y no dos porque es un solo hecho: una unidad entra a revisión en
+el mismo instante en que deja de fabricarse. Guardarlo por duplicado sería tener dos versiones
+de lo mismo, y se separarían.
+
+Se sellan dentro de `OpItemTrabajo::recalcularAvance()`, que es el punto único por el que pasa
+cualquier cambio de avance venga de donde venga. Escritas en las cuatro pantallas que cierran
+pasos, la fecha dependería de por dónde entró quien lo marcó.
+
+**«A calidad» se retira si la unidad se reabre**: una que volvió a planta no terminó nada. La de
+inicio no: sí arrancó, y eso no se deshace.
+
+Los pasos siguen guardando su propia hora de inicio y cierre — de ahí sale el tiempo real de
+cada uno. Lo nuevo es que la **unidad** también las tiene, que es lo que el tablero necesita.
+
 ## Cerrar un paso pasa por un solo sitio *(nuevo 30 ago 2026)*
 
 Hay cuatro pantallas que cierran un paso: el código QR del operario, el panel de la orden, la

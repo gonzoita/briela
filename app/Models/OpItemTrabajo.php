@@ -16,6 +16,10 @@ class OpItemTrabajo extends Model
         'porcentaje_avance',
         'numero_unidad',
         'total_unidades',
+        // Cuándo arrancó y cuándo salió de producción. La segunda es también la hora en que
+        // llegó a calidad: es el mismo instante.
+        'iniciado_at',
+        'terminado_at',
         'token_trabajo',
         'remisionado',
         // Cuándo entró a bodega la unidad y a cuál. Es el candado que evita que volver a
@@ -54,6 +58,8 @@ class OpItemTrabajo extends Model
     protected $casts = [
         'entregado_at'        => 'datetime',
         'calidad_revisada_at' => 'datetime',
+        'iniciado_at'         => 'datetime',
+        'terminado_at'        => 'datetime',
         'porcentaje_avance' => 'decimal:2',
         'remisionado'       => 'boolean',
     ];
@@ -149,6 +155,8 @@ class OpItemTrabajo extends Model
 
         $this->update(['porcentaje_avance' => $avance]);
 
+        $this->sellarFechasDeProceso($avance);
+
         $item = $this->opItem;
         if (! $item) return;
 
@@ -183,6 +191,41 @@ class OpItemTrabajo extends Model
             // sola a "calidad" — sin esto había que entrar manualmente a
             // cambiar el estado aunque la producción ya estuviera completa.
             $op->revisarTransicionCalidad();
+        }
+    }
+
+    /**
+     * Pone al día el arranque y el cierre de la unidad.
+     *
+     * Va aquí —dentro de `recalcularAvance()`— y no en cada pantalla, porque este es el punto
+     * único por el que pasa cualquier cambio de avance, venga del código QR, del panel de la
+     * orden, de la hoja o del tablero. Escrito en las cuatro, la fecha dependería de por dónde
+     * entró quien marcó el paso.
+     *
+     * `terminado_at` se retira si la unidad deja de estar completa: una que volvió a reproceso
+     * no terminó nada, y dejar la fecha puesta diría que sí.
+     */
+    private function sellarFechasDeProceso(float $avance): void
+    {
+        $primerToque = $this->pasos()
+            ->where(fn ($q) => $q->whereNotNull('iniciado_at')->orWhereNotNull('completado_at'))
+            ->orderByRaw('least(coalesce(iniciado_at, completado_at), coalesce(completado_at, iniciado_at))')
+            ->first();
+
+        $arranque = $primerToque
+            ? ($primerToque->iniciado_at ?? $primerToque->completado_at)
+            : null;
+
+        $cierre = $avance >= 100
+            ? $this->pasos()->max('completado_at')
+            : null;
+
+        if ($this->iniciado_at?->toDateTimeString() !== $arranque?->toDateTimeString()
+            || (string) $this->terminado_at !== (string) $cierre) {
+            $this->update([
+                'iniciado_at'  => $arranque,
+                'terminado_at' => $cierre,
+            ]);
         }
     }
 
