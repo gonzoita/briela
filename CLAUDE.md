@@ -393,6 +393,11 @@ Lo construido después de la fase 3, que conviene conocer antes de tocar algo ce
   otorgaban por el QR pero se devolvían desde la hoja, y la bodega se preguntaba de tres
   maneras. **Un cierre nuevo se agrega llamando al servicio, nunca escribiendo `completado` a
   mano.**
+- **Las fechas del proceso las pone `OpItemTrabajo::recalcularAvance()`, y nadie más.**
+  `iniciado_at` al primer toque de cualquier paso; `terminado_at` al cerrarse el último — y esa
+  **es** la hora de llegada a calidad, no hay una segunda columna: es un solo hecho. Van ahí
+  porque es el punto único por el que pasa cualquier cambio de avance; escritas en las cuatro
+  pantallas que cierran pasos, la fecha dependería de por dónde entró quien marcó.
 - **El paso final entrega la unidad, y pide LAS DOS bodegas**: a dónde entra lo fabricado
   (`op_item_trabajos.bodega_entrega_id`) y de dónde salió el material (`bodega_material_id`).
   Se guardan por unidad porque un lote se puede partir. Llegan precargadas —de la unidad
@@ -480,8 +485,8 @@ decían lo contrario y estaban equivocadas.
   relaciones entre archivos antes de leer código a mano.
 - Conviene regenerarlo después de cambios que muevan estructura (borrar módulos,
   mover carpetas), porque un grafo desactualizado es peor que no tenerlo.
-- **Generado y al día.** Al 30 ago 2026: 6.775 nodos, 11.614 aristas, 650 comunidades,
-  anclado al commit `c6788b27`. Se reconstruye entero con la extracción AST
+- **Generado y al día.** Al 30 ago 2026: 6.790 nodos, 11.641 aristas, 657 comunidades,
+  anclado al commit `74f396aa`. Se reconstruye entero con la extracción AST
   (gratis, sin LLM) y `parallel=False`.
 - **Las comunidades se nombran solas, con su archivo dominante** —«Servicios · IaService»— y
   **no** con una lista escrita a mano. Louvain las renumera en cada reconstrucción: el id 12 de
