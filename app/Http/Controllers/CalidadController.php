@@ -47,7 +47,7 @@ class CalidadController extends Controller
                 'op_numero' => $request->input('op_numero', ''),
                 'estado'    => $request->input('estado', 'pendientes'),
             ],
-            'metricas' => $this->metricas($unidades),
+            'metricas' => $this->metricas($request),
         ]);
     }
 
@@ -59,7 +59,7 @@ class CalidadController extends Controller
         return response()->json([
             'fichas'   => $unidades->map(fn ($t) => $this->ficha($t))->values(),
             'ops'      => $this->resumenPorOp($unidades),
-            'metricas' => $this->metricas($unidades),
+            'metricas' => $this->metricas($request),
         ]);
     }
 
@@ -321,7 +321,7 @@ class CalidadController extends Controller
      * antes se revisa antes— y se resuelve sobre la colección: son las unidades fabricadas y
      * sin despachar de una empresa, no una tabla histórica.
      */
-    private function unidades(Request $request): Collection
+    private function unidades(Request $request, bool $conFiltroEstado = true): Collection
     {
         $query = OpItemTrabajo::with([
                 'opItem.op.cliente',
@@ -342,7 +342,7 @@ class CalidadController extends Controller
 
         // Por omisión el tablero muestra lo que falta por revisar: es la bandeja de trabajo,
         // no el archivo. Lo ya cerrado se pide aparte.
-        $estado = $request->input('estado', 'pendientes');
+        $estado = $conFiltroEstado ? $request->input('estado', 'pendientes') : 'todas';
 
         // «Pendiente» es **sin firmar**, y no «con puntos pendientes». La diferencia se lo
         // llevaba todo: una unidad sin lista de revisión no tiene puntos, así que nunca
@@ -369,8 +369,17 @@ class CalidadController extends Controller
         return $trabajo->opItem?->op?->fecha_entrega_estimada?->format('Y-m-d') ?? '9999-12-31';
     }
 
-    private function metricas(Collection $unidades): array
+    /**
+     * Las métricas cuentan **todo lo que le toca a calidad**, no lo que dejó ver el filtro.
+     *
+     * Las tarjetas son botones de filtro: si contaran el resultado del filtro activo, «Revisadas»
+     * marcaría cero mientras se miran las pendientes, y ese cero se lee como «no hay ninguna
+     * revisada» en vez de «no estás viendo ninguna».
+     */
+    private function metricas(Request $request): array
     {
+        $unidades = $this->unidades($request, false);
+
         return [
             'unidades'   => $unidades->count(),
             'pendientes' => $unidades->filter(fn ($t) => ! $t->calidad_revisada_at)->count(),
