@@ -121,6 +121,25 @@ Es **la misma ficha** que usa [Calidad](./calidad.md) —
 `resources/js/Components/FichaProceso.vue` —, porque el gesto es el mismo y quien está en
 planta no tiene por qué aprender dos pantallas.
 
+## El tablero muestra lo que falta, y nada más *(nuevo 30 ago 2026)*
+
+`/trabajos` es la **hoja de trabajo de la planta, no el archivo**. Por omisión muestra lo que
+todavía hay que fabricar: sin iniciar, en progreso, y lo que calidad devolvió a reproceso.
+
+**Una unidad terminada se va del tablero** en cuanto sale a Calidad, y se dice a dónde fue —una
+ficha que desaparece sin explicación se lee como que se perdió algo—. Mientras se quedaban,
+empujaban hacia abajo lo que sí faltaba, y su botón «Terminada» no hacía nada al tocarlo.
+
+**Vuelve sola si calidad la devuelve a reproceso**, con su insignia «En reproceso». No hace
+falta buscarla: al reabrirle el paso de entrega deja de estar completa, y eso la trae de vuelta
+al filtro de siempre.
+
+Lo terminado sigue estando, en la tarjeta «Terminados». Las cuatro tarjetas de arriba son
+filtros: sin iniciar, en progreso, en reproceso y terminados.
+
+> Las tarjetas cuentan sobre **la sede activa**, como la lista. Contadas sin ese límite, en una
+> empresa de dos sedes sumaban las dos y la lista mostraba una.
+
 ## Las fechas del proceso se ponen solas *(nuevo 30 ago 2026)*
 
 Nadie las escribe. La unidad guarda dos:

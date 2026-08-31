@@ -285,7 +285,32 @@ function aplicarFicha(nueva) {
 
     const grupo = ops.value.find(o => o.id === nueva.op_id)
     if (grupo) grupo.calidad_aprobada_at = nueva.calidad_aprobada_at
+
+    sacarDelTablero(nueva)
 }
+
+/**
+ * La unidad firmada se va del tablero.
+ *
+ * Este es la bandeja de revisión, no el archivo: lo ya firmado empuja hacia abajo lo que
+ * todavía hay que mirar. Se dice qué pasó, porque una ficha que desaparece sin explicación se
+ * lee como que se perdió algo — y aquí lo que pasó es que esa unidad ya se puede despachar.
+ */
+function sacarDelTablero(ficha) {
+    if (filtros.value.estado !== 'pendientes' || ! ficha.revisada) return
+
+    fichas.value = fichas.value.filter(f => f.id !== ficha.id)
+    ops.value    = ops.value.filter(o => fichas.value.some(f => f.op_id === o.id))
+
+    salida.value = `${ficha.op_numero}${ficha.total_unidades > 1 ? ' −' + ficha.numero_unidad : ''}`
+        + ' quedó aprobada y ya se puede remisionar.'
+
+    metricas.value.pendientes = Math.max(0, (metricas.value.pendientes ?? 1) - 1)
+    metricas.value.listas     = (metricas.value.listas ?? 0) + 1
+}
+
+// El acuse de lo último que salió del tablero.
+const salida = ref('')
 
 // ── Cerrar la orden ───────────────────────────────────────────────────────────
 function cerrarOp(op) {
@@ -385,14 +410,31 @@ const filtrarPor = (estado) => { filtros.value.estado = estado }
                 class="w-full md:max-w-xs rounded-xl border border-linea px-3 py-2 text-sm bg-superficie focus:outline-none focus:ring-2 focus:ring-[var(--marca)]/30 focus:border-[var(--marca)]" />
         </div>
 
+        <!-- Lo último que se aprobó. Una ficha que desaparece sin explicación se lee como que
+             se perdió algo; aquí lo que pasó es que esa unidad ya se puede despachar. -->
+        <div v-if="salida"
+            class="bg-pastel-verde border border-borde-aviso-verde rounded-2xl px-4 py-3 mb-4 flex items-start gap-3">
+            <svg class="w-5 h-5 text-aviso-verde shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+            </svg>
+            <p class="text-sm text-aviso-verde flex-1">{{ salida }}</p>
+            <button type="button" @click="salida = ''" class="text-aviso-verde opacity-60 hover:opacity-100">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+        </div>
+
         <!-- ── Los grupos ───────────────────────────────────────────────────── -->
         <div v-if="cargando && ! grupos.length" class="text-center py-12 text-tinta-300 text-sm">Cargando…</div>
 
         <div v-else-if="! grupos.length"
             class="bg-superficie rounded-2xl border border-linea py-14 text-center">
-            <p class="text-sm text-tinta-400">No hay unidades esperando revisión.</p>
+            <p class="text-sm text-tinta-400">
+                {{ filtros.estado === 'pendientes' ? 'No queda nada por revisar.' : 'No hay unidades con ese filtro.' }}
+            </p>
             <p class="text-xs text-tinta-300 mt-1">
-                Aquí entra lo que ya se fabricó por completo y todavía no se despacha.
+                Aquí entra lo que sale de producción. Lo ya aprobado está en «Revisadas».
             </p>
         </div>
 
@@ -433,6 +475,7 @@ const filtrarPor = (estado) => { filtros.value.estado = estado }
                     <FichaProceso v-for="ficha in grupo.fichas" :key="ficha.id"
                         :numero="ficha.op_numero"
                         :sufijo="sufijoDe(ficha)"
+                        :codigo="ficha.codigo_item ?? ''"
                         :titulo="ficha.titulo"
                         :subtitulo="ficha.cliente"
                         :chips="chipsDe(ficha)"

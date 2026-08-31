@@ -48,16 +48,26 @@ class TrabajoController extends Controller
         // no solo por porcentaje_avance — un paso con peso 0% puede estar
         // completado y aun así dejar el porcentaje en 0, lo que antes hacía
         // que el trabajo se viera "sin iniciar" aunque ya se hubiera arrancado.
-        if ($request->filled('estado')) {
-            match ($request->estado) {
-                'sin_iniciar' => $query->whereDoesntHave('pasos', fn ($q) => $q->where('completado', true)->orWhereNotNull('iniciado_at')),
-                'en_progreso' => $query->whereHas('pasos', fn ($q) => $q->where('completado', true)->orWhereNotNull('iniciado_at'))
-                                        ->whereHas('pasos', fn ($q) => $q->where('completado', false)),
-                'completado'  => $query->whereHas('pasos')
-                                        ->whereDoesntHave('pasos', fn ($q) => $q->where('completado', false)),
-                default       => null,
-            };
-        }
+        //
+        // **Por omisión el tablero muestra lo que todavía hay que fabricar.** Es la hoja de
+        // trabajo de la planta, no el archivo: una unidad terminada ya salió a calidad y
+        // seguir mostrándola solo empuja hacia abajo lo que sí falta. Vuelve sola si calidad
+        // la devuelve a reproceso, porque ahí deja de estar completa.
+        $estado = $request->input('estado') ?: 'activos';
+
+        match ($estado) {
+            'activos'     => $query->where(fn ($q) => $q
+                ->whereHas('pasos', fn ($p) => $p->where('completado', false))
+                ->orWhereDoesntHave('pasos')
+                ->orWhereHas('checks', fn ($c) => $c->where('resultado', 'falla'))),
+            'sin_iniciar' => $query->whereDoesntHave('pasos', fn ($q) => $q->where('completado', true)->orWhereNotNull('iniciado_at')),
+            'en_progreso' => $query->whereHas('pasos', fn ($q) => $q->where('completado', true)->orWhereNotNull('iniciado_at'))
+                                    ->whereHas('pasos', fn ($q) => $q->where('completado', false)),
+            'completado'  => $query->whereHas('pasos')
+                                    ->whereDoesntHave('pasos', fn ($q) => $q->where('completado', false)),
+            'reproceso'   => $query->whereHas('checks', fn ($q) => $q->where('resultado', 'falla')),
+            default       => null,
+        };
         if ($request->filled('variable')) {
             $var = $request->variable;
             $query->whereHas('opItem', fn ($q) => $q->whereRaw(
@@ -150,6 +160,13 @@ class TrabajoController extends Controller
             return response()->json($trabajos);
         }
 
+        // Las tarjetas cuentan sobre lo mismo que la lista: la sede activa. Contadas sin ese
+        // límite, en una empresa de dos sedes las tarjetas suman las dos y la lista muestra una.
+        $base = fn () => OpItemTrabajo::query()->when(
+            $sedeActiva,
+            fn ($q) => $q->whereHas('opItem.op', fn ($op) => $op->where('sede_id', $sedeActiva))
+        );
+
         return Inertia::render('Trabajos/Index', [
             'orden' => $orden,
             // Para el paso final: sale de `bodegasParaElegir()` y no de `idsBodegasVisibles()`,
@@ -159,7 +176,7 @@ class TrabajoController extends Controller
             'trabajos'   => $trabajos,
             'operarios'  => Operario::where('estado', 'activo')->get(['id', 'nombre']),
             'templates'  => TemplateTrabajo::where('activo', true)->get(['id', 'nombre']),
-            'filters'              => $request->only(['op_id', 'op_numero', 'template_id', 'operario_id', 'estado', 'variable', 'paso']),
+            'filters'              => $request->only(['op_id', 'op_numero', 'template_id', 'operario_id', 'variable', 'paso']) + ['estado' => $estado],
             'variables_disponibles'=> OpItem::whereHas('trabajos')
                 ->whereNotNull('variables_instancia')
                 ->pluck('variables_instancia')
@@ -176,11 +193,12 @@ class TrabajoController extends Controller
                 ->values()
                 ->all(),
             'metricas'   => [
-                'sin_iniciar'        => OpItemTrabajo::whereDoesntHave('pasos', fn ($q) => $q->where('completado', true)->orWhereNotNull('iniciado_at'))->count(),
-                'en_progreso'        => OpItemTrabajo::whereHas('pasos', fn ($q) => $q->where('completado', true)->orWhereNotNull('iniciado_at'))
+                'sin_iniciar'        => $base()->whereDoesntHave('pasos', fn ($q) => $q->where('completado', true)->orWhereNotNull('iniciado_at'))->count(),
+                'en_progreso'        => $base()->whereHas('pasos', fn ($q) => $q->where('completado', true)->orWhereNotNull('iniciado_at'))
                                            ->whereHas('pasos', fn ($q) => $q->where('completado', false))->count(),
-                'completados'        => OpItemTrabajo::whereHas('pasos')
+                'completados'        => $base()->whereHas('pasos')
                                            ->whereDoesntHave('pasos', fn ($q) => $q->where('completado', false))->count(),
+                'reproceso'          => $base()->whereHas('checks', fn ($q) => $q->where('resultado', 'falla'))->count(),
                 'pasos_pendientes'   => OpItemTrabajoPaso::where('completado', false)->count(),
                 'pasos_completados'  => OpItemTrabajoPaso::where('completado', true)->count(),
                 'top_operarios'      => OpItemTrabajoPasoOperario::query()

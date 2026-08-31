@@ -302,6 +302,44 @@ class FlujoTrabajoTest extends TestCase
         $this->assertSame($antes, $e['item']->trabajos()->firstOrFail()->id);
     }
 
+    // ── El tablero de Trabajos muestra lo que falta, y nada más ──────────────────
+
+    public function test_lo_terminado_sale_del_tablero_y_vuelve_si_calidad_lo_devuelve(): void
+    {
+        $e       = $this->escenario();
+        $trabajo = $e['item']->trabajos()->firstOrFail();
+
+        // Sin fabricar: está en el tablero de producción.
+        $this->actingAs($this->admin())
+            ->get('/trabajos')
+            ->assertInertia(fn ($p) => $p->component('Trabajos/Index')->has('trabajos.data', 1));
+
+        $this->fabricar($trabajo);
+
+        // Terminada: sale. El tablero es la hoja de trabajo de la planta, no el archivo.
+        $this->actingAs($this->admin())
+            ->get('/trabajos')
+            ->assertInertia(fn ($p) => $p->has('trabajos.data', 0));
+
+        // Pero sigue estando, con el filtro que corresponde.
+        $this->actingAs($this->admin())
+            ->get('/trabajos?estado=completado')
+            ->assertInertia(fn ($p) => $p->has('trabajos.data', 1));
+
+        // Calidad la rechaza y la devuelve a planta.
+        $trabajo->checks()->update(['resultado' => 'falla']);
+        $this->actingAs($this->admin())
+            ->post("/calidad/ops/{$e['op']->id}/reprocesar", ['motivo_rechazo' => 'Descuadrada'])
+            ->assertSessionHasNoErrors();
+
+        // Y vuelve sola al tablero, marcada, sin que nadie la busque.
+        $this->actingAs($this->admin())
+            ->get('/trabajos')
+            ->assertInertia(fn ($p) => $p
+                ->has('trabajos.data', 1)
+                ->where('trabajos.data.0.en_reproceso', true));
+    }
+
     // ── Las fechas se ponen solas ────────────────────────────────────────────────
 
     public function test_la_unidad_registra_sola_cuando_arranco_y_cuando_salio_a_calidad(): void

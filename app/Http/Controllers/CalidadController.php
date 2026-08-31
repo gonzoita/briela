@@ -436,6 +436,11 @@ class CalidadController extends Controller
             'op_estado'           => $op?->estado,
             'cliente'             => $op?->cliente?->nombre,
             'titulo'              => $item?->descripcion ?? $item?->ensamble?->nombre ?? 'Unidad',
+            // De qué ítem de la orden es. Dos ítems de la misma OP dan dos fichas casi iguales,
+            // y solo se distinguen leyendo las medidas una por una.
+            'codigo_item'         => $op && $item
+                ? $op->numero . '-' . str_pad(($item->orden ?? 0) + 1, 2, '0', STR_PAD_LEFT)
+                : null,
             'ensamble'            => $item?->ensamble?->nombre,
             'numero_unidad'       => $trabajo->numero_unidad ?? 1,
             'total_unidades'      => $trabajo->total_unidades ?? 1,

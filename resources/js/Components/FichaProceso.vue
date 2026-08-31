@@ -17,6 +17,9 @@ const props = defineProps({
     // El encabezado
     numero:    { type: [String, Number], default: '' },
     sufijo:    { type: String, default: '' },     // «−1» cuando la orden tiene varias unidades
+    // El código del ítem dentro de la orden: «OP-0005-02». Sin él, dos ítems de la misma
+    // orden dan dos fichas que solo se distinguen leyendo las medidas una por una.
+    codigo:    { type: String, default: '' },
     titulo:    { type: String, default: '' },
     subtitulo: { type: String, default: '' },
     chips:     { type: Array,  default: () => [] },   // las medidas de la instancia
@@ -115,6 +118,11 @@ const fondoFicha = computed(() =>
                     </span>
                     <span v-if="sufijo" class="text-xl md:text-2xl font-black tabular-nums text-tinta-300">{{ sufijo }}</span>
                 </button>
+
+                <span v-if="codigo"
+                    class="text-[11px] font-mono px-1.5 py-0.5 rounded bg-tinta-100 text-tinta-400 shrink-0 self-center">
+                    {{ codigo }}
+                </span>
 
                 <button type="button" @click="emit('abrir')"
                     class="min-w-0 text-left flex-1 basis-40">

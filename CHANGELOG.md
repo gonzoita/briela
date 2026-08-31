@@ -47,6 +47,12 @@ Formato: [versionado semántico](https://semver.org/lang/es/).
   sin las validaciones de la pantalla nueva.
 
 ### Cambiado
+- **El tablero de Trabajos muestra solo lo que falta por fabricar.** Una unidad
+  terminada se va en cuanto pasa a Calidad, diciendo a dónde fue, y **vuelve sola
+  si calidad la devuelve a reproceso**. Lo terminado sigue a un toque, en la
+  tarjeta «Terminados». Igual en Calidad: lo aprobado sale de la bandeja.
+- Las fichas muestran **de qué ítem de la orden son** (`OP-0005-02`). Dos ítems de
+  la misma orden daban dos fichas que solo se distinguían leyendo las medidas.
 - **Las fechas del proceso se ponen solas.** Cada unidad registra cuándo arrancó
   —la primera vez que se toca uno de sus pasos— y cuándo salió de producción, que
   es la misma hora a la que llegó a Calidad. Las dos se ven en el tablero, junto

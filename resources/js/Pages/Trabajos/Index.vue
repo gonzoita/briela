@@ -53,7 +53,7 @@ const filtros = ref({
     op_numero:   props.filters?.op_numero   ?? '',
     template_id: props.filters?.template_id ?? '',
     operario_id: props.filters?.operario_id ?? '',
-    estado:      props.filters?.estado      ?? '',
+    estado:      props.filters?.estado      ?? 'activos',
     variable:    props.filters?.variable    ?? '',
     paso:        props.filters?.paso        ?? '',
 })
@@ -220,17 +220,50 @@ function pedirBodegas(t, paso) {
 
 async function confirmarBodegas(valores) {
     const { trabajo, paso } = modalBodegas.value
+    const entregada = avisos.value[trabajo.id]
     const ok = await alternarPaso(trabajo, paso, valores)
 
-    if (ok) modalBodegas.value = { abierto: false, trabajo: null, paso: null, error: '' }
-    else    modalBodegas.value.error = avisos.value[trabajo.id] || 'No se pudo cerrar la unidad.'
+    if (! ok) {
+        modalBodegas.value.error = avisos.value[trabajo.id] || 'No se pudo cerrar la unidad.'
+        return
+    }
+
+    modalBodegas.value = { abierto: false, trabajo: null, paso: null, error: '' }
+    sacarDelTablero(trabajo)
 }
+
+/**
+ * La unidad terminada se va del tablero.
+ *
+ * Este es la hoja de trabajo de la planta, no el archivo: lo que ya salió a calidad empuja
+ * hacia abajo lo que todavía hay que fabricar. Se dice a dónde fue, porque una ficha que
+ * desaparece sin explicación se lee como que se perdió algo.
+ *
+ * Vuelve sola si calidad la devuelve a reproceso: ahí deja de estar completa.
+ */
+function sacarDelTablero(t) {
+    if (filtros.value.estado !== 'activos') return
+    if (t.pasos_completados !== t.pasos_total) return
+
+    lista.value = lista.value.filter(x => x.id !== t.id)
+    paginacion.value.total = Math.max(0, (paginacion.value.total ?? 1) - 1)
+
+    const bodega = avisos.value[t.id]?.match(/entró a ([^y]+) y/)?.[1]?.trim()
+
+    salida.value = `${numeroDe(t)}${sufijoDe(t)} salió de producción y pasó a Calidad`
+        + (bodega ? `. La unidad entró a ${bodega} y sus materiales se descontaron.` : '.')
+
+    delete avisos.value[t.id]
+}
+
+// El acuse de lo último que salió del tablero.
+const salida = ref('')
 
 /**
  * Un toque en un paso. El final abre la hoja de las bodegas en vez de cerrarse solo: entrega
  * la unidad a inventario, y eso no puede pasar sin que alguien diga dónde.
  */
-function tocarPaso(t, paso) {
+async function tocarPaso(t, paso) {
     if (! paso) return
 
     // El último paso de una plantilla que no marcó ninguno como final entrega igual.
@@ -242,7 +275,7 @@ function tocarPaso(t, paso) {
         return
     }
 
-    alternarPaso(t, paso)
+    if (await alternarPaso(t, paso)) sacarDelTablero(t)
 }
 
 const page = usePage()
@@ -314,24 +347,30 @@ const numeroDe = (t) => (t.op_numero ?? '').replace(/\s*\[\d+\/\d+\]\s*/, '')
         <div class="mb-4 space-y-4">
 
             <!-- Fila 1: cards de estado (clickeables) -->
-            <div class="grid grid-cols-3 gap-3">
-                <button @click="filtros.estado = filtros.estado === 'sin_iniciar' ? '' : 'sin_iniciar'"
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <button @click="filtros.estado = filtros.estado === 'sin_iniciar' ? 'activos' : 'sin_iniciar'"
                     class="bg-superficie rounded-2xl border shadow-sm px-4 py-4 text-center w-full transition-all hover:shadow-md"
                     :class="filtros.estado === 'sin_iniciar' ? 'border-[var(--marca)] ring-2 ring-[var(--marca-suave)]' : 'border-linea'">
                     <p class="text-2xl font-semibold text-tinta-400">{{ metricas.sin_iniciar ?? 0 }}</p>
                     <p class="text-xs text-tinta-300 mt-1">Sin iniciar</p>
                 </button>
-                <button @click="filtros.estado = filtros.estado === 'en_progreso' ? '' : 'en_progreso'"
+                <button @click="filtros.estado = filtros.estado === 'en_progreso' ? 'activos' : 'en_progreso'"
                     class="bg-superficie rounded-2xl border shadow-sm px-4 py-4 text-center w-full transition-all hover:shadow-md"
                     :class="filtros.estado === 'en_progreso' ? 'border-[var(--marca)] ring-2 ring-[var(--marca-suave)]' : 'border-borde-aviso-ambar'">
                     <p class="text-2xl font-semibold text-aviso-ambar">{{ metricas.en_progreso ?? 0 }}</p>
                     <p class="text-xs text-tinta-300 mt-1">En progreso</p>
                 </button>
-                <button @click="filtros.estado = filtros.estado === 'completado' ? '' : 'completado'"
+                <button @click="filtros.estado = filtros.estado === 'reproceso' ? 'activos' : 'reproceso'"
+                    class="bg-superficie rounded-2xl border shadow-sm px-4 py-4 text-center w-full transition-all hover:shadow-md"
+                    :class="filtros.estado === 'reproceso' ? 'border-[var(--marca)] ring-2 ring-[var(--marca-suave)]' : 'border-borde-aviso-naranja'">
+                    <p class="text-2xl font-semibold text-aviso-naranja">{{ metricas.reproceso ?? 0 }}</p>
+                    <p class="text-xs text-tinta-300 mt-1">En reproceso</p>
+                </button>
+                <button @click="filtros.estado = filtros.estado === 'completado' ? 'activos' : 'completado'"
                     class="bg-superficie rounded-2xl border shadow-sm px-4 py-4 text-center w-full transition-all hover:shadow-md"
                     :class="filtros.estado === 'completado' ? 'border-[var(--marca)] ring-2 ring-[var(--marca-suave)]' : 'border-borde-aviso-verde'">
                     <p class="text-2xl font-semibold text-aviso-verde">{{ metricas.completados ?? 0 }}</p>
-                    <p class="text-xs text-tinta-300 mt-1">Completados</p>
+                    <p class="text-xs text-tinta-300 mt-1">Terminados</p>
                 </button>
             </div>
 
@@ -416,10 +455,12 @@ const numeroDe = (t) => (t.op_numero ?? '').replace(/\s*\[\d+\/\d+\]\s*/, '')
                     <label class="text-xs font-medium text-tinta-400 mb-1 block">Estado</label>
                     <select v-model="filtros.estado"
                         class="w-full rounded-xl border border-linea px-3 py-2 text-sm bg-superficie focus:outline-none focus:ring-2 focus:ring-[var(--marca)]/30 focus:border-[var(--marca)]">
-                        <option value="">Todos</option>
+                        <option value="activos">Por fabricar (lo normal)</option>
                         <option value="sin_iniciar">Sin iniciar</option>
                         <option value="en_progreso">En progreso</option>
-                        <option value="completado">Completado</option>
+                        <option value="reproceso">En reproceso</option>
+                        <option value="completado">Terminados</option>
+                        <option value="">Todos</option>
                     </select>
                 </div>
                 <div>
@@ -446,12 +487,32 @@ const numeroDe = (t) => (t.op_numero ?? '').replace(/\s*\[\d+\/\d+\]\s*/, '')
             </div>
         </div>
 
+        <!-- Lo último que salió del tablero. Una ficha que desaparece sin explicación se lee
+             como que se perdió algo. -->
+        <div v-if="salida"
+            class="bg-pastel-verde border border-borde-aviso-verde rounded-2xl px-4 py-3 mb-4 flex items-start gap-3">
+            <svg class="w-5 h-5 text-aviso-verde shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+            </svg>
+            <p class="text-sm text-aviso-verde flex-1">{{ salida }}</p>
+            <button type="button" @click="salida = ''" class="text-aviso-verde opacity-60 hover:opacity-100">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+        </div>
+
         <!-- ── Las fichas ────────────────────────────────────────────────────── -->
         <div v-if="cargando" class="text-center py-8 text-tinta-300 text-sm">Cargando...</div>
 
         <div v-else-if="! lista.length"
-            class="bg-superficie rounded-2xl border border-linea py-14 text-center text-sm text-tinta-400">
-            No hay trabajos registrados
+            class="bg-superficie rounded-2xl border border-linea py-14 text-center">
+            <p class="text-sm text-tinta-400">
+                {{ filtros.estado === 'activos' ? 'No queda nada por fabricar.' : 'No hay trabajos con ese filtro.' }}
+            </p>
+            <p v-if="filtros.estado === 'activos'" class="text-xs text-tinta-300 mt-1">
+                Lo terminado pasó a Calidad. Toca «Terminados» para verlo.
+            </p>
         </div>
 
         <div v-else class="space-y-3">
@@ -459,6 +520,7 @@ const numeroDe = (t) => (t.op_numero ?? '').replace(/\s*\[\d+\/\d+\]\s*/, '')
                 <FichaProceso
                     :numero="numeroDe(t)"
                     :sufijo="sufijoDe(t)"
+                    :codigo="t.op_item_codigo ?? ''"
                     :titulo="t.item_descripcion ?? '—'"
                     :subtitulo="t.cliente_nombre"
                     :chips="chipsDe(t)"
