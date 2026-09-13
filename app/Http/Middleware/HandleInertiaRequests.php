@@ -2,12 +2,34 @@
 
 namespace App\Http\Middleware;
 
+use Closure;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
 class HandleInertiaRequests extends Middleware
 {
     protected $rootView = 'app';
+
+    /**
+     * La respuesta JSON de Inertia no se guarda en la caché del navegador.
+     *
+     * La pantalla y su JSON viven en la MISMA URL: /clientes devuelve HTML si se abre de cero
+     * y JSON si lo pide Inertia al navegar. Con `no-cache` el navegador sí la guarda, y al
+     * restaurar una pestaña dormida —Chrome las descarta tras un rato sin uso— o al volver
+     * con «atrás», sirve de la caché lo último que tenía para esa URL: el JSON crudo, pintado
+     * como texto. `no-store` impide guardarlo, y la restauración vuelve a pedir el HTML.
+     */
+    public function handle(Request $request, Closure $next)
+    {
+        $response = parent::handle($request, $next);
+
+        if ($request->header('X-Inertia')) {
+            $response->headers->set('Cache-Control', 'no-store, private');
+            $response->setVary('X-Inertia', false);
+        }
+
+        return $response;
+    }
 
     public function version(Request $request): ?string
     {
