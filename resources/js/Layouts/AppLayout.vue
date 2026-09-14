@@ -194,7 +194,7 @@ const navItems = computed(() => {
         // Una sección sin título —Dashboard, Clientes, Multimedia— es la de arriba y va
         // siempre abierta. Tratarla como sección igual que a las demás deja UN solo camino
         // para dibujar el menú, en vez de dos que hay que mantener a la par.
-        secciones.push({ label: grupo.label, icon: grupo.icon ?? 'gear', ramas })
+        secciones.push({ label: grupo.label, icon: grupo.icon ?? 'gauge-high', ramas })
     }
 
     return secciones
@@ -219,6 +219,22 @@ const ramasAbiertas = ref(new Set(
 // Se recuerda entre visitas, igual que las ramas abiertas: quien lo plegó lo plegó a propósito.
 const menuColapsado   = ref(localStorage.getItem('briela.menu.colapsado') === '1')
 const seccionFlotante = ref(null)
+const flotantePos     = ref({ top: 0, left: 0 })
+
+/**
+ * Abre el desplegable de una categoría junto a su ícono. La posición se mide en la pantalla
+ * porque el desplegable va en `fixed`; si la categoría está muy abajo, se sube lo necesario
+ * para que quepan al menos 320 px.
+ */
+function abrirFlotante(sec, contenedor) {
+    const caja = contenedor.getBoundingClientRect()
+
+    flotantePos.value = {
+        top:  Math.max(8, Math.min(caja.top, window.innerHeight - 320)),
+        left: caja.right,
+    }
+    seccionFlotante.value = sec.label ?? 'inicio'
+}
 
 function alternarColapso() {
     menuColapsado.value   = ! menuColapsado.value
@@ -593,17 +609,17 @@ onUnmounted(() => {
             <!-- ── Navegación, plegada: solo los iconos ─────────────────────────
                  Cada categoría se despliega al lado al pasar por encima. Sin eso, el modo
                  estrecho sería bonito e inservible: no habría forma de llegar a nada. -->
-            <nav v-if="menuColapsado" class="flex-1 overflow-y-auto overflow-x-visible px-2 py-2 space-y-1">
+            <nav v-if="menuColapsado" class="flex-1 overflow-y-auto overflow-x-hidden px-2 py-2 space-y-1">
                 <div
                     v-for="sec in navItems"
                     :key="sec.label ?? 'inicio'"
                     class="relative"
-                    @mouseenter="seccionFlotante = sec.label ?? 'inicio'"
+                    @mouseenter="abrirFlotante(sec, $event.currentTarget)"
                     @mouseleave="seccionFlotante = null"
                 >
                     <button
                         type="button"
-                        @click="seccionFlotante = seccionFlotante === (sec.label ?? 'inicio') ? null : (sec.label ?? 'inicio')"
+                        @click="seccionFlotante === (sec.label ?? 'inicio') ? seccionFlotante = null : abrirFlotante(sec, $event.currentTarget.parentElement)"
                         class="w-full h-10 rounded-xl flex items-center justify-center border
                                transition-all duration-200 ease-out active:scale-[0.94] focus:outline-none focus-visible:ring-1 focus-visible:ring-[var(--marca-borde)]"
                         :class="seccionActiva(sec)
@@ -614,11 +630,20 @@ onUnmounted(() => {
                         <IconoMenu :nombre="sec.icon" clase="text-[15px] w-5" />
                     </button>
 
-                    <!-- El desplegable. Cuelga del mismo contenedor que dispara el hover, así
-                         que moverse hacia él no lo cierra. -->
+                    <!-- El desplegable. Va en `fixed` y no en `absolute`: el nav tiene desplazamiento
+                         vertical, y un contenedor con overflow recorta lo que se sale por el lado —
+                         el desplegable no se veía y solo aparecía una barra de desplazamiento—.
+                         Sigue siendo hijo del contenedor que dispara el hover, y arranca pegado a su
+                         borde derecho: el espacio de separación es su propio `pl-2`, no un margen,
+                         así que cruzarlo no cierra nada. -->
                     <div
                         v-if="seccionFlotante === (sec.label ?? 'inicio')"
-                        class="absolute left-full top-0 ml-2 w-60 z-50 rounded-2xl bg-superficie border border-linea shadow-[0_4px_20px_rgba(0,0,0,0.08)] py-2"
+                        class="fixed z-50 pl-2"
+                        :style="{ top: flotantePos.top + 'px', left: flotantePos.left + 'px' }"
+                    >
+                    <div
+                        class="w-60 rounded-2xl bg-superficie border border-linea shadow-[0_4px_20px_rgba(0,0,0,0.08)] py-2 overflow-y-auto"
+                        :style="{ maxHeight: 'calc(100vh - ' + (flotantePos.top + 12) + 'px)' }"
                     >
                         <p v-if="sec.label" class="px-3.5 pt-0.5 pb-2 mb-1 text-[12px] font-semibold text-tinta-900 border-b border-separador">
                             {{ sec.label }}
@@ -637,6 +662,7 @@ onUnmounted(() => {
                             <IconoMenu :nombre="enlace.icon" clase="text-xs w-4" :class="enlace.sub ? 'opacity-50' : 'opacity-70'" />
                             <span class="truncate">{{ enlace.label }}</span>
                         </a>
+                    </div>
                     </div>
                 </div>
             </nav>
