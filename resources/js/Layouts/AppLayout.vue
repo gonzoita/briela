@@ -575,7 +575,8 @@ onUnmounted(() => {
             <button
                 type="button"
                 @click="alternarColapso"
-                class="mx-2.5 mb-1 h-8 rounded-lg flex items-center gap-2 text-tinta-300 hover:text-tinta-700 hover:bg-realce transition-colors shrink-0"
+                class="mx-2.5 mb-1 h-8 rounded-xl flex items-center gap-2 text-tinta-300 hover:text-tinta-700 hover:bg-realce shrink-0
+                       transition-all duration-200 ease-out active:scale-[0.98] focus:outline-none focus-visible:ring-1 focus-visible:ring-[var(--marca-borde)]"
                 :class="menuColapsado ? 'justify-center px-0' : 'px-2.5'"
                 :title="menuColapsado ? 'Desplegar el menú' : 'Plegar el menú'"
                 :aria-label="menuColapsado ? 'Desplegar el menú' : 'Plegar el menú'"
@@ -603,10 +604,11 @@ onUnmounted(() => {
                     <button
                         type="button"
                         @click="seccionFlotante = seccionFlotante === (sec.label ?? 'inicio') ? null : (sec.label ?? 'inicio')"
-                        class="w-full h-10 rounded-lg flex items-center justify-center transition-colors"
+                        class="w-full h-10 rounded-xl flex items-center justify-center border
+                               transition-all duration-200 ease-out active:scale-[0.94] focus:outline-none focus-visible:ring-1 focus-visible:ring-[var(--marca-borde)]"
                         :class="seccionActiva(sec)
-                            ? 'bg-realce text-[var(--marca)]'
-                            : 'text-tinta-400 hover:bg-realce hover:text-tinta-700'"
+                            ? 'bg-realce border-linea text-[var(--marca)]'
+                            : 'border-transparent text-tinta-400 hover:bg-realce hover:text-tinta-700'"
                         :title="sec.label ?? 'Inicio'"
                     >
                         <IconoMenu :nombre="sec.icon" clase="text-[15px] w-5" />
@@ -616,22 +618,23 @@ onUnmounted(() => {
                          que moverse hacia él no lo cierra. -->
                     <div
                         v-if="seccionFlotante === (sec.label ?? 'inicio')"
-                        class="absolute left-full top-0 ml-1 w-60 z-50 rounded-xl bg-superficie border border-linea shadow-flotante py-1.5"
+                        class="absolute left-full top-0 ml-2 w-60 z-50 rounded-2xl bg-superficie border border-linea shadow-[0_4px_20px_rgba(0,0,0,0.08)] py-2"
                     >
-                        <p v-if="sec.label" class="px-3 pb-1.5 text-[11px] font-semibold text-tinta-400 uppercase tracking-[0.1em]">
+                        <p v-if="sec.label" class="px-3.5 pt-0.5 pb-2 mb-1 text-[12px] font-semibold text-tinta-900 border-b border-separador">
                             {{ sec.label }}
                         </p>
                         <a
                             v-for="enlace in enlacesDe(sec)"
                             :key="enlace.href"
                             :href="enlace.href"
-                            class="flex items-center gap-2.5 mx-1.5 px-2.5 py-1.5 rounded-lg text-[13px] transition-colors"
+                            class="flex items-center gap-2.5 mx-1.5 px-2.5 py-1.5 rounded-xl text-[12.5px] transition-all duration-200 ease-out active:scale-[0.98]"
+                            :style="enlace.sub ? 'margin-left: 1.25rem' : ''"
                             :class="isActive(enlace.href)
                                 ? 'bg-realce text-[var(--marca)] font-semibold'
                                 : 'text-tinta-500 hover:bg-realce hover:text-tinta-900'"
                             @click.prevent="seccionFlotante = null; router.visit(enlace.href)"
                         >
-                            <IconoMenu :nombre="enlace.icon" clase="text-xs w-4" :class="enlace.sub ? 'opacity-60' : 'opacity-80'" />
+                            <IconoMenu :nombre="enlace.icon" clase="text-xs w-4" :class="enlace.sub ? 'opacity-50' : 'opacity-70'" />
                             <span class="truncate">{{ enlace.label }}</span>
                         </a>
                     </div>
@@ -647,18 +650,19 @@ onUnmounted(() => {
                         v-if="sec.label"
                         type="button"
                         @click="alternarRama('seccion:' + sec.label)"
-                        class="w-full flex items-center justify-between gap-2 px-2.5 pt-3 pb-1 rounded-lg group hover:bg-realce transition-colors"
+                        class="w-full flex items-center justify-between gap-2 px-2.5 py-2 mt-0.5 rounded-xl group hover:bg-realce
+                               transition-all duration-200 ease-out active:scale-[0.98] focus:outline-none focus-visible:ring-1 focus-visible:ring-[var(--marca-borde)]"
                         :aria-expanded="seccionAbierta(sec)"
                     >
                         <span class="flex items-center gap-2.5 min-w-0">
                             <IconoMenu
                                 :nombre="sec.icon"
-                                clase="text-sm w-5 transition-colors"
-                                :class="seccionAbierta(sec) ? 'text-[var(--marca)]' : 'text-tinta-300 group-hover:text-tinta-500'"
+                                clase="text-sm w-5 transition-colors duration-200"
+                                :class="seccionAbierta(sec) ? 'text-[var(--marca)]' : 'text-tinta-400 group-hover:text-tinta-600'"
                             />
                             <span
-                                class="text-[11px] font-semibold tracking-wide transition-colors truncate"
-                                :class="seccionAbierta(sec) ? 'text-tinta-600' : 'text-tinta-400 group-hover:text-tinta-600'"
+                                class="text-[13px] font-semibold transition-colors duration-200 truncate"
+                                :class="seccionAbierta(sec) ? 'text-tinta-900' : 'text-tinta-600 group-hover:text-tinta-900'"
                             >{{ sec.label }}</span>
                         </span>
                         <svg
@@ -677,21 +681,29 @@ onUnmounted(() => {
                         :class="seccionAbierta(sec) ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'"
                     >
                         <div class="overflow-hidden">
-                            <div class="space-y-1">
-                
+                            <!-- Las subcategorías cuelgan de una línea guía alineada con el ícono de
+                                 su categoría: el árbol se lee sin tener que leer los rótulos. -->
+                            <div :class="sec.label ? 'ml-[19px] pl-2.5 mt-0.5 mb-1.5 border-l border-separador space-y-0.5' : 'space-y-0.5 mb-1'">
+
                     <!-- Rama del menú -->
                     <div v-for="item in sec.ramas" :key="item.href ?? item.label">
                         <div class="flex items-stretch gap-0.5">
+                            <!-- La marca del activo se monta sobre la línea guía (-11px = el pl-2.5
+                                 más el borde), y no dentro del renglón. -->
                             <a
                                 :href="item.href"
-                                class="flex-1 min-w-0 flex items-center gap-2.5 rounded-lg pl-2.5 pr-2.5 py-1.5 text-[13px] font-medium transition-colors relative
-                                       before:absolute before:left-0 before:top-1 before:bottom-1 before:w-[2px] before:rounded-full before:transition-colors"
-                                :class="isActive(item.href)
-                                    ? 'bg-realce text-[var(--marca)] font-semibold before:bg-[var(--marca)]'
-                                    : 'text-tinta-500 hover:bg-realce hover:text-tinta-900 before:bg-transparent'"
+                                class="flex-1 min-w-0 flex items-center gap-2.5 rounded-xl px-2.5 relative
+                                       transition-all duration-200 ease-out active:scale-[0.98] focus:outline-none focus-visible:ring-1 focus-visible:ring-[var(--marca-borde)]
+                                       before:absolute before:top-1.5 before:bottom-1.5 before:w-[2px] before:rounded-full before:transition-colors before:duration-200"
+                                :class="[
+                                    sec.label ? 'py-1.5 text-[12.5px] before:-left-[11px]' : 'py-2 text-[13px] font-semibold before:left-0',
+                                    isActive(item.href)
+                                        ? 'bg-realce text-[var(--marca)] font-medium before:bg-[var(--marca)]'
+                                        : (sec.label ? 'text-tinta-500' : 'text-tinta-600') + ' hover:bg-realce hover:text-tinta-900 before:bg-transparent',
+                                ]"
                                 @click.prevent="router.visit(item.href)"
                             >
-                                <IconoMenu :nombre="item.icon" clase="text-xs w-4 opacity-80" />
+                                <IconoMenu :nombre="item.icon" :clase="sec.label ? 'text-xs w-4 opacity-70' : 'text-sm w-5'" />
                                 <span class="truncate">{{ item.label }}</span>
                             </a>
 
@@ -701,7 +713,7 @@ onUnmounted(() => {
                                 v-if="item.hijos?.length"
                                 type="button"
                                 @click="alternarRama(item.href ?? item.label)"
-                                class="shrink-0 w-7 rounded-lg flex items-center justify-center text-tinta-300 hover:text-tinta-700 hover:bg-realce transition-colors"
+                                class="shrink-0 w-7 rounded-xl flex items-center justify-center text-tinta-300 hover:text-tinta-700 hover:bg-realce transition-all duration-200 ease-out active:scale-[0.94] focus:outline-none focus-visible:ring-1 focus-visible:ring-[var(--marca-borde)]"
                                 :aria-expanded="ramaAbierta(item)"
                                 :aria-label="ramaAbierta(item) ? 'Plegar ' + item.label : 'Desplegar ' + item.label"
                             >
@@ -724,14 +736,14 @@ onUnmounted(() => {
                                 : 'grid-rows-[0fr] opacity-0'"
                         >
                             <div class="overflow-hidden">
-                                <div class="pl-3 mt-0.5 space-y-0.5 ml-5">
+                                <div class="ml-[17px] pl-2 mt-0.5 space-y-0.5 border-l border-separador">
                                     <a
                                         v-for="hijo in item.hijos"
                                         :key="hijo.href"
                                         :href="hijo.href"
-                                        class="flex items-center gap-2.5 rounded-lg pl-3 pr-3 py-1.5 text-[13px] transition-colors"
+                                        class="flex items-center gap-2 rounded-xl px-2.5 py-1.5 text-[12px] transition-all duration-200 ease-out active:scale-[0.98] focus:outline-none focus-visible:ring-1 focus-visible:ring-[var(--marca-borde)]"
                                         :class="isActive(hijo.href)
-                                            ? 'bg-realce text-[var(--marca)] font-semibold'
+                                            ? 'bg-realce text-[var(--marca)] font-medium'
                                             : 'text-tinta-400 hover:bg-realce hover:text-tinta-900'"
                                         @click.prevent="router.visit(hijo.href)"
                                     >
@@ -1299,14 +1311,15 @@ onUnmounted(() => {
                             v-if="sec.label"
                             type="button"
                             @click="alternarRama('seccion:' + sec.label)"
-                            class="w-full flex items-center justify-between gap-2 px-3 mt-4 mb-1"
+                            class="w-full flex items-center justify-between gap-2 px-3 py-3 mt-1 rounded-xl active:bg-realce
+                                   transition-all duration-200 ease-out active:scale-[0.98] focus:outline-none focus-visible:ring-1 focus-visible:ring-[var(--marca-borde)]"
                             :aria-expanded="seccionAbierta(sec)"
                         >
-                            <span class="flex items-center gap-2.5 min-w-0">
-                                <IconoMenu :nombre="sec.icon" clase="text-sm w-5"
-                                    :class="seccionAbierta(sec) ? 'text-[var(--marca)]' : 'text-tinta-300'" />
-                                <span class="text-xs font-semibold uppercase tracking-[0.12em] truncate"
-                                    :class="seccionAbierta(sec) ? 'text-tinta-600' : 'text-tinta-400'">{{ sec.label }}</span>
+                            <span class="flex items-center gap-3 min-w-0">
+                                <IconoMenu :nombre="sec.icon" clase="text-sm w-5 transition-colors duration-200"
+                                    :class="seccionAbierta(sec) ? 'text-[var(--marca)]' : 'text-tinta-400'" />
+                                <span class="text-sm font-semibold truncate transition-colors duration-200"
+                                    :class="seccionAbierta(sec) ? 'text-tinta-900' : 'text-tinta-600'">{{ sec.label }}</span>
                             </span>
                             <svg
                                 class="w-3 h-3 shrink-0 text-tinta-300 transition-transform duration-300"
@@ -1322,20 +1335,27 @@ onUnmounted(() => {
                             :class="seccionAbierta(sec) ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'"
                         >
                             <div class="overflow-hidden">
-                    
+                            <!-- Misma línea guía que en el escritorio, alineada con el ícono de la categoría. -->
+                            <div :class="sec.label ? 'ml-[21px] pl-2.5 mb-2 border-l border-separador' : ''">
+
                         <!-- Rama del menú -->
-                        <div v-for="item in sec.ramas" :key="item.href ?? item.label" class="mb-1">
+                        <div v-for="item in sec.ramas" :key="item.href ?? item.label" class="mb-0.5">
                             <div class="flex items-stretch gap-1">
+                                <!-- 44 px de alto: la medida mínima para algo que se toca con el dedo. -->
                                 <a
                                     :href="item.href"
-                                    class="flex-1 min-w-0 flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition-colors relative
-                                           before:absolute before:left-0 before:top-2 before:bottom-2 before:w-[3px] before:rounded-full before:transition-colors"
-                                    :class="isActive(item.href)
-                                        ? 'bg-realce text-[var(--marca)] font-semibold before:bg-[var(--marca)]'
-                                        : 'text-tinta-700 hover:bg-realce before:bg-transparent'"
+                                    class="flex-1 min-w-0 flex items-center gap-3 rounded-xl px-3 min-h-[44px] relative
+                                           transition-all duration-200 ease-out active:scale-[0.98] focus:outline-none focus-visible:ring-1 focus-visible:ring-[var(--marca-borde)]
+                                           before:absolute before:top-2.5 before:bottom-2.5 before:w-[2px] before:rounded-full before:transition-colors before:duration-200"
+                                    :class="[
+                                        sec.label ? 'text-[13px] before:-left-[11px]' : 'text-sm font-semibold before:left-0',
+                                        isActive(item.href)
+                                            ? 'bg-realce text-[var(--marca)] font-medium before:bg-[var(--marca)]'
+                                            : (sec.label ? 'text-tinta-500' : 'text-tinta-700') + ' active:bg-realce before:bg-transparent',
+                                    ]"
                                     @click.prevent="navegar(item.href)"
                                 >
-                                    <IconoMenu :nombre="item.icon" clase="text-xs w-4 opacity-80" />
+                                    <IconoMenu :nombre="item.icon" :clase="sec.label ? 'text-xs w-4 opacity-70' : 'text-sm w-5'" />
                                     <span class="truncate">{{ item.label }}</span>
                                 </a>
 
@@ -1346,7 +1366,7 @@ onUnmounted(() => {
                                     v-if="item.hijos?.length"
                                     type="button"
                                     @click="alternarRama(item.href ?? item.label)"
-                                    class="shrink-0 w-11 rounded-lg flex items-center justify-center text-tinta-300 active:bg-tinta-100 transition-colors"
+                                    class="shrink-0 w-11 rounded-xl flex items-center justify-center text-tinta-300 active:bg-realce transition-all duration-200 ease-out active:scale-[0.94] focus:outline-none focus-visible:ring-1 focus-visible:ring-[var(--marca-borde)]"
                                     :aria-expanded="ramaAbierta(item)"
                                     :aria-label="ramaAbierta(item) ? 'Plegar ' + item.label : 'Desplegar ' + item.label"
                                 >
@@ -1364,15 +1384,15 @@ onUnmounted(() => {
                                 :class="ramaAbierta(item) ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'"
                             >
                                 <div class="overflow-hidden">
-                                    <div class="ml-5 pl-3 mt-1 space-y-1 border-l border-linea">
+                                    <div class="ml-[19px] pl-2 mt-0.5 space-y-0.5 border-l border-separador">
                                         <a
                                             v-for="hijo in item.hijos"
                                             :key="hijo.href"
                                             :href="hijo.href"
-                                            class="flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-[13px] transition-colors"
+                                            class="flex items-center gap-2.5 rounded-xl px-3 min-h-[40px] text-[12.5px] transition-all duration-200 ease-out active:scale-[0.98] focus:outline-none focus-visible:ring-1 focus-visible:ring-[var(--marca-borde)]"
                                             :class="isActive(hijo.href)
-                                                ? 'bg-realce text-[var(--marca)] font-semibold'
-                                                : 'text-tinta-500 hover:bg-realce'"
+                                                ? 'bg-realce text-[var(--marca)] font-medium'
+                                                : 'text-tinta-400 active:bg-realce'"
                                             @click.prevent="navegar(hijo.href)"
                                         >
                                             <IconoMenu :nombre="hijo.icon" clase="text-xs w-4 opacity-60" />
@@ -1382,6 +1402,7 @@ onUnmounted(() => {
                                 </div>
                             </div>
                         </div>
+                            </div>
                             </div>
                         </div>
                     </template>
