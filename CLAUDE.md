@@ -485,8 +485,10 @@ decían lo contrario y estaban equivocadas.
   relaciones entre archivos antes de leer código a mano.
 - Conviene regenerarlo después de cambios que muevan estructura (borrar módulos,
   mover carpetas), porque un grafo desactualizado es peor que no tenerlo.
-- **Generado y al día.** Al 30 ago 2026: 6.790 nodos, 11.641 aristas, 657 comunidades,
-  anclado al commit `74f396aa`. Se reconstruye entero con la extracción AST
+- **Generado y al día.** Al 13 sep 2026: 7.414 nodos, 12.297 aristas, 702 comunidades,
+  anclado al commit `8deb26ed`. Se actualiza con
+  `python -m graphify update . --force` y luego `cluster-only .` con
+  `GRAPHIFY_VIZ_NODE_LIMIT=10000`: pasado de 5.000 nodos, graphify no escribe `graph.html` si no. Se reconstruye entero con la extracción AST
   (gratis, sin LLM) y `parallel=False`.
 - **Las comunidades se nombran solas, con su archivo dominante** —«Servicios · IaService»— y
   **no** con una lista escrita a mano. Louvain las renumera en cada reconstrucción: el id 12 de

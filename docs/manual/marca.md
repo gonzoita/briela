@@ -157,3 +157,33 @@ imagen subida se ve. Se crea una sola vez con:
 ```
 php artisan storage:link
 ```
+
+## El menú lateral
+
+Ocho categorías, en el orden del recorrido del negocio, definidas en `navItems` de
+`Layouts/AppLayout.vue`:
+
+| Categoría | Contiene |
+|---|---|
+| *(arriba, sin título)* | Dashboard, Clientes, el asistente |
+| Ventas | CRM, Cotizaciones, Reportes, Comisiones, Formularios |
+| Productos y Existencias | Productos, Ensambles, Stock y materiales, Movimientos de almacén |
+| Compras | Proveedores, Solicitudes, Órdenes de compra |
+| Producción y Entrega | Órdenes de producción (con Alistamiento y Programador), Trabajos, Calidad, Mi panel (operarios), Remisiones, Cartera |
+| Mantenimiento | Tablero, Equipos, Mantenimientos |
+| Talento Humano | Colaboradores, Reglamento interno de trabajo, Mi capacitación, Cursos, Invitaciones a cursos |
+| Marketing y Contenidos | Redes sociales, Multimedia |
+| Sistema | Informes, Auditoría, Configuración, Agentes, Plantillas PDF |
+
+**Los íconos son de Font Awesome Solid, versión libre**, y se piden por su nombre sin prefijo
+(`icon: 'gauge-high'`). `Components/IconoMenu.vue` los importa uno por uno y dibuja el SVG
+directamente: el motor oficial (`fontawesome-svg-core` + su componente de Vue) sumaba 120 KB
+para lo mismo. **Un ícono nuevo hay que agregarlo al mapa de `IconoMenu.vue`**; si no está, sale
+un engranaje. Los íconos Pro (`sparkles`, `shield-check`, `chart-line-up`…) no están en el
+paquete libre y no se pueden usar.
+
+Tamaños: la categoría va con `text-sm w-5`; el enlace, con `text-xs w-4 opacity-80`; el tercer
+nivel, con `opacity-60`. El SVG mide `1em`, así que sigue al tamaño de letra.
+
+El enlace resaltado es **el más específico** que coincide con la dirección: Reportes
+(`/crm/reportes`) y CRM (`/crm`) están al mismo nivel, y un `startsWith` a secas marcaba los dos.
