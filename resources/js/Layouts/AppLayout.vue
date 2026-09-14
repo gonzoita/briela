@@ -68,9 +68,13 @@ function cambiarSede(sedeId) {
 
 // ─── Navegación activa ────────────────────────────────────────────────────────
 const currentPath = computed(() => window.location.pathname)
+const coincide = (path) => currentPath.value === path || currentPath.value.startsWith(path + '/')
+
+// Activo es el enlace MÁS específico que coincide. Con Reportes (/crm/reportes) al lado de CRM
+// (/crm) en el mismo nivel, un startsWith a secas marcaba los dos a la vez.
 const isActive = (path) => {
-    if (path === '/dashboard') return currentPath.value === '/dashboard'
-    return currentPath.value.startsWith(path)
+    if (! path || ! coincide(path)) return false
+    return ! todosLosHref.value.some(h => h.length > path.length && h.startsWith(path) && coincide(h))
 }
 
 // ─── Permisos finos ───────────────────────────────────────────────────────────
@@ -94,80 +98,78 @@ const navItems = computed(() => {
 
     // Cada grupo se muestra solo si al menos uno de sus ítems es visible.
     const grupos = [
+        // Las categorías siguen el recorrido del negocio: vender, definir y guardar lo que se
+        // vende, abastecerse, fabricar y entregar, mantener la planta, la gente, la marca y el
+        // gobierno del sistema. Los íconos son nombres de Font Awesome (ver IconoMenu.vue).
         { label: null, items: [
-            { label: 'Dashboard',  href: '/dashboard',  icon: 'home' },
-            { label: 'Clientes',   href: '/clientes',   icon: 'clientes',   permiso: 'clientes.ver' },
+            { label: 'Dashboard',  href: '/dashboard',  icon: 'gauge-high' },
+            { label: 'Clientes',   href: '/clientes',   icon: 'address-book', permiso: 'clientes.ver' },
             // El asistente era una categoría de un solo enlace. Una categoría que solo se
             // despliega para mostrar una cosa es un clic de más y nada más.
-            { label: nombreAsistente.value, href: '/asistente', icon: 'chat' },
+            { label: nombreAsistente.value, href: '/asistente', icon: 'wand-magic-sparkles' },
         ]},
-        { label: 'Ventas', icon: 'ventas', items: [
-            { label: 'CRM',          href: '/crm',             icon: 'crm',        permiso: 'crm.ver' },
-            { label: 'Reportes',     href: '/crm/reportes',    icon: 'reportes',   permiso: 'crm.ver', sub: true },
-            { label: 'Formularios',  href: '/crm/formularios', icon: 'formulario', permiso: 'crm.editar', sub: true },
-            { label: 'Cotizaciones', href: '/cotizaciones',    icon: 'cotizacion', permiso: 'cotizaciones.ver' },
-            { label: 'Comisiones',   href: '/comisiones',      icon: 'comisiones', permiso: 'comisiones.ver' },
+        { label: 'Ventas', icon: 'handshake', items: [
+            { label: 'CRM',          href: '/crm',             icon: 'funnel-dollar',       permiso: 'crm.ver' },
+            { label: 'Cotizaciones', href: '/cotizaciones',    icon: 'file-invoice-dollar', permiso: 'cotizaciones.ver' },
+            { label: 'Reportes',     href: '/crm/reportes',    icon: 'chart-pie',           permiso: 'crm.ver' },
+            { label: 'Comisiones',   href: '/comisiones',      icon: 'hand-holding-dollar', permiso: 'comisiones.ver' },
+            { label: 'Formularios',  href: '/crm/formularios', icon: 'rectangle-list',      permiso: 'crm.editar' },
         ]},
-        { label: 'Inventario', icon: 'inventario', items: [
-            { label: 'Productos',         href: '/productos',              icon: 'productos',   permiso: 'productos.ver' },
-            { label: 'Ensambles',         href: '/ensambles',              icon: 'ensamble',    permiso: 'ensambles.ver' },
-            { label: 'Stock & Materiales',href: '/inventario',             icon: 'inventario',  permiso: 'inventario.ver', sub: true },
-            { label: 'Movimientos',       href: '/inventario/movimientos', icon: 'movimientos', permiso: 'inventario.ver', sub: true },
+        { label: 'Productos y Existencias', icon: 'boxes-stacked', items: [
+            { label: 'Productos',              href: '/productos',              icon: 'box',           permiso: 'productos.ver' },
+            { label: 'Ensambles',              href: '/ensambles',              icon: 'cubes-stacked', permiso: 'ensambles.ver' },
+            { label: 'Stock y materiales',     href: '/inventario',             icon: 'warehouse',     permiso: 'inventario.ver' },
+            { label: 'Movimientos de almacén', href: '/inventario/movimientos', icon: 'dolly',         permiso: 'inventario.ver' },
         ]},
-        { label: 'Compras', icon: 'bolsa', items: [
-            { label: 'Proveedores',       href: '/compras/proveedores', icon: 'proveedor', permiso: 'proveedores.ver' },
-            { label: 'Solicitudes',       href: '/compras/solicitudes', icon: 'solicitud', permiso: 'solicitudes.ver', sub: true },
-            { label: 'Órdenes de Compra', href: '/compras/ordenes',     icon: 'oc',        permiso: 'ordenes.ver',     sub: true },
+        { label: 'Compras', icon: 'cart-flatbed', items: [
+            { label: 'Proveedores',       href: '/compras/proveedores', icon: 'truck-field',        permiso: 'proveedores.ver' },
+            { label: 'Solicitudes',       href: '/compras/solicitudes', icon: 'clipboard-question', permiso: 'solicitudes.ver' },
+            { label: 'Órdenes de compra', href: '/compras/ordenes',     icon: 'file-signature',     permiso: 'ordenes.ver' },
         ]},
-        { label: 'Producción', icon: 'fabrica', items: [
-            { label: 'Órdenes de Producción', href: '/produccion/ops',          icon: 'clipboard', permiso: 'ops.ver' },
-            { label: 'Alistamiento',          href: '/produccion/alistamiento', icon: 'solicitud', permiso: 'alistamiento.ver', sub: true },
-            { label: 'Programador',           href: '/produccion/programador',  icon: 'calendar',  permiso: 'programador.ver',  sub: true },
-            { label: 'Trabajos',              href: '/trabajos',                icon: 'trabajos',  permiso: 'trabajos.ver' },
+        // Fabricar, revisar, despachar y cobrar son un solo recorrido: estaban repartidos en
+        // Producción, Logística y Financiero, tres categorías para seguir una misma orden.
+        { label: 'Producción y Entrega', icon: 'industry', items: [
+            { label: 'Órdenes de producción', href: '/produccion/ops',          icon: 'clipboard-check', permiso: 'ops.ver' },
+            { label: 'Alistamiento',          href: '/produccion/alistamiento', icon: 'list-check',      permiso: 'alistamiento.ver', sub: true },
+            { label: 'Programador',           href: '/produccion/programador',  icon: 'calendar-days',   permiso: 'programador.ver',  sub: true },
+            { label: 'Trabajos',              href: '/trabajos',                icon: 'gears',           permiso: 'trabajos.ver' },
             // Calidad es el candado del despacho: sin su visto no hay remisión. Va aquí, al
             // lado de Trabajos, porque es el paso siguiente del mismo recorrido.
-            { label: 'Calidad',               href: '/calidad',                 icon: 'calidad',   permiso: 'ops.calidad' },
+            { label: 'Calidad',               href: '/calidad',                 icon: 'shield-halved',   permiso: 'ops.calidad' },
             // Panel personal del operario: no depende de permisos de módulo.
-            ...(rol === 'operario' ? [{ label: 'Mi Panel', href: '/mi-panel', icon: 'mi-panel' }] : []),
+            ...(rol === 'operario' ? [{ label: 'Mi panel', href: '/mi-panel', icon: 'user-gear' }] : []),
+            { label: 'Remisiones',            href: '/logistica/remisiones',    icon: 'truck-ramp-box',  permiso: 'remisiones.ver' },
+            { label: 'Cartera',               href: '/financiero/cartera',      icon: 'wallet',          permiso: 'cartera.ver' },
         ]},
-        { label: 'Logística', icon: 'camion', items: [
-            { label: 'Remisiones', href: '/logistica/remisiones', icon: 'camion', permiso: 'remisiones.ver' },
-        ]},
-        { label: 'Financiero', icon: 'cartera', items: [
-            { label: 'Cartera', href: '/financiero/cartera', icon: 'cartera', permiso: 'cartera.ver' },
+        { label: 'Mantenimiento', icon: 'screwdriver-wrench', items: [
+            { label: 'Mantenimiento tablero', href: '/mantenimiento',                icon: 'chart-gantt', permiso: 'mantenimiento.ver' },
+            { label: 'Equipos',               href: '/mantenimiento/equipos',        icon: 'server',      permiso: 'mantenimiento.ver' },
+            { label: 'Mantenimientos',        href: '/mantenimiento/mantenimientos', icon: 'wrench',      permiso: 'mantenimiento.ver' },
         ]},
         // RRHH y Capacitación eran dos categorías que hablaban de lo mismo: la gente. Con una
         // sola, el menú tiene una entrada menos y nadie tiene que adivinar en cuál de las dos
         // está el curso de un colaborador.
-        { label: 'Personal', icon: 'workers', items: [
-            { label: 'Colaboradores', href: '/rrhh/operarios', icon: 'workers', permiso: 'rrhh.ver' },
+        { label: 'Talento Humano', icon: 'users-gear', items: [
+            { label: 'Colaboradores', href: '/rrhh/operarios', icon: 'id-card-clip', permiso: 'rrhh.ver' },
             // Lo ve cualquiera de RRHH; editarlo pide su propio permiso, y eso lo resuelve la
             // pantalla. Esconder la entrada dejaría a quien solo lee sin cómo consultarlo.
-            { label: 'Reglamento interno', href: '/rrhh/reglamento', icon: 'doc', permiso: 'rrhh.ver' },
+            { label: 'Reglamento interno de trabajo', href: '/rrhh/reglamento', icon: 'book-bookmark', permiso: 'rrhh.ver' },
             // Todos pueden ver sus propios cursos.
-            { label: 'Mi Capacitación', href: '/mi-capacitacion',           icon: 'capacitacion' },
-            { label: 'Cursos',          href: '/capacitacion/cursos',       icon: 'capacitacion', permiso: 'capacitacion.editar' },
-            { label: 'Invitaciones',    href: '/capacitacion/invitaciones', icon: 'formulario',   permiso: 'capacitacion.crear', sub: true },
+            { label: 'Mi capacitación',         href: '/mi-capacitacion',           icon: 'graduation-cap' },
+            { label: 'Cursos',                  href: '/capacitacion/cursos',       icon: 'chalkboard-user',    permiso: 'capacitacion.editar' },
+            { label: 'Invitaciones a cursos',   href: '/capacitacion/invitaciones', icon: 'envelope-open-text', permiso: 'capacitacion.crear' },
         ]},
-        { label: 'Mantenimiento', icon: 'wrench', items: [
-            { label: 'Tablero',        href: '/mantenimiento',                icon: 'panel',    permiso: 'mantenimiento.ver' },
-            { label: 'Equipos',        href: '/mantenimiento/equipos',        icon: 'wrench',   permiso: 'mantenimiento.ver' },
-            { label: 'Mantenimientos', href: '/mantenimiento/mantenimientos', icon: 'calendar', permiso: 'mantenimiento.ver' },
+        { label: 'Marketing y Contenidos', icon: 'bullhorn', items: [
+            { label: 'Redes sociales', href: '/rrss',       icon: 'share-nodes', permiso: 'rrss.ver' },
+            { label: 'Multimedia',     href: '/multimedia', icon: 'photo-film',  permiso: 'multimedia.ver' },
         ]},
-        { label: 'Marketing', icon: 'megaphone', items: [
-            { label: 'Redes Sociales', href: '/rrss',       icon: 'megaphone',  permiso: 'rrss.ver' },
-            { label: 'Multimedia',     href: '/multimedia', icon: 'multimedia', permiso: 'multimedia.ver' },
-        ]},
-        // Informes y Auditoría son la misma pregunta —qué pasó— y estaban en dos sitios: uno
-        // en su propia categoría y el otro escondido en Sistema.
-        { label: 'Reportes', icon: 'reportes', items: [
-            { label: 'Informes',  href: '/informes',  icon: 'chart', permiso: 'informes.ver' },
-            { label: 'Auditoría', href: '/auditoria', icon: 'doc',   permiso: 'auditoria.ver' },
-        ]},
-        { label: 'Sistema', icon: 'configurador', items: [
-            { label: 'Configuración',  href: '/configuracion',                icon: 'configurador', permiso: 'configuracion.ver' },
-            { label: 'Agentes',        href: '/configuracion/agentes',        icon: 'chat',         permiso: 'agentes.ver' },
-            { label: 'Plantillas PDF', href: '/configuracion/plantillas-pdf', icon: 'pdf',          permiso: 'configuracion.editar' },
+        // Informes y Auditoría responden qué pasó; van con el gobierno del sistema.
+        { label: 'Sistema', icon: 'sliders', items: [
+            { label: 'Informes',       href: '/informes',                     icon: 'file-lines',  permiso: 'informes.ver' },
+            { label: 'Auditoría',      href: '/auditoria',                    icon: 'fingerprint', permiso: 'auditoria.ver' },
+            { label: 'Configuración',  href: '/configuracion',                icon: 'gear',        permiso: 'configuracion.ver' },
+            { label: 'Agentes',        href: '/configuracion/agentes',        icon: 'robot',       permiso: 'agentes.ver' },
+            { label: 'Plantillas PDF', href: '/configuracion/plantillas-pdf', icon: 'file-pdf',    permiso: 'configuracion.editar' },
         ]},
     ]
 
@@ -197,6 +199,8 @@ const navItems = computed(() => {
 
     return secciones
 })
+
+const todosLosHref = computed(() => navItems.value.flatMap(s => s.ramas.flatMap(r => [r.href, ...r.hijos.map(h => h.href)])))
 
 // ─── Ramas del menú abiertas ─────────────────────────────────────────────────
 // Se recuerda entre visitas: cerrar una rama y encontrarla abierta otra vez en la
@@ -605,7 +609,7 @@ onUnmounted(() => {
                             : 'text-tinta-400 hover:bg-realce hover:text-tinta-700'"
                         :title="sec.label ?? 'Inicio'"
                     >
-                        <IconoMenu :nombre="sec.icon" clase="w-5 h-5" />
+                        <IconoMenu :nombre="sec.icon" clase="text-[15px] w-5" />
                     </button>
 
                     <!-- El desplegable. Cuelga del mismo contenedor que dispara el hover, así
@@ -627,7 +631,7 @@ onUnmounted(() => {
                                 : 'text-tinta-500 hover:bg-realce hover:text-tinta-900'"
                             @click.prevent="seccionFlotante = null; router.visit(enlace.href)"
                         >
-                            <IconoMenu :nombre="enlace.icon" clase="w-4 h-4 shrink-0" :class="enlace.sub ? 'opacity-60' : ''" />
+                            <IconoMenu :nombre="enlace.icon" clase="text-xs w-4" :class="enlace.sub ? 'opacity-60' : 'opacity-80'" />
                             <span class="truncate">{{ enlace.label }}</span>
                         </a>
                     </div>
@@ -649,7 +653,7 @@ onUnmounted(() => {
                         <span class="flex items-center gap-2.5 min-w-0">
                             <IconoMenu
                                 :nombre="sec.icon"
-                                clase="w-4 h-4 shrink-0 transition-colors"
+                                clase="text-sm w-5 transition-colors"
                                 :class="seccionAbierta(sec) ? 'text-[var(--marca)]' : 'text-tinta-300 group-hover:text-tinta-500'"
                             />
                             <span
@@ -687,7 +691,7 @@ onUnmounted(() => {
                                     : 'text-tinta-500 hover:bg-realce hover:text-tinta-900 before:bg-transparent'"
                                 @click.prevent="router.visit(item.href)"
                             >
-                                <IconoMenu :nombre="item.icon" clase="w-5 h-5 shrink-0" />
+                                <IconoMenu :nombre="item.icon" clase="text-xs w-4 opacity-80" />
                                 <span class="truncate">{{ item.label }}</span>
                             </a>
 
@@ -731,7 +735,7 @@ onUnmounted(() => {
                                             : 'text-tinta-400 hover:bg-realce hover:text-tinta-900'"
                                         @click.prevent="router.visit(hijo.href)"
                                     >
-                                        <IconoMenu :nombre="hijo.icon" clase="w-4 h-4 shrink-0 opacity-70" />
+                                        <IconoMenu :nombre="hijo.icon" clase="text-xs w-4 opacity-60" />
                                         <span class="truncate">{{ hijo.label }}</span>
                                     </a>
                                 </div>
@@ -845,10 +849,7 @@ onUnmounted(() => {
 
                 <!-- Selector de sede activa -->
                 <div v-if="mostrarSelectorSede" class="flex items-center gap-2">
-                    <svg class="w-4 h-4 text-tinta-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
-                        <path stroke-linecap="round" stroke-linejoin="round"
-                            d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                    </svg>
+                    <IconoMenu nombre="location-dot" clase="text-sm w-5 text-tinta-300" />
                     <select
                         :value="sedeActivaId"
                         @change="cambiarSede(Number($event.target.value))"
@@ -1276,7 +1277,9 @@ onUnmounted(() => {
 
                 <!-- Selector de sede activa -->
                 <div v-if="mostrarSelectorSede" class="px-5 py-3 border-b border-linea">
-                    <label class="block text-xs font-semibold text-tinta-300 uppercase tracking-[0.12em] mb-1.5">Sede</label>
+                    <label class="flex items-center gap-1.5 text-xs font-semibold text-tinta-300 uppercase tracking-[0.12em] mb-1.5">
+                        <IconoMenu nombre="location-dot" clase="text-sm w-5" />Sede
+                    </label>
                     <select
                         :value="sedeActivaId"
                         @change="cambiarSede(Number($event.target.value))"
@@ -1300,7 +1303,7 @@ onUnmounted(() => {
                             :aria-expanded="seccionAbierta(sec)"
                         >
                             <span class="flex items-center gap-2.5 min-w-0">
-                                <IconoMenu :nombre="sec.icon" clase="w-4 h-4 shrink-0"
+                                <IconoMenu :nombre="sec.icon" clase="text-sm w-5"
                                     :class="seccionAbierta(sec) ? 'text-[var(--marca)]' : 'text-tinta-300'" />
                                 <span class="text-xs font-semibold uppercase tracking-[0.12em] truncate"
                                     :class="seccionAbierta(sec) ? 'text-tinta-600' : 'text-tinta-400'">{{ sec.label }}</span>
@@ -1332,7 +1335,7 @@ onUnmounted(() => {
                                         : 'text-tinta-700 hover:bg-realce before:bg-transparent'"
                                     @click.prevent="navegar(item.href)"
                                 >
-                                    <IconoMenu :nombre="item.icon" clase="w-5 h-5 shrink-0" />
+                                    <IconoMenu :nombre="item.icon" clase="text-xs w-4 opacity-80" />
                                     <span class="truncate">{{ item.label }}</span>
                                 </a>
 
@@ -1372,7 +1375,7 @@ onUnmounted(() => {
                                                 : 'text-tinta-500 hover:bg-realce'"
                                             @click.prevent="navegar(hijo.href)"
                                         >
-                                            <IconoMenu :nombre="hijo.icon" clase="w-4 h-4 shrink-0 opacity-70" />
+                                            <IconoMenu :nombre="hijo.icon" clase="text-xs w-4 opacity-60" />
                                             <span class="truncate">{{ hijo.label }}</span>
                                         </a>
                                     </div>
