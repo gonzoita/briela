@@ -225,6 +225,9 @@ const flotantePos     = ref({ top: 0, left: 0 })
  * Abre el desplegable de una categoría junto a su ícono. La posición se mide en la pantalla
  * porque el desplegable va en `fixed`; si la categoría está muy abajo, se sube lo necesario
  * para que quepan al menos 320 px.
+ *
+ * El clic ABRE, no alterna: con el puntero encima el panel ya está abierto cuando llega el clic,
+ * y alternar lo cerraba justo en el gesto con el que se pedía — el ícono parecía no hacer nada.
  */
 function abrirFlotante(sec, contenedor) {
     const caja = contenedor.getBoundingClientRect()
@@ -619,7 +622,7 @@ onUnmounted(() => {
                 >
                     <button
                         type="button"
-                        @click="seccionFlotante === (sec.label ?? 'inicio') ? seccionFlotante = null : abrirFlotante(sec, $event.currentTarget.parentElement)"
+                        @click="abrirFlotante(sec, $event.currentTarget.parentElement)"
                         class="w-full h-10 rounded-xl flex items-center justify-center border
                                transition-all duration-200 ease-out active:scale-[0.94] focus:outline-none focus-visible:ring-1 focus-visible:ring-[var(--marca-borde)]"
                         :class="seccionActiva(sec)
