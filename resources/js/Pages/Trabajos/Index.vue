@@ -13,6 +13,7 @@ import AppLayout from '@/Layouts/AppLayout.vue'
 import OrdenarLista from '@/Components/OrdenarLista.vue'
 import FichaProceso from '@/Components/FichaProceso.vue'
 import ModalBodegasEntrega from '@/Components/ModalBodegasEntrega.vue'
+import { useModulos } from '@/composables/useModulos'
 import { useOrden } from '@/composables/useOrden'
 
 const props = defineProps({
@@ -258,6 +259,7 @@ function sacarDelTablero(t) {
 
 // El acuse de lo último que salió del tablero.
 const salida = ref('')
+const modulos = useModulos()
 
 /**
  * Un toque en un paso. El final abre la hoja de las bodegas en vez de cerrarse solo: entrega
@@ -270,7 +272,8 @@ async function tocarPaso(t, paso) {
     const esElQueEntrega = paso.es_paso_final
         || (! t.pasos.some(p => p.es_paso_final) && paso.orden === Math.max(...t.pasos.map(p => p.orden)))
 
-    if (esElQueEntrega && ! paso.completado) {
+    // Sin inventario no hay bodegas que elegir: el paso final se cierra como cualquier otro.
+    if (esElQueEntrega && ! paso.completado && modulos.activo('inventario')) {
         pedirBodegas(t, paso)
         return
     }

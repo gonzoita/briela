@@ -39,6 +39,8 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
 
         $middleware->web(append: [
+            // Antes de Inertia: una ruta de un módulo apagado no llega a dibujarse.
+            \App\Http\Middleware\BloquearModuloApagado::class,
             HandleInertiaRequests::class,
             \Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets::class,
             \App\Http\Middleware\AplicarSmtpConfig::class,

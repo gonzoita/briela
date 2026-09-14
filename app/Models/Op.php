@@ -432,6 +432,14 @@ class Op extends Model
 
         $terminados = $this->items()->where('estado_item', 'terminado')->count();
         if ($terminados === $totalItems) {
+            // Sin el módulo de Calidad, la orden terminada queda aprobada: el sello es el candado
+            // del despacho, y no hay pantalla donde ponerlo.
+            if (! \App\Support\Modulos::activo('calidad')) {
+                $this->update(['estado' => 'calidad', 'calidad_aprobada_at' => $this->calidad_aprobada_at ?? now()]);
+
+                return;
+            }
+
             $this->update(['estado' => 'calidad']);
 
             // Aviso a producción/calidad: la OP terminó y espera revisión.

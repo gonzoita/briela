@@ -148,11 +148,25 @@ class FuentesGraficoService
      * llamada «Cotizaciones» puede llevar adentro un grafico de cartera si asi lo quiso quien
      * la armo.
      */
+    /**
+     * Si el módulo de la fuente está encendido. El `modulo` de una fuente es el tablero donde
+     * se muestra, que casi siempre coincide con el de `App\Support\Modulos`; «financiero» es el
+     * de Cartera.
+     */
+    private function moduloActivo(array $fuente): bool
+    {
+        $modulo = ['financiero' => 'cartera'][$fuente['modulo']] ?? $fuente['modulo'];
+
+        return ! array_key_exists($modulo, \App\Support\Modulos::catalogo())
+            || \App\Support\Modulos::activo($modulo);
+    }
+
     public function paraPantalla(?string $modulo = null): array
     {
         $propio = $modulo && ! str_starts_with($modulo, 'panel.') ? $modulo : null;
 
         return collect($this->catalogo())
+            ->filter(fn ($f) => $this->moduloActivo($f))
             ->when($propio, fn ($c) => $c->where('modulo', $propio))
             ->map(fn ($f, $clave) => [
                 'clave'       => $clave,
@@ -176,6 +190,11 @@ class FuentesGraficoService
 
         if (! $fuente) {
             return $this->vacio($g, 'Esa fuente ya no existe.');
+        }
+
+        // El gráfico se conserva: vuelve a dibujarse solo el día que el módulo se encienda.
+        if (! $this->moduloActivo($fuente)) {
+            return $this->vacio($g, 'El módulo de esta fuente está desactivado.');
         }
 
         $medida = $fuente['medidas'][$g->medida] ?? null;

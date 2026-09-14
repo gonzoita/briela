@@ -17,7 +17,56 @@ class NotificacionService
      * para saber qué avisos existen. Cada uno se activa/desactiva con la
      * clave de configuración "notif_{tipo}".
      */
+    /**
+     * El módulo del que depende cada aviso. Los que no están —chat, menciones, respaldos— van
+     * siempre: son del núcleo.
+     */
+    private const MODULO_DE_TIPO = [
+        'op_nueva'                 => 'ops',
+        'entrega_proxima'          => 'ops',
+        'material_faltante'        => 'inventario',
+        'stock_bajo'               => 'inventario',
+        'op_a_calidad'             => 'calidad',
+        'op_a_reproceso'           => 'calidad',
+        'op_lista_despacho'        => 'remisiones',
+        'trabajo_asignado'         => 'trabajos',
+        'cotizacion_aprobada'      => 'cotizaciones',
+        'cotizacion_rechazada'     => 'cotizaciones',
+        'cotizacion_sin_respuesta' => 'cotizaciones',
+        'lead_nuevo'               => 'crm',
+        'lead_repetido'            => 'crm',
+        'lead_quieto'              => 'crm',
+        'solicitud_compra'         => 'compras',
+        'mercancia_recibida'       => 'compras',
+        'saldo_vencido'            => 'cartera',
+        'evaluacion_por_revisar'   => 'capacitacion',
+        'certificado_emitido'      => 'capacitacion',
+        'curso_por_vencer'         => 'capacitacion',
+        'disciplina_por_firmar'    => 'rrhh',
+        'bono_calculado'           => 'rrhh',
+        'rrss_publicacion_fallida' => 'rrss',
+    ];
+
+    public static function moduloActivoPara(string $tipo): bool
+    {
+        $modulo = self::MODULO_DE_TIPO[$tipo] ?? null;
+
+        return $modulo === null || \App\Support\Modulos::activo($modulo);
+    }
+
+    /**
+     * El catálogo que ve Configuración → Notificaciones: sin los avisos de módulos apagados,
+     * que no se van a mandar y solo alargarían la lista.
+     */
     public static function catalogo(): array
+    {
+        return collect(static::catalogoCompleto())
+            ->map(fn (array $tipos) => array_values(array_filter($tipos, fn ($t) => static::moduloActivoPara($t['tipo']))))
+            ->filter()
+            ->all();
+    }
+
+    public static function catalogoCompleto(): array
     {
         return [
             'Producción' => [
@@ -85,6 +134,11 @@ class NotificacionService
         // Cada tipo se puede apagar desde Ajustes con la clave
         // "notif_{tipo}" = "0". Si no existe la config, se asume activada.
         if (Configuracion::get("notif_{$tipo}", '1') === '0') {
+            return;
+        }
+
+        // Un aviso de un módulo apagado lleva a una pantalla que ya no abre.
+        if (! static::moduloActivoPara($tipo)) {
             return;
         }
 

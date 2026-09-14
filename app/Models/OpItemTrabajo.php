@@ -157,6 +157,13 @@ class OpItemTrabajo extends Model
 
         $this->sellarFechasDeProceso($avance);
 
+        // Sin el módulo de Calidad no hay quién firme: la unidad terminada queda firmada sola,
+        // que es lo que abre la remisión. Sin esto, apagar Calidad dejaba todo lo fabricado sin
+        // poderse despachar nunca.
+        if ($avance >= 100 && ! $this->calidad_revisada_at && ! \App\Support\Modulos::activo('calidad')) {
+            $this->firmarCalidad(true);
+        }
+
         $item = $this->opItem;
         if (! $item) return;
 

@@ -1255,6 +1255,21 @@ const configPuntos = computed(() =>
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
                             </svg>
                         </a>
+                        <a href="/configuracion/modulos" @click.prevent="router.visit('/configuracion/modulos')"
+                            class="flex items-center gap-3 bg-superficie rounded-xl border border-linea p-4 hover:border-borde-aviso-azul hover:shadow-sm transition-all">
+                            <div class="w-10 h-10 rounded-xl bg-pastel-azul flex items-center justify-center shrink-0">
+                                <svg class="w-5 h-5 text-aviso-azul" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h4v4H4zM10 6h4v4h-4zM16 6h4v4h-4zM4 14h4v4H4zM10 14h4v4h-4z" />
+                                </svg>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-semibold text-tinta-900">Módulos</p>
+                                <p class="text-xs text-tinta-400 mt-0.5">Encender y apagar las partes del sistema que la empresa usa</p>
+                            </div>
+                            <svg class="w-4 h-4 text-tinta-300 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                            </svg>
+                        </a>
                         <a href="/configuracion/roles" @click.prevent="router.visit('/configuracion/roles')"
                             class="flex items-center gap-3 bg-superficie rounded-xl border border-linea p-4 hover:border-borde-aviso-azul hover:shadow-sm transition-all">
                             <div class="w-10 h-10 rounded-xl bg-pastel-azul flex items-center justify-center shrink-0">

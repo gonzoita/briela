@@ -2,6 +2,10 @@
 import { ref, computed } from 'vue'
 import { router } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
+import { useModulos } from '@/composables/useModulos'
+
+// Sin inventario, el paso final no pide bodegas.
+const modulos = useModulos()
 import PasoFotos from '@/Components/PasoFotos.vue'
 import RevisionCalidad from '@/Components/RevisionCalidad.vue'
 
@@ -531,7 +535,7 @@ const circuloPaso = (paso) => {
                                 <!-- El paso final entrega la unidad, y para eso hacen falta las
                                      dos bodegas. Vienen ya elegidas de la orden: casi siempre
                                      es confirmar y seguir. -->
-                                <div v-if="paso.es_paso_final && ! paso.completado" class="w-full mb-2 space-y-3">
+                                <div v-if="paso.es_paso_final && ! paso.completado && modulos.activo('inventario')" class="w-full mb-2 space-y-3">
                                     <div>
                                         <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1">
                                             La unidad entra en

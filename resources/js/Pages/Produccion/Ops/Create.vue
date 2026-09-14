@@ -4,6 +4,9 @@ import { router } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
 import ResultadosBuscadorProducto from '@/Components/ResultadosBuscadorProducto.vue'
 import { useUnsavedChanges } from '@/composables/useUnsavedChanges'
+import { useModulos } from '@/composables/useModulos'
+
+const modulos = useModulos()
 
 const props = defineProps({
     op:             { type: Object, default: null },
@@ -537,6 +540,8 @@ function submit() {
                         <p v-if="errores.responsable_id" class="mt-1 text-xs text-aviso-rojo">{{ errores.responsable_id }}</p>
                     </div>
 
+                    <!-- Sin el módulo de inventario no hay stock que mover: la orden no pide bodegas. -->
+                    <template v-if="modulos.activo('inventario')">
                     <!-- Bodega del material.
                          De aquí salen los insumos que se gastan al fabricar. Va antes que la de
                          entrega porque es el orden del proceso: primero se saca material, después
@@ -579,6 +584,7 @@ function submit() {
                         </p>
                         <p v-if="errores.bodega_entrega_id" class="mt-1 text-xs text-aviso-rojo">{{ errores.bodega_entrega_id }}</p>
                     </div>
+                    </template>
 
                     <!-- Estado -->
                     <div>

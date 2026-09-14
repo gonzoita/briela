@@ -118,6 +118,21 @@ class LicenciaService
                     'serial'  => $serial,
                     'version' => $this->versionInstalada(),
                     'dominio' => request()?->getHost(),
+                    // Los módulos viajan en las dos direcciones y gana el cambio más reciente.
+                    // El catálogo va con ellos para que el panel muestre los módulos que tiene
+                    // ESTA versión, y no una lista escrita allá que se desactualiza sola.
+                    'modulos' => [
+                        'apagados'    => \App\Support\Modulos::estado()['apagados'],
+                        'cambiado_at' => \App\Support\Modulos::estado()['cambiado_at'],
+                        'catalogo'    => collect(\App\Support\Modulos::catalogo())
+                            ->map(fn ($m, $clave) => [
+                                'clave'     => $clave,
+                                'label'     => $m['label'],
+                                'grupo'     => $m['grupo'],
+                                'depende'   => $m['depende'],
+                                'al_apagar' => $m['al_apagar'],
+                            ])->values()->all(),
+                    ],
                 ]);
 
             if (! $resp->successful() || ! ($resp->json('ok') ?? false)) {
@@ -140,6 +155,10 @@ class LicenciaService
             // guardan: ejecutarlos durante una petición web dejaría a alguien mirando una
             // pantalla en blanco mientras se respalda la base. Los corre `briela:ordenes`.
             app(OrdenesBrielaService::class)->recibir((array) ($licencia['ordenes'] ?? []));
+
+            // Si en el panel se cambiaron los módulos después que aquí, se aplican. Un panel
+            // viejo no manda la clave, y entonces no cambia nada.
+            \App\Support\Modulos::sincronizarDesde($licencia['modulos'] ?? null);
 
             return $this->guardar([
                 'valido'           => true,

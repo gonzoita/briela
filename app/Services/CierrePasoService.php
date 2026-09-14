@@ -55,9 +55,17 @@ class CierrePasoService
     ): ?Bodega {
         $trabajo = $paso->trabajo;
 
+        // Sin el módulo de inventario, el paso final cierra la unidad sin pedir bodegas ni mover
+        // stock: no hay existencias que llevar, y exigirlas bloquearía al operario por algo que
+        // la empresa decidió no usar.
+        $conInventario = \App\Support\Modulos::activo('inventario');
+
         if ($paso->es_paso_final) {
             $this->exigirQueSeaElUltimo($paso, $trabajo);
-            $this->guardarBodegas($trabajo, $bodegaEntregaId, $bodegaMaterialId);
+
+            if ($conInventario) {
+                $this->guardarBodegas($trabajo, $bodegaEntregaId, $bodegaMaterialId);
+            }
         }
 
         $yaEstaba = (bool) $paso->completado;
@@ -94,7 +102,7 @@ class CierrePasoService
 
         // La entrega va al final: necesita el avance ya recalculado y el paso ya cerrado, y
         // `entregado_at` la hace idempotente si el paso se vuelve a marcar.
-        if ($paso->es_paso_final && ! $yaEstaba) {
+        if ($paso->es_paso_final && ! $yaEstaba && $conInventario) {
             return $this->almacen->entregar($trabajo->fresh());
         }
 

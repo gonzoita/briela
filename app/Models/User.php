@@ -143,7 +143,9 @@ class User extends Authenticatable
             ? $rol->permisos()
             : Permisos::porRolLegado($this->rol);
 
-        return $cache[$this->id] = $permisos;
+        // Un módulo apagado se lleva sus permisos para todos, sin importar el rol: con esto
+        // desaparecen el menú, los botones y las rutas de ese módulo. Ver App\Support\Modulos.
+        return $cache[$this->id] = \App\Support\Modulos::filtrarPermisos($permisos);
     }
 
     /**

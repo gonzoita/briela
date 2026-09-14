@@ -3,6 +3,10 @@ import { ref } from 'vue'
 import { router } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
 import PasoFotos from '@/Components/PasoFotos.vue'
+import { useModulos } from '@/composables/useModulos'
+
+// Sin inventario, el paso final no pide bodegas.
+const modulos = useModulos()
 
 const props = defineProps({
     trabajo:         Object,
@@ -324,7 +328,7 @@ function desmarcarPaso(paso) {
                         <!-- El paso final entrega la unidad: entra a bodega y su material se
                              descuenta. Las dos llegan ya elegidas de la orden; el operario solo
                              las corrige si terminó en otro estante del que se había planeado. -->
-                        <div v-if="modalPaso?.es_paso_final" class="space-y-3 pt-2 border-t border-linea">
+                        <div v-if="modalPaso?.es_paso_final && modulos.activo('inventario')" class="space-y-3 pt-2 border-t border-linea">
                             <p class="text-xs font-semibold text-tinta-500 uppercase tracking-[0.12em]">
                                 Este paso entrega la unidad
                             </p>

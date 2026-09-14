@@ -333,6 +333,17 @@ módulo + acción (`cotizaciones.crear`, `costos.ver`). Se pueden dar permisos e
 
 → [Roles y permisos](./manual/roles-permisos.md)
 
+### Módulos
+`/configuracion/modulos` · ficha de la instalación en el superadmin
+
+Todos los clientes tienen todos los módulos; cada empresa **apaga los que no usa**, sin borrar
+datos. Las dependencias se arrastran (apagar Cotizaciones apaga Comisiones), un módulo apagado se
+lleva sus permisos y sus rutas, y el flujo **se salta sus pasos**: sin Calidad la unidad terminada
+queda lista para remisionar; sin Stock no se piden bodegas ni se mueve inventario. Se cambia desde
+la instalación o desde el superadmin, y en el latido gana el cambio más reciente.
+
+→ [Módulos](./manual/modulos.md)
+
 ---
 
 ## 7. Inteligencia artificial

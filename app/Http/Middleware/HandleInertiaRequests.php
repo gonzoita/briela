@@ -66,18 +66,23 @@ class HandleInertiaRequests extends Middleware
                     'sede_id'    => $user->sede_id,
                     'activo'     => $user->activo,
                 ] : null,
+                // Estas banderas salen del rol y no de los permisos finos, así que no las filtra
+                // `User::permisos()`: el módulo apagado se descuenta aquí a mano.
                 'permisos' => $user ? [
                     'esAdmin'               => $user->esAdmin(),
-                    'puedeVerTodasOps'      => $user->puedeVerTodasOps(),
-                    'puedeCrearOps'         => $user->puedeCrearOps(),
-                    'puedeVerificarOps'     => $user->puedeVerificarOps(),
-                    'puedeActualizarLineas' => $user->puedeActualizarLineas(),
+                    'puedeVerTodasOps'      => $user->puedeVerTodasOps() && \App\Support\Modulos::activo('ops'),
+                    'puedeCrearOps'         => $user->puedeCrearOps() && \App\Support\Modulos::activo('ops'),
+                    'puedeVerificarOps'     => $user->puedeVerificarOps() && \App\Support\Modulos::activo('ops'),
+                    'puedeActualizarLineas' => $user->puedeActualizarLineas() && \App\Support\Modulos::activo('trabajos'),
                     'puedeVerTodasLasSedes' => $user->puedeVerTodasLasSedes(),
                 ] : null,
                 // Lista de permisos finos ("clientes.ver", ...) con la que el
                 // menú decide qué mostrar.
                 'permisosLista' => $user ? $user->permisos() : [],
             ],
+            // Los módulos apagados, para lo que la pantalla decide sin permisos de por medio:
+            // un acceso directo del tablero, una columna de calidad en una tabla.
+            'modulosApagados' => fn () => $user ? \App\Support\Modulos::apagados() : [],
             // La hora de la sede en la que se está trabajando. Con esto el modo
             // automático decide día o noche por la hora de la sede y no por la del
             // computador de quien mira, que puede estar en otro huso.

@@ -426,11 +426,14 @@ class OpController extends Controller
             return back()->withErrors(['estado' => $mensaje]);
         }
 
+        // Sin el módulo de inventario no hay stock que mover, así que tampoco bodegas que pedir.
+        $pideBodegas = \App\Support\Modulos::activo('inventario');
+
         // Confirmar es decir «esto se fabrica», y todo lo que se fabrica queda en una bodega.
         // Se exige aquí y no antes: en borrador todavía se está armando la orden y obligar a
         // elegir bodega para guardar un borrador estorba. Las OPs viejas, que nacieron sin el
         // campo, no se bloquean si ya pasaron de borrador.
-        if ($nuevoEstado === 'confirmada') {
+        if ($nuevoEstado === 'confirmada' && $pideBodegas) {
             $faltan = [];
 
             if (! $op->bodega_material_id) {

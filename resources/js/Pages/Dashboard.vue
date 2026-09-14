@@ -261,6 +261,7 @@ const hayAlertasMant = computed(() =>
                 </Link>
 
                 <Link
+                    v-if="permisos?.conSeguimiento !== false"
                     href="/seguimiento"
                     class="flex items-center gap-2 shrink-0 px-5 py-3 rounded-xl text-sm font-semibold border-2 bg-superficie active:bg-tinta-50 transition-colors"
                     style="border-color: var(--texto-3); color: var(--texto-2);"

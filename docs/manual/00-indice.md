@@ -49,6 +49,7 @@ módulo por módulo.
 - [Reglamento interno de trabajo](./reglamento-interno.md) — con enlace público y QR
 - [Capacitación (cursos, evaluaciones y certificados)](./capacitacion.md)
 - [Roles y permisos configurables](./roles-permisos.md)
+- [Módulos: encender y apagar lo que la empresa usa](./modulos.md)
 
 ## Inteligencia artificial
 

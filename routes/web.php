@@ -755,6 +755,11 @@ Route::middleware('auth')->group(function () {
         Route::post('/identificacion',       [IdentificacionConfigController::class, 'guardar'])->name('identificacion.guardar');
         Route::post('/identificacion/probar',[IdentificacionConfigController::class, 'probar'])->name('identificacion.probar');
 
+        // ─── Módulos: encender y apagar lo que la empresa usa ────────────────
+        Route::get('/modulos',          [\App\Http\Controllers\ModuloController::class, 'index'])->name('modulos.index');
+        Route::post('/modulos',         [\App\Http\Controllers\ModuloController::class, 'cambiar'])
+            ->middleware('permiso:configuracion.editar')->name('modulos.cambiar');
+
         // ─── Roles y permisos configurables ──────────────────────────────────
         Route::get('/roles',           [RolController::class, 'index'])->name('roles.index');
         Route::post('/roles',          [RolController::class, 'store'])->name('roles.store');

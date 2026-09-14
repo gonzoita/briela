@@ -137,7 +137,7 @@ const navItems = computed(() => {
             // lado de Trabajos, porque es el paso siguiente del mismo recorrido.
             { label: 'Calidad',               href: '/calidad',                 icon: 'shield-halved',   permiso: 'ops.calidad' },
             // Panel personal del operario: no depende de permisos de módulo.
-            ...(rol === 'operario' ? [{ label: 'Mi panel', href: '/mi-panel', icon: 'user-gear' }] : []),
+            ...(rol === 'operario' ? [{ label: 'Mi panel', href: '/mi-panel', icon: 'user-gear', modulo: 'trabajos' }] : []),
             { label: 'Remisiones',            href: '/logistica/remisiones',    icon: 'truck-ramp-box',  permiso: 'remisiones.ver' },
             { label: 'Cartera',               href: '/financiero/cartera',      icon: 'wallet',          permiso: 'cartera.ver' },
         ]},
@@ -155,7 +155,7 @@ const navItems = computed(() => {
             // pantalla. Esconder la entrada dejaría a quien solo lee sin cómo consultarlo.
             { label: 'Reglamento interno de trabajo', href: '/rrhh/reglamento', icon: 'book-bookmark', permiso: 'rrhh.ver' },
             // Todos pueden ver sus propios cursos.
-            { label: 'Mi capacitación',         href: '/mi-capacitacion',           icon: 'graduation-cap' },
+            { label: 'Mi capacitación',         href: '/mi-capacitacion',           icon: 'graduation-cap',     modulo: 'capacitacion' },
             { label: 'Cursos',                  href: '/capacitacion/cursos',       icon: 'chalkboard-user',    permiso: 'capacitacion.editar' },
             { label: 'Invitaciones a cursos',   href: '/capacitacion/invitaciones', icon: 'envelope-open-text', permiso: 'capacitacion.crear' },
         ]},
@@ -176,7 +176,10 @@ const navItems = computed(() => {
     const secciones = []
 
     for (const grupo of grupos) {
-        const visibles = grupo.items.filter(i => puede(i.permiso))
+        // `modulo` es para los enlaces que no piden permiso —Mi capacitación, Mi panel—: los
+        // demás ya desaparecen solos, porque un módulo apagado se lleva sus permisos.
+        const apagados = page.props.modulosApagados ?? []
+        const visibles = grupo.items.filter(i => puede(i.permiso) && ! apagados.includes(i.modulo))
         if (!visibles.length) continue
 
         // Los ítems marcados como `sub` cuelgan del anterior: el menú se pliega por rama en
@@ -1227,6 +1230,7 @@ onUnmounted(() => {
 
             <!-- Cotizaciones -->
             <button
+                v-if="puede('cotizaciones.ver')"
                 @click="router.visit('/cotizaciones')"
                 class="flex flex-col items-center justify-center gap-0.5 min-w-0 flex-1 py-2"
                 :style="{ color: isActive('/cotizaciones') ? 'var(--marca)' : 'var(--tinta-400)' }"

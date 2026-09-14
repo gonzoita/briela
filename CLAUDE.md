@@ -431,6 +431,15 @@ Lo construido después de la fase 3, que conviene conocer antes de tocar algo ce
   entradas importan —en planta se toma con el celular, en la oficina se sube la que mandaron—.
   El atajo «Terminar» de una unidad **no** cubre esos puntos: devuelve 422 con cuáles faltan.
 - **`costos.ver`** es un permiso aparte: el costo no se manda al navegador de quien no lo tiene.
+- **Los módulos se apagan por instalación** (`App\Support\Modulos`, `/configuracion/modulos`, y
+  desde la ficha en el superadmin; en el latido gana el cambio más reciente). No hay planes que
+  los restrinjan. Un módulo apagado **se lleva sus permisos** en `User::permisos()`, y con eso se
+  van el menú, las rutas y lo que ve la IA; lo que no pasa por permisos lo corta
+  `BloquearModuloApagado` por prefijo de URL. **Un módulo nuevo se agrega al catálogo** con sus
+  permisos, sus rutas públicas y de qué depende. **Un paso del flujo que pertenece a un módulo
+  pregunta `Modulos::activo()` y se salta**, nunca se queda esperando: sin Calidad la unidad
+  terminada se firma sola; sin Stock no se piden bodegas ni se mueve inventario. Ver
+  `docs/manual/modulos.md`.
 - **Una OP con trabajo hecho no cambia sus ítems** (`Op::itemsBloqueados()`), y el candado está
   en el servidor.
 

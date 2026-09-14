@@ -8,6 +8,7 @@ use App\Models\EquipoMantenimiento;
 use App\Models\Mantenimiento;
 use App\Models\Op;
 use App\Support\ContextoSede;
+use App\Support\Modulos;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -41,7 +42,14 @@ class DashboardController extends Controller
 
         // ─── Lo que requiere atención hoy ────────────────────────────────────
         // Un conteo dice cuántas hay; esto dice cuáles hay que mirar.
-        $opsVencidas = (clone $baseOps)
+        // Las alertas y accesos de un módulo apagado no se muestran: llevarían a una pantalla
+        // que ya no abre. Estas banderas salen del rol, no de permisos, así que no las filtra
+        // `User::permisos()` y se descuentan aquí.
+        $conOps          = Modulos::activo('ops');
+        $conCotizaciones = Modulos::activo('cotizaciones');
+        $conMant         = Modulos::activo('mantenimiento');
+
+        $opsVencidas = ! $conOps ? 0 : (clone $baseOps)
             ->whereNotNull('fecha_entrega_estimada')
             ->whereDate('fecha_entrega_estimada', '<', $hoy)
             ->whereNotIn('estado', ['despachada', 'cerrada', 'rechazada'])
@@ -59,7 +67,7 @@ class DashboardController extends Controller
         ]);
 
         // ─── Métricas Cotizaciones (admin/vendedor) ───────────────────────────
-        if ($user->esAdmin() || $user->esVendedor()) {
+        if ($conCotizaciones && ($user->esAdmin() || $user->esVendedor())) {
             $baseCots = ContextoSede::aplicar(Cotizacion::query());
             if ($user->esVendedor()) {
                 $baseCots->where('responsable_id', $user->id);
@@ -86,7 +94,7 @@ class DashboardController extends Controller
         }
 
         // ─── Alertas Mantenimiento (admin/jefe_produccion) ────────────────────
-        if ($user->esAdmin() || $user->esJefeProduccion()) {
+        if ($conMant && ($user->esAdmin() || $user->esJefeProduccion())) {
             $baseEquipos = ContextoSede::aplicar(EquipoMantenimiento::where('estado', 'activo'));
 
             $metricas['mant_vencidos']   = (clone $baseEquipos)
@@ -116,11 +124,12 @@ class DashboardController extends Controller
                 ->orderBy('orden')->orderBy('id')
                 ->get(['id', 'titulo', 'clave']),
             'permisos'      => [
-                'puedeCrearOps'    => $user->puedeCrearOps(),
-                'puedeVerificarOps'=> $user->puedeVerificarOps(),
-                'puedeVerTodasOps' => $user->puedeVerTodasOps(),
-                'esCotizador'      => $user->esAdmin() || $user->esVendedor(),
-                'esMantenimiento'  => $user->esAdmin() || $user->esJefeProduccion(),
+                'puedeCrearOps'    => $conOps && $user->puedeCrearOps(),
+                'puedeVerificarOps'=> $conOps && $user->puedeVerificarOps(),
+                'puedeVerTodasOps' => $conOps && $user->puedeVerTodasOps(),
+                'esCotizador'      => $conCotizaciones && ($user->esAdmin() || $user->esVendedor()),
+                'esMantenimiento'  => $conMant && ($user->esAdmin() || $user->esJefeProduccion()),
+                'conSeguimiento'   => $conOps,
                 'puedeGestionarGraficos' => $user->tienePermiso('graficos.gestionar'),
             ],
         ]);
