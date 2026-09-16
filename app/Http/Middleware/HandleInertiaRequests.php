@@ -114,6 +114,10 @@ class HandleInertiaRequests extends Middleware
                 // Versión para el modo de noche: un logo con texto oscuro se
                 // pierde sobre fondo oscuro, y eso no se arregla con CSS.
                 'logo_oscuro' => \App\Support\Marca::logoOscuroUrl(),
+                // Ícono cuadrado para el riel plegado del menú: ahí no cabe el
+                // logo completo, y la inicial del nombre no identifica la marca.
+                'favicon'         => \App\Support\Marca::faviconUrl(),
+                'favicon_oscuro'  => \App\Support\Marca::faviconOscuroUrl(),
                 'color'  => \App\Support\Marca::color(),
                 // Para los pies de página de las pantallas públicas (catálogo,
                 // seguimiento, aprobación de cotizaciones): antes llevaban el

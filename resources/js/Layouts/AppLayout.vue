@@ -37,9 +37,19 @@ const logoSegunTema = computed(() => {
         : m.logo
 })
 
+// El favicon que toca según el tema, para el riel plegado del menú.
+const faviconSegunTema = computed(() => {
+    const m = page.props.marca ?? {}
+
+    return tema.temaEfectivo.value === 'oscuro' && m.favicon_oscuro
+        ? m.favicon_oscuro
+        : m.favicon
+})
+
 const marca = computed(() => page.props.marca ?? {
     nombre: 'Briela',
     logo:   '/icons/icon-512.png',
+    favicon: '/icons/icon-96.png',
 })
 const user     = computed(() => page.props.auth?.user)
 const permisos = computed(() => page.props.auth?.permisos)
@@ -583,12 +593,18 @@ onUnmounted(() => {
                     class="h-8 w-auto object-contain"
                     :alt="marca.nombre"
                 />
+                <img
+                    v-else-if="menuColapsado"
+                    :src="faviconSegunTema"
+                    class="w-8 h-8 rounded-lg object-contain"
+                    :alt="marca.nombre"
+                />
                 <span v-else class="flex items-center gap-2.5 min-w-0">
                     <span
                         class="w-8 h-8 rounded-lg flex items-center justify-center text-sm font-semibold shrink-0"
                         :style="{ background: 'var(--marca-suave)', color: 'var(--marca)' }"
                     >{{ (marca.nombre || 'B').charAt(0).toUpperCase() }}</span>
-                    <span v-if="! menuColapsado" class="text-[15px] font-semibold text-tinta-900 truncate">{{ marca.nombre }}</span>
+                    <span class="text-[15px] font-semibold text-tinta-900 truncate">{{ marca.nombre }}</span>
                 </span>
             </div>
 
