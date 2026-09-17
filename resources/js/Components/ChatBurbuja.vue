@@ -1,7 +1,14 @@
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed } from 'vue'
 import { usePage, router } from '@inertiajs/vue3'
 import HiloComentarios from '@/Components/HiloComentarios.vue'
+// Los contadores viven en el módulo y no en el componente: este se destruye y se
+// vuelve a crear en cada navegación, y con el estado adentro volvía a pedir al
+// servidor —tres veces— lo que ya tenía. Ver `useAvisos.js`.
+import {
+    pendientes, conversaciones, grupos,
+    cargarPendientes, cargarConversaciones, cargarGrupos, sinLeerTotal,
+} from '@/composables/useAvisos'
 
 /**
  * Botón flotante del chat interno, hermano del de la IA.
@@ -10,14 +17,12 @@ import HiloComentarios from '@/Components/HiloComentarios.vue'
  * su hilo. Si no, muestra lo que tienes pendiente: sin eso, el botón no
  * serviría de nada en el dashboard.
  */
-const abierto    = ref(false)
-const pendientes = ref([])
-const cargando   = ref(false)
+const abierto  = ref(false)
+const cargando = ref(false)
 
 // vista: 'inicio' (documento o pendientes) | 'personas' | 'hilo'
-const vista          = ref('inicio')
-const conversaciones = ref([])
-const usuarios       = ref([])
+const vista    = ref('inicio')
+const usuarios = ref([])
 const buscar         = ref('')
 const conQuien       = ref(null)
 const mensajes       = ref([])
@@ -66,15 +71,9 @@ async function subirArchivo(e) {
     finally { subiendo.value = false; e.target.value = '' }
 }
 
-const grupos       = ref([])
 const enGrupo      = ref(null)
 const creandoGrupo = ref(false)
 const grupoNuevo   = ref({ nombre: '', miembros: [] })
-
-const sinLeerChat = computed(() =>
-    conversaciones.value.reduce((s, c) => s + (c.sin_leer || 0), 0) +
-    grupos.value.reduce((s, g) => s + (g.sin_leer || 0), 0)
-)
 
 const csrf = () => {
     const c = document.cookie.split('; ').find(r => r.startsWith('XSRF-TOKEN='))
@@ -106,10 +105,6 @@ async function abrirPersonas() {
         usuarios.value = u.usuarios
         grupos.value = g.grupos
     } catch { /* el panel sigue usable */ }
-}
-
-async function cargarGrupos() {
-    try { grupos.value = (await api('/api/chat/grupos')).grupos } catch {}
 }
 
 async function abrirGrupo(g) {
@@ -157,10 +152,6 @@ async function abrirHilo(usuario) {
         mensajes.value = d.mensajes
         await cargarConversaciones()
     } catch { /* queda vacío */ }
-}
-
-async function cargarConversaciones() {
-    try { conversaciones.value = (await api('/api/chat/conversaciones')).conversaciones } catch {}
 }
 
 async function enviarMensaje() {
@@ -213,26 +204,25 @@ const documento = computed(() => {
     return null
 })
 
-const sinLeer = computed(() => pendientes.value.length + sinLeerChat.value)
+const sinLeer = sinLeerTotal
 
-async function cargarPendientes() {
-    cargando.value = true
+async function alternar() {
+    abierto.value = ! abierto.value
+    if (! abierto.value) return
+
+    vista.value = 'inicio'
+
+    // Al abrir sí se pide de nuevo: el panel se mira de cerca y ahí el dato viejo
+    // se nota. Lo que ya no se pide es en cada navegación con el panel cerrado.
+    // `cargando` solo tapa la lista si no había nada que mostrar todavía.
+    cargando.value = pendientes.value.length === 0
     try {
-        const res = await fetch('/api/comentarios/pendientes', {
-            credentials: 'same-origin',
-            headers: { Accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
-        })
-        if (res.ok) pendientes.value = (await res.json()).pendientes ?? []
-    } catch { /* si falla, el botón igual abre: no vale la pena molestar */ }
-    finally { cargando.value = false }
-}
-
-function alternar() {
-    abierto.value = !abierto.value
-    if (abierto.value) {
-        vista.value = 'inicio'
-        cargarConversaciones()
-        if (!documento.value) cargarPendientes()
+        await Promise.all([
+            cargarConversaciones(),
+            documento.value ? null : cargarPendientes(),
+        ])
+    } finally {
+        cargando.value = false
     }
 }
 
@@ -240,11 +230,6 @@ function ir(url) {
     abierto.value = false
     router.visit(url)
 }
-
-// Al cambiar de pantalla se recuenta, para que el globito esté al día.
-watch(() => page.url, () => { if (!abierto.value) cargarPendientes() })
-
-onMounted(() => { cargarPendientes(); cargarConversaciones(); cargarGrupos() })
 
 // El lanzador flotante abre el panel y lee el contador de no leídos.
 defineExpose({ abrir: alternar, sinLeer })

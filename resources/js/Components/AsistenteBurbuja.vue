@@ -9,10 +9,11 @@
  * Posición: abajo a la derecha. En computador la izquierda la ocupa el menú
  * lateral, y en celular la esquina inferior izquierda es el botón de Inicio.
  */
-import { computed, nextTick, onMounted, ref } from 'vue'
+import { computed, nextTick, ref } from 'vue'
 import { usePage } from '@inertiajs/vue3'
 import { formatearMensaje } from '@/utils/formatoMensaje'
 import { useVozAsistente } from '@/composables/useVozAsistente'
+import { mensajes, cargandoHistorial, asegurarHistorial, olvidarHistorial } from '@/composables/useAsistente'
 
 const page = usePage()
 
@@ -39,8 +40,7 @@ function alternarMicrofono() {
 
 const nombre = computed(() => page.props.asistente?.nombre || 'Asistente')
 
-const abierto  = ref(false)
-const mensajes = ref([])
+const abierto = ref(false)
 const entrada  = ref('')
 const cargando = ref(false)
 const error    = ref('')
@@ -65,36 +65,24 @@ async function bajar() {
 // ─── Historial ──────────────────────────────────────────────────────────────
 // La conversación se guarda en el servidor, no en el navegador: sobrevive a
 // recargas, a cerrar el computador y se ve igual desde el celular.
-const cargandoHistorial = ref(true)
+// `mensajes`, `cargandoHistorial` y la traída del historial viven en
+// `@/composables/useAsistente`: se piden al abrir por primera vez, no al montar.
 
-onMounted(async () => {
-    try {
-        const resp = await fetch('/api/asistente/historial', {
-            headers: { 'Accept': 'application/json' },
-            credentials: 'same-origin',
-        })
-        if (resp.ok) {
-            const data = await resp.json()
-            mensajes.value = data.mensajes ?? []
-        }
-    } catch (e) {
-        // Sin historial se puede seguir conversando: no vale la pena molestar.
-    } finally {
-        cargandoHistorial.value = false
-    }
-})
+async function alternar() {
+    abierto.value = ! abierto.value
+    if (! abierto.value) return
 
-function alternar() {
-    abierto.value = !abierto.value
-    if (abierto.value) bajar()
+    await asegurarHistorial()
+    bajar()
 }
 
 /**
  * Abre el chat con una pregunta ya escrita y la envía.
  * La usa el buscador global cuando no encuentra resultados.
  */
-function abrirCon(texto = '') {
+async function abrirCon(texto = '') {
     abierto.value = true
+    await asegurarHistorial()
     bajar()
 
     if (texto.trim()) enviar(texto)
@@ -102,7 +90,10 @@ function abrirCon(texto = '') {
 
 // `abrir` lo usa el lanzador flotante, que ahora es un solo botón compartido
 // con el chat: dos círculos fijos tapaban el contenido en celular.
-defineExpose({ abrirCon, abrir: () => { abierto.value = true; bajar() } })
+defineExpose({
+    abrirCon,
+    abrir: async () => { abierto.value = true; await asegurarHistorial(); bajar() },
+})
 
 async function enviar(texto = null) {
     const pregunta = (texto ?? entrada.value).trim()
@@ -260,6 +251,9 @@ async function limpiar() {
         })
     } catch (e) {
         error.value = 'La conversación se borró en pantalla, pero no en el servidor.'
+        // El servidor todavía la tiene: que la próxima apertura vuelva a pedirla,
+        // en vez de dejar la pantalla en blanco hasta que alguien recargue.
+        olvidarHistorial()
     }
 }
 </script>

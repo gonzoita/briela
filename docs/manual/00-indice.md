@@ -84,6 +84,7 @@ módulo por módulo.
 - [Operación — SSH, montaje en otro computador, git, grafo y chats](../OPERACION.md)
 - [Mantenimiento de equipos](./mantenimiento.md)
 - [Checklist de verificación (QA)](./verificacion-qa.md)
+- [Rendimiento — por qué el sistema se siente instantáneo](./rendimiento.md)
 
 ## Principio general del sistema
 

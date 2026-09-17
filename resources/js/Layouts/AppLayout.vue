@@ -9,6 +9,7 @@ import BotonesFlotantes from '@/Components/BotonesFlotantes.vue'
 import BuscadorGlobal from '@/Components/BuscadorGlobal.vue'
 import IconoMenu from '@/Components/IconoMenu.vue'
 import AvisoLicencia from '@/Components/AvisoLicencia.vue'
+import SelloBriela from '@/Components/SelloBriela.vue'
 import { useTema } from '@/composables/useTema'
 
 const props = defineProps({
@@ -887,6 +888,12 @@ onUnmounted(() => {
                     </svg>
                     <span v-if="! menuColapsado">Cerrar sesión</span>
                 </button>
+
+                <!-- El único lugar de la app donde aparece Briela: en el riel angosto
+                     no hay sitio, y ahí el favicon ya cumple ese papel indirectamente. -->
+                <div v-if="! menuColapsado" class="pt-3 mt-2 border-t border-linea flex justify-center">
+                    <SelloBriela :tamano="14" :oscuro="tema.temaEfectivo.value === 'oscuro'" />
+                </div>
             </div>
         </aside>
 
@@ -1530,6 +1537,10 @@ onUnmounted(() => {
                         </svg>
                         Cerrar sesión
                     </button>
+
+                    <div class="pt-4 mt-2 border-t border-linea flex justify-center">
+                        <SelloBriela :tamano="14" :oscuro="tema.temaEfectivo.value === 'oscuro'" />
+                    </div>
                 </div>
             </div>
         </div>

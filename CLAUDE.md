@@ -142,6 +142,59 @@ el mismo orden, o la paginación repite unas y esconde otras.
 que ya existía, el **orden por omisión no cambia** — mover las filas de sitio en una
 pantalla que nadie pidió tocar se siente como un error.
 
+## Velocidad: nada cuesta una petición por clic
+
+El sistema tiene que sentirse instantáneo. No es un adorno: quien lo usa cambia de
+pantalla cien veces al día, y medio segundo de más en cada cambio es medio día de
+trabajo al año mirando una barra de progreso.
+
+**`AppLayout` NO es un layout persistente de Inertia.** Las 110 pantallas lo escriben
+en su plantilla (`<AppLayout title="…">`), así que Inertia lo destruye y lo vuelve a
+construir en CADA navegación, con todo lo que lleva dentro. De ahí salen las tres
+reglas siguientes, y las tres se rompen igual de fácil.
+
+**1. Nada dentro del layout pide datos en `onMounted`.** Un `fetch` al montar es un
+`fetch` por clic del menú. El 17 sep 2026 eran seis —`/notificaciones`,
+`/api/comentarios/pendientes`, `/api/chat/conversaciones`, `/api/chat/grupos`,
+`/api/asistente/historial` y las disciplinas del operario—, y como las sesiones van en
+archivo, **Laravel las atiende en fila**: cada una espera el candado de la sesión de
+la anterior. Medido con `php artisan serve`: cambiar de pantalla disparaba 5 peticiones
+y 14,2 s sumados, con `/notificaciones` tardando 5,5 s. Después: **1 petición, 1,1 s**.
+Lo que se ve siempre —un contador, una insignia— va en un módulo compartido
+(`resources/js/composables/useAvisos.js`) con **un solo** temporizador; lo que solo se
+ve al abrir un panel se pide **al abrirlo** (`useAsistente.js`).
+
+**2. Un componente pesado que casi nadie abre no se monta: se monta al abrirse.**
+`AsistenteBurbuja` y `ChatBurbuja` son 1.050 líneas que se construían en cada
+navegación para que casi siempre nadie las tocara. Van con `v-if` + `nextTick` antes de
+llamar a su `ref`. Su contador sale del módulo, no del componente: si saliera del
+componente, habría que construirlo entero solo para saber si hay un 3.
+
+**3. Todo `addEventListener` sobre `window` o `document` tiene su
+`removeEventListener` en `onUnmounted`, y con función CON NOMBRE.** Una función anónima
+no se puede quitar: `removeEventListener` necesita la misma referencia. Cuatro escuchas
+sin quitar × un remontaje por clic = basura que crece toda la jornada y retiene una
+instancia completa del layout cada una. Es la razón de que el sistema se pusiera más
+lento cuanto más tiempo llevaba abierta la pestaña, y de que recargar lo «arreglara».
+Lo que debe ocurrir una sola vez por sesión se marca con `soloUnaVez()` del módulo:
+un `let` de `<script setup>` no sirve, porque nace de nuevo con cada instancia.
+
+**4. En el servidor, un ajuste no es una consulta.** `Configuracion::get()` lee la tabla
+entera UNA vez por petición. El bloque `marca` de `HandleInertiaRequests::share()` pide
+nombre, color, logo, logo oscuro, favicon, favicon oscuro, correo y web en cada
+navegación: eran 11 consultas antes de mirar un solo dato del negocio, y ahora es 1.
+Lo mismo vale para cualquier cosa que `share()` agregue: **lo que se comparte se paga en
+cada clic**, así que se memoriza o se manda como `fn () =>` para que Inertia lo resuelva
+solo cuando toca.
+
+> El caché de petición va en el **contenedor** (`app()->instance(...)`), nunca en una
+> propiedad `static`. Una estática vive lo que vive el proceso, no la petición: en las
+> pruebas, donde un mismo proceso corre los 104 casos seguidos, sobreviviría al
+> `RefreshDatabase` del siguiente y devolvería datos de una base que ya se borró.
+
+**Al agregar algo al layout o a `share()`, la pregunta es: ¿esto cuesta una petición o
+una consulta en cada clic del menú?** Si la respuesta es sí, todavía no está listo.
+
 ## Reglas del producto instalable
 
 Propias de Briela; no existían en el sistema de origen. Si se rompen, el producto se vuelve
@@ -459,6 +512,9 @@ un comercio o una empresa de servicios.
 - Usar español en comentarios y mensajes de commit
 - Antes de cambiar `AppLayout.vue`, considerar AMBAS versiones: mobile Y desktop
 - Al diseñar algo nuevo, preguntarse **cómo se actualiza en 10 instalaciones**
+- Al tocar `AppLayout`, `share()` o cualquier componente del encabezado, medir: ver
+  «Velocidad: nada cuesta una petición por clic». Funcionar no basta — tiene que ser
+  instantáneo
 
 **NUNCA:**
 - ⛔ **Correr `migrate:fresh`, `migrate:refresh` ni `db:wipe` contra una base
