@@ -32,19 +32,7 @@ const colores = {
 </script>
 
 <template>
-    <!--
-        "producto" es la única marca que no se recolorea por instalación: es
-        Briela anunciándose a sí misma, siempre con el mismo azul. Ahí se usa
-        el logo de verdad (el archivo que sube el equipo de marca), no el
-        monograma vectorial que sí cambia de color según la empresa.
-    -->
-    <img
-        v-if="tono === 'producto'"
-        :src="variante === 'monograma' ? '/icons/briela_icon.png' : '/icons/briela_light.png'"
-        :style="{ height: tamano + 'px', width: 'auto' }"
-        alt="Briela"
-    />
-    <span v-else class="inline-flex items-center" :style="{ gap: tamano * 0.28 + 'px' }">
+    <span class="inline-flex items-center" :style="{ gap: tamano * 0.28 + 'px' }">
         <svg
             v-if="variante !== 'palabra'"
             :width="tamano" :height="tamano" viewBox="0 0 100 100"
