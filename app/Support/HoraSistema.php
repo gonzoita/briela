@@ -26,6 +26,19 @@ class HoraSistema
 {
     private static ?string $zonaGlobal = null;
 
+    /**
+     * La zona de cada sede ya consultada, por id.
+     *
+     * Una misma petición la pide varias veces —la hora de la sede y su zona van
+     * juntas en lo que comparte Inertia—, y la zona horaria de una sede no cambia
+     * mientras se pinta una pantalla.
+     *
+     * En el contenedor y no en una estática: ver la nota de `Configuracion::mapa()`.
+     * Aquí importa de verdad, porque dos pruebas distintas pueden crear cada una su
+     * sede con el id 1 y zonas diferentes.
+     */
+    private const CACHE = 'briela.zonas-sede';
+
     public const POR_DEFECTO = 'America/Bogota';
 
     /**
@@ -53,9 +66,16 @@ class HoraSistema
             return self::zonaGlobal();
         }
 
-        return self::zonaValida(
-            self::consultar(fn () => Sede::whereKey($id)->value('zona_horaria'))
-        );
+        $zonas = app()->bound(self::CACHE) ? app()->make(self::CACHE) : [];
+
+        if (! isset($zonas[$id])) {
+            $zonas[$id] = self::zonaValida(
+                self::consultar(fn () => Sede::whereKey($id)->value('zona_horaria'))
+            );
+            app()->instance(self::CACHE, $zonas);
+        }
+
+        return $zonas[$id];
     }
 
     /** La hora de ahora en la sede activa. */

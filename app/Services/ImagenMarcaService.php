@@ -37,6 +37,7 @@ class ImagenMarcaService
         $ruta = $archivo->storeAs(self::CARPETA, $nombre, 'public');
 
         Configuracion::set("{$clave}_ruta", $ruta);
+        self::olvidarCache();
 
         return Storage::disk('public')->url($ruta);
     }
@@ -47,6 +48,7 @@ class ImagenMarcaService
         static::borrarAnterior($clave);
 
         Configuracion::set("{$clave}_ruta", '');
+        self::olvidarCache();
     }
 
     /**
@@ -58,13 +60,11 @@ class ImagenMarcaService
      */
     public static function url(string $clave): ?string
     {
-        $ruta = trim((string) Configuracion::get("{$clave}_ruta", ''));
+        return self::recordar("url:{$clave}", function () use ($clave) {
+            $ruta = self::rutaGuardada($clave);
 
-        if ($ruta === '' || ! Storage::disk('public')->exists($ruta)) {
-            return null;
-        }
-
-        return Storage::disk('public')->url($ruta);
+            return $ruta === null ? null : Storage::disk('public')->url($ruta);
+        });
     }
 
     /**
@@ -75,13 +75,50 @@ class ImagenMarcaService
      */
     public static function ruta(string $clave): ?string
     {
+        return self::recordar("ruta:{$clave}", function () use ($clave) {
+            $ruta = self::rutaGuardada($clave);
+
+            return $ruta === null ? null : Storage::disk('public')->path($ruta);
+        });
+    }
+
+    /**
+     * La ruta guardada, si el archivo sigue existiendo.
+     *
+     * El `exists()` es un vistazo al disco. Uno no se siente; seis por navegación
+     * —logo, logo oscuro, favicon, favicon oscuro y el logo otra vez para saber si
+     * es propio— sí, y ninguno cambia dentro de la misma petición.
+     */
+    private static function rutaGuardada(string $clave): ?string
+    {
         $ruta = trim((string) Configuracion::get("{$clave}_ruta", ''));
 
-        if ($ruta === '' || ! Storage::disk('public')->exists($ruta)) {
-            return null;
+        return ($ruta === '' || ! Storage::disk('public')->exists($ruta)) ? null : $ruta;
+    }
+
+    /**
+     * Memoria por petición, en el contenedor y no en una estática: ver la nota de
+     * `Configuracion::mapa()`. Guarda también el null: «no hay logo oscuro» es una
+     * respuesta, y volver a preguntarla cuesta lo mismo que la primera vez.
+     */
+    private const CACHE = 'briela.imagenes-marca';
+
+    private static function recordar(string $clave, callable $calcular): ?string
+    {
+        $memoria = app()->bound(self::CACHE) ? app()->make(self::CACHE) : [];
+
+        if (! array_key_exists($clave, $memoria)) {
+            $memoria[$clave] = $calcular();
+            app()->instance(self::CACHE, $memoria);
         }
 
-        return Storage::disk('public')->path($ruta);
+        return $memoria[$clave];
+    }
+
+    /** Tras subir o borrar una imagen, lo recordado ya no sirve. */
+    public static function olvidarCache(): void
+    {
+        app()->forgetInstance(self::CACHE);
     }
 
     private static function borrarAnterior(string $clave): void
