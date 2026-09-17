@@ -158,7 +158,7 @@ const submit = () => {
         <!-- Briela va al pie y discreta: el sistema es de la empresa que lo usa. -->
         <footer class="pb-8 flex flex-col items-center gap-2">
             <span class="text-[11px] uppercase tracking-[0.14em] text-tinta-300">Con la tecnología de</span>
-            <LogoBriela :tamano="20" tono="oscuro" />
+            <LogoBriela :tamano="20" tono="producto" />
         </footer>
     </div>
 </template>

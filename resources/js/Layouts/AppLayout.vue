@@ -1301,22 +1301,32 @@ onUnmounted(() => {
                 class="relative flex flex-col h-full overflow-y-auto shadow-2xl"
                 style="width: 280px; background: var(--superficie);"
             >
-                <!-- Cabecera del drawer -->
-                <div
-                    class="flex items-center justify-between px-5 py-4 shrink-0"
-                    style="background-color: var(--marca);"
-                >
+                <!-- Cabecera del drawer.
+                     Fondo neutro, no el color de marca: un logo del mismo tono que
+                     `var(--marca)` (frecuente, porque suele ser el color principal
+                     de la empresa) se perdía contra ese fondo — se veía la barra
+                     vacía. Mismo respaldo que el riel de escritorio: favicon +
+                     nombre cuando no hay logo propio. -->
+                <div class="flex items-center justify-between px-5 py-4 shrink-0 border-b border-linea" style="background: var(--superficie);">
                     <img
-                        :src="marca.logo"
-                        class="h-7 w-auto object-contain"
+                        v-if="marca.logo_propio"
+                        :src="logoSegunTema"
+                        class="h-8 w-auto object-contain"
                         :alt="marca.nombre"
                     />
+                    <span v-else class="flex items-center gap-2.5 min-w-0">
+                        <img
+                            :src="faviconSegunTema"
+                            class="w-8 h-8 rounded-lg object-contain shrink-0"
+                            :alt="marca.nombre"
+                        />
+                        <span class="text-[15px] font-semibold text-tinta-900 truncate">{{ marca.nombre }}</span>
+                    </span>
                     <button
                         @click="drawerAbierto = false"
-                        class="w-8 h-8 flex items-center justify-center rounded-lg"
-                        style="background: rgba(255,255,255,0.15);"
+                        class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-realce shrink-0"
                     >
-                        <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
+                        <svg class="w-5 h-5 text-tinta-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                         </svg>
                     </button>

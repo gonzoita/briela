@@ -13,7 +13,7 @@
  */
 const props = defineProps({
     variante: { type: String, default: 'completo' },  // completo | monograma | palabra
-    tono:     { type: String, default: 'marca' },     // marca | claro | oscuro
+    tono:     { type: String, default: 'marca' },     // marca | claro | oscuro | producto
     tamano:   { type: Number, default: 32 },
 })
 
@@ -23,6 +23,11 @@ const colores = {
     marca:  { fondo: 'var(--marca)', letra: 'var(--marca-texto)', palabra: 'var(--texto)' },
     claro:  { fondo: '#FFFFFF',      letra: 'var(--marca)',       palabra: '#FFFFFF' },
     oscuro: { fondo: 'var(--texto)', letra: '#FFFFFF',            palabra: 'var(--texto)' },
+    // El azul de Briela, fijo. "marca" y "oscuro" toman el color de la empresa o del
+    // texto del tema porque son la insignia DE ESA instalación; el "Con la tecnología
+    // de Briela" del pie del login anuncia el producto, no al cliente, así que no debe
+    // cambiar con el color que la empresa elija en Ajustes.
+    producto: { fondo: '#2563EB', letra: '#FFFFFF', palabra: 'var(--texto)' },
 }
 </script>
 
