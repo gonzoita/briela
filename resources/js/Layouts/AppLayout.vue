@@ -11,6 +11,10 @@ import IconoMenu from '@/Components/IconoMenu.vue'
 import AvisoLicencia from '@/Components/AvisoLicencia.vue'
 import SelloBriela from '@/Components/SelloBriela.vue'
 import { useTema } from '@/composables/useTema'
+import {
+    notificaciones, notifNoLeidas, cargarNotificaciones,
+    iniciarAvisos, soloUnaVez, sinLeerTotal, refrescarSiHaceRato,
+} from '@/composables/useAvisos'
 
 const props = defineProps({
     title: { type: String, default: '' },
@@ -345,20 +349,10 @@ const cerrarSesion = () => router.post('/logout')
 const irPerfil    = () => { menuUsuario.value = false; drawerAbierto.value = false; router.visit('/profile') }
 
 // ─── Notificaciones (campanita) ──────────────────────────────────────────────
-const menuNotif      = ref(false)
-const notificaciones = ref([])
-const notifNoLeidas  = ref(0)
-let   _notifTimer    = null
-
-async function cargarNotificaciones() {
-    try {
-        const r = await fetch('/notificaciones', { headers: { Accept: 'application/json' } })
-        if (!r.ok) return
-        const data = await r.json()
-        notificaciones.value = data.notificaciones ?? []
-        notifNoLeidas.value  = data.no_leidas ?? 0
-    } catch { /* silencioso */ }
-}
+// `notificaciones`, `notifNoLeidas` y `cargarNotificaciones` llegan de
+// `@/composables/useAvisos`: el layout se remonta en cada navegación y el estado
+// tiene que sobrevivirle. Ver el comentario de cabecera de ese archivo.
+const menuNotif = ref(false)
 
 function xsrfNotif() {
     const c = document.cookie.split('; ').find(r => r.startsWith('XSRF-TOKEN='))
@@ -386,12 +380,12 @@ async function marcarTodasLeidas() {
     }).catch(() => {})
 }
 
-onMounted(() => {
-    cargarNotificaciones()
-    // Revisa si hay avisos nuevos cada 60s mientras la app esté abierta.
-    _notifTimer = setInterval(cargarNotificaciones, 60000)
-})
-onUnmounted(() => { if (_notifTimer) clearInterval(_notifTimer) })
+// Idempotente: solo el primer montaje pide y arranca el refresco de 60s.
+onMounted(iniciarAvisos)
+
+// Al cambiar de pantalla se recuentan los avisos, pero como mucho cada 30s. Va aquí
+// —y no en la burbuja del chat— porque esa ya no está montada mientras nadie la abre.
+watch(() => page.url, () => refrescarSiHaceRato())
 
 // ─── Drawer mobile ───────────────────────────────────────────────────────────
 const drawerAbierto = ref(false)
@@ -410,9 +404,32 @@ let _fotoCallback = null
 const asistenteRef = ref(null)
 const chatRef      = ref(null)
 
-provide('abrirAsistente', (texto = '') => {
-    asistenteRef.value?.abrirCon(texto)
-})
+/**
+ * Las dos burbujas se construyen la primera vez que alguien las abre, no en cada
+ * navegación.
+ *
+ * Son 1.050 líneas de componente entre las dos, y el layout se monta de nuevo con
+ * cada clic del menú. En la inmensa mayoría de las pantallas nadie las toca: lo
+ * único que tiene que estar siempre es el número rojo del botón flotante, y ese
+ * sale de `useAvisos`, no de ellas.
+ */
+const asistenteVivo = ref(false)
+const chatVivo      = ref(false)
+
+// `nextTick` porque el `ref` del componente no existe hasta que Vue lo dibuja.
+async function abrirAsistente(texto = '') {
+    asistenteVivo.value = true
+    await nextTick()
+    texto ? asistenteRef.value?.abrirCon(texto) : asistenteRef.value?.abrir()
+}
+
+async function abrirChat() {
+    chatVivo.value = true
+    await nextTick()
+    chatRef.value?.abrir()
+}
+
+provide('abrirAsistente', abrirAsistente)
 
 provide('abrirCamara', (callback = null) => {
     _fotoCallback = callback
@@ -532,31 +549,49 @@ const disciplinasPendientes = ref([])
 // ─── Conectividad offline ─────────────────────────────────────────────────────
 const estaOnline = ref(true)
 
+/**
+ * Con nombre, y no funciones sueltas dentro de `addEventListener`.
+ *
+ * Una función anónima no se puede quitar después: `removeEventListener` necesita la
+ * MISMA referencia. Como el layout se monta de nuevo en cada navegación, cada clic
+ * del menú dejaba cuatro escuchas más colgadas de `window`, y cada una retenía la
+ * instancia completa del layout. A la media hora de trabajo eso es basura que el
+ * navegador tiene que recorrer en cada evento, y la aplicación se va poniendo lenta
+ * sin que nada la haya cambiado.
+ */
+const alConectar    = () => { estaOnline.value = true }
+const alDesconectar = () => { estaOnline.value = false }
+
+const alProponerInstalar = (e) => {
+    e.preventDefault()
+    pwaPrompt.value = e
+    if (! localStorage.getItem('pwa-descartado')) {
+        setTimeout(() => { mostrarPWA.value = true }, 3000)
+    }
+}
+
+const alInstalar = () => {
+    mostrarPWA.value  = false
+    yaInstalada.value = true
+    localStorage.removeItem('pwa-descartado')
+}
+
 onMounted(() => {
     estaOnline.value = navigator.onLine
-    window.addEventListener('online',  () => { estaOnline.value = true })
-    window.addEventListener('offline', () => { estaOnline.value = false })
+
+    window.addEventListener('online',  alConectar)
+    window.addEventListener('offline', alDesconectar)
 
     if (window.matchMedia('(display-mode: standalone)').matches) {
         yaInstalada.value = true
-        return
+    } else {
+        window.addEventListener('beforeinstallprompt', alProponerInstalar)
+        window.addEventListener('appinstalled', alInstalar)
     }
 
-    window.addEventListener('beforeinstallprompt', (e) => {
-        e.preventDefault()
-        pwaPrompt.value = e
-        if (!localStorage.getItem('pwa-descartado')) {
-            setTimeout(() => { mostrarPWA.value = true }, 3000)
-        }
-    })
-
-    window.addEventListener('appinstalled', () => {
-        mostrarPWA.value  = false
-        yaInstalada.value = true
-        localStorage.removeItem('pwa-descartado')
-    })
-
-    if (user.value?.rol === 'operario') {
+    // Una sola vez por sesión, no en cada navegación: el layout se remonta en cada
+    // clic del menú y esto abría un modal que ya se había atendido.
+    if (user.value?.rol === 'operario' && soloUnaVez('disciplinas')) {
         fetch('/rrhh/operarios/mis-notificaciones')
             .then(r => r.json())
             .then(data => {
@@ -571,6 +606,11 @@ onMounted(() => {
 
 onUnmounted(() => {
     detenerCamara()
+
+    window.removeEventListener('online',  alConectar)
+    window.removeEventListener('offline', alDesconectar)
+    window.removeEventListener('beforeinstallprompt', alProponerInstalar)
+    window.removeEventListener('appinstalled', alInstalar)
 })
 </script>
 
@@ -1589,12 +1629,12 @@ onUnmounted(() => {
 
     <!-- Asistente de IA: disponible en cualquier pantalla. Al vivir en el
          layout, la conversación sobrevive al navegar entre módulos. -->
-    <AsistenteBurbuja ref="asistenteRef" />
-    <ChatBurbuja ref="chatRef" />
+    <AsistenteBurbuja v-if="asistenteVivo" ref="asistenteRef" />
+    <ChatBurbuja v-if="chatVivo" ref="chatRef" />
     <BotonesFlotantes
-        :sin-leer="chatRef?.sinLeer ?? 0"
-        @ia="asistenteRef?.abrir()"
-        @chat="chatRef?.abrir()"
+        :sin-leer="sinLeerTotal"
+        @ia="abrirAsistente()"
+        @chat="abrirChat()"
     />
 
     <!-- Modal disciplinas pendientes (operarios) -->
