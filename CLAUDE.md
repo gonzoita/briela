@@ -337,7 +337,7 @@ tocar los seeders.
 > **Las pruebas corren contra `briela_test`**, declarada en `phpunit.xml`; nunca contra
 > `briela`. Si esa base no existe, las 51 de Feature fallan todas por conexión y solo pasan las
 > 16 unitarias — parece un código roto y es una base que falta. Se crea una vez:
-> `mysql -u root -e "CREATE DATABASE IF NOT EXISTS briela_test"`. Al 30 ago 2026: 95 en verde.
+> `mysql -u root -e "CREATE DATABASE IF NOT EXISTS briela_test"`. Al 17 sep 2026: 104 en verde.
 
 **Tareas programadas** (`routes/console.php`, requieren cron):
 `cotizaciones:marcar-vencidas` · `notificaciones:entregas-proximas` ·
@@ -550,8 +550,8 @@ decían lo contrario y estaban equivocadas.
   relaciones entre archivos antes de leer código a mano.
 - Conviene regenerarlo después de cambios que muevan estructura (borrar módulos,
   mover carpetas), porque un grafo desactualizado es peor que no tenerlo.
-- **Generado y al día.** Al 17 sep 2026: 7.589 nodos, 14.520 aristas, 553 comunidades,
-  anclado al commit `3951031a`. Se actualiza con
+- **Generado y al día.** Al 17 sep 2026: 7.596 nodos, 14.529 aristas, 563 comunidades,
+  anclado al commit `e8cbe9c0`. Se actualiza con
   `python -m graphify update . --force` y luego `cluster-only .` con
   `GRAPHIFY_VIZ_NODE_LIMIT=10000`: pasado de 5.000 nodos, graphify no escribe `graph.html` si no. Se reconstruye entero con la extracción AST
   (gratis, sin LLM) y `parallel=False`.
