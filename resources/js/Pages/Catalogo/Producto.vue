@@ -1,6 +1,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { useClipboard } from '@/composables/useClipboard'
+import SelloBriela from '@/Components/SelloBriela.vue'
 
 const props = defineProps({
     producto:      Object,
@@ -141,7 +142,10 @@ async function compartir() {
 
         <!-- Footer -->
         <footer class="mt-12 border-t border-linea bg-superficie py-6 text-center text-xs text-tinta-300">
-            {{ $page.props.marca.nombre }} &copy; {{ new Date().getFullYear() }}
+            <p class="mb-4">{{ $page.props.marca.nombre }} &copy; {{ new Date().getFullYear() }}</p>
+            <div class="flex justify-center">
+                <SelloBriela />
+            </div>
         </footer>
     </div>
 </template>

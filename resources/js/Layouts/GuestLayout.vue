@@ -1,6 +1,8 @@
 <script setup>
-import ApplicationLogo from '@/Components/ApplicationLogo.vue';
-import { Link } from '@inertiajs/vue3';
+import { Link, usePage } from '@inertiajs/vue3';
+import SelloBriela from '@/Components/SelloBriela.vue';
+
+const page = usePage();
 </script>
 
 <template>
@@ -9,7 +11,11 @@ import { Link } from '@inertiajs/vue3';
     >
         <div>
             <Link href="/">
-                <ApplicationLogo class="h-20 w-20 fill-current text-tinta-400" />
+                <img
+                    :src="page.props.marca.logo"
+                    class="h-12 w-auto object-contain"
+                    :alt="page.props.marca.nombre"
+                />
             </Link>
         </div>
 
@@ -18,5 +24,9 @@ import { Link } from '@inertiajs/vue3';
         >
             <slot />
         </div>
+
+        <footer class="py-8">
+            <SelloBriela />
+        </footer>
     </div>
 </template>

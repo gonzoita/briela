@@ -1,4 +1,6 @@
 <script setup>
+import SelloBriela from '@/Components/SelloBriela.vue'
+
 const props = defineProps({
     op: Object,
 })
@@ -117,9 +119,12 @@ const badgeItem = (e) => ESTADOS_ITEM[e] ?? ESTADOS_ITEM.pendiente
             </div>
 
             <!-- Footer -->
-            <p class="text-center text-xs text-tinta-300 pb-6">
+            <p class="text-center text-xs text-tinta-300 mb-4">
                 {{ $page.props.marca.nombre }}
             </p>
+            <div class="flex justify-center pb-6">
+                <SelloBriela />
+            </div>
         </div>
     </div>
 </template>

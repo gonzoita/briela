@@ -1,6 +1,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { router, usePage } from '@inertiajs/vue3'
+import SelloBriela from '@/Components/SelloBriela.vue'
 
 const props = defineProps({
     cotizacion: Object,
@@ -283,9 +284,12 @@ function calcularTotal(item) {
             </div>
 
             <!-- Footer -->
-            <p class="text-center text-xs text-tinta-300 pb-6">
+            <p class="text-center text-xs text-tinta-300 mb-4">
                 {{ $page.props.marca.nombre }}
             </p>
+            <div class="flex justify-center pb-6">
+                <SelloBriela />
+            </div>
 
         </div>
 

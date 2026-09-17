@@ -1,7 +1,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { Head, useForm, usePage } from '@inertiajs/vue3'
-import LogoBriela from '@/Components/LogoBriela.vue'
+import SelloBriela from '@/Components/SelloBriela.vue'
 
 defineProps({
     canResetPassword: Boolean,
@@ -156,9 +156,8 @@ const submit = () => {
         </div>
 
         <!-- Briela va al pie y discreta: el sistema es de la empresa que lo usa. -->
-        <footer class="pb-8 flex flex-col items-center gap-2">
-            <span class="text-[11px] uppercase tracking-[0.14em] text-tinta-300">Con la tecnología de</span>
-            <LogoBriela :tamano="20" tono="producto" />
+        <footer class="pb-8">
+            <SelloBriela :tamano="20" />
         </footer>
     </div>
 </template>

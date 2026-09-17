@@ -1,6 +1,7 @@
 <script setup>
 import { Head } from '@inertiajs/vue3'
 import QrCode from '@/Components/QrCode.vue'
+import SelloBriela from '@/Components/SelloBriela.vue'
 
 const props = defineProps({
     op:   { type: Object, required: true },
@@ -191,8 +192,11 @@ const compartir = () => {
         </div>
 
         <!-- Footer -->
-        <footer class="px-6 mt-8 text-center">
-            <p class="text-xs text-tinta-300">{{ $page.props.marca.nombre }}{{ $page.props.marca.email ? " · " + $page.props.marca.email : "" }}</p>
+        <footer class="px-6 mt-8 pb-8 text-center">
+            <p class="text-xs text-tinta-300 mb-4">{{ $page.props.marca.nombre }}{{ $page.props.marca.email ? " · " + $page.props.marca.email : "" }}</p>
+            <div class="flex justify-center">
+                <SelloBriela />
+            </div>
         </footer>
     </div>
 </template>

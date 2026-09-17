@@ -1,6 +1,7 @@
 <script setup>
 import { ref } from 'vue'
 import { Head, useForm } from '@inertiajs/vue3'
+import SelloBriela from '@/Components/SelloBriela.vue'
 
 const form = useForm({
     email: '',
@@ -83,6 +84,10 @@ const submit = () => {
             <p class="mt-8 text-center text-xs text-tinta-300">
                 © {{ new Date().getFullYear() }} {{ $page.props.marca.nombre }}. Todos los derechos reservados.
             </p>
+
+            <footer class="mt-6 flex justify-center">
+                <SelloBriela />
+            </footer>
         </div>
     </div>
 </template>

@@ -2,6 +2,7 @@
 import { ref, onMounted } from 'vue'
 import { router, usePage, Head } from '@inertiajs/vue3'
 import { Html5Qrcode } from 'html5-qrcode'
+import SelloBriela from '@/Components/SelloBriela.vue'
 
 const codigo      = ref('')
 const verificacion = ref('')
@@ -132,6 +133,9 @@ const cerrarQR = async () => {
         <footer class="px-6 py-8 text-center">
             <p class="text-xs text-tinta-300">{{ $page.props.marca.nombre }}</p>
             <p v-if="$page.props.marca.email" class="text-xs text-tinta-300 mt-1">{{ $page.props.marca.email }}</p>
+            <div class="flex justify-center mt-4">
+                <SelloBriela />
+            </div>
         </footer>
     </div>
 

@@ -15,6 +15,10 @@ const props = defineProps({
     variante: { type: String, default: 'completo' },  // completo | monograma | palabra
     tono:     { type: String, default: 'marca' },     // marca | claro | oscuro | producto
     tamano:   { type: Number, default: 32 },
+    // Solo para tono="producto": qué archivo usar cuando el fondo detrás es
+    // oscuro. Las pantallas públicas y de acceso son siempre claras y no
+    // necesitan pasarlo; la app principal sí cambia de tema y lo pasa.
+    fondoOscuro: { type: Boolean, default: false },
 })
 
 // El monograma se pinta en un cuadrado de esquinas muy redondeadas, la forma que
@@ -40,7 +44,7 @@ const colores = {
     -->
     <img
         v-if="tono === 'producto'"
-        :src="variante === 'monograma' ? '/icons/briela_icon.png' : '/icons/briela_light.png'"
+        :src="variante === 'monograma' ? '/icons/briela_icon.png' : (fondoOscuro ? '/icons/briela_dark.png' : '/icons/briela_light.png')"
         :style="{ height: tamano + 'px', width: 'auto' }"
         alt="Briela"
     />

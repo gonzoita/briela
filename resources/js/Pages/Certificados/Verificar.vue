@@ -1,6 +1,7 @@
 <script setup>
 import { ref } from 'vue'
 import { router, Head } from '@inertiajs/vue3'
+import SelloBriela from '@/Components/SelloBriela.vue'
 
 const props = defineProps({
     codigoBuscado: String,
@@ -99,7 +100,10 @@ function verificar() {
         </main>
 
         <footer class="px-6 py-8 text-center">
-            <p class="text-xs text-tinta-300">{{ $page.props.marca.nombre }}</p>
+            <p class="text-xs text-tinta-300 mb-4">{{ $page.props.marca.nombre }}</p>
+            <div class="flex justify-center">
+                <SelloBriela />
+            </div>
         </footer>
     </div>
 </template>

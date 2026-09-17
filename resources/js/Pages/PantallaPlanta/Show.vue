@@ -1,5 +1,6 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
+import LogoBriela from '@/Components/LogoBriela.vue'
 
 const props = defineProps({
     token:               String,
@@ -288,7 +289,10 @@ function pctColor(pct) {
     <div class="px-8 py-2 flex items-center justify-between border-t text-xs"
          style="background:#0D2E5A; border-color:var(--marca); color:var(--texto-3);">
         <span>{{ $page.props.marca.nombre }} © {{ new Date().getFullYear() }}</span>
-        <span>Sistema de Gestión Integral — Actualización cada 30s</span>
+        <span class="flex items-center gap-2">
+            Actualización cada 30s
+            <LogoBriela variante="monograma" tono="producto" :fondo-oscuro="true" :tamano="16" />
+        </span>
         <span style="color:#00B4D8;">{{ $page.props.marca.web }}</span>
     </div>
 </div>

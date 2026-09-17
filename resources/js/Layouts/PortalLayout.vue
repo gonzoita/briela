@@ -1,5 +1,6 @@
 <script setup>
 import { Head, router } from '@inertiajs/vue3'
+import SelloBriela from '@/Components/SelloBriela.vue'
 
 const props = defineProps({
     title: { type: String, default: 'Mi Capacitación' },
@@ -43,5 +44,9 @@ function salir() {
         <main class="px-4 md:px-8 py-6 max-w-4xl mx-auto">
             <slot />
         </main>
+
+        <footer class="py-8">
+            <SelloBriela />
+        </footer>
     </div>
 </template>
