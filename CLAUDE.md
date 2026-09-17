@@ -550,8 +550,8 @@ decían lo contrario y estaban equivocadas.
   relaciones entre archivos antes de leer código a mano.
 - Conviene regenerarlo después de cambios que muevan estructura (borrar módulos,
   mover carpetas), porque un grafo desactualizado es peor que no tenerlo.
-- **Generado y al día.** Al 17 sep 2026: 7.584 nodos, 14.507 aristas, 554 comunidades,
-  anclado al commit `da091d15`. Se actualiza con
+- **Generado y al día.** Al 17 sep 2026: 7.589 nodos, 14.520 aristas, 553 comunidades,
+  anclado al commit `3951031a`. Se actualiza con
   `python -m graphify update . --force` y luego `cluster-only .` con
   `GRAPHIFY_VIZ_NODE_LIMIT=10000`: pasado de 5.000 nodos, graphify no escribe `graph.html` si no. Se reconstruye entero con la extracción AST
   (gratis, sin LLM) y `parallel=False`.

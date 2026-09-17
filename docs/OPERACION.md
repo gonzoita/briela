@@ -363,7 +363,40 @@ en `CLAUDE.md`, en el manual y en el grafo.
 
 ---
 
-## 8. Lo que nunca se hace
+## 8. Dos chats a la vez sobre la misma carpeta
+
+**No abras dos sesiones de Claude Code trabajando sobre `C:\laragon\wwwriela` al
+mismo tiempo.** No es que una sea mala: es que ninguna ve lo que guarda la otra.
+
+Pasó el 17 sep 2026. Una sesión arreglaba el rendimiento y otra ponía el sello de
+Briela en los pies de página; las dos editaban `AppLayout.vue`. La segunda apartó sus
+archivos para separar su trabajo, escribió su versión «limpia» del archivo, y con eso
+se llevó por delante los nueve cambios de la primera **justo antes de su `git commit`**.
+Nadie se dio cuenta: el árbol quedó limpio, el commit se hizo, el push salió, y el
+arreglo no estaba. Peor todavía, quedó a medias —un componente ya no pedía sus datos y
+su reemplazo tampoco se llamaba—, así que la insignia del chat se quedaba en cero.
+
+**Un archivo escrito por dos manos no da conflicto de git: da la última escritura,
+en silencio.** Git solo protege lo que ya está comprometido.
+
+Dos maneras de trabajar en paralelo sin eso:
+
+- **La simple.** Que una termine y comprometa antes de arrancar la otra.
+- **La buena.** Darle a la segunda su propio *worktree*: una carpeta aparte con la
+  misma historia, donde escribe sin pisar nada. Se le pide al arrancarla, o con
+  `git worktree add ../briela-marca -b marca`. Al terminar, se fusiona como cualquier
+  rama y ahí sí git avisa de los choques.
+
+Si aun así sospechas que se perdió algo, lo que lo delata es comparar lo que **crees**
+que quedó contra lo que hay:
+
+```bash
+git show HEAD:resources/js/Layouts/AppLayout.vue | grep -c useAvisos
+```
+
+Si el commit dice que tocó un archivo y el archivo no tiene el cambio, se perdió ahí.
+
+## 9. Lo que nunca se hace
 
 - ⛔ **`migrate:fresh`, `migrate:refresh` ni `db:wipe` contra una base real.** Causó dos
   pérdidas totales de datos el mismo día (15 jul 2026). Con una instalación por cliente el
@@ -375,7 +408,7 @@ en `CLAUDE.md`, en el manual y en el grafo.
 
 ---
 
-## 9. Estado y pendientes
+## 10. Estado y pendientes
 
 Las fases 0 a 3 están hechas (repo, marca desacoplada, superadmin con licencias, proxy de IA).
 Faltan la 4 (asistente de instalación), la 5 (botón de actualizar) y la 6 (cobros recurrentes).
