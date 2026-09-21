@@ -388,7 +388,8 @@ async function limpiar() {
                 </div>
 
                 <!-- Entrada -->
-                <div class="p-3 border-t border-linea shrink-0 bg-superficie rounded-b-2xl">
+                <div class="p-3 border-t border-linea shrink-0 bg-superficie rounded-b-2xl"
+                    style="padding-bottom: calc(0.75rem + env(safe-area-inset-bottom));">
                     <p v-if="dictando" class="text-xs text-center mb-2" style="color:var(--marca);">
                         Escuchando… habla y se envía sola al terminar.
                     </p>

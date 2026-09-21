@@ -1354,7 +1354,8 @@ onUnmounted(() => {
                      de la empresa) se perdía contra ese fondo — se veía la barra
                      vacía. Mismo respaldo que el riel de escritorio: favicon +
                      nombre cuando no hay logo propio. -->
-                <div class="flex items-center justify-between px-5 py-4 shrink-0 border-b border-linea" style="background: var(--superficie);">
+                <div class="flex items-center justify-between px-5 py-4 shrink-0 border-b border-linea"
+                    style="background: var(--superficie); padding-top: calc(1rem + env(safe-area-inset-top));">
                     <img
                         v-if="marca.logo_propio"
                         :src="logoSegunTema"

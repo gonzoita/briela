@@ -289,7 +289,7 @@ const etiquetaTipo = { solicitud: 'Solicitud', tarea: 'Tarea' }
                     </button>
                 </div>
 
-                <div class="overflow-y-auto p-3">
+                <div class="overflow-y-auto p-3" style="padding-bottom: calc(0.75rem + env(safe-area-inset-bottom));">
                     <!-- ── Buscar persona ─────────────────────────────── -->
                     <template v-if="vista === 'personas'">
                         <input v-model="buscar" @input="buscarUsuarios" type="text" placeholder="Buscar a alguien..."

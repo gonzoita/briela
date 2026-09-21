@@ -85,12 +85,17 @@ function elegir(cual) {
 
 <style scoped>
 /* Celular: pequeño y justo encima de la barra de navegación (64 px), para no
-   quedar encima del contenido ni de los botones de la pantalla. */
-.lanzador { right: 12px; bottom: 76px; }
+   quedar encima del contenido ni de los botones de la pantalla. La barra suma
+   el hueco del indicador de inicio (`env(safe-area-inset-bottom)`) en los
+   teléfonos que lo tienen, y este botón tiene que sumarlo también: sin eso,
+   en un iPhone con esa franja el lanzador queda montado sobre la barra. */
+.lanzador { right: 12px; bottom: calc(76px + env(safe-area-inset-bottom)); }
 .principal { width: 44px; height: 44px; }
 
-/* En pantalla grande no hay barra inferior: baja y puede ser algo más grande. */
-@media (min-width: 640px) {
+/* La barra de navegación se esconde en `md` (768px), no en `sm` (640px): el
+   quiebre de aquí tiene que ser el mismo, o entre esos dos anchos el botón ya
+   está en su posición de escritorio mientras la barra de abajo sigue ahí. */
+@media (min-width: 768px) {
     .lanzador { right: 20px; bottom: 20px; }
     .principal { width: 52px; height: 52px; }
 }
