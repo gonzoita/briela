@@ -2,9 +2,10 @@
 
 namespace Database\Seeders;
 
+use App\Models\Bodega;
 use App\Models\CategoriaProducto;
-use App\Models\EnsambleItem;
 use App\Models\Producto;
+use App\Models\ProductoStock;
 use Illuminate\Database\Seeder;
 
 class ProductoSeeder extends Seeder
@@ -12,9 +13,26 @@ class ProductoSeeder extends Seeder
     public function run(): void
     {
         // ── Categorías ────────────────────────────────────────────────────────
-        $catPuertas   = CategoriaProducto::create(['nombre' => 'Puertas Refrigeradas', 'color' => '#2563EB']);
-        $catPaneleria = CategoriaProducto::create(['nombre' => 'Panelería', 'color' => '#1a6bb5']);
-        $catAccesorios= CategoriaProducto::create(['nombre' => 'Accesorios', 'color' => '#2980d4']);
+        $catPuertas    = CategoriaProducto::create(['nombre' => 'Puertas Refrigeradas', 'color' => '#2563EB']);
+        $catPaneleria  = CategoriaProducto::create(['nombre' => 'Panelería', 'color' => '#1a6bb5']);
+        $catAccesorios = CategoriaProducto::create(['nombre' => 'Accesorios', 'color' => '#2980d4']);
+
+        // El stock por producto vive en `producto_stock`, una fila por bodega —nunca
+        // en columnas de `productos`, que se eliminaron el 1 jul 2026 (ver
+        // 2026_07_01_100004_alter_productos_add_bodega_fields).
+        $bodegaGeneral = Bodega::where('nombre', 'Almacén General')->firstOrFail();
+        $bodega1       = Bodega::where('nombre', 'Bodega 1')->firstOrFail();
+        $bodega2       = Bodega::where('nombre', 'Bodega 2')->firstOrFail();
+
+        $stock = function (Producto $producto, array $porBodega) {
+            foreach ($porBodega as $bodegaId => $cantidad) {
+                ProductoStock::create([
+                    'producto_id' => $producto->id,
+                    'bodega_id'   => $bodegaId,
+                    'cantidad'    => $cantidad,
+                ]);
+            }
+        };
 
         // ── Productos ─────────────────────────────────────────────────────────
         $puertaBatiente = Producto::create([
@@ -27,13 +45,12 @@ class ProductoSeeder extends Seeder
             'inventariable'       => true,
             'stock_minimo'        => 2,
             'stock_maximo'        => 20,
-            'stock_almacen1'      => 5,
-            'stock_almacen2'      => 2,
             'precio_costo'        => 850000,
             'precio_mayorista'    => 1100000,
             'precio_distribuidor' => 1250000,
             'precio_cliente_final'=> 1500000,
         ]);
+        $stock($puertaBatiente, [$bodegaGeneral->id => 5, $bodega1->id => 2]);
 
         $panelPoliuretano = Producto::create([
             'categoria_id'        => $catPaneleria->id,
@@ -45,13 +62,12 @@ class ProductoSeeder extends Seeder
             'inventariable'       => true,
             'stock_minimo'        => 10,
             'stock_maximo'        => 200,
-            'stock_almacen1'      => 45,
-            'stock_almacen3'      => 20,
             'precio_costo'        => 95000,
             'precio_mayorista'    => 120000,
             'precio_distribuidor' => 135000,
             'precio_cliente_final'=> 160000,
         ]);
+        $stock($panelPoliuretano, [$bodegaGeneral->id => 45, $bodega2->id => 20]);
 
         $bisagra = Producto::create([
             'categoria_id'        => $catAccesorios->id,
@@ -63,12 +79,12 @@ class ProductoSeeder extends Seeder
             'inventariable'       => true,
             'stock_minimo'        => 5,
             'stock_maximo'        => 100,
-            'stock_almacen1'      => 30,
             'precio_costo'        => 45000,
             'precio_mayorista'    => 60000,
             'precio_distribuidor' => 68000,
             'precio_cliente_final'=> 85000,
         ]);
+        $stock($bisagra, [$bodegaGeneral->id => 30]);
 
         $manija = Producto::create([
             'categoria_id'        => $catAccesorios->id,
@@ -80,12 +96,12 @@ class ProductoSeeder extends Seeder
             'inventariable'       => true,
             'stock_minimo'        => 3,
             'stock_maximo'        => 50,
-            'stock_almacen1'      => 12,
             'precio_costo'        => 38000,
             'precio_mayorista'    => 52000,
             'precio_distribuidor' => 60000,
             'precio_cliente_final'=> 72000,
         ]);
+        $stock($manija, [$bodegaGeneral->id => 12]);
 
         $perfilAluminio = Producto::create([
             'categoria_id'        => $catAccesorios->id,
@@ -97,12 +113,12 @@ class ProductoSeeder extends Seeder
             'inventariable'       => true,
             'stock_minimo'        => 10,
             'stock_maximo'        => 80,
-            'stock_almacen2'      => 35,
             'precio_costo'        => 28000,
             'precio_mayorista'    => 38000,
             'precio_distribuidor' => 44000,
             'precio_cliente_final'=> 55000,
         ]);
+        $stock($perfilAluminio, [$bodega2->id => 35]);
 
         // ── Servicios ─────────────────────────────────────────────────────────
         Producto::create([
@@ -144,35 +160,12 @@ class ProductoSeeder extends Seeder
             'precio_cliente_final'=> 250000,
         ]);
 
-        // ── Ensamble ──────────────────────────────────────────────────────────
-        $ensamble = Producto::create([
-            'categoria_id'    => $catPuertas->id,
-            'tipo'            => 'ensamble',
-            'nombre'          => 'Kit Puerta Frigorífica Batiente Completa 90x200cm',
-            'referencia'      => 'ENS-0001',
-            'unidad_medida'   => 'unidad',
-            'descripcion_corta' => 'Kit completo incluye puerta, bisagras, manija y perfil de marco.',
-            'precio_costo'    => 0,
-            'precio_mayorista'=> 1400000,
-            'precio_distribuidor'=> 1600000,
-        ]);
-
-        $items = [
-            [$puertaBatiente,   1, $puertaBatiente->precio_costo],
-            [$bisagra,          1, $bisagra->precio_costo],
-            [$manija,           1, $manija->precio_costo],
-            [$perfilAluminio,   2, $perfilAluminio->precio_costo],
-        ];
-
-        foreach ($items as [$comp, $cant, $precio]) {
-            EnsambleItem::create([
-                'ensamble_id'           => $ensamble->id,
-                'componente_id'         => $comp->id,
-                'cantidad'              => $cant,
-                'precio_costo_snapshot' => $precio,
-            ]);
-        }
-
-        $ensamble->recalcularPrecioEnsamble();
+        // El ensamble de demostración («Kit Puerta Frigorífica») lo siembra
+        // PlantillaEnsambleSeeder con el modelo Ensamble real —el que usan el
+        // cotizador, las OP y el catálogo—. Un «kit» aparte sobre Producto con
+        // tipo=ensamble y EnsambleItem quedó huérfano cuando ese sistema nació:
+        // ningún controlador ni vista lo lee, y llamaba a un método que ya no
+        // existe (recalcularPrecioEnsamble), lo que rompía `migrate --seed` en
+        // cualquier instalación nueva.
     }
 }
