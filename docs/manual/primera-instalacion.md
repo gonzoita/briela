@@ -18,8 +18,12 @@ web, no de una terminal:
 ### 1. El dominio
 
 En hPanel (Hostinger): **Dominios** → agregar el dominio o subdominio de esta
-instalación, apuntando su carpeta pública (`public_html` de ese dominio) a donde va a
-vivir el clon del repositorio.
+instalación. La carpeta que crea (algo como `public_html/sistema`) es donde va a vivir
+el clon del repositorio — **pero el subdominio tiene que terminar apuntando a la
+carpeta `public` que hay DENTRO de ese clon, no a esa carpeta**. Como `public/` todavía
+no existe en este punto (el repositorio no está clonado), este ajuste se deja para el
+paso 3.b, después de clonar. Créalo ahora con lo que el panel proponga por omisión; ya
+se corrige.
 
 ### 2. La base de datos
 
@@ -66,6 +70,24 @@ git clone git@github.com-briela:gonzoita/briela.git .
 
 (El `.` al final clona *dentro* de la carpeta actual — hay que estar ya parado en la
 carpeta pública del dominio antes de correrlo.)
+
+### 3.b Apunta el subdominio a `public/`, no a esta carpeta
+
+**El paso que más se olvida, y el que da un 403 en blanco si se salta.** Laravel solo
+expone al navegador la carpeta `public/` de dentro del proyecto —`app/`, `routes/`,
+`vendor/`... son privados a propósito—. Si el subdominio sigue apuntando a la carpeta
+del clon (`.../sistema`) en vez de a `.../sistema/public`, el servidor no encuentra
+nada que servir ahí y responde 403.
+
+Ahora que ya existe `public/` (se clonó en el paso anterior), en hPanel: **Dominios** →
+edita el subdominio → **Raíz del documento** (o "Document root") → cámbialo para que
+termine en `/public`:
+
+```
+domains/TUDOMINIO/public_html/sistema/public
+```
+
+Guarda y dale uno o dos minutos antes de probar.
 
 ---
 
