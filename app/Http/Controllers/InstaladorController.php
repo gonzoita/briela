@@ -32,8 +32,31 @@ class InstaladorController extends Controller
 {
     // ─── Paso 1: serial de licencia ───────────────────────────────────────────
 
-    public function serial(): View
+    /**
+     * Si `instalar.php` ya escribió un BRIELA_SERIAL en el .env (quien pasó por
+     * la descarga oficial ya lo tecleó una vez ahí), se valida solo y de una vez
+     * sigue al paso 2 — pedirlo otra vez sería repetir lo mismo dos pantallas
+     * seguidas. Si no hay uno, o el que hay no es válido, se pide aquí como
+     * siempre: es el único punto de paso para quien clonó por git o subió el
+     * paquete a mano, que nunca pasan por `instalar.php`.
+     */
+    public function serial(Request $request): View|RedirectResponse
     {
+        if (! $this->serialValidado($request)) {
+            $delEnv = trim((string) config('briela.serial'));
+
+            if ($delEnv !== '') {
+                $resultado = Instalacion::validarSerial($delEnv, $request->getHost());
+
+                if ($resultado['ok']) {
+                    $request->session()->put('instalador.serial', $delEnv);
+                    $request->session()->put('instalador.cliente', $resultado['cliente']);
+
+                    return redirect('/instalar/requisitos');
+                }
+            }
+        }
+
         return view('instalador.serial');
     }
 
