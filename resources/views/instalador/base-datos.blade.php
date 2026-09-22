@@ -1,4 +1,4 @@
-@extends('instalador.layout', ['paso' => 2])
+@extends('instalador.layout', ['paso' => 3])
 
 @section('contenido')
     <h1>Base de datos</h1>

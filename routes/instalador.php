@@ -17,7 +17,10 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::middleware('instalada')->group(function () {
-    Route::get('/instalar', [InstaladorController::class, 'requisitos']);
+    Route::get('/instalar', [InstaladorController::class, 'serial']);
+    Route::post('/instalar', [InstaladorController::class, 'guardarSerial']);
+
+    Route::get('/instalar/requisitos', [InstaladorController::class, 'requisitos']);
 
     Route::get('/instalar/base-datos', [InstaladorController::class, 'baseDatos']);
     Route::post('/instalar/base-datos', [InstaladorController::class, 'guardarBaseDatos']);

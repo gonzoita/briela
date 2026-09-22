@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Instalación de Briela — paso {{ $paso ?? 1 }} de 3</title>
+    <title>Instalación de Briela — paso {{ $paso ?? 1 }} de 4</title>
 
     {{--
         El estilo va aquí dentro a propósito: el asistente tiene que verse bien
@@ -59,7 +59,7 @@
         </div>
 
         <div class="pasos">
-            @for ($i = 1; $i <= 3; $i++)
+            @for ($i = 1; $i <= 4; $i++)
                 <div class="{{ $i <= ($paso ?? 1) ? 'hecho' : '' }}"></div>
             @endfor
         </div>
@@ -76,7 +76,7 @@
             @yield('contenido')
         </div>
 
-        <p class="pie">Paso {{ $paso ?? 1 }} de 3</p>
+        <p class="pie">Paso {{ $paso ?? 1 }} de 4</p>
     </div>
 </body>
 </html>

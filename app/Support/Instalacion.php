@@ -227,4 +227,55 @@ class Instalacion
     {
         return 'base64:' . base64_encode(random_bytes(32));
     }
+
+    // ─── Serial de licencia ──────────────────────────────────────────────────
+
+    /**
+     * Valida el serial contra el servidor de licencias, antes de instalar nada.
+     *
+     * La base todavía no existe en este punto, así que va por HTTP directo (no
+     * `LicenciaService`, que lee y escribe en `Configuracion`) contra la misma
+     * ruta que ese servicio consulta en producción.
+     *
+     * A propósito NO tiene la "gracia sin conexión" de `LicenciaService`: esa
+     * existe para no tumbar una instalación que ya estaba activa si el servidor
+     * de licencias se cae un rato. Aquí es al revés —nada se ha instalado
+     * todavía—, así que un serial que no se puede confirmar no deja seguir.
+     *
+     * @return array{ok: bool, mensaje: ?string, cliente: ?string}
+     */
+    public static function validarSerial(string $serial, string $dominio): array
+    {
+        $url = rtrim((string) config('briela.licencia_url', 'https://superadmin.briela.app'), '/')
+            . '/api/licencia/validar';
+
+        try {
+            $resp = \Illuminate\Support\Facades\Http::timeout(10)->acceptJson()->post($url, [
+                'serial'  => $serial,
+                'version' => static::version(),
+                'dominio' => $dominio,
+            ]);
+        } catch (Throwable) {
+            return [
+                'ok'      => false,
+                'mensaje' => 'No se pudo conectar con el servidor de licencias. Revisa que '
+                    . 'este servidor tenga salida a internet e inténtalo de nuevo.',
+                'cliente' => null,
+            ];
+        }
+
+        if (! $resp->successful() || ! ($resp->json('ok') ?? false)) {
+            return [
+                'ok'      => false,
+                'mensaje' => $resp->json('mensaje') ?? 'Ese serial no es válido.',
+                'cliente' => null,
+            ];
+        }
+
+        return [
+            'ok'      => true,
+            'mensaje' => null,
+            'cliente' => $resp->json('licencia.cliente'),
+        ];
+    }
 }

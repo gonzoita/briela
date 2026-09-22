@@ -19,7 +19,7 @@ use Illuminate\View\View;
 use Throwable;
 
 /**
- * Asistente de instalación en tres pasos.
+ * Asistente de instalación en cuatro pasos.
  *
  * Sus vistas son Blade y no Vue —la única excepción del proyecto— porque tienen
  * que dibujarse cuando todavía no hay base de datos ni configuración, y el layout
@@ -30,20 +30,64 @@ use Throwable;
  */
 class InstaladorController extends Controller
 {
-    // ─── Paso 1: requisitos del servidor ─────────────────────────────────────
+    // ─── Paso 1: serial de licencia ───────────────────────────────────────────
 
-    public function requisitos(): View
+    public function serial(): View
     {
+        return view('instalador.serial');
+    }
+
+    /**
+     * El serial se guarda en SESIÓN, no en la base: todavía no existe. Se
+     * escribe en la Configuracion real —donde vive de verdad, la que lee
+     * LicenciaService— al final del paso 4, ya con la base lista.
+     */
+    public function guardarSerial(Request $request): RedirectResponse
+    {
+        $datos = $request->validate([
+            'serial' => ['required', 'string', 'max:100'],
+        ]);
+
+        $serial    = trim($datos['serial']);
+        $resultado = Instalacion::validarSerial($serial, $request->getHost());
+
+        if (! $resultado['ok']) {
+            return back()->withInput()->withErrors(['serial' => $resultado['mensaje']]);
+        }
+
+        $request->session()->put('instalador.serial', $serial);
+        $request->session()->put('instalador.cliente', $resultado['cliente']);
+
+        return redirect('/instalar/requisitos');
+    }
+
+    private function serialValidado(Request $request): bool
+    {
+        return filled($request->session()->get('instalador.serial'));
+    }
+
+    // ─── Paso 2: requisitos del servidor ─────────────────────────────────────
+
+    public function requisitos(Request $request): View|RedirectResponse
+    {
+        if (! $this->serialValidado($request)) {
+            return redirect('/instalar');
+        }
+
         return view('instalador.requisitos', [
             'requisitos' => Instalacion::requisitos(),
             'puedeSeguir' => Instalacion::requisitosCumplidos(),
         ]);
     }
 
-    // ─── Paso 2: base de datos ───────────────────────────────────────────────
+    // ─── Paso 3: base de datos ───────────────────────────────────────────────
 
-    public function baseDatos(): View
+    public function baseDatos(Request $request): View|RedirectResponse
     {
+        if (! $this->serialValidado($request)) {
+            return redirect('/instalar');
+        }
+
         return view('instalador.base-datos', [
             'valores' => [
                 'host'     => '127.0.0.1',
@@ -56,6 +100,10 @@ class InstaladorController extends Controller
 
     public function guardarBaseDatos(Request $request): RedirectResponse
     {
+        if (! $this->serialValidado($request)) {
+            return redirect('/instalar');
+        }
+
         $datos = $request->validate([
             'host'     => ['required', 'string', 'max:255'],
             'port'     => ['required', 'numeric'],
@@ -90,7 +138,7 @@ class InstaladorController extends Controller
         return redirect('/instalar/base-datos/migrar');
     }
 
-    // ─── Paso 2b: migraciones (por AJAX, porque tardan) ──────────────────────
+    // ─── Paso 3b: migraciones (por AJAX, porque tardan) ──────────────────────
 
     public function pantallaMigrar(): View
     {
@@ -270,7 +318,7 @@ class InstaladorController extends Controller
             . 'proveedor de hosting.';
     }
 
-    // ─── Paso 3: empresa y administrador ─────────────────────────────────────
+    // ─── Paso 4: empresa y administrador ─────────────────────────────────────
 
     public function cuenta(): View|RedirectResponse
     {
@@ -335,6 +383,18 @@ class InstaladorController extends Controller
         Instalacion::escribirEnv(['APP_KEY' => Instalacion::generarAppKey()]);
 
         Instalacion::marcar();
+
+        // El serial vivía solo en sesión —la base no existía cuando se validó
+        // en el paso 1—. Ahora sí hay Configuracion: se guarda donde
+        // LicenciaService lo va a leer de aquí en adelante, y se refresca una
+        // vez para que quede con su estado real (módulos, vencimiento) desde
+        // el primer latido en vez de esperar seis horas.
+        if ($serial = $request->session()->pull('instalador.serial')) {
+            $licencias = app(\App\Services\LicenciaService::class);
+            $licencias->guardarSerial($serial);
+            $licencias->refrescar();
+        }
+        $request->session()->forget('instalador.cliente');
 
         return redirect('/instalar/listo');
     }
