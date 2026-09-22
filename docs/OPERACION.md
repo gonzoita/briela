@@ -327,6 +327,7 @@ grafo desactualizado es peor que no tenerlo, porque manda a leer archivos que ya
 | **`docs/BRIELA-PLAN.md`** | Arquitectura decidida y plan por fases. **Fuente de verdad** | Antes de diseñar algo nuevo |
 | **`docs/BRIELA-CONTEXTO.md`** | Documento de arranque y decisiones de origen | Para entender por qué algo es como es |
 | **`docs/manual/deploy-automatico.md`** | Cómo despliega el servidor, en detalle | Cuando el despliegue falle |
+| **`docs/manual/primera-instalacion.md`** | Cómo poner Briela en un servidor nuevo, de cero | Al instalar para un cliente nuevo |
 | **`graphify-out/GRAPH_REPORT.md`** | El informe del grafo | Para ubicarse en el código |
 
 Los del superadmin están en su propio repositorio, en su `README.md`.
