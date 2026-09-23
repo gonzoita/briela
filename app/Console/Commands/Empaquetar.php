@@ -189,6 +189,13 @@ class Empaquetar extends Command
             }
         }
 
+        // Un .git dentro de vendor: composer instala desde el repositorio cuando no
+        // puede bajar el zip, y cada paquete trae su historia completa. Así el
+        // paquete pasaba de ~200 MB a 567 MB sin un solo archivo útil de más.
+        if (preg_match('#(^|/)\.git(/|$)#', $relativa)) {
+            return true;
+        }
+
         // Respaldos de base de datos y temporales de editor, por si acaso.
         return (bool) preg_match('/\.(sql|log)$/i', $relativa)
             || str_contains($relativa, '.fuse_hidden');

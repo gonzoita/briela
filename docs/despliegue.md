@@ -28,7 +28,9 @@ las pantallas de error.
 
 El ZIP lleva `vendor/` y `public/build/` ya compilados —para que el cliente no
 necesite composer ni Node— y **no lleva** `.env`, `docs/`, `CLAUDE.md`, `tests/`,
-`installer/`, ni las herramientas de compilación. Son unos 46.000 archivos.
+`installer/`, ni las herramientas de compilación, ni ninguna carpeta `.git` (tampoco
+las de `vendor/`, que composer deja cuando instala desde el repositorio). La 1.0.0
+salió con 52.060 archivos y 80 MB.
 
 Después subes el ZIP a tu origen de descargas (por defecto el instalador lo busca
 en `https://briela.app/descargas/`).
