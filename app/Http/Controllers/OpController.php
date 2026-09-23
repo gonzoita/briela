@@ -795,18 +795,11 @@ class OpController extends Controller
 
     public function generarPdf(Op $op): HttpResponse
     {
-        // Plantilla PDF personalizada
-        $plantillaId = request()->input('plantilla_id');
-        $plantilla   = $plantillaId
-            ? \App\Models\PdfPlantilla::find($plantillaId)
-            : \App\Models\PdfPlantilla::defaultParaModulo('op');
-
-        if ($plantilla) {
-            $op->loadMissing(['cliente', 'items', 'responsable']);
-            $datos = \App\Services\PdfVariablesEngine::prepararDatos('op', $op);
-            $html  = \App\Services\PdfVariablesEngine::render($plantilla->html, $datos);
-            $pdf   = \Barryvdh\DomPDF\Facade\Pdf::loadHtml($html)
-                        ->setPaper($plantilla->papel ?? 'a4', $plantilla->orientacion ?? 'portrait');
+        // Plantilla PDF personalizada: el mismo camino que la vista previa del editor.
+        $pdf = \App\Services\PdfPlantillaRenderer::paraRegistro(
+            'op', $op, request()->integer('plantilla_id') ?: null
+        );
+        if ($pdf) {
             return $pdf->download("OP-{$op->numero}.pdf");
         }
 

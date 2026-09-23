@@ -1,6 +1,6 @@
 <script setup>
 import AppLayout from '@/Layouts/AppLayout.vue'
-import ModalAsistentePrompt from '@/Components/PdfPlantillas/ModalAsistentePrompt.vue'
+import ModalIaPlantilla from '@/Components/PdfPlantillas/ModalIaPlantilla.vue'
 import EditorBloques from '@/Components/PdfPlantillas/EditorBloques.vue'
 import { ref, reactive, computed, nextTick, onUnmounted } from 'vue'
 import { router } from '@inertiajs/vue3'
@@ -31,6 +31,10 @@ const copiadoVar       = ref(null)
 const textareaRef      = ref(null)
 const modoEditor       = ref(props.plantilla?.modo_editor ?? 'visual')
 const seccionActiva    = ref('body')
+const slotCodigo       = ref('body')
+const buscarVar        = ref('')
+const validando        = ref(false)
+const validacion       = ref(null)
 
 // ─── Bloques por defecto para plantilla nueva ─────────────────────────────────
 function nuevoId() {
@@ -74,6 +78,11 @@ const form = reactive({
     nombre:      props.plantilla?.nombre      ?? 'Nueva plantilla',
     descripcion: props.plantilla?.descripcion ?? '',
     html:        props.plantilla?.html        ?? props.html_base ?? '',
+    html_header: props.plantilla?.html_header ?? '',
+    html_footer: props.plantilla?.html_footer ?? '',
+    alto_header_mm: props.plantilla?.alto_header_mm ?? 25,
+    alto_footer_mm: props.plantilla?.alto_footer_mm ?? 15,
+    margen_mm:      props.plantilla?.margen_mm      ?? 12,
     papel:       props.plantilla?.papel       ?? 'a4',
     orientacion: props.plantilla?.orientacion ?? 'portrait',
     es_default:  props.plantilla?.es_default  ?? false,
@@ -89,10 +98,19 @@ const form = reactive({
 
 const moduloLabel = computed(() => props.modulos[props.modulo] ?? props.modulo)
 
+// Modo código: tres piezas. El cuerpo sigue en `html` para no romper las plantillas viejas.
+const camposSlot = { header: 'html_header', body: 'html', footer: 'html_footer' }
+const codigoActual = computed({
+    get: () => form[camposSlot[slotCodigo.value]],
+    set: (v) => { form[camposSlot[slotCodigo.value]] = v },
+})
+
 const variablesAgrupadas = computed(() => {
     const grupos = {}
     const orden  = []
+    const q = buscarVar.value.trim().toLowerCase()
     for (const v of props.variables) {
+        if (q && !(v.var.toLowerCase().includes(q) || (v.desc ?? '').toLowerCase().includes(q))) continue
         const g = v.grupo ?? 'General'
         if (!grupos[g]) { grupos[g] = []; orden.push(g) }
         grupos[g].push(v)
@@ -115,6 +133,27 @@ function marcarCambio() {
     guardado.value   = false
 }
 
+// Lo que dibuja la plantilla: igual para guardar, previsualizar y validar.
+function diseno() {
+    return {
+        modulo:         props.modulo,
+        modo_editor:    modoEditor.value,
+        html:           form.html,
+        html_header:    form.html_header,
+        html_footer:    form.html_footer,
+        bloques_header: form.bloques.header,
+        bloques_body:   form.bloques.body,
+        bloques_footer: form.bloques.footer,
+        papel:          form.papel,
+        orientacion:    form.orientacion,
+        ancho_mm:       form.papel === 'personalizado' ? form.ancho_mm : null,
+        alto_mm:        form.papel === 'personalizado' ? form.alto_mm  : null,
+        alto_header_mm: form.alto_header_mm,
+        alto_footer_mm: form.alto_footer_mm,
+        margen_mm:      form.margen_mm,
+    }
+}
+
 // ─── Guardar ──────────────────────────────────────────────────────────────────
 async function guardar() {
     if (!form.nombre.trim()) { alert('El nombre es obligatorio'); return }
@@ -131,20 +170,11 @@ async function guardar() {
         const method = props.plantilla ? 'PUT' : 'POST'
 
         const payload = {
-            modulo:         props.modulo,
-            nombre:         form.nombre,
-            descripcion:    form.descripcion,
-            html:           form.html,
-            papel:          form.papel,
-            orientacion:    form.orientacion,
-            es_default:     form.es_default,
-            activa:         form.activa,
-            ancho_mm:       form.papel === 'personalizado' ? form.ancho_mm : null,
-            alto_mm:        form.papel === 'personalizado' ? form.alto_mm : null,
-            modo_editor:    modoEditor.value,
-            bloques_header: form.bloques.header,
-            bloques_body:   form.bloques.body,
-            bloques_footer: form.bloques.footer,
+            ...diseno(),
+            nombre:      form.nombre,
+            descripcion: form.descripcion,
+            es_default:  form.es_default,
+            activa:      form.activa,
         }
 
         const res = await fetch(url, {
@@ -181,27 +211,7 @@ async function actualizarPreview() {
     if (modoEditor.value === 'codigo' && !form.html.trim()) return
     cargandoPreview.value = true
     try {
-        const body = modoEditor.value === 'visual'
-            ? {
-                modo_editor:    'visual',
-                bloques_header: form.bloques.header,
-                bloques_body:   form.bloques.body,
-                bloques_footer: form.bloques.footer,
-                modulo:         props.modulo,
-                papel:          form.papel,
-                orientacion:    form.orientacion,
-                ancho_mm:       form.papel === 'personalizado' ? form.ancho_mm : null,
-                alto_mm:        form.papel === 'personalizado' ? form.alto_mm  : null,
-            }
-            : {
-                modo_editor: 'codigo',
-                html:        form.html,
-                modulo:      props.modulo,
-                papel:       form.papel,
-                orientacion: form.orientacion,
-                ancho_mm:    form.papel === 'personalizado' ? form.ancho_mm : null,
-                alto_mm:     form.papel === 'personalizado' ? form.alto_mm  : null,
-            }
+        const body = diseno()
 
         const res = await fetch('/configuracion/plantillas-pdf/preview', {
             method: 'POST',
@@ -224,17 +234,49 @@ async function actualizarPreview() {
     }
 }
 
+// ─── Validar contra datos reales ──────────────────────────────────────────────
+async function validar() {
+    validando.value = true
+    try {
+        const res = await fetch('/configuracion/plantillas-pdf/validar', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-XSRF-TOKEN': getCsrf() },
+            credentials: 'same-origin',
+            body: JSON.stringify(diseno()),
+        })
+        if (!res.ok) throw new Error()
+        validacion.value = await res.json()
+    } catch {
+        validacion.value = { errores: ['No se pudo validar la plantilla.'], desconocidas: [], con_datos: true }
+    } finally {
+        validando.value = false
+    }
+}
+
+// ─── Resultado de la IA ───────────────────────────────────────────────────────
+function aplicarIa({ header, body, footer }) {
+    form.html_header = header ?? ''
+    form.html        = body ?? ''
+    form.html_footer = footer ?? ''
+    modoEditor.value = 'codigo'
+    slotCodigo.value = 'body'
+    mostrarAsistente.value = false
+    marcarCambio()
+    actualizarPreview()
+}
+
 // ─── Insertar texto en el textarea (modo código) ──────────────────────────────
 function insertarTexto(texto) {
     const el = textareaRef.value
     if (!el) {
-        form.html += texto
+        codigoActual.value += texto
         marcarCambio()
         return
     }
     const inicio = el.selectionStart
     const fin    = el.selectionEnd
-    form.html = form.html.substring(0, inicio) + texto + form.html.substring(fin)
+    const actual = codigoActual.value ?? ''
+    codigoActual.value = actual.substring(0, inicio) + texto + actual.substring(fin)
     marcarCambio()
     nextTick(() => {
         el.selectionStart = el.selectionEnd = inicio + texto.length
@@ -243,21 +285,17 @@ function insertarTexto(texto) {
 }
 
 function insertarVariable(v) {
-    if (v.includes('...')) {
-        const partes = v.split('...')
-        insertarTexto(partes[0] + '\n  <!-- fila -->\n' + partes[1])
-    } else {
-        insertarTexto(v)
-    }
+    // «{{#if x}}...{{else}}...{{/if}}» tiene dos huecos: cada «...» se vuelve una línea.
+    insertarTexto(v.startsWith('|') ? v : v.split('...').join('\n  \n'))
     dropdownVars.value = false
 }
 
 function insertarTabla() {
-    insertarTexto(`{{#items}}\n<tr>\n  <td>{{index}}</td>\n  <td>{{descripcion}}</td>\n  <td>{{cantidad}}</td>\n</tr>\n{{/items}}`)
+    insertarTexto(`<table>\n  <thead><tr><th>#</th><th>Descripción</th><th>Cant.</th></tr></thead>\n  <tbody>\n  {{#each items}}\n    <tr><td>{{@numero}}</td><td>{{descripcion}}</td><td>{{cantidad|numero}}</td></tr>\n  {{/each}}\n  </tbody>\n</table>`)
 }
 
 function insertarCondicional() {
-    insertarTexto(`{{#if variable}}\n  <!-- contenido si variable es verdadera -->\n{{/if}}`)
+    insertarTexto(`{{#if variable}}\n  <!-- si tiene valor -->\n{{else}}\n  <!-- si está vacía -->\n{{/if}}`)
 }
 
 async function copiarVariable(v) {
@@ -469,7 +507,22 @@ const seccionesTabs = [
                                 </svg>
                                 Condicional
                             </button>
+
+                            <button @click="insertarTexto('{{salto_pagina}}')"
+                                class="px-3 py-1.5 text-xs font-medium rounded-lg border border-linea text-tinta-700 hover:bg-realce transition-colors">
+                                Salto de página
+                            </button>
+
+                            <button @click="insertarTexto('Página {{pagina}} de {{total_paginas}}')"
+                                class="px-3 py-1.5 text-xs font-medium rounded-lg border border-linea text-tinta-700 hover:bg-realce transition-colors">
+                                Nº de página
+                            </button>
                         </template>
+
+                        <button @click="validar" :disabled="validando"
+                            class="px-3 py-1.5 text-xs font-medium rounded-lg border border-linea text-tinta-700 hover:bg-realce transition-colors disabled:opacity-60">
+                            {{ validando ? 'Validando…' : '✓ Validar' }}
+                        </button>
 
                         <!-- Asistente IA (siempre visible) -->
                         <button
@@ -514,6 +567,27 @@ const seccionesTabs = [
                         </button>
                     </div>
 
+                    <!-- Resultado de validar -->
+                    <div v-if="validacion" class="rounded-xl border px-3 py-2 text-xs"
+                        :class="validacion.errores.length || validacion.desconocidas.length
+                            ? 'bg-pastel-ambar border-borde-aviso-ambar text-aviso-ambar'
+                            : 'bg-pastel-verde border-borde-aviso-verde text-aviso-verde'">
+                        <div class="flex items-start justify-between gap-2">
+                            <div class="space-y-1 min-w-0">
+                                <p v-if="!validacion.errores.length && !validacion.desconocidas.length" class="font-medium">
+                                    Todo en orden: las variables existen y los bloques cierran bien{{ validacion.con_datos ? ' (probado con el último registro real)' : '' }}.
+                                </p>
+                                <p v-for="e in validacion.errores" :key="e">⚠ {{ e }}</p>
+                                <p v-if="validacion.desconocidas.length">
+                                    Variables que no existen (saldrán vacías):
+                                    <code v-for="d in validacion.desconocidas" :key="d" class="font-mono mx-1 px-1 rounded bg-pastel-ambar-2 break-all" v-text="`{{${d}}}`"></code>
+                                </p>
+                                <p v-if="!validacion.con_datos" class="opacity-80">Aún no hay registros de este módulo: solo se validaron los datos de la empresa.</p>
+                            </div>
+                            <button @click="validacion = null" class="shrink-0 px-1" aria-label="Cerrar">✕</button>
+                        </div>
+                    </div>
+
                     <!-- Área de edición -->
                     <div class="flex gap-3 flex-1 min-h-0">
 
@@ -531,10 +605,40 @@ const seccionesTabs = [
 
                         <!-- Editor código -->
                         <template v-else>
-                            <div class="flex-1 min-w-0 flex flex-col">
+                            <div class="flex-1 min-w-0 flex flex-col gap-2">
+                                <!-- Piezas del documento -->
+                                <div class="flex flex-wrap items-center gap-2">
+                                    <div class="flex bg-superficie rounded-xl border border-linea overflow-hidden">
+                                        <button v-for="sec in seccionesTabs" :key="sec.key"
+                                            @click="slotCodigo = sec.key"
+                                            class="px-3 py-2 text-xs font-medium border-b-2 transition-colors"
+                                            :class="slotCodigo === sec.key ? 'border-[var(--marca)] text-[var(--marca)] bg-pastel-azul' : 'border-transparent text-tinta-400 hover:bg-realce'">
+                                            {{ sec.label }}
+                                        </button>
+                                    </div>
+                                    <label v-if="slotCodigo !== 'body'" class="flex items-center gap-1 text-xs text-tinta-400">
+                                        Alto
+                                        <input v-if="slotCodigo === 'header'" v-model.number="form.alto_header_mm" @input="marcarCambio" type="number" min="5" max="120" step="1"
+                                            class="w-16 text-xs border border-linea rounded-lg px-2 py-1.5" />
+                                        <input v-else v-model.number="form.alto_footer_mm" @input="marcarCambio" type="number" min="5" max="120" step="1"
+                                            class="w-16 text-xs border border-linea rounded-lg px-2 py-1.5" />
+                                        mm
+                                    </label>
+                                    <label v-else class="flex items-center gap-1 text-xs text-tinta-400">
+                                        Margen
+                                        <input v-model.number="form.margen_mm" @input="marcarCambio" type="number" min="0" max="40" step="1"
+                                            class="w-16 text-xs border border-linea rounded-lg px-2 py-1.5" />
+                                        mm
+                                    </label>
+                                </div>
+                                <p class="text-xs text-tinta-400">
+                                    {{ slotCodigo === 'header' ? 'Se repite arriba en cada página. Vacío = sin encabezado.'
+                                     : slotCodigo === 'footer' ? 'Se repite abajo en cada página. Usa «Nº de página» para numerar.'
+                                     : 'El contenido. Motor dompdf: CSS 2.1, tablas en vez de flex o grid.' }}
+                                </p>
                                 <textarea
                                     ref="textareaRef"
-                                    v-model="form.html"
+                                    v-model="codigoActual"
                                     @input="marcarCambio"
                                     @click="dropdownVars = false"
                                     class="flex-1 w-full rounded-xl border border-linea shadow-sm p-3 text-xs leading-relaxed resize-none focus:outline-none focus:ring-2 focus:ring-[var(--marca)] bg-tinta-50"
@@ -546,9 +650,11 @@ const seccionesTabs = [
 
                             <!-- Panel de variables -->
                             <div v-if="mostrarVars"
-                                class="w-52 shrink-0 bg-superficie rounded-xl border border-linea shadow-sm flex flex-col overflow-hidden">
+                                class="w-60 shrink-0 bg-superficie rounded-xl border border-linea shadow-sm flex flex-col overflow-hidden">
                                 <div class="px-3 py-2 border-b border-linea">
-                                    <p class="text-xs font-semibold text-tinta-700">Variables disponibles</p>
+                                    <p class="text-xs font-semibold text-tinta-700">Diccionario de variables</p>
+                                    <input v-model="buscarVar" type="search" placeholder="Buscar…"
+                                        class="mt-1.5 w-full text-xs border border-linea rounded-lg px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-[var(--marca)]" />
                                 </div>
                                 <div class="flex-1 overflow-y-auto">
                                     <template v-for="grupo in variablesAgrupadas" :key="grupo.grupo">
@@ -627,11 +733,12 @@ const seccionesTabs = [
         <div v-if="dropdownVars" class="fixed inset-0 z-10" @click="dropdownVars = false" />
 
         <!-- Modal asistente IA -->
-        <ModalAsistentePrompt
+        <ModalIaPlantilla
             v-if="mostrarAsistente"
             :modulo="props.modulo"
             :modulo-label="moduloLabel"
-            :variables="props.variables"
+            :actual="{ header: form.html_header, body: modoEditor === 'codigo' ? form.html : '', footer: form.html_footer }"
+            @aplicar="aplicarIa"
             @cerrar="mostrarAsistente = false"
         />
     </AppLayout>

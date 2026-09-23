@@ -15,28 +15,19 @@ class BloquesHtmlService
         return $html;
     }
 
-    public static function plantillaToHtml(array $header, array $body, array $footer): string
+    /** Los estilos de los bloques visuales. */
+    public static function css(): string
     {
-        $htmlHeader = static::toHtml($header);
-        $htmlBody   = static::toHtml($body);
-        $htmlFooter = static::toHtml($footer);
-
         // El color sale de la configuración de la instalación: estas plantillas
         // las imprime dompdf, que no resuelve variables CSS.
         $marcaColor = Marca::color();
 
-        return "<!DOCTYPE html>
-<html>
-<head>
-<meta charset='utf-8'/>
-<style>
-  body { font-family: Arial, sans-serif; font-size: 10px; color: #1a1a1a; margin: 0; padding: 0; }
-  .seccion-header { padding: 16px 20px 8px; border-bottom: 2px solid {$marcaColor}; }
-  .seccion-body   { padding: 12px 20px; }
-  .seccion-footer { padding: 8px 20px 16px; border-top: 1px solid #ddd; margin-top: 16px; }
+        return "
   table { width: 100%; border-collapse: collapse; }
   th { background: {$marcaColor}; color: white; padding: 6px 8px; text-align: left; font-size: 9px; }
   td { padding: 5px 8px; border-bottom: 1px solid #eee; font-size: 9px; }
+  #pdf-encabezado { border-bottom: 2px solid {$marcaColor}; }
+  #pdf-pie { border-top: 1px solid #ddd; }
   .col-wrap { display: table; width: 100%; }
   .col-2-cell { display: table-cell; width: 50%; vertical-align: top; padding: 4px; }
   .col-3-cell { display: table-cell; width: 33.33%; vertical-align: top; padding: 4px; }
@@ -44,15 +35,7 @@ class BloquesHtmlService
   .totales-box { text-align: right; margin-top: 8px; }
   .qr-box { text-align: center; }
   .separador { border: none; border-top: 1px solid #ddd; margin: 8px 0; }
-  .sello { border: 2px solid {$marcaColor}; border-radius: 50%; width: 80px; height: 80px; display: inline-block; text-align: center; line-height: 80px; font-size: 9px; color: {$marcaColor}; }
-</style>
-</head>
-<body>
-<div class='seccion-header'>{$htmlHeader}</div>
-<div class='seccion-body'>{$htmlBody}</div>
-<div class='seccion-footer'>{$htmlFooter}</div>
-</body>
-</html>";
+  .sello { border: 2px solid {$marcaColor}; border-radius: 50%; width: 80px; height: 80px; display: inline-block; text-align: center; line-height: 80px; font-size: 9px; color: {$marcaColor}; }";
     }
 
     private static function bloqueToHtml(array $bloque): string

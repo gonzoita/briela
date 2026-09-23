@@ -405,18 +405,11 @@ class CotizacionController extends Controller
 
     public function pdf(Cotizacion $cotizacion): HttpResponse
     {
-        // Plantilla PDF personalizada
-        $plantillaId = request()->input('plantilla_id');
-        $plantilla   = $plantillaId
-            ? \App\Models\PdfPlantilla::find($plantillaId)
-            : \App\Models\PdfPlantilla::defaultParaModulo('cotizacion');
-
-        if ($plantilla) {
-            $cotizacion->loadMissing(['cliente', 'items.producto', 'items.ensamble', 'responsable']);
-            $datos = \App\Services\PdfVariablesEngine::prepararDatos('cotizacion', $cotizacion);
-            $html  = \App\Services\PdfVariablesEngine::render($plantilla->html, $datos);
-            $pdf   = \Barryvdh\DomPDF\Facade\Pdf::loadHtml($html)
-                        ->setPaper($plantilla->papel ?? 'a4', $plantilla->orientacion ?? 'portrait');
+        // Plantilla PDF personalizada: el mismo camino que la vista previa del editor.
+        $pdf = \App\Services\PdfPlantillaRenderer::paraRegistro(
+            'cotizacion', $cotizacion, request()->integer('plantilla_id') ?: null
+        );
+        if ($pdf) {
             return $pdf->download("cotizacion-{$cotizacion->numero}.pdf");
         }
 

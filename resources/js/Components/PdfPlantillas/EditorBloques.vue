@@ -42,7 +42,8 @@ const bloqueSeleccionado = computed(() =>
 )
 
 const variablesPlanas = computed(() =>
-    (props.variables ?? []).filter(v => !v.var.includes('...')).map(v => v.var)
+    // Solo datos: la lógica (#if, #each), los filtros sueltos y el @ de las filas no son un valor que imprimir.
+    (props.variables ?? []).filter(v => !v.var.includes('...') && !/^(\||\{\{[#!@])/.test(v.var)).map(v => v.var)
 )
 
 // ─── Utilidades ───────────────────────────────────────────────────────────────

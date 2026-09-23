@@ -713,6 +713,10 @@ Route::middleware('auth')->group(function () {
         Route::get('/plantillas-pdf/crear',                        [PdfPlantillaController::class, 'crear'])->name('plantillas-pdf.crear');
         Route::post('/plantillas-pdf',                             [PdfPlantillaController::class, 'store'])->name('plantillas-pdf.store');
         Route::post('/plantillas-pdf/preview',                     [PdfPlantillaController::class, 'preview'])->name('plantillas-pdf.preview');
+        Route::post('/plantillas-pdf/validar',                     [PdfPlantillaController::class, 'validar'])->name('plantillas-pdf.validar');
+        Route::post('/plantillas-pdf/meta-prompt',                 [PdfPlantillaController::class, 'metaPrompt'])->name('plantillas-pdf.meta-prompt');
+        Route::post('/plantillas-pdf/separar',                     [PdfPlantillaController::class, 'separar'])->name('plantillas-pdf.separar');
+        Route::post('/plantillas-pdf/ia',                          [PdfPlantillaController::class, 'generarIa'])->name('plantillas-pdf.ia');
         Route::get('/plantillas-pdf/{plantilla}/editar',           [PdfPlantillaController::class, 'editar'])->name('plantillas-pdf.editar');
         Route::put('/plantillas-pdf/{plantilla}',                  [PdfPlantillaController::class, 'update'])->name('plantillas-pdf.update');
         Route::delete('/plantillas-pdf/{plantilla}',               [PdfPlantillaController::class, 'destroy'])->name('plantillas-pdf.destroy');

@@ -15,6 +15,16 @@ Formato: [versionado semántico](https://semver.org/lang/es/).
 ## [Sin publicar]
 
 ### Agregado
+- **Plantillas PDF con encabezado y pie de página propios** en el modo código: se
+  repiten en cada hoja, con la altura que se elija, y el pie puede decir «Página 2
+  de 5». También hay salto de página.
+- **Generar plantillas con IA, de dos maneras**: pidiéndoselo a Briela, o copiando
+  un prompt ya preparado para ChatGPT, Claude o Gemini y pegando lo que devuelvan.
+- **Botón «Validar»** en el editor de plantillas: dice qué variables no existen y
+  qué bloques quedaron mal cerrados, probando contra el último documento real.
+- Las plantillas admiten `{{else}}`, condicionales dentro de condicionales,
+  comparaciones (`{{#if op.estado == "despachada"}}`), `{{#each items}}` y más
+  formatos: número, porcentaje, fecha y hora.
 - **Módulo de Calidad** (`/calidad`, con su propio permiso): un tablero con
   todas las unidades ya fabricadas y sin despachar, en fichas grandes con un
   botón por punto de revisión. Se marca de un toque, y «Terminar» cierra la
@@ -29,6 +39,15 @@ Formato: [versionado semántico](https://semver.org/lang/es/).
   los trajo. Se conecta desde Configuración → Integraciones → WordPress.
 
 ### Corregido
+- **Una plantilla PDF hecha en modo visual salía en blanco** al descargar la
+  cotización o la OP, aunque la vista previa se veía bien. Y una con papel de
+  etiqueta o ticket fallaba. Ahora el documento sale igual que la vista previa.
+- Las remisiones y los recibos de pago **usan su plantilla PDF** si la empresa
+  hizo una; antes se diseñaba y nunca se aplicaba.
+- En las plantillas, una condición dentro de la tabla de ítems (por ejemplo,
+  mostrar la imagen solo si el ítem tiene) nunca se cumplía. Ya funciona.
+- Una variable mal escrita ya no aparece como `{{texto}}` en el PDF del cliente.
+- El logo de la empresa no salía en los PDF de plantilla. Ya sale.
 - **En Trabajos, «Terminada» no respondía** en una unidad ya completa: se tocaba y
   no pasaba nada, que se ve igual que estar roto. Ahora acusa recibo diciendo a qué
   hora salió a Calidad.

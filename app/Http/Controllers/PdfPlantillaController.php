@@ -3,14 +3,19 @@
 namespace App\Http\Controllers;
 
 use App\Models\PdfPlantilla;
+use App\Exceptions\IaException;
+use App\Services\PdfPlantillaIaService;
+use App\Services\PdfPlantillaRenderer;
 use App\Services\PdfVariablesEngine;
-use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Support\Marca;
 
 class PdfPlantillaController extends Controller
 {
+    /** Si la vista previa encontró un registro real o solo tiene los datos de la empresa. */
+    private bool $hayRegistro = false;
+
     private static function modulos(): array
     {
         return config('pdf_modulos', []);
@@ -71,27 +76,51 @@ class PdfPlantillaController extends Controller
         ]);
     }
 
-    public function store(Request $request)
+    /** Las reglas de lo que dibuja la plantilla; las comparten guardar y la vista previa. */
+    private static function reglasDiseno(): array
     {
-        $data = $request->validate([
-            'modulo'         => 'required|string|max:80',
-            'nombre'         => 'required|string|max:200',
-            'descripcion'    => 'nullable|string',
+        return [
             'html'           => 'nullable|string',
+            'html_header'    => 'nullable|string',
+            'html_footer'    => 'nullable|string',
             'bloques_header' => 'nullable|array',
             'bloques_body'   => 'nullable|array',
             'bloques_footer' => 'nullable|array',
             'modo_editor'    => 'nullable|in:visual,codigo',
-            'config_tabla'   => 'nullable|array',
-            'papel'          => 'required|in:a4,a5,a3,letter,legal,half-letter,etiqueta-10x13,etiqueta-10x15,ticket-80,tarjeta,personalizado',
+            'papel'          => 'required|in:' . implode(',', PdfPlantillaRenderer::PAPELES),
             'orientacion'    => 'required|in:portrait,landscape',
-            'es_default'     => 'boolean',
             'ancho_mm'       => 'nullable|integer|min:50|max:500',
             'alto_mm'        => 'nullable|integer|min:50|max:700',
+            'alto_header_mm' => 'nullable|integer|min:5|max:120',
+            'alto_footer_mm' => 'nullable|integer|min:5|max:120',
+            'margen_mm'      => 'nullable|integer|min:0|max:40',
+        ];
+    }
+
+    /** `html` es NOT NULL en la tabla: en modo visual llega vacío y el middleware lo vuelve null. */
+    private static function normalizar(array $data): array
+    {
+        $data['html'] = $data['html'] ?? '';
+        foreach (['alto_header_mm' => 25, 'alto_footer_mm' => 15, 'margen_mm' => 12] as $k => $def) {
+            if (array_key_exists($k, $data) && $data[$k] === null) $data[$k] = $def;
+        }
+        return $data;
+    }
+
+    public function store(Request $request)
+    {
+        $data = $request->validate([
+            'modulo'      => 'required|string|max:80',
+            'nombre'      => 'required|string|max:200',
+            'descripcion' => 'nullable|string',
+            'config_tabla'=> 'nullable|array',
+            'es_default'  => 'boolean',
+            ...static::reglasDiseno(),
         ]);
+        abort_unless(isset(static::modulos()[$data['modulo']]), 422);
         $data['creado_por'] = auth()->id();
 
-        $plantilla = PdfPlantilla::create($data);
+        $plantilla = PdfPlantilla::create(static::normalizar($data));
 
         if ($plantilla->es_default) {
             $plantilla->marcarComoDefault();
@@ -103,23 +132,15 @@ class PdfPlantillaController extends Controller
     public function update(Request $request, PdfPlantilla $plantilla)
     {
         $data = $request->validate([
-            'nombre'         => 'required|string|max:200',
-            'descripcion'    => 'nullable|string',
-            'html'           => 'nullable|string',
-            'bloques_header' => 'nullable|array',
-            'bloques_body'   => 'nullable|array',
-            'bloques_footer' => 'nullable|array',
-            'modo_editor'    => 'nullable|in:visual,codigo',
-            'config_tabla'   => 'nullable|array',
-            'papel'          => 'required|in:a4,a5,a3,letter,legal,half-letter,etiqueta-10x13,etiqueta-10x15,ticket-80,tarjeta,personalizado',
-            'orientacion'    => 'required|in:portrait,landscape',
-            'es_default'     => 'boolean',
-            'activa'         => 'boolean',
-            'ancho_mm'       => 'nullable|integer|min:50|max:500',
-            'alto_mm'        => 'nullable|integer|min:50|max:700',
+            'nombre'      => 'required|string|max:200',
+            'descripcion' => 'nullable|string',
+            'config_tabla'=> 'nullable|array',
+            'es_default'  => 'boolean',
+            'activa'      => 'boolean',
+            ...static::reglasDiseno(),
         ]);
 
-        $plantilla->update($data);
+        $plantilla->update(static::normalizar($data));
 
         if ($plantilla->fresh()->es_default) {
             $plantilla->marcarComoDefault();
@@ -151,69 +172,84 @@ class PdfPlantillaController extends Controller
         return response()->json(['plantilla' => $nueva]);
     }
 
-    private function aplicarPapel($pdf, string $papel, string $orientacion, ?int $anchMm, ?int $altoMm): void
-    {
-        $predefinidos = ['a4', 'a5', 'a3', 'letter', 'legal'];
-
-        if (in_array($papel, $predefinidos)) {
-            $pdf->setPaper($papel, $orientacion);
-            return;
-        }
-
-        $MM = 2.8346;
-        [$anchMmVal, $altoMmVal] = match($papel) {
-            'etiqueta-10x13' => [100, 130],
-            'etiqueta-10x15' => [100, 150],
-            'ticket-80'      => [80,  200],
-            'tarjeta'        => [85,   55],
-            'half-letter'    => [140, 216],
-            default          => [$anchMm ?? 210, $altoMm ?? 297], // personalizado
-        };
-
-        $anchoPt = (int) round($anchMmVal * $MM);
-        $altoPt  = (int) round($altoMmVal * $MM);
-
-        $pdf->getDomPDF()->setPaper([0, 0, $anchoPt, $altoPt], $orientacion);
-    }
-
     public function preview(Request $request)
     {
-        $request->validate([
-            'html'           => 'nullable|string',
-            'bloques_header' => 'nullable|array',
-            'bloques_body'   => 'nullable|array',
-            'bloques_footer' => 'nullable|array',
-            'modo_editor'    => 'nullable|in:visual,codigo',
-            'modulo'         => 'required|string',
-            'papel'          => 'nullable|string',
-            'orientacion'    => 'nullable|in:portrait,landscape',
-            'ancho_mm'       => 'nullable|integer|min:50|max:500',
-            'alto_mm'        => 'nullable|integer|min:50|max:700',
-            'registro_id'    => 'nullable|integer',
+        $p = $request->validate(['modulo' => 'required|string', 'registro_id' => 'nullable|integer', ...static::reglasDiseno()]);
+        $datos = $this->obtenerDatosPreview($p['modulo'], $request->registro_id);
+
+        return PdfPlantillaRenderer::pdf($p, $datos)->stream("preview-{$p['modulo']}.pdf");
+    }
+
+    /**
+     * Revisa la plantilla contra el último registro real del módulo: etiquetas mal
+     * cerradas y variables que no existen. Una variable que no existe sale vacía en
+     * el PDF, y sin esto nadie se entera hasta que un cliente pregunta por qué su
+     * cotización no tiene NIT.
+     */
+    public function validar(Request $request)
+    {
+        $p = $request->validate(['modulo' => 'required|string', 'registro_id' => 'nullable|integer', ...static::reglasDiseno()]);
+        $datos = $this->obtenerDatosPreview($p['modulo'], $request->registro_id);
+        $r = PdfPlantillaRenderer::html($p, $datos);
+
+        return response()->json([
+            'errores'      => $r['errores'],
+            'desconocidas' => $r['desconocidas'],
+            'con_datos'    => $this->hayRegistro,
         ]);
+    }
 
-        $modulo      = $request->modulo;
-        $orientacion = $request->orientacion ?? 'portrait';
-        $modoEditor  = $request->input('modo_editor', 'codigo');
+    /** Flujo B: el meta-prompt para pegar en una IA externa. */
+    public function metaPrompt(Request $request)
+    {
+        $p = $request->validate([
+            'modulo'      => 'required|string',
+            'instruccion' => 'nullable|string|max:4000',
+            'header'      => 'nullable|string',
+            'body'        => 'nullable|string',
+            'footer'      => 'nullable|string',
+            'incluir_actual' => 'boolean',
+        ]);
+        abort_unless(isset(static::modulos()[$p['modulo']]), 404);
 
-        if ($modoEditor === 'visual') {
-            $htmlCompleto = \App\Services\BloquesHtmlService::plantillaToHtml(
-                $request->input('bloques_header', []),
-                $request->input('bloques_body',   []),
-                $request->input('bloques_footer', [])
-            );
-        } else {
-            $htmlCompleto = $request->input('html', '');
+        $actual = ($p['incluir_actual'] ?? false)
+            ? ['header' => $p['header'] ?? '', 'body' => $p['body'] ?? '', 'footer' => $p['footer'] ?? '']
+            : [];
+
+        return response()->json([
+            'prompt' => PdfPlantillaIaService::metaPrompt($p['modulo'], $p['instruccion'] ?? '', $actual),
+        ]);
+    }
+
+    /** Reparte en encabezado, cuerpo y pie el HTML que devolvió una IA externa. */
+    public function separar(Request $request)
+    {
+        $request->validate(['texto' => 'required|string']);
+
+        return response()->json(PdfPlantillaIaService::separar($request->texto));
+    }
+
+    /** Flujo A: Briela genera o edita la plantilla. */
+    public function generarIa(Request $request, PdfPlantillaIaService $ia)
+    {
+        $p = $request->validate([
+            'modulo'      => 'required|string',
+            'instruccion' => 'required|string|max:4000',
+            'header'      => 'nullable|string',
+            'body'        => 'nullable|string',
+            'footer'      => 'nullable|string',
+        ]);
+        abort_unless(isset(static::modulos()[$p['modulo']]), 404);
+
+        try {
+            $partes = $ia->generar($p['modulo'], $p['instruccion'], [
+                'header' => $p['header'] ?? '', 'body' => $p['body'] ?? '', 'footer' => $p['footer'] ?? '',
+            ]);
+        } catch (IaException $e) {
+            return response()->json(['error' => $e->getMessage()], 422);
         }
 
-        $datos = $this->obtenerDatosPreview($modulo, $request->registro_id);
-
-        $htmlRenderizado = PdfVariablesEngine::render($htmlCompleto, $datos);
-
-        $pdf = Pdf::loadHtml($htmlRenderizado);
-        $this->aplicarPapel($pdf, $request->papel ?? 'a4', $orientacion, $request->ancho_mm, $request->alto_mm);
-
-        return $pdf->stream("preview-{$modulo}.pdf");
+        return response()->json($partes);
     }
 
     private function obtenerDatosPreview(string $modulo, ?int $registroId): array
@@ -228,14 +264,19 @@ class PdfPlantillaController extends Controller
                     ->find($registroId) ?? \App\Models\Remision::with(['op.cliente', 'items'])->latest()->first(),
                 'recibo_pago' => \App\Models\OpPago::with(['op.cliente', 'cuota', 'registradoPor'])
                     ->find($registroId) ?? \App\Models\OpPago::with(['op.cliente', 'cuota', 'registradoPor'])->latest()->first(),
-                default => null,
+                default => ($cls = static::modulos()[$modulo]['modelo'] ?? null)
+                    ? ($cls::find($registroId) ?? $cls::latest()->first())
+                    : null,
             };
         } catch (\Throwable) {
             $registro = null;
         }
 
+        $this->hayRegistro = (bool) $registro;
+
         if (!$registro) {
-            return ['empresa' => ['nombre' => config('app.name'), 'nit' => '', 'ciudad' => 'Bogotá', 'tel' => '']];
+            // Sin registros todavía: al menos los datos de la empresa resuelven.
+            return PdfVariablesEngine::prepararDatos('__vacio__', null);
         }
 
         return PdfVariablesEngine::prepararDatos($modulo, $registro);
@@ -243,18 +284,30 @@ class PdfPlantillaController extends Controller
 
     private function htmlBase(string $modulo): string
     {
-        $label = strtoupper($modulo);
+        $label = mb_strtoupper(static::modulos()[$modulo]['label'] ?? $modulo);
+
+        // Lo propio de la cotización (vendedor, totales, condiciones) solo va en la
+        // cotización: en otro módulo serían variables que no existen.
+        $esCotizacion = $modulo === 'cotizacion';
+
+        $html = preg_replace(
+            $esCotizacion ? '/<!--\/?COT-->\n?/' : '/<!--COT-->.*?<!--\/COT-->\n?/s', '', static::HTML_BASE
+        );
 
         return str_replace(
-            ['__MODULO__', '__COLOR__'],
-            [$label, Marca::color()],
-            <<<'TEMPLATE'
+            ['__MODULO__', '__COLOR__', '__P__'],
+            [$label, Marca::color(), PdfVariablesEngine::prefijo($modulo)],
+            $html
+        );
+    }
+
+    private const HTML_BASE = <<<'TEMPLATE'
 <!DOCTYPE html>
 <html>
 <head>
 <meta charset="utf-8"/>
 <style>
-  body { font-family: Arial, sans-serif; font-size: 10px; color: #1a1a1a; margin: 0; padding: 20px; }
+  body { font-family: DejaVu Sans, Arial, sans-serif; font-size: 10px; color: #1a1a1a; }
   .header { border-bottom: 2px solid __COLOR__; padding-bottom: 12px; margin-bottom: 16px; display: table; width: 100%; }
   .header-left { display: table-cell; vertical-align: middle; }
   .header-right { display: table-cell; text-align: right; vertical-align: middle; }
@@ -280,8 +333,8 @@ class PdfPlantillaController extends Controller
     <p style="margin:0;color:#666;">NIT: {{empresa.nit}} | {{empresa.ciudad}}</p>
   </div>
   <div class="header-right">
-    <div class="badge">__MODULO__ {{cotizacion.numero}}</div>
-    <p style="margin:4px 0 0;color:#666;">Fecha: {{cotizacion.fecha|fecha}}</p>
+    <div class="badge">__MODULO__ {{__P__.numero}}</div>
+    <p style="margin:4px 0 0;color:#666;">Fecha: {{__P__.created_at|fecha}}</p>
   </div>
 </div>
 
@@ -291,10 +344,12 @@ class PdfPlantillaController extends Controller
     <p class="value">{{cliente.nombre}}</p>
     <p>{{cliente.ciudad}} | {{cliente.celular}}</p>
   </div>
+<!--COT-->
   <div class="info-col" style="text-align:right;">
     <p class="label">VENDEDOR</p>
     <p class="value">{{vendedor.nombre}}</p>
   </div>
+<!--/COT-->
 </div>
 
 <table>
@@ -308,18 +363,19 @@ class PdfPlantillaController extends Controller
     </tr>
   </thead>
   <tbody>
-    {{#items}}
+    {{#each items}}
     <tr>
-      <td>{{index}}</td>
+      <td>{{@numero}}</td>
       <td>{{descripcion}}</td>
       <td style="text-align:right;">{{cantidad}}</td>
       <td style="text-align:right;">{{precio_unitario|moneda}}</td>
       <td style="text-align:right;">{{total_linea|moneda}}</td>
     </tr>
-    {{/items}}
+    {{/each}}
   </tbody>
 </table>
 
+<!--COT-->
 <div class="totales">
   <p>Subtotal: <strong>{{cotizacion.subtotal|moneda}}</strong></p>
   <p>Descuento: <strong>{{cotizacion.descuento_total|moneda}}</strong></p>
@@ -332,6 +388,7 @@ class PdfPlantillaController extends Controller
   <p>{{cotizacion.condiciones}}</p>
 </div>
 {{/if}}
+<!--/COT-->
 
 <div class="footer">
   Documento generado por {{empresa.nombre}}
@@ -339,6 +396,5 @@ class PdfPlantillaController extends Controller
 
 </body>
 </html>
-TEMPLATE);
-    }
+TEMPLATE;
 }

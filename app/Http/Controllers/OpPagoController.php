@@ -53,6 +53,13 @@ class OpPagoController extends Controller
 
     public function pdf(OpPago $pago)
     {
+        $pdf = \App\Services\PdfPlantillaRenderer::paraRegistro(
+            'recibo_pago', $pago, request()->integer('plantilla_id') ?: null
+        );
+        if ($pdf) {
+            return $pdf->download("REC-{$pago->numero_recibo}.pdf");
+        }
+
         $pago->load('op.cliente', 'cuota', 'registradoPor');
 
         $pdf = Pdf::loadView('pdf.recibo-pago', ['pago' => $pago])

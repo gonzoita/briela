@@ -9,7 +9,8 @@ class PdfPlantilla extends Model
     protected $table = 'pdf_plantillas';
 
     protected $fillable = [
-        'modulo', 'nombre', 'descripcion', 'html',
+        'modulo', 'nombre', 'descripcion', 'html', 'html_header', 'html_footer',
+        'alto_header_mm', 'alto_footer_mm', 'margen_mm',
         'bloques_header', 'bloques_body', 'bloques_footer', 'modo_editor',
         'config_tabla', 'papel', 'orientacion', 'ancho_mm', 'alto_mm',
         'es_default', 'activa', 'creado_por',

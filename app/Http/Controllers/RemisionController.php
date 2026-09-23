@@ -329,6 +329,14 @@ class RemisionController extends Controller
 
     public function generarPdf(Remision $remision)
     {
+        // Plantilla PDF personalizada, si la empresa hizo una para remisiones.
+        $pdf = \App\Services\PdfPlantillaRenderer::paraRegistro(
+            'remision', $remision, request()->integer('plantilla_id') ?: null
+        );
+        if ($pdf) {
+            return $pdf->stream("remision-{$remision->numero}.pdf");
+        }
+
         $remision->load(['op:id,numero', 'cliente', 'items.opItem', 'creadoPor:id,name']);
 
         $pdf = Pdf::loadView('pdf.remision', ['remision' => $remision])

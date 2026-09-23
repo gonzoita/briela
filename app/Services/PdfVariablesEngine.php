@@ -3,19 +3,15 @@
 namespace App\Services;
 
 use App\Contracts\PdfExportable;
-use Carbon\Carbon;
 use Illuminate\Support\Facades\Schema;
 
 class PdfVariablesEngine
 {
     // ─── RENDER PRINCIPAL ─────────────────────────────────────────────────────
+    /** Ver PdfPlantillaMotor: la sintaxis completa y por qué dejó de ser reemplazo de texto. */
     public static function render(string $html, array $datos): string
     {
-        $html = static::reemplazarQR($html, $datos);
-        $html = static::reemplazarCondicionales($html, $datos);
-        $html = static::reemplazarTablas($html, $datos);
-        $html = static::reemplazarVariables($html, $datos);
-        return $html;
+        return PdfPlantillaMotor::render($html, $datos);
     }
 
     // ─── PREPARAR DATOS DESDE MODELO ──────────────────────────────────────────
@@ -144,19 +140,23 @@ class PdfVariablesEngine
                 break;
 
             case 'remision':
-                $registro->loadMissing(['op.cliente', 'items']);
+                $registro->loadMissing(['op.cliente', 'cliente', 'items.opItem']);
                 $datos = array_merge($datos, static::aplanarModelo($registro, 'remision'));
 
-                if ($registro->op?->cliente) {
-                    $datos = array_merge($datos, static::aplanarModelo($registro->op->cliente, 'cliente'));
+                // La remisión guarda su propio cliente; el de la OP es el respaldo.
+                $cliente = $registro->cliente ?? $registro->op?->cliente;
+                if ($cliente) {
+                    $datos = array_merge($datos, static::aplanarModelo($cliente, 'cliente'));
                 }
                 $datos['op.numero'] = $registro->op?->numero ?? '';
 
-                $datos['items'] = ($registro->items ?? collect())->map(fn ($item, $i) => [
+                $datos['items'] = ($registro->items ?? collect())->values()->map(fn ($item, $i) => [
                     'index'       => $i + 1,
-                    'descripcion' => $item->descripcion ?? $item->opItem?->descripcion ?? '',
+                    'descripcion' => $item->descripcion ?: ($item->opItem?->descripcion ?? ''),
                     'cantidad'    => $item->cantidad ?? 1,
-                    'serie'       => $item->opItem?->numero_serie ?? '',
+                    'unidad'      => $item->unidad ?? '',
+                    'serie'       => $item->numero_serie ?: ($item->opItem?->numero_serie ?? ''),
+                    'notas'       => $item->notas ?? '',
                 ])->toArray();
                 break;
 
@@ -236,8 +236,23 @@ class PdfVariablesEngine
             'tel'       => \App\Models\Configuracion::get('empresa_telefono', ''),
             'email'     => \App\Models\Configuracion::get('empresa_email', ''),
             'direccion' => \App\Models\Configuracion::get('empresa_direccion', ''),
-            'logo_url'  => \App\Models\Configuracion::get('empresa_logo_url', ''),
+            // dompdf no descarga imágenes por URL: el logo va incrustado. Con la URL
+            // pública, `<img src="{{empresa.logo_url}}">` salía como un cuadro vacío.
+            'logo_url'  => static::logoIncrustado(),
         ];
+    }
+
+    private static function logoIncrustado(): string
+    {
+        $ruta = \App\Support\Marca::logoPath();
+        if (! $ruta || ! is_file($ruta)) {
+            return '';
+        }
+        $mime = match (strtolower(pathinfo($ruta, PATHINFO_EXTENSION))) {
+            'png' => 'image/png', 'webp' => 'image/webp', 'svg' => 'image/svg+xml', 'gif' => 'image/gif',
+            default => 'image/jpeg',
+        };
+        return 'data:' . $mime . ';base64,' . base64_encode((string) file_get_contents($ruta));
     }
 
     private static function resolverImagenItem(object $item): string
@@ -263,35 +278,6 @@ class PdfVariablesEngine
     }
 
     // ─── RENDER INTERNO ───────────────────────────────────────────────────────
-
-    private static function reemplazarQR(string $html, array $datos): string
-    {
-        preg_match_all('/\{\{qr:([^}]+)\}\}/', $html, $matches, PREG_SET_ORDER);
-        foreach ($matches as $match) {
-            $expresion     = trim($match[1]);
-            $bloqueCompleto = $match[0];
-            $valor          = $datos[$expresion] ?? $expresion;
-
-            if (!$valor) {
-                $html = str_replace($bloqueCompleto, '', $html);
-                continue;
-            }
-
-            try {
-                $qrBase64 = base64_encode(
-                    \SimpleSoftwareIO\QrCode\Facades\QrCode::format('png')
-                        ->size(150)
-                        ->generate($valor)
-                );
-                $imgTag = "<img src=\"data:image/png;base64,{$qrBase64}\" style=\"width:80px;height:80px;\"/>";
-            } catch (\Throwable) {
-                $imgTag = '';
-            }
-
-            $html = str_replace($bloqueCompleto, $imgTag, $html);
-        }
-        return $html;
-    }
 
     private static function imagenBase64(object $item): string
     {
@@ -333,111 +319,27 @@ class PdfVariablesEngine
         return $resultado;
     }
 
-    public static function reemplazarVariables(string $html, array $datos): string
-    {
-        foreach ($datos as $clave => $valor) {
-            if (is_array($valor) || is_object($valor)) continue;
-            $valor   = (string) ($valor ?? '');
-            $escaped = preg_quote($clave, '/');
-
-            // {{campo|moneda}}
-            $html = preg_replace(
-                "/\{\{{$escaped}\|moneda\}\}/u",
-                '$' . number_format((float) $valor, 0, ',', '.'),
-                $html
-            );
-            // {{campo|fecha}}
-            try {
-                $fechaFmt = $valor ? Carbon::parse($valor)->format('d/m/Y') : '';
-            } catch (\Throwable) {
-                $fechaFmt = $valor;
-            }
-            $html = preg_replace("/\{\{{$escaped}\|fecha\}\}/u", $fechaFmt, $html);
-
-            // {{campo|upper}} / {{campo|lower}}
-            $html = preg_replace("/\{\{{$escaped}\|upper\}\}/u", mb_strtoupper($valor), $html);
-            $html = preg_replace("/\{\{{$escaped}\|lower\}\}/u", mb_strtolower($valor), $html);
-
-            // {{!campo}} — sin escape HTML
-            $html = str_replace("{{!{$clave}}}", $valor, $html);
-
-            // {{campo}} — con escape HTML
-            $html = str_replace("{{{$clave}}}", htmlspecialchars($valor, ENT_QUOTES, 'UTF-8'), $html);
-        }
-        return $html;
-    }
-
-    private static function reemplazarTablas(string $html, array $datos): string
-    {
-        preg_match_all('/\{\{#(\w+)\}\}(.*?)\{\{\/\1\}\}/su', $html, $matches, PREG_SET_ORDER);
-
-        foreach ($matches as $match) {
-            $nombreBloque   = $match[1];
-            $plantillaFila  = $match[2];
-            $bloqueCompleto = $match[0];
-
-            $coleccion = $datos[$nombreBloque] ?? [];
-            if (empty($coleccion)) {
-                $html = str_replace($bloqueCompleto, '', $html);
-                continue;
-            }
-
-            $filasHtml = '';
-            foreach ($coleccion as $fila) {
-                $filaHtml = $plantillaFila;
-                foreach ((array) $fila as $campo => $valor) {
-                    if (is_array($valor) || is_object($valor)) continue;
-                    $valor   = (string) ($valor ?? '');
-                    $escaped = preg_quote($campo, '/');
-
-                    $filaHtml = preg_replace(
-                        "/\{\{{$escaped}\|moneda\}\}/u",
-                        '$' . number_format((float) $valor, 0, ',', '.'),
-                        $filaHtml
-                    );
-                    try {
-                        $fechaFmt = $valor ? Carbon::parse($valor)->format('d/m/Y') : '';
-                    } catch (\Throwable) {
-                        $fechaFmt = $valor;
-                    }
-                    $filaHtml = preg_replace("/\{\{{$escaped}\|fecha\}\}/u", $fechaFmt, $filaHtml);
-                    $filaHtml = str_replace("{{!{$campo}}}", $valor, $filaHtml);
-                    $filaHtml = str_replace(
-                        "{{{$campo}}}",
-                        htmlspecialchars($valor, ENT_QUOTES, 'UTF-8'),
-                        $filaHtml
-                    );
-                }
-                $filasHtml .= $filaHtml;
-            }
-            $html = str_replace($bloqueCompleto, $filasHtml, $html);
-        }
-
-        return $html;
-    }
-
-    private static function reemplazarCondicionales(string $html, array $datos): string
-    {
-        preg_match_all('/\{\{#if (\S+)\}\}(.*?)\{\{\/if\}\}/su', $html, $matches, PREG_SET_ORDER);
-
-        foreach ($matches as $match) {
-            $variable       = $match[1];
-            $contenido      = $match[2];
-            $bloqueCompleto = $match[0];
-
-            $valor = $datos[$variable] ?? null;
-            $html  = str_replace($bloqueCompleto, $valor ? $contenido : '', $html);
-        }
-
-        return $html;
-    }
-
     // ─── VARIABLES DISPONIBLES PARA EL EDITOR ─────────────────────────────────
+
+    /** El prefijo con que prepararDatos() publica los campos de cada módulo. */
+    public const PREFIJOS = ['recibo_pago' => 'pago'];
+
+    public static function prefijo(string $modulo): string
+    {
+        return static::PREFIJOS[$modulo] ?? $modulo;
+    }
+
+    /**
+     * El diccionario del editor: cada variable con su grupo y descripción.
+     *
+     * Sale de las MISMAS fuentes que prepararDatos(): las columnas reales de la
+     * tabla y las claves armadas a mano. Lo que aquí aparece, resuelve al generar;
+     * el botón «Validar» del editor lo comprueba contra un registro real.
+     */
     public static function variablesDisponibles(string $modulo): array
     {
         $variables = [];
 
-        // Auto-descubrir columnas de la BD
         $tablaMap = [
             'cotizacion'   => 'cotizaciones',
             'op'           => 'ops',
@@ -451,29 +353,25 @@ class PdfVariablesEngine
             'mantenimiento'=> 'mantenimientos',
         ];
 
-        if (isset($tablaMap[$modulo])) {
-            $tabla = $tablaMap[$modulo];
-            if (Schema::hasTable($tabla)) {
-                $excluir = ['id', 'created_at', 'updated_at', 'deleted_at',
-                            'token_publico', 'password', 'remember_token',
-                            'variables_snapshot', 'componentes_snapshot',
-                            'variables_instancia', 'imagenes_instancia'];
+        $prefijo = static::prefijo($modulo);
+        if (isset($tablaMap[$modulo]) && Schema::hasTable($tablaMap[$modulo])) {
+            $excluir = ['id', 'deleted_at', 'token_publico', 'password', 'remember_token',
+                        'variables_snapshot', 'componentes_snapshot',
+                        'variables_instancia', 'imagenes_instancia'];
 
-                foreach (Schema::getColumnListing($tabla) as $col) {
-                    if (in_array($col, $excluir) || str_ends_with($col, '_id')) continue;
-                    $variables[] = [
-                        'var'   => "{{{$modulo}.{$col}}}",
-                        'desc'  => ucfirst(str_replace('_', ' ', $col)),
-                        'auto'  => true,
-                        'grupo' => 'Campos del módulo',
-                    ];
-                }
+            foreach (Schema::getColumnListing($tablaMap[$modulo]) as $col) {
+                if (in_array($col, $excluir) || str_ends_with($col, '_id')) continue;
+                $variables[] = [
+                    'var'   => "{{{$prefijo}.{$col}}}",
+                    'desc'  => ucfirst(str_replace('_', ' ', $col)),
+                    'auto'  => true,
+                    'grupo' => 'Campos del módulo',
+                ];
             }
         }
 
-        $variables = array_merge($variables, static::variablesExtras($modulo));
+        $variables = array_merge($variables, static::variablesEmpresa(), static::variablesExtras($modulo));
 
-        // Mejora 3 — Variables de módulos relacionados
         $relacionados = config("pdf_modulos.{$modulo}.relacionados", []);
         foreach ($relacionados as $moduloRel) {
             $label = config("pdf_modulos.{$moduloRel}.label") ?? $moduloRel;
@@ -483,16 +381,46 @@ class PdfVariablesEngine
             }
         }
 
-        // Mejora 4 — Variables QR universales
         $variables = array_merge($variables, [
-            ['var' => '{{qr:op.numero}}',          'desc' => 'QR del número de OP',         'grupo' => 'QR Codes'],
-            ['var' => '{{qr:cotizacion.numero}}',  'desc' => 'QR del número de cotización', 'grupo' => 'QR Codes'],
-            ['var' => '{{qr:remision.numero}}',    'desc' => 'QR del número de remisión',   'grupo' => 'QR Codes'],
-            ['var' => '{{qr:numero_serie}}',       'desc' => 'QR del número de serie',      'grupo' => 'QR Codes'],
-            ['var' => '{{qr:URL_COMPLETA}}',       'desc' => 'QR de URL personalizada (reemplazar URL_COMPLETA)', 'grupo' => 'QR Codes'],
-        ]);
+            ['var' => "{{qr:{$prefijo}.numero}}",   'desc' => 'Código QR del número del documento', 'grupo' => 'QR'],
+            ['var' => '{{qr:https://…}}',            'desc' => 'Código QR de un texto o URL escrito a mano', 'grupo' => 'QR'],
+        ], static::variablesEstructura());
 
-        return $variables;
+        // Una variable repetida en dos grupos confunde más de lo que ayuda: gana la primera.
+        return collect($variables)->unique('var')->values()->all();
+    }
+
+    /** Los datos de la empresa: los mismos en todos los módulos. */
+    private static function variablesEmpresa(): array
+    {
+        return array_map(fn ($c) => ['var' => "{{empresa.{$c[0]}}}", 'desc' => $c[1], 'grupo' => 'Empresa'], [
+            ['nombre', 'Nombre de la empresa'], ['nit', 'NIT'], ['direccion', 'Dirección'],
+            ['ciudad', 'Ciudad'], ['tel', 'Teléfono'], ['email', 'Correo'],
+            ['logo_url', 'URL del logo (para <img src>)'], ['color', 'Color de marca (hex)'],
+        ]);
+    }
+
+    /** Estructura, sintaxis y filtros: lo que no es un dato pero se escribe igual. */
+    public static function variablesEstructura(): array
+    {
+        $filtros = array_map(
+            fn ($f, $d) => ['var' => "|{$f}", 'desc' => $d, 'grupo' => 'Filtros (se agregan a una variable)'],
+            array_keys(PdfPlantillaMotor::FILTROS), PdfPlantillaMotor::FILTROS
+        );
+
+        return [
+            ['var' => '{{salto_pagina}}',   'desc' => 'Empieza una página nueva aquí',            'grupo' => 'Página'],
+            ['var' => '{{pagina}}',         'desc' => 'Número de la página actual (en el pie)',   'grupo' => 'Página'],
+            ['var' => '{{total_paginas}}',  'desc' => 'Total de páginas del documento',           'grupo' => 'Página'],
+            ['var' => '{{#each items}}...{{/each}}',   'desc' => 'Repite por cada fila de la lista', 'grupo' => 'Lógica'],
+            ['var' => '{{#if variable}}...{{else}}...{{/if}}', 'desc' => 'Muestra solo si hay valor (0, vacío = no)', 'grupo' => 'Lógica'],
+            ['var' => '{{#if variable == "valor"}}...{{/if}}', 'desc' => 'Compara: ==, !=, >, <, >=, <=', 'grupo' => 'Lógica'],
+            ['var' => '{{#unless variable}}...{{/unless}}',   'desc' => 'Muestra solo si NO hay valor', 'grupo' => 'Lógica'],
+            ['var' => '{{@numero}}',  'desc' => 'Nº de la fila, desde 1 (dentro de #each)', 'grupo' => 'Lógica'],
+            ['var' => '{{#if @last}}...{{/if}}', 'desc' => 'Solo en la última fila (también @first)', 'grupo' => 'Lógica'],
+            ['var' => '{{!variable}}', 'desc' => 'Sin escapar: para imágenes base64 o HTML guardado', 'grupo' => 'Lógica'],
+            ...$filtros,
+        ];
     }
 
     private static function variablesExtras(string $modulo): array
