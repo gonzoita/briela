@@ -391,6 +391,13 @@ Plan completo en `docs/BRIELA-PLAN.md` sección 7.
 | 5 | El botón de actualizar (zip firmado) + rollback | pendiente |
 | 6 | Cobros recurrentes | pendiente |
 
+**Cierre obligatorio de toda tarea** (decidido el 23 sep 2026): al terminar un cambio, sin
+preguntar, siempre las tres cosas: (1) actualizar el grafo (`python -m graphify update . --force`
+y luego `cluster-only .` con `GRAPHIFY_VIZ_NODE_LIMIT=10000`), (2) commit y `git push` de la rama
+de trabajo, y (3) deploy: llevar el cambio a `main` sin reescribir historia y hacer
+`git push origin main`, que es lo que dispara el despliegue en `sistema.briela.app`. Antes de
+subir a `main`, las pruebas y el build (`npm run build`) tienen que estar en verde.
+
 **Hasta que el usuario declare la primera versión, se despliega directo:** el servidor jala de
 GitHub por cron y no hay paquetes ni actualizador. Ver `docs/manual/deploy-automatico.md`. Y
 comprometer no es desplegar — sin `git push` el cambio no sale de la PC.
