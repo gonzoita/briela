@@ -32,15 +32,27 @@ necesite composer ni Node— y **no lleva** `.env`, `docs/`, `CLAUDE.md`, `tests
 las de `vendor/`, que composer deja cuando instala desde el repositorio). La 1.0.0
 salió con 52.060 archivos y 80 MB.
 
-Después subes el ZIP a tu origen de descargas (por defecto el instalador lo busca
-en `https://briela.app/descargas/`).
+Después lo publicas en el **superadmin**, que es de donde lo bajan tanto las
+instalaciones nuevas como las que se actualizan:
+
+1. `superadmin.briela.app` → **Versiones** → **Nueva versión**.
+2. Número (`1.0.0`), las notas de la versión —las del `CHANGELOG.md`— y el ZIP.
+   Queda como borrador: ninguna instalación la ve todavía.
+3. **Publicar**. Desde ese momento es la que entrega el instalador y la que el
+   botón de actualizar les ofrece a las instalaciones anteriores.
+
+El instalador la pide con `POST /api/instalador/descargar` y el serial del cliente;
+el actualizador, con `POST /api/actualizacion/{numero}/descargar`. Las dos rutas
+exigen un serial que exista y esté al día: el paquete no vive en ninguna carpeta
+pública, y por eso una licencia cortada deja de poder descargarlo.
 
 ### Cómo lo instala el cliente
 
 1. En su panel de hosting, crea el subdominio apuntando a una carpeta **`public`**
    (por ejemplo `sistema/public`).
 2. Sube **solo `instalar.php`** (20 KB) a esa carpeta `public`.
-3. Abre `https://su-dominio/instalar.php`, escribe su código y espera.
+3. Abre `https://su-dominio/instalar.php`, escribe su serial (`BRL-XXXX-XXXX-XXXX`,
+   creado antes en el superadmin) y espera.
 
 El instalador revisa el servidor, descarga el paquete, lo descomprime **por
 tandas** con barra de progreso, crea el `.env` con una llave de cifrado propia de

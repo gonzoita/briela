@@ -23,8 +23,12 @@ declare(strict_types=1);
 
 // ─── Ajustes ────────────────────────────────────────────────────────────────
 
-/** De dónde se descarga el paquete. El código se agrega como parámetro. */
-const ORIGEN = 'https://briela.app/descargas/';
+/**
+ * De dónde se descarga el paquete: el superadmin, que entrega la última versión
+ * publicada si el código (el serial) existe y está al día. No es una carpeta
+ * pública, para que una licencia cortada no pueda seguir descargando.
+ */
+const ORIGEN = 'https://superadmin.briela.app/api/instalador/descargar';
 
 /** Archivos por tanda al descomprimir. Bajarlo si el hosting corta la petición. */
 const POR_TANDA = 600;
@@ -182,7 +186,10 @@ function descargar(string $codigo, string $zipRuta, string $estado): array
                 'tamano' => filesize($zipRuta), 'descargado' => false];
     }
 
-    $url = ORIGEN . 'briela.zip?codigo=' . urlencode($codigo);
+    // El serial va en el cuerpo y no en la URL: una URL queda escrita en los
+    // registros de cada servidor por el que pasa.
+    $url    = ORIGEN;
+    $cuerpo = http_build_query(['serial' => $codigo]);
 
     $destino = @fopen($zipRuta, 'wb');
     if (! $destino) {
@@ -193,6 +200,8 @@ function descargar(string $codigo, string $zipRuta, string $estado): array
         $ch = curl_init($url);
         curl_setopt_array($ch, [
             CURLOPT_FILE           => $destino,
+            CURLOPT_POST           => true,
+            CURLOPT_POSTFIELDS     => $cuerpo,
             CURLOPT_FOLLOWLOCATION => true,
             CURLOPT_TIMEOUT        => 600,
             CURLOPT_FAILONERROR    => true,
@@ -209,12 +218,18 @@ function descargar(string $codigo, string $zipRuta, string $estado): array
 
             return ['ok' => false, 'mensaje' => match (true) {
                 $codigoHttp === 403, $codigoHttp === 401 => 'El código no es válido o no tiene una licencia activa.',
-                $codigoHttp === 404                      => 'No se encontró el paquete en el servidor de Briela.',
+                $codigoHttp === 404                      => 'Todavía no hay una versión publicada en el servidor de Briela.',
+                $codigoHttp === 429                      => 'Demasiados intentos con un código equivocado. Espera un minuto.',
                 default                                  => 'Falló la descarga: ' . ($error ?: 'error ' . $codigoHttp),
             }];
         }
     } else {
-        $origen = @fopen($url, 'rb');
+        $origen = @fopen($url, 'rb', false, stream_context_create(['http' => [
+            'method'  => 'POST',
+            'header'  => "Content-Type: application/x-www-form-urlencoded\r\nUser-Agent: Briela Installer\r\n",
+            'content' => $cuerpo,
+            'timeout' => 600,
+        ]]));
         if (! $origen) {
             fclose($destino);
             @unlink($zipRuta);
