@@ -84,7 +84,10 @@ async function guardarCosto(item) {
 // sola, eso es entrar y salir cincuenta veces: por eso la selección vive aquí.
 //
 // Las variantes no se seleccionan: sale el padre y las variantes van con él.
-const puedeEditarProductos = computed(() => (page.props.auth?.permisosLista ?? []).includes('productos.editar'))
+const puedeEditarProductos   = computed(() => (page.props.auth?.permisosLista ?? []).includes('productos.editar'))
+const puedeEliminarProductos = computed(() => (page.props.auth?.permisosLista ?? []).includes('productos.eliminar'))
+// La misma selección sirve para publicar y para eliminar: se muestra si hay algo que hacer con ella.
+const puedeSeleccionar = computed(() => puedeEditarProductos.value || puedeEliminarProductos.value)
 
 const {
     seleccion,
@@ -95,6 +98,49 @@ const {
     limpiar: limpiarSeleccion,
     publicar: publicarSeleccion,
 } = usePublicacionWeb('producto', productosLocal)
+
+// ── Eliminar varios de una vez ─────────────────────────────────────────────────
+//
+// «Seleccionar todos» marca los de esta página. Para vaciar un catálogo de doscientos
+// productos eso son diecisiete vueltas, así que con la página entera marcada se ofrece
+// ampliar a todos los que cumplen el filtro — y ahí no viajan ids sino los filtros, y el
+// servidor borra exactamente lo que el listado estaba mostrando.
+const todosDelFiltro = ref(false)
+const eliminando     = ref(false)
+const totalFiltro    = computed(() => props.productos?.total ?? 0)
+const hayMasPaginas  = computed(() => totalFiltro.value > productosLocal.value.length)
+const cuantosSeleccionados = computed(() => todosDelFiltro.value ? totalFiltro.value : seleccion.value.size)
+
+// Tocar la selección a mano cancela el «todos los del filtro»: si no, desmarcar uno dejaría
+// la barra diciendo que se van a borrar todos.
+watch(seleccion, () => { todosDelFiltro.value = false })
+
+function quitarSeleccion() {
+    todosDelFiltro.value = false
+    limpiarSeleccion()
+}
+
+function eliminarSeleccion() {
+    const n = cuantosSeleccionados.value
+    if (! n || eliminando.value) return
+
+    const texto = n === 1 ? 'este producto' : `estos ${n} productos`
+    if (! confirm(`¿Eliminar ${texto}?\n\nLos que tienen variantes se llevan sus variantes. `
+        + 'Las cotizaciones y órdenes que ya los usaron los siguen mostrando.')) return
+
+    eliminando.value = true
+    router.post('/productos/eliminar',
+        // Los filtros que el servidor aplicó, no `form`: el buscador puede tener texto escrito
+        // y todavía sin aplicar, y eso borraría algo distinto de lo que se está viendo.
+        todosDelFiltro.value
+            ? { ...(props.filters ?? {}), todos_del_filtro: true }
+            : { ids: [...seleccion.value] },
+        {
+            preserveScroll: true,
+            onSuccess: () => quitarSeleccion(),
+            onFinish:  () => { eliminando.value = false },
+        })
+}
 
 // ── Expandir/colapsar padres con variantes ─────────────────────────────────────
 const padresExpandidos = ref(new Set())
@@ -446,7 +492,7 @@ const precioMostrar = (p) => {
             <table class="w-full text-sm">
                 <thead>
                     <tr style="background:var(--superficie-2); border-bottom:1px solid var(--borde);">
-                        <th v-if="puedeEditarProductos" class="px-3 py-3 w-10">
+                        <th v-if="puedeSeleccionar" class="px-3 py-3 w-10">
                             <input type="checkbox" :checked="todosMarcados" @change="alternarTodos"
                                 class="w-4 h-4 rounded border-tinta-300 cursor-pointer"
                                 title="Seleccionar todos los de esta página" />
@@ -473,7 +519,7 @@ const precioMostrar = (p) => {
                         @click="p.es_padre ? toggleExpandido(p.id) : router.visit(`/productos/${p.id}`)"
                     >
                         <!-- Selección para publicar en la web -->
-                        <td v-if="puedeEditarProductos" class="px-3 py-2.5" @click.stop>
+                        <td v-if="puedeSeleccionar" class="px-3 py-2.5" @click.stop>
                             <input type="checkbox" :checked="seleccion.has(p.id)" @change="alternarSeleccion(p.id)"
                                 class="w-4 h-4 rounded border-tinta-300 cursor-pointer" />
                         </td>
@@ -568,7 +614,7 @@ const precioMostrar = (p) => {
                         @click="router.visit(`/productos/${v.id}`)"
                     >
                         <!-- Las variantes no se seleccionan: salen a la web con su padre. -->
-                        <td v-if="puedeEditarProductos"></td>
+                        <td v-if="puedeSeleccionar"></td>
                         <td></td>
                         <td class="px-4 py-2 pl-8">
                             <div class="flex items-center gap-2">
@@ -621,7 +667,7 @@ const precioMostrar = (p) => {
                         {{ p.tipo_label }}
                     </span>
                     <!-- Selección para publicar en la web, y aviso de que ya está publicado -->
-                    <label v-if="puedeEditarProductos" class="absolute top-2 right-2 p-1.5 rounded-lg cursor-pointer"
+                    <label v-if="puedeSeleccionar" class="absolute top-2 right-2 p-1.5 rounded-lg cursor-pointer"
                         style="background:var(--velo);" @click.stop>
                         <input type="checkbox" :checked="seleccion.has(p.id)" @change="alternarSeleccion(p.id)"
                             class="w-4 h-4 rounded border-tinta-300 cursor-pointer block" />
@@ -696,7 +742,7 @@ const precioMostrar = (p) => {
             </div>
         </div>
 
-        <!-- ── Barra de selección para publicar en la web ──────────────────── -->
+        <!-- ── Barra de selección: publicar en la web y eliminar ───────────── -->
         <!-- Va sobre la barra de navegación de celular: en móvil el menú inferior
              ocupa la parte de abajo, y una barra pegada al borde queda tapada. -->
         <Teleport to="body">
@@ -705,19 +751,37 @@ const precioMostrar = (p) => {
                 <div class="mx-auto max-w-2xl rounded-2xl shadow-2xl border border-linea bg-superficie p-3
                     flex items-center gap-3 flex-wrap">
                     <span class="text-sm font-semibold text-tinta-900">
-                        {{ seleccion.size }} seleccionado{{ seleccion.size === 1 ? '' : 's' }}
+                        <template v-if="todosDelFiltro">Todos los {{ totalFiltro }} del filtro</template>
+                        <template v-else>{{ seleccion.size }} seleccionado{{ seleccion.size === 1 ? '' : 's' }}</template>
                     </span>
-                    <button type="button" @click="limpiarSeleccion"
+                    <button type="button" @click="quitarSeleccion"
                         class="text-xs text-tinta-400 hover:text-tinta-900 underline">Quitar selección</button>
-                    <div class="flex-1"></div>
-                    <button type="button" @click="publicarSeleccion(false)" :disabled="publicando"
-                        class="px-3 py-2 rounded-xl text-xs font-medium text-tinta-600 border border-linea hover:bg-tinta-50 disabled:opacity-50">
-                        Retirar de la web
+
+                    <!-- Con la página entera marcada y más páginas detrás, se ofrece ir por todas. -->
+                    <button v-if="puedeEliminarProductos && todosMarcados && hayMasPaginas && ! todosDelFiltro"
+                        type="button" @click="todosDelFiltro = true"
+                        class="text-xs font-medium text-aviso-azul hover:underline">
+                        Seleccionar los {{ totalFiltro }} del filtro
                     </button>
-                    <button type="button" @click="publicarSeleccion(true)" :disabled="publicando"
-                        class="px-3 py-2 rounded-xl text-xs font-medium text-white disabled:opacity-50"
-                        style="background:var(--marca);">
-                        {{ publicando ? 'Publicando...' : 'Publicar en la web' }}
+
+                    <div class="flex-1"></div>
+
+                    <!-- Publicar va por ids: con «todos los del filtro» solo se ofrece eliminar. -->
+                    <template v-if="puedeEditarProductos && ! todosDelFiltro">
+                        <button type="button" @click="publicarSeleccion(false)" :disabled="publicando"
+                            class="px-3 py-2 rounded-xl text-xs font-medium text-tinta-600 border border-linea hover:bg-tinta-50 disabled:opacity-50">
+                            Retirar de la web
+                        </button>
+                        <button type="button" @click="publicarSeleccion(true)" :disabled="publicando"
+                            class="px-3 py-2 rounded-xl text-xs font-medium text-white disabled:opacity-50"
+                            style="background:var(--marca);">
+                            {{ publicando ? 'Publicando...' : 'Publicar en la web' }}
+                        </button>
+                    </template>
+
+                    <button v-if="puedeEliminarProductos" type="button" @click="eliminarSeleccion" :disabled="eliminando"
+                        class="px-3 py-2 rounded-xl text-xs font-medium text-white bg-red-600 hover:bg-red-700 disabled:opacity-50">
+                        {{ eliminando ? 'Eliminando...' : 'Eliminar' }}
                     </button>
                 </div>
             </div>

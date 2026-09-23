@@ -1,56 +1,27 @@
 <script setup>
 import AppLayout from '@/Layouts/AppLayout.vue'
 import { router } from '@inertiajs/vue3'
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 
-defineProps({
+const props = defineProps({
+    // Cada columna con su explicación y su grupo. Salen del servidor: las de precio dependen
+    // de los canales que la empresa tenga en Segmentación, así que no se pueden escribir aquí.
     columnas: { type: Array, default: () => [] },
+})
+
+// Agrupadas en el orden en que vienen, que es el de la plantilla.
+const grupos = computed(() => {
+    const mapa = new Map()
+    for (const col of props.columnas) {
+        if (! mapa.has(col.grupo)) mapa.set(col.grupo, [])
+        mapa.get(col.grupo).push(col)
+    }
+    return [...mapa.entries()].map(([nombre, columnas]) => ({ nombre, columnas }))
 })
 
 const csrf = () => {
     const c = document.cookie.split('; ').find(r => r.startsWith('XSRF-TOKEN='))
     return c ? decodeURIComponent(c.split('=')[1]) : ''
-}
-
-// Explicación de cada columna — el orden importa, debe coincidir con la plantilla.
-const descripciones = {
-    nombre:                        { obligatoria: true,  texto: 'Nombre del producto o servicio.' },
-    tipo:                          { obligatoria: false, texto: '"producto" o "servicio". Si se deja vacío, es "producto".' },
-    referencia:                    { obligatoria: false, texto: 'Código único. Si se deja vacío se genera solo. Si coincide con uno que ya existe, ese producto se actualiza en vez de crear uno nuevo.' },
-    categoria:                     { obligatoria: false, texto: 'Nombre de la categoría. Si no existe, se crea sola.' },
-    proveedor:                     { obligatoria: false, texto: 'Nombre del proveedor. Si no existe, se crea solo.' },
-    unidad_medida:                 { obligatoria: false, texto: 'Ej: unidad, m2, kg. Por defecto "unidad".' },
-    descripcion_corta:             { obligatoria: false, texto: 'Texto corto para catálogo/cotizaciones.' },
-    descripcion_larga:             { obligatoria: false, texto: 'Descripción más detallada.' },
-    es_vendible:                   { obligatoria: false, texto: '"Si" o "No" — si aparece en cotizaciones. Por defecto Si.' },
-    es_insumo:                     { obligatoria: false, texto: '"Si" o "No" — si se usa como insumo interno. Por defecto No.' },
-    inventariable:                 { obligatoria: false, texto: '"Si" o "No" — si maneja stock. Por defecto Si para productos.' },
-    activo:                        { obligatoria: false, texto: '"Si" o "No". Por defecto Si.' },
-    precio_costo:                  { obligatoria: false, texto: 'Precio de costo. Solo números, sin puntos de miles.' },
-    margen_mayorista:              { obligatoria: false, texto: '% de margen mayorista. Por defecto 25.' },
-    margen_distribuidor:           { obligatoria: false, texto: '% de margen distribuidor. Por defecto 30.' },
-    margen_cliente_final:          { obligatoria: false, texto: '% de margen cliente final. Por defecto 35.' },
-    precio_mayorista:              { obligatoria: false, texto: 'Precio de venta mayorista (si lo dejas vacío y no hay margen calculado, queda en 0).' },
-    precio_distribuidor:           { obligatoria: false, texto: 'Precio de venta distribuidor.' },
-    precio_cliente_final:          { obligatoria: false, texto: 'Precio de venta cliente final.' },
-    comision_pct_minima:           { obligatoria: false, texto: '% comisión mínima vendedor.' },
-    comision_pct_maxima:           { obligatoria: false, texto: '% comisión máxima vendedor.' },
-    comision_min_distribuidor:     { obligatoria: false, texto: '% comisión mínima canal distribuidor.' },
-    comision_max_distribuidor:     { obligatoria: false, texto: '% comisión máxima canal distribuidor.' },
-    comision_min_cliente_final:    { obligatoria: false, texto: '% comisión mínima canal cliente final.' },
-    comision_max_cliente_final:    { obligatoria: false, texto: '% comisión máxima canal cliente final.' },
-    utilidad_minima_empresa_pct:   { obligatoria: false, texto: '% de utilidad mínima que exige la empresa. Por defecto 15.' },
-    descuento_max_cliente_final:   { obligatoria: false, texto: '% descuento máximo permitido a cliente final.' },
-    descuento_max_distribuidor:    { obligatoria: false, texto: '% descuento máximo permitido a distribuidor.' },
-    descuento_max_mayorista:       { obligatoria: false, texto: '% descuento máximo permitido a mayorista.' },
-    stock_minimo:                  { obligatoria: false, texto: 'Umbral para alertas de stock bajo.' },
-    stock_maximo:                  { obligatoria: false, texto: 'Umbral máximo de stock.' },
-    stock_inicial:                 { obligatoria: false, texto: 'Cantidad inicial a cargar. Solo aplica al CREAR el producto — si reimportas el mismo archivo no se vuelve a sumar.' },
-    bodega:                        { obligatoria: false, texto: 'Nombre de la bodega para el stock inicial. Si se deja vacío usa la bodega principal.' },
-    es_padre:                      { obligatoria: false, texto: '"Si" si esta fila es un producto "padre" que agrupa variantes (ej: una puerta que viene en varios colores). Un padre no lleva precio ni stock propio.' },
-    producto_padre:                { obligatoria: false, texto: 'Referencia del producto padre — solo se llena en las filas que son variantes de ese padre. El padre debe existir o venir antes en el mismo archivo.' },
-    atributo_variante:             { obligatoria: false, texto: 'Solo en la fila del padre: nombre del atributo que varía, ej: "Color".' },
-    valor_variante:                { obligatoria: false, texto: 'Solo en filas de variante: el valor específico, ej: "Blanco".' },
 }
 
 const archivo    = ref(null)
@@ -181,13 +152,22 @@ async function importar() {
 
             <!-- Guía de columnas -->
             <div class="bg-superficie rounded-2xl border border-linea shadow-sm p-5">
-                <h2 class="text-sm font-semibold text-tinta-900 mb-3">Guía de columnas</h2>
-                <div class="divide-y divide-separador">
-                    <div v-for="col in columnas" :key="col" class="py-2 flex items-start gap-3">
-                        <span class="shrink-0 font-mono text-xs px-2 py-1 rounded bg-tinta-100 text-tinta-700 w-48 truncate">{{ col }}</span>
-                        <div class="flex-1 min-w-0">
-                            <span v-if="descripciones[col]?.obligatoria" class="text-[10px] font-semibold text-aviso-rojo uppercase mr-1">Obligatoria</span>
-                            <span class="text-xs text-tinta-400">{{ descripciones[col]?.texto ?? '' }}</span>
+                <h2 class="text-sm font-semibold text-tinta-900 mb-1">Guía de columnas</h2>
+                <p class="text-xs text-tinta-400 mb-3">
+                    Las columnas de precio salen de los canales configurados en
+                    <a href="/administracion/segmentacion" class="underline hover:text-tinta-700">Segmentación</a>:
+                    si creas un canal nuevo, vuelve a descargar la plantilla y ya trae sus columnas.
+                    Un archivo hecho con la plantilla anterior sigue sirviendo.
+                </p>
+                <div v-for="g in grupos" :key="g.nombre" class="mb-4 last:mb-0">
+                    <p class="text-[11px] font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1">{{ g.nombre }}</p>
+                    <div class="divide-y divide-separador">
+                        <div v-for="col in g.columnas" :key="col.columna" class="py-2 flex flex-col sm:flex-row sm:items-start gap-1 sm:gap-3">
+                            <span class="shrink-0 font-mono text-xs px-2 py-1 rounded bg-tinta-100 text-tinta-700 sm:w-56 truncate self-start">{{ col.columna }}</span>
+                            <div class="flex-1 min-w-0">
+                                <span v-if="col.obligatoria" class="text-[10px] font-semibold text-aviso-rojo uppercase mr-1">Obligatoria</span>
+                                <span class="text-xs text-tinta-400">{{ col.texto }}</span>
+                            </div>
                         </div>
                     </div>
                 </div>

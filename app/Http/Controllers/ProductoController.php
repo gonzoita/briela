@@ -18,9 +18,16 @@ use Inertia\Response;
 
 class ProductoController extends Controller
 {
-    public function index(Request $request): Response
+    /**
+     * Los productos que muestra el listado con los filtros de la petición.
+     *
+     * Es de aquí de donde sale también «eliminar todos los del filtro»: si esa acción armara
+     * su propia consulta, un filtro que se agregue al listado y se olvide allá borraría más
+     * de lo que la persona estaba viendo.
+     */
+    private function consultaFiltrada(Request $request)
     {
-        $query = Producto::with(['categoria', 'imagenes', 'stocks.bodega', 'variantes.stocks'])
+        return Producto::query()
             ->whereNull('producto_padre_id')
             ->when($request->filled('tipo'), fn ($q) => $q->where('tipo', $request->tipo))
             ->when($request->filled('categoria'), fn ($q) => $q->where('categoria_id', $request->categoria))
@@ -30,6 +37,12 @@ class ProductoController extends Controller
                 $q->where('nombre', 'like', "%{$request->buscar}%")
                   ->orWhere('referencia', 'like', "%{$request->buscar}%");
             }));
+    }
+
+    public function index(Request $request): Response
+    {
+        $query = $this->consultaFiltrada($request)
+            ->with(['categoria', 'imagenes', 'stocks.bodega', 'variantes.stocks']);
 
         // El orden lo pide la pantalla. `Orden::aplicar` valida el campo contra esta lista:
         // lo que llegue por `?orden=` y no esté aquí se ignora, así que el parámetro no puede
@@ -576,9 +589,62 @@ class ProductoController extends Controller
 
     public function destroy(int $id): RedirectResponse
     {
-        Producto::findOrFail($id)->delete();
+        $this->eliminarConVariantes(Producto::findOrFail($id));
 
         return redirect('/productos')->with('success', 'Producto eliminado.');
+    }
+
+    /**
+     * Elimina varios productos de una vez: los marcados, o todos los del filtro.
+     *
+     * Con «todos los del filtro» no viajan ids sino los mismos filtros del listado, y la
+     * consulta sale de `consultaFiltrada()`: se borra exactamente lo que la persona estaba
+     * viendo, aunque sean cinco páginas.
+     *
+     * Es un borrado suave, igual que el de uno solo: las cotizaciones, órdenes y movimientos
+     * que ya usaron esos productos los siguen mostrando.
+     */
+    public function eliminarVarios(Request $request): RedirectResponse
+    {
+        $datos = $request->validate([
+            'ids'              => 'array|required_without:todos_del_filtro',
+            'ids.*'            => 'integer',
+            'todos_del_filtro' => 'boolean',
+        ]);
+
+        $query = ($datos['todos_del_filtro'] ?? false)
+            ? $this->consultaFiltrada($request)
+            // Solo padres o sueltos, igual que en el listado: una variante no se elige por
+            // separado, se va con su padre.
+            : Producto::whereIn('id', $datos['ids'] ?? [])->whereNull('producto_padre_id');
+
+        $total = 0;
+
+        DB::transaction(function () use ($query, &$total) {
+            $query->with('variantes')->chunkById(200, function ($productos) use (&$total) {
+                foreach ($productos as $producto) {
+                    $this->eliminarConVariantes($producto);
+                    $total++;
+                }
+            });
+        });
+
+        return back()->with('success', $total === 1
+            ? 'Se eliminó 1 producto.'
+            : "Se eliminaron {$total} productos.");
+    }
+
+    /**
+     * Un padre se lleva sus variantes.
+     *
+     * Antes se borraba solo el padre, y sus variantes quedaban vivas: el listado ya no las
+     * mostraba —cuelgan de un padre que no existe—, pero seguían apareciendo en el buscador
+     * de la cotización, con su precio, como si nada.
+     */
+    private function eliminarConVariantes(Producto $producto): void
+    {
+        $producto->variantes->each->delete();
+        $producto->delete();
     }
 
     public function ajusteStock(Request $request, int $id): RedirectResponse

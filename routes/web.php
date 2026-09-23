@@ -313,7 +313,14 @@ Route::middleware('auth')->group(function () {
         Route::get('/{id}',        [ProductoController::class, 'show'])->name('show');
         Route::get('/{id}/editar', [ProductoController::class, 'edit'])->name('edit');
         Route::put('/{id}',        [ProductoController::class, 'update'])->name('update');
-        Route::delete('/{id}',     [ProductoController::class, 'destroy'])->name('destroy');
+
+        // `productos.eliminar` estaba en el catálogo de permisos pero ninguna ruta lo pedía:
+        // cualquiera que entrara podía borrar productos, y con el borrado en bloque, todo el
+        // catálogo de una vez.
+        Route::middleware('permiso:productos.eliminar')->group(function () {
+            Route::post('/eliminar', [ProductoController::class, 'eliminarVarios'])->name('eliminar-varios');
+            Route::delete('/{id}',   [ProductoController::class, 'destroy'])->name('destroy');
+        });
 
         Route::post('/{id}/ajuste-stock',        [ProductoController::class, 'ajusteStock'])->name('ajuste-stock');
         Route::patch('/{id}/precio-costo',       [ProductoController::class, 'actualizarCosto'])->name('precio-costo');
