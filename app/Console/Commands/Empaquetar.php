@@ -40,7 +40,9 @@ class Empaquetar extends Command
         // Herramientas y estado local
         '.git', '.github', '.claude', 'node_modules', 'graphify-out', '.prueba-instalador',
         // Interno del proyecto: no es del cliente
-        'docs', 'CLAUDE.md', 'tests', 'phpunit.xml',
+        'docs', 'CLAUDE.md', 'README.md', 'tests', 'phpunit.xml',
+        // El plugin de WordPress se instala en el sitio web del cliente, no aquí
+        'wordpress-plugin',
         // Solo sirven para compilar, y el build ya viaja hecho
         'package.json', 'package-lock.json', 'vite.config.js', 'tailwind.config.js',
         'postcss.config.js', 'jsconfig.json', 'scripts', 'resources/css', 'resources/js',

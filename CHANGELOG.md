@@ -14,7 +14,18 @@ Formato: [versionado semántico](https://semver.org/lang/es/).
 
 ## [Sin publicar]
 
+## [1.0.0] — 2026-09-23
+
+Primera versión instalable de Briela.
+
 ### Agregado
+- **Eliminar productos en bloque** desde la lista: los que marques, o todos los que
+  deja el filtro de una vez. Cada producto se lleva sus variantes. Pide confirmación
+  y exige el permiso «Eliminar productos».
+- **La plantilla para importar productos trae una columna por cada canal de
+  precio** configurado en Segmentación —margen, precio, comisiones y descuento—, y
+  se actualiza sola cuando se crea un canal nuevo. También trae el resumen técnico
+  para cotizaciones y la referencia y el precio del proveedor.
 - **Plantillas PDF con encabezado y pie de página propios** en el modo código: se
   repiten en cada hoja, con la altura que se elija, y el pie puede decir «Página 2
   de 5». También hay salto de página.
@@ -39,6 +50,11 @@ Formato: [versionado semántico](https://semver.org/lang/es/).
   los trajo. Se conecta desde Configuración → Integraciones → WordPress.
 
 ### Corregido
+- **Los productos importados desde CSV no tenían precio para cotizar**: la
+  importación los guardaba donde la cotización ya no mira. Ahora quedan en su canal,
+  y un archivo hecho con la plantilla anterior sigue sirviendo.
+- Eliminar un producto ya no deja sus variantes sueltas, y quien no tiene el permiso
+  de eliminar productos ya no puede hacerlo.
 - **Una plantilla PDF hecha en modo visual salía en blanco** al descargar la
   cotización o la OP, aunque la vista previa se veía bien. Y una con papel de
   etiqueta o ticket fallaba. Ahora el documento sale igual que la vista previa.
