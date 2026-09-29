@@ -14,6 +14,21 @@ Formato: [versionado semántico](https://semver.org/lang/es/).
 
 ## [Sin publicar]
 
+### Agregado
+- **La TRM del día, sola.** Cada mañana se trae la TRM oficial y el euro, y se ven en
+  Configuración → Monedas y TRM. Si el servidor no tiene internet, se puede escribir a mano.
+- **Productos que se compran en dólares o euros**: se escribe el costo en esa moneda y el
+  costo en pesos —y sus precios— se recalculan solos cada día con la tasa, más un colchón
+  configurable. La plantilla de importación trae las columnas nuevas.
+- **Cotizaciones en dólares o euros de verdad**: toman la tasa del día y el cliente ve los
+  precios en su moneda en la pantalla, en el enlace de aprobación y en el PDF, con la tasa y
+  su equivalente en pesos. Se elige si la tasa queda fija o sigue a la TRM hasta la aprobación.
+- **Leer el RUT con IA**: se sube el PDF o una foto y se llenan solos los datos del cliente o
+  los de la empresa, incluidas sus responsabilidades tributarias.
+- **Retenciones estimadas en la cotización**: retención en la fuente, de IVA y de ICA según el
+  RUT del cliente y el de la empresa, con el neto a recibir. Las reglas se configuran en
+  Configuración → Perfil fiscal.
+
 ## [1.0.0] — 2026-09-23
 
 Primera versión instalable de Briela.

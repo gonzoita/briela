@@ -1,7 +1,7 @@
 <script setup>
 // Los porcentajes se guardan con dos decimales: redondearlos al mostrarlos contradecía
 // lo que la persona acababa de configurar.
-import { formatPct } from '@/formato'
+import { formatPct, formatMoneda } from '@/formato'
 import { ref, computed, watch, onMounted } from 'vue'
 import { useForm, router, usePage } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
@@ -9,6 +9,8 @@ import EditorTexto from '@/Components/EditorTexto.vue'
 import ResultadosBuscadorProducto from '@/Components/ResultadosBuscadorProducto.vue'
 import EtiquetaStock from '@/Components/EtiquetaStock.vue'
 import ModalNuevoCliente from '@/Components/ModalNuevoCliente.vue'
+import RetencionesEstimadas from '@/Components/RetencionesEstimadas.vue'
+import { useRetenciones } from '@/composables/useRetenciones'
 import { useUnsavedChanges } from '@/composables/useUnsavedChanges'
 
 const props = defineProps({
@@ -22,6 +24,9 @@ const props = defineProps({
     canales:               { type: Array, default: () => [] },
     // Las listas de segmentación, para poder crear un cliente sin salir de aquí.
     segmentacion_opciones: { type: Object, default: () => ({}) },
+    // Las tasas vigentes por moneda, y si las cotizaciones abiertas siguen a la TRM.
+    tasas:                 { type: Object, default: () => ({}) },
+    modo_tasa:             { type: String, default: 'fija' },
 })
 
 const esEdicion = computed(() => !!props.cotizacion)
@@ -88,6 +93,7 @@ const form = useForm({
     nombre_contacto_override: props.cotizacion?.nombre_contacto_override ?? '',
     moneda:                   props.cotizacion?.moneda ?? 'COP',
     tasa_cambio:              props.cotizacion?.tasa_cambio ?? 1,
+    tasa_fecha:               props.cotizacion?.tasa_fecha ?? null,
     fecha_creacion:           props.cotizacion?.fecha_creacion ?? hoy,
     fecha_validez:            props.cotizacion?.fecha_validez ?? hoy30,
     responsable_id:           props.cotizacion?.responsable_id ?? props.usuario_actual,
@@ -155,6 +161,40 @@ const form = useForm({
 })
 
 watch(() => form.data(), (v) => checkChanges(v), { deep: true })
+
+// ─── Moneda y tasa ────────────────────────────────────────────────────────────
+// Los ítems se escriben y se guardan en pesos, como todo el sistema: la moneda y la tasa
+// dicen cómo se le muestran al cliente. Así las comisiones, la cartera y los informes no
+// tienen que convertir nada.
+const tasaDelDia   = computed(() => props.tasas?.[form.moneda] ?? null)
+const enOtraMoneda = computed(() => form.moneda !== 'COP' && Number(form.tasa_cambio) > 0)
+const enMoneda     = (pesos) => formatMoneda(pesos, form.moneda, form.tasa_cambio)
+const formatTasa   = (v) => new Intl.NumberFormat('es-CO', { minimumFractionDigits: 2, maximumFractionDigits: 4 }).format(Number(v) || 0)
+const fechaCorta   = (f) => f ? new Date(String(f).slice(0, 10) + 'T12:00:00').toLocaleDateString('es-CO', { day: 'numeric', month: 'short', year: 'numeric' }) : ''
+
+function usarTasaDelDia() {
+    const t = props.tasas?.[form.moneda]
+    if (! t) return
+    form.tasa_cambio = t.valor
+    form.tasa_fecha  = t.fecha
+}
+
+/** Una tasa escrita a mano es de hoy: la decidió una persona, no la TRM. */
+function tasaEscrita(valor) {
+    form.tasa_cambio = valor
+    form.tasa_fecha  = hoy
+}
+
+// Al cambiar de moneda se pone la tasa del día. No corre al abrir: una cotización que se
+// reabre conserva la tasa con la que se hizo.
+watch(() => form.moneda, (moneda) => {
+    if (moneda === 'COP') {
+        form.tasa_cambio = 1
+        form.tasa_fecha  = null
+        return
+    }
+    usarTasaDelDia()
+})
 
 // ─── Cliente ──────────────────────────────────────────────────────────────────
 const clienteQuery       = ref(props.cotizacion?.cliente?.nombre ?? props.lead_preseleccionado?.cliente?.nombre ?? '')
@@ -821,6 +861,16 @@ const totalDescuento = computed(() => form.items.reduce((s, i) => { const b = (i
 const totalImpuesto  = computed(() => form.items.reduce((s, i) => { const b = (i.cantidad||0)*(i.precio_unitario||0); const bd = b - b*((i.descuento_pct||0)/100); return s + bd*((i.impuesto_pct||0)/100) }, 0))
 const total          = computed(() => subtotalBruto.value - totalDescuento.value + totalImpuesto.value)
 
+// Lo que el cliente va a retener al pagar. Lo calcula el servidor; aquí solo se pide.
+const { retenciones, cargando: cargandoRetenciones } = useRetenciones(() => ({
+    cliente_id: form.cliente_id,
+    iva:        Math.round(totalImpuesto.value * 100) / 100,
+    items:      form.items.map(i => {
+        const bruto = (Number(i.cantidad) || 0) * (Number(i.precio_unitario) || 0)
+        return { producto_id: i.producto_id ?? null, base: Math.round(bruto * (1 - (Number(i.descuento_pct) || 0) / 100) * 100) / 100 }
+    }),
+}))
+
 const formatCOP   = (v) => new Intl.NumberFormat('es-CO', { maximumFractionDigits: 0 }).format(v ?? 0)
 const formatPrecio = (v) => (v || v === 0) ? new Intl.NumberFormat('es-CO', { maximumFractionDigits: 0 }).format(v) : ''
 const parsePrecio  = (s) => parseFloat(String(s).replace(/[^0-9,]/g, '').replace(',', '.')) || 0
@@ -1106,9 +1156,23 @@ function submit() {
                         </div>
 
                         <div v-if="form.moneda !== 'COP'">
-                            <label class="block text-xs font-medium text-tinta-500 mb-1.5">Tasa de cambio</label>
-                            <input v-model.number="form.tasa_cambio" type="number" step="0.01" min="1"
+                            <label class="block text-xs font-medium text-tinta-500 mb-1.5">Tasa de cambio (pesos por 1 {{ form.moneda }})</label>
+                            <input :value="form.tasa_cambio" @input="tasaEscrita(Number($event.target.value) || 0)"
+                                type="number" step="0.0001" min="1"
                                 class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:ring-2 focus:outline-none"/>
+                            <p v-if="form.tasa_fecha" class="text-xs text-tinta-300 mt-1">
+                                Tasa del {{ fechaCorta(form.tasa_fecha) }}.
+                                {{ modo_tasa === 'diaria'
+                                    ? 'Se actualiza cada día con la TRM hasta que la aprueben.'
+                                    : `Queda fija: el cliente ve siempre el mismo precio en ${form.moneda}.` }}
+                            </p>
+                            <button v-if="tasaDelDia && Number(tasaDelDia.valor) !== Number(form.tasa_cambio)" type="button"
+                                @click="usarTasaDelDia" class="text-xs font-semibold text-[var(--marca)] hover:underline mt-1">
+                                Usar la del {{ fechaCorta(tasaDelDia.fecha) }}: ${{ formatTasa(tasaDelDia.valor) }}
+                            </button>
+                            <p v-if="! tasaDelDia" class="text-xs text-aviso-ambar mt-1">
+                                No hay tasa de {{ form.moneda }} guardada: escríbela aquí, o regístrala en Configuración → Monedas.
+                            </p>
                         </div>
 
                         <div>
@@ -1252,6 +1316,7 @@ function submit() {
                                             @focus="$event.target.value = item.precio_unitario || ''"
                                             @blur="item.precio_unitario = parsePrecio($event.target.value); $event.target.value = formatPrecio(item.precio_unitario)"
                                             class="w-full rounded-lg border border-tinta-200 px-2 py-1.5 text-sm text-right focus:outline-none"/>
+                                        <p v-if="enOtraMoneda" class="text-[11px] text-tinta-300 text-right mt-0.5">{{ enMoneda(item.precio_unitario) }}</p>
                                     </div>
                                     <div>
                                         <label class="block text-xs text-tinta-400 mb-1">Dto. %</label>
@@ -1365,6 +1430,17 @@ function submit() {
                                     <span>TOTAL</span>
                                     <span>${{ formatCOP(total) }}</span>
                                 </div>
+                                <template v-if="enOtraMoneda">
+                                    <div class="flex justify-between text-sm font-semibold text-tinta-700">
+                                        <span>Total en {{ form.moneda }}</span>
+                                        <span>{{ enMoneda(total) }}</span>
+                                    </div>
+                                    <p class="text-[11px] text-tinta-300">
+                                        Los precios se escriben en pesos; el cliente los ve en {{ form.moneda }} a la tasa de arriba.
+                                    </p>
+                                </template>
+                                <RetencionesEstimadas :retenciones="retenciones" :cargando="cargandoRetenciones"
+                                    :total="total" :moneda="form.moneda" :tasa="form.tasa_cambio" />
                             </div>
                         </div>
                     </div>

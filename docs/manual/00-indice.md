@@ -85,6 +85,7 @@ módulo por módulo.
 - [Mantenimiento de equipos](./mantenimiento.md)
 - [Checklist de verificación (QA)](./verificacion-qa.md)
 - [Rendimiento — por qué el sistema se siente instantáneo](./rendimiento.md)
+- [Monedas, TRM, lectura del RUT y retenciones](./monedas-y-retenciones.md)
 
 ## Principio general del sistema
 

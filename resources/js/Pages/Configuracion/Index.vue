@@ -1330,6 +1330,21 @@ const configPuntos = computed(() =>
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
                             </svg>
                         </a>
+                        <a href="/configuracion/fiscal" @click.prevent="router.visit('/configuracion/fiscal')"
+                            class="flex items-center gap-3 bg-superficie rounded-xl border border-linea p-4 hover:border-borde-aviso-azul hover:shadow-sm transition-all">
+                            <div class="w-10 h-10 rounded-xl bg-pastel-azul flex items-center justify-center shrink-0">
+                                <svg class="w-5 h-5 text-aviso-azul" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z" />
+                                </svg>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-semibold text-tinta-900">Perfil fiscal</p>
+                                <p class="text-xs text-tinta-400 mt-0.5">Datos de la empresa desde su RUT, UVT y reglas de retención</p>
+                            </div>
+                            <svg class="w-4 h-4 text-tinta-300 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                            </svg>
+                        </a>
                     </div>
                 </div>
 
@@ -1337,6 +1352,21 @@ const configPuntos = computed(() =>
                 <div>
                     <p class="text-xs font-semibold text-tinta-300 uppercase tracking-[0.12em] mb-3">Inventario y Cotización</p>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <a href="/configuracion/monedas" @click.prevent="router.visit('/configuracion/monedas')"
+                            class="flex items-center gap-3 bg-superficie rounded-xl border border-linea p-4 hover:border-borde-aviso-azul hover:shadow-sm transition-all">
+                            <div class="w-10 h-10 rounded-xl bg-pastel-azul flex items-center justify-center shrink-0">
+                                <svg class="w-5 h-5 text-aviso-azul" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-semibold text-tinta-900">Monedas y TRM</p>
+                                <p class="text-xs text-tinta-400 mt-0.5">Tasa del día, costos en dólares o euros y cotizaciones en otra moneda</p>
+                            </div>
+                            <svg class="w-4 h-4 text-tinta-300 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                            </svg>
+                        </a>
                         <a href="/configuracion/bodegas" @click.prevent="router.visit('/configuracion/bodegas')"
                             class="flex items-center gap-3 bg-superficie rounded-xl border border-linea p-4 hover:border-borde-aviso-azul hover:shadow-sm transition-all">
                             <div class="w-10 h-10 rounded-xl bg-pastel-azul flex items-center justify-center shrink-0">

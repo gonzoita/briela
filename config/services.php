@@ -62,6 +62,15 @@ return [
         'redirect_uri' => env('GOOGLE_RRSS_REDIRECT_URI'),
     ],
 
+    // ─── Tasas de cambio ──────────────────────────────────────────────────
+    // TRM: conjunto 32sa-8pi3 de datos.gov.co, publicado por la Superintendencia
+    // Financiera. Euro: cotización EUR→USD del Banco Central Europeo, que se cruza con
+    // la TRM. Las dos son gratuitas y no piden credenciales.
+    'tasas' => [
+        'trm_url' => env('TASAS_TRM_URL', 'https://www.datos.gov.co/resource/32sa-8pi3.json'),
+        'bce_url' => env('TASAS_BCE_URL', 'https://api.frankfurter.dev/v1/latest'),
+    ],
+
     // ─── Consulta de NIT en los datos abiertos del RUES ───────────────────
     // Fuente: datos.gov.co, conjunto c82u-588k, publicado por Confecámaras
     // con los datos del Registro Mercantil sincronizados al RUES.

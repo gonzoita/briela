@@ -121,6 +121,7 @@ class CotizacionController extends Controller
         }
 
         return Inertia::render('Cotizaciones/Create', [
+            ...$this->propsMonedas(),
             'responsables'        => User::whereIn('rol', ['administrador', 'jefe_produccion', 'vendedor'])
                 ->where('activo', true)->get(['id', 'name']),
             'usuario_actual'      => auth()->id(),
@@ -164,7 +165,7 @@ class CotizacionController extends Controller
             'contacto_id'              => $data['contacto_id'],
             'nombre_contacto_override' => $data['nombre_contacto_override'],
             'moneda'                   => $data['moneda'],
-            'tasa_cambio'              => $data['tasa_cambio'],
+            ...$this->tasaDe($data),
             'fecha_creacion'           => $data['fecha_creacion'],
             'fecha_validez'            => $data['fecha_validez'],
             'responsable_id'           => $data['responsable_id'],
@@ -196,6 +197,9 @@ class CotizacionController extends Controller
                 'estado_badge'       => $cotizacion->estadoBadge(),
                 'dias_sin_respuesta' => $cotizacion->diasSinRespuesta(),
             ],
+            // Lo que el cliente va a retener al pagar y lo que de verdad llega. Solo en la
+            // pantalla interna: al cliente no se le muestra una estimación de sus impuestos.
+            'retenciones'  => app(\App\Services\RetencionesService::class)->paraCotizacion($cotizacion),
             'responsables' => User::whereIn('rol', ['administrador', 'jefe_produccion', 'vendedor'])
                 ->where('activo', true)->get(['id', 'name']),
             // Para elegir en qué fábrica se produce al generar la OP.
@@ -223,6 +227,7 @@ class CotizacionController extends Controller
         $cotizacion->load(['cliente.contactos', 'contacto', 'items.producto', 'items.configuracionPuerta', 'items.ensamble']);
 
         return Inertia::render('Cotizaciones/Create', [
+            ...$this->propsMonedas(),
             // Los ítems van con el stock de HOY, no con el que había cuando se cotizó: una
             // cotización se reabre días después, y lo que importa entonces es si todavía
             // hay con qué cumplirla. Los ítems no guardan stock — es una ayuda de pantalla,
@@ -341,7 +346,7 @@ class CotizacionController extends Controller
             'contacto_id'              => $data['contacto_id'],
             'nombre_contacto_override' => $data['nombre_contacto_override'],
             'moneda'                   => $data['moneda'],
-            'tasa_cambio'              => $data['tasa_cambio'],
+            ...$this->tasaDe($data),
             'fecha_creacion'           => $data['fecha_creacion'],
             'fecha_validez'            => $data['fecha_validez'],
             'responsable_id'           => $data['responsable_id'],
@@ -384,6 +389,14 @@ class CotizacionController extends Controller
         $nueva->estado        = 'borrador';
         $nueva->fecha_creacion = now()->toDateString();
         $nueva->fecha_validez  = now()->addDays(30)->toDateString();
+
+        // Una cotización nueva nace con la tasa de hoy, no con la de la que se copió.
+        if ($nueva->moneda && $nueva->moneda !== \App\Support\Monedas::LOCAL
+            && $tasa = app(\App\Services\TasaCambioService::class)->vigente($nueva->moneda)) {
+            $nueva->tasa_cambio = $tasa->valor;
+            $nueva->tasa_fecha  = $tasa->fecha->toDateString();
+        }
+
         $nueva->save();
 
         foreach ($cotizacion->items as $item) {
@@ -401,6 +414,61 @@ class CotizacionController extends Controller
 
         return redirect("/cotizaciones/{$nueva->id}")
             ->with('success', "Cotización duplicada como {$nueva->numero}.");
+    }
+
+    /**
+     * Las retenciones de una cotización que se está armando, para verlas mientras se edita.
+     *
+     * La cuenta vive en RetencionesService y en ningún otro sitio: la pantalla pregunta en
+     * vez de repetirla, igual que hace con el precio de un ensamble.
+     */
+    public function estimarRetenciones(Request $request, \App\Services\RetencionesService $retenciones): JsonResponse
+    {
+        $datos = $request->validate([
+            'cliente_id'         => 'nullable|integer',
+            'iva'                => 'nullable|numeric|min:0',
+            'items'              => 'nullable|array|max:500',
+            'items.*.producto_id'=> 'nullable|integer',
+            'items.*.base'       => 'required|numeric',
+        ]);
+
+        $cliente = ! empty($datos['cliente_id']) ? \App\Models\Cliente::find($datos['cliente_id']) : null;
+
+        return response()->json($retenciones->estimar(
+            $retenciones->lineasDesdeFormulario($datos['items'] ?? []),
+            (float) ($datos['iva'] ?? 0),
+            $cliente,
+        ));
+    }
+
+    /** Las tasas vigentes y el modo, para la pantalla de crear y editar. */
+    private function propsMonedas(): array
+    {
+        return [
+            'tasas'     => app(\App\Services\TasaCambioService::class)->paraInterfaz(),
+            'modo_tasa' => \App\Support\Monedas::modoCotizacion(),
+        ];
+    }
+
+    /**
+     * La tasa que se guarda con la cotización.
+     *
+     * En pesos, uno y sin fecha. En otra moneda, la que mandó la pantalla —que llega
+     * precargada con la del día y se puede corregir— con su fecha; si alguien la escribió a
+     * mano, la fecha es la de hoy.
+     *
+     * @return array{tasa_cambio: float, tasa_fecha: ?string}
+     */
+    private function tasaDe(array $data): array
+    {
+        if (($data['moneda'] ?? 'COP') === \App\Support\Monedas::LOCAL) {
+            return ['tasa_cambio' => 1, 'tasa_fecha' => null];
+        }
+
+        return [
+            'tasa_cambio' => (float) $data['tasa_cambio'],
+            'tasa_fecha'  => $data['tasa_fecha'] ?? now()->toDateString(),
+        ];
     }
 
     public function pdf(Cotizacion $cotizacion): HttpResponse
@@ -720,6 +788,7 @@ class CotizacionController extends Controller
             'nombre_contacto_override' => 'nullable|string|max:150',
             'moneda'                   => 'required|in:COP,USD,EUR',
             'tasa_cambio'              => 'required|numeric|min:1',
+            'tasa_fecha'               => 'nullable|date',
             'fecha_creacion'           => 'required|date',
             'fecha_validez'            => 'required|date|after_or_equal:fecha_creacion',
             'responsable_id'           => 'required|exists:users,id',

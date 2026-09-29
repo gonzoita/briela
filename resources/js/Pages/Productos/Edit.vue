@@ -18,6 +18,9 @@ const props = defineProps({
     bodegas:     Array,
     // Los canales configurados, ya con lo que este producto tenga guardado.
     canales:     { type: Array, default: () => [] },
+    // Las tasas vigentes, para mostrar en pesos un costo escrito en otra moneda.
+    tasas:       { type: Object, default: () => ({}) },
+    colchon_pct: { type: Number, default: 0 },
 })
 
 const p = props.producto
@@ -122,6 +125,8 @@ const form = useForm({
     stock_minimo:         p.stock_minimo ?? 0,
     stock_maximo:         p.stock_maximo ?? 0,
     precio_costo:                p.precio_costo ?? 0,
+    moneda_costo:                p.moneda_costo ?? 'COP',
+    costo_moneda:                p.costo_moneda !== null && p.costo_moneda !== undefined ? Number(p.costo_moneda) : null,
     margen_mayorista:            p.margen_mayorista ?? 25,
     margen_distribuidor:         p.margen_distribuidor ?? 30,
     margen_cliente_final:        p.margen_cliente_final ?? 35,
@@ -747,6 +752,11 @@ const badgeStyle = {
                 <PreciosPorCanal
                     :canales="form.canales"
                     v-model:precio-costo="form.precio_costo"
+                    v-model:moneda-costo="form.moneda_costo"
+                    v-model:costo-moneda="form.costo_moneda"
+                    :tasas="tasas"
+                    :colchon-pct="colchon_pct"
+                    permite-moneda
                 />
 
                 <!-- Error de servidor -->

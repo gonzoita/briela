@@ -2,6 +2,7 @@
 import { ref, computed } from 'vue'
 import { router, usePage } from '@inertiajs/vue3'
 import SelloBriela from '@/Components/SelloBriela.vue'
+import { formatMoneda } from '@/formato'
 
 const props = defineProps({
     cotizacion: Object,
@@ -16,6 +17,11 @@ const cot = props.cotizacion
 
 const formatCOP   = (v) =>
     new Intl.NumberFormat('es-CO', { maximumFractionDigits: 0 }).format(v ?? 0)
+
+// Los valores se guardan en pesos; al cliente se le muestran en la moneda de su cotización.
+const enOtraMoneda = cot.moneda && cot.moneda !== 'COP' && Number(cot.tasa_cambio) > 0
+const enMoneda     = (v) => formatMoneda(v, cot.moneda || 'COP', cot.tasa_cambio)
+const formatTasa   = (v) => new Intl.NumberFormat('es-CO', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Number(v) || 0)
 const formatFecha = (d) =>
     d ? new Date(d).toLocaleDateString('es-CO', { day: '2-digit', month: 'long', year: 'numeric' }) : '—'
 
@@ -184,8 +190,8 @@ function calcularTotal(item) {
                                     </div>
                                 </td>
                                 <td class="px-3 py-3 text-right text-tinta-500 align-top">{{ parseFloat(item.cantidad) }}</td>
-                                <td class="px-3 py-3 text-right text-tinta-500 align-top">${{ formatCOP(item.precio_unitario) }}</td>
-                                <td class="px-4 py-3 text-right font-semibold text-tinta-900 align-top">${{ formatCOP(item.total_linea ?? calcularTotal(item)) }}</td>
+                                <td class="px-3 py-3 text-right text-tinta-500 align-top">{{ enMoneda(item.precio_unitario) }}</td>
+                                <td class="px-4 py-3 text-right font-semibold text-tinta-900 align-top">{{ enMoneda(item.total_linea ?? calcularTotal(item)) }}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -205,9 +211,9 @@ function calcularTotal(item) {
                                         <div v-if="item.descripcion_larga"
                                             v-html="item.descripcion_larga"
                                             class="text-xs text-tinta-300 mt-0.5"></div>
-                                        <p class="text-xs text-tinta-300 mt-1">{{ parseFloat(item.cantidad) }} × ${{ formatCOP(item.precio_unitario) }}</p>
+                                        <p class="text-xs text-tinta-300 mt-1">{{ parseFloat(item.cantidad) }} × {{ enMoneda(item.precio_unitario) }}</p>
                                     </div>
-                                    <p class="text-sm font-semibold text-tinta-900 shrink-0">${{ formatCOP(item.total_linea ?? calcularTotal(item)) }}</p>
+                                    <p class="text-sm font-semibold text-tinta-900 shrink-0">{{ enMoneda(item.total_linea ?? calcularTotal(item)) }}</p>
                                 </div>
                             </div>
                         </div>
@@ -219,20 +225,24 @@ function calcularTotal(item) {
                     <div class="w-64 space-y-1.5">
                         <div class="flex justify-between text-sm text-tinta-500">
                             <span>Subtotal</span>
-                            <span>${{ formatCOP(cot.subtotal) }}</span>
+                            <span>{{ enMoneda(cot.subtotal) }}</span>
                         </div>
                         <div v-if="parseFloat(cot.descuento_total) > 0" class="flex justify-between text-sm text-tinta-500">
                             <span>Descuento</span>
-                            <span class="text-aviso-rojo">-${{ formatCOP(cot.descuento_total) }}</span>
+                            <span class="text-aviso-rojo">-{{ enMoneda(cot.descuento_total) }}</span>
                         </div>
                         <div v-if="parseFloat(cot.impuesto_total) > 0" class="flex justify-between text-sm text-tinta-500">
                             <span>IVA</span>
-                            <span>${{ formatCOP(cot.impuesto_total) }}</span>
+                            <span>{{ enMoneda(cot.impuesto_total) }}</span>
                         </div>
                         <div class="flex justify-between text-base font-semibold border-t border-linea pt-2 mt-2" style="color:var(--marca);">
                             <span>TOTAL {{ cot.moneda }}</span>
-                            <span>${{ formatCOP(cot.total) }}</span>
+                            <span>{{ enMoneda(cot.total) }}</span>
                         </div>
+                        <p v-if="enOtraMoneda" class="text-[11px] text-tinta-400">
+                            Valores en {{ cot.moneda }} a una tasa de ${{ formatTasa(cot.tasa_cambio) }}<span v-if="cot.tasa_fecha"> del {{ formatFecha(cot.tasa_fecha + 'T12:00:00') }}</span>.
+                            Equivalen a ${{ formatCOP(cot.total) }} pesos.
+                        </p>
                     </div>
                 </div>
             </div>

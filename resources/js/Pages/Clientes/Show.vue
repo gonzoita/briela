@@ -8,7 +8,14 @@ const props = defineProps({
     contactos: { type: Array, default: () => [] },
     archivos:  { type: Array, default: () => [] },
     historial: { type: Object, default: () => ({}) },
+    catalogo_fiscal: { type: Array, default: () => [] },
 })
+
+// Las responsabilidades del RUT con su nombre, para leerlas sin saberse los códigos.
+const responsabilidades = computed(() => (props.cliente.responsabilidades_fiscales ?? []).map(codigo => ({
+    codigo,
+    nombre: props.catalogo_fiscal.find(o => o.codigo === codigo)?.nombre ?? `Código ${codigo}`,
+})))
 
 // ─── Historial ───────────────────────────────────────────────────────────────
 // El servidor solo manda los bloques que el usuario puede ver, así que aquí
@@ -133,6 +140,28 @@ function eliminar() {
                         <p class="text-sm text-tinta-900">{{ cliente.direccion }}</p>
                     </div>
                 </div>
+            </div>
+
+            <!-- Datos tributarios -->
+            <div class="bg-superficie rounded-xl border border-linea p-4 mb-4">
+                <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-2">Datos tributarios</p>
+                <div v-if="responsabilidades.length || cliente.actividad_economica || cliente.retenedor_ica" class="space-y-2">
+                    <div v-if="responsabilidades.length" class="flex flex-wrap gap-1.5">
+                        <span v-for="r in responsabilidades" :key="r.codigo"
+                            class="text-xs px-2.5 py-1 rounded-full bg-pastel-azul text-aviso-azul">
+                            <span class="font-mono">{{ r.codigo }}</span> · {{ r.nombre }}
+                        </span>
+                    </div>
+                    <p v-if="cliente.actividad_economica" class="text-sm text-tinta-700">
+                        Actividad económica (CIIU): <span class="font-mono">{{ cliente.actividad_economica }}</span>
+                    </p>
+                    <p v-if="cliente.retenedor_ica" class="text-sm text-tinta-700">Retiene ICA.</p>
+                </div>
+                <p v-else class="text-sm text-tinta-400">
+                    Sin cargar. Sin sus responsabilidades del RUT no se pueden estimar las retenciones
+                    en sus cotizaciones.
+                    <a :href="`/clientes/${cliente.id}/edit`" class="text-aviso-azul font-medium hover:underline">Leer su RUT</a>
+                </p>
             </div>
 
             <!-- Notas -->

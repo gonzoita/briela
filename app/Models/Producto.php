@@ -36,6 +36,10 @@ class Producto extends Model
         'stock_minimo',
         'stock_maximo',
         'precio_costo',
+        // Si se compra en otra moneda: cuánto cobra el proveedor en ella. El costo en
+        // pesos de arriba se recalcula con la tasa de cada día.
+        'moneda_costo',
+        'costo_moneda',
         'precio_promedio_compra',
         'precio_ultimo_compra',
         'margen_mayorista',
@@ -67,6 +71,7 @@ class Producto extends Model
         'es_padre'                   => 'boolean',
         'activo'                     => 'boolean',
         'precio_costo'               => 'decimal:2',
+        'costo_moneda'               => 'decimal:4',
         'precio_promedio_compra'     => 'decimal:2',
         'precio_ultimo_compra'       => 'decimal:2',
         'margen_mayorista'           => 'decimal:2',

@@ -56,6 +56,7 @@ class ClienteController extends Controller
         return Inertia::render('Clientes/Create', [
             'segmentacion_opciones' => $this->getSegmentacionOpciones(),
             'sedes'                 => $this->sedesDisponibles(),
+            'catalogo_fiscal'       => \App\Support\Fiscal::catalogo(),
         ]);
     }
 
@@ -110,9 +111,34 @@ class ClienteController extends Controller
         ));
     }
 
+    /**
+     * Lee un RUT (o una foto de él) y devuelve los campos para llenar el formulario.
+     *
+     * No guarda nada: la pantalla pone los datos para que alguien los revise. Pide poder
+     * crear o editar clientes, porque cada lectura es una llamada a la IA y cuesta.
+     */
+    public function leerRut(Request $request, \App\Services\IA\LectorRutService $lector): JsonResponse
+    {
+        $usuario = $request->user();
+        abort_unless($usuario->tienePermiso('clientes.crear') || $usuario->tienePermiso('clientes.editar'), 403);
+
+        $request->validate([
+            'archivo' => 'required|file|max:10240|mimetypes:' . implode(',', \App\Services\IA\LectorRutService::TIPOS),
+        ], [
+            'archivo.mimetypes' => 'El archivo tiene que ser un PDF o una foto (JPG, PNG o WEBP).',
+            'archivo.max'       => 'El archivo pesa más de 10 MB.',
+        ]);
+
+        try {
+            return response()->json(['ok' => true] + $lector->leer($request->file('archivo')));
+        } catch (\App\Exceptions\IaException $e) {
+            return response()->json(['ok' => false, 'mensaje' => $e->getMessage()], 422);
+        }
+    }
+
     public function store(Request $request): RedirectResponse
     {
-        $data = $request->validate($this->reglas());
+        $data = $this->normalizarFiscal($request->validate($this->reglas()));
 
         $this->validarContactos($request);
 
@@ -139,7 +165,7 @@ class ClienteController extends Controller
      */
     public function storeApi(Request $request): JsonResponse
     {
-        $data = $request->validate($this->reglas());
+        $data = $this->normalizarFiscal($request->validate($this->reglas()));
 
         $this->validarContactos($request);
 
@@ -167,6 +193,7 @@ class ClienteController extends Controller
             // Cada bloque solo se carga si el usuario puede ver ese módulo:
             // un vendedor sin acceso a logística no ve las remisiones.
             'historial' => $this->historial($cliente, $usuario),
+            'catalogo_fiscal' => \App\Support\Fiscal::catalogo(),
         ]);
     }
 
@@ -238,6 +265,7 @@ class ClienteController extends Controller
             'archivos'              => $cliente->archivos()->get()->map(fn ($a) => array_merge($a->toArray(), ['url' => $a->url, 'tamano_formateado' => $a->tamano_formateado])),
             'segmentacion_opciones' => $this->getSegmentacionOpciones(),
             'sedes'                 => $this->sedesDisponibles(),
+            'catalogo_fiscal'       => \App\Support\Fiscal::catalogo(),
         ]);
     }
 
@@ -277,7 +305,7 @@ class ClienteController extends Controller
 
     public function update(Request $request, Cliente $cliente): RedirectResponse
     {
-        $data = $request->validate($this->reglas($cliente->id));
+        $data = $this->normalizarFiscal($request->validate($this->reglas($cliente->id)));
 
         $this->validarContactos($request);
 
@@ -391,6 +419,20 @@ class ClienteController extends Controller
             ->toArray();
     }
 
+    /** Los códigos del RUT, limpios; y el retenedor de ICA nunca nulo: la columna no lo admite. */
+    private function normalizarFiscal(array $data): array
+    {
+        if (array_key_exists('responsabilidades_fiscales', $data)) {
+            $data['responsabilidades_fiscales'] = \App\Support\Fiscal::codigos($data['responsabilidades_fiscales'] ?? []);
+        }
+
+        if (array_key_exists('retenedor_ica', $data)) {
+            $data['retenedor_ica'] = (bool) $data['retenedor_ica'];
+        }
+
+        return $data;
+    }
+
     private function reglas(?int $ignoreId = null): array
     {
         return [
@@ -400,6 +442,11 @@ class ClienteController extends Controller
             'numero_identificacion' => 'nullable|string|max:30',
             'digito_verificacion'   => 'nullable|string|max:1',
             'datos_rues'            => 'nullable|array',
+            'responsabilidades_fiscales'   => 'nullable|array',
+            'responsabilidades_fiscales.*' => 'string|max:5',
+            'actividad_economica'   => 'nullable|string|max:10',
+            'retenedor_ica'         => 'nullable|boolean',
+            'datos_rut'             => 'nullable|array',
             'nombre'                => 'required|string|max:200',
             'apellido'              => 'nullable|string|max:100',
             'email'                 => 'nullable|email|max:150',

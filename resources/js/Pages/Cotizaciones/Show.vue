@@ -4,12 +4,16 @@ import { router } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
 import BtnPdf from '@/Components/BtnPdf.vue'
 import { useClipboard } from '@/composables/useClipboard'
+import RetencionesEstimadas from '@/Components/RetencionesEstimadas.vue'
+import { formatMoneda } from '@/formato'
 
 const props = defineProps({
     cotizacion:   Object,
     responsables: Array,
     // Sedes que tienen fábrica: entre ellas se elige dónde producir la OP.
     sedesFabrica: { type: Array, default: () => [] },
+    // Lo que el cliente va a retener al pagar, calculado en el servidor.
+    retenciones:  { type: Object, default: null },
 })
 
 const { copyText } = useClipboard()
@@ -28,6 +32,11 @@ const cot = props.cotizacion
 
 const formatCOP = (v) =>
     new Intl.NumberFormat('es-CO', { maximumFractionDigits: 0 }).format(v ?? 0)
+
+// Por dentro todo está en pesos; así lo ve el cliente.
+const enOtraMoneda = cot.moneda && cot.moneda !== 'COP' && Number(cot.tasa_cambio) > 0
+const enMoneda     = (v) => formatMoneda(v, cot.moneda || 'COP', cot.tasa_cambio)
+const formatTasa   = (v) => new Intl.NumberFormat('es-CO', { minimumFractionDigits: 2, maximumFractionDigits: 4 }).format(Number(v) || 0)
 const formatFecha = (d) =>
     d ? new Date(d).toLocaleDateString('es-CO', { day: '2-digit', month: 'long', year: 'numeric' }) : '—'
 
@@ -306,6 +315,10 @@ function marcarEnviada() {
                             <span class="text-tinta-400">Moneda</span>
                             <span>{{ cot.moneda }}</span>
                         </div>
+                        <div v-if="enOtraMoneda" class="flex justify-between gap-2">
+                            <span class="text-tinta-400">Tasa</span>
+                            <span class="text-right">${{ formatTasa(cot.tasa_cambio) }}<span v-if="cot.tasa_fecha" class="text-tinta-300"> · {{ formatFecha(cot.tasa_fecha + 'T12:00:00') }}</span></span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -336,10 +349,10 @@ function marcarEnviada() {
                                     <div v-if="item.descripcion_larga" class="text-xs text-tinta-300 mt-0.5 prose prose-xs max-w-none" v-html="item.descripcion_larga"></div>
                                 </td>
                                 <td class="px-3 py-3 text-right text-tinta-500">{{ parseFloat(item.cantidad) }}</td>
-                                <td class="px-3 py-3 text-right text-tinta-500">${{ formatCOP(item.precio_unitario) }}</td>
+                                <td class="px-3 py-3 text-right text-tinta-500">{{ enMoneda(item.precio_unitario) }}</td>
                                 <td class="px-3 py-3 text-right text-tinta-300 text-xs">{{ parseFloat(item.descuento_pct) > 0 ? parseFloat(item.descuento_pct) + '%' : '—' }}</td>
                                 <td class="px-3 py-3 text-right text-tinta-300 text-xs">{{ parseFloat(item.impuesto_pct) > 0 ? parseFloat(item.impuesto_pct) + '%' : '—' }}</td>
-                                <td class="px-4 py-3 text-right font-semibold text-tinta-900">${{ formatCOP(item.total_linea) }}</td>
+                                <td class="px-4 py-3 text-right font-semibold text-tinta-900">{{ enMoneda(item.total_linea) }}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -349,20 +362,25 @@ function marcarEnviada() {
                     <div class="w-56 space-y-1.5">
                         <div class="flex justify-between text-sm text-tinta-500">
                             <span>Subtotal</span>
-                            <span>${{ formatCOP(cot.subtotal) }}</span>
+                            <span>{{ enMoneda(cot.subtotal) }}</span>
                         </div>
                         <div v-if="parseFloat(cot.descuento_total) > 0" class="flex justify-between text-sm text-tinta-500">
                             <span>Descuento</span>
-                            <span class="text-aviso-rojo">-${{ formatCOP(cot.descuento_total) }}</span>
+                            <span class="text-aviso-rojo">-{{ enMoneda(cot.descuento_total) }}</span>
                         </div>
                         <div v-if="parseFloat(cot.impuesto_total) > 0" class="flex justify-between text-sm text-tinta-500">
                             <span>IVA</span>
-                            <span>${{ formatCOP(cot.impuesto_total) }}</span>
+                            <span>{{ enMoneda(cot.impuesto_total) }}</span>
                         </div>
                         <div class="flex justify-between text-base font-semibold border-t border-linea pt-2 mt-2" style="color:var(--marca)">
                             <span>TOTAL {{ cot.moneda }}</span>
-                            <span>${{ formatCOP(cot.total) }}</span>
+                            <span>{{ enMoneda(cot.total) }}</span>
                         </div>
+                        <p v-if="enOtraMoneda" class="text-[11px] text-tinta-300 text-right">
+                            Equivale a ${{ formatCOP(cot.total) }} pesos.
+                        </p>
+                        <RetencionesEstimadas :retenciones="retenciones" :total="Number(cot.total)"
+                            :moneda="cot.moneda || 'COP'" :tasa="cot.tasa_cambio" />
                     </div>
                 </div>
             </div>

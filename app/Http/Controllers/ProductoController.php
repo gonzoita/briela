@@ -9,6 +9,9 @@ use App\Models\Producto;
 use App\Models\Proveedor;
 use App\Services\ArchivoServidorService;
 use App\Services\PreciosPorCanalService;
+use App\Services\TasaCambioService;
+use App\Support\Monedas;
+use Illuminate\Validation\ValidationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -105,6 +108,7 @@ class ProductoController extends Controller
             // Los canales que la empresa configuró en Segmentación. Antes eran tres cajas
             // fijas en la pantalla; ahora la pantalla dibuja los que existan.
             'canales'     => app(PreciosPorCanalService::class)->paraFormulario(null),
+            ...$this->propsMonedas(),
         ]);
     }
 
@@ -130,7 +134,7 @@ class ProductoController extends Controller
             'descripcion_corta', 'descripcion_larga', 'descripcion_cotizacion',
             'inventariable', 'es_vendible', 'es_insumo',
             'stock_minimo', 'stock_maximo',
-            'precio_costo',
+            'precio_costo', 'moneda_costo', 'costo_moneda',
             'margen_mayorista', 'margen_distribuidor', 'margen_cliente_final',
             'precio_mayorista', 'precio_distribuidor', 'precio_cliente_final',
             'comision_pct_minima', 'comision_pct_maxima',
@@ -167,6 +171,7 @@ class ProductoController extends Controller
             'canales'     => app(PreciosPorCanalService::class)->paraFormulario($producto),
             'base'        => $base,
             'origen'      => ['id' => $producto->id, 'nombre' => $producto->nombre],
+            ...$this->propsMonedas(),
         ]);
     }
 
@@ -180,6 +185,7 @@ class ProductoController extends Controller
         }
 
         $request->validate($this->reglas($tipo, null, $esPadre));
+        $this->aplicarMonedaCosto($request);
 
         $datosBase = [
             'tipo'                => $tipo,
@@ -197,6 +203,8 @@ class ProductoController extends Controller
             'stock_minimo'        => $request->stock_minimo ?? 0,
             'stock_maximo'        => $request->stock_maximo ?? 0,
             'precio_costo'                => $request->precio_costo ?? 0,
+            'moneda_costo'                => $request->moneda_costo,
+            'costo_moneda'                => $request->costo_moneda,
             'margen_mayorista'            => $request->margen_mayorista ?? 25,
             'margen_distribuidor'         => $request->margen_distribuidor ?? 30,
             'margen_cliente_final'        => $request->margen_cliente_final ?? 35,
@@ -375,6 +383,7 @@ class ProductoController extends Controller
         ]);
 
         return Inertia::render('Productos/Edit', [
+            ...$this->propsMonedas(),
             'producto'    => array_merge($producto->toArray(), [
                 'stock_total' => $producto->stockTotal(),
                 'imagenes'    => $imagenes,
@@ -430,7 +439,7 @@ class ProductoController extends Controller
                         'tipo', 'categoria_id', 'proveedor_id', 'nombre', 'unidad_medida',
                         'descripcion_corta', 'descripcion_larga', 'descripcion_cotizacion', 'es_vendible', 'es_insumo',
                         'inventariable', 'stock_minimo', 'stock_maximo',
-                        'precio_costo', 'precio_promedio_compra', 'precio_ultimo_compra',
+                        'precio_costo', 'moneda_costo', 'costo_moneda', 'precio_promedio_compra', 'precio_ultimo_compra',
                         'margen_mayorista', 'margen_distribuidor', 'margen_cliente_final',
                         'precio_mayorista', 'precio_distribuidor', 'precio_cliente_final',
                         'comision_pct_minima', 'comision_pct_maxima',
@@ -453,6 +462,7 @@ class ProductoController extends Controller
         }
 
         $request->validate($this->reglas($tipo, $id));
+        $this->aplicarMonedaCosto($request);
 
         try {
             $producto->update([
@@ -470,6 +480,8 @@ class ProductoController extends Controller
                 'stock_minimo'         => $request->stock_minimo ?? 0,
                 'stock_maximo'         => $request->stock_maximo ?? 0,
                 'precio_costo'                => $request->precio_costo ?? 0,
+                'moneda_costo'                => $request->moneda_costo,
+                'costo_moneda'                => $request->costo_moneda,
                 'margen_mayorista'            => $request->margen_mayorista ?? 25,
                 'margen_distribuidor'         => $request->margen_distribuidor ?? 30,
                 'margen_cliente_final'        => $request->margen_cliente_final ?? 35,
@@ -802,6 +814,67 @@ class ProductoController extends Controller
         return $hijo;
     }
 
+    /** Las tasas vigentes y el colchón, para que el formulario muestre el costo en pesos. */
+    private function propsMonedas(): array
+    {
+        return [
+            'tasas'       => app(TasaCambioService::class)->paraInterfaz(),
+            'colchon_pct' => Monedas::colchonPct(),
+        ];
+    }
+
+    /**
+     * Si el producto se compra en otra moneda, el costo en pesos lo calcula el servidor.
+     *
+     * La pantalla lo muestra calculado mientras se escribe, pero con la tasa que tenía al
+     * abrirse; si la tasa cambió entre tanto, manda la de ahora. Y los precios de cada canal
+     * se rehacen con ese costo, que es la misma cuenta de la pantalla: un precio calculado
+     * sobre un costo distinto del guardado no se podría reproducir después.
+     */
+    private function aplicarMonedaCosto(Request $request): void
+    {
+        $moneda = $request->input('moneda_costo') ?: Monedas::LOCAL;
+
+        if ($moneda === Monedas::LOCAL) {
+            $request->merge(['moneda_costo' => Monedas::LOCAL, 'costo_moneda' => null]);
+
+            return;
+        }
+
+        $costo = (float) $request->input('costo_moneda');
+
+        if ($costo <= 0) {
+            throw ValidationException::withMessages(['costo_moneda' => "Escribe cuánto cuesta en {$moneda}."]);
+        }
+
+        $pesos = app(TasaCambioService::class)->costoEnPesos($costo, $moneda);
+
+        if ($pesos === null) {
+            throw ValidationException::withMessages([
+                'costo_moneda' => "No hay tasa de {$moneda} guardada. Regístrala en Configuración → Monedas.",
+            ]);
+        }
+
+        $cambios = ['precio_costo' => $pesos];
+        $filas   = $request->input('canales');
+
+        if (is_array($filas)) {
+            $precios = app(PreciosPorCanalService::class);
+
+            foreach ($filas as $i => $fila) {
+                $margen = (float) ($fila['margen_pct'] ?? 0);
+
+                if ($margen > 0) {
+                    $filas[$i]['precio'] = $precios->precioDesdeCosto($pesos, $margen);
+                }
+            }
+
+            $cambios['canales'] = $filas;
+        }
+
+        $request->merge($cambios);
+    }
+
     private function reglas(string $tipo, ?int $ignoreId = null, bool $esPadre = false): array
     {
         $referenciaRule = $ignoreId
@@ -845,6 +918,8 @@ class ProductoController extends Controller
             'variantes.*.stock_inicial'    => 'nullable|array',
             'variantes.*.stock_inicial.*'  => 'nullable|numeric|min:0',
             'precio_costo'                => 'nullable|numeric|min:0',
+            'moneda_costo'                => 'nullable|in:' . implode(',', array_keys(Monedas::CATALOGO)),
+            'costo_moneda'                => 'nullable|numeric|min:0',
             'margen_mayorista'            => 'nullable|numeric|min:1|max:99',
             'margen_distribuidor'         => 'nullable|numeric|min:1|max:99',
             'margen_cliente_final'        => 'nullable|numeric|min:1|max:99',

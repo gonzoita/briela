@@ -9,7 +9,7 @@
  *
  * Muta las filas en sitio: el padre pasa su propio arreglo y lo manda tal cual al guardar.
  */
-import { computed } from 'vue'
+import { computed, watch } from 'vue'
 import { router } from '@inertiajs/vue3'
 import { usePreciosPorCanal } from '@/composables/usePreciosPorCanal'
 import { formatPct } from '@/formato'
@@ -21,9 +21,41 @@ const props = defineProps({
     // En un producto el costo se escribe; en un ensamble sale de la suma de sus
     // componentes y escribirlo a mano solo lo desincronizaría de la receta.
     costoEditable: { type: Boolean, default: true },
+    // Un producto se puede comprar en otra moneda; un ensamble no, su costo es la suma
+    // de los componentes. Solo la pantalla del producto lo pide.
+    permiteMoneda: { type: Boolean, default: false },
+    monedaCosto:   { type: String, default: 'COP' },
+    costoMoneda:   { type: [Number, String], default: null },
+    tasas:         { type: Object, default: () => ({}) },
+    colchonPct:    { type: Number, default: 0 },
 })
 
-const emit = defineEmits(['update:precioCosto'])
+const emit = defineEmits(['update:precioCosto', 'update:monedaCosto', 'update:costoMoneda'])
+
+// ─── Costo en otra moneda ────────────────────────────────────────────────────
+// El costo en pesos se calcula aquí mientras se escribe, con la tasa que llegó al abrir, y
+// alimenta los precios de cada canal igual que si se hubiera escrito a mano. Al guardar,
+// el servidor lo vuelve a calcular con la tasa de ese momento: la pantalla muestra, el
+// servidor decide.
+const enOtraMoneda = computed(() => props.permiteMoneda && props.monedaCosto && props.monedaCosto !== 'COP')
+const tasaMoneda   = computed(() => enOtraMoneda.value ? (props.tasas?.[props.monedaCosto] ?? null) : null)
+
+watch([enOtraMoneda, () => props.costoMoneda, tasaMoneda, () => props.colchonPct], () => {
+    if (! enOtraMoneda.value || ! tasaMoneda.value) return
+
+    const costo = Number(props.costoMoneda) || 0
+    const pesos = Math.round(costo * tasaMoneda.value.valor * (1 + (props.colchonPct || 0) / 100) * 100) / 100
+
+    if (pesos !== Number(props.precioCosto)) emit('update:precioCosto', pesos)
+}, { immediate: true })
+
+function cambiarMoneda(moneda) {
+    emit('update:monedaCosto', moneda)
+    if (moneda === 'COP') emit('update:costoMoneda', null)
+}
+
+const formatFecha = (f) => f ? new Date(f + 'T12:00:00').toLocaleDateString('es-CO', { day: 'numeric', month: 'short' }) : ''
+const formatTasa  = (v) => new Intl.NumberFormat('es-CO', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(v ?? 0)
 
 const canalesRef = computed(() => props.canales)
 const costoRef   = computed(() => Number(props.precioCosto) || 0)
@@ -46,9 +78,28 @@ const formatCOP = (v) =>
         <div class="p-5 space-y-4">
             <div>
                 <label class="block text-xs font-medium text-tinta-500 mb-1">Precio Costo</label>
+
+                <!-- En otra moneda: se escribe lo que cobra el proveedor y el costo en pesos
+                     sale de la tasa del día. -->
+                <div v-if="costoEditable && permiteMoneda" class="flex gap-2 mb-2">
+                    <select :value="monedaCosto || 'COP'" @change="cambiarMoneda($event.target.value)"
+                        class="shrink-0 border border-linea rounded-xl pl-3 pr-9 py-2 text-sm bg-superficie focus:outline-none focus:border-[var(--marca)]"
+                        aria-label="Moneda del costo">
+                        <option value="COP">COP</option>
+                        <option value="USD">USD</option>
+                        <option value="EUR">EUR</option>
+                    </select>
+                    <input v-if="enOtraMoneda"
+                        :value="costoMoneda" @input="emit('update:costoMoneda', $event.target.value === '' ? null : Number($event.target.value))"
+                        type="number" min="0" step="0.0001" :placeholder="`Costo en ${monedaCosto}`"
+                        class="flex-1 min-w-0 border rounded-xl px-3 py-2 text-sm focus:outline-none border-linea bg-superficie focus:border-[var(--marca)]" />
+                </div>
+
                 <div class="relative">
                     <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-tinta-300">$</span>
-                    <input v-if="costoEditable"
+                    <input v-if="costoEditable && enOtraMoneda" :value="formatCOP(precioCosto)" readonly
+                        class="w-full border border-linea rounded-xl pl-7 pr-3 py-2 text-sm bg-tinta-50 font-semibold text-tinta-700" />
+                    <input v-else-if="costoEditable"
                         :value="precioCosto" @input="emit('update:precioCosto', Number($event.target.value) || 0)"
                         type="number" min="0" step="0.01"
                         class="w-full border rounded-xl pl-7 pr-3 py-2 text-sm focus:outline-none border-linea bg-superficie focus:border-[var(--marca)]" />
@@ -58,6 +109,17 @@ const formatCOP = (v) =>
                 <p v-if="! costoEditable" class="text-xs text-tinta-300 mt-1">
                     Sale de la suma de los componentes.
                 </p>
+                <template v-else-if="enOtraMoneda">
+                    <p v-if="tasaMoneda" class="text-xs text-tinta-400 mt-1">
+                        En pesos, a la tasa de {{ monedaCosto }} del {{ formatFecha(tasaMoneda.fecha) }}
+                        (${{ formatTasa(tasaMoneda.valor) }})<span v-if="colchonPct > 0"> más el colchón de {{ formatPct(colchonPct) }}%</span>.
+                        Se recalcula solo cada día, y con él los precios.
+                    </p>
+                    <p v-else class="text-xs text-aviso-ambar mt-1">
+                        No hay tasa de {{ monedaCosto }} guardada. Regístrala en
+                        <button type="button" @click="router.visit('/configuracion/monedas')" class="font-semibold underline underline-offset-2">Configuración → Monedas</button>.
+                    </p>
+                </template>
             </div>
 
             <!-- Una fila por canal configurado en Segmentación. El nombre va como

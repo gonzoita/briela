@@ -19,6 +19,11 @@ class Cliente extends Model
         'numero_identificacion',
         'digito_verificacion',
         'datos_rues',
+        // Lo del RUT que decide las retenciones. Ver App\Services\RetencionesService.
+        'responsabilidades_fiscales',
+        'actividad_economica',
+        'retenedor_ica',
+        'datos_rut',
         'nombre',
         'apellido',
         'email',
@@ -44,6 +49,9 @@ class Cliente extends Model
         'proceso_seguimiento'=> 'array',
         'fuentes_contacto'   => 'array',
         'datos_rues'         => 'array',
+        'responsabilidades_fiscales' => 'array',
+        'retenedor_ica'      => 'boolean',
+        'datos_rut'          => 'array',
     ];
 
     /**

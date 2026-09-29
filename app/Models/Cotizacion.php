@@ -25,7 +25,10 @@ class Cotizacion extends Model
         'contacto_id',
         'nombre_contacto_override',
         'moneda',
+        // Los ítems y los totales se guardan SIEMPRE en pesos; la moneda y la tasa dicen
+        // cómo mostrárselos al cliente. Ver App\Support\Monedas.
         'tasa_cambio',
+        'tasa_fecha',
         'fecha_creacion',
         'fecha_validez',
         'responsable_id',
@@ -53,8 +56,20 @@ class Cotizacion extends Model
         'impuesto_total'   => 'decimal:2',
         'total'            => 'decimal:2',
         'tasa_cambio'      => 'decimal:4',
+        'tasa_fecha'       => 'date:Y-m-d',
         'en_produccion'    => 'boolean',
     ];
+
+    /** Un valor en pesos, escrito en la moneda de esta cotización. */
+    public function enSuMoneda(float|int|string|null $valorEnPesos): string
+    {
+        return \App\Support\Monedas::formatear($valorEnPesos, (string) ($this->moneda ?: 'COP'), (float) ($this->tasa_cambio ?: 1));
+    }
+
+    public function esEnOtraMoneda(): bool
+    {
+        return ($this->moneda ?: 'COP') !== \App\Support\Monedas::LOCAL && (float) $this->tasa_cambio > 0;
+    }
 
     protected static function boot(): void
     {

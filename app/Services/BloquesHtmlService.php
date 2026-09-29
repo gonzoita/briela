@@ -162,6 +162,8 @@ class BloquesHtmlService
             $variable = $fila['variable'] ?? '';
             $html .= "<p style='margin:2px 0;{$estilo}'>{$etiqueta}: <strong>{{{$variable}}}</strong></p>";
         }
+        // En otra moneda, a qué tasa: un precio en dólares sin la tasa es una discusión segura.
+        $html .= "{{#if cotizacion.nota_moneda}}<p style='margin:4px 0 0;font-size:8px;color:#6B7280;'>{{cotizacion.nota_moneda}}</p>{{/if}}";
         $html .= "</div>";
         return $html;
     }

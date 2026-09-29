@@ -92,6 +92,8 @@ class PdfVariablesEngine
                     ],
                     static::variablesInstanciaExpandidas($item)
                 ))->toArray();
+
+                $datos = static::conMonedaDeCotizacion($registro, $datos);
                 break;
 
             case 'op':
@@ -222,6 +224,59 @@ class PdfVariablesEngine
         }
 
         return $resultado;
+    }
+
+    /**
+     * Una cotización en otra moneda: sus valores, convertidos.
+     *
+     * Por dentro todo está en pesos (ver App\Support\Monedas). Aquí se pasan a la moneda
+     * del cliente los montos que se imprimen, y el filtro `moneda` los escribe con su
+     * símbolo. Se agregan también el total en pesos, la tasa y una nota lista para poner al
+     * pie, porque un precio en dólares sin decir a qué tasa es una discusión segura.
+     */
+    private static function conMonedaDeCotizacion(\App\Models\Cotizacion $cot, array $datos): array
+    {
+        $retenciones = app(\App\Services\RetencionesService::class)->paraCotizacion($cot);
+        $datos['cotizacion.retenciones_total'] = $retenciones['total'];
+        $datos['cotizacion.neto_a_recibir']    = (float) $cot->total - $retenciones['total'];
+        // Ya escrito, en pesos: con `|moneda` saldría con el símbolo del documento.
+        $datos['cotizacion.total_cop']         = \App\Support\Monedas::formatear($cot->total);
+        $datos['cotizacion.nota_moneda']       = '';
+
+        if (! $cot->esEnOtraMoneda()) {
+            return $datos;
+        }
+
+        $moneda = (string) $cot->moneda;
+        $tasa   = (float) $cot->tasa_cambio;
+        $conv   = fn ($v) => is_numeric($v) ? \App\Support\Monedas::desdePesos((float) $v, $moneda, $tasa) : $v;
+
+        foreach (['subtotal', 'descuento_total', 'impuesto_total', 'total', 'retenciones_total', 'neto_a_recibir'] as $campo) {
+            if (array_key_exists("cotizacion.{$campo}", $datos)) {
+                $datos["cotizacion.{$campo}"] = $conv($datos["cotizacion.{$campo}"]);
+            }
+        }
+
+        $montos = ['precio_unitario', 'subtotal', 'subtotal_linea', 'descuento_valor', 'impuesto_valor',
+                   'total_linea', 'comision_valor', 'precio_mayorista_base'];
+
+        $datos['items'] = array_map(function (array $item) use ($montos, $conv) {
+            foreach ($montos as $m) {
+                if (array_key_exists($m, $item)) {
+                    $item[$m] = $conv($item[$m]);
+                }
+            }
+
+            return $item;
+        }, $datos['items'] ?? []);
+
+        $datos['__moneda'] = $moneda;
+        $datos['cotizacion.nota_moneda'] = "Valores en {$moneda} a una tasa de $"
+            . number_format($tasa, 2, ',', '.') . ' por ' . $moneda
+            . ($cot->tasa_fecha ? ' del ' . $cot->tasa_fecha->format('d/m/Y') : '')
+            . '. Equivalen a ' . \App\Support\Monedas::formatear($cot->total) . ' pesos.';
+
+        return $datos;
     }
 
     private static function datosEmpresa(): array
@@ -446,6 +501,11 @@ class PdfVariablesEngine
                 ['var' => '{{cotizacion.descuento_total|moneda}}','desc' => 'Descuento total',       'grupo' => 'Totales'],
                 ['var' => '{{cotizacion.impuesto_total|moneda}}', 'desc' => 'Impuesto total',        'grupo' => 'Totales'],
                 ['var' => '{{cotizacion.total|moneda}}',         'desc' => 'Total formateado',       'grupo' => 'Totales'],
+                ['var' => '{{cotizacion.retenciones_total|moneda}}', 'desc' => 'Retenciones estimadas que practicará el cliente', 'grupo' => 'Totales'],
+                ['var' => '{{cotizacion.neto_a_recibir|moneda}}',    'desc' => 'Total menos las retenciones estimadas', 'grupo' => 'Totales'],
+                ['var' => '{{cotizacion.moneda}}',             'desc' => 'Moneda de la cotización (COP, USD, EUR)', 'grupo' => 'Totales'],
+                ['var' => '{{cotizacion.nota_moneda}}',        'desc' => 'Nota con la tasa usada (vacía en pesos)', 'grupo' => 'Totales'],
+                ['var' => '{{cotizacion.total_cop}}',          'desc' => 'Total en pesos, ya escrito (sin filtro)', 'grupo' => 'Totales'],
                 ['var' => '{{cotizacion.created_at|fecha}}',     'desc' => 'Fecha de creación',      'grupo' => 'Fechas'],
                 ['var' => '{{cotizacion.fecha_validez|fecha}}',  'desc' => 'Validez formateada',     'grupo' => 'Fechas'],
                 ['var' => '{{#items}}...{{/items}}',       'desc' => 'Bloque de items',              'grupo' => 'Tabla items'],

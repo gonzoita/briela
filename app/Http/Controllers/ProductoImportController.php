@@ -42,6 +42,7 @@ class ProductoImportController extends Controller
     public function __construct(
         private CanalesPrecioService $canales,
         private PreciosPorCanalService $precios,
+        private \App\Services\TasaCambioService $tasas,
     ) {}
 
     /** Columnas fijas antes de los precios: [nombre => [descripción, obligatoria, grupo]]. */
@@ -63,7 +64,9 @@ class ProductoImportController extends Controller
         'referencia_proveedor'   => ['El código con el que ese proveedor conoce el producto.', false, 'Proveedor'],
         'precio_proveedor'       => ['Lo que cobra ese proveedor por unidad. Vacío: el precio de costo.', false, 'Proveedor'],
 
-        'precio_costo'                => ['Precio de costo. Solo números, sin puntos de miles.', false, 'Costo y precios'],
+        'precio_costo'                => ['Precio de costo en pesos. Solo números, sin puntos de miles.', false, 'Costo y precios'],
+        'moneda_costo'                => ['«COP», «USD» o «EUR»: en qué moneda cobra el proveedor. Vacío: COP.', false, 'Costo y precios'],
+        'costo_moneda'                => ['El costo en esa moneda, si no es COP. El costo en pesos sale de la tasa del día y se actualiza solo cada día; precio_costo se ignora.', false, 'Costo y precios'],
         'utilidad_minima_empresa_pct' => ['% de utilidad mínima que exige la empresa. Vacío: 15.', false, 'Costo y precios'],
     ];
 
@@ -183,7 +186,7 @@ class ProductoImportController extends Controller
                 'unidad_medida' => 'unidad', 'descripcion_corta' => 'Cuarto frío modular panel inyectado',
                 'es_vendible' => 'Si', 'es_insumo' => 'No', 'inventariable' => 'Si', 'activo' => 'Si',
                 'proveedor' => 'Proveedor de ejemplo', 'referencia_proveedor' => 'CF-33', 'precio_proveedor' => '3500000',
-                'precio_costo' => '3500000', 'utilidad_minima_empresa_pct' => '15',
+                'precio_costo' => '3500000', 'moneda_costo' => 'COP', 'utilidad_minima_empresa_pct' => '15',
                 'stock_minimo' => '1', 'stock_inicial' => '5', 'bodega' => $bodega, 'es_padre' => 'No',
             ], $margenes),
             [
@@ -357,6 +360,29 @@ class ProductoImportController extends Controller
                 $esPadre = $this->esSi($d['es_padre'] ?? null, $producto?->es_padre ?? false);
                 $costo   = $this->num($d['precio_costo'] ?? null, $producto?->precio_costo ?? $heredaDe?->precio_costo, 0);
 
+                // Un costo en otra moneda manda sobre el costo en pesos: el de pesos sale de
+                // la tasa del día, igual que en la ficha.
+                $moneda = strtoupper(trim((string) ($d['moneda_costo'] ?? '')))
+                    ?: ($producto?->moneda_costo ?? $heredaDe?->moneda_costo ?? \App\Support\Monedas::LOCAL);
+
+                if (! \App\Support\Monedas::existe($moneda)) {
+                    throw new \RuntimeException("Moneda «{$moneda}» no reconocida: usa COP, USD o EUR.");
+                }
+
+                $costoMoneda = null;
+
+                if ($moneda !== \App\Support\Monedas::LOCAL) {
+                    $costoMoneda = $this->numero($d['costo_moneda'] ?? null)
+                        ?? (($producto ?? $heredaDe)?->moneda_costo === $moneda ? (float) ($producto ?? $heredaDe)->costo_moneda : null);
+
+                    if (! $costoMoneda) {
+                        throw new \RuntimeException("Falta costo_moneda: cuánto cuesta en {$moneda}.");
+                    }
+
+                    $costo = $this->tasas->costoEnPesos($costoMoneda, $moneda)
+                        ?? throw new \RuntimeException("No hay tasa de {$moneda} guardada. Regístrala en Configuración → Monedas y vuelve a importar.");
+                }
+
                 // Los precios por canal no van aquí: los escribe PreciosPorCanalService más
                 // abajo, que también espeja las columnas viejas.
                 $datos = [
@@ -375,6 +401,8 @@ class ProductoImportController extends Controller
                     'stock_minimo'           => $this->num($d['stock_minimo'] ?? null, $producto?->stock_minimo, 0),
                     'stock_maximo'           => $this->num($d['stock_maximo'] ?? null, $producto?->stock_maximo, 0),
                     'precio_costo'           => $costo,
+                    'moneda_costo'           => $moneda,
+                    'costo_moneda'           => $costoMoneda,
                     'utilidad_minima_empresa_pct' => $this->num($d['utilidad_minima_empresa_pct'] ?? null, $producto?->utilidad_minima_empresa_pct, 15),
                 ];
 
@@ -464,7 +492,8 @@ class ProductoImportController extends Controller
         }
 
         $costo       = (float) $producto->precio_costo;
-        $costoEnFila = $this->numero($d['precio_costo'] ?? null) !== null;
+        $costoEnFila = $this->numero($d['precio_costo'] ?? null) !== null
+            || $this->numero($d['costo_moneda'] ?? null) !== null;
         $guardadas   = ($heredaDe ?? $producto)->preciosPorCanal()->get()->keyBy('segmentacion_opcion_id');
 
         $filas  = [];

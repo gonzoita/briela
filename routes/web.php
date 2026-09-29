@@ -237,6 +237,8 @@ Route::middleware('auth')->group(function () {
         // se lo come la ruta /clientes/{cliente}.
         Route::get('/clientes/consultar-identificacion', [ClienteController::class, 'consultarIdentificacion'])
             ->name('clientes.consultar-identificacion');
+        // Leer un RUT con la IA para llenar el formulario. No guarda nada.
+        Route::post('/clientes/leer-rut', [ClienteController::class, 'leerRut'])->name('clientes.leer-rut');
 
         // Importación por CSV. También antes del resource, por lo mismo.
         Route::middleware('permiso:clientes.crear')->group(function () {
@@ -439,6 +441,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/api/cotizaciones/condiciones-generales', [CotizacionController::class, 'guardarCondicionesGenerales'])
             ->middleware('permiso:configuracion.editar')->name('cotizaciones.condiciones-generales');
         Route::post('/api/cotizaciones/calcular-ensamble',       [CotizacionController::class, 'calcularEnsamble'])->name('cotizaciones.calcular-ensamble');
+        Route::post('/api/cotizaciones/estimar-retenciones',     [CotizacionController::class, 'estimarRetenciones'])->name('cotizaciones.estimar-retenciones');
         Route::post('/api/cotizaciones/upload-imagen-instancia',  [CotizacionController::class, 'uploadImagenInstancia'])->name('cotizaciones.upload-imagen-instancia');
     });
 
@@ -765,6 +768,21 @@ Route::middleware('auth')->group(function () {
         Route::get('/identificacion',        [IdentificacionConfigController::class, 'index'])->name('identificacion.index');
         Route::post('/identificacion',       [IdentificacionConfigController::class, 'guardar'])->name('identificacion.guardar');
         Route::post('/identificacion/probar',[IdentificacionConfigController::class, 'probar'])->name('identificacion.probar');
+
+        // ─── Monedas: TRM del día, colchón y modo de las cotizaciones ────────
+        Route::get('/monedas', [\App\Http\Controllers\MonedasConfigController::class, 'index'])->name('monedas.index');
+        Route::middleware('permiso:configuracion.editar')->group(function () {
+            Route::post('/monedas',            [\App\Http\Controllers\MonedasConfigController::class, 'guardar'])->name('monedas.guardar');
+            Route::post('/monedas/actualizar', [\App\Http\Controllers\MonedasConfigController::class, 'actualizar'])->name('monedas.actualizar');
+            Route::post('/monedas/manual',     [\App\Http\Controllers\MonedasConfigController::class, 'manual'])->name('monedas.manual');
+        });
+
+        // ─── Perfil fiscal: datos de la empresa y reglas de retención ────────
+        Route::get('/fiscal', [\App\Http\Controllers\FiscalConfigController::class, 'index'])->name('fiscal.index');
+        Route::middleware('permiso:configuracion.editar')->group(function () {
+            Route::post('/fiscal',          [\App\Http\Controllers\FiscalConfigController::class, 'guardar'])->name('fiscal.guardar');
+            Route::post('/fiscal/leer-rut', [\App\Http\Controllers\FiscalConfigController::class, 'leerRut'])->name('fiscal.leer-rut');
+        });
 
         // ─── Módulos: encender y apagar lo que la empresa usa ────────────────
         Route::get('/modulos',          [\App\Http\Controllers\ModuloController::class, 'index'])->name('modulos.index');

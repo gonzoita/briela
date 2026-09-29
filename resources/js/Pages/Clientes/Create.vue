@@ -4,12 +4,15 @@ import { useForm } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
 import ChipsSegmentacion from '@/Components/ChipsSegmentacion.vue'
 import AvisoIdentificacion from '@/Components/AvisoIdentificacion.vue'
+import LeerRut from '@/Components/LeerRut.vue'
+import DatosFiscales from '@/Components/DatosFiscales.vue'
 import { useUnsavedChanges } from '@/composables/useUnsavedChanges'
 import { useConsultaIdentificacion } from '@/composables/useConsultaIdentificacion'
 
 const props = defineProps({
     segmentacion_opciones: { type: Object, default: () => ({}) },
     sedes:                 { type: Array,  default: () => [] },
+    catalogo_fiscal:       { type: Array,  default: () => [] },
 })
 
 const form = useForm({
@@ -19,6 +22,10 @@ const form = useForm({
     numero_identificacion: '',
     digito_verificacion: '',
     datos_rues: null,
+    responsabilidades_fiscales: [],
+    actividad_economica: '',
+    retenedor_ica:       false,
+    datos_rut:           null,
     nombre: '',
     apellido: '',
     email: '',
@@ -72,6 +79,21 @@ function usarDatosRues(rues) {
     // La ciudad no se llena: el registro publica la cámara de comercio, cuya
     // jurisdicción cubre varios municipios. Adivinarla sería peor que dejarla
     // en blanco.
+}
+
+/**
+ * Lo leído del RUT, al formulario. Solo pisa lo que el documento trajo: un campo que la IA
+ * dejó vacío no borra lo que ya estaba escrito.
+ */
+function usarRut({ datos }) {
+    for (const [campo, valor] of Object.entries(datos)) {
+        if (! (campo in form)) continue
+        const vacio = valor === null || valor === '' || (Array.isArray(valor) && valor.length === 0)
+        if (! vacio) form[campo] = valor
+    }
+    limpiar()
+    // Con el número ya puesto, se revisa como si se hubiera escrito: duplicados y RUES.
+    if (form.numero_identificacion) revisarIdentificacion()
 }
 
 function ic(extra = '') {
@@ -160,7 +182,10 @@ function submit() {
 
                 <!-- Identificación -->
                 <div class="bg-superficie rounded-xl border border-linea p-4">
-                    <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-3">Identificación</p>
+                    <div class="flex flex-wrap items-start justify-between gap-2 mb-3">
+                        <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">Identificación</p>
+                        <LeerRut url="/clientes/leer-rut" @leido="usarRut" class="max-w-full"/>
+                    </div>
                     <div class="grid grid-cols-2 gap-3">
                         <div>
                             <label class="block text-xs font-medium text-tinta-700 mb-1">Tipo ID</label>
@@ -367,6 +392,12 @@ function submit() {
                             <input v-model="form.direccion" type="text" :class="ic()" placeholder="Calle 00 # 00-00"/>
                         </div>
                     </div>
+                </div>
+
+                <!-- Datos tributarios: deciden qué retenciones practica al pagar -->
+                <div class="bg-superficie rounded-xl border border-linea p-4">
+                    <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-3">Datos tributarios</p>
+                    <DatosFiscales :modelo="form" :catalogo="catalogo_fiscal"/>
                 </div>
 
                 <!-- Notas -->

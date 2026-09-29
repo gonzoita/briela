@@ -22,6 +22,9 @@ const props = defineProps({
     // Al duplicar, los datos del producto que sirve de molde. Null cuando se crea de cero.
     base:        { type: Object, default: null },
     origen:      { type: Object, default: null },
+    // Las tasas vigentes, para mostrar en pesos un costo escrito en otra moneda.
+    tasas:       { type: Object, default: () => ({}) },
+    colchon_pct: { type: Number, default: 0 },
 })
 
 const tipoSeleccionado = ref(props.tipo || '')
@@ -76,6 +79,8 @@ const form = useForm({
     stock_minimo:        0,
     stock_maximo:        0,
     precio_costo:                0,
+    moneda_costo:                'COP',
+    costo_moneda:                null,
     margen_mayorista:            25,
     margen_distribuidor:         30,
     margen_cliente_final:        35,
@@ -693,6 +698,11 @@ const badgeStyle = {
                 <PreciosPorCanal
                     :canales="form.canales"
                     v-model:precio-costo="form.precio_costo"
+                    v-model:moneda-costo="form.moneda_costo"
+                    v-model:costo-moneda="form.costo_moneda"
+                    :tasas="tasas"
+                    :colchon-pct="colchon_pct"
+                    permite-moneda
                 />
 
                 <!-- Errores de validación -->

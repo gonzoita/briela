@@ -101,7 +101,7 @@
             </div>
             <div class="campo" style="margin-top: 6px;">
                 <label>Moneda</label>
-                <p>{{ $cotizacion->moneda }}@if($cotizacion->moneda !== 'COP') (Tasa: {{ number_format($cotizacion->tasa_cambio, 2) }})@endif</p>
+                <p>{{ $cotizacion->moneda }}@if($cotizacion->esEnOtraMoneda()) (Tasa: ${{ number_format($cotizacion->tasa_cambio, 2, ',', '.') }}@if($cotizacion->tasa_fecha) del {{ $cotizacion->tasa_fecha->format('d/m/Y') }}@endif)@endif</p>
             </div>
         </div>
     </div>
@@ -136,10 +136,10 @@
                     @endif
                 </td>
                 <td class="text-right">{{ number_format($item->cantidad, 2) }}</td>
-                <td class="text-right">{{ '$' . number_format($item->precio_unitario, 0, ',', '.') }}</td>
+                <td class="text-right">{{ $cotizacion->enSuMoneda($item->precio_unitario) }}</td>
                 <td class="text-right">{{ $item->descuento_pct > 0 ? number_format($item->descuento_pct, 1) . '%' : '—' }}</td>
                 <td class="text-right">{{ $item->impuesto_pct > 0 ? number_format($item->impuesto_pct, 0) . '%' : '—' }}</td>
-                <td class="text-right" style="font-weight: 600;">${{ number_format($item->total_linea, 0, ',', '.') }}</td>
+                <td class="text-right" style="font-weight: 600;">{{ $cotizacion->enSuMoneda($item->total_linea) }}</td>
             </tr>
             @endforeach
         </tbody>
@@ -151,24 +151,29 @@
     <div class="totales-tabla">
         <div class="totales-fila">
             <span>Subtotal</span>
-            <span>${{ number_format($cotizacion->subtotal, 0, ',', '.') }}</span>
+            <span>{{ $cotizacion->enSuMoneda($cotizacion->subtotal) }}</span>
         </div>
         @if($cotizacion->descuento_total > 0)
         <div class="totales-fila">
             <span>Descuento</span>
-            <span>- ${{ number_format($cotizacion->descuento_total, 0, ',', '.') }}</span>
+            <span>- {{ $cotizacion->enSuMoneda($cotizacion->descuento_total) }}</span>
         </div>
         @endif
         @if($cotizacion->impuesto_total > 0)
         <div class="totales-fila">
             <span>IVA</span>
-            <span>${{ number_format($cotizacion->impuesto_total, 0, ',', '.') }}</span>
+            <span>{{ $cotizacion->enSuMoneda($cotizacion->impuesto_total) }}</span>
         </div>
         @endif
         <div class="totales-fila total">
             <span>TOTAL {{ $cotizacion->moneda }}</span>
-            <span>${{ number_format($cotizacion->total, 0, ',', '.') }}</span>
+            <span>{{ $cotizacion->enSuMoneda($cotizacion->total) }}</span>
         </div>
+        @if($cotizacion->esEnOtraMoneda())
+        <p style="font-size: 8px; color: #6B7280; margin-top: 4px;">
+            Equivale a {{ \App\Support\Monedas::formatear($cotizacion->total) }} pesos.
+        </p>
+        @endif
     </div>
 </div>
 

@@ -38,6 +38,10 @@ Schedule::command('crm:avisar-leads-quietos --dias=7')->dailyAt('06:15')->when(f
 
 // El latido de la licencia: cuatro veces al día. Va por el cron y no en las cargas de
 // página para que ninguna pantalla dependa de que el servidor de licencias responda.
+// La TRM del día se publica la tarde del día hábil anterior. Corre dos veces porque
+// una consulta que falla a primera hora no debe dejar el día entero con la de ayer; la
+// segunda pasada no cambia nada si la primera ya la trajo.
+Schedule::command('tasas:actualizar')->cron('30 6,13 * * *')->withoutOverlapping();
 Schedule::command('briela:latido')->cron('7 */6 * * *');
 
 // Cada minuto: publica en redes sociales las publicaciones programadas cuya

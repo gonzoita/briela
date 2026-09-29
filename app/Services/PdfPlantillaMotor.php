@@ -36,7 +36,7 @@ use Carbon\Carbon;
 class PdfPlantillaMotor
 {
     public const FILTROS = [
-        'moneda'     => 'Dinero en pesos: $1.234.567',
+        'moneda'     => 'Dinero en la moneda del documento: $1.234.567, o US$ 1.234,56 en una cotización en dólares',
         'numero'     => 'Número con miles y hasta 2 decimales: 1.234,5',
         'entero'     => 'Número redondeado sin decimales: 1.235',
         'pct'        => 'Porcentaje hasta 2 decimales: 2,25%',
@@ -58,6 +58,12 @@ class PdfPlantillaMotor
     private array $raiz = [];
     private array $desconocidas = [];
 
+    /**
+     * La moneda del documento, para el filtro `moneda`. Los valores llegan ya convertidos
+     * (ver PdfVariablesEngine); aquí solo se decide cómo se escriben.
+     */
+    private string $moneda = 'COP';
+
     public static function render(string $html, array $datos): string
     {
         return (new self)->ejecutar($html, $datos)['html'];
@@ -78,6 +84,7 @@ class PdfPlantillaMotor
     {
         $this->raiz = $datos;
         $this->desconocidas = [];
+        $this->moneda = \App\Support\Monedas::existe($datos['__moneda'] ?? null) ? $datos['__moneda'] : 'COP';
         [$arbol, $errores] = $this->parsear($html);
         $salida = $this->recorrer($arbol, []);
 
@@ -320,7 +327,7 @@ class PdfPlantillaMotor
         $sinCeros = fn (string $s) => str_contains($s, ',') ? rtrim(rtrim($s, '0'), ',') : $s;
 
         return match (strtolower($filtro)) {
-            'moneda'              => [$v === '' ? '' : '$' . number_format($num(), 0, ',', '.'), $esHtml],
+            'moneda'              => [$v === '' ? '' : \App\Support\Monedas::formatear($num(), $this->moneda), $esHtml],
             'numero'              => [$v === '' ? '' : $sinCeros(number_format($num(), 2, ',', '.')), $esHtml],
             'entero'              => [$v === '' ? '' : number_format($num(), 0, ',', '.'), $esHtml],
             'pct'                 => [$v === '' ? '' : $sinCeros(number_format($num(), 2, ',', '.')) . '%', $esHtml],

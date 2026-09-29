@@ -48,3 +48,30 @@ export function formatCantidad(valor) {
         maximumFractionDigits: 3,
     }).format(Number(valor) || 0)
 }
+
+/**
+ * Un valor en pesos, escrito en la moneda de un documento.
+ *
+ * Por dentro todo se guarda en pesos; una cotización en dólares guarda una tasa y así se le
+ * muestra al cliente. 6.075.000 a 4.500 → «US$ 1.350,00». Es la misma cuenta de
+ * `App\Support\Monedas::formatear()`: si se cambia una, se cambia la otra.
+ */
+const MONEDAS = {
+    COP: { simbolo: '$',   decimales: 0 },
+    USD: { simbolo: 'US$', decimales: 2 },
+    EUR: { simbolo: '€',   decimales: 2 },
+}
+
+export function formatMoneda(valorEnPesos, moneda = 'COP', tasa = 1) {
+    const info  = MONEDAS[moneda] ?? MONEDAS.COP
+    const t     = Number(tasa) || 0
+    const pesos = Number(valorEnPesos) || 0
+    const valor = moneda === 'COP' || t <= 0 ? pesos : pesos / t
+
+    const texto = new Intl.NumberFormat('es-CO', {
+        minimumFractionDigits: info.decimales,
+        maximumFractionDigits: info.decimales,
+    }).format(info.decimales === 0 ? Math.round(valor) : valor)
+
+    return moneda === 'COP' ? `${info.simbolo}${texto}` : `${info.simbolo} ${texto}`
+}

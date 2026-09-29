@@ -221,6 +221,49 @@ class IaService
     }
 
     /**
+     * Pide a la IA que lea documentos —un PDF, una foto— y responda en texto.
+     *
+     * Sale por el mismo camino que texto(), así que por el proxy también: la instalación
+     * no necesita credencial propia para leer un RUT. El PDF viaja como archivo y la
+     * imagen como imagen; el modelo de texto por defecto entiende las dos.
+     *
+     * @param  list<array{mime: string, contenido: string, nombre?: string}>  $adjuntos  contenido en binario
+     */
+    public function leerDocumentos(string $prompt, string $instrucciones, array $adjuntos, int $maxTokens = 1500): string
+    {
+        $contenido = [['type' => 'text', 'text' => $prompt]];
+
+        foreach ($adjuntos as $a) {
+            $dataUrl = 'data:' . $a['mime'] . ';base64,' . base64_encode($a['contenido']);
+
+            $contenido[] = $a['mime'] === 'application/pdf'
+                ? ['type' => 'file', 'file' => ['filename' => $a['nombre'] ?? 'documento.pdf', 'file_data' => $dataUrl]]
+                : ['type' => 'image_url', 'image_url' => ['url' => $dataUrl]];
+        }
+
+        $payload = [
+            'model'       => $this->modeloTexto(),
+            'messages'    => [
+                ['role' => 'system', 'content' => $instrucciones],
+                ['role' => 'user',   'content' => $contenido],
+            ],
+            'max_tokens'  => $maxTokens,
+            'temperature' => 0,
+            'reasoning'   => ['enabled' => false],
+        ];
+
+        // Un PDF de varias páginas tarda más que una pregunta.
+        $data  = $this->llamar($payload, 120);
+        $texto = trim($data['choices'][0]['message']['content'] ?? '');
+
+        if ($texto === '') {
+            throw new IaException("El modelo {$payload['model']} no devolvió nada al leer el documento. Prueba con otro modelo de texto en Configuración.");
+        }
+
+        return $texto;
+    }
+
+    /**
      * Igual que texto(), pero va entregando la respuesta por pedazos.
      *
      * No hace la respuesta más rápida: hace que se vea a los 2 segundos en vez

@@ -500,6 +500,15 @@ Lo construido después de la fase 3, que conviene conocer antes de tocar algo ce
   pregunta `Modulos::activo()` y se salta**, nunca se queda esperando: sin Calidad la unidad
   terminada se firma sola; sin Stock no se piden bodegas ni se mueve inventario. Ver
   `docs/manual/modulos.md`.
+- **Por dentro todo está en pesos** (`App\Support\Monedas`). Un costo en USD/EUR guarda
+  `productos.costo_moneda` y `precio_costo` (pesos) sale de la tasa del día; una cotización en
+  otra moneda guarda sus ítems en pesos y una tasa, que solo sirve para **mostrar**. Nunca
+  guardar un monto en otra moneda en una columna que se suma en informes o comisiones. La tasa
+  la trae `tasas:actualizar` (TRM de datos.gov.co; euro cruzado con el BCE), que recalcula
+  costos y cotizaciones abiertas. Ver `docs/manual/monedas-y-retenciones.md`.
+- **Lo tributario no se escribe en el código.** UVT, tarifas y bases de retención viven en
+  Configuración → Perfil fiscal (`App\Support\Fiscal`); la cuenta, en `RetencionesService`, y
+  la pantalla se la pide al servidor en vez de repetirla.
 - **Una OP con trabajo hecho no cambia sus ítems** (`Op::itemsBloqueados()`), y el candado está
   en el servidor.
 
