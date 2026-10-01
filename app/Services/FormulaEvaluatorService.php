@@ -67,11 +67,99 @@ class FormulaEvaluatorService
     }
 
     /**
-     * Reemplaza coma decimal por punto: 2,87 → 2.87
+     * Reemplaza la coma decimal por punto, solo donde la coma no puede separar nada: 2,87 → 2.87.
+     *
+     * Antes era un `(\d),(\d)` a ciegas, y se comía las comas que separan: `max(1,5)` llegaba
+     * como `max(1.5)` y `[1,2,3]` como `[1.2.3]`, que ni siquiera se puede leer. Ahora una coma
+     * entre dos dígitos es decimal **solo fuera** de los argumentos de una función y de una
+     * lista: en la fórmula suelta (`2,5 * ancho`) y dentro de un paréntesis de agrupar
+     * (`ceil((ancho + 0,3) * 10)`), que son los únicos sitios donde una coma no tiene otro
+     * significado.
+     *
+     * Consecuencia: dentro de los argumentos de una función, `1,5` son dos argumentos. Para
+     * escribir un decimal ahí se usa punto (`iif(ancho > 1.5, 4, 2)`) o se agrupa
+     * (`iif(ancho > (1,5), 4, 2)`). Lo que va entre comillas no se toca nunca.
      */
     private function normalizarFormula(string $formula): string
     {
-        return preg_replace('/(\d),(\d)/', '$1.$2', $formula);
+        $largo   = strlen($formula);
+        $pila    = [];   // por cada ( [ { abierto: 'lista' si sus comas separan, 'grupo' si no
+        $comilla = null;
+        $salida  = '';
+
+        for ($i = 0; $i < $largo; $i++) {
+            $ch = $formula[$i];
+
+            if ($comilla !== null) {
+                $salida .= $ch;
+                if ($ch === '\\' && $i + 1 < $largo) {
+                    $salida .= $formula[++$i];
+                } elseif ($ch === $comilla) {
+                    $comilla = null;
+                }
+                continue;
+            }
+
+            switch ($ch) {
+                case '"':
+                case "'":
+                    $comilla = $ch;
+                    break;
+                case '(':
+                    $pila[] = $this->abreLlamada($salida) ? 'lista' : 'grupo';
+                    break;
+                case '[':
+                case '{':
+                    $pila[] = 'lista';
+                    break;
+                case ')':
+                case ']':
+                case '}':
+                    array_pop($pila);
+                    break;
+                case ',':
+                    if (end($pila) !== 'lista' && $this->esComaDecimal($formula, $i)) {
+                        $ch = '.';
+                    }
+                    break;
+            }
+
+            $salida .= $ch;
+        }
+
+        return $salida;
+    }
+
+    /**
+     * ¿El paréntesis que viene abre los argumentos de una función? Lo es si va pegado a un
+     * nombre —`max(`, `iif (`—, salvo que ese nombre sea un operador: `and (`, `not (` o
+     * `in (` abren un grupo, no una llamada.
+     */
+    private function abreLlamada(string $antes): bool
+    {
+        if (! preg_match('/([A-Za-z_][A-Za-z0-9_]*)\s*$/', $antes, $m)) {
+            return false;
+        }
+
+        return ! in_array(strtolower($m[1]), ['and', 'or', 'not', 'in', 'xor', 'matches', 'contains', 'with'], true);
+    }
+
+    /**
+     * Una coma es decimal si tiene un dígito pegado a cada lado y lo de la izquierda es un
+     * número entero: no el final de un nombre (`x1,2`) ni un número que ya tiene decimales.
+     */
+    private function esComaDecimal(string $formula, int $i): bool
+    {
+        if ($i === 0 || ! ctype_digit($formula[$i + 1] ?? '') || ! ctype_digit($formula[$i - 1])) {
+            return false;
+        }
+
+        $j = $i - 1;
+        while ($j >= 0 && ctype_digit($formula[$j])) {
+            $j--;
+        }
+
+        return $j < 0 || ! preg_match('/[A-Za-z0-9_.]/', $formula[$j]);
     }
 
     /**

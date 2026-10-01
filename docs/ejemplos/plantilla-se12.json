@@ -263,7 +263,7 @@
           "tipo_campo": "calculado",
           "subtipo_variable": null,
           "opciones_selector": null,
-          "formula_calculo": "iif(ancho_hoja > 1,5, 4, 2)",
+          "formula_calculo": "iif(ancho_hoja > 1.5, 4, 2)",
           "opciones": null,
           "valor_defecto": null,
           "placeholder": null,
