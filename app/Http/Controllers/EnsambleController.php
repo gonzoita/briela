@@ -6,6 +6,7 @@ use App\Models\CategoriaProducto;
 use App\Models\Ensamble;
 use App\Models\PlantillaEnsamble;
 use App\Services\FormulaEvaluatorService;
+use App\Support\CostosReceta;
 use App\Services\ArchivoServidorService;
 use App\Services\GoogleDriveService;
 use Illuminate\Http\JsonResponse;
@@ -910,10 +911,11 @@ class EnsambleController extends Controller
         $margenDe = fn ($canal) => $canal ? (float) $canal->margen_sugerido : 0.0;
 
         return response()->json([
-            'componentes'          => $componentes,
-            // El costo solo viaja si quien pregunta puede verlo. Esconderlo en la pantalla
-            // y mandarlo igual lo deja a la vista en el código fuente de la página.
-            'total_costo'          => auth()->user()?->tienePermiso('costos.ver') ? $totalCosto : null,
+            // El costo solo viaja si quien pregunta puede verlo: el total y también el precio
+            // de cada componente. Esconderlo en la pantalla y mandarlo igual lo deja a la
+            // vista en la respuesta. Ver `CostosReceta`.
+            'componentes'          => CostosReceta::paraQuienPregunta($componentes),
+            'total_costo'          => CostosReceta::montoParaQuienPregunta($totalCosto),
             'precio_mayorista'     => $precios->precioDesdeCosto($totalCosto, $margenDe($base)),
             'precio_distribuidor'  => $precios->precioDesdeCosto($totalCosto, $margenDe($medio)),
             'precio_cliente_final' => $precios->precioDesdeCosto($totalCosto, $margenDe($publico)),
@@ -948,7 +950,7 @@ class EnsambleController extends Controller
     {
         $q = $request->get('q', '');
 
-        $puedeVerCosto = (bool) auth()->user()?->tienePermiso('costos.ver');
+        $puedeVerCosto = CostosReceta::puedeVer();
 
         $ensambles = Ensamble::with(['plantilla', 'categoria', 'preciosPorCanal'])
             ->where('nombre', 'like', "%{$q}%")
@@ -985,7 +987,9 @@ class EnsambleController extends Controller
                     'descuento_max_pct'      => (float) $c->descuento_max_pct,
                 ])->values(),
                 'variables'                  => $e->variables,
-                'componentes_resultado'      => $e->componentes_resultado,
+                // La receta va sin precios para quien no ve costos: con ella se arma el
+                // snapshot del ítem, y el servidor se los devuelve al guardar.
+                'componentes_resultado'      => CostosReceta::paraQuienPregunta($e->componentes_resultado),
                 'comision_pct_minima'         => (float) ($e->comision_pct_minima ?? 0),
                 'comision_pct_maxima'         => (float) ($e->comision_pct_maxima ?? 0),
                 'comision_min_distribuidor'   => (float) ($e->comision_min_distribuidor ?? 0),

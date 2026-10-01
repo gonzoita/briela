@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use App\Services\FormulaEvaluatorService;
+use App\Support\CostosReceta;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -409,10 +410,12 @@ class PlantillaEnsambleController extends Controller
         $totalCosto     = $svc->totalCosto($componentes);
         $totalCostoReal = $svc->totalCostoReal($componentes);
 
+        // También lo llama el cotizador (`/api/plantillas-ensamble/probar`), con solo
+        // `cotizaciones.ver`: el costo no viaja a quien no tiene `costos.ver`.
         return response()->json([
-            'componentes'      => $componentes,
-            'total_costo'      => $totalCosto,
-            'total_costo_real' => $totalCostoReal,
+            'componentes'      => CostosReceta::paraQuienPregunta($componentes),
+            'total_costo'      => CostosReceta::montoParaQuienPregunta($totalCosto),
+            'total_costo_real' => CostosReceta::montoParaQuienPregunta($totalCostoReal),
         ]);
     }
 

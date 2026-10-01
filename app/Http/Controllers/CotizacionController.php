@@ -22,6 +22,7 @@ use Illuminate\Http\Response as HttpResponse;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
+use App\Support\CostosReceta;
 use App\Support\Marca;
 
 class CotizacionController extends Controller
@@ -746,10 +747,13 @@ class CotizacionController extends Controller
             // número inventado con un margen que nadie configuró.
             $viejas = $this->preciosPorColumnaVieja($canales);
 
+            // El costo —el total y el de cada componente— solo viaja a quien tiene
+            // `costos.ver`. El vendedor recibe la receta con cantidades y los precios de
+            // venta; al guardar, el servidor le devuelve los costos al snapshot.
             return response()->json([
-                'componentes'          => $componentes,
-                'precio_costo'         => $totalCosto,
-                'total_costo'          => $totalCosto,
+                'componentes'          => CostosReceta::paraQuienPregunta($componentes),
+                'precio_costo'         => CostosReceta::montoParaQuienPregunta($totalCosto),
+                'total_costo'          => CostosReceta::montoParaQuienPregunta($totalCosto),
                 'precio_mayorista'     => $viejas['mayorista'] ?? 0,
                 'precio_distribuidor'  => $viejas['distribuidor'] ?? 0,
                 'precio_cliente_final' => $viejas['cliente_final'] ?? 0,
@@ -768,8 +772,8 @@ class CotizacionController extends Controller
         $margen      = (float) ($data['margen_aplicado'] ?? 30);
 
         return response()->json([
-            'componentes'         => $componentes,
-            'total_costo'         => $totalCosto,
+            'componentes'         => CostosReceta::paraQuienPregunta($componentes),
+            'total_costo'         => CostosReceta::montoParaQuienPregunta($totalCosto),
             'precio_mayorista'    => round($totalCosto * (1 + $margen / 100), 0),
             'precio_distribuidor' => round($totalCosto * (1 + ($margen + 2.5) / 100), 0),
             'precio_cliente_final'=> round($totalCosto * (1 + ($margen + 5) / 100), 0),
@@ -835,7 +839,13 @@ class CotizacionController extends Controller
                 'configuracion_puerta_id' => $datos['configuracion_puerta_id'] ?? null,
                 'ensamble_id'             => $datos['ensamble_id'] ?? null,
                 'variables_snapshot'      => $datos['variables_snapshot'] ?? null,
-                'componentes_snapshot'    => $datos['componentes_snapshot'] ?? null,
+                // Quien no ve costos manda la receta sin precios —así la recibió—; el
+                // servidor se los devuelve para que el snapshot quede completo.
+                'componentes_snapshot'    => CostosReceta::completar(
+                    $datos['componentes_snapshot'] ?? null,
+                    $datos['ensamble_id'] ?? null,
+                    $datos['variables_instancia'] ?? null,
+                ),
                 'variables_instancia'     => $datos['variables_instancia'] ?? null,
                 'imagenes_instancia'      => $datos['imagenes_instancia'] ?? null,
                 'descripcion_larga'       => $datos['descripcion_larga'] ?? null,

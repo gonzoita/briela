@@ -26,6 +26,7 @@ use Illuminate\Http\Response as HttpResponse;
 use Inertia\Inertia;
 use Inertia\Response;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
+use App\Support\CostosReceta;
 use App\Support\Marca;
 
 class OpController extends Controller
@@ -1130,7 +1131,13 @@ class OpController extends Controller
                 'impuesto_valor'      => $impuesto,
                 'total_linea'         => $baseDesc + $impuesto,
                 'variables_instancia' => $datos['variables_instancia'] ?? null,
-                'componentes_snapshot'=> $datos['componentes_snapshot'] ?? null,
+                // Mismo caso que en la cotización: la receta de quien no ve costos llega sin
+                // precios, y se completan aquí.
+                'componentes_snapshot'=> CostosReceta::completar(
+                    $datos['componentes_snapshot'] ?? null,
+                    $datos['ensamble_id'] ?? null,
+                    $datos['variables_instancia'] ?? null,
+                ),
                 'numero_serie'        => $datos['numero_serie'] ?? null,
                 'operario_id'         => $datos['operario_id'] ?? null,
                 'estado_item'         => $datos['estado_item'] ?? 'pendiente',
