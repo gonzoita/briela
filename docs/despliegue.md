@@ -32,6 +32,11 @@ necesite composer ni Node— y **no lleva** `.env`, `docs/`, `CLAUDE.md`, `tests
 las de `vendor/`, que composer deja cuando instala desde el repositorio). La 1.0.0
 salió con 52.060 archivos y 80 MB.
 
+> **Lo normal ya no es empaquetar a mano:** un tag `v1.0.0` hace que GitHub Actions
+> arme el paquete y que el superadmin lo traiga solo como borrador. Ver
+> [manual/publicar-version.md](./manual/publicar-version.md). Lo de abajo sigue
+> sirviendo cuando hace falta subirlo a mano.
+
 Después lo publicas en el **superadmin**, que es de donde lo bajan tanto las
 instalaciones nuevas como las que se actualizan:
 

@@ -80,6 +80,7 @@ módulo por módulo.
 ## Instalación y mantenimiento del sistema
 
 - [Despliegue — el servidor jala los cambios](./deploy-automatico.md)
+- [Publicar una versión — del tag al superadmin, sola](./publicar-version.md)
 - [Copias de seguridad (backups)](./backups.md)
 - [Operación — SSH, montaje en otro computador, git, grafo y chats](../OPERACION.md)
 - [Mantenimiento de equipos](./mantenimiento.md)

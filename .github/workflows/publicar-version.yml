@@ -1,0 +1,73 @@
+# Arma el paquete de una versión y lo deja como release de GitHub.
+#
+# Se dispara con un tag `v1.2.3`, no con cada push a main: main se despliega solo en
+# sistema.briela.app varias veces al día, y si cada push fuera una versión los
+# clientes terminarían repartidos en decenas de versiones vivas (BRIELA-PLAN.md 6.3).
+#
+# De aquí no sale nada hacia el superadmin. Es el superadmin el que viene a buscar
+# el release (`versiones:importar`, por cron) y lo deja como borrador: Hostinger corta
+# las conexiones que llegan desde GitHub, y un ZIP de 80 MB no cabe en el límite de
+# subida de un hosting compartido. Ver docs/manual/publicar-version.md.
+
+name: Publicar versión
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  paquete:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Número de versión
+        id: version
+        run: echo "numero=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+
+      # Las notas se le muestran al cliente en el botón de actualizar. Sin su sección
+      # en el CHANGELOG no se publica: una versión sin notas no le dice nada a nadie.
+      - name: Notas de la versión desde el CHANGELOG
+        env:
+          NUMERO: ${{ steps.version.outputs.numero }}
+        run: |
+          awk -v v="$NUMERO" '
+            index($0, "## [" v "]") == 1 { dentro = 1; next }
+            dentro && /^## \[/ { exit }
+            dentro { print }
+          ' CHANGELOG.md > notas.md
+          if ! grep -q '[^[:space:]]' notas.md; then
+            echo "::error::CHANGELOG.md no tiene la sección «## [$NUMERO]». Escribe las notas antes del tag."
+            exit 1
+          fi
+
+      # Sin redis a propósito: la versión de la extensión que trae el runner choca con
+      # symfony/cache, y Briela no la usa.
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: zip, intl, gd, bcmath, mbstring, pdo_mysql, :redis
+          tools: composer:v2
+          coverage: none
+
+      - name: Dependencias de producción
+        run: composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
+
+      - name: Empaquetar
+        run: php artisan briela:empaquetar "${{ steps.version.outputs.numero }}"
+
+      - name: Crear el release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          NUMERO: ${{ steps.version.outputs.numero }}
+        run: |
+          d=storage/app/paquetes
+          gh release create "$GITHUB_REF_NAME" \
+            "$d/briela-$NUMERO.zip" \
+            "$d/briela-$NUMERO.zip.sha256" \
+            "$d/instalar.php" \
+            --title "Briela $NUMERO" \
+            --notes-file notas.md
