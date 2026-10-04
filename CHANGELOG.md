@@ -14,6 +14,8 @@ Formato: [versionado semántico](https://semver.org/lang/es/).
 
 ## [Sin publicar]
 
+## [1.1.0] — 2026-10-04
+
 ### Agregado
 - **La TRM del día, sola.** Cada mañana se trae la TRM oficial y el euro, y se ven en
   Configuración → Monedas y TRM. Si el servidor no tiene internet, se puede escribir a mano.
