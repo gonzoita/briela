@@ -14,6 +14,13 @@ name: Publicar versión
 on:
   push:
     tags: ['v*']
+  # También desde GitHub → Actions → «Publicar versión» → Run workflow, sin crear el tag a
+  # mano: el release lo crea sobre el commit de main que se elija.
+  workflow_dispatch:
+    inputs:
+      numero:
+        description: 'Número de versión, sin la v (ej. 1.2.0)'
+        required: true
 
 permissions:
   contents: write
@@ -26,7 +33,13 @@ jobs:
 
       - name: Número de versión
         id: version
-        run: echo "numero=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+        env:
+          ENTRADA: ${{ inputs.numero }}
+        run: |
+          numero="${ENTRADA:-${GITHUB_REF_NAME#v}}"
+          numero="${numero#v}"
+          echo "numero=$numero" >> "$GITHUB_OUTPUT"
+          echo "tag=v$numero" >> "$GITHUB_OUTPUT"
 
       # Las notas se le muestran al cliente en el botón de actualizar. Sin su sección
       # en el CHANGELOG no se publica: una versión sin notas no le dice nada a nadie.
@@ -63,9 +76,10 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           NUMERO: ${{ steps.version.outputs.numero }}
+          TAG: ${{ steps.version.outputs.tag }}
         run: |
           d=storage/app/paquetes
-          gh release create "$GITHUB_REF_NAME" \
+          gh release create "$TAG" --target "$GITHUB_SHA" \
             "$d/briela-$NUMERO.zip" \
             "$d/briela-$NUMERO.zip.sha256" \
             "$d/instalar.php" \

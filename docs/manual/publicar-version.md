@@ -17,6 +17,9 @@ notas, crear el tag y, al final, el clic de **Publicar**.
    git push origin v1.1.0
    ```
 
+   Sin consola, lo mismo desde GitHub → **Actions** → «Publicar versión» → **Run
+   workflow**, escribiendo el número (`1.1.0`): el workflow crea el tag sobre `main`.
+
 4. En unos 5 minutos GitHub Actions arma el paquete, y en menos de 15 más aparece en
    `superadmin.briela.app` → **Versiones**, como **borrador**.
 5. Pruébala en `sistema.briela.app` y dale **Publicar**. Desde ahí la ven el instalador y
