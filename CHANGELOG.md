@@ -14,6 +14,15 @@ Formato: [versionado semántico](https://semver.org/lang/es/).
 
 ## [Sin publicar]
 
+### Agregado
+- **El correo sale por Briela, firmado y sin caer en spam.** Cuando Briela activa el
+  dominio de envío de la instalación, las notificaciones, las cotizaciones y los formularios
+  salen desde un subdominio propio verificado, sin configurar nada en el servidor. El SMTP
+  propio queda de respaldo.
+- **Configuración → Correo**: por dónde sale el correo, cuánto va del mes, un envío de prueba
+  y las direcciones a las que ya no se les escribe porque rebotaron o se dieron de baja.
+- Las notificaciones del sistema no se cobran nunca.
+
 ## [1.1.0] — 2026-10-04
 
 ### Agregado

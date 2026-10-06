@@ -599,6 +599,19 @@ const configPuntos = computed(() =>
             <!-- ── EMAIL / SMTP ──────────────────────────────────────────────── -->
             <div v-show="tab === 'email'" class="space-y-4">
 
+                <!-- El camino principal: el correo sale por el panel de Briela, con dominio
+                     verificado. Este SMTP queda de respaldo por si el panel no responde. -->
+                <a href="/configuracion/correo" @click.prevent="router.visit('/configuracion/correo')"
+                    class="flex items-center gap-3 bg-pastel-azul rounded-2xl border border-borde-aviso-azul p-4 hover:shadow-sm transition-all">
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-semibold text-aviso-azul">Correo por Briela</p>
+                        <p class="text-xs text-aviso-azul mt-0.5">
+                            Cuando Briela activa el dominio de envío de esta instalación, los correos salen
+                            firmados por ese camino y el SMTP de abajo queda solo de respaldo. Ver el estado →
+                        </p>
+                    </div>
+                </a>
+
                 <div class="bg-superficie rounded-2xl border border-linea overflow-hidden">
                     <div class="px-5 py-3 border-b border-linea">
                         <h2 class="text-sm font-semibold text-tinta-700">Correo electrónico (SMTP)</h2>

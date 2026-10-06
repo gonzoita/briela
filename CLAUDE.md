@@ -509,6 +509,12 @@ Lo construido después de la fase 3, que conviene conocer antes de tocar algo ce
 - **Lo tributario no se escribe en el código.** UVT, tarifas y bases de retención viven en
   Configuración → Perfil fiscal (`App\Support\Fiscal`); la cuenta, en `RetencionesService`, y
   la pantalla se la pide al servidor en vez de repetirla.
+- **El correo sale por el panel de Briela, como la IA.** `App\Mail\TransporteBriela` es un
+  transporte de Laravel: todo `Mail::` va al superadmin con el serial, y el superadmin envía con
+  Brevo o Amazon SES desde el subdominio verificado de la instalación (Cloudflare). La
+  instalación **no** guarda credenciales de correo; el SMTP propio es solo respaldo. Un correo
+  masivo se marca con `X-Briela-Tipo: masivo`; las notificaciones no se cobran nunca. Ver
+  `docs/manual/correo.md`.
 - **Una OP con trabajo hecho no cambia sus ítems** (`Op::itemsBloqueados()`), y el candado está
   en el servidor.
 

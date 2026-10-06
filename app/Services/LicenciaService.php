@@ -169,6 +169,9 @@ class LicenciaService
                 'dias_para_vencer' => $licencia['dias_para_vencer'] ?? null,
                 'cliente'          => $licencia['cliente'] ?? null,
                 'actualizacion'    => $licencia['actualizacion'] ?? null,
+                // Si el correo sale por el panel de Briela, desde qué dominio y cuánto va
+                // del mes. Un panel viejo no lo manda, y entonces se usa el SMTP propio.
+                'correo'           => $licencia['correo'] ?? null,
             ]);
         } catch (Throwable $e) {
             Log::info('Licencia: no se pudo consultar. ' . $e->getMessage());
@@ -219,6 +222,24 @@ class LicenciaService
         }
 
         return $guardado;
+    }
+
+    /**
+     * Lo que el panel dijo del correo en el último latido. Solo lee lo guardado.
+     *
+     * @return array<string, mixed>|null
+     */
+    public function correo(): ?array
+    {
+        $correo = $this->guardado()['correo'] ?? null;
+
+        return is_array($correo) ? $correo : null;
+    }
+
+    /** ¿Los correos de esta instalación salen por el panel de Briela? */
+    public function correoPorBriela(): bool
+    {
+        return $this->serial() !== null && (bool) ($this->correo()['disponible'] ?? false);
     }
 
     public function versionInstalada(): ?string

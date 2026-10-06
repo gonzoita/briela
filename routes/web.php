@@ -769,6 +769,13 @@ Route::middleware('auth')->group(function () {
         Route::post('/identificacion',       [IdentificacionConfigController::class, 'guardar'])->name('identificacion.guardar');
         Route::post('/identificacion/probar',[IdentificacionConfigController::class, 'probar'])->name('identificacion.probar');
 
+        // ─── Correo: por dónde sale, cómo va el mes y a quién no escribirle ──
+        Route::get('/correo', [\App\Http\Controllers\CorreoConfigController::class, 'index'])->name('correo.index');
+        Route::middleware('permiso:configuracion.editar')->group(function () {
+            Route::post('/correo/actualizar', [\App\Http\Controllers\CorreoConfigController::class, 'actualizar'])->name('correo.actualizar');
+            Route::post('/correo/probar',     [\App\Http\Controllers\CorreoConfigController::class, 'probar'])->name('correo.probar');
+        });
+
         // ─── Monedas: TRM del día, colchón y modo de las cotizaciones ────────
         Route::get('/monedas', [\App\Http\Controllers\MonedasConfigController::class, 'index'])->name('monedas.index');
         Route::middleware('permiso:configuracion.editar')->group(function () {

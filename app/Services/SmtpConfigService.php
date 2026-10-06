@@ -20,6 +20,26 @@ class SmtpConfigService
         $fromName = Configuracion::get('smtp_from_name') ?: \App\Support\Marca::nombreEmpresa();
         $fromMail = Configuracion::get('smtp_from_email', '');
 
+        // Por el panel de Briela, cuando su dominio de envío está verificado: el proveedor
+        // firma con DKIM y el correo no cae en spam. El SMTP de aquí abajo queda de
+        // respaldo, por si el panel no responde (ver App\Mail\TransporteBriela).
+        $licencias = app(\App\Services\LicenciaService::class);
+
+        if ($licencias->correoPorBriela()) {
+            Config::set('mail.mailers.briela', ['transport' => 'briela']);
+            Config::set('mail.default', 'briela');
+            // El remitente lo pone el panel con el dominio verificado; aquí va para que
+            // Laravel tenga uno. El nombre sí es el de la empresa.
+            Config::set('mail.from.address', $licencias->correo()['remitentes']['transaccional'] ?? 'notificaciones@briela.app');
+            Config::set('mail.from.name', $fromName);
+
+            if ($responder = (Configuracion::get('empresa_email') ?: $fromMail)) {
+                Config::set('mail.reply_to', ['address' => $responder, 'name' => $fromName]);
+            }
+
+            Mail::purge('briela');
+        }
+
         if (!$host || !$user || !$pass) return;
 
         Config::set('mail.mailers.smtp.host',       $host);
@@ -27,6 +47,13 @@ class SmtpConfigService
         Config::set('mail.mailers.smtp.encryption', $enc);
         Config::set('mail.mailers.smtp.username',   $user);
         Config::set('mail.mailers.smtp.password',   $pass);
+        if ($licencias->correoPorBriela()) {
+            // El SMTP queda solo de respaldo: la ruta principal es la de arriba.
+            Mail::purge('smtp');
+
+            return;
+        }
+
         Config::set('mail.from.address',            $fromMail ?: $user);
         Config::set('mail.from.name',               $fromName);
         Config::set('mail.default',                 'smtp');

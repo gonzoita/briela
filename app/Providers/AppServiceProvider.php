@@ -24,6 +24,15 @@ class AppServiceProvider extends ServiceProvider
     {
         Vite::prefetch(concurrency: 3);
 
+        // El transporte que entrega el correo al panel de Briela. El respaldo es el SMTP
+        // de la instalación, si tiene uno: se arma solo cuando hace falta.
+        \Illuminate\Support\Facades\Mail::extend('briela', fn () => new \App\Mail\TransporteBriela(
+            app(\App\Services\LicenciaService::class),
+            fn () => config('mail.mailers.smtp.host')
+                ? \Illuminate\Support\Facades\Mail::mailer('smtp')->getSymfonyTransport()
+                : null,
+        ));
+
         // La hora del sistema sale de la sede principal, no de un valor fijo en la
         // configuración: una empresa con sedes en husos distintos necesita decidir
         // en cuál vive su operación. Si la base todavía no existe, esto no estorba.
