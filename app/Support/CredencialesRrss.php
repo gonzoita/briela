@@ -49,6 +49,11 @@ class CredencialesRrss
             'id'       => ['whatsapp_phone_number_id', 'services.whatsapp.phone_number_id', 'WHATSAPP_PHONE_NUMBER_ID'],
             'secret'   => ['whatsapp_token',           'services.whatsapp.token',           'WHATSAPP_TOKEN'],
             'redirect' => ['whatsapp_verify_token',    'services.whatsapp.verify_token',    'WHATSAPP_VERIFY_TOKEN'],
+            // El identificador de la cuenta de WhatsApp Business (WABA). No hace falta para
+            // enviar —eso va por el Phone Number ID de cada línea—, solo para traer las
+            // plantillas aprobadas, que se piden a la cuenta y no a un número. Va aquí y no
+            // en una clave suelta para que se cargue desde la pantalla como todo lo demás.
+            'waba'     => ['whatsapp_waba_id',         'services.whatsapp.waba_id',         'WHATSAPP_WABA_ID'],
         ],
     ];
 

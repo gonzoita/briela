@@ -73,6 +73,7 @@ módulo por módulo.
 
 - [Catálogo público — fichas para compartir](./catalogo-publico.md)
 - [Publicar productos y ensambles en el sitio web (plugin Briela Connect)](./publicar-en-la-web.md)
+- [Bandeja de mensajes — atender a quien escribe](./bandeja.md)
 - [Redes Sociales — programador de publicaciones](./redes-sociales.md)
 - [WhatsApp — conexión y números](./whatsapp.md)
 - [Conexiones con servicios externos — índice de todas](./conexiones.md)

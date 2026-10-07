@@ -140,23 +140,48 @@ Google revisa la solicitud y suele tardar unas dos semanas.
 - Las imágenes se guardan reutilizando la tabla `archivos` (igual que el
   resto del sistema), con `categoria = 'rrss'`.
 
-## Ojo: el permiso de Meta vence a los ~60 días
+## El permiso de cada red vence, y el sistema lo vigila *(7 oct 2026)*
 
-El token que Meta entrega al conectar dura unos **60 días**. Hoy el sistema
-**no lo renueva solo ni avisa** cuando está por vencer (Google sí tiene
-renovación automática; Meta no la tiene implementada).
+El token que Meta entrega al conectar dura unos **60 días**. Hasta oct 2026 no se
+renovaba ni se avisaba: a los dos meses las publicaciones de Facebook e Instagram
+empezaban a fallar, y el único rastro era un «parcial» en la lista de
+publicaciones. Una empresa que programa su contenido con dos semanas de
+anticipación se enteraba cuando ya se habían dejado de publicar tres cosas.
 
-En la práctica: si un día las publicaciones de Facebook o Instagram empiezan a
-fallar, lo primero que hay que revisar es la fecha de vencimiento en
-`/rrss/cuentas` y volver a conectar la cuenta. Está anotado como pendiente
-abajo.
+Ahora un comando programado (`rrss:revisar-tokens`) corre **una vez al día** y:
+
+1. **Renueva lo que se puede renovar sin molestar a nadie**, con 20 días de
+   margen: Meta estirando el token, Google con su `refresh_token`. Renovar sirve
+   solo mientras el token sigue vivo, de ahí el margen.
+2. **Avisa a los 15 días** de lo que de verdad necesita que una persona vuelva a
+   autorizar (tipo `rrss_token_por_vencer`). Quedan dos fines de semana para que
+   alguien entre a hacerlo; avisar el día del vencimiento es avisar tarde.
+
+**El aviso va a los administradores**, no al rol de quien publica: reconectar una
+cuenta exige entrar al Business Manager de la empresa, y eso no lo puede hacer
+quien solo programa contenido. Un aviso dirigido a alguien que no puede
+resolverlo es un aviso que nadie atiende.
+
+Dos detalles que importan:
+
+- **Instagram se renueva con su página de Facebook**, porque publica con el token
+  de la página. Pedirle a Meta el mismo token dos veces es una llamada de más.
+- **LinkedIn no se intenta renovar**: sus tokens de página duran 60 días y
+  renovarlos exige un permiso que LinkedIn aprueba aparte. Mientras no esté
+  aprobado, lo honesto es avisar para que alguien reconecte, en vez de intentar
+  una llamada que se sabe que va a fallar.
+
+Si una renovación falla, el motivo queda anotado en la cuenta y se ve en
+`/rrss/cuentas`.
 
 ## Pendiente / siguientes pasos
 
-- **Renovar o avisar del token de Meta antes de que venza** — hoy hay que
-  reconectar a mano cuando falla.
-
-- Bandeja unificada de mensajes (DMs/comentarios) — fase futura, distinta a
-  este módulo.
-- Autorespuestas con IA — depende de que exista la bandeja unificada primero.
 - Carrusel de imágenes en Instagram (hoy solo soporta una imagen por post).
+- Métricas de alcance e interacción de lo publicado.
+- Calendario visual del programador.
+
+Ya **no** están pendientes:
+
+- ~~Renovar o avisar del token de Meta antes de que venza~~ — hecho, arriba.
+- ~~Bandeja unificada de mensajes (DMs/comentarios)~~ y ~~autorespuestas con
+  IA~~ — ver [Bandeja de mensajes](./bandeja.md).

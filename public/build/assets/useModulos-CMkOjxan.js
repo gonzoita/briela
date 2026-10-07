@@ -1,1 +1,0 @@
-import{a as e}from"./app-BNTvPZTv.js";function t(){let t=e();return{activo:e=>!(t.props.modulosApagados??[]).includes(e)}}export{t};

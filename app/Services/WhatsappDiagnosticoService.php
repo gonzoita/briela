@@ -47,9 +47,13 @@ class WhatsappDiagnosticoService
             'url_webhook'      => $url,
             'url_alcanzable'   => $this->urlEsPublica($url),
             // "Conectado" es poder mandar y recibir: token de la app, token del
-            // webhook y al menos un número. El App Secret queda aparte porque
-            // sin él se recibe igual (solo se pierde la firma del webhook).
-            'lista'            => $token && $verify && $numeros > 0,
+            // webhook, el App Secret y al menos un número.
+            //
+            // El App Secret estaba aquí como un aviso ámbar que no impedía nada, porque sin
+            // él se recibía igual —solo se perdía la firma—. Desde oct 2026 el webhook
+            // rechaza lo que no puede verificar, así que sin App Secret NO se recibe: dejarlo
+            // como un aviso de segunda era prometer una conexión que no entrega mensajes.
+            'lista'            => $token && $verify && $secreto && $numeros > 0,
         ];
     }
 

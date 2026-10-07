@@ -141,6 +141,61 @@ class MetaRrssService
     }
 
     /**
+     * Estira el vencimiento del token de una cuenta de Meta.
+     *
+     * **Por qué existe.** El token que Meta entrega al conectar dura unos 60 días. Hasta oct
+     * 2026 no se renovaba ni se avisaba: un día, sin más, las publicaciones de Facebook e
+     * Instagram empezaban a fallar y había que adivinar que era eso. Estaba anotado como
+     * pendiente en el manual del módulo.
+     *
+     * **Cómo se renueva.** Se vuelve a cambiar el token actual por uno de larga duración
+     * (`fb_exchange_token`). Eso solo funciona mientras el token siga vivo, así que no sirve
+     * para rescatar uno ya vencido: por eso la revisión corre todos los días y renueva con
+     * semanas de antelación, en vez de esperar a que falle una publicación.
+     *
+     * Las dos cuentas de una misma página —Facebook y el Instagram ligado— comparten el token,
+     * así que renovar una renueva la otra.
+     *
+     * @throws RrssApiException si Meta no lo renueva (token ya vencido o revocado)
+     */
+    public function renovarToken(CuentaRrss $cuenta): void
+    {
+        $resp = Http::get(self::GRAPH_URL . '/oauth/access_token', [
+            'grant_type'        => 'fb_exchange_token',
+            'client_id'         => $this->appId(),
+            'client_secret'     => $this->appSecret(),
+            'fb_exchange_token' => $cuenta->access_token,
+        ]);
+        $this->lanzarSiFalla($resp, 'Error renovando el token de Meta');
+
+        $nuevo = $resp->json('access_token');
+        $expira = (int) $resp->json('expires_in');
+
+        $cuenta->update([
+            'access_token' => $nuevo,
+            // Sin `expires_in` el token es de los que no vencen; se anota a 60 días para
+            // seguir revisándolo, porque Meta puede revocarlo por su cuenta.
+            'token_expira_en' => now()->addSeconds($expira > 0 ? $expira : 60 * 86400),
+            'ultimo_error' => null,
+        ]);
+
+        // El Instagram ligado a esta página publica con el mismo token de página.
+        //
+        // Se recorren los modelos en vez de hacer un `update` de consulta: `access_token` va
+        // cifrado (`casts`), y un update de consulta escribe el valor en claro sin pasar por
+        // el cast. El token quedaba guardado sin cifrar y al leerlo reventaba con «The payload
+        // is invalid», justo en la cuenta que acababa de renovarse.
+        CuentaRrss::where('red', 'instagram')
+            ->where('cuenta_id_secundario', $cuenta->cuenta_id_externo)
+            ->get()
+            ->each(fn (CuentaRrss $ligada) => $ligada->update([
+                'access_token'    => $nuevo,
+                'token_expira_en' => $cuenta->token_expira_en,
+                'ultimo_error'    => null,
+            ]));
+    }
+
+    /**
      * Publica en el feed de una página de Facebook. $urlImagen debe ser una
      * URL pública (no localhost) — usamos la URL pública del archivo ya subido.
      */

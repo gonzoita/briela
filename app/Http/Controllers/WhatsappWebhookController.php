@@ -48,19 +48,35 @@ class WhatsappWebhookController extends Controller
      * Meta firma el cuerpo con HMAC-SHA256 usando el App Secret de la misma app
      * de Meta que administra WhatsApp, y lo manda en `X-Hub-Signature-256`.
      *
-     * Si todavía no hay App Secret guardado se deja pasar y se anota en el log:
-     * para recibir mensajes de verdad hay que tener la app de Meta creada, así
-     * que en producción el secreto siempre va a existir. No se bloquea antes de
-     * tiempo para no romper las pruebas locales.
+     * **Sin App Secret se rechaza, salvo en local.** Hasta oct 2026 se dejaba pasar
+     * y se anotaba en el log, con el argumento de que en producción el secreto iba
+     * a existir siempre. No es cierto: el App Secret se carga en otra pantalla
+     * —Redes Sociales → Cuentas— y la de WhatsApp solo avisaba que faltaba. Una
+     * instalación perfectamente funcional podía quedarse meses sin él, con el
+     * webhook abierto a que cualquiera que supiera la URL inventara mensajes, metiera
+     * leads falsos al CRM y además se los repartiera entre los vendedores.
+     *
+     * En `local` se sigue dejando pasar, porque ahí el webhook se prueba a mano con
+     * un cliente HTTP que no sabe firmar. Fuera de `local` no hay excusa: Meta
+     * siempre firma.
      */
     private function firmaValida(Request $request): bool
     {
         $secreto = CredencialesRrss::valor('meta', 'secret');
 
         if ($secreto === '') {
-            Log::warning('Webhook de WhatsApp recibido sin App Secret configurado: no se pudo verificar la firma.');
+            if (app()->environment('local')) {
+                Log::warning('Webhook de WhatsApp aceptado sin verificar: no hay App Secret y el entorno es local.');
 
-            return true;
+                return true;
+            }
+
+            Log::error(
+                'Webhook de WhatsApp rechazado: falta el App Secret de Meta, así que no se puede '
+                . 'comprobar que el mensaje venga de Meta. Se carga en Redes Sociales → Cuentas.'
+            );
+
+            return false;
         }
 
         $recibida = (string) $request->header('X-Hub-Signature-256');

@@ -26,8 +26,23 @@ class WhatsappNumeroController extends Controller
             'conexion' => array_merge($this->diagnostico->estado(), [
                 'tiene_secreto'  => CredencialesRrss::valor('whatsapp', 'secret') !== '',
                 'verify_actual'  => CredencialesRrss::valor('whatsapp', 'redirect'),
+                'waba_actual'    => CredencialesRrss::valor('whatsapp', 'waba'),
                 'token_sugerido' => WhatsappDiagnosticoService::tokenSugerido(),
             ]),
+            // Las plantillas aprobadas: lo único que se puede mandar con el plazo de 24 horas
+            // vencido, así que todo aviso automático a un cliente sale por una de ellas.
+            'plantillas' => \App\Models\WhatsappPlantilla::orderBy('nombre')->orderBy('idioma')
+                ->get(['id', 'nombre', 'idioma', 'categoria', 'estado', 'cuerpo', 'variables', 'sincronizada_at'])
+                ->map(fn ($p) => [
+                    'id'        => $p->id,
+                    'nombre'    => $p->nombre,
+                    'idioma'    => $p->idioma,
+                    'categoria' => $p->categoria,
+                    'estado'    => $p->estado,
+                    'cuerpo'    => $p->cuerpo,
+                    'variables' => $p->variables,
+                    'sincronizada' => $p->sincronizada_at?->diffForHumans(),
+                ]),
             'automatizacion' => \App\Services\WhatsappAutomatizacionService::config(),
             'agente'         => \App\Services\IA\AgentePublicoService::config(),
             'etapas'         => \App\Models\CrmEtapa::where('activa', true)
@@ -133,9 +148,13 @@ class WhatsappNumeroController extends Controller
         $datos = $request->validate([
             'secret'   => 'nullable|string|max:500',
             'redirect' => 'nullable|string|max:255',
+            // El identificador de la cuenta de WhatsApp Business. No hace falta para enviar,
+            // solo para traer las plantillas aprobadas.
+            'waba'     => 'nullable|string|max:100',
         ]);
 
         CredencialesRrss::guardar('whatsapp', 'redirect', $datos['redirect'] ?? '');
+        CredencialesRrss::guardar('whatsapp', 'waba', $datos['waba'] ?? '');
 
         // El token solo se reemplaza si llega uno nuevo: la pantalla no lo
         // vuelve a mostrar, y dejar el campo vacío significa "consérvalo".
@@ -154,6 +173,20 @@ class WhatsappNumeroController extends Controller
     public function probarNumero(WhatsappNumero $whatsappNumero): JsonResponse
     {
         return response()->json($this->diagnostico->probarNumero($whatsappNumero));
+    }
+
+    /**
+     * Trae de Meta las plantillas aprobadas.
+     *
+     * Se dispara a mano porque es lo que uno hace justo después de crear una plantilla en el
+     * Business Manager: esperar al sincronizado de la madrugada para poder usarla sería un día
+     * perdido. También corre solo una vez al día, porque Meta cambia su estado sin avisar.
+     */
+    public function sincronizarPlantillas(\App\Services\WhatsappPlantillaService $plantillas): JsonResponse
+    {
+        $resultado = $plantillas->sincronizar();
+
+        return response()->json($resultado, $resultado['ok'] ? 200 : 422);
     }
 
     /** Repite lo que hace Meta al suscribirse al webhook. */

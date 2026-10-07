@@ -812,6 +812,10 @@ Route::middleware('auth')->group(function () {
         // Los probadores responden JSON y se pintan sin recargar la pantalla.
         Route::post('/whatsapp-numeros/probar-webhook',       [WhatsappNumeroController::class, 'probarWebhook'])->name('whatsapp-numeros.probar-webhook');
         Route::post('/whatsapp-numeros/probar-agente',        [WhatsappNumeroController::class, 'probarAgente'])->name('whatsapp-numeros.probar-agente');
+        // Trae las plantillas aprobadas de Meta. Responde JSON: se pinta sin recargar, igual
+        // que los probadores.
+        Route::post('/whatsapp-numeros/sincronizar-plantillas', [WhatsappNumeroController::class, 'sincronizarPlantillas'])
+            ->middleware('permiso:configuracion.editar')->name('whatsapp-numeros.sincronizar-plantillas');
         Route::post('/whatsapp-numeros/{whatsappNumero}/probar',        [WhatsappNumeroController::class, 'probarNumero'])->name('whatsapp-numeros.probar-numero');
         Route::post('/whatsapp-numeros/{whatsappNumero}/enviar-prueba', [WhatsappNumeroController::class, 'enviarPrueba'])->name('whatsapp-numeros.enviar-prueba');
         Route::post('/whatsapp-numeros',                      [WhatsappNumeroController::class, 'store'])->name('whatsapp-numeros.store');
