@@ -935,7 +935,10 @@ Route::middleware('auth')->group(function () {
             ->middleware('permiso:bandeja.asignar')
             ->where('clave', '[a-z_]+:[0-9]+')->name('asignar');
 
+        // Archivar es «ya la atendí», así que pide el mismo permiso que contestar: quien solo
+        // puede leer no debería poder sacarle de la vista a los demás lo que falta atender.
         Route::post('/{clave}/archivar', [BandejaController::class, 'archivar'])
+            ->middleware('permiso:bandeja.responder')
             ->where('clave', '[a-z_]+:[0-9]+')->name('archivar');
     });
 

@@ -341,16 +341,21 @@ class WhatsAppService
                 ['nombre_contacto' => $nombreContacto]
             );
 
-            // Las fechas y el «sin leer» los pone un solo sitio, que además es el que sostiene
-            // la ventana de 24 horas. Ver `EsConversacion::registrarActividad()`.
-            $conversacion->registrarActividad('entrante');
-
             // Un webhook repetido es normal: Meta reintenta cuando no recibe el 200 a tiempo.
             // Sin esta guarda, el mismo mensaje entraba dos veces al hilo y la automatización
             // contestaba dos veces.
+            //
+            // **Va antes de marcar actividad, y el orden importa.** Al revés, un reintento de
+            // Meta volvía a poner como «sin leer» una conversación ya atendida, la sacaba del
+            // archivo y corría `ultimo_entrante_at` hacia adelante — estirando la ventana de
+            // 24 horas más allá del último mensaje real de la persona.
             if (! empty($msg['id']) && WhatsappMensaje::where('wa_message_id', $msg['id'])->exists()) {
                 continue;
             }
+
+            // Las fechas y el «sin leer» los pone un solo sitio, que además es el que sostiene
+            // la ventana de 24 horas. Ver `EsConversacion::registrarActividad()`.
+            $conversacion->registrarActividad('entrante');
 
             $tipoMeta = (string) ($msg['type'] ?? 'text');
             $texto    = $this->textoDelEntrante($msg, $tipoMeta);

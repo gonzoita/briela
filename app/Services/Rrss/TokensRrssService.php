@@ -57,28 +57,33 @@ class TokensRrssService
             ->get();
 
         foreach ($cuentas as $cuenta) {
-            $dias = $this->diasQueFaltan($cuenta->token_expira_en);
+            // «Vencido» lo decide la fecha, no la cuenta de días. Con `ceil`, un token que
+            // venció hace unas horas daba 0 —no un número negativo—, así que se intentaba
+            // renovar con un token muerto y se avisaba «vence en 0 días», en futuro, de algo
+            // que ya estaba fallando.
+            $vencido = $cuenta->token_expira_en->isPast();
+            $dias    = $this->diasQueFaltan($cuenta->token_expira_en);
 
-            if ($dias > self::DIAS_PARA_RENOVAR) {
+            if (! $vencido && $dias > self::DIAS_PARA_RENOVAR) {
                 continue;
             }
 
-            if ($this->intentarRenovar($cuenta, $dias)) {
+            if (! $vencido && $this->intentarRenovar($cuenta)) {
                 $resultado['renovadas'][] = $this->nombre($cuenta);
 
                 continue;
             }
 
-            if ($dias < 0) {
+            if ($vencido) {
                 $resultado['vencidas'][] = $this->nombre($cuenta);
-                $this->avisar($cuenta, $dias);
+                $this->avisar($cuenta, $dias, true);
 
                 continue;
             }
 
             if ($dias <= self::DIAS_PARA_AVISAR) {
                 $resultado['avisadas'][] = $this->nombre($cuenta);
-                $this->avisar($cuenta, $dias);
+                $this->avisar($cuenta, $dias, false);
             }
         }
 
@@ -95,7 +100,7 @@ class TokensRrssService
      */
     private function diasQueFaltan(\Illuminate\Support\Carbon $vence): int
     {
-        return (int) ceil(now()->diffInDays($vence, false));
+        return max(1, (int) ceil(now()->diffInDays($vence, false)));
     }
 
     /**
@@ -105,13 +110,10 @@ class TokensRrssService
      * LinkedIn aprueba aparte. Mientras no esté aprobado, lo único honesto es avisar para que
      * alguien reconecte, en vez de intentar una llamada que se sabe que va a fallar.
      */
-    private function intentarRenovar(CuentaRrss $cuenta, int $dias): bool
+    private function intentarRenovar(CuentaRrss $cuenta): bool
     {
-        // Un token ya vencido no se puede renovar con él mismo: hay que reconectar a mano.
-        if ($dias < 0) {
-            return false;
-        }
-
+        // Solo se llama con un token vivo: renovar usa el token actual, así que con uno
+        // vencido no hay nada que hacer salvo reconectar a mano. Lo comprueba quien llama.
         try {
             match ($cuenta->red) {
                 'facebook'        => $this->meta->renovarToken($cuenta),
@@ -139,11 +141,11 @@ class TokensRrssService
      * contenido. Un aviso dirigido a alguien que no puede resolverlo es un aviso que nadie
      * atiende.
      */
-    private function avisar(CuentaRrss $cuenta, int $dias): void
+    private function avisar(CuentaRrss $cuenta, int $dias, bool $vencido): void
     {
         $nombre = $this->nombre($cuenta);
 
-        [$titulo, $mensaje] = $dias < 0
+        [$titulo, $mensaje] = $vencido
             ? [
                 "Se venció el permiso de {$nombre}",
                 "Las publicaciones a {$nombre} están fallando. Hay que volver a conectar la cuenta.",

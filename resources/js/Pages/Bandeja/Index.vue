@@ -102,7 +102,13 @@ async function abrirConversacion(clave) {
     hilo.value = null
 
     try {
-        hilo.value = await api(`/bandeja/${clave}/hilo`)
+        const datos = await api(`/bandeja/${clave}/hilo`)
+
+        // Si mientras llegaba se abrió otra, lo que acaba de llegar ya no es lo que se está
+        // mirando: pintarlo sería mostrar la conversación de otro cliente.
+        if (abierta.value !== clave) return
+
+        hilo.value = datos
 
         // La fila se marca leída sin esperar al servidor: el servidor ya lo hizo al servir el
         // hilo, y volver a pedir la lista para bajar un punto azul sería una petición de más.
@@ -112,9 +118,12 @@ async function abrirConversacion(clave) {
             if (props.contadores.sin_leer > 0) props.contadores.sin_leer--
         }
     } catch (e) {
-        error.value = e.message
+        if (abierta.value === clave) error.value = e.message
     } finally {
-        cargandoHilo.value = false
+        // Solo la apertura que sigue siendo la vigente apaga el «Trayendo…»: si una apertura
+        // lenta lo apagara después de que ya se abrió otra, el indicador se iría mientras la
+        // segunda todavía está esperando.
+        if (abierta.value === clave) cargandoHilo.value = false
     }
 }
 
@@ -232,8 +241,15 @@ function refrescar() {
     // El hilo abierto también: estar leyendo una conversación es cuando más importa ver llegar
     // el mensaje siguiente.
     if (abierta.value && ! enviando.value) {
-        api(`/bandeja/${abierta.value}/hilo`)
+        // Se recuerda CUÁL se pidió. Entre la petición y su respuesta la persona puede haber
+        // cambiado de conversación, y sin esta comprobación el hilo del cliente anterior
+        // —con su cabecera y su ventana— se pintaba debajo del nombre del nuevo.
+        const pedida = abierta.value
+
+        api(`/bandeja/${pedida}/hilo`)
             .then((datos) => {
+                if (pedida !== abierta.value) return
+
                 if (datos.mensajes.length !== hilo.value?.mensajes.length) {
                     hilo.value = datos
                 }
@@ -382,7 +398,7 @@ onUnmounted(() => {
                             <option v-for="u in usuarios" :key="u.id" :value="u.id">{{ u.nombre }}</option>
                         </select>
 
-                        <button v-if="hilo" type="button" @click="archivar"
+                        <button v-if="hilo && puede.responder" type="button" @click="archivar"
                             class="shrink-0 w-9 h-9 rounded-xl text-tinta-500 hover:bg-realce flex items-center justify-center"
                             :title="hilo.cabecera.archivada ? 'Devolver a la bandeja' : 'Archivar'">
                             <IconoMenu :nombre="hilo.cabecera.archivada ? 'rotate-left' : 'box-archive'" clase="text-sm w-4" />

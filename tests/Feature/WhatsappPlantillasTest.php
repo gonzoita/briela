@@ -174,6 +174,52 @@ class WhatsappPlantillasTest extends TestCase
         $this->assertSame(0, WhatsappPlantilla::aprobadas()->where('nombre', 'vieja')->count());
     }
 
+    public function test_solo_se_piden_los_datos_del_cuerpo(): void
+    {
+        // El encabezado de esta plantilla trae {{1}} y el cuerpo trae {{1}} y {{2}}.
+        Http::fake(['graph.facebook.com/*' => Http::response(['data' => [$this->plantillaDeMeta([
+            'components' => [
+                ['type' => 'HEADER', 'format' => 'TEXT', 'text' => 'Novedad de {{1}}'],
+                ['type' => 'BODY',   'text' => 'Hola {{1}}, su orden {{2}} salió.'],
+            ],
+        ])]], 200)]);
+
+        $this->servicio()->sincronizar();
+
+        // Se mandan dos, porque el envío solo arma el componente `body`. Contar también las del
+        // encabezado hacía que el formulario pidiera un dato de más y que Meta rechazara el
+        // envío por número de parámetros.
+        $this->assertSame(2, WhatsappPlantilla::first()->variables);
+    }
+
+    public function test_la_vista_previa_tolera_los_espacios_dentro_de_las_llaves(): void
+    {
+        $plantilla = WhatsappPlantilla::create([
+            'nombre' => 'con_espacios', 'idioma' => 'es', 'estado' => 'APPROVED',
+            'cuerpo' => 'Hola {{ 1 }}, su orden {{2}} está lista.',
+            'variables' => 2,
+        ]);
+
+        // Meta acepta `{{ 1 }}`, y el contador siempre lo contó. La vista previa no lo
+        // reemplazaba, así que se veía el hueco y parecía que el dato escrito no servía.
+        $this->assertSame(
+            'Hola Marta, su orden OP-7 está lista.',
+            $plantilla->previsualizar(['Marta', 'OP-7']),
+        );
+    }
+
+    public function test_un_dato_con_signo_de_pesos_pasa_literal(): void
+    {
+        $plantilla = WhatsappPlantilla::create([
+            'nombre' => 'con_monto', 'idioma' => 'es', 'estado' => 'APPROVED',
+            'cuerpo' => 'Su saldo es {{1}}.', 'variables' => 1,
+        ]);
+
+        // Con un `preg_replace` a secas, `$1` se interpreta como referencia a un grupo y el
+        // cliente recibía otra cosa. El valor lo escribe una persona o viene de un documento.
+        $this->assertSame('Su saldo es $1.500.000.', $plantilla->previsualizar(['$1.500.000']));
+    }
+
     // ─── Cuando no se puede ──────────────────────────────────────────────────
 
     public function test_sin_el_identificador_de_la_cuenta_dice_donde_encontrarlo(): void

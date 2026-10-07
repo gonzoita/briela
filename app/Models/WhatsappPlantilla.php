@@ -55,8 +55,18 @@ class WhatsappPlantilla extends Model
         $partes = array_filter([$this->encabezado, $this->cuerpo, $this->pie]);
         $texto  = implode("\n\n", $partes);
 
+        // Con la misma tolerancia a espacios que `contarVariables`: Meta acepta `{{ 1 }}` y, con
+        // un `str_replace` exacto, el contador decía «un dato» y la vista previa no lo
+        // reemplazaba nunca — se veía el hueco y parecía que el dato escrito no servía.
         foreach (array_values($valores) as $indice => $valor) {
-            $texto = str_replace('{{' . ($indice + 1) . '}}', (string) $valor, $texto);
+            // Con `preg_replace` a secas, un dato que contenga `$1` o `\1` se interpretaría
+            // como referencia a un grupo y saldría otra cosa. El valor lo escribe quien manda
+            // la plantilla —o viene de un documento—, así que no se puede dar por seguro.
+            $texto = preg_replace_callback(
+                '/\{\{\s*' . ($indice + 1) . '\s*\}\}/',
+                fn () => (string) $valor,
+                $texto,
+            );
         }
 
         return $texto;

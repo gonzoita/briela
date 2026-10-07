@@ -223,6 +223,45 @@ class RrssTokensTest extends TestCase
         $this->assertSame(0, Notificacion::count());
     }
 
+    public function test_un_token_vencido_hace_unas_horas_se_reporta_como_vencido(): void
+    {
+        $this->admin();
+        // Vencido hace 6 horas: menos de un día.
+        $this->cuenta('facebook', 0, ['token_expira_en' => now()->subHours(6)]);
+
+        Http::fake();
+
+        $resultado = $this->servicio()->revisar();
+
+        // Con `ceil` sobre una diferencia de días, esto daba 0 —no un número negativo—, así que
+        // se intentaba renovar con un token muerto y el aviso decía «vence en 0 días», en
+        // futuro, de algo que ya estaba fallando.
+        $this->assertCount(1, $resultado['vencidas']);
+        $this->assertSame([], $resultado['renovadas']);
+        Http::assertNothingSent();
+
+        $aviso = Notificacion::where('tipo', 'rrss_token_por_vencer')->first();
+
+        $this->assertStringContainsString('Se venció', $aviso->titulo);
+        $this->assertStringNotContainsString('vence en', $aviso->titulo);
+    }
+
+    public function test_el_aviso_nunca_dice_cero_dias(): void
+    {
+        $this->admin();
+        // Vence en unas horas: todavía no venció, pero menos de un día.
+        $this->cuenta('linkedin', 0, ['token_expira_en' => now()->addHours(5)]);
+
+        Http::fake();
+
+        $this->servicio()->revisar();
+
+        $aviso = Notificacion::where('tipo', 'rrss_token_por_vencer')->first();
+
+        // «Vence en 0 días» no le dice nada a nadie.
+        $this->assertStringContainsString('vence en 1 día', $aviso->titulo);
+    }
+
     // ─── El comando ──────────────────────────────────────────────────────────
 
     public function test_el_comando_programado_corre_y_dice_que_hizo(): void

@@ -185,6 +185,39 @@ class WhatsappWebhookTest extends TestCase
         $this->assertSame(1, WhatsappMensaje::where('wa_message_id', 'wamid.UNO')->count());
     }
 
+    public function test_un_reintento_de_meta_no_devuelve_a_sin_leer_lo_ya_atendido(): void
+    {
+        $this->linea();
+        CredencialesRrss::guardar('meta', 'secret', self::SECRETO);
+
+        $this->enviarFirmado($this->cuerpoDeMensaje())->assertOk();
+
+        // Alguien la atendió: la leyó y la archivó.
+        $conversacion = WhatsappConversacion::first();
+        $conversacion->forceFill([
+            'leido'              => true,
+            'archivada_at'       => now(),
+            'ultimo_entrante_at' => now()->subHours(20),
+        ])->save();
+
+        $entranteOriginal = $conversacion->fresh()->ultimo_entrante_at;
+
+        // Y Meta reintenta el mismo mensaje, que es algo que pasa seguido.
+        $this->enviarFirmado($this->cuerpoDeMensaje())->assertOk();
+
+        $fresca = $conversacion->fresh();
+
+        // Marcar actividad antes de descartar el repetido volvía a ponerla como «sin leer», la
+        // sacaba del archivo y corría la ventana de 24 horas hacia adelante, estirándola más
+        // allá del último mensaje real de la persona.
+        $this->assertTrue($fresca->leido);
+        $this->assertNotNull($fresca->archivada_at);
+        $this->assertSame(
+            $entranteOriginal->format('Y-m-d H:i'),
+            $fresca->ultimo_entrante_at->format('Y-m-d H:i'),
+        );
+    }
+
     // ─── Lo que no es texto ──────────────────────────────────────────────────
 
     public function test_una_foto_se_baja_al_servidor_y_queda_pegada_a_la_conversacion(): void

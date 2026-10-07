@@ -558,6 +558,75 @@ class BandejaRedesTest extends TestCase
         Http::assertNothingSent();
     }
 
+    public function test_un_pdf_que_manda_la_empresa_no_se_guarda_como_foto(): void
+    {
+        $cuenta = $this->cuenta();
+        $this->metaResponde();
+        Storage::fake('public');
+
+        // La instalación tiene que ser alcanzable: Meta no recibe el archivo, viene a buscarlo.
+        config(['app.url' => 'https://sistema.ejemplo.com']);
+
+        $conversacion = BandejaConversacion::create([
+            'canal' => 'instagram_dm', 'cuenta_rrss_id' => $cuenta->id,
+            'externo_id' => 'persona-77',
+            'ultimo_mensaje_at' => now(), 'ultimo_entrante_at' => now(),
+        ]);
+
+        $archivo = \App\Models\Archivo::create([
+            'nombre_original' => 'cotizacion.pdf', 'nombre_archivo' => 'x.pdf',
+            'ruta' => 'bandeja/x.pdf', 'storage' => 'local',
+            'tipo_mime' => 'application/pdf', 'extension' => 'pdf', 'tamano' => 10,
+            'categoria' => 'bandeja',
+            'archivable_type' => BandejaConversacion::class, 'archivable_id' => $conversacion->id,
+        ]);
+
+        app(\App\Services\Bandeja\CanalMeta::class)->responder(
+            $conversacion, 'Le mando la cotización', $archivo, $this->admin(),
+        );
+
+        // Guardaba todo como «imagen», así que en el hilo se intentaba mostrar la miniatura de
+        // algo que no es una imagen.
+        $this->assertSame('documento', BandejaMensaje::where('direccion', 'saliente')->value('tipo'));
+    }
+
+    public function test_desde_una_instalacion_interna_se_explica_por_que_no_sale_el_archivo(): void
+    {
+        $cuenta = $this->cuenta();
+        Http::fake();
+
+        // Lo que pasa en Laragon y en cualquier instalación dentro de la red de la empresa.
+        config(['app.url' => 'http://localhost:8000']);
+
+        $conversacion = BandejaConversacion::create([
+            'canal' => 'instagram_dm', 'cuenta_rrss_id' => $cuenta->id,
+            'externo_id' => 'persona-77',
+            'ultimo_mensaje_at' => now(), 'ultimo_entrante_at' => now(),
+        ]);
+
+        $archivo = \App\Models\Archivo::create([
+            'nombre_original' => 'foto.jpg', 'nombre_archivo' => 'x.jpg',
+            'ruta' => 'bandeja/x.jpg', 'storage' => 'local',
+            'tipo_mime' => 'image/jpeg', 'extension' => 'jpg', 'tamano' => 10,
+            'categoria' => 'bandeja',
+            'archivable_type' => BandejaConversacion::class, 'archivable_id' => $conversacion->id,
+        ]);
+
+        $respuesta = $this->actingAs($this->admin())->call(
+            'POST',
+            '/bandeja/instagram_dm:' . $conversacion->id . '/responder',
+            ['texto' => 'Mire'],
+            [], ['archivo' => \Illuminate\Http\UploadedFile::fake()->image('foto.jpg')],
+            ['HTTP_ACCEPT' => 'application/json'],
+        );
+
+        // Meta devolvería un error que no explica nada: la pantalla lo dice antes de intentarlo.
+        $respuesta->assertStatus(422);
+        $this->assertStringContainsString('red local', $respuesta->json('message'));
+        $this->assertSame($archivo->id, $archivo->fresh()->id); // no se tocó nada más
+        Http::assertNothingSent();
+    }
+
     // ─── Automatización ──────────────────────────────────────────────────────
 
     public function test_avisa_por_la_campanita_en_el_primer_contacto(): void

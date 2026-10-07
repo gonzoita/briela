@@ -78,7 +78,9 @@ class CanalMeta implements CanalBandeja
             'bandeja_conversacion_id' => $conversacion->id,
             'externo_id' => $externoId ?: null,
             'direccion'  => 'saliente',
-            'tipo'       => Canales::esComentario($conversacion->canal()) ? 'comentario' : ($archivo ? 'imagen' : 'texto'),
+            'tipo'       => Canales::esComentario($conversacion->canal())
+                ? 'comentario'
+                : $this->tipoDe($archivo),
             'contenido'  => $texto !== '' ? $texto : null,
             'archivo_id' => $archivo?->id,
             'estado'     => 'enviado',
@@ -88,6 +90,29 @@ class CanalMeta implements CanalBandeja
         $conversacion->registrarActividad('saliente');
 
         return $this->normalizarMensaje($mensaje->fresh(['archivo', 'usuario']));
+    }
+
+    /**
+     * Qué clase de mensaje es, según lo que se adjuntó.
+     *
+     * Guardaba todo como «imagen», así que un PDF o una nota de voz salían del lado de la
+     * empresa marcados como foto: en el hilo se intentaba mostrar la miniatura de algo que no
+     * es una imagen.
+     */
+    private function tipoDe(?Archivo $archivo): string
+    {
+        if (! $archivo) {
+            return 'texto';
+        }
+
+        $mime = trim(explode(';', (string) $archivo->tipo_mime)[0]);
+
+        return match (true) {
+            str_starts_with($mime, 'image/') => 'imagen',
+            str_starts_with($mime, 'video/') => 'video',
+            str_starts_with($mime, 'audio/') => 'audio',
+            default                          => 'documento',
+        };
     }
 
     /**

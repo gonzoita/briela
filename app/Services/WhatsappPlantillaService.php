@@ -120,7 +120,12 @@ class WhatsappPlantillaService
             'encabezado' => $partes['encabezado'],
             'cuerpo'     => $partes['cuerpo'],
             'pie'        => $partes['pie'],
-            'variables'  => WhatsappPlantilla::contarVariables($partes['encabezado'], $partes['cuerpo']),
+            // **Solo las del cuerpo.** `enviarPlantilla` manda un componente `body` y nada más,
+            // así que contar también las del encabezado hacía que el formulario pidiera un
+            // dato de más y que Meta rechazara el envío (132000: número de parámetros). Una
+            // plantilla con variable en el encabezado todavía no se puede mandar desde acá; lo
+            // honesto es no pedir un dato que no se va a usar.
+            'variables'  => WhatsappPlantilla::contarVariables($partes['cuerpo']),
             // Se guarda tal cual lo que manda Meta: así no se pierde lo que todavía no sabemos
             // leer —botones, cabeceras con archivo— y se puede usar después sin volver a pedir.
             'componentes' => $cruda['components'] ?? null,

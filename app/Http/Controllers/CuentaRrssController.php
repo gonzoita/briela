@@ -75,11 +75,19 @@ class CuentaRrssController extends Controller
             'responsables.*' => 'integer|exists:users,id',
         ]);
 
-        \App\Models\Configuracion::set('bandeja_auto_activo',      $datos['activo'] ? '1' : '0');
-        \App\Models\Configuracion::set('bandeja_auto_avisar',      $datos['avisar'] ? '1' : '0');
-        \App\Models\Configuracion::set('bandeja_auto_responder',   $datos['responder'] ? '1' : '0');
-        \App\Models\Configuracion::set('bandeja_auto_comentarios', $datos['comentarios'] ? '1' : '0');
-        \App\Models\Configuracion::set('bandeja_auto_crear_lead',  $datos['crear_lead'] ? '1' : '0');
+        // Las reglas `boolean` no son `required`, así que una propiedad que no venga en el
+        // cuerpo no llega en `$datos`. Leerla directo daba «Undefined array key» y un 500 en
+        // vez de guardarla apagada, que es lo que significa que no venga.
+        foreach ([
+            'bandeja_auto_activo'      => 'activo',
+            'bandeja_auto_avisar'      => 'avisar',
+            'bandeja_auto_responder'   => 'responder',
+            'bandeja_auto_comentarios' => 'comentarios',
+            'bandeja_auto_crear_lead'  => 'crear_lead',
+        ] as $clave => $campo) {
+            \App\Models\Configuracion::set($clave, ! empty($datos[$campo]) ? '1' : '0');
+        }
+
         \App\Models\Configuracion::set('bandeja_auto_lead_etapa_id', (string) ($datos['lead_etapa_id'] ?? ''));
         \App\Models\Configuracion::set('bandeja_auto_asignacion',  $datos['asignacion']);
         \App\Models\Configuracion::set('bandeja_auto_responsables', json_encode(array_values($datos['responsables'] ?? [])));

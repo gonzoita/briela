@@ -10,8 +10,12 @@ const props = defineProps({
     automatizacion: { type: Object, default: () => ({}) },
     etapas:   { type: Array, default: () => [] },
     usuarios: { type: Array, default: () => [] },
-    urlWebhook:   { type: String, default: '' },
-    webhookListo: { type: Boolean, default: false },
+    // Los nombres van en snake_case, igual que los manda el servidor: Vue solo convierte los
+    // guiones de los atributos HTML, no el nombre de una propiedad de Inertia. Declarados como
+    // `urlWebhook` no se enlazaba ninguno de los dos, así que el campo del webhook salía vacío
+    // y el aviso rojo de «no va a entrar nada» se quedaba puesto para siempre.
+    url_webhook:   { type: String, default: '' },
+    webhook_listo: { type: Boolean, default: false },
 })
 
 const guiaAbierta = ref(false)
@@ -327,7 +331,7 @@ function reactivar(c) {
                 <div v-if="autoAbierta" class="mt-4 space-y-4 text-xs">
 
                     <!-- Sin webhook no llega nada, y es lo primero que hay que resolver. -->
-                    <div v-if="!webhookListo"
+                    <div v-if="!webhook_listo"
                         class="rounded-lg bg-pastel-rojo border border-borde-aviso-rojo p-2.5 text-[11px] text-aviso-rojo leading-relaxed">
                         <p class="font-semibold">Todavía no va a entrar ningún mensaje.</p>
                         <p>
@@ -348,9 +352,9 @@ function reactivar(c) {
                             esos campos la dirección responde pero no llega nada — es el error más común.
                         </p>
                         <div class="flex items-center gap-1.5">
-                            <input :value="urlWebhook" readonly
+                            <input :value="url_webhook" readonly
                                 class="flex-1 min-w-0 border border-linea rounded-lg px-2 py-1.5 text-[11px] bg-tinta-50 text-tinta-500" />
-                            <button type="button" @click="copiar(urlWebhook, 'webhook-meta')"
+                            <button type="button" @click="copiar(url_webhook, 'webhook-meta')"
                                 class="px-2.5 py-1.5 rounded-lg border border-linea text-[11px] font-semibold text-tinta-700 hover:bg-realce shrink-0">
                                 {{ copiado === 'webhook-meta' ? 'Copiado' : 'Copiar' }}
                             </button>

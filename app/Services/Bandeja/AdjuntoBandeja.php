@@ -49,7 +49,14 @@ class AdjuntoBandeja
         ?string $mime = null,
     ): ?Archivo {
         try {
-            $respuesta = Http::withHeaders($cabeceras)->timeout(60)->get($url);
+            // **En flujo, no de un bocado.** Comprobar el tamaño después de `body()` es
+            // comprobarlo cuando el archivo ya está entero en memoria: un adjunto de 100 MB
+            // —los documentos de Meta llegan a eso— tumbaba la petición del webhook por falta
+            // de memoria, y Meta la reintentaba una y otra vez. Así se corta antes.
+            $respuesta = Http::withHeaders($cabeceras)
+                ->withOptions(['stream' => true])
+                ->timeout(60)
+                ->get($url);
 
             if (! $respuesta->successful()) {
                 Log::warning('Bandeja: no se pudo bajar el adjunto.', [
@@ -60,10 +67,21 @@ class AdjuntoBandeja
                 return null;
             }
 
-            $cuerpo = $respuesta->body();
+            // Si el servidor dice de entrada cuánto pesa, no hace falta leer ni un byte.
+            $anunciado = (int) $respuesta->header('Content-Length');
 
-            if (strlen($cuerpo) > self::MAXIMO_BYTES) {
-                Log::warning('Bandeja: adjunto más grande de lo que se baja.', ['bytes' => strlen($cuerpo)]);
+            if ($anunciado > self::MAXIMO_BYTES) {
+                Log::warning('Bandeja: adjunto más grande de lo que se baja.', ['bytes' => $anunciado]);
+
+                return null;
+            }
+
+            $cuerpo = $this->leerConTope($respuesta->toPsrResponse()->getBody());
+
+            if ($cuerpo === null) {
+                Log::warning('Bandeja: adjunto más grande de lo que se baja.', [
+                    'tope' => self::MAXIMO_BYTES,
+                ]);
 
                 return null;
             }
@@ -79,6 +97,28 @@ class AdjuntoBandeja
 
             return null;
         }
+    }
+
+    /**
+     * Lee el cuerpo hasta el tope, y se rinde si lo pasa.
+     *
+     * Devuelve `null` cuando el archivo es más grande, sin haberlo cargado entero: se lee un
+     * trozo a la vez y se corta en cuanto se pasa, que es justo lo que no hacía comprobar
+     * `strlen()` sobre el cuerpo ya buffereado.
+     */
+    private function leerConTope(\Psr\Http\Message\StreamInterface $flujo): ?string
+    {
+        $cuerpo = '';
+
+        while (! $flujo->eof()) {
+            $cuerpo .= $flujo->read(256 * 1024);
+
+            if (strlen($cuerpo) > self::MAXIMO_BYTES) {
+                return null;
+            }
+        }
+
+        return $cuerpo;
     }
 
     /**

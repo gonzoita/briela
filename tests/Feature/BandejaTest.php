@@ -483,6 +483,25 @@ class BandejaTest extends TestCase
         Http::assertNothingSent();
     }
 
+    public function test_quien_solo_lee_no_puede_archivar(): void
+    {
+        $linea = $this->linea();
+        $conversacion = $this->conversacion($linea);
+
+        $rol = \App\Models\Rol::create(['nombre' => 'Mirón', 'activo' => true]);
+        $rol->sincronizarPermisos(['bandeja.ver']);
+
+        $mirando = User::factory()->create(['rol' => 'vendedor', 'rol_id' => $rol->id, 'activo' => true]);
+
+        // Archivar es «ya la atendí»: quien solo puede leer no debería poder sacarle de la
+        // vista a los demás lo que falta atender.
+        $this->actingAs($mirando)
+            ->postJson('/bandeja/whatsapp:' . $conversacion->id . '/archivar', ['archivar' => true])
+            ->assertForbidden();
+
+        $this->assertNull($conversacion->fresh()->archivada_at);
+    }
+
     public function test_con_la_bandeja_apagada_no_hay_pantalla_ni_permisos(): void
     {
         Modulos::guardar(['bandeja'], 'instalacion');
