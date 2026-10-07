@@ -30,6 +30,10 @@ class Permisos
                 // Los agentes atienden a clientes a nombre de la empresa: configurarlos no es
                 // lo mismo que ver el tablero.
                 'agentes'      => ['label' => 'Agentes de IA', 'acciones' => ['ver', 'gestionar']],
+                // Leer lo que escriben los clientes y contestarles son dos permisos, no uno: en
+                // la mayoría de las empresas varios pueden mirar la bandeja y solo los asesores
+                // hablan a nombre de la marca. Y «asignar» es de quien reparte el trabajo.
+                'bandeja'      => ['label' => 'Bandeja de mensajes', 'acciones' => ['ver', 'responder', 'asignar']],
             ],
             'Producción' => [
                 'ops'         => ['label' => 'Órdenes de Producción', 'acciones' => ['ver', 'crear', 'editar', 'eliminar', 'calidad']],
@@ -94,6 +98,8 @@ class Permisos
             'recibir'   => 'Recibir mercancía',
             'despachar' => 'Despachar',
             'liquidar'  => 'Liquidar',
+            'responder' => 'Responder mensajes',
+            'asignar'   => 'Asignar a alguien',
         ];
     }
 
@@ -133,6 +139,7 @@ class Permisos
                 'clientes'      => ['ver', 'crear', 'editar'],
                 'crm'           => ['ver', 'crear', 'editar'],
                 'cotizaciones'  => ['ver', 'crear', 'editar'],
+                'bandeja'       => ['ver', 'responder'],
                 'ops'           => ['ver', 'crear', 'editar', 'calidad'],
                 'alistamiento'  => ['ver', 'alistar'],
                 'trabajos'      => ['ver', 'editar'],
@@ -157,6 +164,9 @@ class Permisos
                 'crm'          => ['ver', 'crear', 'editar'],
                 'cotizaciones' => ['ver', 'crear', 'editar'],
                 'comisiones'   => ['ver'],
+                // El vendedor es quien atiende: ve, contesta y puede tomar una conversación
+                // que no es de nadie.
+                'bandeja'      => ['ver', 'responder', 'asignar'],
                 'ops'          => ['ver', 'crear'],
                 'productos'    => ['ver'],
                 'ensambles'    => ['ver'],

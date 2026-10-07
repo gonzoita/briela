@@ -31,7 +31,16 @@ import {
     faUsersGear, faIdCardClip, faBookBookmark, faGraduationCap, faChalkboardUser, faEnvelopeOpenText,
     faBullhorn, faShareNodes, faPhotoFilm,
     faSliders, faFileLines, faFingerprint, faGear, faRobot, faFilePdf,
+    // La bandeja de mensajes.
+    faInbox, faComment, faComments, faPaperclip, faPaperPlane, faMagnifyingGlass,
+    faBoxArchive, faArrowLeft, faXmark, faTriangleExclamation, faClock, faUserPlus, faRotateLeft,
 } from '@fortawesome/free-solid-svg-icons'
+// Los logos de las redes. Un buzón con cinco canales se lee de un vistazo por el logo, no por
+// la etiqueta: el paquete se importa ícono por ícono, igual que el de Solid, así que el bundle
+// solo lleva estos cuatro.
+import {
+    faWhatsapp, faInstagram, faFacebook, faFacebookMessenger,
+} from '@fortawesome/free-brands-svg-icons'
 
 const props = defineProps({
     nombre: { type: String, required: true },
@@ -56,6 +65,12 @@ const ICONOS = {
     'bullhorn': faBullhorn, 'share-nodes': faShareNodes, 'photo-film': faPhotoFilm,
     'sliders': faSliders, 'file-lines': faFileLines, 'fingerprint': faFingerprint,
     'gear': faGear, 'robot': faRobot, 'file-pdf': faFilePdf,
+    'inbox': faInbox, 'comment': faComment, 'comments': faComments, 'paperclip': faPaperclip,
+    'paper-plane': faPaperPlane, 'magnifying-glass': faMagnifyingGlass, 'box-archive': faBoxArchive,
+    'arrow-left': faArrowLeft, 'xmark': faXmark, 'triangle-exclamation': faTriangleExclamation,
+    'clock': faClock, 'user-plus': faUserPlus, 'rotate-left': faRotateLeft,
+    'whatsapp': faWhatsapp, 'instagram': faInstagram,
+    'facebook': faFacebook, 'facebook-messenger': faFacebookMessenger,
 }
 
 // icon = [ancho, alto, ligaduras, unicode, trazo]; el trazo puede venir partido en capas.

@@ -12,7 +12,8 @@ class NotificacionController extends Controller
     // para la campanita del layout.
     public function index(): JsonResponse
     {
-        $userId = auth()->id();
+        $usuario = auth()->user();
+        $userId  = $usuario?->id;
 
         $notificaciones = Notificacion::where('user_id', $userId)
             ->latest()
@@ -33,6 +34,14 @@ class NotificacionController extends Controller
         return response()->json([
             'notificaciones' => $notificaciones,
             'no_leidas'      => Notificacion::where('user_id', $userId)->where('leida', false)->count(),
+            // El contador de la bandeja viaja acá, pegado a la campanita, y no en su propia
+            // ruta: `useAvisos` ya hace esta petición cada minuto, y una conversación sin leer
+            // no es un aviso pero se mira en el mismo sitio. Darle ruta propia habría sido una
+            // quinta petición por ronda, que es justo lo que costó trabajo quitar. Ver
+            // «Velocidad: nada cuesta una petición por clic».
+            'bandeja_sin_leer' => $usuario?->tienePermiso('bandeja.ver')
+                ? app(\App\Services\Bandeja\BandejaService::class)->sinLeerPara($usuario)
+                : 0,
         ]);
     }
 

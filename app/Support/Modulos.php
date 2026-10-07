@@ -70,6 +70,19 @@ class Modulos
                 'depende'   => [],
                 'al_apagar' => 'No se cotiza ni se aprueba por enlace. Las órdenes de producción se crean directamente.',
             ],
+            // La bandeja es donde se atiende a quien escribe por WhatsApp o por las redes. Va
+            // en Ventas porque es trabajo de quien vende, no de quien configura. Apagarla se
+            // lleva también la conexión de WhatsApp y su webhook: sin bandeja no hay dónde
+            // leer lo que entra, y seguir recibiendo mensajes que nadie puede ver es peor que
+            // no recibirlos.
+            'bandeja' => [
+                'label'     => 'Bandeja de mensajes',
+                'grupo'     => 'Ventas',
+                'permisos'  => ['bandeja'],
+                'rutas'     => ['bandeja', 'api/bandeja', 'webhook/whatsapp', 'webhook/meta', 'configuracion/whatsapp-numeros'],
+                'depende'   => [],
+                'al_apagar' => 'No se reciben ni se contestan mensajes de WhatsApp ni de las redes. El historial se conserva.',
+            ],
             'comisiones' => [
                 'label'     => 'Comisiones',
                 'grupo'     => 'Ventas',

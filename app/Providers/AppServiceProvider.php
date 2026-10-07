@@ -14,7 +14,16 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        // La bandeja atiende varios canales y cada uno entra por su adaptador. Se arman aquí
+        // —y no con un `tagged` o un descubrimiento automático— porque el orden y la lista
+        // completa tienen que poder leerse de un tirón: un canal nuevo se agrega escribiendo
+        // su adaptador y poniéndolo en esta lista. Ver `App\Services\Bandeja\CanalBandeja`.
+        $this->app->singleton(
+            \App\Services\Bandeja\BandejaService::class,
+            fn ($app) => new \App\Services\Bandeja\BandejaService([
+                $app->make(\App\Services\Bandeja\CanalWhatsapp::class),
+            ]),
+        );
     }
 
     /**

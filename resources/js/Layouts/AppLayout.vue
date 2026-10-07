@@ -13,7 +13,7 @@ import SelloBriela from '@/Components/SelloBriela.vue'
 import { useTema } from '@/composables/useTema'
 import {
     notificaciones, notifNoLeidas, cargarNotificaciones,
-    iniciarAvisos, soloUnaVez, sinLeerTotal, refrescarSiHaceRato,
+    iniciarAvisos, soloUnaVez, sinLeerTotal, refrescarSiHaceRato, bandejaSinLeer,
 } from '@/composables/useAvisos'
 
 const props = defineProps({
@@ -124,6 +124,11 @@ const navItems = computed(() => {
             { label: nombreAsistente.value, href: '/asistente', icon: 'wand-magic-sparkles' },
         ]},
         { label: 'Ventas', icon: 'handshake', items: [
+            // El número de sin leer va en el menú, no solo dentro de la bandeja: una bandeja
+            // que no avisa desde afuera es una bandeja que nadie abre. Sale de `useAvisos`,
+            // que ya lo trae pegado a la campanita, sin una petición de más.
+            { label: 'Bandeja',      href: '/bandeja',         icon: 'inbox',               permiso: 'bandeja.ver',
+              insignia: bandejaSinLeer.value },
             { label: 'CRM',          href: '/crm',             icon: 'funnel-dollar',       permiso: 'crm.ver' },
             { label: 'Cotizaciones', href: '/cotizaciones',    icon: 'file-invoice-dollar', permiso: 'cotizaciones.ver' },
             { label: 'Reportes',     href: '/crm/reportes',    icon: 'chart-pie',           permiso: 'crm.ver' },
@@ -724,6 +729,9 @@ onUnmounted(() => {
                         >
                             <IconoMenu :nombre="enlace.icon" clase="text-xs w-4" :class="enlace.sub ? 'opacity-50' : 'opacity-70'" />
                             <span class="truncate">{{ enlace.label }}</span>
+                            <span v-if="enlace.insignia"
+                                class="ml-auto shrink-0 min-w-[18px] h-[18px] px-1 rounded-full text-white text-[10px] font-semibold flex items-center justify-center"
+                                style="background:var(--marca)">{{ enlace.insignia > 99 ? '99+' : enlace.insignia }}</span>
                         </a>
                     </div>
                     </div>
@@ -794,6 +802,11 @@ onUnmounted(() => {
                             >
                                 <IconoMenu :nombre="item.icon" :clase="sec.label ? 'text-xs w-4 opacity-70' : 'text-sm w-5'" />
                                 <span class="truncate">{{ item.label }}</span>
+                                <!-- El pendiente de ese módulo. Color saturado con texto
+                                     blanco: es lo único que se lee igual de día y de noche. -->
+                                <span v-if="item.insignia"
+                                    class="ml-auto shrink-0 min-w-[18px] h-[18px] px-1 rounded-full text-white text-[10px] font-semibold flex items-center justify-center"
+                                    style="background:var(--marca)">{{ item.insignia > 99 ? '99+' : item.insignia }}</span>
                             </a>
 
                             <!-- El botón de plegar va aparte del enlace: así se
@@ -1464,6 +1477,9 @@ onUnmounted(() => {
                                 >
                                     <IconoMenu :nombre="item.icon" :clase="sec.label ? 'text-xs w-4 opacity-70' : 'text-sm w-5'" />
                                     <span class="truncate">{{ item.label }}</span>
+                                    <span v-if="item.insignia"
+                                        class="ml-auto shrink-0 min-w-[20px] h-[20px] px-1 rounded-full text-white text-[11px] font-semibold flex items-center justify-center"
+                                        style="background:var(--marca)">{{ item.insignia > 99 ? '99+' : item.insignia }}</span>
                                 </a>
 
                                 <!-- Área de toque de 44 puntos: es la medida mínima

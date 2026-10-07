@@ -45,6 +45,9 @@ class NotificacionService
         'disciplina_por_firmar'    => 'rrhh',
         'bono_calculado'           => 'rrhh',
         'rrss_publicacion_fallida' => 'rrss',
+        'whatsapp_mensaje_nuevo'   => 'bandeja',
+        'bandeja_mensaje_nuevo'    => 'bandeja',
+        'rrss_token_por_vencer'    => 'rrss',
     ];
 
     public static function moduloActivoPara(string $tipo): bool
@@ -85,6 +88,7 @@ class NotificacionService
                 ['tipo' => 'lead_repetido',          'label' => 'Un lead que ya estaba volvió a escribir'],
                 ['tipo' => 'lead_quieto',            'label' => 'Lead sin movimiento hace varios días'],
                 ['tipo' => 'whatsapp_mensaje_nuevo', 'label' => 'Mensaje nuevo de WhatsApp'],
+                ['tipo' => 'bandeja_mensaje_nuevo',  'label' => 'Mensaje o comentario nuevo en una red'],
                 ['tipo' => 'cotizacion_sin_respuesta','label' => 'Cotización sin respuesta (recordatorio)'],
             ],
             'Hilos internos' => [
@@ -112,6 +116,7 @@ class NotificacionService
             ],
             'Redes Sociales' => [
                 ['tipo' => 'rrss_publicacion_fallida', 'label' => 'Publicación programada falló'],
+                ['tipo' => 'rrss_token_por_vencer',    'label' => 'El permiso de una red está por vencer'],
             ],
             'Sistema' => [
                 ['tipo' => 'backup_fallido', 'label' => 'El respaldo automático falló'],

@@ -21,6 +21,7 @@ use App\Http\Controllers\AuditoriaController;
 use App\Http\Controllers\PantallaPlantaController;
 use App\Http\Controllers\ConfiguracionController;
 use App\Http\Controllers\ComisionController;
+use App\Http\Controllers\BandejaController;
 use App\Http\Controllers\CuentaRrssController;
 use App\Http\Controllers\AsistenteController;
 use App\Http\Controllers\IaController;
@@ -896,6 +897,36 @@ Route::middleware('auth')->group(function () {
     // ─── Auditoría — bitácora de actividad (solo administrador) ──────────────
     Route::middleware('permiso:auditoria.ver')->group(function () {
         Route::get('/auditoria', [AuditoriaController::class, 'index'])->name('auditoria.index');
+    });
+
+    // ─── Bandeja — lo que escriben los clientes por WhatsApp y por las redes ─
+    //
+    // El hilo y la respuesta devuelven JSON: abrir una conversación no cambia de pantalla.
+    // Ver el encabezado de BandejaController.
+    //
+    // La clave de una conversación es «canal:id» y llega del navegador, así que el canal se
+    // valida contra el catálogo antes de tocar la base (BandejaService::resolver). El
+    // `where` deja fuera cualquier otra forma antes de llegar al controlador.
+    Route::middleware('permiso:bandeja.ver')->prefix('bandeja')->name('bandeja.')->group(function () {
+        Route::get('/', [BandejaController::class, 'index'])->name('index');
+
+        Route::get('/{clave}/hilo', [BandejaController::class, 'hilo'])
+            ->where('clave', '[a-z_]+:[0-9]+')->name('hilo');
+
+        Route::post('/{clave}/responder', [BandejaController::class, 'responder'])
+            ->middleware('permiso:bandeja.responder')
+            ->where('clave', '[a-z_]+:[0-9]+')->name('responder');
+
+        Route::post('/{clave}/plantilla', [BandejaController::class, 'enviarPlantilla'])
+            ->middleware('permiso:bandeja.responder')
+            ->where('clave', '[a-z_]+:[0-9]+')->name('plantilla');
+
+        Route::post('/{clave}/asignar', [BandejaController::class, 'asignar'])
+            ->middleware('permiso:bandeja.asignar')
+            ->where('clave', '[a-z_]+:[0-9]+')->name('asignar');
+
+        Route::post('/{clave}/archivar', [BandejaController::class, 'archivar'])
+            ->where('clave', '[a-z_]+:[0-9]+')->name('archivar');
     });
 
     // ─── Redes Sociales — programador de publicaciones (solo administrador) ──

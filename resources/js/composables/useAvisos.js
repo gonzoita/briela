@@ -24,6 +24,15 @@ export const conversaciones = ref([])
 export const grupos         = ref([])
 
 /**
+ * Las conversaciones de clientes sin leer (WhatsApp y redes).
+ *
+ * Llega dentro de `/notificaciones`, no en una petición propia: una conversación sin leer no es
+ * un aviso, pero se mira en el mismo encabezado y en la misma ronda. Darle su propia ruta
+ * habría sumado una quinta petición cada minuto.
+ */
+export const bandejaSinLeer = ref(0)
+
+/**
  * El número rojo del botón flotante.
  *
  * Vive aquí y no dentro de `ChatBurbuja` porque el botón tiene que poder mostrarlo
@@ -61,6 +70,7 @@ export async function cargarNotificaciones() {
     if (! d) return
     notificaciones.value = d.notificaciones ?? []
     notifNoLeidas.value  = d.no_leidas ?? 0
+    bandejaSinLeer.value = d.bandeja_sin_leer ?? 0
 }
 
 export async function cargarPendientes() {
