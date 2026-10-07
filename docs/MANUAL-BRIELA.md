@@ -47,6 +47,26 @@ CARTERA (cuotas y pagos) · COMISIÓN del vendedor
 
 ## 1. Comercial
 
+### Bandeja de mensajes
+`/bandeja`
+
+Todo lo que los clientes escriben desde afuera, en una sola pantalla: **WhatsApp**, y los
+mensajes directos y comentarios de **Instagram** y **Facebook**. Se lee, se contesta, se
+adjunta, se asigna a alguien y se archiva. En celular es una pantalla a la vez; en escritorio,
+dos columnas.
+
+Lo que más condiciona el módulo es una regla de Meta: **solo se puede escribir texto libre
+dentro de las 24 horas siguientes al último mensaje de la persona**. La bandeja lo pregunta
+antes de enviar y, con el plazo cerrado, ofrece lo único que sí sale: una **plantilla aprobada**
+en WhatsApp —que es por donde salen los avisos automáticos a clientes— y nada en Instagram y
+Messenger, que no tienen plantillas. Los comentarios no tienen plazo.
+
+El agente de IA puede contestar los mensajes directos; contestar **comentarios públicos** es un
+interruptor aparte y apagado de fábrica. Y un mensaje nuevo puede crear el lead en el CRM solo,
+con el mismo reparto que los formularios web.
+
+→ [Bandeja de mensajes](./manual/bandeja.md) · [WhatsApp](./manual/whatsapp.md)
+
 ### CRM — pipeline de leads
 `/crm`
 

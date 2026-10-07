@@ -60,26 +60,14 @@ class WhatsappDiagnosticoService
     /**
      * Meta llama al webhook desde internet. Una URL local nunca le va a servir,
      * y es justo lo que aparece mientras se desarrolla o se prueba en Laragon.
+     *
+     * La respuesta vive en `App\Support\UrlPublica` porque los adjuntos de Messenger e
+     * Instagram necesitan la misma: la API de Meta no acepta el archivo, acepta una URL que va
+     * a venir a descargar. Dos copias de la misma lista de sufijos es una que se olvida.
      */
     private function urlEsPublica(string $url): bool
     {
-        $host = parse_url($url, PHP_URL_HOST) ?: '';
-
-        if ($host === '') {
-            return false;
-        }
-
-        if (filter_var($host, FILTER_VALIDATE_IP)) {
-            return (bool) filter_var($host, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE);
-        }
-
-        foreach (['localhost', '.local', '.test', '.localhost'] as $sufijo) {
-            if ($host === $sufijo || str_ends_with($host, $sufijo)) {
-                return false;
-            }
-        }
-
-        return str_contains($host, '.');
+        return \App\Support\UrlPublica::si($url);
     }
 
     // ─── 1. Probar un número ──────────────────────────────────────────────────

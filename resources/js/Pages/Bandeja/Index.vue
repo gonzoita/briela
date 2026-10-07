@@ -389,6 +389,25 @@ onUnmounted(() => {
                         </button>
                     </div>
 
+                    <!-- De qué publicación salió el comentario. Sin esto, «¿cuánto vale?» en
+                         la bandeja no se puede responder: no se sabe qué foto estaba mirando
+                         quien lo escribió. -->
+                    <div v-if="hilo?.cabecera?.contexto"
+                        class="mx-3 md:mx-4 mt-2 rounded-xl bg-superficie-2 border border-linea px-3 py-2">
+                        <p class="text-[11px] font-semibold text-tinta-500">
+                            {{ hilo.cabecera.contexto.titulo }}
+                        </p>
+                        <p v-if="hilo.cabecera.contexto.texto"
+                            class="text-xs text-tinta-700 mt-0.5 line-clamp-3">
+                            {{ hilo.cabecera.contexto.texto }}
+                        </p>
+                        <a v-if="hilo.cabecera.contexto.enlace" :href="hilo.cabecera.contexto.enlace"
+                            target="_blank" rel="noopener"
+                            class="inline-block text-[11px] mt-1 underline" style="color:var(--marca)">
+                            Ver la publicación
+                        </a>
+                    </div>
+
                     <!-- Lo que ata la conversación al resto del sistema. Sin esto, la bandeja
                          es un chat aparte: con esto, es la puerta de entrada al CRM. -->
                     <div v-if="hilo && (hilo.cabecera.lead_id || hilo.cabecera.cliente_id || hilo.cabecera.enlace_externo)"

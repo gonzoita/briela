@@ -9,7 +9,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 
 /**
  * Los archivos que entran y salen por WhatsApp.
@@ -30,12 +29,9 @@ use Illuminate\Support\Str;
  */
 class WhatsappMediaService
 {
-    /**
-     * Tope de lo que se baja. Los límites de Meta llegan a 100 MB en documentos, y bajar eso
-     * en el servidor de un cliente —sin preguntarle— llena el disco de una instalación que no
-     * dimensionó para guardar videos. Lo que pase de aquí queda anotado en el mensaje.
-     */
-    private const MAXIMO_BYTES = 32 * 1024 * 1024;
+    public function __construct(private readonly \App\Services\Bandeja\AdjuntoBandeja $adjuntos)
+    {
+    }
 
     /** Los tipos de mensaje que traen archivo, y con qué extensión se guardan si Meta no la da. */
     private const TIPOS = [
@@ -91,7 +87,7 @@ class WhatsappMediaService
 
             $tamano = (int) $meta->json('file_size');
 
-            if ($tamano > self::MAXIMO_BYTES) {
+            if ($tamano > \App\Services\Bandeja\AdjuntoBandeja::MAXIMO_BYTES) {
                 Log::warning('WhatsApp media: archivo más grande de lo que se baja.', [
                     'media_id' => $mediaId,
                     'bytes'    => $tamano,
@@ -100,23 +96,15 @@ class WhatsappMediaService
                 return null;
             }
 
-            // 2. La descarga exige el token igual que la consulta: la URL sola no sirve.
-            $descarga = Http::withToken($token)->timeout(60)->get($meta->json('url'));
-
-            if (! $descarga->successful()) {
-                Log::warning('WhatsApp media: la descarga falló.', [
-                    'media_id' => $mediaId,
-                    'status'   => $descarga->status(),
-                ]);
-
-                return null;
-            }
-
-            return $this->guardar(
-                contenido: $descarga->body(),
-                mime: (string) ($meta->json('mime_type') ?: 'application/octet-stream'),
+            // 2. La descarga exige el token igual que la consulta: la URL sola no sirve. Lo
+            //    propio de WhatsApp es eso —el token en la cabecera—; guardar el archivo es
+            //    igual para todos los canales y lo hace la pieza compartida.
+            return $this->adjuntos->descargar(
+                url: (string) $meta->json('url'),
                 conversacion: $conversacion,
                 nombreOriginal: $nombreOriginal,
+                cabeceras: ['Authorization' => 'Bearer ' . $token],
+                mime: (string) ($meta->json('mime_type') ?: 'application/octet-stream'),
             );
         } catch (\Throwable $e) {
             Log::error('WhatsApp media: error inesperado al descargar.', [
@@ -126,72 +114,6 @@ class WhatsappMediaService
 
             return null;
         }
-    }
-
-    /**
-     * Guarda unos bytes como `Archivo` del sistema.
-     *
-     * Se escribe con `Storage` y no con `ArchivoServidorService` porque ese recibe un
-     * `UploadedFile` —lo que llega de un formulario— y acá lo que hay es el cuerpo de una
-     * respuesta HTTP. El resto es idéntico: mismo disco, misma forma de URL.
-     */
-    private function guardar(string $contenido, string $mime, Model $conversacion, ?string $nombreOriginal): Archivo
-    {
-        $extension = $this->extensionDe($mime, $nombreOriginal);
-        $nombre    = Str::uuid() . '-' . now()->format('YmdHis') . '.' . $extension;
-        $ruta      = 'bandeja/' . now()->format('Y-m') . '/' . $nombre;
-
-        Storage::disk('public')->put($ruta, $contenido);
-
-        return Archivo::create([
-            'nombre_original' => $nombreOriginal ?: $nombre,
-            'nombre_archivo'  => $nombre,
-            'ruta'            => $ruta,
-            'storage'         => 'local',
-            'tipo_mime'       => $mime,
-            'extension'       => $extension,
-            'tamano'          => strlen($contenido),
-            'categoria'       => 'bandeja',
-            'archivable_type' => $conversacion->getMorphClass(),
-            'archivable_id'   => $conversacion->getKey(),
-        ]);
-    }
-
-    /**
-     * La extensión con la que se guarda.
-     *
-     * El nombre que manda el cliente manda, cuando viene: un PDF que se llama
-     * «cotización.pdf» tiene que seguir llamándose así al descargarlo. Si no viene, se deduce
-     * del mime, y el mime de WhatsApp trae parámetros (`audio/ogg; codecs=opus`) que hay que
-     * cortar o la extensión queda con un punto y coma adentro.
-     */
-    private function extensionDe(string $mime, ?string $nombreOriginal): string
-    {
-        if ($nombreOriginal && ($ext = pathinfo($nombreOriginal, PATHINFO_EXTENSION))) {
-            return strtolower(preg_replace('/[^a-z0-9]/i', '', $ext)) ?: 'bin';
-        }
-
-        $limpio = trim(explode(';', $mime)[0]);
-
-        return match ($limpio) {
-            'image/jpeg' => 'jpg',
-            'image/png'  => 'png',
-            'image/webp' => 'webp',
-            'image/gif'  => 'gif',
-            'audio/ogg', 'audio/opus' => 'ogg',
-            'audio/mpeg' => 'mp3',
-            'audio/mp4', 'audio/aac'  => 'm4a',
-            'audio/amr'  => 'amr',
-            'video/mp4'  => 'mp4',
-            'video/3gpp' => '3gp',
-            'application/pdf' => 'pdf',
-            'application/msword' => 'doc',
-            'application/vnd.openxmlformats-officedocument.wordprocessingml.document' => 'docx',
-            'application/vnd.ms-excel' => 'xls',
-            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' => 'xlsx',
-            'text/plain' => 'txt',
-            default      => 'bin',
-        };
     }
 
     /**

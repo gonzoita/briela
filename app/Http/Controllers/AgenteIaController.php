@@ -84,7 +84,7 @@ class AgenteIaController extends Controller
             'activo'          => 'boolean',
             'perfil'          => 'required|in:publico,cliente',
             'canales'         => 'nullable|array',
-            'canales.*'       => 'in:web,whatsapp',
+            'canales.*'       => 'in:web,whatsapp,instagram,facebook',
             'herramientas'    => 'nullable|array',
             'herramientas.*'  => 'string|max:40',
             'instrucciones'   => 'nullable|string|max:8000',

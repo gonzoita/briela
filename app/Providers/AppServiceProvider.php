@@ -22,6 +22,7 @@ class AppServiceProvider extends ServiceProvider
             \App\Services\Bandeja\BandejaService::class,
             fn ($app) => new \App\Services\Bandeja\BandejaService([
                 $app->make(\App\Services\Bandeja\CanalWhatsapp::class),
+                $app->make(\App\Services\Bandeja\CanalMeta::class),
             ]),
         );
     }

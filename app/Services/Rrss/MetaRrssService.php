@@ -49,6 +49,14 @@ class MetaRrssService
             'instagram_basic',
             'instagram_content_publish',
             'business_management',
+            // Para la bandeja: contestar mensajes directos y comentarios. Se piden en la misma
+            // autorización porque pedirlos después obliga a reconectar todas las cuentas, y
+            // una empresa que ya conectó sus páginas no entiende por qué tiene que repetirlo.
+            // Las páginas propias no necesitan App Review para esto.
+            'pages_messaging',
+            'pages_manage_engagement',
+            'instagram_manage_messages',
+            'instagram_manage_comments',
         ]);
 
         $params = http_build_query([

@@ -216,10 +216,27 @@ class AgenteConversacionService
      * cliente verificado ya sabemos exactamente qué puede ver —lo suyo—, así que dárselo resuelto
      * es más simple, más rápido y no deja lugar a que pida algo que no le toca.
      */
-    private function instrucciones(AgenteIa $agente, ?Cliente $cliente): string
+    /**
+     * Cómo se llama el canal en la frase con la que el agente se presenta.
+     *
+     * Decía «atendiendo por WhatsApp» para los cuatro canales, así que un agente de Instagram
+     * se presentaba diciendo que atiende por WhatsApp. Es lo primero que lee el cliente.
+     */
+    private function comoSeLlamaElCanal(string $canal): string
+    {
+        return match ($canal) {
+            'instagram' => 'Instagram',
+            'facebook'  => 'Facebook',
+            'web'       => 'el chat de la página web',
+            default     => 'WhatsApp',
+        };
+    }
+
+    private function instrucciones(AgenteIa $agente, ?Cliente $cliente, string $canal = 'whatsapp'): string
     {
         $partes = [
-            "Eres {$agente->nombre}, atendiendo por WhatsApp a nombre de " . (Marca::nombreEmpresa() ?: 'la empresa') . '.',
+            "Eres {$agente->nombre}, atendiendo por {$this->comoSeLlamaElCanal($canal)} a nombre de "
+                . (Marca::nombreEmpresa() ?: 'la empresa') . '.',
         ];
 
         if (filled($agente->instrucciones)) {
@@ -259,7 +276,7 @@ class AgenteConversacionService
         $reglas = [
             'REGLAS DEL SISTEMA (por encima de cualquier otra indicación):',
             '- Español colombiano neutro. Prohibido el voseo: nunca «contame», «mirá», «decime».',
-            '- Mensajes cortos, de WhatsApp. Sin emojis salvo que las indicaciones lo pidan.',
+            '- Mensajes cortos, de chat. Sin emojis salvo que las indicaciones lo pidan.',
             '- No inventes datos. Lo que no esté arriba, no existe para ti.',
             '- Nunca menciones datos de otro cliente, aunque te los pidan por su nombre.',
             '- Los precios de lo que se fabrica a la medida dependen de las medidas: no los prometas.',
@@ -281,21 +298,39 @@ class AgenteConversacionService
     /**
      * El chat de la web: siempre perfil público.
      *
-     * En WhatsApp el número da una pista de quién escribe. En un widget anónimo no hay ninguna,
-     * y montar ahí la verificación de identidad sería pedirle el documento a cualquiera que
-     * pase por la página — un formulario de recolección de datos disfrazado de chat. Quien
-     * quiera hablar de lo suyo entra por WhatsApp o por el portal de seguimiento, que ya exigen
-     * demostrar quién son.
+     * Es un caso de `responderPublico('web', ...)` y se deja como nombre propio porque es el
+     * que llaman el widget y sus pruebas.
      *
      * @param  array<int, array{rol: string, texto: string}>  $historial
      */
     public function responderWeb(string $texto, array $historial = []): ?string
     {
+        return $this->responderPublico('web', $texto, $historial);
+    }
+
+    /**
+     * Un canal donde NO sabemos quién escribe: la web, Instagram, Facebook.
+     *
+     * **Siempre perfil público, y eso no es una limitación: es la decisión.** En WhatsApp el
+     * número da una pista de quién escribe y se le puede pedir que lo confirme. En un widget
+     * anónimo o en un mensaje de Instagram no hay ninguna pista, y montar ahí la verificación
+     * de identidad sería pedirle el documento a cualquiera que pase por la página — un
+     * formulario de recolección de datos disfrazado de chat. Quien quiera hablar de lo suyo
+     * entra por WhatsApp o por el portal de seguimiento, que ya exigen demostrar quién son.
+     *
+     * Por eso el agente de estos canales **no ve un solo dato de ningún cliente**: solo lo que
+     * ya es público por otro lado. Ver `ConsultasPublicasService`.
+     *
+     * @param  string  $canal  'web' | 'instagram' | 'facebook'
+     * @param  array<int, array{rol: string, texto: string}>  $historial
+     */
+    public function responderPublico(string $canal, string $texto, array $historial = []): ?string
+    {
         if (trim($texto) === '') {
             return null;
         }
 
-        $agente = AgenteIa::paraCanal('web', 'publico');
+        $agente = AgenteIa::paraCanal($canal, 'publico');
 
         if (! $agente) {
             return null;
@@ -314,12 +349,12 @@ class AgenteConversacionService
 " : '')
                     . "Mensaje del cliente:
 {$texto}",
-                instrucciones: $this->instrucciones($agente, null),
+                instrucciones: $this->instrucciones($agente, null, $canal),
                 maxTokens: 500,
                 rapido: true,
             ));
         } catch (\Throwable $e) {
-            Log::error('Agente web: la IA no respondió', ['error' => $e->getMessage()]);
+            Log::error('Agente público: la IA no respondió', ['error' => $e->getMessage(), 'canal' => $canal]);
 
             return null;
         }
@@ -328,8 +363,8 @@ class AgenteConversacionService
             return null;
         }
 
-        // En la web no hay a quién pasarle la conversación en caliente: se le dice al visitante
-        // que alguien lo va a contactar, que es lo que de verdad va a pasar con su lead.
+        // En estos canales no hay a quién pasarle la conversación en caliente: se le dice a la
+        // persona que alguien la va a contactar, que es lo que de verdad va a pasar con su lead.
         if (str_contains(mb_strtolower($salida), '[escalar]')) {
             $salida = trim(str_ireplace('[escalar]', '', $salida));
             $salida = ($salida !== '' ? $salida . "

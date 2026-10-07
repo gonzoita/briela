@@ -138,6 +138,12 @@ Route::get('/catalogo/ensambles/{id}/pdf',      [CatalogoController::class, 'ens
 Route::get('/webhook/whatsapp',  [WhatsappWebhookController::class, 'verify']);
 Route::post('/webhook/whatsapp', [WhatsappWebhookController::class, 'receive']);
 
+// ─── Webhook de Instagram y Facebook — mensajes y comentarios ───────────────
+// Una sola dirección para las dos redes y los cuatro canales: Meta manda todo por el mismo
+// webhook de la misma aplicación. Ver MetaWebhookController.
+Route::get('/webhook/meta',  [\App\Http\Controllers\MetaWebhookController::class, 'verify']);
+Route::post('/webhook/meta', [\App\Http\Controllers\MetaWebhookController::class, 'receive']);
+
 // El chat público de la web. Con throttle porque es la ruta más expuesta del sistema: es
 // pública, no tiene sesión que limite quién escribe, y cada mensaje cuesta tokens.
 Route::post('/api/agente/web', [\App\Http\Controllers\AgenteWebController::class, 'chat'])
@@ -946,6 +952,7 @@ Route::middleware('auth')->group(function () {
         Route::prefix('cuentas')->name('cuentas.')->group(function () {
             Route::get('/',                   [CuentaRrssController::class, 'index'])->name('index');
             Route::post('/credenciales/{red}',[CuentaRrssController::class, 'guardarCredenciales'])->name('credenciales');
+            Route::post('/automatizacion',    [CuentaRrssController::class, 'guardarAutomatizacion'])->name('automatizacion');
             Route::get('/conectar/{red}',     [CuentaRrssController::class, 'conectar'])->name('conectar');
             Route::get('/callback/{red}',     [CuentaRrssController::class, 'callback'])->name('callback');
             Route::delete('/{cuenta}',        [CuentaRrssController::class, 'destroy'])->name('destroy');

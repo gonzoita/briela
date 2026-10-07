@@ -38,7 +38,53 @@ class CuentaRrssController extends Controller
                 'ultima_publicacion_en', 'token_expira_en', 'created_at',
             ]),
             'configuracion' => $configuracion,
+            // Qué hace el sistema cuando alguien escribe por Instagram o Facebook. Vive en
+            // esta pantalla —y no en la bandeja— porque es configuración de la conexión, igual
+            // que la automatización de WhatsApp vive en la pantalla de su conexión.
+            'automatizacion' => \App\Services\Bandeja\BandejaAutomatizacionService::config(),
+            'etapas' => \App\Models\CrmEtapa::where('activa', true)
+                ->orderBy('orden')->get(['id', 'nombre']),
+            'usuarios' => \App\Models\User::where('activo', true)
+                ->orderBy('name')->get(['id', 'name']),
+            'url_webhook' => url('/webhook/meta'),
+            // Sin App Secret el webhook rechaza lo que no puede verificar, así que la pantalla
+            // tiene que decirlo donde se carga el App Secret y no solo en la de WhatsApp.
+            'webhook_listo' => CredencialesRrss::valor('meta', 'secret') !== ''
+                && CredencialesRrss::valor('whatsapp', 'redirect') !== '',
         ]);
+    }
+
+    /**
+     * Guarda qué hace el sistema cuando alguien escribe por Instagram o Facebook.
+     *
+     * Todo vive en `configuraciones`, así que no hace falta migración. Ver
+     * `BandejaAutomatizacionService` para por qué contestar comentarios es un interruptor
+     * aparte.
+     */
+    public function guardarAutomatizacion(Request $request)
+    {
+        $datos = $request->validate([
+            'activo'        => 'boolean',
+            'avisar'        => 'boolean',
+            'responder'     => 'boolean',
+            'comentarios'   => 'boolean',
+            'crear_lead'    => 'boolean',
+            'lead_etapa_id' => 'nullable|integer|exists:crm_etapas,id',
+            'asignacion'    => 'required|in:fijo,round_robin',
+            'responsables'  => 'nullable|array',
+            'responsables.*' => 'integer|exists:users,id',
+        ]);
+
+        \App\Models\Configuracion::set('bandeja_auto_activo',      $datos['activo'] ? '1' : '0');
+        \App\Models\Configuracion::set('bandeja_auto_avisar',      $datos['avisar'] ? '1' : '0');
+        \App\Models\Configuracion::set('bandeja_auto_responder',   $datos['responder'] ? '1' : '0');
+        \App\Models\Configuracion::set('bandeja_auto_comentarios', $datos['comentarios'] ? '1' : '0');
+        \App\Models\Configuracion::set('bandeja_auto_crear_lead',  $datos['crear_lead'] ? '1' : '0');
+        \App\Models\Configuracion::set('bandeja_auto_lead_etapa_id', (string) ($datos['lead_etapa_id'] ?? ''));
+        \App\Models\Configuracion::set('bandeja_auto_asignacion',  $datos['asignacion']);
+        \App\Models\Configuracion::set('bandeja_auto_responsables', json_encode(array_values($datos['responsables'] ?? [])));
+
+        return back()->with('success', 'Automatización de redes guardada.');
     }
 
     /**

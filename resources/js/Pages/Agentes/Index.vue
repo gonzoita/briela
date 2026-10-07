@@ -1,6 +1,6 @@
 <script setup>
 /**
- * Los agentes que atienden por fuera: la web y WhatsApp.
+ * Los agentes que atienden por fuera: WhatsApp, Instagram, Facebook y el chat de la web.
  *
  * Lo que se configura aquí no es «un chatbot»: es a quién atiende cada agente y qué puede ver.
  * El perfil decide el catálogo de consultas, y por eso las herramientas cambian con él — un
@@ -22,6 +22,17 @@ const vacio = () => ({
 })
 
 const editando = ref(null)
+
+const CANALES = [
+    { clave: 'whatsapp',  label: 'WhatsApp' },
+    { clave: 'instagram', label: 'Instagram' },
+    { clave: 'facebook',  label: 'Facebook' },
+    { clave: 'web',       label: 'Chat de la web' },
+]
+
+const atiendeUnaRed = computed(() =>
+    ['instagram', 'facebook'].some(c => editando.value?.canales?.includes(c))
+)
 
 const herramientas = computed(() => props.herramientasPorPerfil[editando.value?.perfil] ?? [])
 
@@ -74,7 +85,7 @@ const motivos = [
                 <div>
                     <h1 class="text-xl font-semibold text-tinta-900">Agentes</h1>
                     <p class="text-sm text-tinta-400 mt-0.5">
-                        Quién atiende por WhatsApp y por la web, y hasta dónde puede llegar.
+                        Quién atiende por WhatsApp, por las redes y por la web, y hasta dónde puede llegar.
                     </p>
                 </div>
                 <button type="button" @click="abrir(null)"
@@ -167,13 +178,22 @@ const motivos = [
 
                 <div>
                     <label class="block text-xs text-tinta-400 mb-1">Por dónde atiende</label>
-                    <div class="flex gap-4">
-                        <label v-for="c in ['whatsapp', 'web']" :key="c" class="flex items-center gap-1.5 text-sm text-tinta-600 cursor-pointer">
-                            <input type="checkbox" :checked="editando.canales.includes(c)"
-                                @change="alternar(editando.canales, c)" class="accent-blue-600" />
-                            {{ c === 'whatsapp' ? 'WhatsApp' : 'Chat de la web' }}
+                    <div class="flex gap-4 flex-wrap">
+                        <label v-for="c in CANALES" :key="c.clave"
+                            class="flex items-center gap-1.5 text-sm text-tinta-600 cursor-pointer">
+                            <input type="checkbox" :checked="editando.canales.includes(c.clave)"
+                                @change="alternar(editando.canales, c.clave)" class="accent-blue-600" />
+                            {{ c.label }}
                         </label>
                     </div>
+                    <!-- Instagram y Facebook solo pueden tener perfil público: en un mensaje de
+                         una red no hay forma de saber quién escribe, y pedirle el documento a
+                         quien pasa por ahí sería un formulario de datos disfrazado de chat. -->
+                    <p v-if="editando.perfil === 'cliente' && atiendeUnaRed"
+                        class="text-[11px] text-aviso-ambar mt-1.5 leading-relaxed">
+                        Por Instagram y Facebook el agente atiende siempre con perfil público, aunque aquí diga
+                        «cliente»: en esos canales no hay forma de saber quién escribe.
+                    </p>
                 </div>
 
                 <div>

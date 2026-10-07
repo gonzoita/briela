@@ -126,6 +126,92 @@ contar en el menú para siempre, en una lista que nadie vuelve a abrir.
 **Archivar no es bloquear**: si la persona vuelve a escribir, la conversación
 vuelve a la bandeja y vuelve a quedar sin leer.
 
+## Instagram y Facebook
+
+Cuatro canales más, en la misma bandeja: los **mensajes directos** y los **comentarios** de
+cada red.
+
+### Conectar
+
+Las cuentas se conectan en **Marketing → Redes Sociales → Cuentas**, igual que para publicar:
+es la misma autorización y los permisos de mensajería se piden ahí mismo. Si las páginas ya
+estaban conectadas desde antes de oct 2026, hay que **volver a conectarlas una vez** para que
+Meta conceda los permisos nuevos; mientras no se haga, se publica igual y no llegan mensajes.
+
+En la misma pantalla, el bloque **Cuando alguien escribe** trae la **dirección del webhook**
+con botón de copiar. Hay que pegarla en la aplicación de Meta y suscribirla a:
+
+| Red | Campos |
+|---|---|
+| Instagram | `messages` y `comments` |
+| Página de Facebook | `messages` y `feed` |
+
+> **Sin suscribir esos campos la dirección responde pero no llega nada.** Es el error más
+> común, el mismo que ya pasaba con WhatsApp y `messages`.
+
+Es **la misma dirección y el mismo token de verificación** para las dos redes y los cuatro
+canales, porque Meta manda todo por el webhook de la misma aplicación. El App Secret también es
+el mismo, y sin él no entra nada: ver [WhatsApp](./whatsapp.md).
+
+### Los comentarios
+
+Un hilo de comentarios se atiende como un chat: se lee, se contesta y se asigna. Tres cosas lo
+hacen distinto, y las tres están resueltas:
+
+- **Es una sola conversación, no una por respuesta.** Se agrupa por el comentario raíz. Si cada
+  respuesta abriera su propia conversación, una ida y vuelta de cinco mensajes serían cinco
+  renglones en la bandeja.
+- **El hilo muestra de qué publicación salió**, con su texto y un enlace para abrirla. Hace
+  falta de verdad: «¿cuánto vale?» no se puede responder sin saber qué foto estaba mirando quien
+  lo escribió.
+- **La respuesta se cuelga del último comentario del hilo**, no del primero. Responder siempre
+  al raíz deja todas las respuestas una debajo de otra sin relación con lo último que dijo la
+  persona, y el hilo se vuelve ilegible para cualquiera que lo lea desde afuera.
+
+Lo que comenta la propia empresa **no entra**: la respuesta vuelve por el mismo webhook, y sin
+ese corte el agente de IA se contestaba a sí mismo en bucle, en público, debajo de una
+publicación de la empresa.
+
+### Cuando alguien escribe
+
+El bloque de automatización en `/rrss/cuentas` define qué pasa con cada mensaje o comentario
+nuevo. Tiene un interruptor general; apagado, los mensajes se guardan y nada más ocurre.
+
+**1. Avisar por la campanita** en el primer contacto. El aviso va al rol de **vendedores**: una
+cuenta de Instagram es de la empresa, no de una persona, igual que el número central de
+WhatsApp. Quien la tome se la asigna desde la bandeja.
+
+**2. Que conteste el agente de IA**, en los mensajes directos. Solo conoce lo que ya es público
+—quién es la empresa, cómo contactarla, qué vende— y nada de ningún cliente. Se configura en
+[Agentes](./agentes.md) marcando el canal de Instagram o Facebook.
+
+> **Por qué estos canales siempre son de perfil público.** En WhatsApp el número da una pista de
+> quién escribe y se le puede pedir que lo confirme. En un mensaje de Instagram no hay ninguna
+> pista, y montar ahí la verificación de identidad sería pedirle el documento a cualquiera que
+> pase — un formulario de recolección de datos disfrazado de chat. Quien quiera hablar de lo
+> suyo entra por WhatsApp o por el portal de seguimiento.
+
+**3. …y también los comentarios públicos** es un interruptor **aparte, y apagado de fábrica**.
+Una respuesta automática en un chat la lee una persona; en un comentario la lee cualquiera que
+pase por la publicación, queda colgada ahí y la indexa Google. Encenderlo es una decisión de la
+empresa, no un valor por omisión que alguien descubre cuando ya pasó.
+
+**4. Crear el lead en el CRM**, con el mismo reparto que los formularios web: fijo o rotando.
+Por Instagram **no llega teléfono ni correo**: el lead queda con el nombre y el usuario, y se le
+sigue contestando por ahí. Un lead sin teléfono al que hay que escribirle por Instagram sigue
+siendo una oportunidad de venta.
+
+Cada paso va aislado: que falle el aviso no impide crear el lead, y un error del CRM no deja al
+cliente sin respuesta.
+
+### Lo que no se puede, y por qué
+
+| Cosa | Motivo |
+|---|---|
+| Escribir primero por Instagram o Messenger | Meta no lo permite fuera de las 24 horas, y estas redes **no tienen plantillas** como WhatsApp |
+| Mandar archivos desde una instalación interna | Meta no recibe el archivo: recibe una URL y viene a descargarla. Si la dirección solo existe en la red de la empresa, no hay forma |
+| Ver todas las fotos de un carrusel | Se guarda la primera y el resto se nombra en el texto. Bajar diez archivos dentro de un webhook que tiene que responder rápido hace que Meta reintente y todo entre dos veces |
+
 ## Permisos
 
 Son tres, y están separados porque en la mayoría de las empresas varios pueden
@@ -186,7 +272,24 @@ Los canales de redes necesitan además el módulo **Redes sociales** encendido.
   leída.
 - `App\Services\Bandeja\CanalBandeja` — lo que cambia de un canal a otro: cómo
   sale un mensaje. Un canal nuevo se agrega escribiendo su adaptador y
-  registrándolo en `AppServiceProvider`.
+  registrándolo en `AppServiceProvider`. Hay dos: `CanalWhatsapp` y `CanalMeta`
+  —los cuatro canales de redes entran por uno solo, porque entre ellos lo que
+  cambia es a qué endpoint va la respuesta—.
+- `App\Services\Rrss\MetaMensajeriaService` — mandar directos y responder
+  comentarios. Separado de `MetaRrssService`, que publica en el muro: son dos
+  permisos distintos en Meta y dos cosas distintas en el negocio, y juntarlos
+  obligaría a una empresa que solo quiere contestar a pedir también los permisos
+  de publicar.
+- `App\Services\Bandeja\AdjuntoBandeja` — baja y guarda los archivos de
+  cualquier canal. Lo único que cambia por canal es cómo se pide el archivo;
+  guardarlo es idéntico.
+- `App\Services\Bandeja\BandejaAutomatizacionService` — aviso, respuesta del
+  agente y lead para los canales de redes.
+- `App\Support\UrlPublica` — si la instalación es alcanzable desde internet. Lo
+  necesitan el webhook (Meta lo llama) y los adjuntos de Messenger (Meta los
+  descarga), y la respuesta tiene que ser la misma en los dos sitios.
+- Webhook: `GET/POST /webhook/meta`, con la misma firma y el mismo token de
+  verificación que el de WhatsApp.
 - La clave de una conversación es `canal:id` y **llega del navegador**, así que el
   canal se valida contra el catálogo antes de tocar la base. Un canal que no
   existe —o que está apagado— responde 404.

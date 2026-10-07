@@ -337,12 +337,13 @@ tocar los seeders.
 > **Las pruebas corren contra `briela_test`**, declarada en `phpunit.xml`; nunca contra
 > `briela`. Si esa base no existe, las 51 de Feature fallan todas por conexión y solo pasan las
 > 16 unitarias — parece un código roto y es una base que falta. Se crea una vez:
-> `mysql -u root -e "CREATE DATABASE IF NOT EXISTS briela_test"`. Al 17 sep 2026: 104 en verde.
+> `mysql -u root -e "CREATE DATABASE IF NOT EXISTS briela_test"`. Al 7 oct 2026: 243 en verde.
 
 **Tareas programadas** (`routes/console.php`, requieren cron):
 `cotizaciones:marcar-vencidas` · `notificaciones:entregas-proximas` ·
 `notificaciones:cursos-por-vencer` · `notificaciones:recordatorios` ·
-`rrss:publicar-programadas`
+`rrss:publicar-programadas` · `rrss:revisar-tokens` ·
+`whatsapp:sincronizar-plantillas`
 
 **Portales públicos (sin login):** `/op/{token}` · `/seguimiento` (exige apellido
 o documento) · `/cotizaciones/{token}/aprobar` · `/verificar-certificado/{codigo}`
@@ -500,6 +501,42 @@ Lo construido después de la fase 3, que conviene conocer antes de tocar algo ce
   pregunta `Modulos::activo()` y se salta**, nunca se queda esperando: sin Calidad la unidad
   terminada se firma sola; sin Stock no se piden bodegas ni se mueve inventario. Ver
   `docs/manual/modulos.md`.
+- **La bandeja es UNA pantalla y DOS juegos de tablas** (`/bandeja`, módulo y permisos
+  `bandeja.*`). WhatsApp vive en `whatsapp_conversaciones`/`whatsapp_mensajes` y las redes en
+  `bandeja_conversaciones`/`bandeja_mensajes`: no se unificaron porque renombrar una tabla está
+  prohibido en un producto instalado, y porque el almacenamiento de verdad es distinto —WhatsApp
+  identifica por teléfono y Meta por un identificador por página—. Lo que **sí** es uno solo es
+  todo lo de arriba: una lista (un `UNION` normalizado en el `SELECT`, no una mezcla en PHP, que
+  daría mal la segunda página), un hilo, una caja de respuesta. Un canal nuevo se agrega
+  escribiendo un adaptador de `CanalBandeja` y poniéndolo en la lista de `AppServiceProvider`.
+- **El plazo de 24 horas de Meta se pregunta ANTES de enviar, y lo calcula un solo sitio**
+  (`EsConversacion::ventanaAbierta()`). Corre desde el **último mensaje de la persona**, no desde
+  el último de la conversación: contestar no reabre nada, y `ultimo_entrante_at` jamás lo escribe
+  un mensaje nuestro —hacerlo sería regalarse 24 horas que Meta no dio—. El error de Meta habla
+  de «re-engagement message» y no de un plazo vencido, así que dejar que falle allá deja a quien
+  atiende creyendo que envió. Fuera del plazo, en WhatsApp sale una **plantilla aprobada**
+  (`whatsapp_plantillas`, espejo de Meta, no se crean desde acá) y en Instagram y Messenger no
+  sale nada: no tienen plantillas.
+- **Las reglas de cada canal viven en `App\Support\Canales`**, no en las pantallas: plazo, si
+  admite plantillas, si admite adjuntos, de qué módulos depende. Son reglas de Meta y cambian por
+  canal; escritas en cada pantalla, la bandeja ofrecía botones que la API rechazaba.
+- **Los dos webhooks de Meta rechazan lo que no pueden verificar** (`/webhook/whatsapp` y
+  `/webhook/meta`, que comparten firma y token de verificación porque son la misma app). Sin App
+  Secret no entra nada, salvo en `local`. Antes se aceptaba todo y solo quedaba una línea en el
+  log: cualquiera que supiera la URL podía inventar mensajes y meter leads falsos al CRM, que
+  además se repartían solos entre los vendedores.
+- **Un comentario de la propia página no se procesa.** La respuesta vuelve por el mismo webhook,
+  y sin ese corte el agente de IA se contestaba a sí mismo en bucle, en público. Y contestar
+  comentarios con IA es un interruptor **aparte y apagado de fábrica**: una respuesta automática
+  en un comentario la lee cualquiera y la indexa Google.
+- **Lo que llega por un canal se baja al servidor** (`AdjuntoBandeja`, `categoria='bandeja'`):
+  los enlaces que da Meta vencen en minutos, y guardar la URL dejaba un historial de imágenes
+  rotas al día siguiente. Por eso `archivos.subido_por` es nulable: un archivo que llega de
+  afuera no lo subió nadie del sistema.
+- **Los permisos de las redes vencen a los ~60 días y `rrss:revisar-tokens` los vigila**: renueva
+  con 20 días de margen lo que se puede renovar solo (Meta estirando el token, Google con su
+  `refresh_token`) y avisa a los 15 de lo que exige reconectar a mano. El aviso va a los
+  administradores, no a quien publica: reconectar exige entrar al Business Manager.
 - **Por dentro todo está en pesos** (`App\Support\Monedas`). Un costo en USD/EUR guarda
   `productos.costo_moneda` y `precio_costo` (pesos) sale de la tasa del día; una cotización en
   otra moneda guarda sus ítems en pesos y una tasa, que solo sirve para **mostrar**. Nunca

@@ -7,6 +7,11 @@ import { ref, reactive } from 'vue'
 const props = defineProps({
     cuentas: Array,
     configuracion: { type: Object, default: () => ({}) },
+    automatizacion: { type: Object, default: () => ({}) },
+    etapas:   { type: Array, default: () => [] },
+    usuarios: { type: Array, default: () => [] },
+    urlWebhook:   { type: String, default: '' },
+    webhookListo: { type: Boolean, default: false },
 })
 
 const guiaAbierta = ref(false)
@@ -31,6 +36,28 @@ function guardarCredenciales(red) {
     router.post(`/rrss/cuentas/credenciales/${red}`, form[red], {
         preserveScroll: true,
         onFinish: () => { guardando.value = ''; form[red].secret = '' },
+    })
+}
+
+// ── Automatización: qué pasa cuando alguien escribe por una red ──────────────
+const autoAbierta = ref(false)
+
+const auto = reactive({
+    activo:        props.automatizacion?.activo ?? false,
+    avisar:        props.automatizacion?.avisar ?? true,
+    responder:     props.automatizacion?.responder ?? false,
+    comentarios:   props.automatizacion?.comentarios ?? false,
+    crear_lead:    props.automatizacion?.crear_lead ?? false,
+    lead_etapa_id: props.automatizacion?.lead_etapa_id || null,
+    asignacion:    props.automatizacion?.asignacion ?? 'fijo',
+    responsables:  [...(props.automatizacion?.responsables ?? [])].map(Number),
+})
+
+function guardarAutomatizacion() {
+    guardando.value = 'auto'
+    router.post('/rrss/cuentas/automatizacion', auto, {
+        preserveScroll: true,
+        onFinish: () => { guardando.value = '' },
     })
 }
 
@@ -272,6 +299,166 @@ function reactivar(c) {
                         <button v-if="c.activa" @click="desconectar(c)" class="text-xs text-aviso-rojo hover:underline shrink-0">Desconectar</button>
                         <button v-else @click="reactivar(c)" class="text-xs text-aviso-azul hover:underline shrink-0">Reactivar</button>
                     </div>
+                </div>
+            </div>
+
+            <!-- ── Automatización: qué pasa cuando alguien escribe ─────────── -->
+            <!--
+                Vive acá y no en la bandeja porque es configuración de la conexión, igual que la
+                automatización de WhatsApp vive en la pantalla de su conexión.
+            -->
+            <div class="bg-superficie rounded-2xl border border-linea p-5 mb-4">
+                <button @click="autoAbierta = !autoAbierta" class="w-full flex items-center justify-between text-left">
+                    <div>
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <h2 class="text-sm font-semibold text-tinta-700">Cuando alguien escribe</h2>
+                            <span v-if="auto.activo"
+                                class="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-pastel-verde-2 text-aviso-verde leading-none">Activa</span>
+                            <span v-else
+                                class="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-tinta-100 text-tinta-400 leading-none">Apagada</span>
+                        </div>
+                        <p class="text-[11px] text-tinta-400 mt-0.5">
+                            Mensajes directos y comentarios de Instagram y Facebook.
+                        </p>
+                    </div>
+                    <span class="text-tinta-300 text-xs">{{ autoAbierta ? '▲' : '▼' }}</span>
+                </button>
+
+                <div v-if="autoAbierta" class="mt-4 space-y-4 text-xs">
+
+                    <!-- Sin webhook no llega nada, y es lo primero que hay que resolver. -->
+                    <div v-if="!webhookListo"
+                        class="rounded-lg bg-pastel-rojo border border-borde-aviso-rojo p-2.5 text-[11px] text-aviso-rojo leading-relaxed">
+                        <p class="font-semibold">Todavía no va a entrar ningún mensaje.</p>
+                        <p>
+                            Falta el App Secret de la aplicación de Meta (arriba, en esta misma pantalla) o el
+                            token de verificación del webhook, que se carga en
+                            <a href="/configuracion/whatsapp-numeros" class="underline font-semibold">Números de WhatsApp</a>
+                            y es el mismo para toda la aplicación.
+                        </p>
+                    </div>
+
+                    <!-- La dirección que hay que pegar en Meta. -->
+                    <div class="rounded-lg border border-linea bg-superficie-2 p-2.5">
+                        <p class="font-semibold text-tinta-700 mb-1">La dirección del webhook</p>
+                        <p class="text-tinta-400 mb-1.5 leading-relaxed">
+                            En la aplicación de Meta, en <em>Webhooks</em>, pega esta dirección y suscríbela a
+                            <code>messages</code> y <code>comments</code> para Instagram, y a
+                            <code>messages</code> y <code>feed</code> para la página de Facebook. Sin suscribir
+                            esos campos la dirección responde pero no llega nada — es el error más común.
+                        </p>
+                        <div class="flex items-center gap-1.5">
+                            <input :value="urlWebhook" readonly
+                                class="flex-1 min-w-0 border border-linea rounded-lg px-2 py-1.5 text-[11px] bg-tinta-50 text-tinta-500" />
+                            <button type="button" @click="copiar(urlWebhook, 'webhook-meta')"
+                                class="px-2.5 py-1.5 rounded-lg border border-linea text-[11px] font-semibold text-tinta-700 hover:bg-realce shrink-0">
+                                {{ copiado === 'webhook-meta' ? 'Copiado' : 'Copiar' }}
+                            </button>
+                        </div>
+                    </div>
+
+                    <label class="flex items-start gap-2 cursor-pointer">
+                        <input v-model="auto.activo" type="checkbox" class="mt-0.5 rounded border-linea" />
+                        <span>
+                            <span class="font-semibold text-tinta-700">Activar la automatización</span>
+                            <span class="block text-tinta-400">Si está apagado, los mensajes se guardan y nada más ocurre.</span>
+                        </span>
+                    </label>
+
+                    <div class="pl-6 space-y-3" :class="auto.activo ? '' : 'opacity-50 pointer-events-none'">
+
+                        <label class="flex items-start gap-2 cursor-pointer">
+                            <input v-model="auto.avisar" type="checkbox" class="mt-0.5 rounded border-linea" />
+                            <span>
+                                <span class="font-medium text-tinta-700">Avisar por la campanita</span>
+                                <span class="block text-tinta-400">
+                                    En el primer contacto. El aviso va al rol de vendedores: una cuenta de
+                                    Instagram es de la empresa, no de una persona.
+                                </span>
+                            </span>
+                        </label>
+
+                        <label class="flex items-start gap-2 cursor-pointer">
+                            <input v-model="auto.responder" type="checkbox" class="mt-0.5 rounded border-linea" />
+                            <span>
+                                <span class="font-medium text-tinta-700">Que conteste el agente de IA</span>
+                                <span class="block text-tinta-400">
+                                    En los mensajes directos. Solo conoce lo que ya es público: quién es la
+                                    empresa, cómo contactarla y qué vende. Se configura en
+                                    <a href="/configuracion/agentes" class="underline">Agentes</a>, marcando los
+                                    canales de Instagram o Facebook.
+                                </span>
+                            </span>
+                        </label>
+
+                        <!-- Contestar en público es otra decisión, y va aparte. -->
+                        <div class="pl-6" :class="auto.responder ? '' : 'opacity-50 pointer-events-none'">
+                            <label class="flex items-start gap-2 cursor-pointer">
+                                <input v-model="auto.comentarios" type="checkbox" class="mt-0.5 rounded border-linea" />
+                                <span>
+                                    <span class="font-medium text-tinta-700">…y también los comentarios públicos</span>
+                                    <span class="block text-aviso-ambar">
+                                        Ojo: una respuesta automática en un comentario la lee cualquiera que pase
+                                        por la publicación, queda colgada ahí y la indexa Google. Apagado, los
+                                        comentarios solo avisan y los contesta una persona.
+                                    </span>
+                                </span>
+                            </label>
+                        </div>
+
+                        <label class="flex items-start gap-2 cursor-pointer">
+                            <input v-model="auto.crear_lead" type="checkbox" class="mt-0.5 rounded border-linea" />
+                            <span>
+                                <span class="font-medium text-tinta-700">Crear el lead en el CRM</span>
+                                <span class="block text-tinta-400">
+                                    En el primer contacto. Por Instagram no llega teléfono ni correo: el lead
+                                    queda con el nombre y el usuario, y se le sigue contestando por ahí.
+                                </span>
+                            </span>
+                        </label>
+
+                        <div class="pl-6 space-y-2.5" :class="auto.crear_lead ? '' : 'opacity-50 pointer-events-none'">
+                            <div>
+                                <label class="block font-medium text-tinta-700 mb-1">¿En qué etapa entra?</label>
+                                <select v-model="auto.lead_etapa_id"
+                                    class="w-full border border-linea rounded-lg px-2 py-1.5 text-xs focus:outline-none focus:border-[var(--marca)]">
+                                    <option :value="null">La primera etapa activa</option>
+                                    <option v-for="e in etapas" :key="e.id" :value="e.id">{{ e.nombre }}</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block font-medium text-tinta-700 mb-1">¿Cómo se reparte?</label>
+                                <select v-model="auto.asignacion"
+                                    class="w-full border border-linea rounded-lg px-2 py-1.5 text-xs focus:outline-none focus:border-[var(--marca)]">
+                                    <option value="fijo">Siempre al primero de la lista</option>
+                                    <option value="round_robin">Rotando entre los seleccionados</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block font-medium text-tinta-700 mb-1">¿Entre quiénes?</label>
+                                <div class="space-y-1 max-h-40 overflow-y-auto border border-linea rounded-lg p-2">
+                                    <label v-for="u in usuarios" :key="u.id"
+                                        class="flex items-center gap-2 cursor-pointer">
+                                        <input v-model="auto.responsables" :value="u.id" type="checkbox"
+                                            class="rounded border-linea" />
+                                        <span class="text-tinta-700">{{ u.name }}</span>
+                                    </label>
+                                </div>
+                                <p class="text-tinta-400 mt-1">
+                                    Sin nadie seleccionado, el lead se crea sin responsable y el aviso va a los
+                                    administradores, para que no quede huérfano en silencio.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="button" @click="guardarAutomatizacion" :disabled="guardando === 'auto'"
+                        class="w-full py-2 rounded-lg text-xs font-semibold text-white disabled:opacity-50"
+                        style="background:var(--marca);">
+                        {{ guardando === 'auto' ? 'Guardando...' : 'Guardar la automatización' }}
+                    </button>
                 </div>
             </div>
 
