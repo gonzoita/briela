@@ -394,7 +394,8 @@ Plan completo en `docs/BRIELA-PLAN.md` sección 7.
 
 **Cierre obligatorio de toda tarea** (decidido el 23 sep 2026): al terminar un cambio, sin
 preguntar, siempre las tres cosas: (1) actualizar el grafo (`python -m graphify update . --force`
-y luego `cluster-only .` con `GRAPHIFY_VIZ_NODE_LIMIT=10000`), (2) commit y `git push` de la rama
+y luego `cluster-only .` con `GRAPHIFY_VIZ_NODE_LIMIT=10000`) **y comprometerlo**, porque desde
+el 8 oct 2026 `graphify-out/graph.json` va al repo, (2) commit y `git push` de la rama
 de trabajo, y (3) deploy: llevar el cambio a `main` sin reescribir historia y hacer
 `git push origin main`, que es lo que dispara el despliegue en `sistema.briela.app`. Antes de
 subir a `main`, las pruebas y el build (`npm run build`) tienen que estar en verde.
@@ -603,8 +604,15 @@ un comercio o una empresa de servicios.
 No existe un binario `graphify` en el PATH: las instrucciones heredadas del sistema de origen
 decían lo contrario y estaban equivocadas.
 
-- El grafo se genera invocando el skill `/graphify` sobre el proyecto. Deja sus
-  salidas en `graphify-out/` (que está en `.gitignore` — se regenera).
+- El grafo se genera invocando el skill `/graphify` sobre el proyecto. Deja sus salidas en
+  `graphify-out/`.
+- **El grafo va al repo**, para que esté al día en cualquier máquina y en cualquier sesión
+  nueva sin reconstruirlo —reconstruirlo cuesta tiempo, y la parte semántica cuesta tokens—.
+  Van `graph.json` (lo que leen las consultas) y `GRAPH_REPORT.md`. **No** van los
+  `.graphify_*`, que guardan rutas absolutas de la máquina donde se generó y en otra no
+  existen, ni `graph.html`, que lleva el grafo incrustado y se reescribe entero cada vez:
+  comprometerlo sumaría varios MB a la historia en cada reconstrucción, en un repo que se
+  clona en el servidor de cada cliente. Se regenera con `cluster-only .`.
 - Cuando exista `graphify-out/`, sirve para preguntas de arquitectura y
   relaciones entre archivos antes de leer código a mano.
 - Conviene regenerarlo después de cambios que muevan estructura (borrar módulos,

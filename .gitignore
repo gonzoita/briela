@@ -34,8 +34,32 @@ binlog*.sql
 *.sql
 !database/**/*.sql
 
-# graphify: el grafo se regenera solo con `graphify update .`, no va al repo.
-/graphify-out/
+# graphify: el grafo SÍ va al repo, para que esté al día en todas las máquinas y en
+# cualquier sesión nueva sin tener que reconstruirlo (reconstruirlo cuesta tiempo, y la
+# parte semántica cuesta tokens).
+#
+# Van dos archivos:
+#   graphify-out/graph.json      — el grafo. Es lo que leen las consultas.
+#   graphify-out/GRAPH_REPORT.md — el informe en texto.
+#
+# Y NO van estos, por buenas razones:
+!/graphify-out/
+/graphify-out/*
+!/graphify-out/graph.json
+!/graphify-out/GRAPH_REPORT.md
+
+# Los `.graphify_*` guardan **rutas absolutas de la máquina** donde se generó
+# —`.graphify_python` es la ruta del intérprete y `.graphify_root` la del proyecto—, más la
+# caché de extracción. En otra máquina esas rutas no existen, así que subirlos no comparte
+# nada: rompe.
+/graphify-out/.graphify_*
+
+# `graph.html` es la visualización, y es el archivo pesado: lleva el grafo entero incrustado
+# y se reescribe completo en cada reconstrucción. Comprometerlo haría crecer la historia de
+# git en varios MB cada vez, en un repo que además se clona en el servidor de cada cliente.
+# Se regenera en segundos desde graph.json con `cluster-only .`.
+/graphify-out/graph.html
+/graphify-out/cypher.txt
 
 # Claude Code: las instrucciones y los skills SÍ van al repo (son del proyecto y
 # los comparten los colaboradores). Solo se ignora el estado local de la máquina.
