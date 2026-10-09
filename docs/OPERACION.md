@@ -68,14 +68,16 @@ find ~/domains -maxdepth 4 -name artisan
 tail -40 ~/despliegue.log
 ```
 
-**Forzar el despliegue sin esperar al cron:**
+**Actualizar TODAS las instalaciones sin esperar al cron:**
 
 ```bash
-for A in $(find ~/domains -maxdepth 4 -name artisan 2>/dev/null); do R=$(dirname "$A"); [ -f "$R/scripts/traer-cambios.sh" ] && bash "$R/scripts/traer-cambios.sh" "$R" main; done; tail -15 ~/despliegue.log
+cd ~/domains/briela.app/public_html && bash scripts/actualizar-todo.sh
 ```
 
-Es seguro aunque el cron acabe de pasar: el script no hace nada si no hay cambios y tiene su
-propio candado.
+Recorre todas las instalaciones que haya bajo `~/domains` —el ERP, el superadmin y cualquier
+demo— y dice de cada una el commit de antes y el de después. Es seguro aunque el cron acabe de
+pasar: no hace nada donde no haya cambios, y cada instalación tiene su propio candado. Detalle
+en `docs/manual/deploy-automatico.md`.
 
 ### Dos cosas que confunden
 
