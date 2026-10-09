@@ -238,18 +238,47 @@ class Producto extends Model
         return $this->nombre;
     }
 
+    /** Lo que cabe en `productos.referencia`. */
+    public const REFERENCIA_MAX = 60;
+
+    /**
+     * La referencia de una variante: la del padre, un guion y su valor.
+     *
+     * **Nunca puede pasarse de 60 caracteres**, que es lo que acepta la columna. El valor
+     * de la variante admite 60 por sí solo, así que «PROD-0001-» más un valor largo daba
+     * 70 y MySQL cortaba la inserción con un 1406: la pantalla mostraba un 500 sin decir
+     * qué pasó, y el padre ya había quedado creado. Se recorta el valor, no el prefijo:
+     * el prefijo es lo que emparenta la variante con su padre a simple vista.
+     *
+     * El desempate también cabe: se reserva el espacio del sufijo antes de recortar, para
+     * que «-2» no vuelva a pasarse del tope.
+     */
     public static function generarReferenciaVariante(Producto $padre, string $valorVariante): string
     {
-        $base = $padre->referencia . '-' . strtoupper(preg_replace('/[^A-Za-z0-9]+/', '', $valorVariante));
+        $limpio = strtoupper(preg_replace('/[^A-Za-z0-9]+/', '', $valorVariante));
+        $raiz   = $padre->referencia . '-' . $limpio;
+        $sufijo = 1;
 
-        $referencia = $base;
-        $sufijo     = 1;
-        while (static::withTrashed()->where('referencia', $referencia)->exists()) {
+        // El sufijo se reserva ANTES de recortar, no se recorta después: recortar el
+        // sufijo devolvería la misma referencia una y otra vez y el bucle no terminaría.
+        do {
+            $cola       = $sufijo === 1 ? '' : '-' . $sufijo;
+            $referencia = static::recortarReferencia($raiz, strlen($cola)) . $cola;
             $sufijo++;
-            $referencia = $base . '-' . $sufijo;
-        }
+        } while (static::withTrashed()->where('referencia', $referencia)->exists());
 
         return $referencia;
+    }
+
+    /**
+     * Deja una referencia dentro del límite de la columna, guardando sitio para el sufijo
+     * de desempate que pueda venir después.
+     */
+    private static function recortarReferencia(string $referencia, int $reserva = 0): string
+    {
+        $tope = static::REFERENCIA_MAX - $reserva;
+
+        return strlen($referencia) <= $tope ? $referencia : rtrim(substr($referencia, 0, $tope), '-');
     }
 
     // ─── Stock ───────────────────────────────────────────────────────────────
@@ -372,6 +401,19 @@ class Producto extends Model
 
     // ─── Helpers ─────────────────────────────────────────────────────────────
 
+    /**
+     * La siguiente referencia libre de su tipo: PROD-0001, SERV-0012.
+     *
+     * Sale del **número más alto ya usado**, no de cuántas filas hay. Contar fallaba de
+     * dos maneras en cuanto la instalación llevaba tiempo: las variantes también empiezan
+     * por «PROD-» —«PROD-0007-3M»— así que inflaban la cuenta y el contador saltaba de
+     * cuatro en cuatro, y una referencia escrita a mano hacía que la cuenta se topara con
+     * un número ya ocupado: el formulario respondía «la referencia ya está en uso» en un
+     * campo que la persona había dejado en blanco.
+     *
+     * El `while` final es el cinturón: con referencias escritas a mano siempre puede
+     * haber un hueco ocupado más arriba.
+     */
     public static function generarReferencia(string $tipo): string
     {
         $prefijo = match ($tipo) {
@@ -380,12 +422,18 @@ class Producto extends Model
             default    => 'PROD',
         };
 
-        $ultimo = static::withTrashed()
-            ->where('tipo', $tipo)
-            ->where('referencia', 'like', "{$prefijo}-%")
-            ->count();
+        // Solo «PREFIJO-1234»: una variante lleva otro guion detrás y no entra en la cuenta.
+        $ultimo = (int) static::withTrashed()
+            ->where('referencia', 'REGEXP', '^' . $prefijo . '-[0-9]+$')
+            ->selectRaw('MAX(CAST(SUBSTRING(referencia, ?) AS UNSIGNED)) as maximo', [strlen($prefijo) + 2])
+            ->value('maximo');
 
-        return $prefijo . '-' . str_pad($ultimo + 1, 4, '0', STR_PAD_LEFT);
+        do {
+            $ultimo++;
+            $referencia = $prefijo . '-' . str_pad((string) $ultimo, 4, '0', STR_PAD_LEFT);
+        } while (static::withTrashed()->where('referencia', $referencia)->exists());
+
+        return $referencia;
     }
 
     public function tipoLabel(): string

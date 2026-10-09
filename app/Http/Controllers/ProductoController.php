@@ -546,9 +546,13 @@ class ProductoController extends Controller
                 [
                     'referencia_proveedor' => $fila['referencia_proveedor'] ?? null,
                     'precio'               => (float) ($fila['precio'] ?? 0),
-                    'dias_entrega'         => $fila['dias_entrega'] !== null && $fila['dias_entrega'] !== ''
+                    // Con `??`, no con un `!== null` a secas: la fila no siempre trae las
+                    // seis claves. La importación y la API mandan solo lo que tienen, y
+                    // leer una clave ausente es un warning que Laravel convierte en
+                    // excepción — un 500 al guardar un producto con proveedor.
+                    'dias_entrega'         => ($fila['dias_entrega'] ?? null) !== null && $fila['dias_entrega'] !== ''
                         ? (int) $fila['dias_entrega'] : null,
-                    'minimo_compra'        => $fila['minimo_compra'] !== null && $fila['minimo_compra'] !== ''
+                    'minimo_compra'        => ($fila['minimo_compra'] ?? null) !== null && $fila['minimo_compra'] !== ''
                         ? (float) $fila['minimo_compra'] : null,
                     'es_preferido'         => (bool) ($fila['es_preferido'] ?? false),
                     'actualizado_el'       => $fila['actualizado_el'] ?? null,
@@ -785,6 +789,16 @@ class ProductoController extends Controller
 
     // ── Helpers ───────────────────────────────────────────────────────────────────
 
+    /**
+     * Crea una variante con los datos del padre y su propia referencia.
+     *
+     * **Los precios por canal se guardan también en la variante.** Lo que se cotiza es la
+     * variante, no el padre —`Producto::scopeSeleccionables()` deja fuera a los padres—,
+     * así que una variante sin filas en `canal_precios` se cotizaba en **cero** por
+     * cualquier canal que la empresa hubiera creado por su cuenta: los tres de fábrica
+     * tenían el respaldo de las columnas viejas, que sí se copian, y el cuarto no tenía
+     * nada de dónde salir. Un precio en cero que nadie pidió se firma.
+     */
     private function crearVariante(Producto $padre, array $datosBase, array $variante): Producto
     {
         $referencia = ($variante['referencia'] ?? null) ?: Producto::generarReferenciaVariante($padre, $variante['valor_variante']);
@@ -796,6 +810,8 @@ class ProductoController extends Controller
             'atributo_variante'  => null,
             'valor_variante'     => $variante['valor_variante'],
         ]));
+
+        app(PreciosPorCanalService::class)->copiar($padre, $hijo);
 
         foreach (($variante['stock_inicial'] ?? []) as $bodegaId => $cantidad) {
             $cantidad = (float) $cantidad;

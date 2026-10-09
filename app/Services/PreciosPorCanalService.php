@@ -387,6 +387,33 @@ class PreciosPorCanalService
      *
      * @param  array<int, array<string, mixed>>  $filas
      */
+    /**
+     * Copia los precios por canal de un ítem a otro. Lo usa una variante al nacer.
+     *
+     * Se copia **lo guardado en el padre**, no lo que venga del formulario: la pantalla de
+     * editar un padre no manda los precios —solo el nombre, la categoría y el atributo—,
+     * así que reconstruirlos desde la petición escribiría filas en cero y el espejo
+     * borraría de paso las columnas viejas que la variante acababa de heredar.
+     *
+     * Si el padre no tiene filas, no se escribe nada: la variante se queda con las
+     * columnas viejas que copió, que es exactamente lo que tenía su padre.
+     */
+    public function copiar(Model $origen, Model $destino): void
+    {
+        $filas = $origen->preciosPorCanal()->get()->map(fn ($fila) => [
+            'segmentacion_opcion_id' => $fila->segmentacion_opcion_id,
+            'margen_pct'             => (float) $fila->margen_pct,
+            'precio'                 => (float) $fila->precio,
+            'comision_min_pct'       => (float) $fila->comision_min_pct,
+            'comision_max_pct'       => (float) $fila->comision_max_pct,
+            'descuento_max_pct'      => (float) $fila->descuento_max_pct,
+        ])->all();
+
+        if ($filas !== []) {
+            $this->guardar($destino, $filas);
+        }
+    }
+
     public function guardar(Model $item, array $filas): void
     {
         $validos = $this->canales->canales()->keyBy('id');
