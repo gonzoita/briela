@@ -171,7 +171,9 @@ class OrdenCompraController extends Controller
         ]);
 
         return Inertia::render('Compras/Ordenes/Show', [
-            'orden' => $orden,
+            'orden'       => $orden,
+            // Lo que la empresa le retiene al proveedor al pagar. Estimación: ver RetencionesService.
+            'retenciones' => app(\App\Services\RetencionesService::class)->paraCompra($orden),
         ]);
     }
 

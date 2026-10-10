@@ -1,10 +1,13 @@
 <script setup>
 import { ref, computed } from 'vue'
-import { router } from '@inertiajs/vue3'
+import { router, usePage } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
+import RetencionesEstimadas from '@/Components/RetencionesEstimadas.vue'
 
 const props = defineProps({
     orden: Object,
+    // Lo que la empresa le va a retener al proveedor al pagar (la cuenta la hace el servidor).
+    retenciones: { type: Object, default: null },
 })
 
 const modalRecepcion = ref(false)
@@ -99,8 +102,12 @@ function fmt(n) {
     return Number(n).toLocaleString('es-CO', { minimumFractionDigits: 0, maximumFractionDigits: 3 })
 }
 
+// El botón solo aparece a quien el servidor dejaría recibir: sin permiso `ordenes.recibir` la
+// ruta responde 403, y un botón que falla al tocarlo es peor que no tenerlo.
+const permisos = computed(() => usePage().props.auth?.permisosLista ?? [])
 const puedeRecibir = computed(() =>
     ['enviada', 'confirmada', 'recibida_parcial'].includes(props.orden.estado)
+    && permisos.value.includes('ordenes.recibir')
 )
 </script>
 
@@ -224,6 +231,7 @@ const puedeRecibir = computed(() =>
                         <span>Total</span>
                         <span>{{ fmtMoney(orden.total) }}</span>
                     </div>
+                    <RetencionesEstimadas :retenciones="retenciones" :total="Number(orden.total)" compra />
                 </div>
             </div>
 

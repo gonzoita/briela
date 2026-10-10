@@ -16,6 +16,8 @@ const props = defineProps({
     total:       { type: Number, default: 0 },
     moneda:      { type: String, default: 'COP' },
     tasa:        { type: [Number, String], default: 1 },
+    // En una orden de compra la empresa es quien retiene: lo que queda es «neto a pagar».
+    compra:      { type: Boolean, default: false },
 })
 
 const valor = (pesos) => formatMoneda(pesos, props.moneda, props.tasa)
@@ -33,7 +35,7 @@ const notas = computed(() => [...(props.retenciones?.avisos ?? []), ...(props.re
                 <span class="shrink-0 text-aviso-rojo">-{{ valor(l.valor) }}</span>
             </div>
             <div class="flex justify-between text-sm font-semibold text-tinta-700 pt-1">
-                <span>Neto a recibir</span>
+                <span>{{ compra ? 'Neto a pagar al proveedor' : 'Neto a recibir' }}</span>
                 <span>{{ valor(total - retenciones.total) }}</span>
             </div>
         </template>
@@ -45,6 +47,6 @@ const notas = computed(() => [...(props.retenciones?.avisos ?? []), ...(props.re
                 <li v-for="(n, i) in notas" :key="i">{{ n }}</li>
             </ul>
         </details>
-        <p class="text-[10px] text-tinta-300">Estimación con las reglas de Configuración → Perfil fiscal. La cifra final la liquida el cliente al pagar.</p>
+        <p class="text-[10px] text-tinta-300">Estimación con las reglas de Configuración → Perfil fiscal. {{ compra ? 'La cifra final la liquida contabilidad al pagar.' : 'La cifra final la liquida el cliente al pagar.' }}</p>
     </div>
 </template>

@@ -15,6 +15,10 @@ Formato: [versionado semántico](https://semver.org/lang/es/).
 ## [Sin publicar]
 
 ### Agregado
+- **Retenciones en las órdenes de compra.** La ficha de la orden estima lo que la empresa le
+  retiene al proveedor al pagar —en la fuente y de IVA— según el RUT de la empresa y el del
+  proveedor, y muestra el neto a pagar. Cada retención que no aplica dice por qué. Es una
+  estimación: no cambia el total de la orden.
 - **Una cotización enviada aparta su stock por 24 horas.** Es una marca, no un movimiento: el
   inventario no se mueve, pero quien cotiza ve «N apartadas en otras cotizaciones» junto al
   stock (se refresca solo cada minuto) y puede cotizar igual. A las 24 horas se libera sola y se
@@ -53,6 +57,8 @@ Formato: [versionado semántico](https://semver.org/lang/es/).
   en el catálogo; y si el principal cambia su foto, las variantes que la heredan cambian con él.
 
 ### Corregido
+- Los botones **Ajuste** (Stock y materiales) y **Recibir** (orden de compra) ya no se ofrecen a
+  quien no tiene el permiso: antes aparecían y fallaban al tocarlos.
 - **Ajustar stock desde Stock y materiales y recibir una orden de compra ahora exigen permiso.**
   Antes cualquiera que pudiera ver esas pantallas podía mover el inventario. Piden
   `inventario.editar` y `ordenes.recibir`, como ya hacía el ajuste desde la ficha del producto.

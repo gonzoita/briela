@@ -4,7 +4,9 @@ namespace App\Services;
 
 use App\Models\Cliente;
 use App\Models\Cotizacion;
+use App\Models\OrdenCompra;
 use App\Models\Producto;
+use App\Models\Proveedor;
 use App\Support\Fiscal;
 
 /**
@@ -71,34 +73,7 @@ class RetencionesService
         } elseif ($tiene($empresa, '47')) {
             $out['motivos'][] = 'Retención en la fuente: la empresa está en el régimen simple, así que el cliente no le retiene.';
         } else {
-            if ($ajustes['uvt'] === null) {
-                $out['avisos'][] = 'Falta el valor de la UVT en Configuración → Perfil fiscal: se calculó sin base mínima.';
-            }
-
-            $bases = [];
-            foreach ($lineas as $l) {
-                $bases[$l['concepto']] = ($bases[$l['concepto']] ?? 0) + (float) $l['base'];
-            }
-
-            foreach ($ajustes['conceptos'] as $c) {
-                $base = round($bases[$c['clave']] ?? 0, 2);
-
-                if ($base <= 0 || $c['tarifa'] <= 0) {
-                    continue;
-                }
-
-                $minimo = ($ajustes['uvt'] ?? 0) * $c['base_uvt'];
-
-                if ($base < $minimo) {
-                    $out['motivos'][] = "Retención por {$c['nombre']}: la base ($" . number_format($base, 0, ',', '.')
-                        . ') no llega a la mínima de ' . rtrim(rtrim(number_format($c['base_uvt'], 2, ',', '.'), '0'), ',')
-                        . ' UVT ($' . number_format($minimo, 0, ',', '.') . ').';
-
-                    continue;
-                }
-
-                $this->agregar($out, "retefuente_{$c['clave']}", "Retención en la fuente · {$c['nombre']}", $base, $c['tarifa'], $base * $c['tarifa'] / 100);
-            }
+            $this->retefuentePorConceptos($out, $lineas, $ajustes);
         }
 
         // ── IVA ────────────────────────────────────────────────────────────
@@ -160,6 +135,124 @@ class RetencionesService
             'concepto' => in_array((int) ($i['producto_id'] ?? 0), $servicios, true) ? 'servicios' : 'compras',
             'base'     => (float) ($i['base'] ?? 0),
         ], $items);
+    }
+
+    /**
+     * Lo que la empresa le va a retener a un proveedor al pagarle una orden de compra, y cuánto
+     * se le gira de verdad.
+     *
+     * Es el espejo de {@see estimar()}: aquí la empresa es quien paga, y por eso es **su** RUT el
+     * que decide si es agente de retención. Reglas:
+     *
+     *  - **En la fuente**: la empresa tiene 07 o 13, y el proveedor no es autorretenedor (15) ni
+     *    del régimen simple (47). Por concepto, sobre la base que pase su mínimo en UVT.
+     *  - **De IVA**: la empresa tiene 09 o 13 y la orden lleva IVA. Si el RUT del proveedor dice
+     *    que no es responsable de IVA, no hay IVA que retener; si es gran contribuyente (13), no se
+     *    le retiene.
+     *  - **ICA**: no se estima en compras. Depende del municipio de cada proveedor y de si la
+     *    empresa es retenedora allí, y no hay de dónde sacarlo sin inventarlo.
+     *
+     * Sin el RUT del proveedor se calcula igual —la obligación es de la empresa—, pero se dice.
+     */
+    public function paraCompra(OrdenCompra $orden): array
+    {
+        $orden->loadMissing(['items.item:id,tipo', 'proveedor']);
+
+        $lineas = $orden->items->map(fn ($i) => [
+            'concepto' => $i->item?->tipo === 'servicio' ? 'servicios' : 'compras',
+            'base'     => (float) $i->cantidad * (float) $i->precio_unitario,
+        ])->all();
+
+        return $this->estimarCompra($lineas, (float) $orden->impuesto, $orden->proveedor);
+    }
+
+    /**
+     * @param  list<array{concepto: string, base: float}>  $lineas
+     * @return array{aplica: bool, lineas: list<array{clave: string, nombre: string, base: float, tarifa: float, valor: float}>, total: float, motivos: list<string>, avisos: list<string>}
+     */
+    public function estimarCompra(array $lineas, float $iva, ?Proveedor $proveedor): array
+    {
+        $ajustes = Fiscal::ajustes();
+        $empresa = $ajustes['responsabilidades'];
+        $out     = ['aplica' => false, 'lineas' => [], 'total' => 0.0, 'motivos' => [], 'avisos' => []];
+
+        if ($empresa === []) {
+            $out['motivos'][] = 'La empresa no tiene cargadas sus responsabilidades fiscales (Configuración → Perfil fiscal): sin ellas no se sabe si es agente de retención.';
+
+            return $out;
+        }
+
+        $delProveedor = Fiscal::codigos($proveedor?->responsabilidades_fiscales ?? []);
+        $tiene        = fn (array $codigos, string ...$buscados) => array_intersect($buscados, $codigos) !== [];
+
+        if ($delProveedor === []) {
+            $out['avisos'][] = 'El proveedor no tiene cargado su RUT: se calculó como si le aplicaran todas las retenciones. Cárgalo en su ficha para afinarlo.';
+        }
+
+        $out['aplica'] = true;
+
+        // ── Renta ──────────────────────────────────────────────────────────
+        if (! $tiene($empresa, '07', '13')) {
+            $out['motivos'][] = 'Retención en la fuente: la empresa no es agente de retención (sin código 07 ni 13 en su RUT).';
+        } elseif ($tiene($delProveedor, '15')) {
+            $out['motivos'][] = 'Retención en la fuente: el proveedor es autorretenedor, así que no se le retiene.';
+        } elseif ($tiene($delProveedor, '47')) {
+            $out['motivos'][] = 'Retención en la fuente: el proveedor está en el régimen simple, así que no se le retiene.';
+        } else {
+            $this->retefuentePorConceptos($out, $lineas, $ajustes);
+        }
+
+        // ── IVA ────────────────────────────────────────────────────────────
+        if ($iva > 0) {
+            if (! $tiene($empresa, '09', '13')) {
+                $out['motivos'][] = 'Retención de IVA: la empresa no es agente de retención de IVA (sin código 09 ni 13).';
+            } elseif ($proveedor && $proveedor->responsableDeIva() === false) {
+                $out['motivos'][] = 'Retención de IVA: el proveedor no es responsable de IVA.';
+            } elseif ($tiene($delProveedor, '13')) {
+                $out['motivos'][] = 'Retención de IVA: a un gran contribuyente no se le retiene IVA.';
+            } elseif ($ajustes['reteiva_pct'] > 0) {
+                $this->agregar($out, 'reteiva', 'Retención de IVA', $iva, $ajustes['reteiva_pct'], $iva * $ajustes['reteiva_pct'] / 100);
+            }
+        }
+
+        return $out;
+    }
+
+    /**
+     * La retención en la fuente por concepto —compras o servicios—, con su base mínima en UVT.
+     * La comparten la venta (la practica el cliente) y la compra (la practica la empresa): la
+     * cuenta es la misma, lo que cambia es **quién** la practica.
+     */
+    private function retefuentePorConceptos(array &$out, array $lineas, array $ajustes): void
+    {
+        if ($ajustes['uvt'] === null) {
+            $out['avisos'][] = 'Falta el valor de la UVT en Configuración → Perfil fiscal: se calculó sin base mínima.';
+        }
+
+        $bases = [];
+        foreach ($lineas as $l) {
+            $bases[$l['concepto']] = ($bases[$l['concepto']] ?? 0) + (float) $l['base'];
+        }
+
+        foreach ($ajustes['conceptos'] as $c) {
+            $base = round($bases[$c['clave']] ?? 0, 2);
+
+            if ($base <= 0 || $c['tarifa'] <= 0) {
+                continue;
+            }
+
+            $minimo = ($ajustes['uvt'] ?? 0) * $c['base_uvt'];
+
+            if ($base < $minimo) {
+                $out['motivos'][] = "Retención por {$c['nombre']}: la base ($" . number_format($base, 0, ',', '.')
+                    . ') no llega a la mínima de ' . rtrim(rtrim(number_format($c['base_uvt'], 2, ',', '.'), '0'), ',')
+                    . ' UVT ($' . number_format($minimo, 0, ',', '.') . ').';
+
+                continue;
+            }
+
+            $this->agregar($out, "retefuente_{$c['clave']}", "Retención en la fuente · {$c['nombre']}", $base, $c['tarifa'], $base * $c['tarifa'] / 100);
+        }
     }
 
     private function agregar(array &$out, string $clave, string $nombre, float $base, float $tarifa, float $valor): void
