@@ -17,6 +17,11 @@ Artisan::command('inspire', function () {
 // "php artisan schedule:run" cada minuto (ver instrucciones de deploy).
 Schedule::command('cotizaciones:marcar-vencidas')->dailyAt('01:00')->when(fn () => Modulos::activo('cotizaciones'));
 
+// Cada quince minutos: una reserva de 24 horas no necesita más fino, y mientras tanto una vencida
+// ya no aparta (`ReservaStock::vigentes()` mira la hora, no solo el estado).
+Schedule::command('stock:liberar-reservas')->everyFifteenMinutes()->withoutOverlapping()
+    ->when(fn () => Modulos::activo('inventario') && Modulos::activo('cotizaciones'));
+
 // Todos los días a las 6:00 a.m. avisa a producción de las OPs con entrega
 // próxima que aún no se han despachado (notificación interna, campanita).
 Schedule::command('notificaciones:entregas-proximas')->dailyAt('06:00')->when(fn () => Modulos::activo('ops'));

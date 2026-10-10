@@ -5,7 +5,7 @@ import AppLayout from '@/Layouts/AppLayout.vue'
 import BtnPdf from '@/Components/BtnPdf.vue'
 import { useClipboard } from '@/composables/useClipboard'
 import RetencionesEstimadas from '@/Components/RetencionesEstimadas.vue'
-import { formatMoneda } from '@/formato'
+import { formatMoneda, formatCantidad } from '@/formato'
 
 const props = defineProps({
     cotizacion:   Object,
@@ -14,6 +14,8 @@ const props = defineProps({
     sedesFabrica: { type: Array, default: () => [] },
     // Lo que el cliente va a retener al pagar, calculado en el servidor.
     retenciones:  { type: Object, default: null },
+    // El stock que esta cotización tiene apartado (solo se ve aquí, nunca en el portal ni el PDF).
+    reservas:     { type: Array, default: () => [] },
 })
 
 const { copyText } = useClipboard()
@@ -29,6 +31,10 @@ async function copiarLink() {
 }
 
 const cot = props.cotizacion
+
+const fechaHora = (iso) => iso
+    ? new Date(iso).toLocaleString('es-CO', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })
+    : ''
 
 const formatCOP = (v) =>
     new Intl.NumberFormat('es-CO', { maximumFractionDigits: 0 }).format(v ?? 0)
@@ -392,6 +398,25 @@ function marcarEnviada() {
             </div>
 
             <!-- Seguimiento -->
+            <!-- Stock apartado: uso interno. Una cotización enviada aparta sus productos por 24 h;
+                 es una marca, el inventario no se mueve. -->
+            <div v-if="reservas.length" class="bg-superficie rounded-2xl border border-linea p-5 mb-4">
+                <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-3">Stock apartado</p>
+                <ul class="space-y-2">
+                    <li v-for="r in reservas" :key="r.id" class="flex flex-wrap items-baseline justify-between gap-2 text-sm">
+                        <span class="text-tinta-700">{{ r.producto }} · {{ formatCantidad(r.cantidad - r.cedida) }} {{ r.unidad }}</span>
+                        <span class="text-xs"
+                            :class="{ 'text-aviso-verde': r.estado === 'activa', 'text-aviso-ambar': r.estado === 'cedida', 'text-aviso-rojo': r.estado === 'vencida', 'text-tinta-400': ['liberada', 'concretada'].includes(r.estado) }">
+                            <template v-if="r.estado === 'activa'">hasta {{ fechaHora(r.expira_at) }}<span v-if="r.cedida > 0"> · se cedieron {{ formatCantidad(r.cedida) }} a una venta</span></template>
+                            <template v-else-if="r.estado === 'cedida'">se cedió a la venta {{ r.cedida_a }}</template>
+                            <template v-else-if="r.estado === 'vencida'">venció el plazo de 24 h</template>
+                            <template v-else-if="r.estado === 'concretada'">vendida</template>
+                            <template v-else>liberada</template>
+                        </span>
+                    </li>
+                </ul>
+            </div>
+
             <div class="bg-superficie rounded-2xl border border-linea p-5 mb-4">
                 <div class="flex items-center justify-between mb-3">
                     <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">Seguimiento</p>

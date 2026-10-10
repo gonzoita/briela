@@ -440,6 +440,7 @@ Route::middleware('auth')->group(function () {
         // APIs búsqueda cotizador
         Route::get('/api/cotizaciones/clientes',  [CotizacionController::class, 'buscarClientes'])->name('cotizaciones.clientes.buscar');
         Route::get('/api/cotizaciones/productos', [CotizacionController::class, 'buscarProductos'])->name('cotizaciones.productos.buscar');
+        Route::post('/api/cotizaciones/disponibilidad', [CotizacionController::class, 'disponibilidad'])->name('cotizaciones.disponibilidad');
 
         // Guardar el texto de condiciones comerciales como el general de la empresa. Pide
         // permiso de configuración: cambia cómo nacen TODAS las cotizaciones nuevas, no
@@ -1076,6 +1077,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/',                         [InventarioController::class, 'index'])->name('inventario.index');
         Route::get('/dashboard',                [InventarioController::class, 'dashboard'])->name('inventario.dashboard');
         Route::get('/movimientos',              [InventarioController::class, 'kardex'])->name('inventario.movimientos');
+        Route::get('/apartados',                [InventarioController::class, 'apartados'])->name('inventario.apartados');
         Route::post('/',                        [InventarioController::class, 'store']);
         Route::put('/{item}',                   [InventarioController::class, 'update']);
         Route::post('/{item}/ajuste',           [InventarioController::class, 'ajuste']);

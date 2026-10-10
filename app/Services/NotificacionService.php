@@ -26,6 +26,8 @@ class NotificacionService
         'entrega_proxima'          => 'ops',
         'material_faltante'        => 'inventario',
         'stock_bajo'               => 'inventario',
+        'stock_apartado_usado'     => 'inventario',
+        'stock_apartado_vencido'   => 'inventario',
         'op_a_calidad'             => 'calidad',
         'op_a_reproceso'           => 'calidad',
         'op_lista_despacho'        => 'remisiones',
@@ -49,6 +51,16 @@ class NotificacionService
         'bandeja_mensaje_nuevo'    => 'bandeja',
         'rrss_token_por_vencer'    => 'rrss',
     ];
+
+    /**
+     * Los avisos que, si nadie dice lo contrario, también salen por correo.
+     *
+     * Por omisión el correo está apagado, y casi siempre es lo correcto: la campanita basta. Pero
+     * que se haya usado stock que un vendedor tenía apartado es algo que se descubre tarde si se
+     * queda esperando a que alguien abra el sistema: la persona ya le prometió esas unidades a
+     * un cliente. Se puede apagar desde Configuración como cualquier otro.
+     */
+    private const CON_CORREO_POR_DEFECTO = ['stock_apartado_usado'];
 
     public static function moduloActivoPara(string $tipo): bool
     {
@@ -90,6 +102,8 @@ class NotificacionService
                 ['tipo' => 'whatsapp_mensaje_nuevo', 'label' => 'Mensaje nuevo de WhatsApp'],
                 ['tipo' => 'bandeja_mensaje_nuevo',  'label' => 'Mensaje o comentario nuevo en una red'],
                 ['tipo' => 'cotizacion_sin_respuesta','label' => 'Cotización sin respuesta (recordatorio)'],
+                ['tipo' => 'stock_apartado_usado',   'label' => 'Una venta usó stock que tenías apartado'],
+                ['tipo' => 'stock_apartado_vencido', 'label' => 'Se liberó el stock apartado de una cotización'],
             ],
             'Hilos internos' => [
                 ['tipo' => 'chat_mensaje',        'label' => 'Alguien te escribió por el chat'],
@@ -160,7 +174,7 @@ class NotificacionService
         // Canal email opcional — apagado por defecto. Solo se manda si en
         // Ajustes se activó "también por email" para este tipo y hay SMTP
         // configurado. Nunca rompe el flujo si el correo falla.
-        if (Configuracion::get("notif_{$tipo}_email", '0') === '1') {
+        if (Configuracion::get("notif_{$tipo}_email", in_array($tipo, self::CON_CORREO_POR_DEFECTO, true) ? '1' : '0') === '1') {
             $this->enviarEmail($userId, $titulo, $mensaje, $url);
         }
     }

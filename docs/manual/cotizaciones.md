@@ -298,3 +298,32 @@ en ámbar con «por omisión». Nunca se cotiza en cero por falta de segmentaci�
 Si aun así un ítem entra en cero, es que ese producto no tiene precio cargado para ese
 canal —pasa con canales creados después del producto— y el sistema lo dice al agregarlo,
 con el nombre del canal que falta.
+
+
+## Stock apartado por 24 horas
+
+Una cotización que pasa a **enviada** aparta cada producto de sus líneas durante 24 horas.
+Detalles que importan:
+
+- **Es una marca, no un movimiento.** El inventario no baja; apartar solo cambia lo que se le dice
+  a quien cotiza («hay 12, pero 5 las tienen apartadas otras cotizaciones»). Por eso soltar es
+  borrar la marca y no hay nada que deshacer.
+- **Solo avisa, no bloquea.** Se puede cotizar por más de lo disponible. En la pantalla de
+  cotizar, junto a la etiqueta de stock, aparece «⏳ N apartadas en otras cotizaciones», y se
+  vuelve a consultar cada minuto (`POST /api/cotizaciones/disponibilidad`).
+- **Plazo máximo de 24 h** (`ReservaStockService::HORAS`). Guardar la cotización otra vez no lo
+  renueva; lo vencido no se reactiva por editar. `stock:liberar-reservas` (cada 15 minutos)
+  marca lo vencido y le avisa al vendedor, una vez, si la cotización sigue abierta.
+- **Se libera** al rechazar, vencer, volver a borrador, borrar la cotización o quitar la línea.
+  Al **aprobar**, la reserva pasa a `concretada`: de ahí en adelante manda la OP.
+- **Cuando una venta usa lo apartado por otra.** Al aprobarse una cotización se mira el stock
+  libre (stock − apartado por las demás). Solo lo que falte sale de las reservas, de las más
+  nuevas primero, y únicamente hasta lo que **existe** de verdad: ceder sobre un stock en cero
+  no avisa a nadie. Se avisa (`stock_apartado_usado`, con correo por defecto) al vendedor afectado
+  y a administración; si el vendedor es administrador, recibe un solo aviso.
+- **Solo productos.** Los ensambles se fabrican por pedido y no tienen unidades que apartar.
+- **Solo uso interno.** El portal público y el PDF no dicen nada del inventario.
+- Necesita los módulos **Inventario** y **Cotizaciones** encendidos; si uno está apagado todo
+  esto se salta.
+- Dónde verlo: pantalla **Stock apartado** (`/inventario/apartados`) y el recuadro de la ficha
+  de la cotización.

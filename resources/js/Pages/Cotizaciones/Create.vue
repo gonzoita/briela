@@ -1,8 +1,8 @@
 <script setup>
 // Los porcentajes se guardan con dos decimales: redondearlos al mostrarlos contradecía
 // lo que la persona acababa de configurar.
-import { formatPct, formatMoneda } from '@/formato'
-import { ref, computed, watch, onMounted } from 'vue'
+import { formatPct, formatMoneda, formatCantidad } from '@/formato'
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useForm, router, usePage } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
 import EditorTexto from '@/Components/EditorTexto.vue'
@@ -146,6 +146,8 @@ const form = useForm({
         // El stock de hoy, que lo calcula el servidor al abrir. No se guarda en el ítem:
         // es una ayuda de pantalla, y el inventario de verdad se comprueba al despachar.
         stock_disponible: i.stock_disponible ?? null,
+        // Cuánto tienen apartado OTRAS cotizaciones de este producto (ver `ReservaStockService`).
+        stock_apartado:   Number(i.stock_apartado) || 0,
         stock_minimo:     Number(i.stock_minimo) || 0,
         inventariable:    i.inventariable !== false,
         // Las filas por canal del producto o del ensamble, para que la comisión y el
@@ -450,10 +452,56 @@ function buscarProducto(q) {
     clearTimeout(timerProd)
     if (q.length < 2) { productoResultados.value = []; return }
     timerProd = setTimeout(async () => {
-        const r = await fetch(`/api/cotizaciones/productos?q=${encodeURIComponent(q)}`)
+        const r = await fetch(`/api/cotizaciones/productos?q=${encodeURIComponent(q)}${props.cotizacion?.id ? `&cotizacion_id=${props.cotizacion.id}` : ''}`)
         productoResultados.value = await r.json()
     }, 300)
 }
+
+// ─── Stock apartado por otras cotizaciones ───────────────────────────────────
+// Una cotización se arma durante minutos, y en ese tiempo otra puede apartar lo mismo. Cada
+// minuto se vuelve a preguntar —una sola petición para todos los productos— en vez de mostrar
+// el número de cuando se abrió. Solo avisa: la cotización se puede hacer igual.
+const REFRESCO_APARTADO_MS = 60000
+let timerApartado = null
+
+async function refrescarDisponibilidad() {
+    if (document.hidden) return
+
+    const ids = [...new Set(form.items.filter(i => i.producto_id).map(i => i.producto_id))]
+    if (!ids.length) return
+
+    try {
+        const r = await fetch('/api/cotizaciones/disponibilidad', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Accept: 'application/json', 'X-XSRF-TOKEN': xsrf(), 'X-Requested-With': 'XMLHttpRequest' },
+            credentials: 'same-origin',
+            body: JSON.stringify({ producto_ids: ids, cotizacion_id: props.cotizacion?.id ?? null }),
+        })
+        if (!r.ok) return
+        const datos = await r.json()
+
+        form.items.forEach(item => {
+            const d = item.producto_id ? datos[item.producto_id] : null
+            if (!d) return
+            item.stock_disponible = d.stock
+            item.stock_apartado   = d.apartado
+        })
+    } catch (e) { /* una consulta de cortesía: si falla, se queda lo que había */ }
+}
+
+onMounted(() => { timerApartado = setInterval(refrescarDisponibilidad, REFRESCO_APARTADO_MS) })
+onUnmounted(() => clearInterval(timerApartado))
+
+// Cuántas de las que se piden no están libres: hay stock, pero otras cotizaciones lo tienen apartado.
+function apartadoEnConflicto(item) {
+    const apartado = Number(item.stock_apartado) || 0
+    if (!item.producto_id || apartado <= 0 || item.stock_disponible === null) return 0
+
+    const libres = Math.max(0, Number(item.stock_disponible) - apartado)
+
+    return Math.max(0, Number(item.cantidad) - libres) > 0 ? apartado : 0
+}
+
 function expandirProducto(p) {
     productoExpandido.value = productoExpandido.value?.id === p.id ? null : p
 }
@@ -503,6 +551,7 @@ function agregarItemDesdeProducto(prod) {
         // pasa. No se guarda en el ítem: es una ayuda de pantalla, y el inventario de
         // verdad se comprueba al despachar.
         stock_disponible: Number(prod.stock_total) || 0,
+        stock_apartado:   Number(prod.stock_apartado) || 0,
         stock_minimo:     Number(prod.stock_minimo) || 0,
         inventariable:    prod.inventariable !== false,
     })
@@ -1303,6 +1352,12 @@ function submit() {
                                                 :pedida="item.cantidad"
                                             />
                                         </div>
+                                        <!-- Solo aviso, no bloquea: la cotización sale igual. Es de
+                                             uso interno; el cliente nunca ve el stock. -->
+                                        <p v-if="apartadoEnConflicto(item)" class="mb-1 text-[11px] leading-snug text-aviso-ambar"
+                                            title="Otras cotizaciones enviadas tienen unidades apartadas por 24 horas. Si alguna se aprueba antes, esas unidades se le ceden y se le avisa a su vendedor.">
+                                            ⏳ {{ formatCantidad(item.stock_apartado) }} apartadas en otras cotizaciones
+                                        </p>
                                         <input v-model.number="item.cantidad" type="number" step="0.001" min="0"
                                             :class="['w-full rounded-lg border px-2 py-1.5 text-sm text-right focus:outline-none',
                                                 (item.inventariable || Number(item.stock_disponible) !== 0) && item.stock_disponible !== null && Number(item.cantidad) > Number(item.stock_disponible)
@@ -1599,6 +1654,9 @@ function submit() {
                                                 completo
                                             />
                                         </div>
+                                        <p v-if="producto.stock_apartado > 0" class="mt-0.5 text-[11px] text-aviso-ambar">
+                                            ⏳ {{ formatCantidad(producto.stock_apartado) }} apartadas en otras cotizaciones
+                                        </p>
                                     </div>
                                 </template>
                             </ResultadosBuscadorProducto>

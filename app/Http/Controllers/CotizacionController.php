@@ -200,6 +200,20 @@ class CotizacionController extends Controller
             // Lo que el cliente va a retener al pagar y lo que de verdad llega. Solo en la
             // pantalla interna: al cliente no se le muestra una estimación de sus impuestos.
             'retenciones'  => app(\App\Services\RetencionesService::class)->paraCotizacion($cotizacion),
+            // El stock que esta cotización tiene apartado. Solo en la pantalla interna: ni el
+            // portal del cliente ni el PDF dicen nada del inventario.
+            'reservas'     => \App\Models\ReservaStock::where('cotizacion_id', $cotizacion->id)
+                ->with('producto:id,nombre,unidad_medida,producto_padre_id,valor_variante', 'producto.padre:id,nombre', 'cedidaA:id,numero')
+                ->orderBy('id')->get()->map(fn ($r) => [
+                    'id'        => $r->id,
+                    'producto'  => $r->producto?->nombre_completo,
+                    'unidad'    => $r->producto?->unidad_medida,
+                    'cantidad'  => (float) $r->cantidad,
+                    'cedida'    => (float) $r->cantidad_cedida,
+                    'estado'    => $r->estado,
+                    'expira_at' => $r->expira_at?->toIso8601String(),
+                    'cedida_a'  => $r->cedidaA?->numero,
+                ]),
             'responsables' => User::whereIn('rol', ['administrador', 'jefe_produccion', 'vendedor'])
                 ->where('activo', true)->get(['id', 'name']),
             // Para elegir en qué fábrica se produce al generar la OP.
@@ -292,7 +306,11 @@ class CotizacionController extends Controller
         // Mismo criterio que el buscador y el inventario: solo las bodegas de esta sede.
         $bodegas = \App\Support\ContextoSede::idsBodegasVisibles();
 
-        $datos['items'] = collect($datos['items'])->map(function (array $item) use ($productos, $ensambles, $bodegas) {
+        // Lo que OTRAS cotizaciones tienen apartado (no la propia: lo suyo no le resta a ella).
+        $apartado = app(\App\Services\ReservaStockService::class)
+            ->apartadoPorProducto($productos->keys()->all(), $cotizacion->id);
+
+        $datos['items'] = collect($datos['items'])->map(function (array $item) use ($productos, $ensambles, $bodegas, $apartado) {
             $producto = $item['producto_id'] ? $productos->get($item['producto_id']) : null;
 
             // Las filas por canal del producto o del ensamble, con la MISMA forma que manda
@@ -314,6 +332,7 @@ class CotizacionController extends Controller
             // Va el dato crudo, sin decidir aquí si se muestra: esa regla vive en
             // `EtiquetaStock.vue`, y tenerla en dos sitios es tenerla en ninguno.
             $item['stock_disponible'] = $producto ? $producto->stockEnBodegas($bodegas) : null;
+            $item['stock_apartado']   = $producto ? (float) ($apartado[$producto->id] ?? 0) : 0;
             $item['stock_minimo']     = (float) ($producto->stock_minimo ?? 0);
             $item['inventariable']    = (bool) ($producto->inventariable ?? false);
 
@@ -578,8 +597,7 @@ class CotizacionController extends Controller
         $precios             = app(PreciosPorCanalService::class);
         $canalesConfigurados = app(\App\Services\CanalesPrecioService::class)->canales();
 
-        return response()->json(
-            Producto::with(['padre:id,nombre,atributo_variante', 'preciosPorCanal'])
+        $productos = Producto::with(['padre:id,nombre,atributo_variante', 'preciosPorCanal'])
                 ->seleccionables()
                 ->where('activo', true)
                 ->whereIn('tipo', ['producto', 'servicio'])
@@ -589,8 +607,15 @@ class CotizacionController extends Controller
                     ->orWhereHas('padre', fn ($q2) => $q2->where('nombre', 'like', "%{$buscar}%"))
                 )
                 ->take(20)
-                ->get()
-                ->map(fn ($p) => [
+                ->get();
+
+        // Lo que otras cotizaciones tienen apartado, para avisarlo al lado del stock. Se excluye
+        // la cotización abierta (si llega): lo suyo no le resta a ella.
+        $apartado = app(\App\Services\ReservaStockService::class)
+            ->apartadoPorProducto($productos->pluck('id')->all(), $request->integer('cotizacion_id') ?: null);
+
+        return response()->json(
+            $productos->map(fn ($p) => [
                     'id'                   => $p->id,
                     'nombre'               => $p->nombre,
                     'nombre_completo'      => $p->nombre_completo,
@@ -600,6 +625,7 @@ class CotizacionController extends Controller
                     'atributo_variante'    => $p->padre?->atributo_variante,
                     'valor_variante'       => $p->valor_variante,
                     'stock_total'          => $p->stockTotal(),
+                    'stock_apartado'       => (float) ($apartado[$p->id] ?? 0),
                     'unidad_medida'        => $p->unidad_medida,
                     'descripcion_corta'    => $p->descripcion_corta,
                     // El bloque que se imprime debajo del ítem en la cotización y en la OP
@@ -643,6 +669,28 @@ class CotizacionController extends Controller
                     })->values(),
                 ])
         );
+    }
+
+    /**
+     * Stock, apartado y disponible de unos productos, para refrescar la cotización abierta.
+     *
+     * Una cotización se arma durante minutos u horas, y en ese tiempo otra puede apartar lo
+     * mismo: la pantalla lo vuelve a preguntar cada minuto en vez de mostrar el número de
+     * cuando se abrió. Es solo de uso interno, nunca sale en el portal público ni en el PDF.
+     */
+    public function disponibilidad(Request $request): JsonResponse
+    {
+        $datos = $request->validate([
+            'producto_ids'    => 'required|array|max:100',
+            'producto_ids.*'  => 'integer',
+            'cotizacion_id'   => 'nullable|integer',
+        ]);
+
+        return response()->json(app(\App\Services\ReservaStockService::class)->disponibilidad(
+            $datos['producto_ids'],
+            \App\Support\ContextoSede::idsBodegasVisibles(),
+            $datos['cotizacion_id'] ?? null,
+        ));
     }
 
     /**

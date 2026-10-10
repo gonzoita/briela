@@ -140,6 +140,7 @@ const navItems = computed(() => {
             { label: 'Ensambles',              href: '/ensambles',              icon: 'cubes-stacked', permiso: 'ensambles.ver' },
             { label: 'Stock y materiales',     href: '/inventario',             icon: 'warehouse',     permiso: 'inventario.ver' },
             { label: 'Movimientos de almacén', href: '/inventario/movimientos', icon: 'dolly',         permiso: 'inventario.ver' },
+            { label: 'Stock apartado',         href: '/inventario/apartados',   icon: 'clock',         permiso: 'inventario.ver' },
         ]},
         { label: 'Compras', icon: 'cart-flatbed', items: [
             { label: 'Proveedores',       href: '/compras/proveedores', icon: 'truck-field',        permiso: 'proveedores.ver' },

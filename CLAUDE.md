@@ -341,7 +341,7 @@ tocar los seeders.
 
 **Tareas programadas** (`routes/console.php`, requieren cron):
 `cotizaciones:marcar-vencidas` · `notificaciones:entregas-proximas` ·
-`notificaciones:cursos-por-vencer` · `notificaciones:recordatorios` ·
+`notificaciones:cursos-por-vencer` · `notificaciones:recordatorios` · `stock:liberar-reservas` ·
 `rrss:publicar-programadas` · `rrss:revisar-tokens` ·
 `whatsapp:sincronizar-plantillas`
 
@@ -617,7 +617,7 @@ decían lo contrario y estaban equivocadas.
   relaciones entre archivos antes de leer código a mano.
 - Conviene regenerarlo después de cambios que muevan estructura (borrar módulos,
   mover carpetas), porque un grafo desactualizado es peor que no tenerlo.
-- **Generado y al día.** Al 10 oct 2026: **9.907 nodos, 18.636 aristas, 615 comunidades**,
+- **Generado y al día.** Al 10 oct 2026: **10.256 nodos, 19.728 aristas, 621 comunidades**,
   reconstruido entero y anclado al commit `d5cc247`. Cubre el proyecto completo: 926 archivos de
   código por AST y los 70 documentos por subagentes. Se actualiza con
   `python -m graphify update . --force` y luego `cluster-only .` con

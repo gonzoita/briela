@@ -15,6 +15,15 @@ Formato: [versionado semántico](https://semver.org/lang/es/).
 ## [Sin publicar]
 
 ### Agregado
+- **Una cotización enviada aparta su stock por 24 horas.** Es una marca, no un movimiento: el
+  inventario no se mueve, pero quien cotiza ve «N apartadas en otras cotizaciones» junto al
+  stock (se refresca solo cada minuto) y puede cotizar igual. A las 24 horas se libera sola y se
+  le avisa al vendedor; guardar de nuevo no renueva el plazo. Si una venta se aprueba y necesita
+  unidades que otra cotización tenía apartadas, se le ceden —las más nuevas primero— y se avisa
+  al vendedor afectado **y** a administración. Pantalla nueva «Stock apartado» en Productos y
+  Existencias, y el recuadro «Stock apartado» en la ficha de cada cotización. Solo uso interno:
+  el cliente no ve nada de esto, ni en el portal ni en el PDF. Tarea programada nueva:
+  `stock:liberar-reservas` (cada 15 minutos).
 - **Calificación automática de proveedores.** Cada proveedor tiene una nota de 0 a 100 que calcula
   el sistema con sus órdenes del último año: puntualidad, cumplimiento de lo pedido, entregas que
   llegaron con factura o remisión y a tiempo, y qué tan competitivo es su precio. Se ve en la

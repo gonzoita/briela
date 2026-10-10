@@ -1,0 +1,1 @@
+import{a as e}from"./app-aAIVDCC_.js";function t(){let t=e();return{activo:e=>!(t.props.modulosApagados??[]).includes(e)}}export{t};
