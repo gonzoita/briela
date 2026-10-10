@@ -48,7 +48,7 @@ class WordpressIntegracionController extends Controller
         return response()->json([
             'ok'        => true,
             'generado'  => now()->toIso8601String(),
-            'moneda'    => 'COP',
+            'moneda'    => \App\Support\Monedas::base(),
             'total'     => count($items),
             'catalogo'  => $items,
         ]);

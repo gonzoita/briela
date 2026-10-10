@@ -40,6 +40,9 @@ class Producto extends Model
         // pesos de arriba se recalcula con la tasa de cada día.
         'moneda_costo',
         'costo_moneda',
+        // Para importar: el código arancelario (Sistema Armonizado) y el arancel habitual.
+        'codigo_hs',
+        'arancel_pct',
         'precio_promedio_compra',
         'precio_ultimo_compra',
         'margen_mayorista',

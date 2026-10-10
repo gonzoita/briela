@@ -32,6 +32,7 @@ class SecuenciaDocumento extends Model
             'remision'         => 'Remisiones',
             'solicitud_compra' => 'Solicitudes de Compra',
             'orden_compra'     => 'Órdenes de Compra',
+            'importacion'      => 'Importaciones',
         ];
     }
 

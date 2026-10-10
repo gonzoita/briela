@@ -38,6 +38,8 @@ class ProveedorController extends Controller
             'proveedores' => $proveedores,
             'orden'      => $orden,
             'filters'     => $request->only(['buscar', 'tipo', 'activo']),
+            'paises'      => \App\Support\Paises::lista(),
+            'pais_casa'   => \App\Support\Paises::casa(),
         ]);
     }
 
@@ -50,6 +52,8 @@ class ProveedorController extends Controller
             'telefono'  => 'nullable|string|max:20',
             'email'     => 'nullable|email|max:255',
             'ciudad'    => 'nullable|string|max:100',
+            // De dónde es: decide si comprarle es importar (Importaciones).
+            'pais'      => ['nullable', 'string', 'size:2', \Illuminate\Validation\Rule::in(array_keys(\App\Support\Paises::CATALOGO))],
             'direccion' => 'nullable|string|max:255',
             'tipo'      => 'required|in:materia_prima,insumos,mixto',
             'activo'    => 'boolean',
@@ -70,6 +74,8 @@ class ProveedorController extends Controller
             'telefono'  => 'nullable|string|max:20',
             'email'     => 'nullable|email|max:255',
             'ciudad'    => 'nullable|string|max:100',
+            // De dónde es: decide si comprarle es importar (Importaciones).
+            'pais'      => ['nullable', 'string', 'size:2', \Illuminate\Validation\Rule::in(array_keys(\App\Support\Paises::CATALOGO))],
             'direccion' => 'nullable|string|max:255',
             'tipo'      => 'required|in:materia_prima,insumos,mixto',
             'activo'    => 'boolean',

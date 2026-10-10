@@ -140,6 +140,7 @@ const navItems = computed(() => {
             { label: 'Proveedores',       href: '/compras/proveedores', icon: 'truck-field',        permiso: 'proveedores.ver' },
             { label: 'Solicitudes',       href: '/compras/solicitudes', icon: 'clipboard-question', permiso: 'solicitudes.ver' },
             { label: 'Órdenes de compra', href: '/compras/ordenes',     icon: 'file-signature',     permiso: 'ordenes.ver' },
+            { label: 'Importaciones',     href: '/compras/importaciones', icon: 'ship',             permiso: 'importaciones.ver' },
         ]},
         // Fabricar, revisar, despachar y cobrar son un solo recorrido: estaban repartidos en
         // Producción, Logística y Financiero, tres categorías para seguir una misma orden.

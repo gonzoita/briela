@@ -11,6 +11,8 @@ const props = defineProps({
     filters:     Object,
     // El orden vigente, que decide el servidor: { campo, dir }.
     orden: { type: Object, default: () => ({}) },
+    paises: { type: Array, default: () => [] },
+    pais_casa: { type: String, default: 'CO' },
 })
 
 // Ordenar mantiene los filtros: reordenar no es empezar de cero.
@@ -32,7 +34,7 @@ const guardando     = ref(false)
 
 const form = ref({
     nombre: '', nit: '', contacto: '', telefono: '',
-    email: '', ciudad: '', direccion: '',
+    email: '', ciudad: '', pais: '', direccion: '',
     tipo: 'mixto', activo: true, notas: '',
 })
 
@@ -46,7 +48,7 @@ function aplicarFiltros() {
 
 function abrirCrear() {
     editando.value = null
-    form.value = { nombre: '', nit: '', contacto: '', telefono: '', email: '', ciudad: '', direccion: '', tipo: 'mixto', activo: true, notas: '' }
+    form.value = { nombre: '', nit: '', contacto: '', telefono: '', email: '', ciudad: '', pais: '', direccion: '', tipo: 'mixto', activo: true, notas: '' }
     modalAbierto.value = true
 }
 
@@ -263,6 +265,14 @@ function tipoColor(t) {
                                 <label class="block text-sm font-medium text-tinta-700 mb-1">Email</label>
                                 <input v-model="form.email" type="email" class="w-full rounded-lg border border-tinta-200 px-3 py-2 text-sm focus:ring-4 focus:ring-[var(--marca-suave)] focus:outline-none" />
                             </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-tinta-700 mb-1">País</label>
+                            <select v-model="form.pais" class="w-full rounded-lg border border-tinta-200 px-3 py-2 text-sm bg-superficie focus:ring-4 focus:ring-[var(--marca-suave)] focus:outline-none">
+                                <option value="">El de la casa ({{ paises.find(p => p.iso === pais_casa)?.nombre }})</option>
+                                <option v-for="p in paises" :key="p.iso" :value="p.iso">{{ p.nombre }}</option>
+                            </select>
+                            <p class="text-xs text-tinta-400 mt-1">Si es de otro país, comprarle es importar: se liquida en Compras → Importaciones.</p>
                         </div>
                         <div class="grid grid-cols-2 gap-3">
                             <div>

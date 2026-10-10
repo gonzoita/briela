@@ -1,9 +1,16 @@
 # Monedas, TRM, lectura del RUT y retenciones
 
-## La regla de fondo: por dentro todo está en pesos
+## La regla de fondo: por dentro todo está en la moneda base
+
+> **Desde octubre de 2026 la moneda base es una decisión de la instalación** (Configuración →
+> Monedas): el peso colombiano mientras no se diga otra, y se congela en cuanto hay cotizaciones
+> u órdenes. Donde este documento dice «pesos», léase «la moneda base». El catálogo trae 20
+> monedas; las que publica el Banco Central Europeo (USD, EUR, GBP, CNY, MXN, BRL, CAD) se traen
+> solas y las demás se escriben a mano. Con base en pesos, la TRM da el dólar; con otra base, se
+> cruza directo con el BCE. Ver [Países](./paises.md).
 
 Costos, precios del catálogo, ítems de cotización, comisiones, cartera e informes se guardan
-**siempre en pesos**. La moneda extranjera entra por dos puertas y ninguna cambia esa regla:
+**siempre en la moneda base**. La moneda extranjera entra por dos puertas y ninguna cambia esa regla:
 
 1. **Un costo en otra moneda** se convierte a pesos con la tasa del día.
 2. **Una cotización en otra moneda** guarda sus ítems en pesos más una tasa, y con esa tasa

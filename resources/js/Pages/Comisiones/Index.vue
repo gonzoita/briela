@@ -1,4 +1,5 @@
 <script setup>
+import { monedaBase } from '@/formato'
 import { ref } from 'vue'
 import { router } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
@@ -26,7 +27,7 @@ function filtrar() {
 
 const formatCOP = (v) =>
     new Intl.NumberFormat('es-CO', {
-        style: 'currency', currency: 'COP', maximumFractionDigits: 0,
+        style: 'currency', currency: monedaBase(), maximumFractionDigits: 0,
     }).format(v ?? 0)
 
 const formatMes = (mes) => {

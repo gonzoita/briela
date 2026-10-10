@@ -15,6 +15,19 @@ Formato: [versionado semántico](https://semver.org/lang/es/).
 ## [Sin publicar]
 
 ### Agregado
+- **Varios países.** Cada sede tiene su país y la moneda de sus documentos; los clientes y
+  proveedores, el suyo. Las cotizaciones ofrecen los impuestos del país de la sede (IVA, ITBMS…),
+  el cliente elige entre los documentos de identidad de su país (NIT, RUC, RIF…) y la IA lee el
+  documento fiscal de cada país. Vienen los paquetes de Colombia, Panamá y Venezuela
+  —los dos últimos son valores de partida que debe confirmar un contador—, y cualquier otro país
+  funciona con lo que la empresa escriba en Configuración → Países.
+- **Moneda base a elección** y 20 monedas. Las que publica el Banco Central Europeo (dólar, euro,
+  libra, yuan, peso mexicano, real, dólar canadiense) se traen solas; las demás se escriben a mano.
+- **Importaciones** (Compras → Importaciones): se carga la factura del proveedor, el flete, el
+  seguro y los gastos, y Briela calcula cuánto cuesta cada producto puesto en bodega —con arancel,
+  impuesto y gastos repartidos por valor, peso o cantidad— y a cuánto quedaría en cada canal.
+  Al liquidar, ese pasa a ser el costo del producto y se recalculan sus precios. Los productos
+  guardan su código arancelario y su arancel habitual.
 - **El correo sale por Briela, firmado y sin caer en spam.** Cuando Briela activa el
   dominio de envío de la instalación, las notificaciones, las cotizaciones y los formularios
   salen desde un subdominio propio verificado, sin configurar nada en el servidor. El SMTP

@@ -163,7 +163,7 @@ body {
         <div class="precio-valor">${{ number_format($ensamble->precio_cliente_final, 0, ',', '.') }}</div>
       </div>
     </div>
-    <div class="precio-nota">* Precios base en COP · El precio final depende de la configuración · IVA no incluido · Sujetos a cambio sin aviso previo</div>
+    <div class="precio-nota">* Precios base en {{ \App\Support\Monedas::base() }} · El precio final depende de la configuración · IVA no incluido · Sujetos a cambio sin aviso previo</div>
   </div>
   @endif
 

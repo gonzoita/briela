@@ -101,10 +101,10 @@ class Modulos
             'compras' => [
                 'label'     => 'Compras',
                 'grupo'     => 'Compras',
-                'permisos'  => ['proveedores', 'solicitudes', 'ordenes'],
+                'permisos'  => ['proveedores', 'solicitudes', 'ordenes', 'importaciones'],
                 'rutas'     => ['compras'],
                 'depende'   => ['inventario'],
-                'al_apagar' => 'Sin proveedores, solicitudes ni órdenes de compra. El material faltante solo avisa.',
+                'al_apagar' => 'Sin proveedores, solicitudes, órdenes de compra ni importaciones. El material faltante solo avisa.',
             ],
 
             // ─── Producción y Entrega ──────────────────────────────────────────

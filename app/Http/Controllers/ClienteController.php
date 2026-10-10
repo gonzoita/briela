@@ -57,6 +57,7 @@ class ClienteController extends Controller
             'segmentacion_opciones' => $this->getSegmentacionOpciones(),
             'sedes'                 => $this->sedesDisponibles(),
             'catalogo_fiscal'       => \App\Support\Fiscal::catalogo(),
+            ...$this->propsPaises(),
         ]);
     }
 
@@ -100,9 +101,20 @@ class ClienteController extends Controller
     {
         $data = $request->validate([
             'numero'              => 'required|string|max:30',
-            'tipo_identificacion' => 'required|in:CC,NIT,CE,PA,RUT',
+            'tipo_identificacion' => 'required|string|max:10',
+            'pais'                => 'nullable|string|size:2',
             'ignorar_id'          => 'nullable|integer',
         ]);
+
+        // El NIT, su dígito y el RUES son colombianos. Los demás países se revisan por su
+        // formato y por duplicados.
+        $pais = \App\Support\Paises::existe($data['pais'] ?? null) ? strtoupper($data['pais']) : \App\Support\Paises::casa();
+
+        if ($pais !== 'CO') {
+            return response()->json($consulta->consultarOtroPais(
+                $data['numero'], $pais, $data['tipo_identificacion'], $data['ignorar_id'] ?? null,
+            ));
+        }
 
         return response()->json($consulta->consultar(
             $data['numero'],
@@ -124,13 +136,14 @@ class ClienteController extends Controller
 
         $request->validate([
             'archivo' => 'required|file|max:10240|mimetypes:' . implode(',', \App\Services\IA\LectorRutService::TIPOS),
+            'pais'    => 'nullable|string|size:2',
         ], [
             'archivo.mimetypes' => 'El archivo tiene que ser un PDF o una foto (JPG, PNG o WEBP).',
             'archivo.max'       => 'El archivo pesa más de 10 MB.',
         ]);
 
         try {
-            return response()->json(['ok' => true] + $lector->leer($request->file('archivo')));
+            return response()->json(['ok' => true] + $lector->leer($request->file('archivo'), $request->input('pais') ?: null));
         } catch (\App\Exceptions\IaException $e) {
             return response()->json(['ok' => false, 'mensaje' => $e->getMessage()], 422);
         }
@@ -266,6 +279,7 @@ class ClienteController extends Controller
             'segmentacion_opciones' => $this->getSegmentacionOpciones(),
             'sedes'                 => $this->sedesDisponibles(),
             'catalogo_fiscal'       => \App\Support\Fiscal::catalogo(),
+            ...$this->propsPaises(),
         ]);
     }
 
@@ -419,9 +433,51 @@ class ClienteController extends Controller
             ->toArray();
     }
 
+    /**
+     * Lo que el formulario necesita para ofrecer los documentos de identidad de cada país.
+     *
+     * @return array<string, mixed>
+     */
+    private function propsPaises(): array
+    {
+        $identificaciones = [];
+        $conRetencion     = [];
+        $conLector        = [];
+
+        foreach (array_keys(\App\Support\Paises::CATALOGO) as $iso) {
+            $perfil = \App\Support\Paises::perfil($iso);
+            $identificaciones[$iso] = array_map(fn ($i) => [
+                'codigo'   => $i['codigo'],
+                'nombre'   => $i['nombre'],
+                'juridica' => (bool) ($i['juridica'] ?? false),
+                'dv'       => $i['dv'] ?? null,
+                'ayuda'    => $i['ayuda'] ?? null,
+            ], $perfil['identificaciones']);
+
+            if ($perfil['retenciones']) {
+                $conRetencion[] = $iso;
+            }
+            if ($perfil['con_paquete']) {
+                $conLector[] = $iso;
+            }
+        }
+
+        return [
+            'paises'                => \App\Support\Paises::lista(),
+            'identificaciones_pais' => $identificaciones,
+            'pais_casa'             => \App\Support\Paises::casa(),
+            'paises_con_retencion'  => $conRetencion,
+            'paises_con_lector'     => $conLector,
+        ];
+    }
+
     /** Los códigos del RUT, limpios; y el retenedor de ICA nunca nulo: la columna no lo admite. */
     private function normalizarFiscal(array $data): array
     {
+        if (array_key_exists('pais', $data)) {
+            $data['pais'] = $data['pais'] ? strtoupper($data['pais']) : null;
+        }
+
         if (array_key_exists('responsabilidades_fiscales', $data)) {
             $data['responsabilidades_fiscales'] = \App\Support\Fiscal::codigos($data['responsabilidades_fiscales'] ?? []);
         }
@@ -438,7 +494,10 @@ class ClienteController extends Controller
         return [
             'sede_id'               => 'nullable|exists:sedes,id',
             'tipo'                  => 'required|in:persona,empresa',
-            'tipo_identificacion'   => 'required|in:CC,NIT,CE,PA,RUT',
+            // Los tipos válidos dependen del país del cliente (o el de la casa si no tiene).
+            'pais'                  => ['nullable', 'string', 'size:2', \Illuminate\Validation\Rule::in(array_keys(\App\Support\Paises::CATALOGO))],
+            'tipo_identificacion'   => ['required', 'string', 'max:10',
+                \Illuminate\Validation\Rule::in(\App\Support\Paises::codigosIdentificacion(request()->input('pais') ?: null))],
             'numero_identificacion' => 'nullable|string|max:30',
             'digito_verificacion'   => 'nullable|string|max:1',
             'datos_rues'            => 'nullable|array',

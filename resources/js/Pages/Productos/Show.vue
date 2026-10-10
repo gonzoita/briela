@@ -1,4 +1,5 @@
 <script setup>
+import { monedaBase } from '@/formato'
 import AppLayout from '@/Layouts/AppLayout.vue'
 import InterruptorWeb from '@/Components/InterruptorWeb.vue'
 import { router, usePage } from '@inertiajs/vue3'
@@ -10,6 +11,8 @@ const props = defineProps({
     web:      { type: Object, default: null },
     // Los canales configurados con el precio efectivo de este producto en cada uno.
     canales:  { type: Array, default: () => [] },
+    // Las últimas importaciones liquidadas de este producto: cuánto costó traerlo cada vez.
+    importaciones: { type: Array, default: () => [] },
 })
 
 // Duplicar lleva al formulario de creación, así que se muestra solo a quien puede crear:
@@ -36,7 +39,7 @@ const masBaratoId = computed(() =>
 )
 
 const formatCOP = (v) =>
-    new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 }).format(v ?? 0)
+    new Intl.NumberFormat('es-CO', { style: 'currency', currency: monedaBase(), minimumFractionDigits: 0 }).format(v ?? 0)
 
 const badgeStyle = (color) => {
     const map = {
@@ -404,6 +407,24 @@ const fmtFecha = (d) => d ? new Date(d).toLocaleDateString('es-CO', { day: '2-di
                                     en Configuración → Listas de segmentación.
                                 </p>
                             </div>
+                        </div>
+                    </div>
+
+                    <!-- Lo que costó traerlo -->
+                    <div v-if="importaciones.length" class="border border-linea rounded-xl overflow-hidden mb-4">
+                        <div class="px-3 py-2 bg-tinta-50 border-b border-linea">
+                            <p class="text-xs font-semibold text-tinta-400 uppercase tracking-wide">Costo de importación</p>
+                        </div>
+                        <div class="divide-y divide-separador">
+                            <a v-for="i in importaciones" :key="i.id" :href="`/compras/importaciones/${i.id}`"
+                                @click.prevent="router.visit(`/compras/importaciones/${i.id}`)"
+                                class="flex items-center justify-between gap-3 px-3 py-2 text-sm hover:bg-realce">
+                                <span class="text-tinta-700">{{ i.numero }} <span class="text-xs text-tinta-400">· {{ i.cantidad }} u.</span></span>
+                                <span class="text-right">
+                                    <span class="font-semibold text-tinta-900">{{ formatCOP(i.costo_unitario) }}</span>
+                                    <span v-if="i.recargo_pct !== null" class="block text-[11px] text-tinta-400">+{{ i.recargo_pct }}% sobre la factura</span>
+                                </span>
+                            </a>
                         </div>
                     </div>
 

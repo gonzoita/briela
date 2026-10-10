@@ -26,8 +26,14 @@ class MonedasConfigController extends Controller
     public function index(): Response
     {
         return Inertia::render('Configuracion/Monedas', [
-            'monedas'   => collect(Monedas::CATALOGO)->except(Monedas::LOCAL)
-                ->map(fn ($m, $codigo) => ['codigo' => $codigo, 'nombre' => $m['nombre']])->values(),
+            'monedas'   => collect(Monedas::CATALOGO)->except(Monedas::base())
+                ->map(fn ($m, $codigo) => [
+                    'codigo'     => $codigo,
+                    'nombre'     => $m['nombre'],
+                    'automatica' => in_array($codigo, $this->tasas->automaticas(), true),
+                ])->values(),
+            'base'      => ['codigo' => Monedas::base(), 'nombre' => Monedas::CATALOGO[Monedas::base()]['nombre'], 'bloqueada' => Monedas::baseBloqueada()],
+            'catalogo_base' => collect(Monedas::CATALOGO)->map(fn ($m, $c) => ['codigo' => $c, 'nombre' => $m['nombre']])->values(),
             'tasas'     => $this->tasas->paraInterfaz(),
             'historial' => TasaCambio::orderByDesc('fecha')->orderBy('moneda')->limit(20)
                 ->get(['moneda', 'fecha', 'valor', 'fuente'])
@@ -41,7 +47,7 @@ class MonedasConfigController extends Controller
                 'colchon_pct' => Monedas::colchonPct(),
                 'modo'        => Monedas::modoCotizacion(),
             ],
-            'productos_en_moneda' => Producto::where('moneda_costo', '!=', Monedas::LOCAL)->count(),
+            'productos_en_moneda' => Producto::where('moneda_costo', '!=', Monedas::base())->count(),
         ]);
     }
 
@@ -87,12 +93,31 @@ class MonedasConfigController extends Controller
         return back()->with('success', 'Tasas actualizadas.' . ($productos > 0 ? " Se recalculó el costo de {$productos} producto(s)." : ''));
     }
 
+    /**
+     * Cambia la moneda base. Solo mientras no haya cotizaciones ni órdenes: con documentos
+     * guardados, cada monto antiguo quedaría escrito en una moneda que ya no es la base.
+     */
+    public function cambiarBase(Request $request): RedirectResponse
+    {
+        $datos = $request->validate(['moneda' => 'required|in:' . implode(',', array_keys(Monedas::CATALOGO))]);
+
+        if (Monedas::baseBloqueada()) {
+            return back()->with('error', 'Ya hay cotizaciones u órdenes guardadas: la moneda base no se puede cambiar.');
+        }
+
+        Configuracion::set('moneda_base', $datos['moneda']);
+        // Productos con costo en la moneda que ahora es la base ya no están «en otra moneda».
+        Producto::where('moneda_costo', $datos['moneda'])->update(['costo_moneda' => null]);
+
+        return back()->with('success', "La moneda base ahora es {$datos['moneda']}. Revisa las tasas de las demás monedas.");
+    }
+
     /** Una tasa escrita a mano, para el día de hoy. */
     public function manual(Request $request): RedirectResponse
     {
         $datos = $request->validate([
             'moneda' => 'required|in:' . implode(',', Monedas::extranjeras()),
-            'valor'  => 'required|numeric|min:1|max:1000000',
+            'valor'  => 'required|numeric|min:0.00000001|max:100000000',
         ]);
 
         $this->tasas->registrarManual($datos['moneda'], (float) $datos['valor']);

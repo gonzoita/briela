@@ -38,7 +38,7 @@ class TasaCambioService
     /** La tasa vigente para una fecha: la de ese día, o la última anterior. */
     public function vigente(string $moneda, ?Carbon $fecha = null): ?TasaCambio
     {
-        if ($moneda === Monedas::LOCAL) {
+        if ($moneda === Monedas::base()) {
             return null;
         }
 
@@ -51,7 +51,7 @@ class TasaCambioService
     /** Pesos por unidad. El peso vale 1; una moneda sin ninguna tasa guardada, null. */
     public function valor(string $moneda, ?Carbon $fecha = null): ?float
     {
-        if ($moneda === Monedas::LOCAL) {
+        if ($moneda === Monedas::base()) {
             return 1.0;
         }
 
@@ -67,7 +67,7 @@ class TasaCambioService
      */
     public function costoEnPesos(float $costo, string $moneda): ?float
     {
-        if ($moneda === Monedas::LOCAL) {
+        if ($moneda === Monedas::base()) {
             return round($costo, 2);
         }
 
@@ -111,8 +111,30 @@ class TasaCambioService
     {
         return TasaCambio::updateOrCreate(
             ['moneda' => $moneda, 'fecha' => ($fecha ?? now())->toDateString()],
-            ['valor' => round($valor, 4), 'fuente' => 'manual'],
+            ['valor' => round($valor, 8), 'fuente' => 'manual'],
         );
+    }
+
+    /** Las monedas que el Banco Central Europeo publica: con ellas se cruza todo lo automático. */
+    private const BCE = ['USD', 'EUR', 'GBP', 'CNY', 'MXN', 'BRL', 'CAD'];
+
+    /**
+     * Las monedas cuya tasa se trae sola con la moneda base actual. Las demás se escriben a mano.
+     *
+     * Con base en pesos colombianos, la TRM da el dólar y todo lo demás se cruza con él. Con
+     * otra base, solo hay fuente si la base misma la publica el BCE.
+     *
+     * @return list<string>
+     */
+    public function automaticas(): array
+    {
+        $base = Monedas::base();
+
+        if ($base === 'COP') {
+            return self::BCE;
+        }
+
+        return in_array($base, self::BCE, true) ? array_values(array_diff(self::BCE, [$base])) : [];
     }
 
     /**
@@ -125,7 +147,13 @@ class TasaCambioService
      */
     public function actualizar(): array
     {
-        $hoy       = now()->startOfDay();
+        $hoy  = now()->startOfDay();
+        $base = Monedas::base();
+
+        if ($base !== 'COP') {
+            return $this->actualizarConBce($hoy, $base);
+        }
+
         $resultado = [];
 
         $trm = $this->traerTrm($hoy);
@@ -150,12 +178,95 @@ class TasaCambioService
             $resultado['EUR'] = $this->guardar('EUR', round($usd * $eurUsd, 4), 'bce', $hoy);
         }
 
+        // Las demás monedas del BCE, cruzadas con el dólar. Si no llegan, no es un error:
+        // el euro y el dólar son lo que importa, y las otras se pueden escribir a mano.
+        if ($usd !== null) {
+            $porDolar = $this->traerCruces('USD', array_diff(self::BCE, ['USD', 'EUR']));
+
+            foreach ($porDolar as $moneda => $cuantas) {
+                $resultado[$moneda] = $this->guardar($moneda, round($usd / $cuantas, 8), 'bce', $hoy);
+            }
+        }
+
         return $resultado;
+    }
+
+    /**
+     * Con una base distinta del peso colombiano: todo se cruza directo con el BCE.
+     *
+     * @return array<string, array{ok: bool, valor?: float, fuente?: string, mensaje: string}>
+     */
+    private function actualizarConBce(Carbon $hoy, string $base): array
+    {
+        $objetivo = $this->automaticas();
+
+        if ($objetivo === []) {
+            return ['*' => ['ok' => false, 'mensaje' => "La moneda base ({$base}) no tiene fuente automática: escribe las tasas a mano."]];
+        }
+
+        $cruces    = $this->traerCruces($base, $objetivo);
+        $resultado = [];
+
+        foreach ($objetivo as $moneda) {
+            $resultado[$moneda] = isset($cruces[$moneda])
+                ? $this->guardar($moneda, round(1 / $cruces[$moneda], 8), 'bce', $hoy)
+                : ['ok' => false, 'mensaje' => 'No se pudo consultar la cotización en el Banco Central Europeo.'];
+        }
+
+        return $resultado;
+    }
+
+    /**
+     * Cuántas unidades de cada moneda vale una de `$base`, según el BCE.
+     *
+     * @param  iterable<string>  $monedas
+     * @return array<string, float>  Solo las que llegaron con un valor razonable.
+     */
+    private function traerCruces(string $base, iterable $monedas): array
+    {
+        $monedas = array_values(array_diff(is_array($monedas) ? $monedas : iterator_to_array($monedas), [$base]));
+
+        if ($monedas === []) {
+            return [];
+        }
+
+        try {
+            $resp = Http::timeout(self::TIEMPO)->acceptJson()->get(
+                (string) config('services.tasas.bce_url'),
+                ['base' => $base, 'symbols' => implode(',', $monedas)],
+            );
+
+            if (! $resp->successful()) {
+                Log::warning('Tasas: los cruces del BCE no llegaron.', ['status' => $resp->status()]);
+
+                return [];
+            }
+
+            $out = [];
+
+            foreach ($monedas as $moneda) {
+                $valor = (float) ($resp->json("rates.{$moneda}") ?? 0);
+
+                if ($valor > 0) {
+                    $out[$moneda] = $valor;
+                }
+            }
+
+            return $out;
+        } catch (Throwable $e) {
+            Log::warning('Tasas: no se pudieron consultar los cruces. ' . $e->getMessage());
+
+            return [];
+        }
     }
 
     /** @return array{ok: bool, valor: float, fuente: string, mensaje: string} */
     private function guardar(string $moneda, float $valor, string $fuente, Carbon $fecha): array
     {
+        if ($moneda === Monedas::base()) {
+            return ['ok' => true, 'valor' => 1.0, 'fuente' => $fuente, 'mensaje' => 'Es la moneda base.'];
+        }
+
         $existente = TasaCambio::where('moneda', $moneda)->whereDate('fecha', $fecha->toDateString())->first();
 
         if ($existente?->fuente === 'manual') {

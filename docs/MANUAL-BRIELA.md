@@ -281,6 +281,16 @@ bodega. La OP avisa qué material falta para lo que está pendiente.
 
 → [Compras, inventario y faltantes](./manual/compras-inventario.md)
 
+### Importaciones
+`/compras/importaciones`
+
+Lo que se trae de afuera cuesta más que la factura: flete, seguro, arancel, impuesto, agente
+de aduana. Se carga el embarque, Briela reparte esos gastos entre los productos y dice cuánto
+cuesta cada uno puesto en bodega y a cuánto quedaría en cada canal. Al liquidar, ese pasa a
+ser el costo del producto y se reprecian sus canales.
+
+→ [Importaciones](./manual/importaciones.md) · [Países y monedas](./manual/paises.md)
+
 ### Recetas de corte
 `/compras/inventario/recetas-corte`
 

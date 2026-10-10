@@ -196,7 +196,7 @@ class ConsultasDatosService
             ])->all(),
             'total_cotizado' => round((float) $filas->sum('monto')),
             'total_aprobado' => round((float) $filas->whereIn('estado', ['aprobada', 'en_produccion'])->sum('monto')),
-            'moneda'         => 'COP',
+            'moneda'         => \App\Support\Monedas::base(),
         ];
     }
 
@@ -218,7 +218,7 @@ class ConsultasDatosService
                 'cantidad' => (int) $f->cantidad,
                 'monto'    => round((float) $f->monto),
             ])->all(),
-            'moneda'    => 'COP',
+            'moneda'    => \App\Support\Monedas::base(),
         ];
     }
 
@@ -326,7 +326,7 @@ class ConsultasDatosService
                     'saldo'   => round($c->saldo),
                     'vencio'  => $c->fecha_vencimiento?->format('d/m/Y'),
                 ])->values()->all(),
-            'moneda'           => 'COP',
+            'moneda'           => \App\Support\Monedas::base(),
         ];
     }
 
@@ -395,7 +395,7 @@ class ConsultasDatosService
                 'cotizaciones' => (int) $f->cantidad,
                 'monto'        => round((float) $f->monto),
             ])->all(),
-            'moneda'  => 'COP',
+            'moneda'  => \App\Support\Monedas::base(),
         ];
     }
 
@@ -592,7 +592,7 @@ class ConsultasDatosService
             // Veredicto ya calculado: la IA solo lo comunica, no lo deduce.
             'puede_despacharse'   => $calidadOk && $avanceOk && ! $yaDespachada,
             'que_falta'           => $faltantes,
-            'moneda'              => 'COP',
+            'moneda'              => \App\Support\Monedas::base(),
         ];
     }
 }

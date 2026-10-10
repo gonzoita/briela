@@ -89,6 +89,7 @@ use App\Http\Controllers\TrabajoPdfController;
 use App\Http\Controllers\InventarioController;
 use App\Http\Controllers\RecetaCorteController;
 use App\Http\Controllers\OrdenCompraController;
+use App\Http\Controllers\ImportacionController;
 use App\Http\Controllers\PasoFotoController;
 use App\Http\Controllers\ProveedorController;
 use App\Http\Controllers\SolicitudCompraController;
@@ -782,6 +783,14 @@ Route::middleware('auth')->group(function () {
             Route::post('/monedas',            [\App\Http\Controllers\MonedasConfigController::class, 'guardar'])->name('monedas.guardar');
             Route::post('/monedas/actualizar', [\App\Http\Controllers\MonedasConfigController::class, 'actualizar'])->name('monedas.actualizar');
             Route::post('/monedas/manual',     [\App\Http\Controllers\MonedasConfigController::class, 'manual'])->name('monedas.manual');
+            Route::post('/monedas/base',       [\App\Http\Controllers\MonedasConfigController::class, 'cambiarBase'])->name('monedas.base');
+        });
+
+        // ─── Países: impuestos, identificaciones y documentos de cada uno ────
+        Route::get('/paises', [\App\Http\Controllers\PaisesConfigController::class, 'index'])->name('paises.index');
+        Route::middleware('permiso:configuracion.editar')->group(function () {
+            Route::put('/paises/{iso}',    [\App\Http\Controllers\PaisesConfigController::class, 'guardar'])->name('paises.guardar');
+            Route::delete('/paises/{iso}', [\App\Http\Controllers\PaisesConfigController::class, 'restablecer'])->name('paises.restablecer');
         });
 
         // ─── Perfil fiscal: datos de la empresa y reglas de retención ────────
@@ -1018,6 +1027,23 @@ Route::middleware('auth')->group(function () {
         Route::post('/{orden}/enviar',[OrdenCompraController::class, 'enviar']);
         Route::post('/{orden}/recibir',[OrdenCompraController::class, 'recibir']);
         Route::get('/{orden}/pdf',    [OrdenCompraController::class, 'pdf']);
+    });
+
+    // ─── Compras — Importaciones (costo puesto en bodega) ────────────────────
+    Route::middleware('permiso:importaciones.ver')->group(function () {
+        Route::prefix('compras/importaciones')->group(function () {
+            Route::get('/',                          [ImportacionController::class, 'index'])->name('importaciones.index');
+            Route::get('/crear',                     [ImportacionController::class, 'create'])->middleware('permiso:importaciones.crear')->name('importaciones.create');
+            Route::post('/',                         [ImportacionController::class, 'store'])->middleware('permiso:importaciones.crear');
+            Route::post('/ajustes',                  [ImportacionController::class, 'ajustes'])->middleware('permiso:importaciones.liquidar');
+            Route::get('/{importacion}',             [ImportacionController::class, 'show'])->name('importaciones.show');
+            Route::get('/{importacion}/editar',      [ImportacionController::class, 'edit'])->middleware('permiso:importaciones.editar');
+            Route::put('/{importacion}',             [ImportacionController::class, 'update'])->middleware('permiso:importaciones.editar');
+            Route::post('/{importacion}/liquidar',   [ImportacionController::class, 'liquidar'])->middleware('permiso:importaciones.liquidar');
+            Route::delete('/{importacion}',          [ImportacionController::class, 'destroy'])->middleware('permiso:importaciones.editar');
+        });
+        Route::post('/api/importaciones/calcular', [ImportacionController::class, 'calcular']);
+        Route::get('/api/importaciones/productos', [ImportacionController::class, 'productos']);
     });
 
     // ─── Inventario (Stock & Materiales — fuente: Producto::insumos()) ───────────

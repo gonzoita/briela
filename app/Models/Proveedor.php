@@ -11,7 +11,7 @@ class Proveedor extends Model
 
     protected $fillable = [
         'nombre', 'nit', 'contacto', 'telefono', 'email',
-        'ciudad', 'direccion', 'tipo', 'activo', 'notas',
+        'ciudad', 'pais', 'direccion', 'tipo', 'activo', 'notas',
     ];
 
     protected $casts = [
