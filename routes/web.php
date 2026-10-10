@@ -331,7 +331,11 @@ Route::middleware('auth')->group(function () {
             Route::delete('/{id}',   [ProductoController::class, 'destroy'])->name('destroy');
         });
 
-        Route::post('/{id}/ajuste-stock',        [ProductoController::class, 'ajusteStock'])->name('ajuste-stock');
+        // Antes de /{id}: un ajuste mueve el inventario, así que pide el permiso de stock. La ruta
+        // no pedía ninguno, y la ficha mostraba el botón a cualquiera que pudiera verla.
+        Route::post('/{id}/ajuste-stock',        [ProductoController::class, 'ajusteStock'])
+            ->middleware('permiso:inventario.editar')->name('ajuste-stock');
+        Route::get('/{id}/movimientos',          [ProductoController::class, 'movimientos'])->name('movimientos');
         Route::patch('/{id}/precio-costo',       [ProductoController::class, 'actualizarCosto'])->name('precio-costo');
         Route::patch('/{id}/umbrales',           [ProductoController::class, 'umbrales'])->middleware('permiso:productos.editar')->name('umbrales');
         Route::delete('/imagenes/{id}',          [ImagenProductoController::class, 'destroy'])->name('imagenes.destroy');

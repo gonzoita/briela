@@ -163,6 +163,7 @@ class OrdenCompraController extends Controller
             'solicitud:id,numero',
             // 'item' ahora apunta a productos: el código es 'referencia'.
             'items.item:id,nombre,referencia',
+            'recepciones.recibidoPor:id,name',
         ]);
 
         return Inertia::render('Compras/Ordenes/Show', [
@@ -232,9 +233,16 @@ class OrdenCompraController extends Controller
             'items'                    => 'required|array|min:1',
             'items.*.id'               => 'required|exists:ordenes_compra_items,id',
             'items.*.cantidad_recibida'=> 'required|numeric|min:0',
+            // El papel que trae el proveedor. Opcional, pero sin él la entrega no se puede
+            // comprobar —y la calificación del proveedor lo tiene en cuenta—.
+            'factura_numero'           => 'nullable|string|max:60',
+            'remision_numero'          => 'nullable|string|max:60',
+            'fecha_documento'          => 'nullable|date',
+            'fecha_recepcion'          => 'nullable|date|before_or_equal:today',
+            'observaciones'            => 'nullable|string|max:1000',
         ]);
 
-        $orden->recibir($data['items'], auth()->id());
+        $orden->recibir($data['items'], auth()->id(), collect($data)->except('items')->all());
 
         // Aviso a producción: llegó mercancía (puede resolver un faltante).
         app(\App\Services\NotificacionService::class)->paraRol(

@@ -15,6 +15,13 @@ Formato: [versionado semántico](https://semver.org/lang/es/).
 ## [Sin publicar]
 
 ### Agregado
+- **Cada movimiento de inventario dice de dónde vino y con qué papel.** En la ficha del producto
+  ves, por cada movimiento, el stock antes y después, su origen con enlace (orden de compra, orden
+  de producción, ajuste), la factura o remisión con su número y fecha, y las observaciones.
+  También las remisiones en las que salió el producto, y el historial completo por tandas.
+- **Al recibir una orden de compra se registra la factura o remisión del proveedor**, la fecha de
+  llegada y las observaciones, en cada entrega. La ficha de la orden lista todas sus entregas.
+- **El ajuste de stock acepta el papel que lo respalda** (factura, remisión u otro).
 - **Cargar un proveedor desde su RUT.** En Proveedores, sube el RUT (PDF o foto) y se llenan sus
   datos y responsabilidades tributarias. Avisa si ese proveedor ya existe. En la orden de compra,
   un proveedor que según su RUT no es responsable de IVA arranca sin IVA.
@@ -31,6 +38,9 @@ Formato: [versionado semántico](https://semver.org/lang/es/).
   en el catálogo; y si el principal cambia su foto, las variantes que la heredan cambian con él.
 
 ### Corregido
+- **Ajustar el stock exige permiso.** La ruta del ajuste desde la ficha del producto no pedía
+  ninguno: cualquiera que pudiera ver el producto podía mover el inventario. Ahora pide «Stock y
+  movimientos: editar», y el botón solo se muestra a quien lo tiene.
 - **La referencia de un producto eliminado queda libre.** Antes, si eliminabas un producto y
   volvías a crear otro con la misma referencia, el sistema decía que ya estaba en uso, de algo
   que ya no veías. Ahora la reutilizas sin más. Vale al crear, al editar, en las variantes y al

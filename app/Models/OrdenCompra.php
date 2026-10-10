@@ -79,9 +79,42 @@ class OrdenCompra extends Model
         ]);
     }
 
-    public function recibir(array $itemsRecibidos, int $usuarioId): void
+    public function recepciones(): HasMany
+    {
+        return $this->hasMany(OrdenCompraRecepcion::class, 'orden_compra_id')->orderByDesc('fecha_recepcion')->orderByDesc('id');
+    }
+
+    /**
+     * Registra una entrega de mercancía.
+     *
+     * `$documento` es lo que trae el proveedor: `factura_numero`, `remision_numero`,
+     * `fecha_documento`, `observaciones` y `fecha_recepcion` (cuándo llegó, que no es cuándo
+     * se digitó). Queda en una fila por entrega y en cada movimiento de inventario que genera,
+     * para que quien audite un ingreso pueda ver con qué papel entró.
+     *
+     * @param  array<int, array{id: int, cantidad_recibida: float|string}>  $itemsRecibidos
+     * @param  array<string, mixed>  $documento
+     */
+    public function recibir(array $itemsRecibidos, int $usuarioId, array $documento = []): void
     {
         $bodegaPrincipal = Bodega::principal();
+
+        $factura  = trim((string) ($documento['factura_numero'] ?? '')) ?: null;
+        $remision = trim((string) ($documento['remision_numero'] ?? '')) ?: null;
+
+        OrdenCompraRecepcion::create([
+            'orden_compra_id' => $this->id,
+            'recibido_por'    => $usuarioId,
+            'fecha_recepcion' => $documento['fecha_recepcion'] ?? today()->toDateString(),
+            'factura_numero'  => $factura,
+            'remision_numero' => $remision,
+            'fecha_documento' => $documento['fecha_documento'] ?? null,
+            'observaciones'   => trim((string) ($documento['observaciones'] ?? '')) ?: null,
+        ]);
+
+        // Con factura manda la factura; sin ella, la remisión.
+        $tipoDoc   = $factura ? 'factura' : ($remision ? 'remision' : null);
+        $numeroDoc = $factura ?? $remision;
 
         foreach ($itemsRecibidos as $itemData) {
             $ocItem = OrdenCompraItem::find($itemData['id']);
@@ -107,7 +140,10 @@ class OrdenCompra extends Model
                     precioUnitario: (float) $ocItem->precio_unitario,
                     origenTipo: 'orden_compra',
                     origenId: $this->id,
-                    notas: "Recepción OC {$this->numero}"
+                    notas: "Recepción OC {$this->numero}".(filled($documento['observaciones'] ?? null) ? ' — '.trim($documento['observaciones']) : ''),
+                    documentoTipo: $tipoDoc,
+                    documentoNumero: $numeroDoc,
+                    documentoFecha: $documento['fecha_documento'] ?? null,
                 );
             }
         }

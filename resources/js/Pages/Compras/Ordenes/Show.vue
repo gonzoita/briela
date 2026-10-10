@@ -10,6 +10,19 @@ const props = defineProps({
 const modalRecepcion = ref(false)
 const guardando      = ref(false)
 
+// El papel de la entrega: la factura o la remisión que trae el proveedor. Una orden llega a
+// veces en varias entregas, cada una con el suyo, así que se pide en CADA recepción.
+const hoy = () => new Date().toISOString().slice(0, 10)
+const papelEnBlanco = () => ({
+    factura_numero: '', remision_numero: '', fecha_documento: '', fecha_recepcion: hoy(), observaciones: '',
+})
+const papel = ref(papelEnBlanco())
+// Las fechas llegan como «2026-10-10»: se les pone la hora a mano, porque `new Date('2026-10-10')`
+// es medianoche UTC y en Colombia sale el día anterior.
+const fechaCorta = (d) => d
+    ? new Date(`${String(d).slice(0, 10)}T00:00:00`).toLocaleDateString('es-CO', { day: '2-digit', month: 'short', year: 'numeric' })
+    : '—'
+
 const cantidadesRecibidas = ref(
     props.orden.items.map(i => ({
         id:               i.id,
@@ -43,6 +56,7 @@ function abrirRecepcion() {
         pendiente:         Number(i.cantidad) - Number(i.cantidad_recibida),
         unidad:            i.unidad,
     }))
+    papel.value = papelEnBlanco()
     modalRecepcion.value = true
 }
 
@@ -58,7 +72,7 @@ function guardarRecepcion() {
         return
     }
 
-    router.post(`/compras/ordenes/${props.orden.id}/recibir`, { items }, {
+    router.post(`/compras/ordenes/${props.orden.id}/recibir`, { items, ...papel.value }, {
         onSuccess: () => { modalRecepcion.value = false; guardando.value = false },
         onError:   () => { guardando.value = false },
     })
@@ -213,6 +227,25 @@ const puedeRecibir = computed(() =>
                 </div>
             </div>
 
+            <!-- Entregas: cada recepción con el papel que trajo -->
+            <div v-if="orden.recepciones?.length" class="bg-superficie rounded-xl border border-linea overflow-hidden">
+                <div class="px-4 py-3 border-b border-linea">
+                    <h3 class="font-semibold text-tinta-900">Entregas recibidas</h3>
+                </div>
+                <ul class="divide-y divide-separador">
+                    <li v-for="r in orden.recepciones" :key="r.id" class="px-4 py-3 text-sm">
+                        <div class="flex flex-wrap items-center gap-x-4 gap-y-1">
+                            <span class="font-medium text-tinta-900">{{ fechaCorta(r.fecha_recepcion) }}</span>
+                            <span v-if="r.factura_numero" class="text-tinta-500">Factura <b class="text-tinta-700">{{ r.factura_numero }}</b></span>
+                            <span v-if="r.remision_numero" class="text-tinta-500">Remisión <b class="text-tinta-700">{{ r.remision_numero }}</b></span>
+                            <span v-if="!r.factura_numero && !r.remision_numero" class="text-aviso-ambar">Sin factura ni remisión</span>
+                            <span v-if="r.recibido_por" class="text-xs text-tinta-300 ml-auto">{{ r.recibido_por.name }}</span>
+                        </div>
+                        <p v-if="r.observaciones" class="text-xs text-tinta-400 mt-1">{{ r.observaciones }}</p>
+                    </li>
+                </ul>
+            </div>
+
             <!-- Condiciones / notas -->
             <div v-if="orden.condiciones || orden.notas" class="bg-superficie rounded-xl border border-linea p-4">
                 <div v-if="orden.condiciones" class="mb-2">
@@ -249,6 +282,41 @@ const puedeRecibir = computed(() =>
                                     :max="item.pendiente" min="0" step="0.001"
                                     class="w-full rounded-lg border border-tinta-200 px-3 py-2 text-sm" />
                             </div>
+                        </div>
+                    </div>
+
+                    <!-- El papel con el que llegó: lo que permite comprobar este ingreso después. -->
+                    <div class="mt-4 rounded-lg border border-linea p-3 space-y-3">
+                        <p class="text-sm font-medium text-tinta-900">Con qué llegó</p>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs text-tinta-500 mb-1">Factura del proveedor</label>
+                                <input v-model="papel.factura_numero" type="text" maxlength="60"
+                                    class="w-full rounded-lg border border-tinta-200 px-3 py-2 text-sm" />
+                            </div>
+                            <div>
+                                <label class="block text-xs text-tinta-500 mb-1">Remisión del proveedor</label>
+                                <input v-model="papel.remision_numero" type="text" maxlength="60"
+                                    class="w-full rounded-lg border border-tinta-200 px-3 py-2 text-sm" />
+                            </div>
+                            <div>
+                                <label class="block text-xs text-tinta-500 mb-1">Fecha del documento</label>
+                                <input v-model="papel.fecha_documento" type="date"
+                                    class="w-full rounded-lg border border-tinta-200 px-3 py-2 text-sm" />
+                            </div>
+                            <div>
+                                <label class="block text-xs text-tinta-500 mb-1">Llegó el</label>
+                                <input v-model="papel.fecha_recepcion" type="date" :max="hoy()"
+                                    class="w-full rounded-lg border border-tinta-200 px-3 py-2 text-sm" />
+                            </div>
+                        </div>
+                        <p v-if="!papel.factura_numero && !papel.remision_numero" class="text-xs text-aviso-ambar">
+                            Sin factura ni remisión este ingreso no se podrá comprobar, y cuenta en contra del proveedor.
+                        </p>
+                        <div>
+                            <label class="block text-xs text-tinta-500 mb-1">Observaciones</label>
+                            <textarea v-model="papel.observaciones" rows="2" placeholder="Ej: llegó una caja golpeada, faltó el resto"
+                                class="w-full rounded-lg border border-tinta-200 px-3 py-2 text-sm" />
                         </div>
                     </div>
 

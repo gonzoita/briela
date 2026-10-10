@@ -19,6 +19,8 @@ const page = usePage()
 const permisos   = computed(() => page.props.auth?.permisosLista ?? [])
 const puedeCrear = computed(() => permisos.value.includes('productos.crear'))
 const puedeEditar = computed(() => permisos.value.includes('productos.editar'))
+// Un ajuste mueve el inventario: lo pide el permiso de stock, igual que el servidor.
+const puedeAjustar = computed(() => permisos.value.includes('inventario.editar'))
 
 const p = computed(() => props.producto)
 
@@ -78,6 +80,9 @@ const formAjuste = ref({
     cantidad:          '',
     bodega_destino_id: '',
     notas:             '',
+    documento_tipo:    '',
+    documento_numero:  '',
+    documento_fecha:   '',
 })
 
 const tiposMovimiento = [
@@ -95,6 +100,9 @@ const abrirAjuste = () => {
         cantidad:          '',
         bodega_destino_id: '',
         notas:             '',
+        documento_tipo:    '',
+        documento_numero:  '',
+        documento_fecha:   '',
     }
     modalAjuste.value = true
 }
@@ -130,6 +138,36 @@ const tipoMovLabel = (tipo) => {
     }
     return map[tipo] ?? tipo
 }
+
+// ── Historial de movimientos, por tandas ─────────────────────────────────────
+// La ficha trae los primeros; el resto se pide al pulsar «Ver más», con el id del último que
+// se ve como cursor (no un número de página: si entra un movimiento mientras se lee, la
+// página 2 repetiría el último de la 1).
+const movimientos    = ref([...(props.producto.movimientos_recientes ?? [])])
+const hayMasMov      = ref(!!props.producto.movimientos_hay_mas)
+const cargandoMov    = ref(false)
+
+const verMasMovimientos = async () => {
+    const ultimo = movimientos.value[movimientos.value.length - 1]
+    if (!ultimo || cargandoMov.value) return
+    cargandoMov.value = true
+    try {
+        const res = await fetch(`/productos/${p.value.id}/movimientos?antes=${ultimo.id}`, {
+            headers: { Accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+        })
+        if (!res.ok) throw new Error()
+        const json = await res.json()
+        movimientos.value.push(...json.data)
+        hayMasMov.value = json.hay_mas
+    } catch {
+        alert('No se pudieron cargar más movimientos. Intenta de nuevo.')
+    } finally {
+        cargandoMov.value = false
+    }
+}
+
+const entraStock = (tipo) => ['entrada', 'devolucion', 'creacion_producto'].includes(tipo)
+const fmtCant    = (n) => Number(n).toLocaleString('es-CO', { maximumFractionDigits: 3 })
 
 const fmtFecha = (d) => d ? new Date(d).toLocaleDateString('es-CO', { day: '2-digit', month: 'short', year: 'numeric' }) : '—'
 </script>
@@ -491,7 +529,7 @@ const fmtFecha = (d) => d ? new Date(d).toLocaleDateString('es-CO', { day: '2-di
                     <div v-if="p.inventariable && !p.es_padre" class="border border-linea rounded-xl overflow-hidden mb-4">
                         <div class="px-3 py-2 bg-tinta-50 border-b border-linea flex items-center justify-between">
                             <p class="text-xs font-semibold text-tinta-400 uppercase tracking-wide">Stock</p>
-                            <button @click="abrirAjuste"
+                            <button v-if="puedeAjustar" @click="abrirAjuste"
                                 class="text-xs text-white px-2.5 py-1 rounded-lg font-medium"
                                 style="background:var(--marca);">
                                 + Ajuste
@@ -583,34 +621,42 @@ const fmtFecha = (d) => d ? new Date(d).toLocaleDateString('es-CO', { day: '2-di
             </div>
         </div>
 
-        <!-- ── Movimientos recientes ──────────────────────────────────────── -->
-        <div v-if="p.movimientos_recientes?.length" class="mt-5 bg-superficie rounded-2xl shadow-sm overflow-hidden">
+        <!-- ── Movimientos: de dónde vino cada uno y con qué papel ────────── -->
+        <div v-if="movimientos.length" class="mt-5 bg-superficie rounded-2xl shadow-sm overflow-hidden">
             <div class="px-5 py-3 border-b border-linea">
-                <h3 class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">Movimientos recientes</h3>
+                <h3 class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">Movimientos</h3>
             </div>
             <div class="overflow-x-auto">
-                <table class="w-full text-xs min-w-[480px]">
+                <table class="w-full text-xs min-w-[760px]">
                     <thead>
                         <tr style="background:var(--superficie-2); border-bottom:1px solid var(--borde);">
                             <th class="text-left px-4 py-2.5 font-semibold text-tinta-400">Fecha</th>
                             <th class="text-left px-3 py-2.5 font-semibold text-tinta-400">Tipo</th>
                             <th class="text-right px-3 py-2.5 font-semibold text-tinta-400">Cantidad</th>
+                            <th class="text-right px-3 py-2.5 font-semibold text-tinta-400">Stock</th>
                             <th class="text-left px-3 py-2.5 font-semibold text-tinta-400">Bodega</th>
-                            <th class="text-left px-3 py-2.5 font-semibold text-tinta-400">Usuario</th>
-                            <th class="text-left px-3 py-2.5 font-semibold text-tinta-400">Notas</th>
+                            <th class="text-left px-3 py-2.5 font-semibold text-tinta-400">Origen</th>
+                            <th class="text-left px-3 py-2.5 font-semibold text-tinta-400">Papel</th>
+                            <th class="text-left px-3 py-2.5 font-semibold text-tinta-400">Observaciones</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-separador">
-                        <tr v-for="mv in p.movimientos_recientes" :key="mv.id" class="hover:bg-tinta-50">
-                            <td class="px-4 py-2 text-tinta-300">{{ fmtFecha(mv.created_at) }}</td>
+                        <tr v-for="mv in movimientos" :key="mv.id" class="hover:bg-realce align-top">
+                            <td class="px-4 py-2 text-tinta-300 whitespace-nowrap">
+                                {{ fmtFecha(mv.created_at) }}
+                                <span class="block text-[11px] text-tinta-300">{{ mv.usuario?.name ?? '—' }}</span>
+                            </td>
                             <td class="px-3 py-2">
                                 <span class="px-2 py-0.5 rounded-full text-white text-[11px] font-semibold"
                                     :style="`background:${tipoMovColor(mv.tipo)};`">
                                     {{ tipoMovLabel(mv.tipo) }}
                                 </span>
                             </td>
-                            <td class="px-3 py-2 text-right font-semibold" :style="`color:${tipoMovColor(mv.tipo)};`">
-                                {{ ['entrada','devolucion','creacion_producto'].includes(mv.tipo) ? '+' : '-' }}{{ mv.cantidad }}
+                            <td class="px-3 py-2 text-right font-semibold whitespace-nowrap" :style="`color:${tipoMovColor(mv.tipo)};`">
+                                {{ entraStock(mv.tipo) ? '+' : '-' }}{{ fmtCant(mv.cantidad) }}
+                            </td>
+                            <td class="px-3 py-2 text-right text-tinta-400 whitespace-nowrap">
+                                {{ fmtCant(mv.stock_anterior) }} → <b class="text-tinta-700">{{ fmtCant(mv.stock_nuevo) }}</b>
                             </td>
                             <td class="px-3 py-2 text-tinta-500">
                                 <template v-if="mv.tipo === 'transferencia'">
@@ -618,8 +664,45 @@ const fmtFecha = (d) => d ? new Date(d).toLocaleDateString('es-CO', { day: '2-di
                                 </template>
                                 <template v-else>{{ mv.bodega?.nombre ?? '—' }}</template>
                             </td>
-                            <td class="px-3 py-2 text-tinta-400">{{ mv.usuario?.name ?? '—' }}</td>
-                            <td class="px-3 py-2 text-tinta-300 truncate max-w-xs">{{ mv.notas ?? '—' }}</td>
+                            <td class="px-3 py-2 text-tinta-500">
+                                <a v-if="mv.origen?.url" :href="mv.origen.url" class="underline" style="color:var(--marca);">{{ mv.origen.etiqueta }}</a>
+                                <template v-else>{{ mv.origen?.etiqueta ?? '—' }}</template>
+                            </td>
+                            <td class="px-3 py-2 text-tinta-500 whitespace-nowrap">
+                                <template v-if="mv.documento">
+                                    {{ mv.documento.etiqueta }} <b class="text-tinta-700">{{ mv.documento.numero }}</b>
+                                    <span v-if="mv.documento.fecha" class="block text-[11px] text-tinta-300">{{ fmtFecha(mv.documento.fecha) }}</span>
+                                </template>
+                                <span v-else class="text-tinta-300">—</span>
+                            </td>
+                            <td class="px-3 py-2 text-tinta-400 max-w-xs">{{ mv.notas ?? '—' }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div v-if="hayMasMov" class="px-5 py-3 border-t border-linea text-center">
+                <button @click="verMasMovimientos" :disabled="cargandoMov"
+                    class="text-xs font-medium hover:underline disabled:opacity-50" style="color:var(--marca);">
+                    {{ cargandoMov ? 'Cargando…' : 'Ver movimientos anteriores' }}
+                </button>
+            </div>
+        </div>
+
+        <!-- ── Remisiones en las que salió ─────────────────────────────────── -->
+        <div v-if="p.remisiones?.length" class="mt-5 bg-superficie rounded-2xl shadow-sm overflow-hidden">
+            <div class="px-5 py-3 border-b border-linea">
+                <h3 class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">Remisiones</h3>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-xs min-w-[420px]">
+                    <tbody class="divide-y divide-separador">
+                        <tr v-for="r in p.remisiones" :key="r.id" class="hover:bg-realce">
+                            <td class="px-4 py-2">
+                                <a :href="`/remisiones/${r.id}`" class="underline font-medium" style="color:var(--marca);">{{ r.numero }}</a>
+                            </td>
+                            <td class="px-3 py-2 text-tinta-300 whitespace-nowrap">{{ fmtFecha(r.fecha) }}</td>
+                            <td class="px-3 py-2 text-tinta-500">{{ r.cliente ?? '—' }}</td>
+                            <td class="px-3 py-2 text-right font-semibold text-tinta-700 whitespace-nowrap">{{ fmtCant(r.cantidad) }} {{ r.unidad }}</td>
                         </tr>
                     </tbody>
                 </table>
@@ -675,8 +758,24 @@ const fmtFecha = (d) => d ? new Date(d).toLocaleDateString('es-CO', { day: '2-di
                                 </option>
                             </select>
                         </div>
+                        <!-- El papel que respalda el ajuste: sin factura ni remisión, una entrada no se puede comprobar. -->
+                        <div class="rounded-xl border border-linea p-3 space-y-2">
+                            <p class="text-xs font-medium text-tinta-500">Papel que lo respalda <span class="text-tinta-300">(opcional)</span></p>
+                            <div class="grid grid-cols-2 gap-2">
+                                <select v-model="formAjuste.documento_tipo" class="border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none">
+                                    <option value="">Ninguno</option>
+                                    <option value="factura">Factura</option>
+                                    <option value="remision">Remisión</option>
+                                    <option value="otro">Otro</option>
+                                </select>
+                                <input v-model="formAjuste.documento_numero" type="text" maxlength="60" :disabled="!formAjuste.documento_tipo"
+                                    placeholder="Número" class="border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none disabled:opacity-50" />
+                            </div>
+                            <input v-if="formAjuste.documento_tipo" v-model="formAjuste.documento_fecha" type="date"
+                                class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none" />
+                        </div>
                         <div>
-                            <label class="block text-xs font-medium text-tinta-500 mb-1">Notas (opcional)</label>
+                            <label class="block text-xs font-medium text-tinta-500 mb-1">Observaciones (opcional)</label>
                             <input v-model="formAjuste.notas" type="text"
                                 class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none"
                                 placeholder="Ej: Inventario físico julio 2026" />

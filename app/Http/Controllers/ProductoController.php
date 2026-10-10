@@ -6,6 +6,10 @@ use App\Models\Bodega;
 use App\Models\CategoriaProducto;
 use App\Models\ImagenProducto;
 use App\Models\Producto;
+use App\Models\RemisionItem;
+use App\Models\ProductoMovimiento;
+use App\Models\OrdenCompra;
+use App\Models\Op;
 use App\Models\Proveedor;
 use App\Services\ArchivoServidorService;
 use App\Services\PreciosPorCanalService;
@@ -282,11 +286,6 @@ class ProductoController extends Controller
             'padre.imagenes',
             'stocks.bodega',
             'variantes.stocks',
-            'movimientos' => fn ($q) => $q->latest()->limit(20)->with([
-                'bodega:id,nombre',
-                'bodegaDestino:id,nombre',
-                'usuario:id,name',
-            ]),
         ])->findOrFail($id);
 
         $imagenes = $producto->imagenesVisibles()->map(fn ($img) => array_merge($img->toArray(), [
@@ -308,6 +307,9 @@ class ProductoController extends Controller
             'stock_total'     => (float) $v->stocks->sum('cantidad'),
         ]);
 
+        // Un padre no tiene stock propio: sus movimientos son los de cada variante.
+        $movimientos = $producto->es_padre ? ['data' => [], 'hay_mas' => false] : $this->movimientosDe($producto);
+
         return Inertia::render('Productos/Show', [
             'producto'   => array_merge($producto->toArray(), [
                 'stock_total'          => $producto->stockTotal(),
@@ -318,7 +320,9 @@ class ProductoController extends Controller
                 'imagenes'             => $imagenes,
                 'stocks'               => $stocks,
                 'variantes'            => $variantes,
-                'movimientos_recientes' => $producto->es_padre ? [] : $producto->movimientos,
+                'movimientos_recientes' => $movimientos['data'],
+                'movimientos_hay_mas'   => $movimientos['hay_mas'],
+                'remisiones'            => $producto->es_padre ? [] : $this->remisionesDe($producto),
                 // La comparación de proveedores, ya resuelta: la ficha muestra quién lo
                 // vende más barato y cuánto se ahorra. Antes solo salía el último al que se
                 // le compró, y comparar era abrir un cuaderno.
@@ -671,6 +675,129 @@ class ProductoController extends Controller
         $producto->delete();
     }
 
+    /** Cuántos movimientos se traen por vez. */
+    private const MOVIMIENTOS_POR_PAGINA = 30;
+
+    /**
+     * Más movimientos de un producto, hacia atrás: la ficha trae los primeros y pide el resto
+     * por tandas. Un cursor (`antes` = el id del último que se ve) y no un número de página:
+     * si entra un movimiento mientras alguien lee, la página 2 repetiría el último de la 1.
+     */
+    public function movimientos(Request $request, int $id): JsonResponse
+    {
+        $request->validate([
+            'antes' => 'nullable|integer|min:1',
+            'tipo'  => 'nullable|in:entrada,salida,ajuste,transferencia,devolucion,consumo_ensamble,venta',
+        ]);
+
+        $producto = Producto::findOrFail($id);
+
+        return response()->json($this->movimientosDe(
+            $producto,
+            $request->filled('antes') ? $request->integer('antes') : null,
+            $request->input('tipo'),
+        ));
+    }
+
+    /**
+     * Los movimientos de un producto, con su origen y su papel ya resueltos.
+     *
+     * @return array{data: list<array<string, mixed>>, hay_mas: bool}
+     */
+    private function movimientosDe(Producto $producto, ?int $antes = null, ?string $tipo = null): array
+    {
+        $filas = $producto->movimientos()
+            ->with(['bodega:id,nombre', 'bodegaDestino:id,nombre', 'usuario:id,name'])
+            ->when($antes, fn ($q) => $q->where('id', '<', $antes))
+            ->when($tipo, fn ($q) => $q->where('tipo', $tipo))
+            ->orderByDesc('id')
+            ->limit(self::MOVIMIENTOS_POR_PAGINA + 1)
+            ->get();
+
+        $hayMas = $filas->count() > self::MOVIMIENTOS_POR_PAGINA;
+        $filas  = $filas->take(self::MOVIMIENTOS_POR_PAGINA);
+
+        // Los orígenes en bloque: una consulta por tipo, no una por movimiento.
+        $ordenes = OrdenCompra::with('proveedor:id,nombre')
+            ->whereIn('id', $filas->where('origen_tipo', 'orden_compra')->pluck('origen_id')->filter())
+            ->get(['id', 'numero', 'proveedor_id'])->keyBy('id');
+
+        $ops = Op::withTrashed()
+            ->whereIn('id', $filas->where('origen_tipo', 'op')->pluck('origen_id')->filter())
+            ->get(['id', 'numero'])->keyBy('id');
+
+        return [
+            'data'    => $filas->map(fn (ProductoMovimiento $m) => $this->filaMovimiento($m, $ordenes, $ops))->values()->all(),
+            'hay_mas' => $hayMas,
+        ];
+    }
+
+    /** @return array<string, mixed> */
+    private function filaMovimiento(ProductoMovimiento $m, $ordenes, $ops): array
+    {
+        $origen = match ($m->origen_tipo) {
+            null                => null,
+            'orden_compra'      => ($oc = $ordenes->get($m->origen_id))
+                ? ['etiqueta' => "Orden {$oc->numero}".($oc->proveedor ? " · {$oc->proveedor->nombre}" : ''), 'url' => "/compras/ordenes/{$oc->id}"]
+                : ['etiqueta' => 'Orden de compra', 'url' => null],
+            'op'                => ($op = $ops->get($m->origen_id))
+                ? ['etiqueta' => "Orden de producción {$op->numero}", 'url' => "/ops/{$op->id}"]
+                : ['etiqueta' => 'Orden de producción', 'url' => null],
+            'ajuste_manual'     => ['etiqueta' => 'Ajuste manual', 'url' => null],
+            'creacion_producto' => ['etiqueta' => 'Stock inicial', 'url' => null],
+            'importacion_csv'   => ['etiqueta' => 'Importación', 'url' => null],
+            'corte'             => ['etiqueta' => 'Corte de material', 'url' => null],
+            default             => ['etiqueta' => ucfirst(str_replace('_', ' ', $m->origen_tipo)), 'url' => null],
+        };
+
+        return [
+            'id'              => $m->id,
+            'created_at'      => $m->created_at?->toIso8601String(),
+            'tipo'            => $m->tipo,
+            'cantidad'        => (float) $m->cantidad,
+            'stock_anterior'  => (float) $m->stock_anterior,
+            'stock_nuevo'     => (float) $m->stock_nuevo,
+            'precio_unitario' => $m->precio_unitario !== null ? (float) $m->precio_unitario : null,
+            'bodega'          => $m->bodega ? ['nombre' => $m->bodega->nombre] : null,
+            'bodega_destino'  => $m->bodegaDestino ? ['nombre' => $m->bodegaDestino->nombre] : null,
+            'usuario'         => $m->usuario ? ['name' => $m->usuario->name] : null,
+            'notas'           => $m->notas,
+            'origen'          => $origen,
+            // El papel que lo respalda: factura, remisión u otro, con su número y su fecha.
+            'documento'       => filled($m->documento_numero) ? [
+                'etiqueta' => ['factura' => 'Factura', 'remision' => 'Remisión'][$m->documento_tipo] ?? 'Documento',
+                'numero'   => $m->documento_numero,
+                'fecha'    => $m->documento_fecha?->toDateString(),
+            ] : null,
+        ];
+    }
+
+    /**
+     * Las remisiones en las que salió este producto: las últimas diez.
+     *
+     * @return list<array<string, mixed>>
+     */
+    private function remisionesDe(Producto $producto): array
+    {
+        return RemisionItem::where('producto_id', $producto->id)
+            ->with(['remision:id,numero,estado,fecha_remision,cliente_id', 'remision.cliente:id,nombre'])
+            ->latest('id')
+            ->limit(10)
+            ->get()
+            ->filter(fn (RemisionItem $i) => $i->remision)
+            ->map(fn (RemisionItem $i) => [
+                'id'       => $i->remision->id,
+                'numero'   => $i->remision->numero,
+                'estado'   => $i->remision->estado,
+                'fecha'    => $i->remision->fecha_remision ? \Illuminate\Support\Carbon::parse($i->remision->fecha_remision)->toDateString() : null,
+                'cliente'  => $i->remision->cliente?->nombre,
+                'cantidad' => (float) $i->cantidad,
+                'unidad'   => $i->unidad,
+            ])
+            ->values()
+            ->all();
+    }
+
     public function ajusteStock(Request $request, int $id): RedirectResponse
     {
         $producto = Producto::findOrFail($id);
@@ -686,6 +813,11 @@ class ProductoController extends Controller
             'bodega_destino_id'=> 'required_if:tipo,transferencia|nullable|exists:bodegas,id|different:bodega_id',
             'precio_unitario'  => 'nullable|numeric|min:0',
             'notas'            => 'nullable|string|max:500',
+            // El papel que respalda el ajuste, si lo hay: una entrada sin factura ni remisión
+            // es un número que nadie puede comprobar.
+            'documento_tipo'   => 'nullable|in:factura,remision,otro',
+            'documento_numero' => 'nullable|string|max:60|required_with:documento_tipo',
+            'documento_fecha'  => 'nullable|date',
         ]);
 
         $producto->registrarMovimiento(
@@ -696,7 +828,10 @@ class ProductoController extends Controller
             bodegaDestinoId: isset($data['bodega_destino_id']) ? (int) $data['bodega_destino_id'] : null,
             precioUnitario: isset($data['precio_unitario']) ? (float) $data['precio_unitario'] : null,
             origenTipo: 'ajuste_manual',
-            notas: $data['notas'] ?? null
+            notas: $data['notas'] ?? null,
+            documentoTipo: $data['documento_tipo'] ?? null,
+            documentoNumero: $data['documento_numero'] ?? null,
+            documentoFecha: $data['documento_fecha'] ?? null,
         );
 
         return back()->with('success', 'Ajuste de stock registrado.');

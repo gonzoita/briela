@@ -72,6 +72,21 @@ ciudad, teléfono, correo, actividad económica (CIIU) y las **responsabilidades
 - Las retenciones que se le practican al pagarle a un proveedor **no** se calculan todavía:
   hoy el sistema estima retenciones sobre las ventas.
 
+## Recibir mercancía con su papel *(nuevo, 10 oct 2026)*
+
+Al **registrar una recepción** se pide con qué llegó: la **factura** y/o la **remisión** del
+proveedor, la fecha del documento, cuándo llegó la mercancía y las observaciones. Es opcional,
+pero sin papel la entrega **no se puede comprobar**, y la pantalla lo dice.
+
+- **Una fila por entrega, no por orden** (`ordenes_compra_recepciones`). Una orden llega a veces
+  en tres entregas, cada una con su remisión y su factura; guardar «la» factura de la orden
+  obligaba a escoger una. La ficha de la orden las lista todas.
+- **El papel pasa a cada movimiento de inventario** que genera la recepción: con factura manda la
+  factura; sin ella, la remisión. Y las observaciones se suman a la nota del movimiento. Así, en
+  la ficha del producto, cada entrada dice con qué papel llegó.
+- **La fecha de llegada es la de la mercancía**, no la del día que se digitó, y no puede ser
+  futura. Es lo que permite saber si una entrega llegó dentro del plazo pactado.
+
 ## Cada proveedor llama distinto al mismo producto *(nuevo, 10 oct 2026)*
 
 La bisagra que la empresa llama `IC5260` la pueden vender varios proveedores con códigos

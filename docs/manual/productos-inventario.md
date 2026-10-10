@@ -221,6 +221,27 @@ Cuando el conteo físico no coincide con el sistema, se registra un **ajuste**.
 No se edita el número directamente: se deja el rastro de la corrección, con
 notas. Así el kardex sigue explicando la realidad.
 
+**El ajuste vive en la ficha del producto** (botón «+ Ajuste» de la tarjeta de stock) y **pide el
+permiso `inventario.editar`**: mueve el inventario, y la ruta no pedía ninguno. Se escribe la
+bodega, el tipo, la cantidad y las **observaciones**, y se puede indicar el **papel que lo
+respalda**: factura, remisión u otro, con su número y su fecha. Un tipo de papel sin número se
+rechaza. Una entrada sin factura ni remisión es un número que nadie puede comprobar.
+
+**Movimientos con detalle** *(10 oct 2026)*. La ficha muestra cada movimiento con:
+
+| Columna | Qué dice |
+|---|---|
+| Tipo y cantidad | Entrada, salida, ajuste… y cuánto |
+| Stock | El stock **antes → después** de ese movimiento |
+| Origen | De dónde vino, con enlace: la orden de compra (con su proveedor), la orden de producción, un ajuste manual, el stock inicial |
+| Papel | La factura o remisión con su número y fecha |
+| Observaciones | Lo que se escribió al registrarlo |
+
+Se ven los 30 últimos; «Ver movimientos anteriores» trae los siguientes con un cursor (el id del
+último que se ve), no con número de página: si entra un movimiento mientras se lee, la página 2
+repetiría el último de la 1. Debajo, **Remisiones** lista las últimas diez en las que salió el
+producto, con su cliente y cantidad. Las cuentas están en `ProductoController::movimientosDe()`.
+
 ## Avisos de stock bajo
 
 Cada producto puede tener un **stock mínimo** y un **stock máximo**. Cuando las

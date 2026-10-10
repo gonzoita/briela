@@ -369,7 +369,12 @@ class Producto extends Model
         ?float $precioUnitario = null,
         string $origenTipo = 'ajuste_manual',
         ?int $origenId = null,
-        ?string $notas = null
+        ?string $notas = null,
+        // El papel que respalda el movimiento: 'factura', 'remision' u 'otro', con su número
+        // y su fecha. Al final y opcionales: quien ya llama con nombres no cambia.
+        ?string $documentoTipo = null,
+        ?string $documentoNumero = null,
+        ?string $documentoFecha = null
     ): void {
         if ($this->es_padre) {
             throw new \RuntimeException('Un producto padre no puede tener stock. Selecciona una de sus variantes.');
@@ -430,6 +435,9 @@ class Producto extends Model
             'origen_id'        => $origenId,
             'usuario_id'       => $usuarioId,
             'notas'            => $notas,
+            'documento_tipo'   => $documentoNumero ? $documentoTipo : null,
+            'documento_numero' => $documentoNumero ?: null,
+            'documento_fecha'  => $documentoNumero ? $documentoFecha : null,
         ]);
     }
 
