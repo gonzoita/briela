@@ -52,6 +52,26 @@ recibida_parcial/recibida)`.
 - **Enviar una orden al proveedor**: es una comunicación real que alguien
   decide cuándo hacer.
 
+## Cargar un proveedor desde su RUT *(nuevo, 10 oct 2026)*
+
+En **Compras → Proveedores**, al crear o editar, el botón **Leer RUT con IA** sube el RUT (PDF
+o foto) y llena la ficha: nombre o razón social, número y dígito de verificación, dirección,
+ciudad, teléfono, correo, actividad económica (CIIU) y las **responsabilidades de la casilla
+53**. Es el mismo lector de los clientes (`LectorRutService`), con los mismos campos.
+
+- **No guarda nada.** Pone los datos en el formulario para que alguien los revise: un 7 que
+  parece un 1 en una foto torcida es el NIT de otra empresa. Si el dígito de verificación no
+  cuadra con el NIT leído, lo dice.
+- **Avisa si ya existe.** Si hay un proveedor con ese número, lo dice antes de que se cree un
+  duplicado, con sus precios y órdenes repartidos entre dos fichas.
+- **Qué decide el RUT.** Si el proveedor es responsable de IVA (código 48) o no (49). Un
+  proveedor **no responsable** no factura IVA: en la orden de compra sus líneas arrancan en
+  0 %. Para uno responsable no se pone tarifa —depende del bien, y lo tributario no se escribe
+  en el código—: la pone quien compra. Sin RUT cargado no se asume nada, y la orden avisa.
+- Permiso: `proveedores.crear` o `proveedores.editar`, porque cada lectura es una llamada a la IA.
+- Las retenciones que se le practican al pagarle a un proveedor **no** se calculan todavía:
+  hoy el sistema estima retenciones sobre las ventas.
+
 ## Cada proveedor llama distinto al mismo producto *(nuevo, 10 oct 2026)*
 
 La bisagra que la empresa llama `IC5260` la pueden vender varios proveedores con códigos

@@ -29,6 +29,12 @@ const itemsFiltrados = computed(() => {
     )
 })
 
+// El proveedor elegido, con lo que dice su RUT sobre el IVA: `responsable_iva` es true, false o
+// null (no se sabe, y no se asume).
+const proveedorElegido = computed(() =>
+    props.proveedores.find(p => p.id === form.value.proveedor_id) ?? null
+)
+
 // Lo que el proveedor elegido sabe de este ítem: su código, su precio y qué tan viejo es.
 const datosDelProveedor = (item) =>
     item._proveedores?.[form.value.proveedor_id] ?? null
@@ -44,6 +50,11 @@ function aplicarProveedor(item) {
     if (!item._precio_editado) {
         const precio = Number(datos?.precio) || 0
         item.precio_unitario = precio > 0 ? precio : (Number(item._precio_promedio) || 0)
+    }
+    // Un proveedor que según su RUT no es responsable de IVA no lo factura: la línea arranca
+    // en 0. Para uno responsable no se pone tarifa —depende del bien—: la pone quien compra.
+    if (!item._iva_editado) {
+        item.impuesto_pct = proveedorElegido.value?.iva_defecto ?? 0
     }
 }
 
@@ -152,6 +163,15 @@ function fmtMoney(n) {
                         <option v-for="p in proveedores" :key="p.id" :value="p.id">{{ p.nombre }}</option>
                     </select>
                     <p v-if="errores.proveedor_id" class="text-aviso-rojo text-xs mt-1">{{ errores.proveedor_id }}</p>
+                    <p v-if="proveedorElegido?.responsable_iva === false" class="text-xs text-tinta-500 mt-1">
+                        Según su RUT no es responsable de IVA: las líneas arrancan sin IVA.
+                    </p>
+                    <p v-else-if="proveedorElegido?.responsable_iva === true" class="text-xs text-tinta-500 mt-1">
+                        Según su RUT es responsable de IVA: pon la tarifa de cada línea.
+                    </p>
+                    <p v-else-if="proveedorElegido" class="text-xs text-aviso-ambar mt-1">
+                        No tiene RUT cargado, así que no se sabe si factura IVA. Puedes cargarlo en Proveedores.
+                    </p>
                 </div>
                 <div class="grid grid-cols-2 gap-3">
                     <div>
@@ -241,6 +261,7 @@ function fmtMoney(n) {
                                 <div>
                                     <label class="block text-xs text-tinta-500 mb-0.5">IVA %</label>
                                     <input v-model="item.impuesto_pct" type="number" min="0" max="100" step="0.01"
+                                        @input="item._iva_editado = true"
                                         class="w-full rounded border border-tinta-200 px-2 py-1.5 text-sm" />
                                 </div>
                             </div>

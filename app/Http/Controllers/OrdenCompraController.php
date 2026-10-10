@@ -56,7 +56,17 @@ class OrdenCompraController extends Controller
         $mapa = app(ProveedoresProductoService::class)->mapaParaOrden($insumos->pluck('id'));
 
         return Inertia::render('Compras/Ordenes/Create', [
-            'proveedores' => Proveedor::where('activo', true)->select('id', 'nombre')->orderBy('nombre')->get(),
+            // Con lo que dice su RUT sobre el IVA: un proveedor no responsable no factura IVA, y
+            // la línea no debería arrancar con uno. `null` es «no sabemos»: no se asume.
+            'proveedores' => Proveedor::where('activo', true)
+                ->orderBy('nombre')
+                ->get(['id', 'nombre', 'responsabilidades_fiscales'])
+                ->map(fn (Proveedor $p) => [
+                    'id'             => $p->id,
+                    'nombre'         => $p->nombre,
+                    'responsable_iva' => $p->responsableDeIva(),
+                    'iva_defecto'    => $p->ivaPorDefecto(),
+                ]),
             // Insumos del inventario real (productos). Se normaliza a la
             // forma que espera el Vue (codigo/nombre/unidad/precio_promedio).
             'items'       => $insumos->map(fn ($p) => [

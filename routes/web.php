@@ -1037,6 +1037,8 @@ Route::middleware('auth')->group(function () {
     // ─── Compras — Proveedores ────────────────────────────────────────────────
     Route::middleware('permiso:proveedores.ver')->prefix('compras/proveedores')->group(function () {
         Route::get('/',              [ProveedorController::class, 'index'])->name('proveedores.index');
+        // Antes de /{proveedor}: Laravel resuelve por orden de registro.
+        Route::post('/leer-rut',     [ProveedorController::class, 'leerRut'])->name('proveedores.leer-rut');
         Route::post('/',             [ProveedorController::class, 'store']);
         Route::put('/{proveedor}',   [ProveedorController::class, 'update']);
         Route::delete('/{proveedor}',[ProveedorController::class, 'destroy']);

@@ -15,6 +15,9 @@ Formato: [versionado semántico](https://semver.org/lang/es/).
 ## [Sin publicar]
 
 ### Agregado
+- **Cargar un proveedor desde su RUT.** En Proveedores, sube el RUT (PDF o foto) y se llenan sus
+  datos y responsabilidades tributarias. Avisa si ese proveedor ya existe. En la orden de compra,
+  un proveedor que según su RUT no es responsable de IVA arranca sin IVA.
 - **La orden de compra lleva el código de cada proveedor.** Un mismo producto lo pueden vender
   varios proveedores con códigos distintos; la orden manda el de quien la recibe, y el PDF lo
   muestra primero. Se configura en la ficha del producto o directamente al armar la orden: si
