@@ -1,12 +1,11 @@
 <script setup>
-import { ref, watch, computed } from 'vue'
+import { ref, watch, computed, onUnmounted } from 'vue'
 import { router } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
 import CalificacionProveedor from '@/Components/CalificacionProveedor.vue'
 
 const props = defineProps({
     proveedores: Array,
-    items:       Array,
 })
 
 const guardando  = ref(false)
@@ -22,13 +21,31 @@ const form = ref({
     items:                   [],
 })
 
-const itemsFiltrados = computed(() => {
-    if (!buscarItem.value) return props.items
-    const q = buscarItem.value.toLowerCase()
-    return props.items.filter(i =>
-        i.nombre.toLowerCase().includes(q) || i.codigo.toLowerCase().includes(q)
-    )
+// El buscador pregunta al servidor: encuentra cualquier producto que se pueda comprar —no solo
+// los marcados como insumo— por su nombre, su referencia interna o el código de cualquiera de sus
+// proveedores. Cargar todos los productos en esta pantalla costaría en cada «Nueva orden».
+const resultados = ref([])
+const buscando   = ref(false)
+let temporizador = null
+let consulta     = 0
+
+watch(buscarItem, (q) => {
+    clearTimeout(temporizador)
+    if (q.trim().length < 2) { resultados.value = []; buscando.value = false; return }
+
+    buscando.value = true
+    temporizador = setTimeout(async () => {
+        const esta = ++consulta
+        try {
+            const r = await fetch(`/compras/ordenes/buscar-productos?q=${encodeURIComponent(q.trim())}`, { headers: { Accept: 'application/json' }, credentials: 'same-origin' })
+            // Una respuesta que llega tarde no pisa a la más nueva.
+            if (esta === consulta && r.ok) resultados.value = await r.json()
+        } catch (e) { /* sin red: se queda lo que había */ }
+        if (esta === consulta) buscando.value = false
+    }, 250)
 })
+
+onUnmounted(() => clearTimeout(temporizador))
 
 // El proveedor elegido, con lo que dice su RUT sobre el IVA: `responsable_iva` es true, false o
 // null (no se sabe, y no se asume).
@@ -74,12 +91,14 @@ function agregarItemDesdeInventario(item) {
         _codigo_item:         item.codigo,
         _precio_promedio:     item.precio_promedio,
         _proveedores:         item.proveedores ?? {},
+        _equivalencias:       item.equivalencias ?? [],
         _codigo_editado:      false,
         _precio_editado:      false,
     }
     aplicarProveedor(linea)
     form.value.items.push(linea)
     buscarItem.value = ''
+    resultados.value = []
 }
 
 function agregarItemManual() {
@@ -113,6 +132,10 @@ function pista(item) {
             + (!d.referencia ? ' — sin código registrado: escribe el suyo para guardarlo.' : ''),
     }
 }
+
+// Los demás proveedores del producto, sin el de esta orden (ese ya está en «su código»).
+const otrosProveedores = (item) =>
+    (item._equivalencias ?? []).filter(e => e.proveedor_id !== form.value.proveedor_id)
 
 function quitarItem(idx) {
     form.value.items.splice(idx, 1)
@@ -201,15 +224,22 @@ function fmtMoney(n) {
 
                 <!-- Buscador -->
                 <div class="relative mb-3">
-                    <input v-model="buscarItem" type="text" placeholder="Buscar en inventario..."
+                    <input v-model="buscarItem" type="text" placeholder="Buscar por nombre, referencia o código de un proveedor..."
                         class="w-full rounded-lg border border-tinta-200 px-3 py-2 text-sm focus:ring-4 focus:ring-[var(--marca-suave)] focus:outline-none" />
-                    <div v-if="buscarItem && itemsFiltrados.length" class="absolute z-10 top-full left-0 right-0 mt-1 bg-superficie border border-linea rounded-lg shadow-lg max-h-48 overflow-y-auto">
-                        <button v-for="item in itemsFiltrados.slice(0,8)" :key="item.id"
+                    <div v-if="buscarItem.trim().length >= 2" class="absolute z-10 top-full left-0 right-0 mt-1 bg-superficie border border-linea rounded-lg shadow-lg max-h-72 overflow-y-auto">
+                        <button v-for="item in resultados" :key="item.id" type="button"
                             @click="agregarItemDesdeInventario(item)"
                             class="w-full text-left px-3 py-2 hover:bg-realce text-sm border-b border-separador last:border-0">
                             <span class="font-medium">{{ item.nombre }}</span>
-                            <span class="text-tinta-300 ml-2 text-xs">{{ item.codigo }} · {{ item.unidad }} · $ {{ Number(item.precio_promedio).toLocaleString('es-CO') }}</span>
+                            <span class="text-tinta-300 ml-2 text-xs">Ref. {{ item.codigo }} · {{ item.unidad }} · $ {{ Number(item.precio_promedio).toLocaleString('es-CO') }}</span>
+                            <span v-if="item.coincidencia" class="block text-xs text-aviso-azul">Lo encontró el código de {{ item.coincidencia }}</span>
+                            <span v-if="item.equivalencias?.length" class="block text-xs text-tinta-300">
+                                {{ item.equivalencias.length }} {{ item.equivalencias.length === 1 ? 'proveedor' : 'proveedores' }}
+                            </span>
                         </button>
+                        <p v-if="!resultados.length" class="px-3 py-3 text-sm text-tinta-300">
+                            {{ buscando ? 'Buscando…' : 'No hay productos con eso. Puedes agregar un ítem manual.' }}
+                        </p>
                     </div>
                 </div>
 
@@ -219,7 +249,8 @@ function fmtMoney(n) {
                         class="border border-linea rounded-lg p-3 bg-tinta-50">
                         <div class="flex items-start justify-between mb-2">
                             <span class="text-xs font-medium text-tinta-400">
-                                {{ item._codigo_item ?? 'Manual' }}
+                                <template v-if="item.item_id">Ref. interna: {{ item._codigo_item }}</template>
+                                <template v-else>Manual · sin producto del inventario</template>
                             </span>
                             <button @click="quitarItem(idx)" class="text-red-400 hover:text-aviso-rojo">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -239,6 +270,23 @@ function fmtMoney(n) {
                                     placeholder="El que el proveedor usa para este ítem"
                                     @input="item._codigo_editado = true"
                                     class="w-full rounded border border-tinta-200 px-2 py-1.5 text-sm" />
+                                <!-- Cómo lo llaman los otros proveedores y a cuánto: la bisagra IC5260 es 1256899P
+                                     para uno y R125458 para otro. Se ve para decidir, no se manda a nadie. -->
+                                <ul v-if="otrosProveedores(item).length" class="mt-1.5 rounded-lg bg-superficie border border-linea divide-y divide-separador text-xs">
+                                    <li class="px-2 py-1 text-tinta-400 font-medium">También lo venden</li>
+                                    <li v-for="e in otrosProveedores(item)" :key="e.proveedor_id" class="px-2 py-1 flex flex-wrap items-baseline justify-between gap-x-3">
+                                        <span class="text-tinta-700">
+                                            {{ e.proveedor }}
+                                            <span v-if="e.codigo" class="text-tinta-400">· cód. {{ e.codigo }}</span>
+                                            <span v-if="e.puntaje !== null" class="text-tinta-300">· nota {{ e.puntaje }}</span>
+                                        </span>
+                                        <span class="text-tinta-500">
+                                            <template v-if="e.precio > 0">{{ fmtMoney(e.precio) }}<span v-if="!e.precio_vigente" class="text-aviso-ambar"> (precio viejo)</span></template>
+                                            <template v-else>sin precio</template>
+                                            <span v-if="e.mas_barato" class="ml-1 font-semibold text-aviso-verde">más barato</span>
+                                        </span>
+                                    </li>
+                                </ul>
                                 <p v-if="pista(item)" class="mt-1 text-xs"
                                     :class="pista(item).tono === 'aviso' ? 'text-aviso-ambar' : 'text-tinta-400'">
                                     {{ pista(item).texto }}

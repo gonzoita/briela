@@ -173,3 +173,26 @@ Este aviso lee del inventario real (`Producto`). Desde que Compras se
 unificó a ese mismo inventario (ver arriba), comprar y recibir material
 por el módulo de Compras **sí** hace desaparecer el faltante del aviso de
 la OP — el flujo completo ya cierra.
+
+## La orden de compra, completa y coherente con los productos *(nuevo, 10 oct 2026)*
+
+- **Qué se puede comprar.** Todo producto activo de tipo *producto* que no sea un padre de variantes
+  ni algo que la empresa fabrica (un producto terminado de un ensamble): insumos, reventa y
+  variantes. Antes solo salían los marcados como insumo, y un producto de reventa no se podía
+  pedir. Los servicios no se compran con una orden de compra.
+- **Cómo se encuentra** (`GET /compras/ordenes/buscar-productos?q=`, mínimo dos letras): por nombre,
+  por referencia interna o por el código de **cualquiera** de sus proveedores. Si lo encontró el
+  código de un proveedor, la lista lo dice. Va al servidor porque con miles de productos cargarlos
+  todos en cada «Nueva orden» se pagaría en cada clic.
+- **Cada línea muestra:** la referencia interna, el código del proveedor de la orden (editable;
+  si se escribe, queda guardado como equivalencia) y **«También lo venden»**: los demás
+  proveedores del producto con su código, precio, nota y el **más barato vigente**. Un precio de
+  más de 90 días sale marcado «precio viejo» y no gana.
+- **La ficha** de la orden muestra lo mismo (plegado), con enlace al producto; un ítem manual
+  avisa que no está ligado a un producto y por eso **no entra al inventario** al recibirse. La
+  ventana de recepción trae el código del proveedor y la referencia interna para cotejar contra
+  la factura.
+- **El PDF no lleva las equivalencias.** El proveedor recibe su propio código y nuestra
+  referencia, nada más: no tiene por qué saber a quién más se le compra ni a cuánto.
+- Una sola fuente: `ProveedoresProductoService::equivalencias()`, la misma que lee el asistente.
+

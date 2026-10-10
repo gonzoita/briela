@@ -63,6 +63,64 @@ class ProveedoresProductoService
     }
 
     /**
+     * Todos los proveedores de cada producto, con el código con que cada uno lo conoce, su precio
+     * y su nota: las equivalencias, para ponerlas una al lado de la otra al armar o revisar una
+     * orden. La bisagra `IC5260` es `1256899P` para uno y `R125458` para otro.
+     *
+     * Es información **interna**: nunca va al PDF que recibe el proveedor, que no tiene por qué
+     * saber a quién más se le compra ni a cuánto.
+     *
+     * @param  iterable<int>  $productoIds
+     * @return array<int, list<array<string, mixed>>>  por id de producto, el más barato vigente primero
+     */
+    public function equivalencias(iterable $productoIds): array
+    {
+        $ids = collect($productoIds)->filter()->unique()->values();
+
+        if ($ids->isEmpty()) {
+            return [];
+        }
+
+        $filas = ProductoProveedor::with('proveedor:id,nombre')
+            ->whereIn('producto_id', $ids)
+            ->get();
+
+        $notas = app(CalificacionProveedorService::class)->paraProveedores($filas->pluck('proveedor_id'));
+
+        $porProducto = [];
+
+        foreach ($filas->groupBy('producto_id') as $productoId => $deProducto) {
+            $lista = $deProducto->map(function (ProductoProveedor $f) use ($notas) {
+                $dias = $f->diasDesdeActualizacion();
+
+                return [
+                    'proveedor_id'     => $f->proveedor_id,
+                    'proveedor'        => $f->proveedor?->nombre,
+                    'codigo'           => $f->referencia_proveedor,
+                    'precio'           => (float) $f->precio,
+                    'dias_actualizado' => $dias,
+                    'precio_vigente'   => $dias !== null && $dias <= self::DIAS_PRECIO_VIGENTE && (float) $f->precio > 0,
+                    'es_preferido'     => (bool) $f->es_preferido,
+                    'nivel'            => $notas[$f->proveedor_id]['nivel'] ?? null,
+                    'puntaje'          => $notas[$f->proveedor_id]['puntaje'] ?? null,
+                ];
+            })->sort(fn ($a, $b) => [$b['precio_vigente'], $a['precio'] ?: INF] <=> [$a['precio_vigente'], $b['precio'] ?: INF])->values();
+
+            // «Más barato» lo lleva uno solo, y solo entre precios vigentes y con con quién
+            // compararlo: el de hace ocho meses no es una oferta, y con un solo proveedor «el más
+            // barato» es él mismo y no dice nada.
+            $vigentes = $lista->where('precio_vigente', true);
+            $mejor    = $vigentes->count() > 1 ? $vigentes->sortBy('precio')->first() : null;
+
+            $porProducto[$productoId] = $lista
+                ->map(fn ($e) => $e + ['mas_barato' => $mejor !== null && $e['proveedor_id'] === $mejor['proveedor_id']])
+                ->all();
+        }
+
+        return $porProducto;
+    }
+
+    /**
      * Guarda la equivalencia «este proveedor lo llama así» cuando se escribe en la orden.
      *
      * Es la segunda puerta para configurarla —la primera es la ficha del producto—: quien

@@ -49,12 +49,6 @@ class OrdenCompraController extends Controller
 
     public function create(): Response
     {
-        $insumos = Producto::insumos()->where('activo', true)
-            ->orderBy('nombre')
-            ->get(['id', 'referencia', 'nombre', 'unidad_medida', 'precio_promedio_compra']);
-
-        $mapa = app(ProveedoresProductoService::class)->mapaParaOrden($insumos->pluck('id'));
-
         $activos = Proveedor::where('activo', true)
             ->orderBy('nombre')
             ->get(['id', 'nombre', 'responsabilidades_fiscales']);
@@ -71,19 +65,66 @@ class OrdenCompraController extends Controller
                 'iva_defecto'     => $p->ivaPorDefecto(),
                 'calificacion'    => $calificaciones[$p->id] ?? null,
             ]),
-            // Insumos del inventario real (productos). Se normaliza a la
-            // forma que espera el Vue (codigo/nombre/unidad/precio_promedio).
-            'items'       => $insumos->map(fn ($p) => [
+        ]);
+    }
+
+    /**
+     * El buscador de productos de la orden.
+     *
+     * Busca en **todo** lo que se puede comprar —insumos, productos de reventa, variantes—, no
+     * solo en los marcados como insumo: la orden tiene que ser coherente con el módulo de
+     * productos, y un producto que se compra para revender también se compra con una orden. Y se
+     * encuentra por lo que cada quien lo llama: el nombre, la referencia interna **o el código de
+     * cualquiera de sus proveedores** (`1256899P` lleva a la bisagra `IC5260`).
+     *
+     * Va en el servidor y no como una lista cargada en la pantalla: con miles de productos,
+     * mandarlos todos en cada «Nueva orden» es un costo que se paga en cada clic.
+     */
+    public function buscarProductos(Request $request): \Illuminate\Http\JsonResponse
+    {
+        $q = trim((string) $request->query('q', ''));
+
+        if (mb_strlen($q) < 2) {
+            return response()->json([]);
+        }
+
+        $porCodigo = \App\Models\ProductoProveedor::where('referencia_proveedor', 'like', "%{$q}%")->select('producto_id');
+
+        $productos = Producto::with('padre:id,nombre')
+            ->seleccionables()
+            ->where('activo', true)
+            ->where('tipo', 'producto')
+            ->whereNull('ensamble_id') // lo que la empresa fabrica no se le compra a un proveedor
+            ->where(fn ($w) => $w
+                ->where('nombre', 'like', "%{$q}%")
+                ->orWhere('referencia', 'like', "%{$q}%")
+                ->orWhereHas('padre', fn ($p) => $p->where('nombre', 'like', "%{$q}%"))
+                ->orWhereIn('id', $porCodigo))
+            ->orderBy('nombre')
+            ->limit(15)
+            ->get(['id', 'referencia', 'nombre', 'producto_padre_id', 'valor_variante', 'unidad_medida', 'precio_promedio_compra']);
+
+        $servicio = app(ProveedoresProductoService::class);
+        $ids      = $productos->pluck('id');
+        $mapa     = $servicio->mapaParaOrden($ids);
+        $equiv    = $servicio->equivalencias($ids);
+
+        return response()->json($productos->map(function (Producto $p) use ($mapa, $equiv, $q) {
+            $lista = $equiv[$p->id] ?? [];
+            // Si lo encontró el código de un proveedor y no el nombre, se dice cuál fue.
+            $coincide = collect($lista)->first(fn ($e) => $e['codigo'] && mb_stripos($e['codigo'], $q) !== false);
+
+            return [
                 'id'              => $p->id,
                 'codigo'          => $p->referencia,
-                'nombre'          => $p->nombre,
+                'nombre'          => $p->nombre_completo,
                 'unidad'          => $p->unidad_medida,
                 'precio_promedio' => (float) $p->precio_promedio_compra,
-                // Código, precio y vigencia de CADA proveedor para este insumo, por id de
-                // proveedor: al elegir el de la orden, la línea se llena sola.
                 'proveedores'     => (object) ($mapa[$p->id] ?? []),
-            ]),
-        ]);
+                'equivalencias'   => $lista,
+                'coincidencia'    => $coincide ? "{$coincide['proveedor']}: {$coincide['codigo']}" : null,
+            ];
+        })->values());
     }
 
     public function store(Request $request): RedirectResponse
@@ -166,12 +207,20 @@ class OrdenCompraController extends Controller
             'creadoPor:id,name',
             'solicitud:id,numero',
             // 'item' ahora apunta a productos: el código es 'referencia'.
-            'items.item:id,nombre,referencia',
+            'items.item:id,nombre,referencia,producto_padre_id,valor_variante',
+            'items.item.padre:id,nombre',
             'recepciones.recibidoPor:id,name',
         ]);
 
+        // Cómo llaman a cada producto los OTROS proveedores y a cuánto: para comparar sin salir de
+        // la orden. Es interno: el PDF que recibe el proveedor no lo lleva.
+        $equivalencias = app(ProveedoresProductoService::class)->equivalencias($orden->items->pluck('item_id'));
+
         return Inertia::render('Compras/Ordenes/Show', [
             'orden'       => $orden,
+            'equivalencias' => collect($equivalencias)->map(
+                fn ($lista) => collect($lista)->where('proveedor_id', '!=', $orden->proveedor_id)->values()
+            ),
             // Lo que la empresa le retiene al proveedor al pagar. Estimación: ver RetencionesService.
             'retenciones' => app(\App\Services\RetencionesService::class)->paraCompra($orden),
         ]);

@@ -174,17 +174,122 @@ class ComprasCodigoProveedorTest extends TestCase
 
     // ─── La pantalla y el PDF ────────────────────────────────────────────────
 
-    public function test_la_pantalla_de_crear_trae_lo_que_cada_proveedor_sabe_de_cada_insumo(): void
+    public function test_el_buscador_trae_lo_que_cada_proveedor_sabe_del_producto(): void
     {
         $bisagra = $this->bisagra();
         $norte   = $this->proveedor('Herrajes del Norte');
         $this->conCodigo($bisagra, $norte, '1256899P', 2300);
 
+        $this->actingAs($this->admin())->getJson('/compras/ordenes/buscar-productos?q=bisagra')
+            ->assertOk()
+            ->assertJsonPath('0.codigo', 'IC5260')
+            ->assertJsonPath("0.proveedores.{$norte->id}.referencia", '1256899P')
+            ->assertJsonPath("0.proveedores.{$norte->id}.precio", 2300);
+    }
+
+    public function test_la_pantalla_de_crear_ya_no_carga_todos_los_productos(): void
+    {
+        $this->bisagra();
+
         $this->actingAs($this->admin())->get('/compras/ordenes/crear')
+            ->assertInertia(fn ($page) => $page->component('Compras/Ordenes/Create')->missing('items'));
+    }
+
+    // ─── Buscar y comparar: coherente con el módulo de productos ─────────────
+
+    public function test_se_encuentra_por_el_codigo_de_cualquier_proveedor(): void
+    {
+        $bisagra = $this->bisagra();
+        $norte   = $this->proveedor('Herrajes del Norte');
+        $sur     = $this->proveedor('Ferretería del Sur');
+        $this->conCodigo($bisagra, $norte, '1256899P', 2300);
+        $this->conCodigo($bisagra, $sur, 'R125458', 2100);
+
+        $r = $this->actingAs($this->admin())->getJson('/compras/ordenes/buscar-productos?q=R125458')->assertOk();
+
+        $this->assertSame($bisagra->id, $r->json('0.id'));
+        $this->assertSame('Ferretería del Sur: R125458', $r->json('0.coincidencia'));
+    }
+
+    public function test_se_encuentra_por_la_referencia_interna(): void
+    {
+        $this->bisagra();
+
+        $this->actingAs($this->admin())->getJson('/compras/ordenes/buscar-productos?q=IC52')
+            ->assertJsonPath('0.codigo', 'IC5260');
+    }
+
+    public function test_busca_tambien_productos_que_no_son_insumo_y_variantes_con_su_nombre_completo(): void
+    {
+        $reventa = Producto::create(['tipo' => 'producto', 'nombre' => 'Cerradura de reventa', 'referencia' => 'CER-1', 'es_insumo' => false, 'es_vendible' => true, 'unidad_medida' => 'unidad']);
+        $padre   = Producto::create(['tipo' => 'producto', 'nombre' => 'Tornillo', 'referencia' => 'TOR', 'es_padre' => true, 'unidad_medida' => 'unidad']);
+        $var     = Producto::create(['tipo' => 'producto', 'nombre' => 'Tornillo', 'referencia' => 'TOR-3MM', 'producto_padre_id' => $padre->id, 'valor_variante' => '3 mm', 'unidad_medida' => 'unidad']);
+
+        $r = $this->actingAs($this->admin())->getJson('/compras/ordenes/buscar-productos?q=cerradura')->assertOk();
+        $this->assertSame($reventa->id, $r->json('0.id'));
+
+        $r = $this->actingAs($this->admin())->getJson('/compras/ordenes/buscar-productos?q=tornillo')->assertOk();
+        $this->assertSame([$var->id], collect($r->json())->pluck('id')->all()); // el padre no se compra: se compra una variante
+        $this->assertSame('Tornillo — 3 mm', $r->json('0.nombre'));
+    }
+
+    public function test_no_ofrece_servicios_inactivos_ni_lo_que_la_empresa_fabrica(): void
+    {
+        Producto::create(['tipo' => 'servicio', 'nombre' => 'Instalación puerta', 'referencia' => 'SRV', 'unidad_medida' => 'hora']);
+        Producto::create(['tipo' => 'producto', 'nombre' => 'Puerta vieja', 'referencia' => 'PV', 'activo' => false, 'unidad_medida' => 'unidad']);
+        $ensamble = \App\Models\Ensamble::create(['nombre' => 'Puerta fabricada', 'tipo_armado' => 'directo', 'variables' => [], 'componentes_resultado' => [], 'creado_por' => $this->admin()->id, 'unidad_medida' => 'unidad', 'precio_costo' => 1000]);
+        Producto::create(['tipo' => 'producto', 'nombre' => 'Puerta terminada', 'referencia' => 'PT', 'ensamble_id' => $ensamble->id, 'unidad_medida' => 'unidad']);
+
+        $this->actingAs($this->admin())->getJson('/compras/ordenes/buscar-productos?q=puerta')->assertOk()->assertExactJson([]);
+        $this->actingAs($this->admin())->getJson('/compras/ordenes/buscar-productos?q=instalaci')->assertOk()->assertExactJson([]);
+    }
+
+    public function test_con_menos_de_dos_letras_no_busca(): void
+    {
+        $this->bisagra();
+
+        $this->actingAs($this->admin())->getJson('/compras/ordenes/buscar-productos?q=b')->assertOk()->assertExactJson([]);
+    }
+
+    public function test_las_equivalencias_marcan_el_mas_barato_vigente(): void
+    {
+        $bisagra = $this->bisagra();
+        $norte   = $this->proveedor('Herrajes del Norte');
+        $sur     = $this->proveedor('Ferretería del Sur');
+        $viejo   = $this->proveedor('Precio viejo');
+        $this->conCodigo($bisagra, $norte, '1256899P', 2300);
+        $this->conCodigo($bisagra, $sur, 'R125458', 2100);
+        $this->conCodigo($bisagra, $viejo, 'V-1', 1000, today()->subDays(200)->toDateString()); // más barato, pero de hace 200 días
+
+        $e = collect($this->actingAs($this->admin())->getJson('/compras/ordenes/buscar-productos?q=bisagra')->json('0.equivalencias'));
+
+        $this->assertSame('Ferretería del Sur', $e->firstWhere('mas_barato', true)['proveedor']);
+        $this->assertSame(1, $e->where('mas_barato', true)->count());
+        $this->assertFalse($e->firstWhere('proveedor', 'Precio viejo')['precio_vigente']);
+    }
+
+    public function test_la_ficha_de_la_orden_muestra_los_otros_proveedores_pero_el_pdf_no(): void
+    {
+        $bisagra = $this->bisagra();
+        $norte   = $this->proveedor('Herrajes del Norte');
+        $sur     = $this->proveedor('Ferretería del Sur');
+        $this->conCodigo($bisagra, $norte, '1256899P', 2300);
+        $this->conCodigo($bisagra, $sur, 'R125458', 2100);
+
+        $this->crearOrden($this->admin(), $norte, ['item_id' => $bisagra->id, 'referencia_proveedor' => '1256899P']);
+        $orden = OrdenCompra::firstOrFail();
+
+        $this->actingAs($this->admin())->get("/compras/ordenes/{$orden->id}")
             ->assertInertia(fn ($page) => $page
-                ->component('Compras/Ordenes/Create')
-                ->where("items.0.proveedores.{$norte->id}.referencia", '1256899P')
-                ->where("items.0.proveedores.{$norte->id}.precio", 2300));
+                ->has("equivalencias.{$bisagra->id}", 1)
+                ->where("equivalencias.{$bisagra->id}.0.proveedor", 'Ferretería del Sur')
+                ->where("equivalencias.{$bisagra->id}.0.codigo", 'R125458'));
+
+        // Lo que se le manda al proveedor no revela a quién más se le compra.
+        $html = view('pdf.orden-compra', ['orden' => $orden->load(['proveedor', 'items.item', 'creadoPor'])])->render();
+        $this->assertStringContainsString('1256899P', $html);
+        $this->assertStringNotContainsString('R125458', $html);
+        $this->assertStringNotContainsString('Ferretería del Sur', $html);
     }
 
     public function test_el_pdf_y_la_ficha_llevan_el_codigo_del_proveedor(): void

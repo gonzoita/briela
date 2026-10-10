@@ -8,6 +8,9 @@ const props = defineProps({
     orden: Object,
     // Lo que la empresa le va a retener al proveedor al pagar (la cuenta la hace el servidor).
     retenciones: { type: Object, default: null },
+    // Cómo llaman a cada producto los OTROS proveedores y a cuánto, por id de producto. Interno:
+    // el PDF que recibe el proveedor no lo lleva.
+    equivalencias: { type: Object, default: () => ({}) },
 })
 
 const modalRecepcion = ref(false)
@@ -53,6 +56,9 @@ function abrirRecepcion() {
     cantidadesRecibidas.value = props.orden.items.map(i => ({
         id:                i.id,
         descripcion:       i.descripcion,
+        // Con qué se compara lo que llega contra la factura: el código del proveedor y la referencia nuestra.
+        codigo_proveedor:  i.referencia_proveedor,
+        ref_interna:       i.item?.referencia,
         cantidad:          Number(i.cantidad),
         cantidad_recibida: 0,
         ya_recibida:       Number(i.cantidad_recibida),
@@ -196,7 +202,24 @@ const puedeRecibir = computed(() =>
                                 <td class="px-4 py-3">
                                     <p class="font-medium text-tinta-900">{{ item.descripcion }}</p>
                                     <p v-if="item.referencia_proveedor" class="text-xs font-medium text-tinta-500">Cód. proveedor: {{ item.referencia_proveedor }}</p>
-                                    <p v-if="item.item" class="text-xs text-tinta-300">Ref. interna: {{ item.item.referencia }}</p>
+                                    <p v-if="item.item" class="text-xs text-tinta-300">
+                                        Ref. interna: {{ item.item.referencia }}
+                                        <a :href="`/productos/${item.item_id}`" class="text-aviso-azul hover:underline ml-1">ver producto</a>
+                                    </p>
+                                    <p v-else class="text-xs text-aviso-ambar">Ítem manual: no está ligado a un producto, así que no entra al inventario.</p>
+                                    <details v-if="equivalencias[item.item_id]?.length" class="mt-1 text-xs text-tinta-400">
+                                        <summary class="cursor-pointer select-none hover:text-tinta-600">
+                                            También lo venden {{ equivalencias[item.item_id].length }}
+                                            {{ equivalencias[item.item_id].length === 1 ? 'proveedor' : 'proveedores' }}
+                                        </summary>
+                                        <ul class="mt-1 space-y-0.5">
+                                            <li v-for="e in equivalencias[item.item_id]" :key="e.proveedor_id">
+                                                {{ e.proveedor }}<span v-if="e.codigo"> · cód. {{ e.codigo }}</span>
+                                                · <template v-if="e.precio > 0">{{ fmtMoney(e.precio) }}<span v-if="!e.precio_vigente"> (precio viejo)</span></template><template v-else>sin precio</template>
+                                                <span v-if="e.mas_barato" class="font-semibold text-aviso-verde"> · más barato</span>
+                                            </li>
+                                        </ul>
+                                    </details>
                                 </td>
                                 <td class="px-4 py-3 text-right text-tinta-700">{{ fmt(item.cantidad) }} {{ item.unidad }}</td>
                                 <td class="px-4 py-3 text-right">
@@ -278,7 +301,13 @@ const puedeRecibir = computed(() =>
                     <div class="space-y-3">
                         <div v-for="item in cantidadesRecibidas" :key="item.id"
                             class="border border-linea rounded-lg p-3">
-                            <p class="text-sm font-medium text-tinta-900 mb-2">{{ item.descripcion }}</p>
+                            <p class="text-sm font-medium text-tinta-900">{{ item.descripcion }}</p>
+                            <p v-if="item.codigo_proveedor || item.ref_interna" class="text-xs text-tinta-400 mb-2">
+                                <span v-if="item.codigo_proveedor">Cód. proveedor: {{ item.codigo_proveedor }}</span>
+                                <span v-if="item.codigo_proveedor && item.ref_interna"> · </span>
+                                <span v-if="item.ref_interna">Ref. interna: {{ item.ref_interna }}</span>
+                            </p>
+                            <div v-else class="mb-2" />
                             <div class="flex items-center gap-3 text-sm text-tinta-400 mb-2">
                                 <span>Total: {{ fmt(item.cantidad) }}</span>
                                 <span>Ya recibido: {{ fmt(item.ya_recibida) }}</span>

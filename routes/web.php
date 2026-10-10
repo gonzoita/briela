@@ -1069,6 +1069,7 @@ Route::middleware('auth')->group(function () {
     Route::middleware('permiso:ordenes.ver')->prefix('compras/ordenes')->group(function () {
         Route::get('/',               [OrdenCompraController::class, 'index'])->name('ordenes-compra.index');
         Route::get('/crear',          [OrdenCompraController::class, 'create'])->name('ordenes-compra.create');
+        Route::get('/buscar-productos', [OrdenCompraController::class, 'buscarProductos'])->name('ordenes-compra.buscar-productos');
         Route::post('/',              [OrdenCompraController::class, 'store']);
         Route::get('/{orden}',        [OrdenCompraController::class, 'show'])->name('ordenes-compra.show');
         Route::put('/{orden}',        [OrdenCompraController::class, 'update']);

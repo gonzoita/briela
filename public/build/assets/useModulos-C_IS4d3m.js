@@ -1,1 +1,0 @@
-import{a as e}from"./app-D4y_fZ3i.js";function t(){let t=e();return{activo:e=>!(t.props.modulosApagados??[]).includes(e)}}export{t};

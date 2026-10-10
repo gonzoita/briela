@@ -15,6 +15,15 @@ Formato: [versionado semántico](https://semver.org/lang/es/).
 ## [Sin publicar]
 
 ### Agregado
+- **La orden de compra es coherente con el módulo de productos.** El buscador encuentra **todo lo
+  que se puede comprar** —insumos, productos de reventa y variantes con su nombre completo—, no solo
+  los marcados como insumo, y lo encuentra por el nombre, la referencia interna **o el código de
+  cualquiera de sus proveedores** (`R125458` lleva a la bisagra `IC5260`). Cada línea muestra la
+  referencia interna, el código del proveedor de la orden y **«También lo venden»**: los otros
+  proveedores con su código, su precio, su nota y cuál es el más barato vigente. La ficha de la
+  orden lo muestra igual, con enlace al producto, y la recepción trae a la vista los dos códigos
+  para cotejarlos con la factura. El PDF que recibe el proveedor no dice a quién más se le compra.
+  La pantalla ya no carga todos los productos al abrirse: busca en el servidor.
 - **La calificación de proveedores se ajusta a lo que le importa a la empresa.** Configuración →
   Calificación de proveedores: cuánto pesa cada componente (puntualidad, cumplimiento, entregas en
   regla, precio), los días de gracia de una entrega tarde y cuántas órdenes hacen falta para dar
