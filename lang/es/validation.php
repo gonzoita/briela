@@ -199,6 +199,9 @@ return [
     */
 
     'attributes' => [
+        'variantes.*.imagen'         => 'imagen de la variante',
+        'variantes.*.referencia'     => 'referencia de la variante',
+        'variantes.*.valor_variante' => 'valor de la variante',
         'nombre'                => 'nombre',
         'referencia'            => 'referencia',
         'descripcion_corta'     => 'descripción corta',

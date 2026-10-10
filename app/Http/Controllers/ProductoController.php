@@ -223,7 +223,9 @@ class ProductoController extends Controller
             'descuento_max_mayorista'     => $request->descuento_max_mayorista ?? 8,
         ];
 
-        $producto = DB::transaction(function () use ($request, $datosBase, $esPadre) {
+        $imagenesDeVariantes = [];
+
+        $producto = DB::transaction(function () use ($request, $datosBase, $esPadre, &$imagenesDeVariantes) {
             Producto::liberarReferencia($request->referencia);
 
             $producto = Producto::create(array_merge($datosBase, [
@@ -236,9 +238,7 @@ class ProductoController extends Controller
             $this->guardarProveedores($request, $producto);
 
             if ($esPadre) {
-                foreach ($request->input('variantes', []) as $variante) {
-                    $this->crearVariante($producto, $datosBase, $variante);
-                }
+                $imagenesDeVariantes = $this->crearVariantes($request, $producto, $datosBase);
             } else {
                 // Stock inicial por bodega
                 $stockInicial = $request->input('stock_inicial', []);
@@ -261,6 +261,7 @@ class ProductoController extends Controller
         });
 
         $this->procesarImagenes($request, $producto);
+        $this->subirImagenesDeVariantes($imagenesDeVariantes);
 
         if ($request->boolean('crear_otro')) {
             return redirect('/productos/crear')->with('success', 'Producto creado. Agrega otro.');
@@ -278,7 +279,7 @@ class ProductoController extends Controller
             'imagenes',
             'proveedor:id,nombre',
             'proveedores.proveedor:id,nombre',
-            'padre:id,nombre',
+            'padre.imagenes',
             'stocks.bodega',
             'variantes.stocks',
             'movimientos' => fn ($q) => $q->latest()->limit(20)->with([
@@ -288,7 +289,7 @@ class ProductoController extends Controller
             ]),
         ])->findOrFail($id);
 
-        $imagenes = $producto->imagenes->map(fn ($img) => array_merge($img->toArray(), [
+        $imagenes = $producto->imagenesVisibles()->map(fn ($img) => array_merge($img->toArray(), [
             'url' => $img->url,
         ]));
 
@@ -425,12 +426,15 @@ class ProductoController extends Controller
                 'variantes'                    => 'nullable|array',
                 'variantes.*.valor_variante'   => 'required_with:variantes|string|max:60',
                 'variantes.*.referencia'       => ['nullable', 'string', 'max:60', 'distinct', $this->referenciaLibre()],
-                'variantes.*.stock_inicial'    => 'nullable|array',
+                'variantes.*.imagen'           => 'nullable|image|max:5120',
+            'variantes.*.stock_inicial'    => 'nullable|array',
                 'variantes.*.stock_inicial.*'  => 'nullable|numeric|min:0',
             ]);
 
             try {
-                DB::transaction(function () use ($request, $producto) {
+                $imagenesDeVariantes = [];
+
+                DB::transaction(function () use ($request, $producto, &$imagenesDeVariantes) {
                     $producto->update([
                         'nombre'            => $request->nombre,
                         'categoria_id'       => $request->categoria_id ?: null,
@@ -452,10 +456,10 @@ class ProductoController extends Controller
                     ])->toArray();
                     $datosBase['inventariable'] = true;
 
-                    foreach ($request->input('variantes', []) as $variante) {
-                        $this->crearVariante($producto, $datosBase, $variante);
-                    }
+                    $imagenesDeVariantes = $this->crearVariantes($request, $producto, $datosBase);
                 });
+
+                $this->subirImagenesDeVariantes($imagenesDeVariantes);
             } catch (\Exception $e) {
                 return back()->withErrors(['error' => $e->getMessage()]);
             }
@@ -741,7 +745,7 @@ class ProductoController extends Controller
         // sede no es el de esta, y quien cotiza necesita saber con qué cuenta él.
         $bodegas = \App\Support\ContextoSede::idsBodegasVisibles();
 
-        $productos = Producto::with(['imagenes', 'padre:id,nombre'])
+        $productos = Producto::with(['imagenes', 'padre.imagenes'])
             ->seleccionables()
             ->where('activo', true)
             ->whereIn('tipo', ['producto', 'servicio'])
@@ -755,7 +759,7 @@ class ProductoController extends Controller
             ->limit(20)
             ->get()
             ->map(function ($p) use ($bodegas) {
-                $img = $p->imagenes->firstWhere('es_principal', true) ?? $p->imagenes->first();
+                $img = $p->imagenVisible();
                 return [
                     'id'                   => $p->id,
                     'nombre'               => $p->nombre,
@@ -792,6 +796,39 @@ class ProductoController extends Controller
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────────
+
+    /**
+     * Crea las variantes que llegan en la petición y devuelve sus imágenes pendientes.
+     *
+     * La imagen NO se sube aquí, que es dentro de la transacción: si algo falla después y se
+     * deshace, el archivo quedaría en el disco sin que nada lo apunte. Se sube al terminar.
+     * Tampoco viaja con `input('variantes')`: los archivos no vienen ahí, se piden por su
+     * posición con `file()`.
+     *
+     * @return list<array{0: Producto, 1: \Illuminate\Http\UploadedFile}>
+     */
+    private function crearVariantes(Request $request, Producto $padre, array $datosBase): array
+    {
+        $pendientes = [];
+
+        foreach ($request->input('variantes', []) as $i => $variante) {
+            $hijo = $this->crearVariante($padre, $datosBase, $variante);
+
+            if ($archivo = $request->file("variantes.{$i}.imagen")) {
+                $pendientes[] = [$hijo, $archivo];
+            }
+        }
+
+        return $pendientes;
+    }
+
+    /** @param list<array{0: Producto, 1: \Illuminate\Http\UploadedFile}> $pendientes */
+    private function subirImagenesDeVariantes(array $pendientes): void
+    {
+        foreach ($pendientes as [$variante, $archivo]) {
+            $this->guardarImagenes($variante, [$archivo]);
+        }
+    }
 
     /**
      * Crea una variante con los datos del padre y su propia referencia.
@@ -968,6 +1005,7 @@ class ProductoController extends Controller
             'variantes'                    => ($esPadre ? 'required' : 'nullable') . '|array' . ($esPadre ? '|min:1' : ''),
             'variantes.*.valor_variante'   => 'required_with:variantes|string|max:60',
             'variantes.*.referencia'       => ['nullable', 'string', 'max:60', 'distinct', $this->referenciaLibre()],
+            'variantes.*.imagen'           => 'nullable|image|max:5120',
             'variantes.*.stock_inicial'    => 'nullable|array',
             'variantes.*.stock_inicial.*'  => 'nullable|numeric|min:0',
             'precio_costo'                => 'nullable|numeric|min:0',
@@ -999,9 +1037,15 @@ class ProductoController extends Controller
     {
         if (! $request->hasFile('imagenes')) return;
 
+        $this->guardarImagenes($producto, $request->file('imagenes'));
+    }
+
+    /** @param array<int, \Illuminate\Http\UploadedFile> $archivos */
+    private function guardarImagenes(Producto $producto, array $archivos): void
+    {
         $orden = $producto->imagenes()->max('orden') ?? 0;
 
-        foreach ($request->file('imagenes') as $archivo) {
+        foreach ($archivos as $archivo) {
             $resultado = ArchivoServidorService::subir($archivo, 'productos');
             $orden++;
 

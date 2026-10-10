@@ -4,6 +4,7 @@ import EditorTexto from '@/Components/EditorTexto.vue'
 import SelectorUnidad from '@/Components/SelectorUnidad.vue'
 import GeneradorFichaIa from '@/Components/GeneradorFichaIa.vue'
 import PreciosPorCanal from '@/Components/PreciosPorCanal.vue'
+import ImagenVariante from '@/Components/ImagenVariante.vue'
 import ProveedoresProducto from '@/Components/ProveedoresProducto.vue'
 import { usePreciosPorCanal } from '@/composables/usePreciosPorCanal'
 import { useForm, router } from '@inertiajs/vue3'
@@ -51,7 +52,7 @@ const variantes = ref([])
 const agregarVariante = () => {
     const stockPorBodega = {}
     ;(props.bodegas ?? []).forEach(b => { stockPorBodega[b.id] = '' })
-    variantes.value.push({ valor_variante: '', referencia: '', stock_inicial: stockPorBodega })
+    variantes.value.push({ valor_variante: '', referencia: '', imagen: null, stock_inicial: stockPorBodega })
 }
 
 const quitarVariante = (idx) => variantes.value.splice(idx, 1)
@@ -162,7 +163,7 @@ if (props.base) {
         const stockPorBodega = {}
         ;(props.bodegas ?? []).forEach(b => { stockPorBodega[b.id] = '' })
 
-        return { valor_variante: v.valor_variante, referencia: '', stock_inicial: stockPorBodega }
+        return { valor_variante: v.valor_variante, referencia: '', imagen: null, stock_inicial: stockPorBodega }
     })
 }
 
@@ -348,6 +349,8 @@ const submit = () => {
             ? variantes.value.map(v => ({
                 valor_variante: v.valor_variante,
                 referencia:     v.referencia || null,
+                // Solo si hay archivo: sin él la variante usa la imagen del producto principal.
+                ...(v.imagen ? { imagen: v.imagen } : {}),
                 stock_inicial:  buildStock(v.stock_inicial),
               }))
             : [],
@@ -670,6 +673,7 @@ const badgeStyle = {
                                         class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none bg-superficie focus:border-[var(--marca)]" />
                                 </div>
                             </div>
+                            <ImagenVariante v-model="v.imagen" />
                             <div v-if="props.bodegas?.length">
                                 <p class="text-xs font-medium text-tinta-500 mb-1.5">Stock inicial por bodega</p>
                                 <div class="space-y-2">

@@ -13,10 +13,10 @@ class CatalogoController extends Controller
 {
     public function producto(int $id, Request $request)
     {
-        $producto     = Producto::with(['categoria', 'imagenes'])->findOrFail($id);
+        $producto     = Producto::with(['categoria', 'imagenes', 'padre.imagenes'])->findOrFail($id);
         $mostrarPrecio = $request->get('precio', '1') !== '0';
 
-        $imagenes = $producto->imagenes->map(fn ($img) => [
+        $imagenes = $producto->imagenesVisibles()->map(fn ($img) => [
             'url'       => asset('storage/' . $img->ruta),
             'principal' => $img->es_principal,
         ]);

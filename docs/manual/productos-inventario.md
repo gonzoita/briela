@@ -47,6 +47,14 @@ Dos reglas que se siguen de eso:
 La referencia de cada variante se genera sola a partir de la del padre más el
 valor de la variante, y el sistema se encarga de que no se repita.
 
+**La imagen de una variante es propia o heredada.** Al crear la variante, o al agregarla
+desde la ficha del padre, se puede subir una imagen suya. Si no se sube ninguna, donde la
+variante se muestre sola —el buscador de cotizaciones y órdenes, su ficha, el catálogo
+público— se usa la imagen del producto principal. No se copia ningún archivo: se mira al
+padre al mostrar, así que si el principal cambia su foto, las variantes que la heredan
+cambian con él. La variante que ya existe cambia su imagen desde su propia ficha, y la
+ficha avisa cuando la que se ve es la del principal (`Producto::imagenVisible()`).
+
 ## La unidad de medida la defines tú
 
 El selector de unidad sale de una lista que administra la empresa: el **+** que

@@ -3,6 +3,7 @@ import AppLayout from '@/Layouts/AppLayout.vue'
 import SelectorUnidad from '@/Components/SelectorUnidad.vue'
 import GeneradorFichaIa from '@/Components/GeneradorFichaIa.vue'
 import PreciosPorCanal from '@/Components/PreciosPorCanal.vue'
+import ImagenVariante from '@/Components/ImagenVariante.vue'
 import ProveedoresProducto from '@/Components/ProveedoresProducto.vue'
 import { usePreciosPorCanal } from '@/composables/usePreciosPorCanal'
 import EditorTexto from '@/Components/EditorTexto.vue'
@@ -82,7 +83,7 @@ const variantesNuevas = ref([])
 const agregarVarianteNueva = () => {
     const stockPorBodega = {}
     ;(props.bodegas ?? []).forEach(b => { stockPorBodega[b.id] = '' })
-    variantesNuevas.value.push({ valor_variante: '', referencia: '', stock_inicial: stockPorBodega })
+    variantesNuevas.value.push({ valor_variante: '', referencia: '', imagen: null, stock_inicial: stockPorBodega })
 }
 
 const quitarVarianteNueva = (idx) => variantesNuevas.value.splice(idx, 1)
@@ -97,6 +98,8 @@ const submitPadre = () => {
     formPadre.variantes = variantesNuevas.value.map(v => ({
         valor_variante: v.valor_variante,
         referencia:     v.referencia || null,
+        // Solo si hay archivo: sin él la variante usa la imagen del producto principal.
+        ...(v.imagen ? { imagen: v.imagen } : {}),
         stock_inicial:  buildStock(v.stock_inicial),
     }))
 
@@ -481,6 +484,7 @@ const badgeStyle = {
                                             class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none bg-superficie focus:border-[var(--marca)]" />
                                     </div>
                                 </div>
+                                <ImagenVariante v-model="v.imagen" />
                                 <div v-if="props.bodegas?.length">
                                     <p class="text-xs font-medium text-tinta-500 mb-1.5">Stock inicial por bodega</p>
                                     <div class="space-y-2">
@@ -632,6 +636,10 @@ const badgeStyle = {
                         <h3 class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">Imágenes</h3>
                     </div>
                     <div class="p-5">
+                        <p v-if="p.valor_variante && !imagenesExistentes.length" class="text-xs text-tinta-500 mb-3">
+                            Esta variante no tiene imagen propia: donde se muestre sola usa la del producto principal.
+                            Sube una para cambiarla.
+                        </p>
                         <!-- Existentes -->
                         <div v-if="imagenesExistentes.length" class="grid grid-cols-3 sm:grid-cols-5 gap-2 mb-3">
                             <div v-for="img in imagenesExistentes" :key="img.id" class="relative rounded-xl overflow-hidden border-2" :style="img.es_principal ? 'border-color:#F59E0B;' : 'border-color:var(--borde);'">

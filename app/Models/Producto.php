@@ -159,6 +159,40 @@ class Producto extends Model
         return $this->hasMany(ImagenProducto::class)->orderBy('orden');
     }
 
+    /**
+     * Las imágenes que se ven de este producto.
+     *
+     * Una variante es un producto más y puede tener las suyas; si no tiene ninguna, donde se
+     * muestre sola —al cotizar, en el catálogo, en su ficha— se usa la del producto principal.
+     * No se copian archivos ni filas: se mira al padre al momento de mostrar, así que si el
+     * padre cambia su foto, las variantes que la heredan cambian con él.
+     *
+     * Quien llame debe traer `imagenes` y `padre.imagenes`, o cada variante cuesta consultas.
+     */
+    public function imagenesVisibles(): \Illuminate\Support\Collection
+    {
+        if ($this->imagenes->isNotEmpty() || ! $this->producto_padre_id) {
+            return $this->imagenes;
+        }
+
+        return $this->padre?->imagenes ?? $this->imagenes;
+    }
+
+    public function imagenVisible(): ?ImagenProducto
+    {
+        $imagenes = $this->imagenesVisibles();
+
+        return $imagenes->firstWhere('es_principal', true) ?? $imagenes->first();
+    }
+
+    /** Si lo que se ve es del producto principal y no propio: para decírselo a la persona. */
+    public function heredaImagenes(): bool
+    {
+        return $this->producto_padre_id
+            && $this->imagenes->isEmpty()
+            && $this->padre?->imagenes->isNotEmpty();
+    }
+
     public function stocks(): HasMany
     {
         return $this->hasMany(ProductoStock::class);

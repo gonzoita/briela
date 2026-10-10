@@ -14,6 +14,12 @@ Formato: [versionado semántico](https://semver.org/lang/es/).
 
 ## [Sin publicar]
 
+### Agregado
+- **Cada variante puede tener su propia imagen.** Al crear un producto con variantes, o al
+  agregar una variante desde la ficha del producto principal, puedes subir su imagen. Si no
+  subes ninguna, usa la del producto principal en el buscador de cotizaciones, en su ficha y
+  en el catálogo; y si el principal cambia su foto, las variantes que la heredan cambian con él.
+
 ### Corregido
 - **La referencia de un producto eliminado queda libre.** Antes, si eliminabas un producto y
   volvías a crear otro con la misma referencia, el sistema decía que ya estaba en uso, de algo

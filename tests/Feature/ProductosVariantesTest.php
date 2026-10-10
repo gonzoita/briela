@@ -10,6 +10,8 @@ use App\Models\SegmentacionOpcion;
 use App\Models\User;
 use App\Services\PreciosPorCanalService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 /**
@@ -248,6 +250,135 @@ class ProductosVariantesTest extends TestCase
         ]))->assertRedirect()->assertSessionHasNoErrors();
 
         $this->assertSame(1, Producto::where('es_padre', true)->count());
+    }
+
+    // ─── La imagen de una variante: propia, o la del producto principal ──────
+
+    private function conImagenes(Producto $producto): Producto
+    {
+        return Producto::with(['imagenes', 'padre.imagenes'])->findOrFail($producto->id);
+    }
+
+    public function test_cada_variante_puede_traer_su_propia_imagen(): void
+    {
+        Storage::fake('public');
+
+        $this->actingAs($this->admin())->post('/productos', $this->formulario([
+            'variantes' => [
+                ['valor_variante' => '3m', 'imagen' => UploadedFile::fake()->image('tres.jpg')],
+                ['valor_variante' => '6m'],
+            ],
+        ]))->assertRedirect()->assertSessionHasNoErrors();
+
+        $tres = $this->conImagenes(Producto::where('valor_variante', '3m')->firstOrFail());
+        $seis = $this->conImagenes(Producto::where('valor_variante', '6m')->firstOrFail());
+
+        $this->assertCount(1, $tres->imagenes);
+        $this->assertTrue($tres->imagenes->first()->es_principal);
+        $this->assertCount(0, $seis->imagenes, 'Sin imagen propia no se inventa una fila.');
+    }
+
+    public function test_una_variante_sin_imagen_hereda_la_del_producto_principal(): void
+    {
+        Storage::fake('public');
+
+        $this->actingAs($this->admin())->post('/productos', $this->formulario([
+            'imagenes'  => [UploadedFile::fake()->image('padre.jpg')],
+            'variantes' => [['valor_variante' => '3m']],
+        ]))->assertRedirect()->assertSessionHasNoErrors();
+
+        $padre    = $this->conImagenes(Producto::where('es_padre', true)->firstOrFail());
+        $variante = $this->conImagenes(Producto::where('valor_variante', '3m')->firstOrFail());
+
+        $this->assertTrue($variante->heredaImagenes());
+        $this->assertSame($padre->imagenes->first()->id, $variante->imagenVisible()->id);
+        $this->assertCount(0, $variante->imagenes, 'Se hereda al mostrar: no se copia nada.');
+    }
+
+    public function test_la_imagen_propia_gana_a_la_del_producto_principal(): void
+    {
+        Storage::fake('public');
+
+        $this->actingAs($this->admin())->post('/productos', $this->formulario([
+            'imagenes'  => [UploadedFile::fake()->image('padre.jpg')],
+            'variantes' => [['valor_variante' => '3m', 'imagen' => UploadedFile::fake()->image('tres.jpg')]],
+        ]))->assertRedirect()->assertSessionHasNoErrors();
+
+        $variante = $this->conImagenes(Producto::where('valor_variante', '3m')->firstOrFail());
+
+        $this->assertFalse($variante->heredaImagenes());
+        $this->assertSame($variante->id, $variante->imagenVisible()->producto_id);
+    }
+
+    public function test_el_buscador_de_cotizaciones_muestra_la_imagen_heredada(): void
+    {
+        Storage::fake('public');
+        $admin = $this->admin();
+
+        $this->actingAs($admin)->post('/productos', $this->formulario([
+            'imagenes'  => [UploadedFile::fake()->image('padre.jpg')],
+            'variantes' => [['valor_variante' => '3m']],
+        ]))->assertRedirect();
+
+        $fila = collect($this->actingAs($admin)->getJson('/api/productos/buscar?q=3M')->assertOk()->json())
+            ->firstWhere('valor_variante', '3m');
+
+        $this->assertNotNull($fila, 'La variante aparece en el buscador.');
+        $this->assertNotEmpty($fila['imagen_url'], 'Y con la imagen del producto principal.');
+    }
+
+    public function test_agregar_una_variante_con_imagen_desde_editar(): void
+    {
+        Storage::fake('public');
+        $admin = $this->admin();
+
+        $this->actingAs($admin)->post('/productos', $this->formulario([
+            'variantes' => [['valor_variante' => '3m']],
+        ]))->assertRedirect();
+
+        $padre = Producto::where('es_padre', true)->firstOrFail();
+
+        $this->actingAs($admin)->put("/productos/{$padre->id}", [
+            'nombre'            => $padre->nombre,
+            'categoria_id'      => '',
+            'atributo_variante' => 'Longitud',
+            'variantes'         => [['valor_variante' => '6m', 'imagen' => UploadedFile::fake()->image('seis.jpg')]],
+        ])->assertRedirect()->assertSessionHasNoErrors();
+
+        $this->assertCount(1, $this->conImagenes(Producto::where('valor_variante', '6m')->firstOrFail())->imagenes);
+    }
+
+    public function test_un_archivo_que_no_es_imagen_se_rechaza_y_no_se_crea_nada(): void
+    {
+        Storage::fake('public');
+
+        $this->actingAs($this->admin())->post('/productos', $this->formulario([
+            'variantes' => [['valor_variante' => '3m', 'imagen' => UploadedFile::fake()->create('lista.pdf', 10, 'application/pdf')]],
+        ]))->assertSessionHasErrors('variantes.0.imagen');
+
+        $this->assertSame(0, Producto::where('es_padre', true)->count());
+        $this->assertStringContainsString('imagen de la variante', session('errors')->first('variantes.0.imagen'));
+    }
+
+    public function test_al_editar_un_archivo_que_no_es_imagen_tambien_se_rechaza(): void
+    {
+        Storage::fake('public');
+        $admin = $this->admin();
+
+        $this->actingAs($admin)->post('/productos', $this->formulario([
+            'variantes' => [['valor_variante' => '3m']],
+        ]))->assertRedirect();
+
+        $padre = Producto::where('es_padre', true)->firstOrFail();
+
+        $this->actingAs($admin)->put("/productos/{$padre->id}", [
+            'nombre'            => $padre->nombre,
+            'categoria_id'      => '',
+            'atributo_variante' => 'Longitud',
+            'variantes'         => [['valor_variante' => '6m', 'imagen' => UploadedFile::fake()->create('x.pdf', 10, 'application/pdf')]],
+        ])->assertSessionHasErrors('variantes.0.imagen');
+
+        $this->assertSame(1, $padre->variantes()->count(), 'No se agregó la variante rechazada.');
     }
 
     // ─── Lo que se cotiza es la variante ─────────────────────────────────────
