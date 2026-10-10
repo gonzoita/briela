@@ -106,7 +106,7 @@ Tres cosas no se copian, a propósito:
 
 | No se copia | Por qué |
 |---|---|
-| La **referencia** | Es única en el sistema. Se genera nueva sola |
+| La **referencia** | Es única entre los productos vivos. Se genera nueva sola. La de un producto **eliminado** queda libre: si la reutilizas, al eliminado se le cambia por «REF~elim123» y conserva su historial (`Producto::liberarReferencia()`) |
 | El **stock** | El inventario es de cada producto, no del molde |
 | Las **imágenes** | Son archivos en el servidor; copiarlas duplica el disco de la instalación |
 

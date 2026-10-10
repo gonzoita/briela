@@ -172,6 +172,20 @@ class ProductosImportarYEliminarTest extends TestCase
         ]);
     }
 
+    public function test_importar_reutiliza_la_referencia_de_un_producto_eliminado(): void
+    {
+        $viejo = $this->producto('Panel viejo', ['referencia' => 'IMP-777']);
+        $viejo->delete();
+
+        $this->importar($this->admin(), implode("\n", [
+            'nombre;referencia;precio_costo',
+            'Panel nuevo;IMP-777;1000000',
+        ]));
+
+        $this->assertSame('Panel nuevo', Producto::where('referencia', 'IMP-777')->firstOrFail()->nombre);
+        $this->assertTrue(Producto::withTrashed()->findOrFail($viejo->id)->trashed());
+    }
+
     // ─── Eliminar en bloque ──────────────────────────────────────────────────
 
     public function test_eliminar_varios_se_lleva_las_variantes_del_padre(): void

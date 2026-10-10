@@ -14,6 +14,14 @@ Formato: [versionado semántico](https://semver.org/lang/es/).
 
 ## [Sin publicar]
 
+### Corregido
+- **La referencia de un producto eliminado queda libre.** Antes, si eliminabas un producto y
+  volvías a crear otro con la misma referencia, el sistema decía que ya estaba en uso, de algo
+  que ya no veías. Ahora la reutilizas sin más. Vale al crear, al editar, en las variantes y al
+  importar. Lo eliminado conserva su historial: solo cambia su referencia por «REF~elim123».
+- **Si la referencia sí la tiene un producto vivo, el mensaje dice cuál.** Antes decía «El campo
+  variantes.0.referencia ya está en uso».
+
 ## [1.2.0] — 2026-10-10
 
 ### Agregado

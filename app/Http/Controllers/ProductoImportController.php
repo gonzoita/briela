@@ -431,6 +431,7 @@ class ProductoImportController extends Controller
                             : Producto::generarReferencia($tipo);
                     }
                     $datos['referencia'] = $referencia;
+                    Producto::liberarReferencia($referencia);
                     $producto = Producto::create($datos);
                     $resultado['creados']++;
 

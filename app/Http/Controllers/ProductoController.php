@@ -224,6 +224,8 @@ class ProductoController extends Controller
         ];
 
         $producto = DB::transaction(function () use ($request, $datosBase, $esPadre) {
+            Producto::liberarReferencia($request->referencia);
+
             $producto = Producto::create(array_merge($datosBase, [
                 'es_padre'          => $esPadre,
                 'atributo_variante' => $esPadre ? $request->atributo_variante : null,
@@ -465,6 +467,8 @@ class ProductoController extends Controller
         $this->aplicarMonedaCosto($request);
 
         try {
+            Producto::liberarReferencia($request->referencia, $producto->id);
+
             $producto->update([
                 'categoria_id'         => $request->categoria_id ?: null,
                 'proveedor_id'         => $request->proveedor_id ?: null,
@@ -803,6 +807,8 @@ class ProductoController extends Controller
     {
         $referencia = ($variante['referencia'] ?? null) ?: Producto::generarReferenciaVariante($padre, $variante['valor_variante']);
 
+        Producto::liberarReferencia($referencia);
+
         $hijo = Producto::create(array_merge($datosBase, [
             'referencia'         => $referencia,
             'es_padre'           => false,
@@ -892,17 +898,14 @@ class ProductoController extends Controller
     }
 
     /**
-     * Que la referencia no la tenga ya otro producto, diciendo CUÁL la tiene.
+     * Que la referencia no la tenga ya otro producto VIVO, diciendo CUÁL la tiene.
      *
      * Antes era `unique:productos,referencia` y el mensaje decía «El campo
-     * variantes.0.referencia ya está en uso»: ni de quién, ni dónde. Y casi nunca es un
-     * producto que se vea en la lista. **Un producto eliminado conserva su referencia**:
-     * el borrado es suave y la columna es única, así que sigue ocupada. Pasa justo después
-     * de un intento fallido que la persona limpió a mano, y la deja sin poder crear lo
-     * mismo sin ninguna pista de por qué.
+     * variantes.0.referencia ya está en uso»: ni de quién, ni dónde. Además contaba los
+     * productos eliminados, que la persona ya no ve.
      *
-     * `withTrashed()` es la misma mirada que tiene el índice único de la base: si aquí no
-     * viera los eliminados, la validación pasaría y el guardado reventaría con un 500.
+     * Lo eliminado no bloquea: al guardar, `Producto::liberarReferencia()` le cambia la
+     * referencia al eliminado y deja la original para quien la pide.
      */
     private function referenciaLibre(?int $ignoreId = null): \Closure
     {
@@ -911,10 +914,9 @@ class ProductoController extends Controller
                 return;
             }
 
-            $dueno = Producto::withTrashed()
-                ->where('referencia', $valor)
+            $dueno = Producto::where('referencia', $valor)
                 ->when($ignoreId, fn ($q) => $q->where('id', '!=', $ignoreId))
-                ->first(['id', 'nombre', 'deleted_at']);
+                ->first(['id', 'nombre']);
 
             if (! $dueno) {
                 return;
@@ -924,8 +926,7 @@ class ProductoController extends Controller
                 ? 'La referencia de la variante '.($m[1] + 1)
                 : 'Esa referencia';
 
-            $falla("{$de} ya la usa «{$dueno->nombre}»".($dueno->trashed() ? ', que está eliminado' : '')
-                .'. Déjala vacía para que se genere sola, o escribe otra.');
+            $falla("{$de} ya la usa «{$dueno->nombre}». Déjala vacía para que se genere sola, o escribe otra.");
         };
     }
 

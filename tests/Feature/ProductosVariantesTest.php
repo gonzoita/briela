@@ -154,28 +154,94 @@ class ProductosVariantesTest extends TestCase
         $this->assertSame(2, Producto::where('es_padre', true)->count());
     }
 
-    public function test_una_referencia_ocupada_dice_quien_la_tiene_aunque_este_eliminado(): void
+    // ─── La referencia de algo eliminado queda libre ─────────────────────────
+
+    private function eliminado(string $nombre, string $referencia): Producto
     {
-        // Lo que queda de un intento fallido que la persona limpió a mano: eliminado, pero
-        // con la referencia todavía ocupada.
-        $viejo = Producto::create(['tipo' => 'producto', 'nombre' => 'Barra vieja', 'referencia' => 'BARRA-3M']);
-        $viejo->delete();
+        $producto = Producto::create(['tipo' => 'producto', 'nombre' => $nombre, 'referencia' => $referencia]);
+        $producto->delete();
+
+        return $producto;
+    }
+
+    public function test_la_referencia_de_una_variante_eliminada_se_puede_volver_a_usar(): void
+    {
+        // Lo que queda de un intento fallido que la persona limpió a mano.
+        $viejo = $this->eliminado('Barra vieja', 'BARRA-3M');
 
         $this->actingAs($this->admin())->post('/productos', $this->formulario([
             'variantes' => [['valor_variante' => '3m', 'referencia' => 'BARRA-3M']],
+        ]))->assertRedirect()->assertSessionHasNoErrors();
+
+        $nueva = Producto::where('referencia', 'BARRA-3M')->firstOrFail();
+
+        $this->assertNotSame($viejo->id, $nueva->id);
+        $this->assertSame('3m', $nueva->valor_variante);
+
+        // El eliminado sigue ahí, con su historial, solo que con otra referencia.
+        $viejo = Producto::withTrashed()->findOrFail($viejo->id);
+
+        $this->assertTrue($viejo->trashed());
+        $this->assertSame('BARRA-3M~elim'.$viejo->id, $viejo->referencia);
+    }
+
+    public function test_la_referencia_del_producto_tambien_se_libera(): void
+    {
+        $viejo = $this->eliminado('Perfil viejo', 'PROD-9000');
+
+        $this->actingAs($this->admin())->post('/productos', $this->formulario([
+            'referencia' => 'PROD-9000',
+            'variantes'  => [['valor_variante' => '3m']],
+        ]))->assertRedirect()->assertSessionHasNoErrors();
+
+        $this->assertSame('Perfil de aluminio', Producto::where('referencia', 'PROD-9000')->firstOrFail()->nombre);
+        $this->assertTrue(Producto::withTrashed()->findOrFail($viejo->id)->trashed());
+    }
+
+    public function test_una_referencia_larga_liberada_no_desborda_la_columna(): void
+    {
+        $larga = str_repeat('R', 60);
+        $viejo = $this->eliminado('Larga', $larga);
+
+        $this->actingAs($this->admin())->post('/productos', $this->formulario([
+            'variantes' => [['valor_variante' => '3m', 'referencia' => $larga]],
+        ]))->assertRedirect()->assertSessionHasNoErrors();
+
+        $this->assertLessThanOrEqual(60, strlen(Producto::withTrashed()->findOrFail($viejo->id)->referencia));
+    }
+
+    public function test_una_referencia_de_un_producto_vivo_sigue_bloqueada_y_dice_cual(): void
+    {
+        Producto::create(['tipo' => 'producto', 'nombre' => 'Barra viva', 'referencia' => 'BARRA-6M']);
+
+        $this->actingAs($this->admin())->post('/productos', $this->formulario([
+            'variantes' => [['valor_variante' => '6m', 'referencia' => 'BARRA-6M']],
         ]))->assertSessionHasErrors('variantes.0.referencia');
 
         $mensaje = session('errors')->first('variantes.0.referencia');
 
         $this->assertStringContainsString('variante 1', $mensaje);
-        $this->assertStringContainsString('Barra vieja', $mensaje);
-        $this->assertStringContainsString('eliminado', $mensaje);
+        $this->assertStringContainsString('Barra viva', $mensaje);
         $this->assertSame(0, Producto::where('es_padre', true)->count(), 'No se crea nada a medias.');
+    }
+
+    public function test_editar_un_producto_para_tomar_la_referencia_de_uno_eliminado(): void
+    {
+        $this->eliminado('Tubo viejo', 'TUBO-1');
+        $vivo = Producto::create(['tipo' => 'producto', 'nombre' => 'Tubo', 'referencia' => 'TUBO-2']);
+
+        $this->actingAs($this->admin())->put("/productos/{$vivo->id}", $this->formulario([
+            'nombre'     => 'Tubo',
+            'referencia' => 'TUBO-1',
+            'es_padre'   => false,
+        ]))->assertRedirect()->assertSessionHasNoErrors();
+
+        $this->assertSame('TUBO-1', $vivo->fresh()->referencia);
     }
 
     public function test_dejar_la_referencia_vacia_evita_el_choque(): void
     {
-        Producto::create(['tipo' => 'producto', 'nombre' => 'Barra vieja', 'referencia' => 'BARRA-3M'])->delete();
+        $this->eliminado('Barra vieja', 'BARRA-3M');
 
         $this->actingAs($this->admin())->post('/productos', $this->formulario([
             'variantes' => [['valor_variante' => '3m', 'referencia' => null]],

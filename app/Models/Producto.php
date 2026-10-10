@@ -402,6 +402,38 @@ class Producto extends Model
     // ─── Helpers ─────────────────────────────────────────────────────────────
 
     /**
+     * Deja libre una referencia que solo la tiene algo ya eliminado.
+     *
+     * Eliminar un producto es un borrado suave y la columna `referencia` es única, así que
+     * un producto eliminado seguía ocupando su referencia para siempre: la persona lo
+     * borraba, volvía a crear el mismo producto con la misma referencia y el sistema le
+     * decía que ya estaba en uso —de algo que ella ya no veía—. La única salida era una
+     * consulta a mano en la base, en un hosting donde ni siquiera hay terminal.
+     *
+     * No se borra nada: al eliminado se le cambia la referencia por «REF~elim123», con su
+     * id al final para que nunca choque. Se hace **al reutilizarla**, no al eliminar, por
+     * dos razones: así las cotizaciones y órdenes viejas siguen mostrando la referencia
+     * original mientras nadie la reclame, y vale también para lo que ya estaba eliminado
+     * antes de esta regla, sin ninguna migración que correr en cada instalación.
+     *
+     * Lo que está vivo no se toca: eso lo rechaza la validación.
+     */
+    public static function liberarReferencia(string $referencia, ?int $exceptoId = null): void
+    {
+        static::onlyTrashed()
+            ->where('referencia', $referencia)
+            ->when($exceptoId, fn ($q) => $q->where('id', '!=', $exceptoId))
+            ->get()
+            ->each(function (Producto $eliminado) {
+                $cola = '~elim'.$eliminado->id;
+
+                $eliminado->update([
+                    'referencia' => mb_substr($eliminado->referencia, 0, static::REFERENCIA_MAX - mb_strlen($cola)).$cola,
+                ]);
+            });
+    }
+
+    /**
      * La siguiente referencia libre de su tipo: PROD-0001, SERV-0012.
      *
      * Sale del **número más alto ya usado**, no de cuántas filas hay. Contar fallaba de
