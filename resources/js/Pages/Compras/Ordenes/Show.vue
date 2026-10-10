@@ -174,7 +174,8 @@ const puedeRecibir = computed(() =>
                             <tr v-for="item in orden.items" :key="item.id">
                                 <td class="px-4 py-3">
                                     <p class="font-medium text-tinta-900">{{ item.descripcion }}</p>
-                                    <p v-if="item.item" class="text-xs text-tinta-300">{{ item.item.referencia }}</p>
+                                    <p v-if="item.referencia_proveedor" class="text-xs font-medium text-tinta-500">Cód. proveedor: {{ item.referencia_proveedor }}</p>
+                                    <p v-if="item.item" class="text-xs text-tinta-300">Ref. interna: {{ item.item.referencia }}</p>
                                 </td>
                                 <td class="px-4 py-3 text-right text-tinta-700">{{ fmt(item.cantidad) }} {{ item.unidad }}</td>
                                 <td class="px-4 py-3 text-right">

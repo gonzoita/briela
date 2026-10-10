@@ -15,6 +15,13 @@ Formato: [versionado semántico](https://semver.org/lang/es/).
 ## [Sin publicar]
 
 ### Agregado
+- **La orden de compra lleva el código de cada proveedor.** Un mismo producto lo pueden vender
+  varios proveedores con códigos distintos; la orden manda el de quien la recibe, y el PDF lo
+  muestra primero. Se configura en la ficha del producto o directamente al armar la orden: si
+  escribes un código nuevo, queda guardado para las próximas. Al elegir proveedor, cada línea
+  se llena sola con su código y su último precio, y se avisa si ese precio tiene más de 90 días.
+- **Historial de precios por proveedor.** Cada vez que una orden se envía, el precio queda
+  anotado. El asistente puede comparar proveedores con esos datos y no recomienda un precio viejo.
 - **Cada variante puede tener su propia imagen.** Al crear un producto con variantes, o al
   agregar una variante desde la ficha del producto principal, puedes subir su imagen. Si no
   subes ninguna, usa la del producto principal en el buscador de cotizaciones, en su ficha y

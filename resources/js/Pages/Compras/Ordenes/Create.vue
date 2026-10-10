@@ -29,25 +29,77 @@ const itemsFiltrados = computed(() => {
     )
 })
 
+// Lo que el proveedor elegido sabe de este ítem: su código, su precio y qué tan viejo es.
+const datosDelProveedor = (item) =>
+    item._proveedores?.[form.value.proveedor_id] ?? null
+
+// Llena la línea con lo que el proveedor ya tiene registrado, pero **nunca pisa lo que la
+// persona escribió**: si ya corrigió el código o el precio, es suyo.
+function aplicarProveedor(item) {
+    const datos = datosDelProveedor(item)
+
+    if (!item._codigo_editado) {
+        item.referencia_proveedor = datos?.referencia ?? ''
+    }
+    if (!item._precio_editado) {
+        const precio = Number(datos?.precio) || 0
+        item.precio_unitario = precio > 0 ? precio : (Number(item._precio_promedio) || 0)
+    }
+}
+
+watch(() => form.value.proveedor_id, () => form.value.items.forEach(aplicarProveedor))
+
 function agregarItemDesdeInventario(item) {
-    form.value.items.push({
-        item_id:          item.id,
-        descripcion:      item.nombre,
-        cantidad:         1,
-        unidad:           item.unidad,
-        precio_unitario:  Number(item.precio_promedio) || 0,
-        impuesto_pct:     0,
-        _nombre_item:     item.nombre,
-        _codigo_item:     item.codigo,
-    })
+    const linea = {
+        item_id:              item.id,
+        referencia_proveedor: '',
+        descripcion:          item.nombre,
+        cantidad:             1,
+        unidad:               item.unidad,
+        precio_unitario:      Number(item.precio_promedio) || 0,
+        impuesto_pct:         0,
+        _nombre_item:         item.nombre,
+        _codigo_item:         item.codigo,
+        _precio_promedio:     item.precio_promedio,
+        _proveedores:         item.proveedores ?? {},
+        _codigo_editado:      false,
+        _precio_editado:      false,
+    }
+    aplicarProveedor(linea)
+    form.value.items.push(linea)
     buscarItem.value = ''
 }
 
 function agregarItemManual() {
     form.value.items.push({
-        item_id: null, descripcion: '', cantidad: 1,
+        item_id: null, referencia_proveedor: '', descripcion: '', cantidad: 1,
         unidad: 'unidad', precio_unitario: 0, impuesto_pct: 0,
     })
+}
+
+const MESES_VIEJO = 90
+
+// El aviso de debajo de cada línea: qué sabemos de este proveedor para este ítem.
+function pista(item) {
+    if (!item.item_id || !form.value.proveedor_id) return null
+    const d = datosDelProveedor(item)
+
+    if (!d) {
+        return { tono: 'neutro', texto: 'Este proveedor no tiene código registrado para este ítem. Si escribes el suyo, queda guardado como equivalencia para las próximas órdenes.' }
+    }
+    const partes = []
+    if (d.referencia) partes.push(`su código: ${d.referencia}`)
+    if (Number(d.precio) > 0) partes.push(`último precio: ${fmtMoney(d.precio)}`)
+    if (d.dias_actualizado != null) partes.push(`hace ${d.dias_actualizado} días`)
+    if (d.dias_entrega != null) partes.push(`entrega en ${d.dias_entrega} días`)
+    if (d.minimo_compra) partes.push(`mínimo ${d.minimo_compra}`)
+
+    const viejo = d.dias_actualizado != null && d.dias_actualizado > MESES_VIEJO
+    return {
+        tono: viejo || !d.referencia ? 'aviso' : 'neutro',
+        texto: partes.join(' · ') + (viejo ? ' — ese precio es viejo: confírmalo con el proveedor.' : '')
+            + (!d.referencia ? ' — sin código registrado: escribe el suyo para guardarlo.' : ''),
+    }
 }
 
 function quitarItem(idx) {
@@ -158,6 +210,17 @@ function fmtMoney(n) {
                                 <input v-model="item.descripcion" type="text"
                                     class="w-full rounded border border-tinta-200 px-2 py-1.5 text-sm" />
                             </div>
+                            <div>
+                                <label class="block text-xs text-tinta-500 mb-0.5">Código del proveedor</label>
+                                <input v-model="item.referencia_proveedor" type="text" maxlength="80"
+                                    placeholder="El que el proveedor usa para este ítem"
+                                    @input="item._codigo_editado = true"
+                                    class="w-full rounded border border-tinta-200 px-2 py-1.5 text-sm" />
+                                <p v-if="pista(item)" class="mt-1 text-xs"
+                                    :class="pista(item).tono === 'aviso' ? 'text-aviso-ambar' : 'text-tinta-400'">
+                                    {{ pista(item).texto }}
+                                </p>
+                            </div>
                             <div class="grid grid-cols-4 gap-2">
                                 <div>
                                     <label class="block text-xs text-tinta-500 mb-0.5">Cantidad *</label>
@@ -172,6 +235,7 @@ function fmtMoney(n) {
                                 <div>
                                     <label class="block text-xs text-tinta-500 mb-0.5">Precio Unit. *</label>
                                     <input v-model="item.precio_unitario" type="number" min="0" step="0.01"
+                                        @input="item._precio_editado = true"
                                         class="w-full rounded border border-tinta-200 px-2 py-1.5 text-sm" />
                                 </div>
                                 <div>

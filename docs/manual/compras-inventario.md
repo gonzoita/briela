@@ -52,6 +52,34 @@ recibida_parcial/recibida)`.
 - **Enviar una orden al proveedor**: es una comunicación real que alguien
   decide cuándo hacer.
 
+## Cada proveedor llama distinto al mismo producto *(nuevo, 10 oct 2026)*
+
+La bisagra que la empresa llama `IC5260` la pueden vender varios proveedores con códigos
+distintos —`1256899P`, `R125458`…—. La orden de compra lleva **el código de quien la
+recibe**, no el interno: si no, mandan otra cosa o llaman a preguntar.
+
+- **Dónde se configura.** En la ficha del producto, en la lista de proveedores (código, precio,
+  entrega, mínimo). O **al armar la orden**: cada línea tiene «Código del proveedor». Si
+  escribes uno, queda guardado como equivalencia para las próximas órdenes. La segunda puerta
+  es la que se usa de verdad: el código del proveedor se descubre al armar la orden.
+- **Qué se llena solo.** Al elegir proveedor, cada línea toma su código y su último precio.
+  Lo que escribas a mano **nunca se pisa**. Debajo de cada línea se ve qué se sabe de ese
+  proveedor para ese ítem, y se avisa si su precio tiene más de 90 días.
+- **Desde una solicitud.** Al convertirla en orden se usan el código y el precio del proveedor
+  elegido; si no tiene precio, la estimación de quien pidió.
+- **En la línea queda el código que se mandó** (`ordenes_compra_items.referencia_proveedor`),
+  no una referencia a la ficha: si el proveedor cambia su catálogo mañana, las órdenes viejas
+  siguen diciendo lo que se pidió ese día. El PDF y la ficha de la orden lo muestran primero
+  («Cód. proveedor») y el interno después («Ref. interna»).
+- **Control de precios.** Al **enviar** la orden, el precio de cada línea pasa a ser el último
+  de ese proveedor y se anota en el historial (`producto_proveedor_precios`). En el borrador
+  no: es una intención. Es lo que permite comparar con datos y no con la última cifra escrita.
+- **Lo que lee el asistente.** La consulta `comparar_proveedores` (exige `costos.ver`) pone los
+  proveedores de un producto uno al lado del otro: código, precio, entrega, mínimo, antigüedad
+  del precio y las últimas compras. **Un precio de más de 90 días no cuenta como oferta**: si
+  ninguno está vigente, el asistente lo dice en vez de recomendar al más barato de hace un año.
+  La cuenta vive en `ProveedoresProductoService::comparar()`.
+
 ## Aviso de material faltante en una OP *(nuevo, 23 jul 2026)*
 
 Antes, el proceso de negocio descrito como "compras centralizado atiende

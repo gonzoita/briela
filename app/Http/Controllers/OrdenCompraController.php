@@ -6,6 +6,7 @@ use App\Models\OrdenCompra;
 use App\Models\OrdenCompraItem;
 use App\Models\Producto;
 use App\Models\Proveedor;
+use App\Services\ProveedoresProductoService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -48,20 +49,26 @@ class OrdenCompraController extends Controller
 
     public function create(): Response
     {
+        $insumos = Producto::insumos()->where('activo', true)
+            ->orderBy('nombre')
+            ->get(['id', 'referencia', 'nombre', 'unidad_medida', 'precio_promedio_compra']);
+
+        $mapa = app(ProveedoresProductoService::class)->mapaParaOrden($insumos->pluck('id'));
+
         return Inertia::render('Compras/Ordenes/Create', [
             'proveedores' => Proveedor::where('activo', true)->select('id', 'nombre')->orderBy('nombre')->get(),
             // Insumos del inventario real (productos). Se normaliza a la
             // forma que espera el Vue (codigo/nombre/unidad/precio_promedio).
-            'items'       => Producto::insumos()->where('activo', true)
-                ->orderBy('nombre')
-                ->get(['id', 'referencia', 'nombre', 'unidad_medida', 'precio_promedio_compra'])
-                ->map(fn ($p) => [
-                    'id'              => $p->id,
-                    'codigo'          => $p->referencia,
-                    'nombre'          => $p->nombre,
-                    'unidad'          => $p->unidad_medida,
-                    'precio_promedio' => (float) $p->precio_promedio_compra,
-                ]),
+            'items'       => $insumos->map(fn ($p) => [
+                'id'              => $p->id,
+                'codigo'          => $p->referencia,
+                'nombre'          => $p->nombre,
+                'unidad'          => $p->unidad_medida,
+                'precio_promedio' => (float) $p->precio_promedio_compra,
+                // Código, precio y vigencia de CADA proveedor para este insumo, por id de
+                // proveedor: al elegir el de la orden, la línea se llena sola.
+                'proveedores'     => (object) ($mapa[$p->id] ?? []),
+            ]),
         ]);
     }
 
@@ -75,6 +82,7 @@ class OrdenCompraController extends Controller
             'notas'                  => 'nullable|string',
             'items'                  => 'required|array|min:1',
             'items.*.item_id'        => 'nullable|exists:productos,id',
+            'items.*.referencia_proveedor' => 'nullable|string|max:80',
             'items.*.descripcion'    => 'required|string',
             'items.*.cantidad'       => 'required|numeric|min:0.001',
             'items.*.unidad'         => 'required|string',
@@ -92,23 +100,49 @@ class OrdenCompraController extends Controller
             'notas'                  => $data['notas'] ?? null,
         ]);
 
-        foreach ($data['items'] as $itemData) {
-            $totalLinea = $itemData['cantidad'] * $itemData['precio_unitario'];
-            OrdenCompraItem::create([
-                'orden_id'        => $orden->id,
-                'item_id'         => $itemData['item_id'] ?? null,
-                'descripcion'     => $itemData['descripcion'],
-                'cantidad'        => $itemData['cantidad'],
-                'unidad'          => $itemData['unidad'],
-                'precio_unitario' => $itemData['precio_unitario'],
-                'impuesto_pct'    => $itemData['impuesto_pct'] ?? 0,
-                'total_linea'     => $totalLinea,
-            ]);
-        }
+        $this->crearLineas($orden, $data['items']);
 
         $orden->recalcularTotales();
 
         return redirect("/compras/ordenes/{$orden->id}")->with('success', "Orden {$orden->numero} creada.");
+    }
+
+    /**
+     * Crea las líneas de una orden con el código del proveedor al que se le compra.
+     *
+     * Manda el código que quien compra escribió; si no escribió ninguno, el que ese proveedor
+     * ya tiene registrado para el producto. Y si escribió uno, queda guardado como equivalencia
+     * en la ficha: es la segunda puerta para configurarla, y la que se usa de verdad, porque
+     * el código del proveedor se descubre al armar la orden.
+     *
+     * @param  array<int, array<string, mixed>>  $items
+     */
+    private function crearLineas(OrdenCompra $orden, array $items): void
+    {
+        $proveedores = app(ProveedoresProductoService::class);
+
+        foreach ($items as $linea) {
+            $itemId = $linea['item_id'] ?? null;
+            $escrito = trim((string) ($linea['referencia_proveedor'] ?? ''));
+
+            OrdenCompraItem::create([
+                'orden_id'             => $orden->id,
+                'item_id'              => $itemId,
+                'referencia_proveedor' => $escrito !== ''
+                    ? $escrito
+                    : $proveedores->de($itemId, $orden->proveedor_id)?->referencia_proveedor,
+                'descripcion'          => $linea['descripcion'],
+                'cantidad'             => $linea['cantidad'],
+                'unidad'               => $linea['unidad'],
+                'precio_unitario'      => $linea['precio_unitario'],
+                'impuesto_pct'         => $linea['impuesto_pct'] ?? 0,
+                'total_linea'          => $linea['cantidad'] * $linea['precio_unitario'],
+            ]);
+
+            if ($itemId) {
+                $proveedores->guardarEquivalencia($itemId, $orden->proveedor_id, $escrito, (float) $linea['precio_unitario']);
+            }
+        }
     }
 
     public function show(OrdenCompra $orden): Response
@@ -139,6 +173,7 @@ class OrdenCompraController extends Controller
             'notas'                  => 'nullable|string',
             'items'                  => 'nullable|array',
             'items.*.item_id'        => 'nullable|exists:productos,id',
+            'items.*.referencia_proveedor' => 'nullable|string|max:80',
             'items.*.descripcion'    => 'required|string',
             'items.*.cantidad'       => 'required|numeric|min:0.001',
             'items.*.unidad'         => 'required|string',
@@ -155,19 +190,7 @@ class OrdenCompraController extends Controller
 
         if (!empty($data['items'])) {
             $orden->items()->delete();
-            foreach ($data['items'] as $itemData) {
-                $totalLinea = $itemData['cantidad'] * $itemData['precio_unitario'];
-                OrdenCompraItem::create([
-                    'orden_id'        => $orden->id,
-                    'item_id'         => $itemData['item_id'] ?? null,
-                    'descripcion'     => $itemData['descripcion'],
-                    'cantidad'        => $itemData['cantidad'],
-                    'unidad'          => $itemData['unidad'],
-                    'precio_unitario' => $itemData['precio_unitario'],
-                    'impuesto_pct'    => $itemData['impuesto_pct'] ?? 0,
-                    'total_linea'     => $totalLinea,
-                ]);
-            }
+            $this->crearLineas($orden, $data['items']);
             $orden->recalcularTotales();
         }
 
@@ -181,6 +204,10 @@ class OrdenCompraController extends Controller
         }
 
         $orden->update(['estado' => 'enviada']);
+
+        // Lo que sale al proveedor es lo acordado: ahí se actualiza su precio y se anota en el
+        // historial. En el borrador no, que es una intención y se cambia diez veces.
+        app(ProveedoresProductoService::class)->registrarPrecios($orden);
 
         return back()->with('success', "Orden {$orden->numero} enviada al proveedor.");
     }

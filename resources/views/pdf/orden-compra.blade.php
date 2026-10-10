@@ -101,8 +101,11 @@
                 <td style="color:#999;">{{ $i + 1 }}</td>
                 <td>
                     {{ $item->descripcion }}
+                    @if($item->referencia_proveedor)
+                        <br><span style="font-size:10px;font-weight:600;">Cód. proveedor: {{ $item->referencia_proveedor }}</span>
+                    @endif
                     @if($item->item)
-                        <br><span style="font-size:9px;color:#999;">{{ $item->item->referencia }}</span>
+                        <br><span style="font-size:9px;color:#999;">Ref. interna: {{ $item->item->referencia }}</span>
                     @endif
                 </td>
                 <td class="right">{{ number_format($item->cantidad, 2) }}</td>

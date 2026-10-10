@@ -10,7 +10,7 @@ class OrdenCompraItem extends Model
     protected $table = 'ordenes_compra_items';
 
     protected $fillable = [
-        'orden_id', 'item_id', 'descripcion', 'cantidad',
+        'orden_id', 'item_id', 'referencia_proveedor', 'descripcion', 'cantidad',
         'cantidad_recibida', 'unidad', 'precio_unitario',
         'impuesto_pct', 'total_linea',
     ];
