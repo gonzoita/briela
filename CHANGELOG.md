@@ -14,6 +14,8 @@ Formato: [versionado semántico](https://semver.org/lang/es/).
 
 ## [Sin publicar]
 
+## [1.3.0] — 2026-10-10
+
 ### Agregado
 - **La orden de compra es coherente con el módulo de productos.** El buscador encuentra **todo lo
   que se puede comprar** —insumos, productos de reventa y variantes con su nombre completo—, no solo
@@ -39,8 +41,8 @@ Formato: [versionado semántico](https://semver.org/lang/es/).
   unidades que otra cotización tenía apartadas, se le ceden —las más nuevas primero— y se avisa
   al vendedor afectado **y** a administración. Pantalla nueva «Stock apartado» en Productos y
   Existencias, y el recuadro «Stock apartado» en la ficha de cada cotización. Solo uso interno:
-  el cliente no ve nada de esto, ni en el portal ni en el PDF. Tarea programada nueva:
-  `stock:liberar-reservas` (cada 15 minutos).
+  el cliente no ve nada de esto, ni en el portal ni en el PDF. Se libera con la tarea programada
+  del sistema (la misma del cron de siempre, cada 15 minutos): no hace falta configurar nada nuevo.
 - **Calificación automática de proveedores.** Cada proveedor tiene una nota de 0 a 100 que calcula
   el sistema con sus órdenes del último año: puntualidad, cumplimiento de lo pedido, entregas que
   llegaron con factura o remisión y a tiempo, y qué tan competitivo es su precio. Se ve en la
@@ -70,14 +72,10 @@ Formato: [versionado semántico](https://semver.org/lang/es/).
   en el catálogo; y si el principal cambia su foto, las variantes que la heredan cambian con él.
 
 ### Corregido
-- Los botones **Ajuste** (Stock y materiales) y **Recibir** (orden de compra) ya no se ofrecen a
-  quien no tiene el permiso: antes aparecían y fallaban al tocarlos.
-- **Ajustar stock desde Stock y materiales y recibir una orden de compra ahora exigen permiso.**
-  Antes cualquiera que pudiera ver esas pantallas podía mover el inventario. Piden
-  `inventario.editar` y `ordenes.recibir`, como ya hacía el ajuste desde la ficha del producto.
-- **Ajustar el stock exige permiso.** La ruta del ajuste desde la ficha del producto no pedía
-  ninguno: cualquiera que pudiera ver el producto podía mover el inventario. Ahora pide «Stock y
-  movimientos: editar», y el botón solo se muestra a quien lo tiene.
+- **Mover el inventario exige permiso.** Ajustar el stock (desde la ficha del producto y desde
+  Stock y materiales) y recibir una orden de compra no pedían ninguno: cualquiera que pudiera
+  ver la pantalla podía cambiar las existencias. Ahora piden «Stock y movimientos: editar» y
+  «Órdenes de compra: recibir», y los botones solo se muestran a quien los tiene.
 - **La referencia de un producto eliminado queda libre.** Antes, si eliminabas un producto y
   volvías a crear otro con la misma referencia, el sistema decía que ya estaba en uso, de algo
   que ya no veías. Ahora la reutilizas sin más. Vale al crear, al editar, en las variantes y al
