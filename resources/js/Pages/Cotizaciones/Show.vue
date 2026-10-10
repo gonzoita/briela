@@ -404,7 +404,7 @@ function marcarEnviada() {
                 <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-3">Stock apartado</p>
                 <ul class="space-y-2">
                     <li v-for="r in reservas" :key="r.id" class="flex flex-wrap items-baseline justify-between gap-2 text-sm">
-                        <span class="text-tinta-700">{{ r.producto }} · {{ formatCantidad(r.cantidad - r.cedida) }} {{ r.unidad }}</span>
+                        <span class="text-tinta-700">{{ r.producto }} · {{ formatCantidad(r.cantidad - r.cedida) }} {{ r.unidad === 'unidad' && (r.cantidad - r.cedida) !== 1 ? 'unidades' : r.unidad }}</span>
                         <span class="text-xs"
                             :class="{ 'text-aviso-verde': r.estado === 'activa', 'text-aviso-ambar': r.estado === 'cedida', 'text-aviso-rojo': r.estado === 'vencida', 'text-tinta-400': ['liberada', 'concretada'].includes(r.estado) }">
                             <template v-if="r.estado === 'activa'">hasta {{ fechaHora(r.expira_at) }}<span v-if="r.cedida > 0"> · se cedieron {{ formatCantidad(r.cedida) }} a una venta</span></template>

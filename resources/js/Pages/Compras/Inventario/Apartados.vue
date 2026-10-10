@@ -11,6 +11,9 @@ defineProps({
     activo:    { type: Boolean, default: true },
 })
 
+// «6 unidad» se lee mal: la unidad por omisión va en plural cuando no es uno.
+const unidad = (u, n) => (u === 'unidad' && Number(n) !== 1) ? 'unidades' : u
+
 // Cuánto falta, en la unidad que se entienda a primera vista.
 function restante(iso) {
     const min = Math.round((new Date(iso).getTime() - Date.now()) / 60000)
@@ -62,7 +65,7 @@ const etiqueta = {
                         </div>
                         <div class="text-right shrink-0">
                             <p class="text-sm font-semibold text-tinta-700">
-                                {{ formatCantidad(r.cantidad - r.cedida) }} {{ r.unidad }}
+                                {{ formatCantidad(r.cantidad - r.cedida) }} {{ unidad(r.unidad, r.cantidad - r.cedida) }}
                             </p>
                             <p class="text-xs text-tinta-400">{{ restante(r.expira_at) }} · hasta {{ fecha(r.expira_at) }}</p>
                         </div>
@@ -91,8 +94,8 @@ const etiqueta = {
                                 {{ etiqueta[r.estado]?.texto }}
                             </span>
                             <p class="text-xs text-tinta-400 mt-1">
-                                <template v-if="r.cedida">{{ formatCantidad(r.cedida) }} de {{ formatCantidad(r.cantidad) }} {{ r.unidad }}</template>
-                                <template v-else>{{ formatCantidad(r.cantidad) }} {{ r.unidad }}</template>
+                                <template v-if="r.cedida">{{ formatCantidad(r.cedida) }} de {{ formatCantidad(r.cantidad) }} {{ unidad(r.unidad, r.cantidad) }}</template>
+                                <template v-else>{{ formatCantidad(r.cantidad) }} {{ unidad(r.unidad, r.cantidad) }}</template>
                             </p>
                         </div>
                     </div>

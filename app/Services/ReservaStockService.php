@@ -215,7 +215,9 @@ class ReservaStockService
     private function avisarCesion(ReservaStock $reserva, Cotizacion $venta, Producto $producto, float $cantidad): void
     {
         $afectada = $reserva->cotizacion;
-        $unidad   = $producto->unidad_medida ?: 'unidades';
+        // «4 unidad» se lee mal: la unidad por omisión va en plural cuando no es uno.
+        $unidad   = $producto->unidad_medida ?: 'unidad';
+        $unidad   = ($unidad === 'unidad' && abs($cantidad - 1) > 0.0001) ? 'unidades' : $unidad;
         $cuanto   = rtrim(rtrim(number_format($cantidad, 3, ',', '.'), '0'), ',');
         $quedan   = rtrim(rtrim(number_format($reserva->efectiva(), 3, ',', '.'), '0'), ',');
         $vendedor = $afectada->responsable;
