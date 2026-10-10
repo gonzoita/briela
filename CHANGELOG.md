@@ -14,6 +14,8 @@ Formato: [versionado semántico](https://semver.org/lang/es/).
 
 ## [Sin publicar]
 
+## [1.2.0] — 2026-10-10
+
 ### Agregado
 - **El correo sale por Briela, firmado y sin caer en spam.** Cuando Briela activa el
   dominio de envío de la instalación, las notificaciones, las cotizaciones y los formularios
@@ -22,6 +24,21 @@ Formato: [versionado semántico](https://semver.org/lang/es/).
 - **Configuración → Correo**: por dónde sale el correo, cuánto va del mes, un envío de prueba
   y las direcciones a las que ya no se les escribe porque rebotaron o se dieron de baja.
 - Las notificaciones del sistema no se cobran nunca.
+
+### Corregido
+- **Crear un producto con variantes ya no responde con error.** Un valor de variante largo
+  hacía que la referencia generada no cupiera y el guardado fallaba después de crear el
+  padre, dejando un producto a medias. Ahora la referencia se acorta sin perder el prefijo
+  del padre, y dos variantes nunca comparten referencia.
+- **Las referencias automáticas ya no saltan ni chocan.** El contador ya no cuenta las
+  variantes, así que los productos nuevos salen en orden (PROD-0001, PROD-0002…), y una
+  referencia escrita a mano no bloquea la siguiente.
+- **Las variantes tienen los precios de todos los canales**, incluidos los que la empresa
+  creó por su cuenta. Antes, una variante podía cotizarse en cero por un canal propio.
+- **Agregar una variante desde la ficha de editar ya no deja sus precios en cero.** La
+  variante nueva copia los precios del padre.
+- **Guardar un producto con proveedor sin todos sus datos ya no falla.** La importación y la
+  API mandan solo lo que tienen.
 
 ## [1.1.0] — 2026-10-04
 
