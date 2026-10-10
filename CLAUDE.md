@@ -617,11 +617,17 @@ decían lo contrario y estaban equivocadas.
   relaciones entre archivos antes de leer código a mano.
 - Conviene regenerarlo después de cambios que muevan estructura (borrar módulos,
   mover carpetas), porque un grafo desactualizado es peor que no tenerlo.
-- **Generado y al día.** Al 17 sep 2026: 7.596 nodos, 14.529 aristas, 563 comunidades,
-  anclado al commit `e8cbe9c0`. Se actualiza con
+- **Generado y al día.** Al 10 oct 2026: **9.907 nodos, 18.636 aristas, 615 comunidades**,
+  reconstruido entero y anclado al commit `d5cc247`. Cubre el proyecto completo: 926 archivos de
+  código por AST y los 70 documentos por subagentes. Se actualiza con
   `python -m graphify update . --force` y luego `cluster-only .` con
-  `GRAPHIFY_VIZ_NODE_LIMIT=10000`: pasado de 5.000 nodos, graphify no escribe `graph.html` si no. Se reconstruye entero con la extracción AST
-  (gratis, sin LLM) y `parallel=False`.
+  `GRAPHIFY_VIZ_NODE_LIMIT=10000`: pasado de 5.000 nodos, graphify no escribe `graph.html` si no.
+  La reconstrucción entera con la extracción AST es gratis, sin LLM.
+- **La caché semántica de los documentos va en `graphify-out/cache/` y NO al repo.** Guarda
+  rutas absolutas de la máquina donde se extrajo, igual que los `.graphify_*`. Eso significa que
+  **en una máquina nueva la parte de documentos se vuelve a pagar en subagentes**: lo que llega
+  gratis en el clon es `graph.json`, que ya los trae dentro. Reconstruir en frío ahí sin volver a
+  extraer los documentos **encoge el grafo** y graphify lo rechaza, que es lo correcto.
 - **Las comunidades se nombran solas, con su archivo dominante** —«Servicios · IaService»— y
   **no** con una lista escrita a mano. Louvain las renumera en cada reconstrucción: el id 12 de
   hoy no es el de ayer, así que un mapa de nombres a mano termina poniendo «Autenticación»
