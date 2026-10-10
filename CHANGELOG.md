@@ -15,6 +15,12 @@ Formato: [versionado semántico](https://semver.org/lang/es/).
 ## [Sin publicar]
 
 ### Agregado
+- **Calificación automática de proveedores.** Cada proveedor tiene una nota de 0 a 100 que calcula
+  el sistema con sus órdenes del último año: puntualidad, cumplimiento de lo pedido, entregas que
+  llegaron con factura o remisión y a tiempo, y qué tan competitivo es su precio. Se ve en la
+  lista de proveedores, en su ficha y al elegirlo en una orden de compra. Con menos de tres
+  órdenes evaluables dice «Sin calificar» en vez de inventar una nota. El asistente la usa junto
+  al precio para recomendar a quién comprarle.
 - **Cada movimiento de inventario dice de dónde vino y con qué papel.** En la ficha del producto
   ves, por cada movimiento, el stock antes y después, su origen con enlace (orden de compra, orden
   de producción, ajuste), la factura o remisión con su número y fecha, y las observaciones.

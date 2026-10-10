@@ -2,6 +2,7 @@
 import { ref, watch, computed } from 'vue'
 import { router } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
+import CalificacionProveedor from '@/Components/CalificacionProveedor.vue'
 
 const props = defineProps({
     proveedores: Array,
@@ -163,6 +164,8 @@ function fmtMoney(n) {
                         <option v-for="p in proveedores" :key="p.id" :value="p.id">{{ p.nombre }}</option>
                     </select>
                     <p v-if="errores.proveedor_id" class="text-aviso-rojo text-xs mt-1">{{ errores.proveedor_id }}</p>
+                    <!-- Cómo le ha ido con este proveedor: puntualidad, cumplimiento, papeles y precio. -->
+                    <CalificacionProveedor v-if="proveedorElegido" :calificacion="proveedorElegido.calificacion" class="mt-2" />
                     <p v-if="proveedorElegido?.responsable_iva === false" class="text-xs text-tinta-500 mt-1">
                         Según su RUT no es responsable de IVA: las líneas arrancan sin IVA.
                     </p>

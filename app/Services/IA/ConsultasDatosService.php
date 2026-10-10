@@ -107,7 +107,10 @@ class ConsultasDatosService
             'comparar_proveedores' => [
                 'descripcion' => 'Compara los proveedores de un producto o insumo: el código con que cada uno lo '
                     .'llama, su precio, cuánto tarda en entregar, el mínimo que exige, qué tan reciente es su '
-                    .'precio y cómo ha cambiado en las últimas órdenes. Úsala para "a quién le compro X", '
+                    .'precio y cómo ha cambiado en las últimas órdenes, y su calificación (0 a 100: puntualidad, '
+                    .'cumplimiento, entregas con factura o remisión a tiempo, y precio). Barato no es lo mismo '
+                    .'que conveniente: pesa las dos cosas, y si un proveedor no tiene calificación, dilo. '
+                    .'Úsala para "a quién le compro X", '
                     .'"quién me vende X más barato" o "cuál proveedor me conviene". Un precio de más de 90 días '
                     .'NO cuenta como oferta: si ninguno está vigente, dilo y recomienda confirmar precios.',
                 'parametros'  => ['texto' => 'nombre o referencia del producto (obligatorio)'],

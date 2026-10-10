@@ -55,18 +55,22 @@ class OrdenCompraController extends Controller
 
         $mapa = app(ProveedoresProductoService::class)->mapaParaOrden($insumos->pluck('id'));
 
+        $activos = Proveedor::where('activo', true)
+            ->orderBy('nombre')
+            ->get(['id', 'nombre', 'responsabilidades_fiscales']);
+
+        $calificaciones = app(\App\Services\CalificacionProveedorService::class)->paraProveedores($activos->pluck('id'));
+
         return Inertia::render('Compras/Ordenes/Create', [
             // Con lo que dice su RUT sobre el IVA: un proveedor no responsable no factura IVA, y
             // la línea no debería arrancar con uno. `null` es «no sabemos»: no se asume.
-            'proveedores' => Proveedor::where('activo', true)
-                ->orderBy('nombre')
-                ->get(['id', 'nombre', 'responsabilidades_fiscales'])
-                ->map(fn (Proveedor $p) => [
-                    'id'             => $p->id,
-                    'nombre'         => $p->nombre,
-                    'responsable_iva' => $p->responsableDeIva(),
-                    'iva_defecto'    => $p->ivaPorDefecto(),
-                ]),
+            'proveedores' => $activos->map(fn (Proveedor $p) => [
+                'id'              => $p->id,
+                'nombre'          => $p->nombre,
+                'responsable_iva' => $p->responsableDeIva(),
+                'iva_defecto'     => $p->ivaPorDefecto(),
+                'calificacion'    => $calificaciones[$p->id] ?? null,
+            ]),
             // Insumos del inventario real (productos). Se normaliza a la
             // forma que espera el Vue (codigo/nombre/unidad/precio_promedio).
             'items'       => $insumos->map(fn ($p) => [

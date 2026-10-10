@@ -162,8 +162,13 @@ class ProveedoresProductoService
             ->get()
             ->groupBy('proveedor_id');
 
-        $proveedores = $filas->map(function (ProductoProveedor $f) use ($historial) {
+        // Barato no es lo mismo que conveniente: el más barato que llega tarde y sin papel no sale
+        // más barato. El asistente decide con las dos cosas a la vista.
+        $calificaciones = app(CalificacionProveedorService::class)->paraProveedores($filas->pluck('proveedor_id'));
+
+        $proveedores = $filas->map(function (ProductoProveedor $f) use ($historial, $calificaciones) {
             $dias = $f->diasDesdeActualizacion();
+            $cal  = $calificaciones[$f->proveedor_id] ?? null;
 
             return [
                 'proveedor_id'     => $f->proveedor_id,
@@ -175,6 +180,12 @@ class ProveedoresProductoService
                 'actualizado_hace_dias' => $dias,
                 'precio_vigente'   => $dias !== null && $dias <= self::DIAS_PRECIO_VIGENTE && (float) $f->precio > 0,
                 'es_preferido'     => (bool) $f->es_preferido,
+                'calificacion'     => $cal ? [
+                    'puntaje'  => $cal['puntaje'],
+                    'nivel'    => $cal['nivel'],
+                    'muestras' => $cal['muestras'],
+                    'detalle'  => collect($cal['componentes'])->map(fn ($c) => $c['valor'])->all(),
+                ] : null,
                 'ultimos_precios'  => ($historial->get($f->proveedor_id) ?? collect())
                     ->take(5)
                     ->map(fn ($h) => ['fecha' => $h->registrado_el?->toDateString(), 'precio' => (float) $h->precio])

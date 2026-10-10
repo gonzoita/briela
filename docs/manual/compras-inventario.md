@@ -87,6 +87,36 @@ pero sin papel la entrega **no se puede comprobar**, y la pantalla lo dice.
 - **La fecha de llegada es la de la mercancía**, no la del día que se digitó, y no puede ser
   futura. Es lo que permite saber si una entrega llegó dentro del plazo pactado.
 
+## La calificación del proveedor *(nuevo, 10 oct 2026)*
+
+Cada proveedor tiene una **nota de 0 a 100** que **nadie escribe**: el sistema la calcula con lo
+que de verdad pasó en las órdenes y con los precios. Se ve en la lista de proveedores, en su
+ficha (con el desglose) y al elegirlo en una orden de compra. El asistente la lee junto al
+precio al comparar proveedores: barato no es lo mismo que conveniente.
+
+| Componente | Pesa | Qué mide |
+|---|---|---|
+| **Puntualidad** | 30 | Si la orden llegó **completa** para la fecha pactada. A tiempo vale todo; hasta 3 días tarde, la mitad; más tarde, o vencida sin llegar completa, nada |
+| **Cumplimiento** | 25 | Qué parte de lo pedido entregó. Lo que sobra en una línea no compensa lo que falta en otra |
+| **Entregas en regla** | 25 | De sus entregas, cuántas llegaron **con factura o remisión Y dentro del plazo**. Una por entrega, no por orden: una orden en tres entregas, una sin papel, cuenta como dos buenas y una mala |
+| **Precio** | 20 | Qué tan cerca está de lo más barato **vigente** para los mismos productos. Solo cuenta donde al menos dos proveedores lo venden con precio de menos de 90 días |
+
+Las reglas que conviene saber:
+
+- **Sin datos no hay nota.** Con menos de **3 órdenes evaluables** dice «Sin calificar» y cuántas
+  faltan: calificar por una sola orden es una anécdota con cara de estadística. Cuenta una orden
+  que tiene **fecha de entrega pactada** y ya llegó completa o ya venció; una que aún tiene plazo
+  no es ni buena ni mala. Por eso conviene poner siempre la fecha esperada al crear la orden.
+- **Un componente sin datos no cuenta como cero:** sale del promedio y los demás se reparten su
+  peso. A un proveedor al que nadie le ha comparado el precio no se le castiga por eso.
+- **Solo el último año.** Un proveedor que mejoró no carga con lo de hace tres.
+- **Lo anterior al registro de entregas** (órdenes recibidas antes de que se pidiera la factura o
+  remisión) se juzga en puntualidad y cumplimiento, pero no en papel: no se sabe qué traía.
+- Los pesos, el mínimo de órdenes y los días de gracia son constantes de
+  `CalificacionProveedorService`. Todavía no se configuran desde la pantalla.
+
+Niveles: 85 o más **excelente**, 70 a 84 **bueno**, 50 a 69 **regular**, menos de 50 **deficiente**.
+
 ## Cada proveedor llama distinto al mismo producto *(nuevo, 10 oct 2026)*
 
 La bisagra que la empresa llama `IC5260` la pueden vender varios proveedores con códigos

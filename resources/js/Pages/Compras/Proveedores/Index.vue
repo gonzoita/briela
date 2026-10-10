@@ -7,6 +7,7 @@ import { useOrden } from '@/composables/useOrden'
 import BuscadorModulo from '@/Components/BuscadorModulo.vue'
 import LeerRut from '@/Components/LeerRut.vue'
 import DatosFiscales from '@/Components/DatosFiscales.vue'
+import CalificacionProveedor from '@/Components/CalificacionProveedor.vue'
 
 const props = defineProps({
     proveedores: Object,
@@ -210,6 +211,7 @@ function tipoColor(t) {
                             <p class="font-semibold text-tinta-900">{{ p.nombre }}</p>
                             <p class="text-sm text-tinta-400">{{ p.nit ?? '—' }}</p>
                             <p class="text-sm text-tinta-400">{{ p.telefono ?? '—' }} · {{ p.email ?? '—' }}</p>
+                            <CalificacionProveedor :calificacion="p.calificacion" class="mt-2" />
                         </div>
                         <div class="flex flex-col items-end gap-1">
                             <span :class="['text-xs px-2 py-0.5 rounded-full font-medium', tipoColor(p.tipo)]">{{ tipoLabel(p.tipo) }}</span>
@@ -234,6 +236,7 @@ function tipoColor(t) {
                             <th class="text-left px-4 py-3 font-semibold text-tinta-500">Nombre</th>
                             <th class="text-left px-4 py-3 font-semibold text-tinta-500">NIT</th>
                             <th class="text-left px-4 py-3 font-semibold text-tinta-500">Tipo</th>
+                            <th class="text-left px-4 py-3 font-semibold text-tinta-500">Calificación</th>
                             <th class="text-left px-4 py-3 font-semibold text-tinta-500">Teléfono</th>
                             <th class="text-left px-4 py-3 font-semibold text-tinta-500">Email</th>
                             <th class="text-left px-4 py-3 font-semibold text-tinta-500">Estado</th>
@@ -247,6 +250,7 @@ function tipoColor(t) {
                             <td class="px-4 py-3">
                                 <span :class="['text-xs px-2 py-0.5 rounded-full font-medium', tipoColor(p.tipo)]">{{ tipoLabel(p.tipo) }}</span>
                             </td>
+                            <td class="px-4 py-3"><CalificacionProveedor :calificacion="p.calificacion" /></td>
                             <td class="px-4 py-3 text-tinta-400">{{ p.telefono ?? '—' }}</td>
                             <td class="px-4 py-3 text-tinta-400">{{ p.email ?? '—' }}</td>
                             <td class="px-4 py-3">
@@ -261,7 +265,7 @@ function tipoColor(t) {
                             </td>
                         </tr>
                         <tr v-if="!proveedores.data?.length">
-                            <td colspan="7" class="px-4 py-8 text-center text-tinta-300">No hay proveedores</td>
+                            <td colspan="8" class="px-4 py-8 text-center text-tinta-300">No hay proveedores</td>
                         </tr>
                     </tbody>
                 </table>
@@ -349,6 +353,12 @@ function tipoColor(t) {
                                 <input v-model="form.direccion" type="text" class="w-full rounded-lg border border-tinta-200 px-3 py-2 text-sm focus:ring-4 focus:ring-[var(--marca-suave)] focus:outline-none" />
                             </div>
                         </div>
+                        <!-- La nota la calcula el sistema con las órdenes del último año: nadie la escribe. -->
+                        <div v-if="editando?.calificacion" class="rounded-xl border border-linea p-3">
+                            <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-2">Calificación</p>
+                            <CalificacionProveedor :calificacion="editando.calificacion" detalle />
+                        </div>
+
                         <div class="rounded-xl border border-linea p-3 space-y-3">
                             <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">Datos fiscales</p>
                             <div class="grid grid-cols-3 gap-3">

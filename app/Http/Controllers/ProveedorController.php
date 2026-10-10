@@ -36,8 +36,17 @@ class ProveedorController extends Controller
         // `datos_rut` es el texto completo que leyó la IA: sirve para revisar, pesa, y la lista
         // no lo muestra. Se esconde aquí; la ficha no lo manda de vuelta, así que al guardar
         // se queda como estaba.
-        $proveedores = $query->paginate(20)->withQueryString()
-            ->through(fn (Proveedor $p) => $p->makeHidden('datos_rut'));
+        $proveedores = $query->paginate(20)->withQueryString();
+
+        // La calificación de los veinte de la página, con un número fijo de consultas.
+        $calificaciones = app(\App\Services\CalificacionProveedorService::class)
+            ->paraProveedores($proveedores->pluck('id'));
+
+        $proveedores->through(function (Proveedor $p) use ($calificaciones) {
+            $p->calificacion = $calificaciones[$p->id] ?? null;
+
+            return $p->makeHidden('datos_rut');
+        });
 
         return Inertia::render('Compras/Proveedores/Index', [
             'proveedores' => $proveedores,
