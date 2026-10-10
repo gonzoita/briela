@@ -136,11 +136,16 @@ class WhatsappAutomatizacionService
         $quien = $conversacion->nombre_contacto ?: $conversacion->numero_contacto;
         $dueno = $this->duenoDelNumero($numero);
 
+        // El aviso lleva a LA conversación, no a la bandeja a secas. Hasta que existió la
+        // bandeja, este enlace apuntaba a `/whatsapp`, que no era ninguna ruta: la campanita
+        // decía «te escribieron» y el clic no llevaba a ninguna parte.
+        $url = '/bandeja?conv=' . $conversacion->claveBandeja();
+
         if ($dueno) {
             $this->notificaciones->crear($dueno, 'whatsapp_mensaje_nuevo',
                 'Mensaje nuevo de WhatsApp',
                 "{$quien} escribió a tu línea ({$numero->nombre}).",
-                '/whatsapp'
+                $url
             );
 
             return;
@@ -149,7 +154,7 @@ class WhatsappAutomatizacionService
         $this->notificaciones->paraRol('vendedor', 'whatsapp_mensaje_nuevo',
             'Mensaje nuevo de WhatsApp',
             "{$quien} escribió por WhatsApp.",
-            '/whatsapp'
+            $url
         );
     }
 

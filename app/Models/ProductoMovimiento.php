@@ -20,6 +20,9 @@ class ProductoMovimiento extends Model
         'precio_unitario',
         'origen_tipo',
         'origen_id',
+        'documento_tipo',
+        'documento_numero',
+        'documento_fecha',
         'usuario_id',
         'notas',
     ];
@@ -29,6 +32,7 @@ class ProductoMovimiento extends Model
         'stock_anterior' => 'decimal:3',
         'stock_nuevo'    => 'decimal:3',
         'precio_unitario'=> 'decimal:2',
+        'documento_fecha'=> 'date:Y-m-d',
     ];
 
     public function producto(): BelongsTo

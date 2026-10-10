@@ -11,6 +11,7 @@ const props = defineProps({
     automatizacion: { type: Object, default: () => ({}) },
     etapas: { type: Array, default: () => [] },
     agente: { type: Object, default: () => ({}) },
+    plantillas: { type: Array, default: () => [] },
 })
 
 // ── Llamadas que responden ahí mismo ─────────────────────────────────────────
@@ -42,13 +43,21 @@ const cambiando = ref(false)   // abre los campos cuando ya está conectado
 const cred = ref({
     secret:   '',
     redirect: props.conexion?.verify_actual ?? '',
+    waba:     props.conexion?.waba_actual ?? '',
 })
 
-watch(() => props.conexion, (c) => { cred.value.redirect = c?.verify_actual ?? '' })
+watch(() => props.conexion, (c) => {
+    cred.value.redirect = c?.verify_actual ?? ''
+    cred.value.waba = c?.waba_actual ?? ''
+})
 
 /**
- * Lo que falta, en el orden en que hay que resolverlo. El App Secret va aparte
- * porque sin él se reciben mensajes igual: solo se pierde la firma.
+ * Lo que falta, en el orden en que hay que resolverlo.
+ *
+ * El App Secret estaba aparte, como un aviso que no impedía conectar, porque sin él los
+ * mensajes se recibían igual y solo se perdía la firma. Desde oct 2026 el webhook rechaza lo
+ * que no puede verificar: sin App Secret **no entra ningún mensaje**, así que es un requisito
+ * como los otros tres. Dejarlo abajo en ámbar era prometer una conexión que no entrega nada.
  */
 const chequeos = computed(() => [
     {
@@ -62,6 +71,11 @@ const chequeos = computed(() => [
         falta: 'Se genera en el paso 2 y se pega igual en Meta.',
     },
     {
+        ok: props.conexion.tiene_app_secret,
+        texto: 'App Secret de la aplicación de Meta',
+        falta: 'Se carga en Marketing → Redes Sociales → Cuentas. Sin él no entra ningún mensaje.',
+    },
+    {
         ok: props.conexion.numeros_activos > 0,
         texto: props.conexion.numeros_activos > 0
             ? `${props.conexion.numeros_activos} número${props.conexion.numeros_activos === 1 ? '' : 's'} activo${props.conexion.numeros_activos === 1 ? '' : 's'}`
@@ -72,6 +86,44 @@ const chequeos = computed(() => [
 
 function generarToken() {
     cred.value.redirect = props.conexion.token_sugerido
+}
+
+// ── Plantillas ───────────────────────────────────────────────────────────────
+const plantillasAbiertas = ref(false)
+const pruebaPlantillas   = ref(null)
+
+const aprobadas = computed(() => props.plantillas.filter(p => p.estado === 'APPROVED'))
+
+/**
+ * El estado de la plantilla, con su color.
+ *
+ * Las clases van escritas completas y no armadas con el nombre del estado: Tailwind genera el
+ * CSS leyendo el código fuente, y una clase construida en tiempo de ejecución no llega al
+ * bundle.
+ */
+function estadoPlantilla(estado) {
+    return {
+        APPROVED:        { label: 'Aprobada',        clase: 'bg-pastel-verde-2 text-aviso-verde' },
+        PENDING:         { label: 'En revisión',     clase: 'bg-pastel-ambar-2 text-aviso-ambar' },
+        REJECTED:        { label: 'Rechazada',       clase: 'bg-pastel-rojo-2 text-aviso-rojo' },
+        PAUSED:          { label: 'Pausada',         clase: 'bg-pastel-naranja-2 text-aviso-naranja' },
+        DISABLED:        { label: 'Desactivada',     clase: 'bg-pastel-rojo-2 text-aviso-rojo' },
+        BORRADA_EN_META: { label: 'Ya no está en Meta', clase: 'bg-tinta-100 text-tinta-400' },
+    }[estado] ?? { label: estado ?? 'Sin estado', clase: 'bg-tinta-100 text-tinta-400' }
+}
+
+async function sincronizarPlantillas() {
+    ocupado.value = 'plantillas'
+    pruebaPlantillas.value = null
+
+    const r = await postJson('/configuracion/whatsapp-numeros/sincronizar-plantillas')
+
+    pruebaPlantillas.value = r
+    ocupado.value = ''
+
+    // La lista la manda el servidor, así que se vuelve a pedir solo esa propiedad: recargar la
+    // pantalla entera cerraría los bloques que la persona tenía abiertos.
+    if (r?.ok) router.reload({ only: ['plantillas'], preserveScroll: true, preserveState: true })
 }
 
 async function copiar(texto, marca) {
@@ -310,12 +362,15 @@ async function enviarPrueba(n) {
                 </div>
 
                 <div v-if="!conexion.tiene_app_secret"
-                    class="rounded-lg bg-pastel-ambar border border-borde-aviso-ambar p-2.5 text-[11px] text-aviso-ambar mb-3 leading-relaxed">
-                    <p class="font-semibold">Falta el App Secret de la aplicación de Meta.</p>
+                    class="rounded-lg bg-pastel-rojo border border-borde-aviso-rojo p-2.5 text-[11px] text-aviso-rojo mb-3 leading-relaxed">
+                    <p class="font-semibold">Falta el App Secret: no va a entrar ningún mensaje.</p>
                     <p>
-                        Sin él, los mensajes entrantes se aceptan sin verificar la firma: cualquiera que sepa la
-                        dirección del webhook podría inventar mensajes y meter leads falsos al CRM. Se carga en
-                        Marketing → Redes Sociales → Cuentas, y es el de la misma aplicación.
+                        Es con lo que se comprueba que un mensaje viene de verdad de Meta, y el webhook rechaza lo
+                        que no puede verificar. Sin esa comprobación, cualquiera que sepa la dirección podría
+                        inventar mensajes y meter leads falsos al CRM, que además se repartirían solos entre los
+                        vendedores. Se carga en
+                        <a href="/rrss/cuentas" class="underline font-semibold">Redes Sociales → Cuentas</a>,
+                        y es el de la misma aplicación de Meta.
                     </p>
                 </div>
 
@@ -384,6 +439,21 @@ async function enviarPrueba(n) {
                         </p>
                     </div>
 
+                    <!-- Paso 4: no hace falta para enviar, solo para las plantillas. Va al
+                         final y dicho así para que nadie crea que sin esto no funciona nada. -->
+                    <div>
+                        <p class="font-semibold text-tinta-700 mb-1">4. La cuenta (opcional, para plantillas)</p>
+                        <p class="leading-relaxed mb-1.5">
+                            En la misma pantalla, debajo del número, está el
+                            <strong>Identificador de la cuenta de WhatsApp Business</strong> (WABA ID). Con él se
+                            traen las plantillas aprobadas, que son lo único que se puede enviar cuando pasaron
+                            más de 24 horas desde el último mensaje del cliente. Sin esto se recibe y se
+                            contesta igual; lo que no se puede es escribir primero.
+                        </p>
+                        <input v-model="cred.waba" type="text" placeholder="Identificador de la cuenta (WABA ID)"
+                            class="w-full border border-linea rounded-lg px-2.5 py-2 text-[12px] focus:outline-none focus:border-[var(--marca)]" />
+                    </div>
+
                     <div class="flex flex-wrap gap-2 pt-1">
                         <button type="button" @click="guardarCredenciales" :disabled="ocupado === 'guardar'"
                             class="flex-1 min-w-[10rem] py-2 rounded-lg text-[12px] font-semibold text-white disabled:opacity-50"
@@ -417,6 +487,76 @@ async function enviarPrueba(n) {
                 </div>
 
                 <ResultadoPrueba :resultado="pruebaWebhook" :cargando="ocupado === 'webhook'" />
+            </div>
+
+            <!-- ── Plantillas aprobadas ──────────────────────────────────── -->
+            <!--
+                Son lo único que se puede enviar cuando pasaron más de 24 horas desde el último
+                mensaje del cliente, así que de ellas depende todo aviso que el sistema le mande
+                a alguien que no acaba de escribir: una cotización lista, una orden despachada.
+                No se crean acá —las revisa Meta una por una y la aprobación tarda—: esta lista
+                es el espejo de lo que exista allá.
+            -->
+            <div class="bg-superficie rounded-2xl border border-linea p-5 mb-4">
+                <button @click="plantillasAbiertas = !plantillasAbiertas"
+                    class="w-full flex items-center justify-between text-left">
+                    <div>
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <h2 class="text-sm font-semibold text-tinta-700">Plantillas de mensajes</h2>
+                            <span v-if="aprobadas.length"
+                                class="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-pastel-verde-2 text-aviso-verde leading-none">
+                                {{ aprobadas.length }} aprobada{{ aprobadas.length === 1 ? '' : 's' }}
+                            </span>
+                            <span v-else
+                                class="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-tinta-100 text-tinta-400 leading-none">Ninguna</span>
+                        </div>
+                        <p class="text-[11px] text-tinta-400 mt-0.5">
+                            Lo único que se puede enviar pasadas 24 horas del último mensaje del cliente.
+                        </p>
+                    </div>
+                    <span class="text-tinta-300 text-xs">{{ plantillasAbiertas ? '▲' : '▼' }}</span>
+                </button>
+
+                <div v-if="plantillasAbiertas" class="mt-4 space-y-3">
+                    <div class="flex flex-wrap items-center gap-2">
+                        <button type="button" @click="sincronizarPlantillas" :disabled="ocupado === 'plantillas'"
+                            class="px-3 py-2 rounded-xl text-xs font-semibold text-white disabled:opacity-50"
+                            style="background:var(--marca);">
+                            {{ ocupado === 'plantillas' ? 'Trayendo...' : 'Traer de Meta' }}
+                        </button>
+                        <p v-if="plantillas.length" class="text-[11px] text-tinta-400">
+                            Se actualizan solas una vez al día.
+                        </p>
+                    </div>
+
+                    <ResultadoPrueba :resultado="pruebaPlantillas" :cargando="ocupado === 'plantillas'" />
+
+                    <p v-if="!plantillas.length" class="text-[11px] text-tinta-400 leading-relaxed">
+                        Todavía no hay ninguna. Se escriben en Meta, en
+                        <em>WhatsApp Manager → Plantillas de mensajes</em>, Meta las revisa, y después se traen
+                        con el botón de arriba. Hace falta el identificador de la cuenta (WABA ID) del paso 4.
+                    </p>
+
+                    <div v-else class="divide-y divide-separador -mx-1">
+                        <div v-for="p in plantillas" :key="p.id" class="px-1 py-2.5">
+                            <div class="flex items-start gap-2 flex-wrap">
+                                <span class="text-xs font-semibold text-tinta-700">{{ p.nombre }}</span>
+                                <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-tinta-100 text-tinta-500 leading-none">
+                                    {{ p.idioma }}
+                                </span>
+                                <span class="text-[10px] font-semibold px-1.5 py-0.5 rounded-full leading-none"
+                                    :class="estadoPlantilla(p.estado).clase">
+                                    {{ estadoPlantilla(p.estado).label }}
+                                </span>
+                                <span v-if="p.variables"
+                                    class="text-[10px] px-1.5 py-0.5 rounded-full bg-pastel-azul-2 text-aviso-azul leading-none">
+                                    {{ p.variables }} dato{{ p.variables === 1 ? '' : 's' }}
+                                </span>
+                            </div>
+                            <p v-if="p.cuerpo" class="text-[11px] text-tinta-500 mt-1 whitespace-pre-wrap">{{ p.cuerpo }}</p>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- ── Automatización ────────────────────────────────────────── -->

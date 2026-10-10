@@ -8,9 +8,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Support\Str;
 use App\Support\Marca;
 
+#[ObservedBy(\App\Observers\CotizacionObserver::class)]
 class Cotizacion extends Model
 {
     use SoftDeletes, Auditable;
@@ -173,6 +175,15 @@ class Cotizacion extends Model
             'impuesto_total'  => $impuestoTotal,
             'total'           => $subtotal - $descuentoTotal + $impuestoTotal,
         ]);
+
+        // Se recalcula cuando cambian las líneas —crear, editar, duplicar—, así que es el punto
+        // por el que pasa todo cambio de lo que se promete. Si la cotización ya está enviada,
+        // lo apartado la sigue. Nunca rompe el guardado: apartar es secundario.
+        try {
+            app(\App\Services\ReservaStockService::class)->alCambiarLineas($this);
+        } catch (\Throwable $e) {
+            report($e);
+        }
     }
 
     public function diasSinRespuesta(): ?int

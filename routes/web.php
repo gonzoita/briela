@@ -21,6 +21,7 @@ use App\Http\Controllers\AuditoriaController;
 use App\Http\Controllers\PantallaPlantaController;
 use App\Http\Controllers\ConfiguracionController;
 use App\Http\Controllers\ComisionController;
+use App\Http\Controllers\BandejaController;
 use App\Http\Controllers\CuentaRrssController;
 use App\Http\Controllers\AsistenteController;
 use App\Http\Controllers\IaController;
@@ -137,6 +138,12 @@ Route::get('/catalogo/ensambles/{id}/pdf',      [CatalogoController::class, 'ens
 // ─── Webhook WhatsApp Cloud API (Meta) — sin auth, sin CSRF ─────────────────
 Route::get('/webhook/whatsapp',  [WhatsappWebhookController::class, 'verify']);
 Route::post('/webhook/whatsapp', [WhatsappWebhookController::class, 'receive']);
+
+// ─── Webhook de Instagram y Facebook — mensajes y comentarios ───────────────
+// Una sola dirección para las dos redes y los cuatro canales: Meta manda todo por el mismo
+// webhook de la misma aplicación. Ver MetaWebhookController.
+Route::get('/webhook/meta',  [\App\Http\Controllers\MetaWebhookController::class, 'verify']);
+Route::post('/webhook/meta', [\App\Http\Controllers\MetaWebhookController::class, 'receive']);
 
 // El chat público de la web. Con throttle porque es la ruta más expuesta del sistema: es
 // pública, no tiene sesión que limite quién escribe, y cada mensaje cuesta tokens.
@@ -325,7 +332,11 @@ Route::middleware('auth')->group(function () {
             Route::delete('/{id}',   [ProductoController::class, 'destroy'])->name('destroy');
         });
 
-        Route::post('/{id}/ajuste-stock',        [ProductoController::class, 'ajusteStock'])->name('ajuste-stock');
+        // Antes de /{id}: un ajuste mueve el inventario, así que pide el permiso de stock. La ruta
+        // no pedía ninguno, y la ficha mostraba el botón a cualquiera que pudiera verla.
+        Route::post('/{id}/ajuste-stock',        [ProductoController::class, 'ajusteStock'])
+            ->middleware('permiso:inventario.editar')->name('ajuste-stock');
+        Route::get('/{id}/movimientos',          [ProductoController::class, 'movimientos'])->name('movimientos');
         Route::patch('/{id}/precio-costo',       [ProductoController::class, 'actualizarCosto'])->name('precio-costo');
         Route::patch('/{id}/umbrales',           [ProductoController::class, 'umbrales'])->middleware('permiso:productos.editar')->name('umbrales');
         Route::delete('/imagenes/{id}',          [ImagenProductoController::class, 'destroy'])->name('imagenes.destroy');
@@ -430,6 +441,7 @@ Route::middleware('auth')->group(function () {
         // APIs búsqueda cotizador
         Route::get('/api/cotizaciones/clientes',  [CotizacionController::class, 'buscarClientes'])->name('cotizaciones.clientes.buscar');
         Route::get('/api/cotizaciones/productos', [CotizacionController::class, 'buscarProductos'])->name('cotizaciones.productos.buscar');
+        Route::post('/api/cotizaciones/disponibilidad', [CotizacionController::class, 'disponibilidad'])->name('cotizaciones.disponibilidad');
 
         // Guardar el texto de condiciones comerciales como el general de la empresa. Pide
         // permiso de configuración: cambia cómo nacen TODAS las cotizaciones nuevas, no
@@ -800,6 +812,11 @@ Route::middleware('auth')->group(function () {
             Route::post('/fiscal/leer-rut', [\App\Http\Controllers\FiscalConfigController::class, 'leerRut'])->name('fiscal.leer-rut');
         });
 
+        // ─── Calificación de proveedores: cuánto pesa cada cosa en la nota ───
+        Route::get('/calificacion-proveedores', [\App\Http\Controllers\CalificacionProveedoresConfigController::class, 'index'])->name('calificacion-proveedores.index');
+        Route::post('/calificacion-proveedores', [\App\Http\Controllers\CalificacionProveedoresConfigController::class, 'guardar'])
+            ->middleware('permiso:configuracion.editar')->name('calificacion-proveedores.guardar');
+
         // ─── Módulos: encender y apagar lo que la empresa usa ────────────────
         Route::get('/modulos',          [\App\Http\Controllers\ModuloController::class, 'index'])->name('modulos.index');
         Route::post('/modulos',         [\App\Http\Controllers\ModuloController::class, 'cambiar'])
@@ -820,6 +837,10 @@ Route::middleware('auth')->group(function () {
         // Los probadores responden JSON y se pintan sin recargar la pantalla.
         Route::post('/whatsapp-numeros/probar-webhook',       [WhatsappNumeroController::class, 'probarWebhook'])->name('whatsapp-numeros.probar-webhook');
         Route::post('/whatsapp-numeros/probar-agente',        [WhatsappNumeroController::class, 'probarAgente'])->name('whatsapp-numeros.probar-agente');
+        // Trae las plantillas aprobadas de Meta. Responde JSON: se pinta sin recargar, igual
+        // que los probadores.
+        Route::post('/whatsapp-numeros/sincronizar-plantillas', [WhatsappNumeroController::class, 'sincronizarPlantillas'])
+            ->middleware('permiso:configuracion.editar')->name('whatsapp-numeros.sincronizar-plantillas');
         Route::post('/whatsapp-numeros/{whatsappNumero}/probar',        [WhatsappNumeroController::class, 'probarNumero'])->name('whatsapp-numeros.probar-numero');
         Route::post('/whatsapp-numeros/{whatsappNumero}/enviar-prueba', [WhatsappNumeroController::class, 'enviarPrueba'])->name('whatsapp-numeros.enviar-prueba');
         Route::post('/whatsapp-numeros',                      [WhatsappNumeroController::class, 'store'])->name('whatsapp-numeros.store');
@@ -907,6 +928,39 @@ Route::middleware('auth')->group(function () {
         Route::get('/auditoria', [AuditoriaController::class, 'index'])->name('auditoria.index');
     });
 
+    // ─── Bandeja — lo que escriben los clientes por WhatsApp y por las redes ─
+    //
+    // El hilo y la respuesta devuelven JSON: abrir una conversación no cambia de pantalla.
+    // Ver el encabezado de BandejaController.
+    //
+    // La clave de una conversación es «canal:id» y llega del navegador, así que el canal se
+    // valida contra el catálogo antes de tocar la base (BandejaService::resolver). El
+    // `where` deja fuera cualquier otra forma antes de llegar al controlador.
+    Route::middleware('permiso:bandeja.ver')->prefix('bandeja')->name('bandeja.')->group(function () {
+        Route::get('/', [BandejaController::class, 'index'])->name('index');
+
+        Route::get('/{clave}/hilo', [BandejaController::class, 'hilo'])
+            ->where('clave', '[a-z_]+:[0-9]+')->name('hilo');
+
+        Route::post('/{clave}/responder', [BandejaController::class, 'responder'])
+            ->middleware('permiso:bandeja.responder')
+            ->where('clave', '[a-z_]+:[0-9]+')->name('responder');
+
+        Route::post('/{clave}/plantilla', [BandejaController::class, 'enviarPlantilla'])
+            ->middleware('permiso:bandeja.responder')
+            ->where('clave', '[a-z_]+:[0-9]+')->name('plantilla');
+
+        Route::post('/{clave}/asignar', [BandejaController::class, 'asignar'])
+            ->middleware('permiso:bandeja.asignar')
+            ->where('clave', '[a-z_]+:[0-9]+')->name('asignar');
+
+        // Archivar es «ya la atendí», así que pide el mismo permiso que contestar: quien solo
+        // puede leer no debería poder sacarle de la vista a los demás lo que falta atender.
+        Route::post('/{clave}/archivar', [BandejaController::class, 'archivar'])
+            ->middleware('permiso:bandeja.responder')
+            ->where('clave', '[a-z_]+:[0-9]+')->name('archivar');
+    });
+
     // ─── Redes Sociales — programador de publicaciones (solo administrador) ──
     Route::middleware('permiso:rrss.ver')->prefix('rrss')->name('rrss.')->group(function () {
         Route::get('/',              [PublicacionRrssController::class, 'index'])->name('index');
@@ -920,6 +974,7 @@ Route::middleware('auth')->group(function () {
         Route::prefix('cuentas')->name('cuentas.')->group(function () {
             Route::get('/',                   [CuentaRrssController::class, 'index'])->name('index');
             Route::post('/credenciales/{red}',[CuentaRrssController::class, 'guardarCredenciales'])->name('credenciales');
+            Route::post('/automatizacion',    [CuentaRrssController::class, 'guardarAutomatizacion'])->name('automatizacion');
             Route::get('/conectar/{red}',     [CuentaRrssController::class, 'conectar'])->name('conectar');
             Route::get('/callback/{red}',     [CuentaRrssController::class, 'callback'])->name('callback');
             Route::delete('/{cuenta}',        [CuentaRrssController::class, 'destroy'])->name('destroy');
@@ -1001,6 +1056,8 @@ Route::middleware('auth')->group(function () {
     // ─── Compras — Proveedores ────────────────────────────────────────────────
     Route::middleware('permiso:proveedores.ver')->prefix('compras/proveedores')->group(function () {
         Route::get('/',              [ProveedorController::class, 'index'])->name('proveedores.index');
+        // Antes de /{proveedor}: Laravel resuelve por orden de registro.
+        Route::post('/leer-rut',     [ProveedorController::class, 'leerRut'])->name('proveedores.leer-rut');
         Route::post('/',             [ProveedorController::class, 'store']);
         Route::put('/{proveedor}',   [ProveedorController::class, 'update']);
         Route::delete('/{proveedor}',[ProveedorController::class, 'destroy']);
@@ -1021,11 +1078,12 @@ Route::middleware('auth')->group(function () {
     Route::middleware('permiso:ordenes.ver')->prefix('compras/ordenes')->group(function () {
         Route::get('/',               [OrdenCompraController::class, 'index'])->name('ordenes-compra.index');
         Route::get('/crear',          [OrdenCompraController::class, 'create'])->name('ordenes-compra.create');
+        Route::get('/buscar-productos', [OrdenCompraController::class, 'buscarProductos'])->name('ordenes-compra.buscar-productos');
         Route::post('/',              [OrdenCompraController::class, 'store']);
         Route::get('/{orden}',        [OrdenCompraController::class, 'show'])->name('ordenes-compra.show');
         Route::put('/{orden}',        [OrdenCompraController::class, 'update']);
         Route::post('/{orden}/enviar',[OrdenCompraController::class, 'enviar']);
-        Route::post('/{orden}/recibir',[OrdenCompraController::class, 'recibir']);
+        Route::post('/{orden}/recibir',[OrdenCompraController::class, 'recibir'])->middleware('permiso:ordenes.recibir');
         Route::get('/{orden}/pdf',    [OrdenCompraController::class, 'pdf']);
     });
 
@@ -1051,9 +1109,10 @@ Route::middleware('auth')->group(function () {
         Route::get('/',                         [InventarioController::class, 'index'])->name('inventario.index');
         Route::get('/dashboard',                [InventarioController::class, 'dashboard'])->name('inventario.dashboard');
         Route::get('/movimientos',              [InventarioController::class, 'kardex'])->name('inventario.movimientos');
+        Route::get('/apartados',                [InventarioController::class, 'apartados'])->name('inventario.apartados');
         Route::post('/',                        [InventarioController::class, 'store']);
         Route::put('/{item}',                   [InventarioController::class, 'update']);
-        Route::post('/{item}/ajuste',           [InventarioController::class, 'ajuste']);
+        Route::post('/{item}/ajuste',           [InventarioController::class, 'ajuste'])->middleware('permiso:inventario.editar');
         Route::get('/{item}/movimientos',       [InventarioController::class, 'movimientos']);
     });
     Route::get('/api/inventario/buscar', [InventarioController::class, 'buscar'])->middleware('auth');

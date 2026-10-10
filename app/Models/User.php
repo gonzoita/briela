@@ -129,10 +129,17 @@ class User extends Authenticatable
      */
     public function permisos(): array
     {
-        static $cache = [];
+        // La memoria va en el contenedor, no en una propiedad `static`.
+        //
+        // Una estática vive lo que vive el proceso, no la petición. En las pruebas, donde los
+        // 151 casos corren seguidos en un mismo proceso y `RefreshDatabase` reinicia el
+        // autoincremento, el usuario 1 de un caso devolvía los permisos del usuario 1 del caso
+        // anterior: un operario heredaba los permisos de un administrador y la prueba pasaba
+        // por el motivo equivocado. Es la misma regla que ya aplica `Configuracion::get()`.
+        $clave = 'briela.permisos.' . $this->id;
 
-        if (isset($cache[$this->id])) {
-            return $cache[$this->id];
+        if (app()->bound($clave)) {
+            return app($clave);
         }
 
         $rol = $this->relationLoaded('rolConfigurable')
@@ -145,7 +152,11 @@ class User extends Authenticatable
 
         // Un módulo apagado se lleva sus permisos para todos, sin importar el rol: con esto
         // desaparecen el menú, los botones y las rutas de ese módulo. Ver App\Support\Modulos.
-        return $cache[$this->id] = \App\Support\Modulos::filtrarPermisos($permisos);
+        $efectivos = \App\Support\Modulos::filtrarPermisos($permisos);
+
+        app()->instance($clave, $efectivos);
+
+        return $efectivos;
     }
 
     /**

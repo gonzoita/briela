@@ -1,14 +1,33 @@
 <script setup>
 import { ref, computed } from 'vue'
-import { router } from '@inertiajs/vue3'
+import { router, usePage } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
+import RetencionesEstimadas from '@/Components/RetencionesEstimadas.vue'
 
 const props = defineProps({
     orden: Object,
+    // Lo que la empresa le va a retener al proveedor al pagar (la cuenta la hace el servidor).
+    retenciones: { type: Object, default: null },
+    // Cómo llaman a cada producto los OTROS proveedores y a cuánto, por id de producto. Interno:
+    // el PDF que recibe el proveedor no lo lleva.
+    equivalencias: { type: Object, default: () => ({}) },
 })
 
 const modalRecepcion = ref(false)
 const guardando      = ref(false)
+
+// El papel de la entrega: la factura o la remisión que trae el proveedor. Una orden llega a
+// veces en varias entregas, cada una con el suyo, así que se pide en CADA recepción.
+const hoy = () => new Date().toISOString().slice(0, 10)
+const papelEnBlanco = () => ({
+    factura_numero: '', remision_numero: '', fecha_documento: '', fecha_recepcion: hoy(), observaciones: '',
+})
+const papel = ref(papelEnBlanco())
+// Las fechas llegan como «2026-10-10»: se les pone la hora a mano, porque `new Date('2026-10-10')`
+// es medianoche UTC y en Colombia sale el día anterior.
+const fechaCorta = (d) => d
+    ? new Date(`${String(d).slice(0, 10)}T00:00:00`).toLocaleDateString('es-CO', { day: '2-digit', month: 'short', year: 'numeric' })
+    : '—'
 
 const cantidadesRecibidas = ref(
     props.orden.items.map(i => ({
@@ -37,12 +56,16 @@ function abrirRecepcion() {
     cantidadesRecibidas.value = props.orden.items.map(i => ({
         id:                i.id,
         descripcion:       i.descripcion,
+        // Con qué se compara lo que llega contra la factura: el código del proveedor y la referencia nuestra.
+        codigo_proveedor:  i.referencia_proveedor,
+        ref_interna:       i.item?.referencia,
         cantidad:          Number(i.cantidad),
         cantidad_recibida: 0,
         ya_recibida:       Number(i.cantidad_recibida),
         pendiente:         Number(i.cantidad) - Number(i.cantidad_recibida),
         unidad:            i.unidad,
     }))
+    papel.value = papelEnBlanco()
     modalRecepcion.value = true
 }
 
@@ -58,7 +81,7 @@ function guardarRecepcion() {
         return
     }
 
-    router.post(`/compras/ordenes/${props.orden.id}/recibir`, { items }, {
+    router.post(`/compras/ordenes/${props.orden.id}/recibir`, { items, ...papel.value }, {
         onSuccess: () => { modalRecepcion.value = false; guardando.value = false },
         onError:   () => { guardando.value = false },
     })
@@ -85,8 +108,12 @@ function fmt(n) {
     return Number(n).toLocaleString('es-CO', { minimumFractionDigits: 0, maximumFractionDigits: 3 })
 }
 
+// El botón solo aparece a quien el servidor dejaría recibir: sin permiso `ordenes.recibir` la
+// ruta responde 403, y un botón que falla al tocarlo es peor que no tenerlo.
+const permisos = computed(() => usePage().props.auth?.permisosLista ?? [])
 const puedeRecibir = computed(() =>
     ['enviada', 'confirmada', 'recibida_parcial'].includes(props.orden.estado)
+    && permisos.value.includes('ordenes.recibir')
 )
 </script>
 
@@ -174,7 +201,25 @@ const puedeRecibir = computed(() =>
                             <tr v-for="item in orden.items" :key="item.id">
                                 <td class="px-4 py-3">
                                     <p class="font-medium text-tinta-900">{{ item.descripcion }}</p>
-                                    <p v-if="item.item" class="text-xs text-tinta-300">{{ item.item.referencia }}</p>
+                                    <p v-if="item.referencia_proveedor" class="text-xs font-medium text-tinta-500">Cód. proveedor: {{ item.referencia_proveedor }}</p>
+                                    <p v-if="item.item" class="text-xs text-tinta-300">
+                                        Ref. interna: {{ item.item.referencia }}
+                                        <a :href="`/productos/${item.item_id}`" class="text-aviso-azul hover:underline ml-1">ver producto</a>
+                                    </p>
+                                    <p v-else class="text-xs text-aviso-ambar">Ítem manual: no está ligado a un producto, así que no entra al inventario.</p>
+                                    <details v-if="equivalencias[item.item_id]?.length" class="mt-1 text-xs text-tinta-400">
+                                        <summary class="cursor-pointer select-none hover:text-tinta-600">
+                                            También lo venden {{ equivalencias[item.item_id].length }}
+                                            {{ equivalencias[item.item_id].length === 1 ? 'proveedor' : 'proveedores' }}
+                                        </summary>
+                                        <ul class="mt-1 space-y-0.5">
+                                            <li v-for="e in equivalencias[item.item_id]" :key="e.proveedor_id">
+                                                {{ e.proveedor }}<span v-if="e.codigo"> · cód. {{ e.codigo }}</span>
+                                                · <template v-if="e.precio > 0">{{ fmtMoney(e.precio) }}<span v-if="!e.precio_vigente"> (precio viejo)</span></template><template v-else>sin precio</template>
+                                                <span v-if="e.mas_barato" class="font-semibold text-aviso-verde"> · más barato</span>
+                                            </li>
+                                        </ul>
+                                    </details>
                                 </td>
                                 <td class="px-4 py-3 text-right text-tinta-700">{{ fmt(item.cantidad) }} {{ item.unidad }}</td>
                                 <td class="px-4 py-3 text-right">
@@ -209,7 +254,27 @@ const puedeRecibir = computed(() =>
                         <span>Total</span>
                         <span>{{ fmtMoney(orden.total) }}</span>
                     </div>
+                    <RetencionesEstimadas :retenciones="retenciones" :total="Number(orden.total)" compra />
                 </div>
+            </div>
+
+            <!-- Entregas: cada recepción con el papel que trajo -->
+            <div v-if="orden.recepciones?.length" class="bg-superficie rounded-xl border border-linea overflow-hidden">
+                <div class="px-4 py-3 border-b border-linea">
+                    <h3 class="font-semibold text-tinta-900">Entregas recibidas</h3>
+                </div>
+                <ul class="divide-y divide-separador">
+                    <li v-for="r in orden.recepciones" :key="r.id" class="px-4 py-3 text-sm">
+                        <div class="flex flex-wrap items-center gap-x-4 gap-y-1">
+                            <span class="font-medium text-tinta-900">{{ fechaCorta(r.fecha_recepcion) }}</span>
+                            <span v-if="r.factura_numero" class="text-tinta-500">Factura <b class="text-tinta-700">{{ r.factura_numero }}</b></span>
+                            <span v-if="r.remision_numero" class="text-tinta-500">Remisión <b class="text-tinta-700">{{ r.remision_numero }}</b></span>
+                            <span v-if="!r.factura_numero && !r.remision_numero" class="text-aviso-ambar">Sin factura ni remisión</span>
+                            <span v-if="r.recibido_por" class="text-xs text-tinta-300 ml-auto">{{ r.recibido_por.name }}</span>
+                        </div>
+                        <p v-if="r.observaciones" class="text-xs text-tinta-400 mt-1">{{ r.observaciones }}</p>
+                    </li>
+                </ul>
             </div>
 
             <!-- Condiciones / notas -->
@@ -236,7 +301,13 @@ const puedeRecibir = computed(() =>
                     <div class="space-y-3">
                         <div v-for="item in cantidadesRecibidas" :key="item.id"
                             class="border border-linea rounded-lg p-3">
-                            <p class="text-sm font-medium text-tinta-900 mb-2">{{ item.descripcion }}</p>
+                            <p class="text-sm font-medium text-tinta-900">{{ item.descripcion }}</p>
+                            <p v-if="item.codigo_proveedor || item.ref_interna" class="text-xs text-tinta-400 mb-2">
+                                <span v-if="item.codigo_proveedor">Cód. proveedor: {{ item.codigo_proveedor }}</span>
+                                <span v-if="item.codigo_proveedor && item.ref_interna"> · </span>
+                                <span v-if="item.ref_interna">Ref. interna: {{ item.ref_interna }}</span>
+                            </p>
+                            <div v-else class="mb-2" />
                             <div class="flex items-center gap-3 text-sm text-tinta-400 mb-2">
                                 <span>Total: {{ fmt(item.cantidad) }}</span>
                                 <span>Ya recibido: {{ fmt(item.ya_recibida) }}</span>
@@ -248,6 +319,41 @@ const puedeRecibir = computed(() =>
                                     :max="item.pendiente" min="0" step="0.001"
                                     class="w-full rounded-lg border border-tinta-200 px-3 py-2 text-sm" />
                             </div>
+                        </div>
+                    </div>
+
+                    <!-- El papel con el que llegó: lo que permite comprobar este ingreso después. -->
+                    <div class="mt-4 rounded-lg border border-linea p-3 space-y-3">
+                        <p class="text-sm font-medium text-tinta-900">Con qué llegó</p>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs text-tinta-500 mb-1">Factura del proveedor</label>
+                                <input v-model="papel.factura_numero" type="text" maxlength="60"
+                                    class="w-full rounded-lg border border-tinta-200 px-3 py-2 text-sm" />
+                            </div>
+                            <div>
+                                <label class="block text-xs text-tinta-500 mb-1">Remisión del proveedor</label>
+                                <input v-model="papel.remision_numero" type="text" maxlength="60"
+                                    class="w-full rounded-lg border border-tinta-200 px-3 py-2 text-sm" />
+                            </div>
+                            <div>
+                                <label class="block text-xs text-tinta-500 mb-1">Fecha del documento</label>
+                                <input v-model="papel.fecha_documento" type="date"
+                                    class="w-full rounded-lg border border-tinta-200 px-3 py-2 text-sm" />
+                            </div>
+                            <div>
+                                <label class="block text-xs text-tinta-500 mb-1">Llegó el</label>
+                                <input v-model="papel.fecha_recepcion" type="date" :max="hoy()"
+                                    class="w-full rounded-lg border border-tinta-200 px-3 py-2 text-sm" />
+                            </div>
+                        </div>
+                        <p v-if="!papel.factura_numero && !papel.remision_numero" class="text-xs text-aviso-ambar">
+                            Sin factura ni remisión este ingreso no se podrá comprobar, y cuenta en contra del proveedor.
+                        </p>
+                        <div>
+                            <label class="block text-xs text-tinta-500 mb-1">Observaciones</label>
+                            <textarea v-model="papel.observaciones" rows="2" placeholder="Ej: llegó una caja golpeada, faltó el resto"
+                                class="w-full rounded-lg border border-tinta-200 px-3 py-2 text-sm" />
                         </div>
                     </div>
 

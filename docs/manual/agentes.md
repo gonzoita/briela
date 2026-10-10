@@ -2,7 +2,8 @@
 
 Ruta: `/configuracion/agentes` · Permisos: `agentes.ver`, `agentes.gestionar`
 
-Quién atiende por WhatsApp y por la web a nombre de la empresa, y **hasta dónde puede llegar**.
+Quién atiende por WhatsApp, por Instagram, por Facebook y por el chat de la web a nombre de la
+empresa, y **hasta dónde puede llegar**.
 
 ## El campo que manda es el perfil
 
@@ -58,16 +59,26 @@ Una conversación soltada queda marcada y ni siquiera cae a los mensajes fijos.
 - **No aprueba cotizaciones por chat.** Entrega el enlace público, que es donde ya se aprueba.
 - **No inventa.** Lo que no esté en su catálogo no existe para él.
 
-## El chat de la web
+## Los canales donde no sabemos quién escribe
 
-La ruta pública `/api/agente/web` recibe el mensaje y el historial corto de la conversación, y
-responde con el agente marcado para el canal **web**.
+Son tres: el **chat de la web**, **Instagram** y **Facebook**. El widget entra por la ruta
+pública `/api/agente/web`; los mensajes de las redes, por el webhook de Meta (ver
+[Bandeja de mensajes](./bandeja.md)).
 
 **Siempre con perfil público, y a propósito.** En WhatsApp el número da una pista de quién
-escribe; en un widget anónimo no hay ninguna, y montar ahí la verificación de identidad sería
-pedirle el documento a cualquiera que pase por la página — un formulario de recolección de datos
-disfrazado de chat. Quien quiera hablar de lo suyo entra por WhatsApp o por el portal de
-seguimiento, que ya exigen demostrar quién son.
+escribe y se le puede pedir que lo confirme; en un widget anónimo o en un mensaje de Instagram no
+hay ninguna, y montar ahí la verificación de identidad sería pedirle el documento a cualquiera
+que pase por la página — un formulario de recolección de datos disfrazado de chat. Quien quiera
+hablar de lo suyo entra por WhatsApp o por el portal de seguimiento, que ya exigen demostrar
+quién son.
+
+Por eso, aunque un agente se marque con perfil **cliente**, en estos canales atiende con el
+público: no ve un solo dato de ningún cliente. La pantalla lo avisa al marcar esos canales.
+
+**Los comentarios públicos son otra cosa.** Que el agente conteste un comentario de Instagram o
+Facebook es un interruptor aparte, apagado de fábrica: una respuesta automática en un chat la lee
+una persona, y en un comentario la lee cualquiera que pase por la publicación. Se enciende en
+Redes Sociales → Cuentas.
 
 Va con límite de peticiones: es la ruta más expuesta del sistema —pública, sin sesión que limite
 quién escribe, y cada mensaje cuesta tokens—.

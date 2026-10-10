@@ -27,11 +27,17 @@ lo que falta, en el orden en que hay que resolverlo:
 |---|---|
 | **Token de acceso de Meta** | La llave de la aplicación. Paso 1 |
 | **Token de verificación del webhook** | La contraseña del webhook. Paso 2 |
+| **App Secret de la aplicación** | Con lo que se comprueba que un mensaje viene de Meta. Se carga en Redes Sociales → Cuentas |
 | **Al menos un número activo** | Sin número no hay desde dónde enviar. Paso 3 |
 
-Debajo pueden salir dos avisos ámbar que **no impiden conectar**, pero conviene
-leer: que esta instalación no es alcanzable desde internet, y que falta el App
-Secret (ver *La firma del webhook*, más abajo).
+Debajo puede salir un aviso ámbar que **no impide conectar**, pero conviene leer:
+que esta instalación no es alcanzable desde internet.
+
+> **El App Secret pasó a ser obligatorio el 7 oct 2026.** Antes era un aviso
+> ámbar que no impedía nada, porque sin él los mensajes se recibían igual y solo
+> se perdía la verificación de la firma. Ahora el webhook **rechaza lo que no
+> puede verificar**, así que sin App Secret no entra ningún mensaje. Ver *La
+> firma del webhook*.
 
 ### Antes de empezar
 
@@ -71,6 +77,15 @@ dirección funciona pero no llega ningún mensaje, y es el segundo error más co
 > cada mensaje es el del número. Pegar el mismo dato dos veces hacía creer que
 > todo estaba bien mientras los mensajes salían por otra línea. El campo viejo
 > se sigue leyendo en instalaciones que ya lo tenían, pero no se vuelve a pedir.
+
+**4. La cuenta (opcional, solo para plantillas).** En la misma pantalla de Meta,
+debajo del número, está el **Identificador de la cuenta de WhatsApp Business**
+(WABA ID). Con él se traen las plantillas aprobadas. Sin esto se recibe y se
+contesta igual; lo que no se puede es **escribir primero** (ver *Plantillas*).
+
+> No confundirlo con el Phone Number ID: los dos son números largos y están
+> cerca en la misma pantalla. Si se pega el equivocado, el sistema lo detecta y
+> lo dice con esas palabras.
 
 El token se guarda **cifrado** y no se vuelve a mostrar. Para cambiar el token de
 verificación sin volver a escribir el de acceso, se deja ese campo vacío.
@@ -114,13 +129,23 @@ uno hace antes de encenderlo. No manda nada y no crea leads.
 
 El webhook no tiene login: lo llama Meta. Para saber que un mensaje viene de
 verdad de Meta se comprueba la firma con el **App Secret** de la misma
-aplicación. Si no hay App Secret guardado, los mensajes se aceptan igual y queda
-anotado en el registro — pero **cualquiera que sepa la dirección puede inventar
-mensajes y meter leads falsos al CRM**, que además se repartirían solos.
+aplicación.
+
+**Sin App Secret no entra ningún mensaje.** Hasta el 7 oct 2026 se aceptaban
+igual y solo quedaba anotado en el registro, con el argumento de que en
+producción el secreto iba a existir siempre. No era cierto: se carga en otra
+pantalla, así que una instalación perfectamente funcional podía pasar meses sin
+él — con el webhook abierto a que **cualquiera que supiera la dirección inventara
+mensajes y metiera leads falsos al CRM**, que además se repartirían solos entre
+los vendedores.
+
+En entorno `local` se sigue dejando pasar, porque ahí el webhook se prueba a mano
+con un cliente HTTP que no sabe firmar. Fuera de `local` no hay excusa: Meta
+siempre firma.
 
 Se carga en **Marketing → Redes Sociales → Cuentas**, porque es la credencial de
-la aplicación de Meta y ahí viven las de las redes. La pantalla de WhatsApp
-avisa cuando falta y dice dónde ponerla.
+la aplicación de Meta y ahí viven las de las redes. La pantalla de WhatsApp dice
+dónde ponerla y enlaza.
 
 ## Desconectar y volver a conectar
 
@@ -259,15 +284,56 @@ se perdería la asignación sin que nadie lo pidiera.
 | El mensaje sale sin error pero no llega | La ventana de 24 horas | **Enviar mensaje de prueba** |
 | Un vendedor no se entera de sus mensajes | El número no tiene dueño, o el asignado está inactivo | Revisar «Quién atiende» |
 
+## Plantillas de mensajes
+
+Meta solo deja escribir **texto libre** a quien nos escribió en las últimas 24
+horas. Pasado ese plazo —o para iniciar una conversación en frío— el único
+mensaje que sale es una **plantilla aprobada por Meta**. De ellas depende todo
+aviso que el sistema le mande a alguien que no acaba de escribir: una cotización
+lista, una orden despachada, un recordatorio de pago.
+
+**No se escriben acá, y es a propósito.** Meta las revisa una por una y la
+aprobación tarda. Un formulario que las creara haría creer que la plantilla queda
+lista para usar, cuando lo que queda es una solicitud en cola. Se escriben en
+*WhatsApp Manager → Plantillas de mensajes*, que es donde se ve el estado de la
+revisión, y en el bloque **Plantillas de mensajes** de esta pantalla se traen con
+el botón **Traer de Meta**.
+
+Cada una muestra su idioma, su estado y cuántos datos pide:
+
+| Estado | Qué significa |
+|---|---|
+| **Aprobada** | Se puede enviar. Es la única que aparece en la bandeja |
+| **En revisión** | Meta todavía la está mirando |
+| **Rechazada** / **Pausada** | Existe en Meta pero enviarla devuelve error |
+| **Ya no está en Meta** | Se borró allá. Se conserva acá para no romper el historial |
+
+Se sincronizan solas una vez al día, porque Meta **cambia su estado sin avisar**:
+una aprobada se puede pausar por mala calidad. Sin eso, la bandeja ofrecería
+plantillas que Meta ya rechazó, y eso se descubre cuando un mensaje a un cliente
+no sale.
+
+Los datos variables van como `{{1}}`, `{{2}}`. Al mandarla, la bandeja los pide
+uno por uno y muestra **cómo le va a llegar** al cliente antes de enviar. En el
+historial queda el texto ya armado, no el nombre de la plantilla: dentro de un
+año nadie va a saber qué decía «aviso_despacho_v2».
+
 ## Nota técnica
 
-- Tablas: `whatsapp_numeros`, `whatsapp_conversaciones`, `whatsapp_mensajes`.
+- Tablas: `whatsapp_numeros`, `whatsapp_conversaciones`, `whatsapp_mensajes`,
+  `whatsapp_plantillas`.
+- La bandeja donde se lee y se contesta es `/bandeja` —compartida con las
+  redes—; ver [Bandeja de mensajes](./bandeja.md).
 - Servicios:
   - `App\Services\WhatsAppService` — envío y verificación del webhook.
   - `App\Services\WhatsappDiagnosticoService` — los probadores y el semáforo de
     la pantalla (`estado()`).
   - `App\Services\WhatsappAutomatizacionService` — qué pasa al recibir un
     mensaje. `duenoDelNumero()` es lo que hace que la asignación signifique algo.
+  - `App\Services\WhatsappMediaService` — baja los archivos que entran y sube los
+    que salen. **Los enlaces que da Meta vencen en minutos**, así que guardar la
+    URL dejaba un historial de imágenes rotas al día siguiente.
+  - `App\Services\WhatsappPlantillaService` — el espejo de las plantillas.
   - `App\Services\IA\AgentePublicoService::previsualizar()` — la prueba del
     agente, sin exigir que esté encendido.
 - Webhook: `GET/POST /webhook/whatsapp` — el `GET` es el que Meta usa para

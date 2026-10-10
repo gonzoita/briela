@@ -337,12 +337,13 @@ tocar los seeders.
 > **Las pruebas corren contra `briela_test`**, declarada en `phpunit.xml`; nunca contra
 > `briela`. Si esa base no existe, las 51 de Feature fallan todas por conexión y solo pasan las
 > 16 unitarias — parece un código roto y es una base que falta. Se crea una vez:
-> `mysql -u root -e "CREATE DATABASE IF NOT EXISTS briela_test"`. Al 17 sep 2026: 104 en verde.
+> `mysql -u root -e "CREATE DATABASE IF NOT EXISTS briela_test"`. Al 7 oct 2026: 243 en verde.
 
 **Tareas programadas** (`routes/console.php`, requieren cron):
 `cotizaciones:marcar-vencidas` · `notificaciones:entregas-proximas` ·
-`notificaciones:cursos-por-vencer` · `notificaciones:recordatorios` ·
-`rrss:publicar-programadas`
+`notificaciones:cursos-por-vencer` · `notificaciones:recordatorios` · `stock:liberar-reservas` ·
+`rrss:publicar-programadas` · `rrss:revisar-tokens` ·
+`whatsapp:sincronizar-plantillas`
 
 **Portales públicos (sin login):** `/op/{token}` · `/seguimiento` (exige apellido
 o documento) · `/cotizaciones/{token}/aprobar` · `/verificar-certificado/{codigo}`
@@ -393,7 +394,8 @@ Plan completo en `docs/BRIELA-PLAN.md` sección 7.
 
 **Cierre obligatorio de toda tarea** (decidido el 23 sep 2026): al terminar un cambio, sin
 preguntar, siempre las tres cosas: (1) actualizar el grafo (`python -m graphify update . --force`
-y luego `cluster-only .` con `GRAPHIFY_VIZ_NODE_LIMIT=10000`), (2) commit y `git push` de la rama
+y luego `cluster-only .` con `GRAPHIFY_VIZ_NODE_LIMIT=10000`) **y comprometerlo**, porque desde
+el 8 oct 2026 `graphify-out/graph.json` va al repo, (2) commit y `git push` de la rama
 de trabajo, y (3) deploy: llevar el cambio a `main` sin reescribir historia y hacer
 `git push origin main`, que es lo que dispara el despliegue en `sistema.briela.app`. Antes de
 subir a `main`, las pruebas y el build (`npm run build`) tienen que estar en verde.
@@ -500,6 +502,42 @@ Lo construido después de la fase 3, que conviene conocer antes de tocar algo ce
   pregunta `Modulos::activo()` y se salta**, nunca se queda esperando: sin Calidad la unidad
   terminada se firma sola; sin Stock no se piden bodegas ni se mueve inventario. Ver
   `docs/manual/modulos.md`.
+- **La bandeja es UNA pantalla y DOS juegos de tablas** (`/bandeja`, módulo y permisos
+  `bandeja.*`). WhatsApp vive en `whatsapp_conversaciones`/`whatsapp_mensajes` y las redes en
+  `bandeja_conversaciones`/`bandeja_mensajes`: no se unificaron porque renombrar una tabla está
+  prohibido en un producto instalado, y porque el almacenamiento de verdad es distinto —WhatsApp
+  identifica por teléfono y Meta por un identificador por página—. Lo que **sí** es uno solo es
+  todo lo de arriba: una lista (un `UNION` normalizado en el `SELECT`, no una mezcla en PHP, que
+  daría mal la segunda página), un hilo, una caja de respuesta. Un canal nuevo se agrega
+  escribiendo un adaptador de `CanalBandeja` y poniéndolo en la lista de `AppServiceProvider`.
+- **El plazo de 24 horas de Meta se pregunta ANTES de enviar, y lo calcula un solo sitio**
+  (`EsConversacion::ventanaAbierta()`). Corre desde el **último mensaje de la persona**, no desde
+  el último de la conversación: contestar no reabre nada, y `ultimo_entrante_at` jamás lo escribe
+  un mensaje nuestro —hacerlo sería regalarse 24 horas que Meta no dio—. El error de Meta habla
+  de «re-engagement message» y no de un plazo vencido, así que dejar que falle allá deja a quien
+  atiende creyendo que envió. Fuera del plazo, en WhatsApp sale una **plantilla aprobada**
+  (`whatsapp_plantillas`, espejo de Meta, no se crean desde acá) y en Instagram y Messenger no
+  sale nada: no tienen plantillas.
+- **Las reglas de cada canal viven en `App\Support\Canales`**, no en las pantallas: plazo, si
+  admite plantillas, si admite adjuntos, de qué módulos depende. Son reglas de Meta y cambian por
+  canal; escritas en cada pantalla, la bandeja ofrecía botones que la API rechazaba.
+- **Los dos webhooks de Meta rechazan lo que no pueden verificar** (`/webhook/whatsapp` y
+  `/webhook/meta`, que comparten firma y token de verificación porque son la misma app). Sin App
+  Secret no entra nada, salvo en `local`. Antes se aceptaba todo y solo quedaba una línea en el
+  log: cualquiera que supiera la URL podía inventar mensajes y meter leads falsos al CRM, que
+  además se repartían solos entre los vendedores.
+- **Un comentario de la propia página no se procesa.** La respuesta vuelve por el mismo webhook,
+  y sin ese corte el agente de IA se contestaba a sí mismo en bucle, en público. Y contestar
+  comentarios con IA es un interruptor **aparte y apagado de fábrica**: una respuesta automática
+  en un comentario la lee cualquiera y la indexa Google.
+- **Lo que llega por un canal se baja al servidor** (`AdjuntoBandeja`, `categoria='bandeja'`):
+  los enlaces que da Meta vencen en minutos, y guardar la URL dejaba un historial de imágenes
+  rotas al día siguiente. Por eso `archivos.subido_por` es nulable: un archivo que llega de
+  afuera no lo subió nadie del sistema.
+- **Los permisos de las redes vencen a los ~60 días y `rrss:revisar-tokens` los vigila**: renueva
+  con 20 días de margen lo que se puede renovar solo (Meta estirando el token, Google con su
+  `refresh_token`) y avisa a los 15 de lo que exige reconectar a mano. El aviso va a los
+  administradores, no a quien publica: reconectar exige entrar al Business Manager.
 - **Por dentro todo está en la moneda base** (`App\Support\Monedas::base()`, el peso colombiano
   mientras la instalación no diga otra; se congela con la primera cotización u orden). Nunca
   escribir `'COP'` ni «pesos» en código nuevo: pregunta `Monedas::base()` (PHP) o `monedaBase()`
@@ -579,17 +617,30 @@ un comercio o una empresa de servicios.
 No existe un binario `graphify` en el PATH: las instrucciones heredadas del sistema de origen
 decían lo contrario y estaban equivocadas.
 
-- El grafo se genera invocando el skill `/graphify` sobre el proyecto. Deja sus
-  salidas en `graphify-out/` (que está en `.gitignore` — se regenera).
+- El grafo se genera invocando el skill `/graphify` sobre el proyecto. Deja sus salidas en
+  `graphify-out/`.
+- **El grafo va al repo**, para que esté al día en cualquier máquina y en cualquier sesión
+  nueva sin reconstruirlo —reconstruirlo cuesta tiempo, y la parte semántica cuesta tokens—.
+  Van `graph.json` (lo que leen las consultas) y `GRAPH_REPORT.md`. **No** van los
+  `.graphify_*`, que guardan rutas absolutas de la máquina donde se generó y en otra no
+  existen, ni `graph.html`, que lleva el grafo incrustado y se reescribe entero cada vez:
+  comprometerlo sumaría varios MB a la historia en cada reconstrucción, en un repo que se
+  clona en el servidor de cada cliente. Se regenera con `cluster-only .`.
 - Cuando exista `graphify-out/`, sirve para preguntas de arquitectura y
   relaciones entre archivos antes de leer código a mano.
 - Conviene regenerarlo después de cambios que muevan estructura (borrar módulos,
   mover carpetas), porque un grafo desactualizado es peor que no tenerlo.
-- **Generado y al día.** Al 17 sep 2026: 7.596 nodos, 14.529 aristas, 563 comunidades,
-  anclado al commit `e8cbe9c0`. Se actualiza con
+- **Generado y al día.** Al 10 oct 2026: **10.256 nodos, 19.728 aristas, 621 comunidades**,
+  reconstruido entero y anclado al commit `d5cc247`. Cubre el proyecto completo: 926 archivos de
+  código por AST y los 70 documentos por subagentes. Se actualiza con
   `python -m graphify update . --force` y luego `cluster-only .` con
-  `GRAPHIFY_VIZ_NODE_LIMIT=10000`: pasado de 5.000 nodos, graphify no escribe `graph.html` si no. Se reconstruye entero con la extracción AST
-  (gratis, sin LLM) y `parallel=False`.
+  `GRAPHIFY_VIZ_NODE_LIMIT=10000`: pasado de 5.000 nodos, graphify no escribe `graph.html` si no.
+  La reconstrucción entera con la extracción AST es gratis, sin LLM.
+- **La caché semántica de los documentos va en `graphify-out/cache/` y NO al repo.** Guarda
+  rutas absolutas de la máquina donde se extrajo, igual que los `.graphify_*`. Eso significa que
+  **en una máquina nueva la parte de documentos se vuelve a pagar en subagentes**: lo que llega
+  gratis en el clon es `graph.json`, que ya los trae dentro. Reconstruir en frío ahí sin volver a
+  extraer los documentos **encoge el grafo** y graphify lo rechaza, que es lo correcto.
 - **Las comunidades se nombran solas, con su archivo dominante** —«Servicios · IaService»— y
   **no** con una lista escrita a mano. Louvain las renumera en cada reconstrucción: el id 12 de
   hoy no es el de ayer, así que un mapa de nombres a mano termina poniendo «Autenticación»

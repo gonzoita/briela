@@ -162,6 +162,40 @@ class Producto extends Model
         return $this->hasMany(ImagenProducto::class)->orderBy('orden');
     }
 
+    /**
+     * Las imágenes que se ven de este producto.
+     *
+     * Una variante es un producto más y puede tener las suyas; si no tiene ninguna, donde se
+     * muestre sola —al cotizar, en el catálogo, en su ficha— se usa la del producto principal.
+     * No se copian archivos ni filas: se mira al padre al momento de mostrar, así que si el
+     * padre cambia su foto, las variantes que la heredan cambian con él.
+     *
+     * Quien llame debe traer `imagenes` y `padre.imagenes`, o cada variante cuesta consultas.
+     */
+    public function imagenesVisibles(): \Illuminate\Support\Collection
+    {
+        if ($this->imagenes->isNotEmpty() || ! $this->producto_padre_id) {
+            return $this->imagenes;
+        }
+
+        return $this->padre?->imagenes ?? $this->imagenes;
+    }
+
+    public function imagenVisible(): ?ImagenProducto
+    {
+        $imagenes = $this->imagenesVisibles();
+
+        return $imagenes->firstWhere('es_principal', true) ?? $imagenes->first();
+    }
+
+    /** Si lo que se ve es del producto principal y no propio: para decírselo a la persona. */
+    public function heredaImagenes(): bool
+    {
+        return $this->producto_padre_id
+            && $this->imagenes->isEmpty()
+            && $this->padre?->imagenes->isNotEmpty();
+    }
+
     public function stocks(): HasMany
     {
         return $this->hasMany(ProductoStock::class);
@@ -241,18 +275,47 @@ class Producto extends Model
         return $this->nombre;
     }
 
+    /** Lo que cabe en `productos.referencia`. */
+    public const REFERENCIA_MAX = 60;
+
+    /**
+     * La referencia de una variante: la del padre, un guion y su valor.
+     *
+     * **Nunca puede pasarse de 60 caracteres**, que es lo que acepta la columna. El valor
+     * de la variante admite 60 por sí solo, así que «PROD-0001-» más un valor largo daba
+     * 70 y MySQL cortaba la inserción con un 1406: la pantalla mostraba un 500 sin decir
+     * qué pasó, y el padre ya había quedado creado. Se recorta el valor, no el prefijo:
+     * el prefijo es lo que emparenta la variante con su padre a simple vista.
+     *
+     * El desempate también cabe: se reserva el espacio del sufijo antes de recortar, para
+     * que «-2» no vuelva a pasarse del tope.
+     */
     public static function generarReferenciaVariante(Producto $padre, string $valorVariante): string
     {
-        $base = $padre->referencia . '-' . strtoupper(preg_replace('/[^A-Za-z0-9]+/', '', $valorVariante));
+        $limpio = strtoupper(preg_replace('/[^A-Za-z0-9]+/', '', $valorVariante));
+        $raiz   = $padre->referencia . '-' . $limpio;
+        $sufijo = 1;
 
-        $referencia = $base;
-        $sufijo     = 1;
-        while (static::withTrashed()->where('referencia', $referencia)->exists()) {
+        // El sufijo se reserva ANTES de recortar, no se recorta después: recortar el
+        // sufijo devolvería la misma referencia una y otra vez y el bucle no terminaría.
+        do {
+            $cola       = $sufijo === 1 ? '' : '-' . $sufijo;
+            $referencia = static::recortarReferencia($raiz, strlen($cola)) . $cola;
             $sufijo++;
-            $referencia = $base . '-' . $sufijo;
-        }
+        } while (static::withTrashed()->where('referencia', $referencia)->exists());
 
         return $referencia;
+    }
+
+    /**
+     * Deja una referencia dentro del límite de la columna, guardando sitio para el sufijo
+     * de desempate que pueda venir después.
+     */
+    private static function recortarReferencia(string $referencia, int $reserva = 0): string
+    {
+        $tope = static::REFERENCIA_MAX - $reserva;
+
+        return strlen($referencia) <= $tope ? $referencia : rtrim(substr($referencia, 0, $tope), '-');
     }
 
     // ─── Stock ───────────────────────────────────────────────────────────────
@@ -309,7 +372,12 @@ class Producto extends Model
         ?float $precioUnitario = null,
         string $origenTipo = 'ajuste_manual',
         ?int $origenId = null,
-        ?string $notas = null
+        ?string $notas = null,
+        // El papel que respalda el movimiento: 'factura', 'remision' u 'otro', con su número
+        // y su fecha. Al final y opcionales: quien ya llama con nombres no cambia.
+        ?string $documentoTipo = null,
+        ?string $documentoNumero = null,
+        ?string $documentoFecha = null
     ): void {
         if ($this->es_padre) {
             throw new \RuntimeException('Un producto padre no puede tener stock. Selecciona una de sus variantes.');
@@ -370,11 +438,59 @@ class Producto extends Model
             'origen_id'        => $origenId,
             'usuario_id'       => $usuarioId,
             'notas'            => $notas,
+            'documento_tipo'   => $documentoNumero ? $documentoTipo : null,
+            'documento_numero' => $documentoNumero ?: null,
+            'documento_fecha'  => $documentoNumero ? $documentoFecha : null,
         ]);
     }
 
     // ─── Helpers ─────────────────────────────────────────────────────────────
 
+    /**
+     * Deja libre una referencia que solo la tiene algo ya eliminado.
+     *
+     * Eliminar un producto es un borrado suave y la columna `referencia` es única, así que
+     * un producto eliminado seguía ocupando su referencia para siempre: la persona lo
+     * borraba, volvía a crear el mismo producto con la misma referencia y el sistema le
+     * decía que ya estaba en uso —de algo que ella ya no veía—. La única salida era una
+     * consulta a mano en la base, en un hosting donde ni siquiera hay terminal.
+     *
+     * No se borra nada: al eliminado se le cambia la referencia por «REF~elim123», con su
+     * id al final para que nunca choque. Se hace **al reutilizarla**, no al eliminar, por
+     * dos razones: así las cotizaciones y órdenes viejas siguen mostrando la referencia
+     * original mientras nadie la reclame, y vale también para lo que ya estaba eliminado
+     * antes de esta regla, sin ninguna migración que correr en cada instalación.
+     *
+     * Lo que está vivo no se toca: eso lo rechaza la validación.
+     */
+    public static function liberarReferencia(string $referencia, ?int $exceptoId = null): void
+    {
+        static::onlyTrashed()
+            ->where('referencia', $referencia)
+            ->when($exceptoId, fn ($q) => $q->where('id', '!=', $exceptoId))
+            ->get()
+            ->each(function (Producto $eliminado) {
+                $cola = '~elim'.$eliminado->id;
+
+                $eliminado->update([
+                    'referencia' => mb_substr($eliminado->referencia, 0, static::REFERENCIA_MAX - mb_strlen($cola)).$cola,
+                ]);
+            });
+    }
+
+    /**
+     * La siguiente referencia libre de su tipo: PROD-0001, SERV-0012.
+     *
+     * Sale del **número más alto ya usado**, no de cuántas filas hay. Contar fallaba de
+     * dos maneras en cuanto la instalación llevaba tiempo: las variantes también empiezan
+     * por «PROD-» —«PROD-0007-3M»— así que inflaban la cuenta y el contador saltaba de
+     * cuatro en cuatro, y una referencia escrita a mano hacía que la cuenta se topara con
+     * un número ya ocupado: el formulario respondía «la referencia ya está en uso» en un
+     * campo que la persona había dejado en blanco.
+     *
+     * El `while` final es el cinturón: con referencias escritas a mano siempre puede
+     * haber un hueco ocupado más arriba.
+     */
     public static function generarReferencia(string $tipo): string
     {
         $prefijo = match ($tipo) {
@@ -383,12 +499,18 @@ class Producto extends Model
             default    => 'PROD',
         };
 
-        $ultimo = static::withTrashed()
-            ->where('tipo', $tipo)
-            ->where('referencia', 'like', "{$prefijo}-%")
-            ->count();
+        // Solo «PREFIJO-1234»: una variante lleva otro guion detrás y no entra en la cuenta.
+        $ultimo = (int) static::withTrashed()
+            ->where('referencia', 'REGEXP', '^' . $prefijo . '-[0-9]+$')
+            ->selectRaw('MAX(CAST(SUBSTRING(referencia, ?) AS UNSIGNED)) as maximo', [strlen($prefijo) + 2])
+            ->value('maximo');
 
-        return $prefijo . '-' . str_pad($ultimo + 1, 4, '0', STR_PAD_LEFT);
+        do {
+            $ultimo++;
+            $referencia = $prefijo . '-' . str_pad((string) $ultimo, 4, '0', STR_PAD_LEFT);
+        } while (static::withTrashed()->where('referencia', $referencia)->exists());
+
+        return $referencia;
     }
 
     public function tipoLabel(): string

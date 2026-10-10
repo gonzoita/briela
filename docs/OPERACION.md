@@ -68,14 +68,16 @@ find ~/domains -maxdepth 4 -name artisan
 tail -40 ~/despliegue.log
 ```
 
-**Forzar el despliegue sin esperar al cron:**
+**Actualizar TODAS las instalaciones sin esperar al cron:**
 
 ```bash
-for A in $(find ~/domains -maxdepth 4 -name artisan 2>/dev/null); do R=$(dirname "$A"); [ -f "$R/scripts/traer-cambios.sh" ] && bash "$R/scripts/traer-cambios.sh" "$R" main; done; tail -15 ~/despliegue.log
+cd ~/domains/briela.app/public_html && bash scripts/actualizar-todo.sh
 ```
 
-Es seguro aunque el cron acabe de pasar: el script no hace nada si no hay cambios y tiene su
-propio candado.
+Recorre todas las instalaciones que haya bajo `~/domains` —el ERP, el superadmin y cualquier
+demo— y dice de cada una el commit de antes y el de después. Es seguro aunque el cron acabe de
+pasar: no hace nada donde no haya cambios, y cada instalación tiene su propio candado. Detalle
+en `docs/manual/deploy-automatico.md`.
 
 ### Dos cosas que confunden
 
@@ -285,12 +287,34 @@ Es un mapa navegable del código: qué archivo se relaciona con qué. Sirve para
 ### Dónde está
 
 ```
-graphify-out/graph.json          ← el grafo, para consultarlo
-graphify-out/graph.html          ← el mapa visual, se abre en el navegador
-graphify-out/GRAPH_REPORT.md     ← el informe en palabras
+graphify-out/graph.json          ← el grafo, para consultarlo       (VA AL REPO)
+graphify-out/GRAPH_REPORT.md     ← el informe en palabras           (VA AL REPO)
+graphify-out/graph.html          ← el mapa visual, en el navegador  (no va: se regenera)
+graphify-out/.graphify_*         ← caché y rutas de la máquina      (no va: no sirve en otra)
 ```
 
-Está en `.gitignore`: **se regenera, no se versiona.** En un computador nuevo hay que generarlo.
+### Qué va al repo y qué no *(cambió el 8 oct 2026)*
+
+**El grafo se versiona.** Antes todo `graphify-out/` estaba en `.gitignore` y había que
+reconstruirlo en cada computador y en cada sesión nueva de Claude Code. Reconstruirlo cuesta
+tiempo, y la parte semántica cuesta tokens. Ahora `graph.json` y `GRAPH_REPORT.md` viajan en el
+repo: quien clone el proyecto —o abra una sesión nueva— ya tiene el grafo al día y puede
+consultarlo sin generar nada.
+
+Dos cosas siguen fuera, y por razones distintas:
+
+- **Los `.graphify_*`** guardan **rutas absolutas de la máquina** donde se generó el grafo:
+  `.graphify_python` es la ruta del intérprete de Python y `.graphify_root` la del proyecto. En
+  otra máquina esas rutas no existen, así que subirlos no comparte nada — rompe. Ahí vive
+  también la caché de extracción, que es local por definición.
+- **`graph.html`** es el archivo pesado: lleva el grafo entero incrustado y se reescribe
+  completo en cada reconstrucción. Comprometerlo sumaría varios MB a la historia de git **cada
+  vez**, en un repo que ya versiona `public/build` y que se clona en el servidor de cada
+  cliente. Se regenera en segundos desde `graph.json` con `cluster-only .`.
+
+> **Al terminar una tarea, el grafo se actualiza Y se compromete.** Es parte del cierre
+> obligatorio (ver `CLAUDE.md`). Un `graph.json` en el repo que quedó viejo es peor que no
+> tenerlo: manda a leer archivos que ya no existen, y ahora lo lee todo el que clone.
 
 ### Regenerarlo completo
 

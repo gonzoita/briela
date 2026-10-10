@@ -10,10 +10,11 @@ dónde está su manual.
 |---|---|---|---|
 | **Correo (SMTP)** | Enviar avisos y cotizaciones por email | Configuración → Correo | No |
 | **Inteligencia artificial** | El asistente, redacción e imágenes | Configuración → IA | No |
-| **Instagram / Facebook** | Publicar en las redes de la empresa | Marketing → Redes Sociales → Cuentas | No |
+| **Instagram / Facebook** | Publicar en las redes, y recibir y contestar mensajes y comentarios | Marketing → Redes Sociales → Cuentas | No |
 | **LinkedIn** | Publicar en la página de empresa | Marketing → Redes Sociales → Cuentas | **Sí**, LinkedIn |
 | **Google Business Profile** | Publicar novedades en la ficha de Google | Marketing → Redes Sociales → Cuentas | **Sí**, Google (~2 semanas) |
 | **WhatsApp** | Enviar y recibir mensajes | Configuración → Números de WhatsApp | No, pero exige WhatsApp Business **API** |
+| **Bandeja de mensajes** | Leer y contestar todo lo anterior en un solo sitio | Bandeja (en el menú de Ventas) | No |
 | **WordPress** (plugin Briela Connect) | Leads del sitio al CRM y publicar el catálogo en la web | Configuración → Integraciones → WordPress | No |
 | **Google Drive** | *(en retirada)* archivos antiguos | `.env` del servidor | No |
 
@@ -39,6 +40,8 @@ obligue a entrar al servidor:
 - **Redes sociales** (Instagram, Facebook, LinkedIn, Google Business) →
   [Redes Sociales](./redes-sociales.md).
 - **WhatsApp** → [WhatsApp](./whatsapp.md).
+- **Dónde se leen y contestan los mensajes de WhatsApp y de las redes** →
+  [Bandeja de mensajes](./bandeja.md).
 - **WordPress** → [Publicar productos y ensambles en el sitio web](./publicar-en-la-web.md).
   Es la única conexión que **no** depende de un portal ajeno: el token lo genera
   Briela y se pega en el plugin, y es el sitio el que llama al ERP.

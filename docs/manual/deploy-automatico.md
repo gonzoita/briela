@@ -53,16 +53,38 @@ git log --oneline origin/main..main
 
 Si no imprime nada, GitHub está al día.
 
-## Disparar el despliegue a mano
+## Actualizar todas las instalaciones ahora
 
-Cuando no se quiere esperar a la tarea programada:
+Cuando no se quiere esperar a la tarea programada. En el servidor, desde cualquier instalación:
 
 ```bash
-for A in $(find ~/domains -maxdepth 4 -name artisan 2>/dev/null); do R=$(dirname "$A"); [ -f "$R/scripts/traer-cambios.sh" ] && bash "$R/scripts/traer-cambios.sh" "$R" main; done; tail -15 ~/despliegue.log
+bash scripts/actualizar-todo.sh
 ```
 
-Es seguro aunque la tarea acabe de pasar: el script no hace nada si no hay cambios y tiene su
-propio candado.
+Busca **todas** las instalaciones bajo `~/domains` —el ERP, el superadmin, y cualquier demo o
+banco de pruebas— y corre `traer-cambios.sh` en cada una. Imprime el commit de antes y el de
+después de cada una, y al final las últimas líneas del registro:
+
+```
+Instalaciones encontradas: 2
+  /home/USUARIO/domains/DOMINIO/public_html
+  /home/USUARIO/domains/superadmin.DOMINIO/public_html
+
+→ DOMINIO                      cc54bf0 → 2ac435e  actualizada
+→ superadmin.DOMINIO           9f21ab4 — ya estaba al día
+```
+
+Admite dos argumentos, los dos opcionales: la rama (`main` por omisión) y dónde buscar
+(`~/domains` por omisión).
+
+```bash
+bash scripts/actualizar-todo.sh main ~/otra-carpeta
+```
+
+Es seguro aunque la tarea acabe de pasar: `traer-cambios.sh` no hace nada si no hay cambios y
+tiene su propio candado por instalación. Si **ninguna** instalación aparece, lo dice y sale con
+error en vez de terminar en silencio — que es como fallaba la línea de `find` que esto
+reemplaza: se pegaba mal, no encontraba nada, no actualizaba nada y no se quejaba.
 
 ## La tarea programada
 

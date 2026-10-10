@@ -28,6 +28,79 @@ Formato: [versionado semántico](https://semver.org/lang/es/).
   impuesto y gastos repartidos por valor, peso o cantidad— y a cuánto quedaría en cada canal.
   Al liquidar, ese pasa a ser el costo del producto y se recalculan sus precios. Los productos
   guardan su código arancelario y su arancel habitual.
+
+## [1.3.0] — 2026-10-10
+
+### Agregado
+- **La orden de compra es coherente con el módulo de productos.** El buscador encuentra **todo lo
+  que se puede comprar** —insumos, productos de reventa y variantes con su nombre completo—, no solo
+  los marcados como insumo, y lo encuentra por el nombre, la referencia interna **o el código de
+  cualquiera de sus proveedores** (`R125458` lleva a la bisagra `IC5260`). Cada línea muestra la
+  referencia interna, el código del proveedor de la orden y **«También lo venden»**: los otros
+  proveedores con su código, su precio, su nota y cuál es el más barato vigente. La ficha de la
+  orden lo muestra igual, con enlace al producto, y la recepción trae a la vista los dos códigos
+  para cotejarlos con la factura. El PDF que recibe el proveedor no dice a quién más se le compra.
+  La pantalla ya no carga todos los productos al abrirse: busca en el servidor.
+- **La calificación de proveedores se ajusta a lo que le importa a la empresa.** Configuración →
+  Calificación de proveedores: cuánto pesa cada componente (puntualidad, cumplimiento, entregas en
+  regla, precio), los días de gracia de una entrega tarde y cuántas órdenes hacen falta para dar
+  nota. Las notas no se guardan, así que cambian al instante.
+- **Retenciones en las órdenes de compra.** La ficha de la orden estima lo que la empresa le
+  retiene al proveedor al pagar —en la fuente y de IVA— según el RUT de la empresa y el del
+  proveedor, y muestra el neto a pagar. Cada retención que no aplica dice por qué. Es una
+  estimación: no cambia el total de la orden.
+- **Una cotización enviada aparta su stock por 24 horas.** Es una marca, no un movimiento: el
+  inventario no se mueve, pero quien cotiza ve «N apartadas en otras cotizaciones» junto al
+  stock (se refresca solo cada minuto) y puede cotizar igual. A las 24 horas se libera sola y se
+  le avisa al vendedor; guardar de nuevo no renueva el plazo. Si una venta se aprueba y necesita
+  unidades que otra cotización tenía apartadas, se le ceden —las más nuevas primero— y se avisa
+  al vendedor afectado **y** a administración. Pantalla nueva «Stock apartado» en Productos y
+  Existencias, y el recuadro «Stock apartado» en la ficha de cada cotización. Solo uso interno:
+  el cliente no ve nada de esto, ni en el portal ni en el PDF. Se libera con la tarea programada
+  del sistema (la misma del cron de siempre, cada 15 minutos): no hace falta configurar nada nuevo.
+- **Calificación automática de proveedores.** Cada proveedor tiene una nota de 0 a 100 que calcula
+  el sistema con sus órdenes del último año: puntualidad, cumplimiento de lo pedido, entregas que
+  llegaron con factura o remisión y a tiempo, y qué tan competitivo es su precio. Se ve en la
+  lista de proveedores, en su ficha y al elegirlo en una orden de compra. Con menos de tres
+  órdenes evaluables dice «Sin calificar» en vez de inventar una nota. El asistente la usa junto
+  al precio para recomendar a quién comprarle.
+- **Cada movimiento de inventario dice de dónde vino y con qué papel.** En la ficha del producto
+  ves, por cada movimiento, el stock antes y después, su origen con enlace (orden de compra, orden
+  de producción, ajuste), la factura o remisión con su número y fecha, y las observaciones.
+  También las remisiones en las que salió el producto, y el historial completo por tandas.
+- **Al recibir una orden de compra se registra la factura o remisión del proveedor**, la fecha de
+  llegada y las observaciones, en cada entrega. La ficha de la orden lista todas sus entregas.
+- **El ajuste de stock acepta el papel que lo respalda** (factura, remisión u otro).
+- **Cargar un proveedor desde su RUT.** En Proveedores, sube el RUT (PDF o foto) y se llenan sus
+  datos y responsabilidades tributarias. Avisa si ese proveedor ya existe. En la orden de compra,
+  un proveedor que según su RUT no es responsable de IVA arranca sin IVA.
+- **La orden de compra lleva el código de cada proveedor.** Un mismo producto lo pueden vender
+  varios proveedores con códigos distintos; la orden manda el de quien la recibe, y el PDF lo
+  muestra primero. Se configura en la ficha del producto o directamente al armar la orden: si
+  escribes un código nuevo, queda guardado para las próximas. Al elegir proveedor, cada línea
+  se llena sola con su código y su último precio, y se avisa si ese precio tiene más de 90 días.
+- **Historial de precios por proveedor.** Cada vez que una orden se envía, el precio queda
+  anotado. El asistente puede comparar proveedores con esos datos y no recomienda un precio viejo.
+- **Cada variante puede tener su propia imagen.** Al crear un producto con variantes, o al
+  agregar una variante desde la ficha del producto principal, puedes subir su imagen. Si no
+  subes ninguna, usa la del producto principal en el buscador de cotizaciones, en su ficha y
+  en el catálogo; y si el principal cambia su foto, las variantes que la heredan cambian con él.
+
+### Corregido
+- **Mover el inventario exige permiso.** Ajustar el stock (desde la ficha del producto y desde
+  Stock y materiales) y recibir una orden de compra no pedían ninguno: cualquiera que pudiera
+  ver la pantalla podía cambiar las existencias. Ahora piden «Stock y movimientos: editar» y
+  «Órdenes de compra: recibir», y los botones solo se muestran a quien los tiene.
+- **La referencia de un producto eliminado queda libre.** Antes, si eliminabas un producto y
+  volvías a crear otro con la misma referencia, el sistema decía que ya estaba en uso, de algo
+  que ya no veías. Ahora la reutilizas sin más. Vale al crear, al editar, en las variantes y al
+  importar. Lo eliminado conserva su historial: solo cambia su referencia por «REF~elim123».
+- **Si la referencia sí la tiene un producto vivo, el mensaje dice cuál.** Antes decía «El campo
+  variantes.0.referencia ya está en uso».
+
+## [1.2.0] — 2026-10-10
+
+### Agregado
 - **El correo sale por Briela, firmado y sin caer en spam.** Cuando Briela activa el
   dominio de envío de la instalación, las notificaciones, las cotizaciones y los formularios
   salen desde un subdominio propio verificado, sin configurar nada en el servidor. El SMTP
@@ -35,6 +108,21 @@ Formato: [versionado semántico](https://semver.org/lang/es/).
 - **Configuración → Correo**: por dónde sale el correo, cuánto va del mes, un envío de prueba
   y las direcciones a las que ya no se les escribe porque rebotaron o se dieron de baja.
 - Las notificaciones del sistema no se cobran nunca.
+
+### Corregido
+- **Crear un producto con variantes ya no responde con error.** Un valor de variante largo
+  hacía que la referencia generada no cupiera y el guardado fallaba después de crear el
+  padre, dejando un producto a medias. Ahora la referencia se acorta sin perder el prefijo
+  del padre, y dos variantes nunca comparten referencia.
+- **Las referencias automáticas ya no saltan ni chocan.** El contador ya no cuenta las
+  variantes, así que los productos nuevos salen en orden (PROD-0001, PROD-0002…), y una
+  referencia escrita a mano no bloquea la siguiente.
+- **Las variantes tienen los precios de todos los canales**, incluidos los que la empresa
+  creó por su cuenta. Antes, una variante podía cotizarse en cero por un canal propio.
+- **Agregar una variante desde la ficha de editar ya no deja sus precios en cero.** La
+  variante nueva copia los precios del padre.
+- **Guardar un producto con proveedor sin todos sus datos ya no falla.** La importación y la
+  API mandan solo lo que tienen.
 
 ## [1.1.0] — 2026-10-04
 

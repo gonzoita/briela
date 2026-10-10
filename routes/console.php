@@ -17,6 +17,11 @@ Artisan::command('inspire', function () {
 // "php artisan schedule:run" cada minuto (ver instrucciones de deploy).
 Schedule::command('cotizaciones:marcar-vencidas')->dailyAt('01:00')->when(fn () => Modulos::activo('cotizaciones'));
 
+// Cada quince minutos: una reserva de 24 horas no necesita más fino, y mientras tanto una vencida
+// ya no aparta (`ReservaStock::vigentes()` mira la hora, no solo el estado).
+Schedule::command('stock:liberar-reservas')->everyFifteenMinutes()->withoutOverlapping()
+    ->when(fn () => Modulos::activo('inventario') && Modulos::activo('cotizaciones'));
+
 // Todos los días a las 6:00 a.m. avisa a producción de las OPs con entrega
 // próxima que aún no se han despachado (notificación interna, campanita).
 Schedule::command('notificaciones:entregas-proximas')->dailyAt('06:00')->when(fn () => Modulos::activo('ops'));
@@ -51,6 +56,19 @@ Schedule::command('briela:latido')->cron('7 */6 * * *');
 // Cada minuto: publica en redes sociales las publicaciones programadas cuya
 // fecha ya se cumplió (módulo RRSS).
 Schedule::command('rrss:publicar-programadas')->everyMinute()->when(fn () => Modulos::activo('rrss'));
+
+// Los permisos de las redes vencen a los ~60 días. Una vez al día basta: lo que se puede
+// renovar se renueva con 20 días de margen, y de lo que hay que reconectar a mano se avisa a
+// los 15 — dos fines de semana para que alguien entre a hacerlo. Antes no se renovaba ni se
+// avisaba: un día las publicaciones empezaban a fallar y el único rastro era un «parcial».
+Schedule::command('rrss:revisar-tokens')->dailyAt('04:40')
+    ->when(fn () => Modulos::activo('rrss'));
+
+// Las plantillas de WhatsApp las aprueba, pausa y rechaza Meta por su cuenta y sin avisar. Sin
+// sincronizar, el selector de la bandeja ofrecería plantillas que Meta ya rechazó, y eso se
+// descubre cuando un mensaje a un cliente no sale.
+Schedule::command('whatsapp:sincronizar-plantillas')->dailyAt('04:50')
+    ->when(fn () => Modulos::activo('bandeja'));
 
 // Todas las noches a las 2:00 a.m.: respaldo de la base de datos y limpieza
 // de los que ya pasaron los 30 días.

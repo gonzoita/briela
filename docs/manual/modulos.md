@@ -12,6 +12,7 @@ El catálogo vive en código, en `App\Support\Modulos::catalogo()`:
 
 | Grupo | Módulo | Necesita |
 |---|---|---|
+| Ventas | Bandeja de mensajes | — |
 | Ventas | CRM | — |
 | Ventas | Cotizaciones | — |
 | Ventas | Comisiones | Cotizaciones |
