@@ -1068,7 +1068,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/{orden}',        [OrdenCompraController::class, 'show'])->name('ordenes-compra.show');
         Route::put('/{orden}',        [OrdenCompraController::class, 'update']);
         Route::post('/{orden}/enviar',[OrdenCompraController::class, 'enviar']);
-        Route::post('/{orden}/recibir',[OrdenCompraController::class, 'recibir']);
+        Route::post('/{orden}/recibir',[OrdenCompraController::class, 'recibir'])->middleware('permiso:ordenes.recibir');
         Route::get('/{orden}/pdf',    [OrdenCompraController::class, 'pdf']);
     });
 
@@ -1080,7 +1080,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/apartados',                [InventarioController::class, 'apartados'])->name('inventario.apartados');
         Route::post('/',                        [InventarioController::class, 'store']);
         Route::put('/{item}',                   [InventarioController::class, 'update']);
-        Route::post('/{item}/ajuste',           [InventarioController::class, 'ajuste']);
+        Route::post('/{item}/ajuste',           [InventarioController::class, 'ajuste'])->middleware('permiso:inventario.editar');
         Route::get('/{item}/movimientos',       [InventarioController::class, 'movimientos']);
     });
     Route::get('/api/inventario/buscar', [InventarioController::class, 'buscar'])->middleware('auth');

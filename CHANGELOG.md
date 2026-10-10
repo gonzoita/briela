@@ -53,6 +53,9 @@ Formato: [versionado semántico](https://semver.org/lang/es/).
   en el catálogo; y si el principal cambia su foto, las variantes que la heredan cambian con él.
 
 ### Corregido
+- **Ajustar stock desde Stock y materiales y recibir una orden de compra ahora exigen permiso.**
+  Antes cualquiera que pudiera ver esas pantallas podía mover el inventario. Piden
+  `inventario.editar` y `ordenes.recibir`, como ya hacía el ajuste desde la ficha del producto.
 - **Ajustar el stock exige permiso.** La ruta del ajuste desde la ficha del producto no pedía
   ninguno: cualquiera que pudiera ver el producto podía mover el inventario. Ahora pide «Stock y
   movimientos: editar», y el botón solo se muestra a quien lo tiene.

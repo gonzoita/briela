@@ -380,7 +380,12 @@ class ReservaStockTest extends TestCase
 
         auth()->logout();
         $html = $this->get("/cotizaciones/{$cot->token_publico}/aprobar");
-        $this->assertStringNotContainsString('apartad', mb_strtolower($html->getContent()));
+        // El portal no manda las reservas ni habla de inventario (el nombre de un archivo de la
+        // compilación puede contener «apartados»; por eso se buscan las claves, no la palabra).
+        $contenido = $html->getContent();
+        $this->assertStringNotContainsString('reservas', $contenido);
+        $this->assertStringNotContainsString('stock_apartado', $contenido);
+        $this->assertStringNotContainsString('Stock apartado', $contenido);
     }
 
     // ─── Módulos ─────────────────────────────────────────────────────────────
@@ -409,5 +414,19 @@ class ReservaStockTest extends TestCase
         $cot->update(['estado' => 'enviada']);
 
         $this->assertSame(1, ReservaStock::where('cotizacion_id', $cot->id)->count());
+    }
+
+    // ─── Candados de permisos en rutas que mueven el inventario ──────────────
+
+    public function test_quien_no_tiene_permiso_no_ajusta_ni_recibe(): void
+    {
+        $vendedor = $this->vendedor; // no tiene inventario.editar ni ordenes.recibir
+        $p = $this->producto(5);
+
+        $this->actingAs($vendedor)->post("/inventario/{$p->id}/ajuste", [])->assertForbidden();
+        $proveedor = \App\Models\Proveedor::create(['nombre' => 'Herrajes', 'activo' => true]);
+        $orden = \App\Models\OrdenCompra::create(['estado' => 'enviada', 'proveedor_id' => $proveedor->id, 'creado_por' => $this->admin->id]);
+
+        $this->actingAs($vendedor)->post("/compras/ordenes/{$orden->id}/recibir", [])->assertForbidden();
     }
 }
