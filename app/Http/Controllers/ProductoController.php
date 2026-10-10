@@ -422,7 +422,7 @@ class ProductoController extends Controller
                 'atributo_variante'            => 'nullable|string|max:60',
                 'variantes'                    => 'nullable|array',
                 'variantes.*.valor_variante'   => 'required_with:variantes|string|max:60',
-                'variantes.*.referencia'       => 'nullable|string|max:60|distinct|unique:productos,referencia',
+                'variantes.*.referencia'       => ['nullable', 'string', 'max:60', 'distinct', $this->referenciaLibre()],
                 'variantes.*.stock_inicial'    => 'nullable|array',
                 'variantes.*.stock_inicial.*'  => 'nullable|numeric|min:0',
             ]);
@@ -891,11 +891,47 @@ class ProductoController extends Controller
         $request->merge($cambios);
     }
 
+    /**
+     * Que la referencia no la tenga ya otro producto, diciendo CUÁL la tiene.
+     *
+     * Antes era `unique:productos,referencia` y el mensaje decía «El campo
+     * variantes.0.referencia ya está en uso»: ni de quién, ni dónde. Y casi nunca es un
+     * producto que se vea en la lista. **Un producto eliminado conserva su referencia**:
+     * el borrado es suave y la columna es única, así que sigue ocupada. Pasa justo después
+     * de un intento fallido que la persona limpió a mano, y la deja sin poder crear lo
+     * mismo sin ninguna pista de por qué.
+     *
+     * `withTrashed()` es la misma mirada que tiene el índice único de la base: si aquí no
+     * viera los eliminados, la validación pasaría y el guardado reventaría con un 500.
+     */
+    private function referenciaLibre(?int $ignoreId = null): \Closure
+    {
+        return function (string $atributo, mixed $valor, \Closure $falla) use ($ignoreId) {
+            if (! is_string($valor) || $valor === '') {
+                return;
+            }
+
+            $dueno = Producto::withTrashed()
+                ->where('referencia', $valor)
+                ->when($ignoreId, fn ($q) => $q->where('id', '!=', $ignoreId))
+                ->first(['id', 'nombre', 'deleted_at']);
+
+            if (! $dueno) {
+                return;
+            }
+
+            $de = preg_match('/variantes\.(\d+)\./', $atributo, $m)
+                ? 'La referencia de la variante '.($m[1] + 1)
+                : 'Esa referencia';
+
+            $falla("{$de} ya la usa «{$dueno->nombre}»".($dueno->trashed() ? ', que está eliminado' : '')
+                .'. Déjala vacía para que se genere sola, o escribe otra.');
+        };
+    }
+
     private function reglas(string $tipo, ?int $ignoreId = null, bool $esPadre = false): array
     {
-        $referenciaRule = $ignoreId
-            ? "required|string|max:60|unique:productos,referencia,{$ignoreId}"
-            : 'required|string|max:60|unique:productos,referencia';
+        $referenciaRule = ['required', 'string', 'max:60', $this->referenciaLibre($ignoreId)];
 
         return [
             'nombre'              => 'required|string|max:200',
@@ -930,7 +966,7 @@ class ProductoController extends Controller
             'atributo_variante'   => 'nullable|string|max:60',
             'variantes'                    => ($esPadre ? 'required' : 'nullable') . '|array' . ($esPadre ? '|min:1' : ''),
             'variantes.*.valor_variante'   => 'required_with:variantes|string|max:60',
-            'variantes.*.referencia'       => 'nullable|string|max:60|distinct|unique:productos,referencia',
+            'variantes.*.referencia'       => ['nullable', 'string', 'max:60', 'distinct', $this->referenciaLibre()],
             'variantes.*.stock_inicial'    => 'nullable|array',
             'variantes.*.stock_inicial.*'  => 'nullable|numeric|min:0',
             'precio_costo'                => 'nullable|numeric|min:0',

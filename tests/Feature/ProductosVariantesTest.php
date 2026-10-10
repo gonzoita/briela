@@ -154,6 +154,36 @@ class ProductosVariantesTest extends TestCase
         $this->assertSame(2, Producto::where('es_padre', true)->count());
     }
 
+    public function test_una_referencia_ocupada_dice_quien_la_tiene_aunque_este_eliminado(): void
+    {
+        // Lo que queda de un intento fallido que la persona limpió a mano: eliminado, pero
+        // con la referencia todavía ocupada.
+        $viejo = Producto::create(['tipo' => 'producto', 'nombre' => 'Barra vieja', 'referencia' => 'BARRA-3M']);
+        $viejo->delete();
+
+        $this->actingAs($this->admin())->post('/productos', $this->formulario([
+            'variantes' => [['valor_variante' => '3m', 'referencia' => 'BARRA-3M']],
+        ]))->assertSessionHasErrors('variantes.0.referencia');
+
+        $mensaje = session('errors')->first('variantes.0.referencia');
+
+        $this->assertStringContainsString('variante 1', $mensaje);
+        $this->assertStringContainsString('Barra vieja', $mensaje);
+        $this->assertStringContainsString('eliminado', $mensaje);
+        $this->assertSame(0, Producto::where('es_padre', true)->count(), 'No se crea nada a medias.');
+    }
+
+    public function test_dejar_la_referencia_vacia_evita_el_choque(): void
+    {
+        Producto::create(['tipo' => 'producto', 'nombre' => 'Barra vieja', 'referencia' => 'BARRA-3M'])->delete();
+
+        $this->actingAs($this->admin())->post('/productos', $this->formulario([
+            'variantes' => [['valor_variante' => '3m', 'referencia' => null]],
+        ]))->assertRedirect()->assertSessionHasNoErrors();
+
+        $this->assertSame(1, Producto::where('es_padre', true)->count());
+    }
+
     // ─── Lo que se cotiza es la variante ─────────────────────────────────────
 
     public function test_cada_variante_se_queda_con_los_precios_por_canal(): void
