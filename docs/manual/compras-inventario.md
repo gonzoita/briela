@@ -112,8 +112,12 @@ Las reglas que conviene saber:
 - **Solo el último año.** Un proveedor que mejoró no carga con lo de hace tres.
 - **Lo anterior al registro de entregas** (órdenes recibidas antes de que se pidiera la factura o
   remisión) se juzga en puntualidad y cumplimiento, pero no en papel: no se sabe qué traía.
-- Los pesos, el mínimo de órdenes y los días de gracia son constantes de
-  `CalificacionProveedorService`. Todavía no se configuran desde la pantalla.
+- **Se ajusta desde Configuración → Calificación de proveedores:** los pesos (30/25/25/20 de
+  fábrica; no tienen que sumar 100, se reparten en proporción), los días de gracia (3) y el mínimo
+  de órdenes (3). Las notas no se guardan, así que cambian al instante. Se guardan en
+  `Configuracion` (`calificacion_peso_*`, `calificacion_gracia_dias`, `calificacion_muestra_minima`)
+  y `CalificacionProveedorService::ajustes()` es el único que las lee. Todos los pesos en cero
+  vuelven a los de fábrica.
 
 Niveles: 85 o más **excelente**, 70 a 84 **bueno**, 50 a 69 **regular**, menos de 50 **deficiente**.
 

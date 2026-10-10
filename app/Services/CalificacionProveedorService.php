@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\Configuracion;
 use App\Models\OrdenCompra;
 use App\Models\ProductoProveedor;
 use Illuminate\Support\Collection;
@@ -44,6 +45,36 @@ class CalificacionProveedorService
         'en_regla'     => ['etiqueta' => 'Entregas en regla', 'peso' => 25],
         'precio'       => ['etiqueta' => 'Precio',            'peso' => 20],
     ];
+
+    /**
+     * Lo que la empresa puede ajustar: cuánto pesa cada componente, cuántos días de gracia tiene una
+     * entrega tarde y cuántas órdenes hacen falta para dar una nota. Lo que no se ha tocado usa los
+     * valores de arriba. Los pesos no tienen que sumar 100: se promedian ponderados.
+     *
+     * @return array{pesos: array<string, int>, gracia_dias: int, muestra_minima: int}
+     */
+    public static function ajustes(): array
+    {
+        $pesos = [];
+        foreach (self::COMPONENTES as $clave => $c) {
+            $v = Configuracion::get("calificacion_peso_{$clave}");
+            $pesos[$clave] = is_numeric($v) && (int) $v >= 0 ? (int) $v : $c['peso'];
+        }
+
+        // Todos en cero no promedian nada: se vuelve a los de fábrica en vez de dejar a todos sin nota.
+        if (array_sum($pesos) <= 0) {
+            $pesos = array_map(fn ($c) => $c['peso'], self::COMPONENTES);
+        }
+
+        $gracia = Configuracion::get('calificacion_gracia_dias');
+        $minimo = Configuracion::get('calificacion_muestra_minima');
+
+        return [
+            'pesos'          => $pesos,
+            'gracia_dias'    => is_numeric($gracia) && (int) $gracia >= 0 ? (int) $gracia : self::GRACIA_DIAS,
+            'muestra_minima' => is_numeric($minimo) && (int) $minimo >= 1 ? (int) $minimo : self::MUESTRA_MINIMA,
+        ];
+    }
 
     /**
      * La calificación de varios proveedores a la vez, con un número fijo de consultas: la lista
@@ -92,8 +123,10 @@ class CalificacionProveedorService
         $evaluables = $ordenes->filter(fn (OrdenCompra $o) => $o->fecha_entrega_esperada
             && ($o->estado === 'recibida' || $o->fecha_entrega_esperada->lt(today())));
 
+        $ajustes = self::ajustes();
+
         $componentes = [
-            'puntualidad'  => $this->puntualidad($evaluables),
+            'puntualidad'  => $this->puntualidad($evaluables, $ajustes['gracia_dias']),
             'cumplimiento' => $this->cumplimiento($evaluables),
             'en_regla'     => $this->entregasEnRegla($ordenes),
             'precio'       => $precio,
@@ -103,14 +136,14 @@ class CalificacionProveedorService
 
         $detalle = collect(self::COMPONENTES)->map(fn (array $c, string $clave) => [
             'etiqueta' => $c['etiqueta'],
-            'peso'     => $c['peso'],
+            'peso'     => $ajustes['pesos'][$clave],
             'valor'    => isset($componentes[$clave]['valor']) ? (int) round($componentes[$clave]['valor']) : null,
             'texto'    => $componentes[$clave]['texto'] ?? 'Todavía no hay datos para medirlo.',
         ])->all();
 
         // El promedio ponderado solo entre lo que se pudo medir.
         $medidos = collect($detalle)->filter(fn ($c) => $c['valor'] !== null);
-        $puntaje = $muestras >= self::MUESTRA_MINIMA && $medidos->isNotEmpty()
+        $puntaje = $muestras >= $ajustes['muestra_minima'] && $medidos->sum('peso') > 0
             ? (int) round($medidos->sum(fn ($c) => $c['valor'] * $c['peso']) / $medidos->sum('peso'))
             : null;
 
@@ -123,18 +156,18 @@ class CalificacionProveedorService
                 default        => 'deficiente',
             },
             'muestras'        => $muestras,
-            'minimo_muestras' => self::MUESTRA_MINIMA,
+            'minimo_muestras' => $ajustes['muestra_minima'],
             'mensaje'         => $puntaje === null
-                ? "Aún no hay suficientes órdenes para calificar ({$muestras} de ".self::MUESTRA_MINIMA.'). Cuentan las que tienen fecha de entrega pactada y ya llegaron o ya vencieron.'
+                ? "Aún no hay suficientes órdenes para calificar ({$muestras} de {$ajustes['muestra_minima']}). Cuentan las que tienen fecha de entrega pactada y ya llegaron o ya vencieron."
                 : null,
             'componentes'     => $detalle,
         ];
     }
 
     /** @return array{valor: float, texto: string}|null */
-    private function puntualidad(Collection $evaluables): ?array
+    private function puntualidad(Collection $evaluables, int $graciaDias): ?array
     {
-        $puntos = $evaluables->map(function (OrdenCompra $o) {
+        $puntos = $evaluables->map(function (OrdenCompra $o) use ($graciaDias) {
             // Vencida sin llegar completa: no cumplió lo pactado.
             if ($o->estado !== 'recibida') {
                 return 0.0;
@@ -150,7 +183,7 @@ class CalificacionProveedorService
                 return 1.0;
             }
 
-            return (int) $o->fecha_entrega_esperada->diffInDays($llegada) <= self::GRACIA_DIAS ? 0.5 : 0.0;
+            return (int) $o->fecha_entrega_esperada->diffInDays($llegada) <= $graciaDias ? 0.5 : 0.0;
         })->filter(fn ($p) => $p !== null);
 
         if ($puntos->isEmpty()) {

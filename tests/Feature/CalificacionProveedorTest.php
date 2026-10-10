@@ -373,4 +373,74 @@ class CalificacionProveedorTest extends TestCase
         $this->assertSame('deficiente', $porNombre['Barato pero tarde']['calificacion']['nivel']);
         $this->assertSame(0, $porNombre['Barato pero tarde']['calificacion']['detalle']['puntualidad']);
     }
+
+    // ─── Lo que la empresa puede ajustar ─────────────────────────────────────
+
+    public function test_los_pesos_de_la_empresa_cambian_la_nota(): void
+    {
+        $p = $this->proveedor();
+        $this->tresOrdenes($p, 0, 10, ['factura' => 'F-1']); // tarde: puntualidad y papeles en 0, completa: 100
+
+        $this->assertSame(31, $this->nota($p)['puntaje']); // 25 × 100 / (30 + 25 + 25)
+
+        $this->actingAs($this->usuario)->post('/configuracion/calificacion-proveedores', [
+            'pesos' => ['puntualidad' => 30, 'cumplimiento' => 75, 'en_regla' => 25, 'precio' => 20],
+            'gracia_dias' => 3, 'muestra_minima' => 3,
+        ])->assertRedirect();
+
+        $this->assertSame(58, $this->nota($p)['puntaje']); // 75 × 100 / (30 + 75 + 25)
+    }
+
+    public function test_los_dias_de_gracia_se_ajustan(): void
+    {
+        $p = $this->proveedor();
+        $this->tresOrdenes($p, 0, 5, ['factura' => 'F-1']);
+
+        $this->assertSame(0, $this->nota($p)['componentes']['puntualidad']['valor']);
+
+        \App\Models\Configuracion::set('calificacion_gracia_dias', '7');
+
+        $this->assertSame(50, $this->nota($p)['componentes']['puntualidad']['valor']);
+    }
+
+    public function test_el_minimo_de_ordenes_se_ajusta(): void
+    {
+        $p = $this->proveedor();
+        $this->tresOrdenes($p, 0, 0, ['factura' => 'F-1']);
+
+        $this->assertNotNull($this->nota($p)['puntaje']);
+
+        \App\Models\Configuracion::set('calificacion_muestra_minima', '4');
+
+        $this->assertNull($this->nota($p)['puntaje']);
+        $this->assertSame(4, $this->nota($p)['minimo_muestras']);
+    }
+
+    public function test_pesos_todos_en_cero_vuelven_a_los_de_fabrica_y_el_guardado_los_rechaza(): void
+    {
+        foreach (array_keys(CalificacionProveedorService::COMPONENTES) as $k) {
+            \App\Models\Configuracion::set("calificacion_peso_{$k}", '0');
+        }
+
+        $this->assertSame(30, CalificacionProveedorService::ajustes()['pesos']['puntualidad']);
+
+        $this->actingAs($this->usuario)->post('/configuracion/calificacion-proveedores', [
+            'pesos' => ['puntualidad' => 0, 'cumplimiento' => 0, 'en_regla' => 0, 'precio' => 0],
+            'gracia_dias' => 3, 'muestra_minima' => 3,
+        ])->assertSessionHasErrors('pesos');
+    }
+
+    public function test_la_pantalla_de_ajustes_abre_y_solo_guarda_quien_puede_editar(): void
+    {
+        $this->actingAs($this->usuario)->get('/configuracion/calificacion-proveedores')
+            ->assertOk()
+            ->assertInertia(fn ($page) => $page->component('Configuracion/CalificacionProveedores')->where('ajustes.pesos.puntualidad', 30));
+
+        $vendedor = User::factory()->create(['rol' => 'vendedor']);
+
+        $this->actingAs($vendedor)->post('/configuracion/calificacion-proveedores', [
+            'pesos' => ['puntualidad' => 1, 'cumplimiento' => 1, 'en_regla' => 1, 'precio' => 1],
+            'gracia_dias' => 3, 'muestra_minima' => 3,
+        ])->assertForbidden();
+    }
 }

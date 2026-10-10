@@ -15,6 +15,10 @@ Formato: [versionado semántico](https://semver.org/lang/es/).
 ## [Sin publicar]
 
 ### Agregado
+- **La calificación de proveedores se ajusta a lo que le importa a la empresa.** Configuración →
+  Calificación de proveedores: cuánto pesa cada componente (puntualidad, cumplimiento, entregas en
+  regla, precio), los días de gracia de una entrega tarde y cuántas órdenes hacen falta para dar
+  nota. Las notas no se guardan, así que cambian al instante.
 - **Retenciones en las órdenes de compra.** La ficha de la orden estima lo que la empresa le
   retiene al proveedor al pagar —en la fuente y de IVA— según el RUT de la empresa y el del
   proveedor, y muestra el neto a pagar. Cada retención que no aplica dice por qué. Es una

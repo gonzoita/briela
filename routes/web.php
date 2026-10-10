@@ -803,6 +803,11 @@ Route::middleware('auth')->group(function () {
             Route::post('/fiscal/leer-rut', [\App\Http\Controllers\FiscalConfigController::class, 'leerRut'])->name('fiscal.leer-rut');
         });
 
+        // ─── Calificación de proveedores: cuánto pesa cada cosa en la nota ───
+        Route::get('/calificacion-proveedores', [\App\Http\Controllers\CalificacionProveedoresConfigController::class, 'index'])->name('calificacion-proveedores.index');
+        Route::post('/calificacion-proveedores', [\App\Http\Controllers\CalificacionProveedoresConfigController::class, 'guardar'])
+            ->middleware('permiso:configuracion.editar')->name('calificacion-proveedores.guardar');
+
         // ─── Módulos: encender y apagar lo que la empresa usa ────────────────
         Route::get('/modulos',          [\App\Http\Controllers\ModuloController::class, 'index'])->name('modulos.index');
         Route::post('/modulos',         [\App\Http\Controllers\ModuloController::class, 'cambiar'])

@@ -1380,6 +1380,21 @@ const configPuntos = computed(() =>
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
                             </svg>
                         </a>
+                        <a href="/configuracion/calificacion-proveedores" @click.prevent="router.visit('/configuracion/calificacion-proveedores')"
+                            class="flex items-center gap-3 bg-superficie rounded-xl border border-linea p-4 hover:border-borde-aviso-azul hover:shadow-sm transition-all">
+                            <div class="w-10 h-10 rounded-xl bg-pastel-azul flex items-center justify-center shrink-0">
+                                <svg class="w-5 h-5 text-aviso-azul" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.5a.56.56 0 011.04 0l2.13 5.11a.56.56 0 00.47.35l5.52.44c.5.04.7.66.32.99l-4.2 3.6a.56.56 0 00-.18.56l1.28 5.39a.56.56 0 01-.84.61l-4.73-2.89a.56.56 0 00-.58 0l-4.73 2.89a.56.56 0 01-.84-.61l1.28-5.39a.56.56 0 00-.18-.56l-4.2-3.6a.56.56 0 01.32-.99l5.52-.44a.56.56 0 00.47-.35l2.13-5.11z" />
+                                </svg>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-semibold text-tinta-900">Calificación de proveedores</p>
+                                <p class="text-xs text-tinta-400 mt-0.5">Qué pesa más en la nota: puntualidad, cumplimiento, papeles o precio</p>
+                            </div>
+                            <svg class="w-4 h-4 text-tinta-300 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                            </svg>
+                        </a>
                         <a href="/configuracion/bodegas" @click.prevent="router.visit('/configuracion/bodegas')"
                             class="flex items-center gap-3 bg-superficie rounded-xl border border-linea p-4 hover:border-borde-aviso-azul hover:shadow-sm transition-all">
                             <div class="w-10 h-10 rounded-xl bg-pastel-azul flex items-center justify-center shrink-0">
