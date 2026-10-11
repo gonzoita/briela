@@ -430,6 +430,66 @@ class Op extends Model
             ->get();
     }
 
+    /**
+     * Calidad rechaza la orden: vuelve a planta lo que hay que rehacer. Devuelve cuántas cosas
+     * se reabrieron.
+     *
+     * Las unidades con una falla marcada se reabren (su paso final) y pierden la firma. Si
+     * ninguna tiene falla —no había lista de revisión, o calidad rechazó la orden entera—, se
+     * reabren **todas** las que no han salido: rechazar sin decir cuál es decir que todas se
+     * miran otra vez. Y en una orden de productos, lo alistado vuelve a pendiente.
+     *
+     * Antes el botón de la orden solo cambiaba la etiqueta: las unidades seguían firmadas
+     * —se podían remisionar como si nada— y al abrir la orden el estado se recalculaba y
+     * volvía solo a «Calidad», porque todo seguía terminado.
+     *
+     * **No devuelve nada de la bodega** ni repone material: lo que se gastó se gastó.
+     */
+    public function mandarAReproceso(string $motivo): int
+    {
+        $this->update([
+            'motivo_rechazo'      => $motivo,
+            'calidad_aprobada_at' => null,
+            'estado'              => 'reproceso',
+        ]);
+
+        $unidades = $this->unidadesEnReproceso()->where('remisionado', false);
+
+        if ($unidades->isEmpty()) {
+            $unidades = OpItemTrabajo::whereHas('opItem', fn ($q) => $q->where('op_id', $this->id))
+                ->where('remisionado', false)
+                ->where('porcentaje_avance', 100)
+                ->get();
+        }
+
+        $cierre = app(\App\Services\CierrePasoService::class);
+
+        foreach ($unidades as $unidad) {
+            $final = $unidad->pasos()->where('es_paso_final', true)->where('completado', true)->first()
+                ?? $unidad->pasos()->where('completado', true)->orderByDesc('orden')->first();
+
+            if ($final) {
+                $cierre->reabrir($final);
+            }
+
+            $unidad->firmarCalidad(false);
+        }
+
+        $reabiertos = $unidades->count();
+
+        // Lo alistado a mano que todavía no salió vuelve a pendiente: hay que volver a mirarlo.
+        foreach ($this->items()->doesntHave('trabajos')->where('estado_item', 'terminado')->get() as $item) {
+            if (in_array($item->tipo, self::TIPOS_SIN_DESPACHO, true) || $item->unidadesRemisionadas() >= (int) $item->cantidad) {
+                continue;
+            }
+
+            $item->update(['estado_item' => 'pendiente']);
+            $reabiertos++;
+        }
+
+        return $reabiertos;
+    }
+
     /** Compatibilidad: el paso a calidad ahora es parte del estado único. */
     public function revisarTransicionCalidad(): void
     {
@@ -447,7 +507,8 @@ class Op extends Model
      *
      *  - borrador o confirmada → **en producción** en cuanto algo queda listo;
      *  - todo listo → **calidad** (y se sella sola si no hay nada que revisar, como una orden de
-     *    solo productos, que no tiene unidades);
+     *    solo productos, que no tiene unidades). «Todo» es lo que se fabrica o se despacha: los
+     *    servicios no esperan, ver `cuentanParaListo()`;
      *  - algo vuelve a quedar pendiente estando en calidad → regresa a **en producción**;
      *  - todo lo que viaja ya salió en una remisión → **despachada**.
      *
@@ -489,7 +550,7 @@ class Op extends Model
         }
 
         $terminados = $items->where('estado_item', 'terminado')->count();
-        $todos      = $terminados === $items->count();
+        $todos      = self::cuentanParaListo($items)->every(fn ($i) => $i->estado_item === 'terminado');
 
         // Algo quedó listo: la orden está en producción, venga de donde venga. Una en borrador
         // también —alguien ya la está trabajando, y el trabajo real manda sobre el clic de
@@ -515,6 +576,24 @@ class Op extends Model
         }
 
         $this->despacharSiSalioTodo($items, $todos);
+    }
+
+    /**
+     * Los ítems que deciden si la orden está lista: lo que se fabrica o se despacha.
+     *
+     * Un servicio —la instalación en obra, el transporte— casi siempre se hace **después** de
+     * entregar. Si contara, una orden con todo fabricado y revisado se quedaba en «En producción»
+     * esperando a que alguien marcara como hecha una instalación que todavía no podía ocurrir.
+     * Solo cuentan cuando la orden es únicamente de servicios: ahí no hay otra cosa que esperar.
+     *
+     * @param  \Illuminate\Support\Collection<int, OpItem>  $items
+     * @return \Illuminate\Support\Collection<int, OpItem>
+     */
+    public static function cuentanParaListo($items)
+    {
+        $fisicos = $items->reject(fn ($i) => in_array($i->tipo, self::TIPOS_SIN_DESPACHO, true));
+
+        return $fisicos->isEmpty() ? $items : $fisicos;
     }
 
     /** Todo quedó listo: la orden espera revisión, o se aprueba sola si no hay módulo de calidad. */
@@ -556,7 +635,8 @@ class Op extends Model
             return;
         }
 
-        if ($this->items()->where('estado_item', '!=', 'terminado')->exists()) {
+        if (self::cuentanParaListo($this->items()->get(['id', 'tipo', 'estado_item']))
+            ->contains(fn ($i) => $i->estado_item !== 'terminado')) {
             return;
         }
 
@@ -638,7 +718,8 @@ class Op extends Model
             return;
         }
 
-        $todos = ! $this->items()->where('estado_item', '!=', 'terminado')->exists();
+        $todos = self::cuentanParaListo($this->items()->get(['id', 'tipo', 'estado_item']))
+            ->every(fn ($i) => $i->estado_item === 'terminado');
 
         $this->update(['estado' => $todos ? 'calidad' : 'en_produccion']);
     }

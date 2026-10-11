@@ -586,7 +586,10 @@ Lo construido después de la fase 3, que conviene conocer antes de tocar algo ce
   (`Remision::sacarDelInventario`, con candado `inventario_movido_at`) y el material de los
   ensambles una sola vez (`ops.inventario_consumido_at`). Lo remisionable es **una sola regla**:
   producto con algo por despachar —alistado o no— o unidad firmada por calidad (`OpItem::cantidadDisponible()` y el scope
-  `disponiblesParaRemision`); los servicios nunca viajan (`Op::TIPOS_SIN_DESPACHO`).
+  `disponiblesParaRemision`); los servicios nunca viajan (`Op::TIPOS_SIN_DESPACHO`) **ni frenan**
+  el paso a calidad (`Op::cuentanParaListo()`). Rechazar en calidad, por cualquier pantalla, es
+  `Op::mandarAReproceso()`: reabre lo que hay que rehacer y le quita la firma; cambiar solo la
+  etiqueta dejaba las unidades remisionables y la orden rebotaba sola a «Calidad».
 - **Un producto también pasa por planta, y una OP en borrador arranca sola** (13 oct 2026). El flujo
   de un producto cuelga de él (`templates_trabajo.producto_id`, `Producto::procesoEnPlanta()`); qué
   flujo usa un ítem lo decide `TrabajoAutoGeneratorService::templateDe()` —las unidades que ya tiene,
@@ -660,7 +663,7 @@ decían lo contrario y estaban equivocadas.
   relaciones entre archivos antes de leer código a mano.
 - Conviene regenerarlo después de cambios que muevan estructura (borrar módulos,
   mover carpetas), porque un grafo desactualizado es peor que no tenerlo.
-- **Generado y al día.** Al 13 oct 2026: **10.925 nodos, 21.396 aristas, 644 comunidades**,
+- **Generado y al día.** Al 13 oct 2026: **10.938 nodos, 21.425 aristas, 633 comunidades**,
   reconstruido entero y anclado al commit `d5cc247`. Cubre el proyecto completo: 926 archivos de
   código por AST y los 70 documentos por subagentes. Se actualiza con
   `python -m graphify update . --force` y luego `cluster-only .` con

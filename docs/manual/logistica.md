@@ -28,7 +28,9 @@ remisionador—:
   calidad** y sin remisionar;
 - los **servicios** nunca: se alistan, pero no viajan.
 
-Las órdenes en **borrador** también se pueden remisionar: la orden arranca sola al hacerlo.
+Las órdenes en **borrador** también se pueden remisionar: la orden arranca sola al hacerlo. Al
+crear la remisión se abre la remisión misma *(13 oct 2026)*: lo siguiente es confirmarla y
+marcarla en camino.
 
 Antes la lista ofrecía órdenes con unidades sin aprobar —al abrirlas no había nada— y, al entrar
 desde la orden, **los productos alistados no aparecían**. El botón de remisión de la orden pedía el

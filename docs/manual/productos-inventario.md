@@ -126,6 +126,13 @@ Sirve para lo que hoy se hace a mano: un catálogo con veinte productos que se
 diferencian en dos campos, donde volver a escribir precios y comisiones es la
 forma de equivocarse en uno.
 
+## Un producto nace vendible e inventariable *(13 oct 2026)*
+
+Al crear un **producto**, «Es vendible» e «Inventariable» vienen prendidos; un **servicio** nace
+vendible y sin inventario. Antes los dos venían apagados: quien no tocaba los interruptores creaba
+un producto sin stock inicial —la sección ni se mostraba— y sin control de existencias, y la
+remisión lo despachaba sin que el inventario se enterara.
+
 ## Se procesa en planta *(nuevo 13 oct 2026)*
 
 Un producto no se fabrica desde una receta, pero a veces sí pasa por planta antes de salir: se

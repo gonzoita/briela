@@ -549,13 +549,12 @@ class OpController extends Controller
                 "/produccion/ops/{$op->id}",
             );
         } else {
-            $op->update([
-                'observaciones_calidad' => $data['observaciones_calidad'] ?? $op->observaciones_calidad,
-                'motivo_rechazo'        => $data['motivo_rechazo'],
-                'calidad_aprobada_at'   => null,
-                'estado'                => 'reproceso',
-            ]);
-            $mensaje = 'Calidad rechazada — la OP volvió a reproceso.';
+            $op->update(['observaciones_calidad' => $data['observaciones_calidad'] ?? $op->observaciones_calidad]);
+
+            // La misma regla que en Calidad: lo que hay que rehacer vuelve a planta y pierde la
+            // firma. Cambiar solo la etiqueta dejaba las unidades remisionables.
+            $reabiertos = $op->mandarAReproceso($data['motivo_rechazo']);
+            $mensaje = "Calidad rechazada — la OP volvió a reproceso ({$reabiertos} por rehacer).";
         }
 
         return back()->with('success', $mensaje);

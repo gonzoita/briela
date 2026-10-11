@@ -79,8 +79,12 @@ const form = useForm({
     // El técnico corto, el que sale en cotizaciones y órdenes de producción.
     descripcion_cotizacion: '',
     descripcion_larga:   '',
-    inventariable:       false,
-    es_vendible:         false,
+    // Un producto es «un ítem físico inventariable» —lo dice la tarjeta que se acaba de
+    // tocar— y casi siempre se vende: nace así. Naciendo apagado, quien no veía los
+    // interruptores creaba un producto sin stock inicial ni control de existencias, y la
+    // remisión lo despachaba sin que el inventario se enterara.
+    inventariable:       tipoSeleccionado.value !== 'servicio',
+    es_vendible:         true,
     es_insumo:           false,
     atributo_variante:   '',
     stock_minimo:        0,
@@ -115,7 +119,12 @@ const form = useForm({
     canales:                     [],
 })
 
-watch(tipoSeleccionado, (v) => { form.tipo = v; form.unidad_medida = 'unidad' })
+watch(tipoSeleccionado, (v) => {
+    form.tipo = v
+    form.unidad_medida = 'unidad'
+    // Un servicio no tiene existencias; un producto sí.
+    form.inventariable = v !== 'servicio'
+})
 
 const calcPrecio = (costo, margenPct) => {
     if (!costo || margenPct >= 100) return 0

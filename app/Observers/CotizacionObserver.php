@@ -6,7 +6,7 @@ use App\Models\Cotizacion;
 use App\Services\ReservaStockService;
 
 /**
- * Engancha el apartado de stock al ciclo de vida de una cotización.
+ * Engancha el apartado de stock —y la comisión del vendedor— al ciclo de vida de una cotización.
  *
  * El estado de una cotización lo cambian cuatro caminos distintos —la pantalla interna, la
  * aprobación del cliente por el enlace público, el comando que vence las viejas y el borrado—.
@@ -27,6 +27,15 @@ class CotizacionObserver
         }
 
         $this->sinRomper(fn () => $this->reservas->alCambiarEstado($cotizacion));
+
+        // Aprobada, por el camino que sea, la comisión del vendedor deja de ser una proyección.
+        // Antes solo lo hacían la pantalla interna y «Generar OP»: si el cliente aprobaba por el
+        // enlace público, la comisión seguía «proyectada» hasta que alguien generara la orden.
+        if ($cotizacion->estado === 'aprobada') {
+            $this->sinRomper(fn () => \App\Models\ComisionVendedor::where('cotizacion_id', $cotizacion->id)
+                ->where('estado', 'proyectada')
+                ->update(['estado' => 'confirmada']));
+        }
     }
 
     /** Borrada (suave): sus unidades vuelven a estar libres. */

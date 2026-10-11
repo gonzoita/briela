@@ -419,4 +419,96 @@ class FlujoOpRemisionTest extends TestCase
 
         $this->assertSame('calidad', $op->fresh()->estado);
     }
+
+    // ─── Revisión de punta a punta (13 oct 2026) ─────────────────────────────
+
+    public function test_un_servicio_sin_hacer_no_frena_la_orden_en_produccion(): void
+    {
+        $op = $this->op();
+        $p  = $this->producto($op);
+        $this->servicio($op); // la instalación se hace después de entregar
+
+        $this->alistar($p);
+
+        $op->refresh();
+        $this->assertSame('calidad', $op->estado);
+        $this->assertNotNull($op->calidad_aprobada_at);
+    }
+
+    public function test_rechazar_desde_la_orden_reabre_las_unidades_y_no_vuelve_sola_a_calidad(): void
+    {
+        $op   = $this->op();
+        $item = $this->ensamble($op, 2);
+        $this->fabricar($item);
+        foreach ($item->trabajos as $t) {
+            $t->firmarCalidad();
+        }
+        $op->sincronizarEstado();
+        $this->assertNotNull($op->fresh()->calidad_aprobada_at);
+
+        $this->post("/produccion/ops/{$op->id}/calidad", ['accion' => 'rechazar', 'motivo_rechazo' => 'Rayadas'])
+            ->assertSessionHasNoErrors();
+
+        $op->refresh();
+        $this->assertSame('reproceso', $op->estado);
+        $this->assertSame(0, $item->fresh()->cantidadDisponible()); // ya no se pueden remisionar
+        $this->assertSame(0, $item->trabajos()->whereNotNull('calidad_revisada_at')->count());
+
+        // Abrir la orden recalcula su estado: no puede saltar a calidad sin que nada cambie.
+        $this->get("/produccion/ops/{$op->id}")->assertOk();
+        $this->assertSame('reproceso', $op->fresh()->estado);
+
+        // Al rehacer en planta vuelve a calidad.
+        $svc = app(CierrePasoService::class);
+        foreach ($item->trabajos as $t) {
+            $svc->cerrar($t->pasos()->where('es_paso_final', true)->firstOrFail());
+        }
+        $this->assertSame('calidad', $op->fresh()->estado);
+    }
+
+    public function test_rechazar_una_orden_de_productos_los_devuelve_a_pendiente(): void
+    {
+        $op = $this->op();
+        $p  = $this->producto($op);
+        $this->alistar($p);
+        $this->assertSame('calidad', $op->fresh()->estado);
+
+        $this->post("/produccion/ops/{$op->id}/calidad", ['accion' => 'rechazar', 'motivo_rechazo' => 'Referencia equivocada']);
+
+        $this->assertSame('pendiente', $p->fresh()->estado_item);
+        $this->get("/produccion/ops/{$op->id}");
+        $this->assertSame('reproceso', $op->fresh()->estado);
+
+        $this->alistar($p);
+        $this->assertSame('calidad', $op->fresh()->estado);
+    }
+
+    public function test_crear_una_remision_lleva_a_la_remision(): void
+    {
+        $op = $this->op();
+        $p  = $this->producto($op, 2);
+
+        $this->post('/logistica/remisiones', [
+            'tipo' => 'op', 'op_id' => $op->id,
+            'items' => [['descripcion' => $p->descripcion, 'cantidad' => 2, 'cantidad_unidades' => 2, 'op_item_id' => $p->id]],
+        ])->assertRedirect('/logistica/remisiones/'.Remision::latest('id')->value('id'));
+    }
+
+    public function test_aprobar_por_el_enlace_publico_confirma_la_comision(): void
+    {
+        $cliente = \App\Models\Cliente::create(['tipo' => 'empresa', 'nombre' => 'Cliente '.uniqid(), 'tipo_identificacion' => 'NIT']);
+        $cot = \App\Models\Cotizacion::create([
+            'cliente_id' => $cliente->id, 'moneda' => 'COP', 'tasa_cambio' => 1, 'estado' => 'enviada',
+            'responsable_id' => $this->admin->id,
+        ]);
+        $comision = \App\Models\ComisionVendedor::create([
+            'cotizacion_id' => $cot->id, 'user_id' => $this->admin->id, 'total_comision' => 1000, 'estado' => 'proyectada',
+        ]);
+
+        auth()->logout();
+        $this->post("/cotizaciones/{$cot->token_publico}/aprobar");
+
+        $this->assertSame('aprobada', $cot->fresh()->estado);
+        $this->assertSame('confirmada', $comision->fresh()->estado);
+    }
 }

@@ -84,7 +84,7 @@ remisión. Reglas:
 | Pasa | Cuándo |
 |---|---|
 | borrador o confirmada → **en producción** | algo queda listo (un producto alistado o remisionado, una unidad terminada) o se avanza un paso en planta |
-| → **calidad** | todo listo: productos alistados y todas las unidades terminadas |
+| → **calidad** | todo listo: productos alistados y todas las unidades terminadas. **Los servicios no esperan** *(13 oct 2026)*: una instalación se hace después de entregar, así que solo cuentan en una orden de solo servicios (`Op::cuentanParaListo()`) |
 | se **sella** `calidad_aprobada_at` | todo listo, **todas** las unidades firmadas y nada pendiente; una orden sin unidades, al quedar todo listo |
 | calidad → **en producción** | algo vuelve a quedar pendiente (se desalista, se reabre una unidad); el sello se retira |
 | → **despachada** | todo lo que viaja ya salió en remisiones en camino o entregadas; una orden de solo servicios, al quedar todo hecha |
@@ -97,6 +97,17 @@ como nunca pasó por «Confirmar», se le precargan las dos bodegas con la princ
 remisión que la despachó. Las órdenes que quedaron atascadas se ponen al día al abrirlas, al
 actualizar (`ops:sincronizar-estados` corre en el despliegue y al instalar una versión) o a mano
 con ese mismo comando.
+
+## Rechazar en calidad devuelve el trabajo a planta *(13 oct 2026)*
+
+Calidad rechaza desde su módulo o desde el botón de la orden, y los dos caminos hacen lo mismo
+(`Op::mandarAReproceso()`): la orden pasa a **Reproceso**, las unidades con una falla marcada se
+reabren en planta (su paso final) y pierden la firma, y si ninguna tenía falla se reabren todas
+las que no han salido. En una orden de productos, lo alistado que no salió vuelve a pendiente.
+Vuelve sola a Calidad cuando se rehace.
+
+Antes el botón de la orden solo cambiaba la etiqueta: las unidades seguían firmadas —se podían
+remisionar— y al abrir la orden el estado se recalculaba y volvía solo a «Calidad».
 
 ## Un producto también puede pasar por planta *(13 oct 2026)*
 

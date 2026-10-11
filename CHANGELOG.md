@@ -28,6 +28,17 @@ Formato: [versionado semántico](https://semver.org/lang/es/).
 - **Un producto se puede remisionar sin alistarlo antes**: al meterlo en la remisión queda alistado.
   El remisionador marca los que todavía no lo estaban.
 - «Sacar de planta» ya no borra unidades con trabajo registrado ni unidades que ya salieron.
+- **Un servicio no frena la orden.** Una instalación en obra se hace después de entregar: la orden
+  pasa a calidad y se despacha cuando está listo lo que se fabrica, sin esperar a que el servicio
+  se marque como hecho.
+- **Rechazar en calidad devuelve el trabajo a planta**, también desde el botón de la orden: las
+  unidades a rehacer se reabren y pierden la aprobación, y la orden ya no vuelve sola a «Calidad»
+  al abrirla. Antes las unidades rechazadas se podían seguir remisionando.
+- **Un producto nuevo nace vendible e inventariable**, con su stock inicial a la vista. Antes nacía
+  sin control de existencias si nadie prendía el interruptor.
+- **La comisión del vendedor se confirma cuando el cliente aprueba por el enlace**, sin esperar a
+  que se genere la orden.
+- Al crear una remisión se abre la remisión, lista para confirmarla y despacharla.
 
 ## [1.4.0] — 2026-10-11
 

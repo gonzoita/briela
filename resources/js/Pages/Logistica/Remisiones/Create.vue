@@ -299,7 +299,7 @@ watch(() => form.tipo, () => {
                             <svg class="w-4 h-4 text-aviso-ambar shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                             </svg>
-                            <p class="text-xs text-aviso-ambar">Se remisiona lo que está listo: <strong>productos alistados</strong> y <strong>unidades de ensamble terminadas y aprobadas por calidad</strong> que no hayan salido antes.</p>
+                            <p class="text-xs text-aviso-ambar">Se remisionan los <strong>productos</strong> que falten por salir —los que no estén alistados quedan alistados al guardar— y las <strong>unidades que pasaron por planta</strong> ya terminadas y aprobadas por calidad.</p>
                         </div>
 
                         <div v-if="!opCargada.items?.length" class="text-sm text-tinta-300 py-4 text-center">

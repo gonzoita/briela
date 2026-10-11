@@ -143,7 +143,7 @@ class RemisionController extends Controller
             }
         }
 
-        DB::transaction(function () use ($request) {
+        $remision = DB::transaction(function () use ($request) {
             $remision = Remision::create([
                 'tipo'           => $request->tipo,
                 'op_id'          => $request->op_id,
@@ -217,9 +217,13 @@ class RemisionController extends Controller
             if ($hayOpItems && $request->op_id) {
                 Op::find($request->op_id)?->sincronizarEstado();
             }
+
+            return $remision;
         });
 
-        return redirect('/logistica/remisiones')->with('success', 'Remisión creada correctamente.');
+        // A la remisión recién creada: lo siguiente es confirmarla, firmarla y despacharla, y
+        // devolver a la lista obligaba a buscarla para seguir.
+        return redirect("/logistica/remisiones/{$remision->id}")->with('success', 'Remisión creada. Confírmala y márcala en camino cuando salga.');
     }
 
     public function show(Remision $remision)
