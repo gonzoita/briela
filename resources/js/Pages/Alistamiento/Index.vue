@@ -205,7 +205,13 @@ const colorTipo = (t) => t === 'ensamble'
                                     <p v-if="! item.despachable" class="text-xs text-tinta-300 mt-0.5">No se remisiona</p>
                                 </td>
                                 <td class="px-4 py-3 text-right">
-                                    <button v-if="puedeAlistar && ! item.remisionado" type="button" @click="alternar(item)"
+                                    <!-- Un ensamble con unidades se alista solo, al terminarlas en planta:
+                                         no tiene botón, para que nadie lo dé por listo antes de tiempo. -->
+                                    <span v-if="item.automatico && ! item.remisionado" class="text-xs text-tinta-400"
+                                        title="Se alista solo cuando terminan sus unidades en planta">
+                                        {{ item.alistado ? 'Listo en planta' : 'Se alista al terminar en planta' }}
+                                    </span>
+                                    <button v-else-if="puedeAlistar && ! item.remisionado" type="button" @click="alternar(item)"
                                         :class="['text-xs px-3 py-1.5 rounded-lg border transition-colors',
                                             item.alistado
                                                 ? 'border-linea text-tinta-500 hover:bg-realce'

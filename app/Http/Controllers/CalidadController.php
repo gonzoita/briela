@@ -492,9 +492,10 @@ class CalidadController extends Controller
             return;
         }
 
-        if ($this->checksQueBloquean($op) === 0 && ! $op->calidad_aprobada_at) {
-            $op->update(['calidad_aprobada_at' => now()]);
-        }
+        // La regla vive en la orden: todas las unidades firmadas y nada pendiente. Contar solo
+        // los puntos pendientes sellaba la orden con la primera unidad revisada.
+        $op->sincronizarEstado();
+        $op->sellarCalidadSiCorresponde();
     }
 
     private function recargar(OpItemTrabajo $trabajo): OpItemTrabajo

@@ -11,6 +11,24 @@ despachan, los datos del transporte y las firmas de despacho y recibido.
 Estados: `borrador → confirmada → en_camino → entregada`, con `anulada`
 como salida en cualquier punto antes de entregar.
 
+## Dos listas: por remisionar y creadas *(nuevo, 12 oct 2026)*
+
+La pantalla abre en **«Por remisionar»**: las órdenes con algo listo y todavía sin remisión, con
+cuántas unidades tiene lista cada ítem y un botón «Remisionar N unidades» que abre la remisión con
+todo precargado. **«Remisiones creadas»** es la lista de siempre, con sus estados.
+
+**Qué está listo para remisionar** —una sola regla, la misma en la lista, en la orden y en el
+remisionador—:
+
+- un **producto** alistado (en Alistamiento o con «Marcar alistado» en la orden), menos lo que ya
+  salió;
+- una **unidad de ensamble** terminada en planta, **firmada por calidad** y sin remisionar;
+- los **servicios** nunca: se alistan, pero no viajan.
+
+Antes la lista ofrecía órdenes con unidades sin aprobar —al abrirlas no había nada— y, al entrar
+desde la orden, **los productos alistados no aparecían**. El botón de remisión de la orden pedía el
+sello de calidad de la orden entera, que una orden de productos nunca tiene, y quedaba bloqueado.
+
 ## Flujo normal
 
 1. **Crear** desde una OP: se eligen las unidades a despachar. La remisión nace
@@ -48,13 +66,23 @@ fabricadas pero ninguna pasó calidad»— en vez de mostrar una pantalla vacía
   veces la firma quedaba guardada pero la remisión seguía figurando "en
   camino". El botón manual "Marcar entregada" sigue existiendo como
   respaldo (por si se entrega sin firma).
-- **OP despachada automáticamente**: cuando se remisiona el último ítem
-  pendiente de una OP, la OP pasa sola a "despachada" y se descuenta el
-  inventario de los insumos usados (ver la nota de abajo sobre *cuándo*
-  ocurre esto).
-- **Anular libera los ítems**: al anular una remisión, los ítems vuelven a
-  quedar disponibles para remisionar en otra, y si la OP estaba
-  "despachada" por esta remisión, regresa a "en producción".
+- **OP despachada al salir** *(corregido el 12 oct 2026)*: la orden pasa sola a "despachada"
+  cuando **todo lo que viaja ya salió** —sus remisiones están en camino o entregadas—, no al
+  crear la remisión. Antes bastaba con crearla en borrador, y una orden con un servicio incluido
+  no llegaba nunca a despachada (se contaba el servicio, que no se remisiona).
+- **Los productos salen del inventario al salir la remisión** *(nuevo)*: al pasar a en camino (o
+  entregada), cada producto de la remisión se descuenta de la bodega de entrega de la orden (o de
+  la principal), con origen «Remisión». Antes un producto despachado **nunca** bajaba del
+  inventario. Los ensambles los sigue descontando la orden al despacharse, **una sola vez**
+  (`ops.inventario_consumido_at`).
+- **Anular devuelve todo**: los ítems vuelven a quedar disponibles, los productos regresan a la
+  bodega si ya habían salido (`remisiones.inventario_movido_at` evita moverlos dos veces), y si la
+  orden estaba despachada por esta remisión vuelve a **calidad** (o a producción si algo quedó
+  pendiente). Un producto repartido en dos remisiones recupera solo lo de la anulada.
+- **Estados que no retroceden**: una remisión entregada o anulada ya no cambia, y una que salió
+  no se elimina —se anula—. Eliminar una anulada no vuelve a liberar nada.
+- **Permisos**: crear pide `remisiones.crear`; editar, cambiar de estado, firmar y eliminar piden
+  `remisiones.editar`. Antes todo se podía con `remisiones.ver`.
 
 ## Correctamente manual (no son gaps)
 

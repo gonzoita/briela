@@ -40,6 +40,7 @@ class Op extends Model
         'impuesto_total',
         'total',
         'porcentaje_avance',
+        'inventario_consumido_at',
     ];
 
     protected $casts = [
@@ -56,7 +57,11 @@ class Op extends Model
         'total'                  => 'decimal:2',
         'porcentaje_avance'      => 'decimal:2',
         'calidad_aprobada_at'    => 'datetime',
+        'inventario_consumido_at' => 'datetime',
     ];
+
+    /** Lo que no viaja en una remisión: se declara hecho, pero no hay nada que cargar. */
+    public const TIPOS_SIN_DESPACHO = ['texto_libre', 'servicio'];
 
     protected static function booted(): void
     {
@@ -234,8 +239,14 @@ class Op extends Model
 
     public function consumirMaterialesInventario(): void
     {
+        // Una sola vez por orden. Una remisión anulada devuelve la orden a calidad, y al volver a
+        // despacharla el material se descontaba otra vez: el inventario bajaba el doble.
+        if ($this->inventario_consumido_at || ! \App\Support\Modulos::activo('inventario')) return;
+
         $bodegaPrincipal = Bodega::principal();
         if (! $bodegaPrincipal) return;
+
+        $this->update(['inventario_consumido_at' => now()]);
 
         $this->load(['items.ensamble']);
 
@@ -419,38 +430,209 @@ class Op extends Model
             ->get();
     }
 
+    /** Compatibilidad: el paso a calidad ahora es parte del estado único. */
     public function revisarTransicionCalidad(): void
     {
-        // También desde `reproceso`: una orden que volvió a planta a corregir algo tiene que
-        // poder regresar sola a calidad cuando lo corrigió. Mientras esto solo miraba
-        // `en_produccion`, el regreso era manual y no había nada que lo recordara — la orden
-        // se quedaba en reproceso con el trabajo ya rehecho.
-        if (! in_array($this->estado, ['en_produccion', 'reproceso'], true)) return;
+        $this->sincronizarEstado();
+    }
 
-        $totalItems = $this->items()->count();
-        if ($totalItems === 0) return;
+    /**
+     * Pone el estado de la orden de acuerdo con lo que de verdad pasó con sus ítems.
+     *
+     * **Es el punto único del flujo.** Lo llaman todas las acciones que mueven la orden —alistar
+     * un ítem, cerrar el último paso de una unidad, firmar calidad, que salga una remisión— para
+     * que el estado no dependa de por qué pantalla entró cada cosa. Antes cada camino hacía su
+     * parte: cerrar un paso pasaba la orden a calidad, pero **alistar un producto no la movía**,
+     * y una orden de productos se quedaba en «En producción» con todo listo en la bodega.
+     *
+     *  - confirmada → **en producción** en cuanto algo queda listo;
+     *  - todo listo → **calidad** (y se sella sola si no hay nada que revisar, como una orden de
+     *    solo productos, que no tiene unidades);
+     *  - algo vuelve a quedar pendiente estando en calidad → regresa a **en producción**;
+     *  - todo lo que viaja ya salió en una remisión → **despachada**.
+     *
+     * Un borrador no se toca: se confirma a mano, porque confirmar es decidir que se fabrica.
+     * Y nunca se devuelve una orden despachada: eso solo lo hace anular la remisión que la
+     * despachó (el cambio manual a «despachada» es un respaldo legítimo y no se deshace solo).
+     */
+    public function sincronizarEstado(): void
+    {
+        $this->refresh();
 
-        $terminados = $this->items()->where('estado_item', 'terminado')->count();
-        if ($terminados === $totalItems) {
-            // Sin el módulo de Calidad, la orden terminada queda aprobada: el sello es el candado
-            // del despacho, y no hay pantalla donde ponerlo.
-            if (! \App\Support\Modulos::activo('calidad')) {
-                $this->update(['estado' => 'calidad', 'calidad_aprobada_at' => $this->calidad_aprobada_at ?? now()]);
-
-                return;
-            }
-
-            $this->update(['estado' => 'calidad']);
-
-            // Aviso a producción/calidad: la OP terminó y espera revisión.
-            app(\App\Services\NotificacionService::class)->paraRol(
-                ['administrador', 'jefe_produccion'],
-                'op_a_calidad',
-                "OP {$this->numero} lista para calidad",
-                'Terminó producción y espera control de calidad.',
-                "/produccion/ops/{$this->id}",
-            );
+        if (in_array($this->estado, ['borrador', 'despachada'], true)) {
+            return;
         }
+
+        $items = $this->items()
+            ->withCount([
+                'trabajos',
+                'trabajos as trabajos_terminados_count' => fn ($q) => $q->where('porcentaje_avance', 100),
+            ])
+            ->get(['id', 'op_id', 'tipo', 'cantidad', 'estado_item']);
+
+        if ($items->isEmpty()) {
+            return;
+        }
+
+        // Un ítem con unidades está listo cuando terminan todas, digan lo que digan los datos
+        // viejos: se corrige aquí la marca del ítem si quedó desfasada. Uno sin unidades
+        // (producto, servicio) lo dice su marca, que pone Alistamiento.
+        foreach ($items as $item) {
+            if ($item->trabajos_count > 0) {
+                $listo = $item->trabajos_count === $item->trabajos_terminados_count ? 'terminado' : 'pendiente';
+
+                if ($item->estado_item !== $listo) {
+                    $item->update(['estado_item' => $listo]);
+                }
+            }
+        }
+
+        $terminados = $items->where('estado_item', 'terminado')->count();
+        $todos      = $terminados === $items->count();
+
+        if ($this->estado === 'confirmada' && $terminados > 0) {
+            $this->update(['estado' => 'en_produccion']);
+        }
+
+        if ($todos && in_array($this->estado, ['en_produccion', 'reproceso'], true)) {
+            $this->pasarACalidad();
+        } elseif (! $todos && $this->estado === 'calidad') {
+            // Se desalistó un producto, o una unidad volvió a abrirse: ya no está todo listo, y
+            // el sello de calidad no puede seguir diciendo que sí.
+            $this->update(['estado' => 'en_produccion', 'calidad_aprobada_at' => null]);
+        }
+
+        if ($this->estado === 'calidad') {
+            $this->sellarCalidadSiCorresponde();
+        }
+
+        $this->despacharSiSalioTodo($items, $todos);
+    }
+
+    /** Todo quedó listo: la orden espera revisión, o se aprueba sola si no hay módulo de calidad. */
+    private function pasarACalidad(): void
+    {
+        // Sin el módulo de Calidad, la orden terminada queda aprobada: el sello es el candado
+        // del despacho, y no hay pantalla donde ponerlo.
+        if (! \App\Support\Modulos::activo('calidad')) {
+            $this->update(['estado' => 'calidad', 'calidad_aprobada_at' => $this->calidad_aprobada_at ?? now()]);
+
+            return;
+        }
+
+        $this->update(['estado' => 'calidad']);
+
+        app(\App\Services\NotificacionService::class)->paraRol(
+            ['administrador', 'jefe_produccion'],
+            'op_a_calidad',
+            "OP {$this->numero} lista para calidad",
+            'Todo quedó listo y espera control de calidad.',
+            "/produccion/ops/{$this->id}",
+        );
+    }
+
+    /**
+     * Sella `calidad_aprobada_at` cuando ya no queda nada por revisar en la orden.
+     *
+     * «Nada por revisar» es: todos los ítems listos, **todas** las unidades firmadas, y ningún
+     * punto pendiente ni falla crítica. Antes bastaba con que no hubiera puntos pendientes, y
+     * en una orden de unidades sin lista de revisión eso es cierto desde el principio: la orden
+     * quedaba sellada con la primera puerta revisada y las otras nueve sin mirar.
+     *
+     * Una orden de solo productos no tiene unidades: se sella al quedar todo listo, porque no
+     * hay nada que calidad pueda firmar.
+     */
+    public function sellarCalidadSiCorresponde(): void
+    {
+        if ($this->calidad_aprobada_at || $this->estado === 'despachada') {
+            return;
+        }
+
+        if ($this->items()->where('estado_item', '!=', 'terminado')->exists()) {
+            return;
+        }
+
+        $unidades = OpItemTrabajo::whereHas('opItem', fn ($q) => $q->where('op_id', $this->id));
+
+        if ((clone $unidades)->whereNull('calidad_revisada_at')->exists()) {
+            return;
+        }
+
+        $bloquean = OpItemTrabajoCheck::whereHas('trabajo.opItem', fn ($q) => $q->where('op_id', $this->id))
+            ->where(fn ($q) => $q->where('resultado', 'pendiente')
+                ->orWhere(fn ($q2) => $q2->where('resultado', 'falla')->where('es_critico', true)))
+            ->exists();
+
+        if ($bloquean) {
+            return;
+        }
+
+        $this->update(['calidad_aprobada_at' => now(), 'motivo_rechazo' => null]);
+
+        app(\App\Services\NotificacionService::class)->paraRol(
+            ['administrador', 'jefe_produccion'],
+            'op_lista_despacho',
+            "OP {$this->numero} lista para despachar",
+            'Calidad aprobada. Ya se puede generar la remisión.',
+            "/produccion/ops/{$this->id}",
+        );
+    }
+
+    /**
+     * Cuántas unidades de un ítem ya salieron de verdad: las de remisiones que están en camino o
+     * entregadas. Una remisión en borrador o confirmada todavía está en la bodega.
+     */
+    public static function unidadesQueSalieron(int $opItemId): float
+    {
+        return (float) RemisionItem::where('op_item_id', $opItemId)
+            ->whereHas('remision', fn ($q) => $q->whereIn('estado', ['en_camino', 'entregada']))
+            ->sum('cantidad');
+    }
+
+    /**
+     * La orden se despacha cuando **todo lo que viaja ya salió**, no cuando se crea la remisión.
+     *
+     * Antes bastaba con crear la remisión, aunque quedara en borrador y el camión no hubiera
+     * salido. Y se contaban también los servicios, que nunca se remisionan: una orden con una
+     * instalación incluida no llegaba nunca a «despachada».
+     *
+     * @param  \Illuminate\Support\Collection<int, OpItem>  $items
+     */
+    private function despacharSiSalioTodo($items, bool $todos): void
+    {
+        if ($this->estado === 'despachada' || ! in_array($this->estado, ['en_produccion', 'calidad', 'reproceso'], true)) {
+            return;
+        }
+
+        $viajan = $items->reject(fn ($i) => in_array($i->tipo, self::TIPOS_SIN_DESPACHO, true));
+
+        // Una orden de solo servicios no lleva remisión: termina cuando todo está hecho.
+        $salio = $viajan->isEmpty()
+            ? $todos
+            : $viajan->every(fn ($i) => static::unidadesQueSalieron($i->id) >= (float) $i->cantidad - 0.0001);
+
+        if (! $salio) {
+            return;
+        }
+
+        $this->update(['estado' => 'despachada']);
+        $this->consumirMaterialesInventario();
+    }
+
+    /**
+     * Anularon la remisión que la despachó: la orden vuelve a donde estaba antes de salir.
+     */
+    public function revertirDespacho(): void
+    {
+        $this->refresh();
+
+        if ($this->estado !== 'despachada') {
+            return;
+        }
+
+        $todos = ! $this->items()->where('estado_item', '!=', 'terminado')->exists();
+
+        $this->update(['estado' => $todos ? 'calidad' : 'en_produccion']);
     }
 
     /**

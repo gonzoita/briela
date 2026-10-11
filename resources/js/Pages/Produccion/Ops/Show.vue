@@ -334,19 +334,21 @@ function marcarTerminado(item) {
                         modulo="op"
                         label="PDF OP"
                     />
-                    <a v-if="op.items?.some(i => !i.remisionado) && op.calidad_aprobada_at"
+                    <!-- Se remisiona lo que está listo: productos alistados y unidades firmadas
+                         por calidad. No hace falta que la orden entera esté aprobada. -->
+                    <a v-if="op.por_remisionar > 0"
                         :href="`/logistica/remisiones/crear?op_id=${op.id}`"
                         class="px-3 py-1.5 rounded-xl text-xs font-semibold text-white flex items-center gap-1"
                         style="background:var(--marca);">
                         <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M9 17H3V5h12v12H9zm0 0h6m-6 0a2 2 0 104 0m6 0a2 2 0 104 0M15 5h4l2 4v8h-6V5z"/>
                         </svg>
-                        Remisión
+                        Remisionar ({{ op.por_remisionar }})
                     </a>
-                    <span v-else-if="op.items?.some(i => !i.remisionado)"
+                    <span v-else-if="op.estado !== 'despachada' && op.items?.some(i => !i.remisionado && !['servicio','texto_libre'].includes(i.tipo))"
                         class="px-3 py-1.5 rounded-xl text-xs font-medium text-tinta-300 border border-linea flex items-center gap-1 cursor-not-allowed"
-                        title="Falta aprobar control de calidad">
-                        Remisión (falta calidad)
+                        title="Se remisionan los productos alistados y las unidades que ya pasaron calidad">
+                        Remisión (nada listo todavía)
                     </span>
                     <a :href="`/produccion/ops/${op.id}/editar`"
                         class="px-3 py-1.5 rounded-xl border border-tinta-200 text-xs font-medium text-tinta-700 hover:bg-tinta-50">
@@ -780,7 +782,7 @@ function marcarTerminado(item) {
                                                     </svg>
                                                     Etiqueta
                                                 </a>
-                                                <button v-if="puedeGestionar && item.estado_item !== 'terminado'"
+                                                <button v-if="puedeGestionar && item.estado_item !== 'terminado' && !item.trabajos?.length"
                                                     @click.stop="marcarTerminado(item)"
                                                     class="text-xs px-2 py-1 rounded-lg border border-borde-aviso-verde text-aviso-verde hover:bg-pastel-verde font-medium flex items-center gap-1">
                                                     <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
@@ -1173,7 +1175,7 @@ function marcarTerminado(item) {
                                     </svg>
                                     Etiqueta
                                 </a>
-                                <button v-if="puedeGestionar && item.estado_item !== 'terminado'"
+                                <button v-if="puedeGestionar && item.estado_item !== 'terminado' && !item.trabajos?.length"
                                     @click.stop="marcarTerminado(item)"
                                     class="text-xs px-2 py-1 rounded-lg border border-borde-aviso-verde text-aviso-verde hover:bg-pastel-verde font-medium flex items-center gap-1">
                                     <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">

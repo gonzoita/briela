@@ -86,6 +86,39 @@ class OpItem extends Model
         return $this->trabajos()->disponiblesParaRemision()->count();
     }
 
+    /**
+     * Marca o desmarca el ítem como alistado, y mueve la orden.
+     *
+     * Es el único sitio que lo hace: lo llaman Alistamiento y el botón de la orden. Antes cada
+     * uno escribía `estado_item` por su cuenta y **ninguno avisaba a la orden**: se alistaban
+     * todos los productos y la orden seguía «En producción».
+     *
+     * Un ensamble con unidades no se alista a mano: queda listo solo cuando sus unidades
+     * terminan en planta. Alistarlo antes metería en la remisión algo que no existe todavía, y
+     * desalistarlo con todo terminado lo dejaría pendiente de algo que ya está hecho.
+     *
+     * @return string|null  el motivo si no se pudo; null si quedó hecho
+     */
+    public function alistar(bool $alistar = true): ?string
+    {
+        if (! $this->sinTrabajos()) {
+            return $alistar
+                ? 'Este ensamble se alista solo cuando terminan sus unidades en planta (van '
+                    .$this->trabajos()->completados()->count().' de '.$this->trabajos()->count().').'
+                : 'Este ensamble está listo porque sus unidades terminaron en planta: para devolverlo, se reabre su trabajo.';
+        }
+
+        if (! $alistar && $this->unidadesRemisionadas() > 0) {
+            return 'Este ítem ya tiene unidades remisionadas: no se puede devolver a pendiente.';
+        }
+
+        $this->update(['estado_item' => $alistar ? 'terminado' : 'pendiente']);
+
+        $this->op?->sincronizarEstado();
+
+        return null;
+    }
+
     public function estaRemisionado(): bool
     {
         if ($this->sinTrabajos()) {

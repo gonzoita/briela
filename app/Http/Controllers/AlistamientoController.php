@@ -141,6 +141,8 @@ class AlistamientoController extends Controller
             'cantidad'     => (float) $i->cantidad,
             'numero_serie' => $i->numero_serie,
             'alistado'     => $i->estado_item === 'terminado',
+            // Un ensamble con unidades se alista solo, al terminarlas en planta.
+            'automatico'   => $trabajos > 0,
             // Un servicio se alista pero no se despacha: no hay nada que cargar en el camión.
             'despachable'  => $tipo !== 'servicio',
             'remisionado'  => (bool) $i->remisionado,
@@ -169,13 +171,9 @@ class AlistamientoController extends Controller
     {
         $alistar = $request->boolean('alistado', true);
 
-        if (! $alistar && $item->unidadesRemisionadas() > 0) {
-            return back()->withErrors([
-                'alistado' => 'Este ítem ya tiene unidades remisionadas: no se puede devolver a pendiente.',
-            ]);
+        if ($motivo = $item->alistar($alistar)) {
+            return back()->with('error', $motivo);
         }
-
-        $item->update(['estado_item' => $alistar ? 'terminado' : 'pendiente']);
 
         return back()->with('success', $alistar
             ? 'Ítem alistado, listo para remisionar.'

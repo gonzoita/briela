@@ -577,6 +577,16 @@ Lo construido después de la fase 3, que conviene conocer antes de tocar algo ce
   explicaciones se pregunta, nunca se adivina. El pago que registra es el mismo de la cartera
   (`op_pagos`), marcado con `verificado_at`; deshacerlo pide `cartera.eliminar`. Ver
   `docs/manual/verificador-pagos.md`.
+- **El estado de la OP se decide en `Op::sincronizarEstado()`, y en ningún otro sitio.** Lo
+  llaman alistar (`OpItem::alistar()`, el único que escribe la marca de un producto), cerrar o
+  reabrir un paso, firmar calidad y que salga o se anule una remisión. **Una acción nueva que
+  cambie algo de la orden llama ahí; nunca escribe `estado` a mano.** Antes cada camino hacía su
+  parte y alistar un producto no movía la orden. La orden se **despacha cuando la remisión sale**
+  (en camino/entregada), no al crearla; los **productos salen del inventario** en ese momento
+  (`Remision::sacarDelInventario`, con candado `inventario_movido_at`) y el material de los
+  ensambles una sola vez (`ops.inventario_consumido_at`). Lo remisionable es **una sola regla**:
+  producto alistado o unidad firmada por calidad (`OpItem::cantidadDisponible()` y el scope
+  `disponiblesParaRemision`); los servicios nunca viajan (`Op::TIPOS_SIN_DESPACHO`).
 - **Una OP con trabajo hecho no cambia sus ítems** (`Op::itemsBloqueados()`), y el candado está
   en el servidor.
 
@@ -641,7 +651,7 @@ decían lo contrario y estaban equivocadas.
   relaciones entre archivos antes de leer código a mano.
 - Conviene regenerarlo después de cambios que muevan estructura (borrar módulos,
   mover carpetas), porque un grafo desactualizado es peor que no tenerlo.
-- **Generado y al día.** Al 10 oct 2026: **10.798 nodos, 21.016 aristas, 624 comunidades**,
+- **Generado y al día.** Al 10 oct 2026: **10.873 nodos, 21.234 aristas, 645 comunidades**,
   reconstruido entero y anclado al commit `d5cc247`. Cubre el proyecto completo: 926 archivos de
   código por AST y los 70 documentos por subagentes. Se actualiza con
   `python -m graphify update . --force` y luego `cluster-only .` con

@@ -205,6 +205,10 @@ class OpController extends Controller
 
     public function show(Op $op): Response
     {
+        // Las órdenes que quedaron atascadas antes de que el estado se decidiera en un solo
+        // sitio se ponen al día al abrirlas: todo alistado y la orden seguía en producción.
+        $op->sincronizarEstado();
+
         $op->load([
             'cliente', 'responsable', 'cotizacion',
             'items.producto',
@@ -222,6 +226,12 @@ class OpController extends Controller
                 ...$op->toArray(),
                 'estado_badge'      => $op->estadoBadge(),
                 'tiene_cuotas'      => $op->cuotas()->exists(),
+                // Cuántas unidades se pueden remisionar hoy. Es lo que abre el botón de
+                // remisión: no el sello de calidad de la orden, que una orden de productos no
+                // tiene nunca —no hay unidades que firmar— y dejaba el botón bloqueado.
+                'por_remisionar'    => $op->items
+                    ->reject(fn ($i) => in_array($i->tipo, Op::TIPOS_SIN_DESPACHO, true))
+                    ->sum(fn ($i) => $i->cantidadDisponible()),
                 'fotos_calidad'     => $op->archivos->map(fn ($a) => [
                     'id'     => $a->id,
                     'url'    => $a->url,
@@ -522,6 +532,12 @@ class OpController extends Controller
             ]);
             $mensaje = 'Calidad aprobada — ya se puede generar la remisión y despachar.';
 
+            // Aprobar la orden firma sus unidades, igual que cerrarla desde Calidad: lo que abre
+            // la remisión es la firma de cada unidad, y sin esto la aprobación no abría nada.
+            foreach (\App\Models\OpItemTrabajo::whereHas('opItem', fn ($q) => $q->where('op_id', $op->id))->get() as $unidad) {
+                $unidad->firmarCalidad();
+            }
+
             // Aviso a logística/almacén: la OP ya se puede remisionar.
             app(\App\Services\NotificacionService::class)->paraRol(
                 ['administrador', 'jefe_produccion'],
@@ -546,8 +562,14 @@ class OpController extends Controller
     public function marcarTerminado(Op $op, OpItem $item): RedirectResponse
     {
         abort_if($item->op_id !== $op->id, 404);
-        $item->update(['estado_item' => 'terminado']);
-        return back()->with('success', 'Ítem marcado como terminado.');
+
+        // El mismo alistado que el de Alistamiento: mueve la orden, y un ensamble con unidades
+        // no se alista a mano.
+        if ($motivo = $item->alistar(true)) {
+            return back()->with('error', $motivo);
+        }
+
+        return back()->with('success', 'Ítem alistado, listo para remisionar.');
     }
 
     /**

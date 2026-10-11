@@ -33,6 +33,16 @@ Un servicio —mano de obra, transporte, instalación— se marca como alistado 
 tiene que declarar que está hecho, pero no aparece en la remisión: no hay nada que cargar. La
 lista lo dice en la fila para que nadie lo busque después.
 
+## Alistar mueve la orden *(corregido el 12 oct 2026)*
+
+Alistar un ítem **pone al día el estado de la orden**, igual que cerrar el último paso de una
+unidad: con el primer ítem listo la orden pasa a **En producción**; con todo listo, a **Calidad**
+—y una orden de solo productos se sella sola, porque no tiene unidades que firmar—; desalistar algo
+la devuelve a producción. Antes alistar solo marcaba el ítem y la orden seguía donde estaba.
+
+**Un ensamble con unidades no se alista a mano**: queda listo solo cuando sus unidades terminan en
+planta, y deja de estarlo si una se reabre. La lista lo dice en la fila en vez de ofrecer el botón.
+
 ## Con qué se conecta
 
 - El botón «Marcar alistado» de la orden de producción hace lo mismo, y se queda como atajo

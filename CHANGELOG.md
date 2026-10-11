@@ -15,6 +15,9 @@ Formato: [versionado semántico](https://semver.org/lang/es/).
 ## [Sin publicar]
 
 ### Agregado
+- **Remisiones: «Por remisionar» y «Remisiones creadas».** La pantalla abre con las órdenes que
+  tienen algo listo y todavía no salieron, con cuántas unidades hay de cada cosa y un botón para
+  remisionarlas con todo precargado.
 - **Verificador de pagos.** Confirma con el banco que el dinero de cada cuota llegó, sin que alguien
   tenga que revisar la cuenta. Subes el extracto del banco (Excel o CSV, de cualquier banco) y
   Briela empareja cada abono con la cuota que corresponde: lo que no deja duda —la orden nombrada
@@ -38,6 +41,25 @@ Formato: [versionado semántico](https://semver.org/lang/es/).
   impuesto y gastos repartidos por valor, peso o cantidad— y a cuánto quedaría en cada canal.
   Al liquidar, ese pasa a ser el costo del producto y se recalculan sus precios. Los productos
   guardan su código arancelario y su arancel habitual.
+
+### Corregido
+- **La orden de producción cambia de estado sola en todo el flujo.** Alistar un producto ya mueve
+  la orden (a «En producción» con el primero, a «Calidad» con todos, y de vuelta si se desalista);
+  antes solo lo hacía cerrar pasos en planta. Las órdenes que quedaron atascadas se ponen al día
+  solas al actualizar.
+- **Los productos alistados se pueden remisionar desde la orden.** El botón pedía una aprobación
+  de calidad que una orden de productos nunca tiene, y el remisionador no los ofrecía.
+- **La orden se despacha cuando la remisión sale**, no al crearla en borrador, y una orden con un
+  servicio incluido ya llega a «Despachada».
+- **Los productos despachados salen del inventario** al salir la remisión, y vuelven si se anula.
+  Despachar, anular y volver a despachar ya no descuenta dos veces.
+- **Anular una remisión devuelve solo lo suyo**: un producto repartido en dos remisiones ya no
+  vuelve entero, y eliminar una remisión anulada no suelta las unidades de otra.
+- **Calidad sella la orden cuando están todas las unidades revisadas**, no con la primera.
+- **Una unidad que vuelve a planta deja de figurar como lista.**
+- **La lista de órdenes para remisionar solo trae las que de verdad tienen algo listo.**
+- Una remisión entregada o anulada ya no cambia de estado, una que salió no se elimina (se anula),
+  y crear o mover remisiones pide su propio permiso.
 
 ## [1.3.0] — 2026-10-10
 

@@ -170,8 +170,15 @@ class OpItemTrabajo extends Model
         $totalTrabajos = $item->trabajos()->count();
         $trabajos100   = $item->trabajos()->where('porcentaje_avance', 100)->count();
 
-        if ($totalTrabajos > 0 && $totalTrabajos === $trabajos100) {
-            $item->update(['estado_item' => 'terminado']);
+        // El ítem está listo cuando terminan todas sus unidades, y **deja de estarlo** si una se
+        // reabre —un reproceso, un paso desmarcado—. Antes solo se ponía en listo y nunca se
+        // quitaba: la unidad volvía a planta y el ítem seguía figurando alistado.
+        if ($totalTrabajos > 0) {
+            $listo = $totalTrabajos === $trabajos100 ? 'terminado' : 'pendiente';
+
+            if ($item->estado_item !== $listo) {
+                $item->update(['estado_item' => $listo]);
+            }
         }
 
         $op = $item->op;
@@ -193,12 +200,9 @@ class OpItemTrabajo extends Model
         // marcar un paso desde Programador/Trabajos).
         $op->recalcularProgreso();
 
-        if ($totalTrabajos > 0 && $totalTrabajos === $trabajos100) {
-            // Si con este ítem ya quedaron todos terminados, la OP pasa
-            // sola a "calidad" — sin esto había que entrar manualmente a
-            // cambiar el estado aunque la producción ya estuviera completa.
-            $op->revisarTransicionCalidad();
-        }
+        // El estado de la orden se decide en un solo sitio: pasa a calidad cuando todo quedó
+        // listo, y vuelve a producción si algo se reabre estando en calidad.
+        $op->sincronizarEstado();
     }
 
     /**

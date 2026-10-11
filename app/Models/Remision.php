@@ -32,6 +32,16 @@ class Remision extends Model
         'firma_recibido',
         'nombre_receptor',
         'created_by',
+        'inventario_movido_at',
+    ];
+
+    /** Las transiciones permitidas. Una remisión entregada o anulada ya no cambia. */
+    public const TRANSICIONES = [
+        'borrador'   => ['confirmada', 'en_camino', 'entregada', 'anulada'],
+        'confirmada' => ['en_camino', 'entregada', 'anulada'],
+        'en_camino'  => ['entregada', 'anulada'],
+        'entregada'  => [],
+        'anulada'    => [],
     ];
 
     protected $casts = [
@@ -43,6 +53,7 @@ class Remision extends Model
         'fecha_salida'   => 'datetime',
         'fecha_entrega'  => 'datetime',
         'costo_flete'    => 'decimal:2',
+        'inventario_movido_at' => 'datetime',
     ];
 
     protected static function booted(): void
@@ -81,6 +92,79 @@ class Remision extends Model
     public function items(): HasMany
     {
         return $this->hasMany(RemisionItem::class);
+    }
+
+    public function puedePasarA(string $estado): bool
+    {
+        return in_array($estado, self::TRANSICIONES[$this->estado] ?? [], true);
+    }
+
+    /**
+     * Saca del inventario los productos que viajan en esta remisión, una sola vez.
+     *
+     * Ocurre cuando la remisión **sale** (en camino o entregada), no al crearla: una remisión en
+     * borrador todavía está en la bodega. Hasta ahora un producto despachado **nunca** bajaba del
+     * inventario: solo se consumía el material de los ensambles, y lo que se vendía de la bodega
+     * seguía figurando ahí.
+     *
+     * Los ensambles no se tocan aquí: su material y sus unidades armadas los descuenta la orden
+     * al despacharse (`Op::consumirMaterialesInventario`). Los servicios no se mueven.
+     */
+    public function sacarDelInventario(): void
+    {
+        if ($this->inventario_movido_at || ! \App\Support\Modulos::activo('inventario')) {
+            return;
+        }
+
+        $this->moverProductos('salida');
+        $this->update(['inventario_movido_at' => now()]);
+    }
+
+    /** Anularon una remisión que ya había salido: lo que llevaba vuelve a la bodega. */
+    public function devolverAlInventario(): void
+    {
+        if (! $this->inventario_movido_at || ! \App\Support\Modulos::activo('inventario')) {
+            return;
+        }
+
+        $this->moverProductos('entrada');
+        $this->update(['inventario_movido_at' => null]);
+    }
+
+    private function moverProductos(string $tipo): void
+    {
+        $this->loadMissing(['items.opItem', 'items.producto', 'op']);
+
+        // De la bodega a la que entra lo que despacha la orden; si no la tiene, la principal.
+        $bodegaId = $this->op?->bodega_entrega_id ?? Bodega::principal($this->sede_id)?->id ?? Bodega::principal()?->id;
+
+        if (! $bodegaId) {
+            return;
+        }
+
+        foreach ($this->items as $item) {
+            $opItem   = $item->opItem;
+            $producto = $item->producto ?? $opItem?->producto;
+
+            // Solo productos: un ítem de la orden con unidades es un ensamble, y un servicio no
+            // tiene stock.
+            if (! $producto || $producto->tipo === 'servicio') {
+                continue;
+            }
+            if ($opItem && (in_array($opItem->tipo, Op::TIPOS_SIN_DESPACHO, true) || ! $opItem->sinTrabajos())) {
+                continue;
+            }
+
+            $producto->registrarMovimiento(
+                tipo: $tipo,
+                cantidad: (float) $item->cantidad,
+                bodegaId: $bodegaId,
+                usuarioId: (int) (auth()->id() ?? $this->created_by),
+                origenTipo: 'remision',
+                origenId: $this->id,
+                notas: $tipo === 'salida' ? "Despacho en la remisión {$this->numero}" : "Remisión {$this->numero} anulada",
+            );
+        }
     }
 
     public function scopePendientes($query)

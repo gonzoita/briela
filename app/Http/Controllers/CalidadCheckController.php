@@ -81,10 +81,11 @@ class CalidadCheckController extends Controller
               ->orWhere(fn ($q2) => $q2->where('resultado', 'falla')->where('es_critico', true));
         })->count();
 
-        if ($pendientes === 0 && ! $op->calidad_aprobada_at) {
-            $op->update(['calidad_aprobada_at' => now(), 'estado' => $op->estado === 'calidad' ? 'calidad' : $op->estado]);
-        } elseif ($pendientes > 0 && $op->calidad_aprobada_at) {
+        if ($pendientes > 0 && $op->calidad_aprobada_at) {
             $op->update(['calidad_aprobada_at' => null]);
+        } else {
+            // Sellar es de la orden: todas las unidades firmadas y nada pendiente.
+            $op->sellarCalidadSiCorresponde();
         }
     }
 

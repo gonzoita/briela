@@ -997,14 +997,16 @@ Route::middleware('auth')->group(function () {
     // ─── Logística ───────────────────────────────────────────────────────────
     Route::middleware('permiso:remisiones.ver')->prefix('logistica')->name('logistica.')->group(function () {
         Route::get('/remisiones',                         [RemisionController::class, 'index'])->name('remisiones.index');
-        Route::get('/remisiones/crear',                   [RemisionController::class, 'create'])->name('remisiones.create');
-        Route::post('/remisiones',                        [RemisionController::class, 'store'])->name('remisiones.store');
+        // Crear y mover una remisión no es verla: piden su propio permiso. Antes todo esto se
+        // podía con `remisiones.ver`.
+        Route::get('/remisiones/crear',                   [RemisionController::class, 'create'])->middleware('permiso:remisiones.crear')->name('remisiones.create');
+        Route::post('/remisiones',                        [RemisionController::class, 'store'])->middleware('permiso:remisiones.crear')->name('remisiones.store');
         Route::get('/remisiones/{remision}',              [RemisionController::class, 'show'])->name('remisiones.show');
-        Route::get('/remisiones/{remision}/editar',       [RemisionController::class, 'edit'])->name('remisiones.edit');
-        Route::put('/remisiones/{remision}',              [RemisionController::class, 'update'])->name('remisiones.update');
-        Route::patch('/remisiones/{remision}/estado',     [RemisionController::class, 'cambiarEstado'])->name('remisiones.estado');
-        Route::post('/remisiones/{remision}/firma',       [RemisionController::class, 'guardarFirma'])->name('remisiones.firma');
-        Route::delete('/remisiones/{remision}',           [RemisionController::class, 'destroy'])->name('remisiones.destroy');
+        Route::get('/remisiones/{remision}/editar',       [RemisionController::class, 'edit'])->middleware('permiso:remisiones.editar')->name('remisiones.edit');
+        Route::put('/remisiones/{remision}',              [RemisionController::class, 'update'])->middleware('permiso:remisiones.editar')->name('remisiones.update');
+        Route::patch('/remisiones/{remision}/estado',     [RemisionController::class, 'cambiarEstado'])->middleware('permiso:remisiones.editar')->name('remisiones.estado');
+        Route::post('/remisiones/{remision}/firma',       [RemisionController::class, 'guardarFirma'])->middleware('permiso:remisiones.editar')->name('remisiones.firma');
+        Route::delete('/remisiones/{remision}',           [RemisionController::class, 'destroy'])->middleware('permiso:remisiones.editar')->name('remisiones.destroy');
         Route::get('/remisiones/{remision}/pdf',          [RemisionController::class, 'generarPdf'])->name('remisiones.pdf');
         Route::get('/api/ops/buscar',                     [RemisionController::class, 'buscarOp'])->name('ops.buscar');
         Route::get('/api/ops/{op}/items',                 [RemisionController::class, 'itemsOp'])->name('ops.items');

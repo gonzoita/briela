@@ -75,6 +75,26 @@ de aprobarla, y desde ahí vuelva a `en_produccion`.
    duro: ni el cambio de estado manual a "Despachada" ni la generación de
    la remisión funcionan si la OP no tiene `calidad_aprobada_at`.
 
+## El estado se decide en un solo sitio *(12 oct 2026)*
+
+`Op::sincronizarEstado()` es el punto único del flujo. Lo llaman alistar un ítem (Alistamiento y
+el botón de la orden), cerrar o reabrir un paso, firmar calidad y que salga o se anule una
+remisión. Reglas:
+
+| Pasa | Cuándo |
+|---|---|
+| confirmada → **en producción** | algo queda listo (un producto alistado, una unidad terminada) |
+| → **calidad** | todo listo: productos alistados y todas las unidades terminadas |
+| se **sella** `calidad_aprobada_at` | todo listo, **todas** las unidades firmadas y nada pendiente; una orden sin unidades, al quedar todo listo |
+| calidad → **en producción** | algo vuelve a quedar pendiente (se desalista, se reabre una unidad); el sello se retira |
+| → **despachada** | todo lo que viaja ya salió en remisiones en camino o entregadas; una orden de solo servicios, al quedar todo hecha |
+
+El estado del ítem de un ensamble lo deciden sus unidades (y se corrige si quedó desfasado). Un
+borrador no se toca: se confirma a mano. Una orden despachada solo vuelve atrás si se anula la
+remisión que la despachó. Las órdenes que quedaron atascadas se ponen al día al abrirlas, al
+actualizar (`ops:sincronizar-estados` corre en el despliegue y al instalar una versión) o a mano
+con ese mismo comando.
+
 ## Cómo se llega a "Despachada"
 
 El consumo automático de inventario (descontar los insumos usados) se

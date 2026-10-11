@@ -762,8 +762,9 @@ class ProductoController extends Controller
                 ? ['etiqueta' => "Orden {$oc->numero}".($oc->proveedor ? " · {$oc->proveedor->nombre}" : ''), 'url' => "/compras/ordenes/{$oc->id}"]
                 : ['etiqueta' => 'Orden de compra', 'url' => null],
             'op'                => ($op = $ops->get($m->origen_id))
-                ? ['etiqueta' => "Orden de producción {$op->numero}", 'url' => "/ops/{$op->id}"]
+                ? ['etiqueta' => "Orden de producción {$op->numero}", 'url' => "/produccion/ops/{$op->id}"]
                 : ['etiqueta' => 'Orden de producción', 'url' => null],
+            'remision'          => ['etiqueta' => 'Remisión', 'url' => $m->origen_id ? "/logistica/remisiones/{$m->origen_id}" : null],
             'ajuste_manual'     => ['etiqueta' => 'Ajuste manual', 'url' => null],
             'creacion_producto' => ['etiqueta' => 'Stock inicial', 'url' => null],
             'importacion_csv'   => ['etiqueta' => 'Importación', 'url' => null],
