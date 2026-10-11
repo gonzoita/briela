@@ -42,6 +42,7 @@ módulo por módulo.
 
 - [Logística y despachos (remisiones)](./logistica.md)
 - [Cartera — lo que deben los clientes](./cartera.md)
+- [Verificador de pagos — confirmar con el banco que el dinero llegó](./verificador-pagos.md)
 
 ## Personas
 

@@ -165,6 +165,8 @@
         <div class="min-w-0 flex-1">
           <div class="text-sm font-medium text-tinta-900">{{ pago.numero_recibo }}</div>
           <div class="text-xs text-tinta-300">{{ fmtFecha(pago.fecha_pago) }} · {{ pago.medio_pago }}</div>
+          <!-- El banco confirmó que este dinero entró (ver el verificador de pagos). -->
+          <div v-if="pago.verificado_at" class="text-xs font-medium text-aviso-verde" title="Confirmado con el extracto del banco">✓ Verificado por el banco</div>
         </div>
         <div class="flex items-center gap-2 ml-2 flex-shrink-0">
           <span class="text-sm font-semibold text-aviso-verde">${{ fmt(pago.valor) }}</span>

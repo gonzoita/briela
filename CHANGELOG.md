@@ -14,6 +14,16 @@ Formato: [versionado semántico](https://semver.org/lang/es/).
 
 ## [Sin publicar]
 
+### Agregado
+- **Verificador de pagos.** Confirma con el banco que el dinero de cada cuota llegó, sin que alguien
+  tenga que revisar la cuenta. Subes el extracto del banco (Excel o CSV, de cualquier banco) y
+  Briela empareja cada abono con la cuota que corresponde: lo que no deja duda —la orden nombrada
+  y el valor exacto, o el valor exacto con el cliente en la descripción— se registra solo como
+  pago «Verificado por el banco»; lo que tiene más de una explicación queda **por decidir** con
+  un clic, y el dinero que nadie reclama queda a la vista como **sin dueño**. Subir dos veces el
+  mismo extracto no duplica nada. Solo lee: no mueve ni paga nada, y solo guarda los últimos
+  dígitos de la cuenta. Es un módulo que se enciende y se apaga desde Configuración → Módulos.
+
 ## [1.3.0] — 2026-10-10
 
 ### Agregado

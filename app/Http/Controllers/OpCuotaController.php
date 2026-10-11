@@ -32,6 +32,8 @@ class OpCuotaController extends Controller
                     'fecha_pago'    => $p->fecha_pago?->format('Y-m-d'),
                     'referencia'    => $p->referencia,
                     'notas'         => $p->notas,
+                    // Cuándo el banco confirmó que este dinero entró (verificador de pagos).
+                    'verificado_at' => $p->verificado_at?->toIso8601String(),
                 ]),
             ]),
             'total_op'        => (float) ($op->total ?? 0),

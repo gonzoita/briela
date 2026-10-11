@@ -12,6 +12,12 @@ van registrando contra esas cuotas. El saldo es lo que falta.
 Las cuotas y los pagos se manejan desde la ficha de la OP, en su bloque financiero; la cartera es
 la vista de conjunto: todo lo pendiente en un solo lugar, para saber a quién hay que cobrarle.
 
+## Confirmar los pagos con el banco
+
+Un pago anotado a mano es lo que alguien dijo que entró. El **verificador de pagos**
+([verificador-pagos.md](./verificador-pagos.md)) lo confirma con el extracto del banco y lo marca
+«Verificado por el banco».
+
 ## Permisos
 
 | Permiso | Para qué |

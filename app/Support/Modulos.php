@@ -177,6 +177,14 @@ class Modulos
                 'depende'   => ['ops'],
                 'al_apagar' => 'Las órdenes no llevan cuotas ni pagos.',
             ],
+            'verificador_pagos' => [
+                'label'     => 'Verificador de pagos',
+                'grupo'     => 'Producción y Entrega',
+                'permisos'  => ['verificador'],
+                'rutas'     => ['financiero/verificador-pagos'],
+                'depende'   => ['cartera'],
+                'al_apagar' => 'Los pagos se siguen anotando a mano: nadie confirma con el banco que el dinero llegó.',
+            ],
 
             // ─── Mantenimiento ─────────────────────────────────────────────────
             'mantenimiento' => [

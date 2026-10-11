@@ -161,6 +161,7 @@ const navItems = computed(() => {
             ...(rol === 'operario' ? [{ label: 'Mi panel', href: '/mi-panel', icon: 'user-gear', modulo: 'trabajos' }] : []),
             { label: 'Remisiones',            href: '/logistica/remisiones',    icon: 'truck-ramp-box',  permiso: 'remisiones.ver' },
             { label: 'Cartera',               href: '/financiero/cartera',      icon: 'wallet',          permiso: 'cartera.ver' },
+            { label: 'Verificador de pagos',  href: '/financiero/verificador-pagos', icon: 'clipboard-check', permiso: 'verificador.ver' },
         ]},
         { label: 'Mantenimiento', icon: 'screwdriver-wrench', items: [
             { label: 'Mantenimiento tablero', href: '/mantenimiento',                icon: 'chart-gantt', permiso: 'mantenimiento.ver' },

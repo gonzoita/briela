@@ -59,6 +59,10 @@ class Permisos
             'Logística y Financiero' => [
                 'remisiones' => ['label' => 'Remisiones', 'acciones' => ['ver', 'crear', 'editar', 'despachar']],
                 'cartera'    => ['label' => 'Cartera',    'acciones' => ['ver', 'editar', 'eliminar']],
+                // Confirmar con el banco que el dinero llegó: ver los abonos, subir extractos y
+                // conciliarlos. Deshacer una conciliación borra un pago, y eso sigue siendo
+                // `cartera.eliminar`.
+                'verificador' => ['label' => 'Verificador de pagos', 'acciones' => ['ver', 'editar']],
             ],
             'Personas' => [
                 'rrhh'         => ['label' => 'Colaboradores', 'acciones' => ['ver', 'crear', 'editar', 'eliminar']],

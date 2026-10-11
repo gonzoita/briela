@@ -1016,6 +1016,25 @@ Route::middleware('auth')->group(function () {
         Route::get('/financiero/cartera', [CarteraController::class, 'index'])->name('financiero.cartera');
     });
 
+    // ─── Verificador de pagos: confirmar con el banco que el dinero llegó ────
+    Route::middleware('permiso:verificador.ver')->prefix('financiero/verificador-pagos')->name('verificador.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\VerificadorPagosController::class, 'index'])->name('index');
+        Route::get('/movimientos/{movimiento}/candidatas', [\App\Http\Controllers\VerificadorPagosController::class, 'candidatas'])->name('candidatas');
+
+        Route::middleware('permiso:verificador.editar')->group(function () {
+            Route::post('/cuentas', [\App\Http\Controllers\VerificadorPagosController::class, 'guardarCuenta'])->name('cuentas.guardar');
+            Route::post('/cuentas/{cuenta}/alternar', [\App\Http\Controllers\VerificadorPagosController::class, 'alternarCuenta'])->name('cuentas.alternar');
+            Route::post('/importar', [\App\Http\Controllers\VerificadorPagosController::class, 'importar'])->name('importar');
+            Route::post('/movimientos/{movimiento}/asignar', [\App\Http\Controllers\VerificadorPagosController::class, 'asignar'])->name('asignar');
+            Route::post('/movimientos/{movimiento}/ignorar', [\App\Http\Controllers\VerificadorPagosController::class, 'ignorar'])->name('ignorar');
+            Route::post('/movimientos/{movimiento}/restaurar', [\App\Http\Controllers\VerificadorPagosController::class, 'restaurar'])->name('restaurar');
+        });
+
+        // Deshacer borra un pago de la cartera: es el permiso de borrar pagos, no el de conciliar.
+        Route::post('/movimientos/{movimiento}/deshacer', [\App\Http\Controllers\VerificadorPagosController::class, 'deshacer'])
+            ->middleware('permiso:cartera.eliminar')->name('deshacer');
+    });
+
     // ─── CRM — Pipeline de ventas ────────────────────────────────────────────
     Route::middleware('permiso:crm.ver')->group(function () {
         Route::get('/crm', [CrmPipelineController::class, 'index']);

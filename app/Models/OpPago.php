@@ -10,7 +10,7 @@ class OpPago extends Model
 
     protected $fillable = [
         'op_id', 'cuota_id', 'numero_recibo', 'valor',
-        'medio_pago', 'fecha_pago', 'referencia', 'notas', 'registrado_por',
+        'medio_pago', 'fecha_pago', 'referencia', 'notas', 'registrado_por', 'verificado_at',
     ];
 
     protected $casts = [
@@ -20,6 +20,8 @@ class OpPago extends Model
         // vacío y el usuario no puede leer ni corregir una fecha que sí está guardada.
         'fecha_pago' => 'date:Y-m-d',
         'valor'      => 'decimal:2',
+        // Cuándo el banco confirmó que este dinero entró. Nulo: alguien lo anotó, sin confirmación.
+        'verificado_at' => 'datetime',
     ];
 
     public function op()

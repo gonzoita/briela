@@ -553,6 +553,15 @@ Lo construido después de la fase 3, que conviene conocer antes de tocar algo ce
   instalación **no** guarda credenciales de correo; el SMTP propio es solo respaldo. Un correo
   masivo se marca con `X-Briela-Tipo: masivo`; las notificaciones no se cobran nunca. Ver
   `docs/manual/correo.md`.
+- **El verificador de pagos solo LEE, y toda fuente entra por un solo sitio**
+  (`VerificadorPagosService::importar()`). Hoy la fuente es el extracto subido (`.xlsx`/`.csv`,
+  `App\Services\Banco\`); la conexión de banca abierta (Belvo, contratado por Briela y a través
+  del superadmin, nunca con la llave en la instalación) será **otra fuente** que llama a ese mismo
+  método. Solo pasan los **abonos**, y solo se concilia sola una cuota cuando no queda duda —la orden
+  nombrada con el valor exacto, o el valor exacto con el cliente en la descripción—: ante dos
+  explicaciones se pregunta, nunca se adivina. El pago que registra es el mismo de la cartera
+  (`op_pagos`), marcado con `verificado_at`; deshacerlo pide `cartera.eliminar`. Ver
+  `docs/manual/verificador-pagos.md`.
 - **Una OP con trabajo hecho no cambia sus ítems** (`Op::itemsBloqueados()`), y el candado está
   en el servidor.
 

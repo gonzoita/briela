@@ -77,6 +77,9 @@ class OpPagoController extends Controller
                 $cuota->estado = $cuota->valor_pagado <= 0 ? 'pendiente' : 'parcial';
                 $cuota->save();
             }
+            // Si el banco había confirmado este pago, el abono vuelve a la bandeja del verificador:
+            // el dinero sigue en la cuenta aunque el pago ya no esté anotado.
+            app(\App\Services\VerificadorPagosService::class)->pagoBorrado($pago->id);
             $pago->delete();
         });
 
