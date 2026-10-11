@@ -14,6 +14,8 @@ Formato: [versionado semántico](https://semver.org/lang/es/).
 
 ## [Sin publicar]
 
+## [1.4.0] — 2026-10-11
+
 ### Agregado
 - **Remisiones: «Por remisionar» y «Remisiones creadas».** La pantalla abre con las órdenes que
   tienen algo listo y todavía no salieron, con cuántas unidades hay de cada cosa y un botón para
