@@ -14,6 +14,8 @@ Formato: [versionado semántico](https://semver.org/lang/es/).
 
 ## [Sin publicar]
 
+## [1.5.0] — 2026-10-11
+
 ### Agregado
 - **Plazo de entrega en la cotización** (días hábiles). Se ve en la cotización, en el enlace del
   cliente y en el PDF, y al generar la orden se convierte en su fecha de entrega, que se puede
