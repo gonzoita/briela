@@ -14,6 +14,21 @@ Formato: [versionado semántico](https://semver.org/lang/es/).
 
 ## [Sin publicar]
 
+### Agregado
+- **Productos que pasan por planta.** En la ficha de un producto se puede prender «Se procesa en
+  planta» con sus pasos y su revisión de calidad, para lo que hay que cortar, pintar o empacar antes
+  de entregar. En cada orden sus unidades salen a Trabajos con su QR, y quedan listas para
+  remisionar al terminarlas. Desde la orden también se puede mandar a planta cualquier producto con
+  «Procesar en planta», eligiendo el flujo de pasos.
+
+### Corregido
+- **Una orden en borrador ya se puede trabajar.** Alistar un producto, remisionarlo o avanzar un
+  paso la pasa sola a «En producción», con las bodegas precargadas. Antes alistar en borrador no
+  movía nada, y Alistamiento y Remisiones ni siquiera mostraban la orden.
+- **Un producto se puede remisionar sin alistarlo antes**: al meterlo en la remisión queda alistado.
+  El remisionador marca los que todavía no lo estaban.
+- «Sacar de planta» ya no borra unidades con trabajo registrado ni unidades que ya salieron.
+
 ## [1.4.0] — 2026-10-11
 
 ### Agregado

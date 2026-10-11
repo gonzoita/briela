@@ -3,10 +3,13 @@
 namespace App\Services;
 
 use App\Models\Ensamble;
+use App\Models\Op;
 use App\Models\OpItem;
 use App\Models\OpItemTrabajo;
 use App\Models\OpItemTrabajoCheck;
 use App\Models\OpItemTrabajoPaso;
+use App\Models\Producto;
+use App\Models\TemplateTrabajo;
 
 /**
  * Fusión Plantillas de Ensamble <-> Plantillas de Trabajo.
@@ -21,6 +24,10 @@ use App\Models\OpItemTrabajoPaso;
  * pasos automáticamente en el momento en que se crea el OpItem, sin ninguna
  * acción manual. Si la plantilla todavía no tiene pasos cargados, el
  * trabajo se crea igual, vacío, para que quede disponible.
+ *
+ * Un **producto** también puede pasar por planta —cortarlo, pintarlo, empacarlo—: si tiene su
+ * propio flujo (`Producto::procesoEnPlanta()`), sus unidades nacen igual que las de un
+ * ensamble, y si no, se le puede asignar uno desde la orden (`procesarEnPlanta()`).
  */
 class TrabajoAutoGeneratorService
 {
@@ -112,7 +119,9 @@ class TrabajoAutoGeneratorService
      */
     public function sincronizarParaItem(OpItem $item, bool $rehacerTodo = false): void
     {
-        if (! $item->ensamble_id) {
+        // Un ensamble siempre tiene unidades. Un producto solo si ya pasa por planta: corregir
+        // su cantidad no lo manda a planta si nadie lo pidió.
+        if (! $item->ensamble_id && ! $item->trabajos()->exists()) {
             return;
         }
 
@@ -187,7 +196,7 @@ class TrabajoAutoGeneratorService
 
     public function generarParaItem(OpItem $item): void
     {
-        if (! $item->ensamble_id) {
+        if (! $this->templateDe($item)) {
             return;
         }
 
@@ -211,25 +220,127 @@ class TrabajoAutoGeneratorService
     }
 
     /**
+     * Manda a planta un ítem que no tenía unidades, o le cambia el flujo a uno que no ha empezado.
+     *
+     * Es el botón «Procesar en planta» de la orden: un producto que esta vez hay que cortar o
+     * pintar, o uno cuyo flujo se definió después de que naciera la orden. Crea **todas** las
+     * unidades de una vez, con sus pasos y su revisión, igual que nacen las de un ensamble.
+     *
+     * @return string|null  el motivo si no se pudo; null si quedó hecho
+     */
+    public function procesarEnPlanta(OpItem $item, TemplateTrabajo $template): ?string
+    {
+        if (in_array($item->tipo, Op::TIPOS_SIN_DESPACHO, true)) {
+            return 'Un servicio no pasa por planta: se marca como hecho en Alistamiento.';
+        }
+
+        if (! $template->pasos()->exists()) {
+            return "El flujo «{$template->nombre}» no tiene pasos: agrégalos antes de usarlo.";
+        }
+
+        $trabajos = $item->trabajos()->get();
+
+        if ($trabajos->contains(fn ($t) => $this->tieneAvance($t))) {
+            return 'Este ítem ya tiene trabajo registrado en planta: no se le puede cambiar el flujo.';
+        }
+
+        if ($item->unidadesRemisionadas() > 0) {
+            return 'Este ítem ya tiene unidades remisionadas: lo que salió no vuelve a planta.';
+        }
+
+        foreach ($trabajos as $trabajo) {
+            $this->borrarUnidad($trabajo);
+        }
+
+        $this->crearUnidades($item, 1, (int) max(1, floor((float) $item->cantidad)), $template);
+
+        if (! $item->numero_serie) {
+            $item->update(['numero_serie' => now()->format('Ymd') . str_pad($item->id, 4, '0', STR_PAD_LEFT) . '001']);
+        }
+
+        // Si estaba alistado a mano, deja de estarlo: ahora lo alista la planta al terminar.
+        if ($item->estado_item === 'terminado') {
+            $item->update(['estado_item' => 'pendiente']);
+        }
+
+        $item->op?->sincronizarEstado();
+
+        return null;
+    }
+
+    /**
+     * Saca de planta un ítem cuyas unidades nadie ha tocado.
+     *
+     * @return string|null  el motivo si no se pudo; null si quedó hecho
+     */
+    public function sacarDePlanta(OpItem $item): ?string
+    {
+        $trabajos = $item->trabajos()->get();
+
+        if ($trabajos->contains(fn ($t) => $this->tieneAvance($t))) {
+            return 'Este ítem ya tiene trabajo registrado en planta o unidades remisionadas: no se puede sacar. '
+                . 'Reabre sus pasos primero.';
+        }
+
+        foreach ($trabajos as $trabajo) {
+            $this->borrarUnidad($trabajo);
+        }
+
+        $item->update(['estado_item' => 'pendiente', 'numero_serie' => null]);
+
+        $op = $item->op;
+        $op?->recalcularProgreso();
+        $op?->sincronizarEstado();
+
+        return null;
+    }
+
+    /**
+     * El flujo con que nacen las unidades de un ítem.
+     *
+     * Las que ya tiene mandan: la unidad que se agrega mañana sale del mismo molde que las de
+     * ayer, aunque el flujo se haya asignado a mano. Si no tiene ninguna: el del ensamble (el
+     * suyo si es directo, el de su plantilla si no), o el del producto si se procesa en planta.
+     */
+    public function templateDe(OpItem $item): ?TemplateTrabajo
+    {
+        $existente = $item->trabajos()->whereNotNull('template_id')->value('template_id');
+
+        if ($existente && ($template = TemplateTrabajo::find($existente))) {
+            return $template;
+        }
+
+        if ($item->ensamble_id) {
+            $ensamble = Ensamble::with('plantilla')->find($item->ensamble_id);
+
+            if (! $ensamble) {
+                return null;
+            }
+
+            // Un ensamble directo no tiene plantilla: su flujo de producción cuelga de él mismo.
+            // Sin esto, una OP con un ensamble directo nacía con cero trabajos: sin QR para el
+            // operario, sin avance, y quieta en `confirmada` sin nada que lo explique.
+            return $ensamble->esDirecto()
+                ? $ensamble->obtenerOCrearTemplateTrabajo()
+                : $ensamble->plantilla?->obtenerOCrearTemplateTrabajo();
+        }
+
+        if ($item->producto_id && ! in_array($item->tipo, Op::TIPOS_SIN_DESPACHO, true)) {
+            return Producto::find($item->producto_id)?->procesoEnPlanta();
+        }
+
+        return null;
+    }
+
+    /**
      * Crea las unidades `$desde..$hasta` de un ítem, cada una con sus pasos y su revisión.
      *
      * Vive aparte porque se usa dos veces: al nacer el ítem y al subirle la cantidad después.
      * Escrito dos veces, la unidad que se agregara mañana nacería distinta a las de ayer.
      */
-    private function crearUnidades(OpItem $item, int $desde, int $hasta): void
+    private function crearUnidades(OpItem $item, int $desde, int $hasta, ?TemplateTrabajo $template = null): void
     {
-        $ensamble = Ensamble::with('plantilla')->find($item->ensamble_id);
-
-        if (! $ensamble) {
-            return;
-        }
-
-        // Un ensamble directo no tiene plantilla: su flujo de producción cuelga de él mismo.
-        // Sin esto, una OP con un ensamble directo nacía con cero trabajos: sin QR para el
-        // operario, sin avance, y quieta en `confirmada` sin nada que lo explique.
-        $template = $ensamble->esDirecto()
-            ? $ensamble->obtenerOCrearTemplateTrabajo()
-            : $ensamble->plantilla?->obtenerOCrearTemplateTrabajo();
+        $template ??= $this->templateDe($item);
 
         if (! $template) {
             return;
@@ -237,11 +348,14 @@ class TrabajoAutoGeneratorService
 
         $pasos = $template->pasos()->orderBy('orden')->get();
 
-        // La lista de revisión de calidad vive donde viven los pasos: en el ensamble si es
-        // directo, en la plantilla si no. Se copia a cada unidad y se congela ahí — cambiar la
-        // plantilla después no puede reescribir lo que alguien ya revisó.
-        $checks = ($ensamble->esDirecto() ? $ensamble : $ensamble->plantilla)
-            ?->checksCalidad()->where('activo', true)->get() ?? collect();
+        // La lista de revisión de calidad vive donde viven los pasos: en el ensamble directo, en
+        // la plantilla o en el producto. Se copia a cada unidad y se congela ahí — cambiar la
+        // lista después no puede reescribir lo que alguien ya revisó.
+        $dueno = $template->plantilla_ensamble_id
+            ? $template->plantillaEnsamble
+            : ($template->ensamble_id ? $template->ensamble : $template->producto);
+
+        $checks = $dueno?->checksCalidad()->where('activo', true)->get() ?? collect();
 
         $variables = $item->variables_instancia ?? [];
 

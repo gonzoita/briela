@@ -323,7 +323,9 @@ class OpController extends Controller
             ],
             'responsables'  => User::where('activo', true)->get(['id', 'name', 'rol']),
             'operarios'     => Operario::all(['id', 'nombre']),
-            'templates'     => TemplateTrabajo::where('activo', true)->withCount('pasos')->get(['id', 'nombre']),
+            // Los flujos que se pueden usar para mandar un ítem a planta: los de plantillas,
+            // ensambles y productos, siempre que tengan pasos.
+            'templates'     => TemplateTrabajo::where('activo', true)->has('pasos')->withCount('pasos')->orderBy('nombre')->get(['id', 'nombre']),
         ]);
     }
 
@@ -665,9 +667,8 @@ class OpController extends Controller
             // Fusión Plantillas de Ensamble <-> Trabajo: genera automáticamente
             // el/los OpItemTrabajo (uno por unidad) con sus pasos, sin que
             // nadie tenga que entrar a producción a elegir un template a mano.
-            if ($opItem->ensamble_id) {
-                app(TrabajoAutoGeneratorService::class)->generarParaItem($opItem);
-            }
+            // Vale también para un producto que se procesa en planta; el servicio decide.
+            app(TrabajoAutoGeneratorService::class)->generarParaItem($opItem);
 
             // Generar componentes desde snapshot (solo los marcados visible_op)
             $snapshotEnriquecido = $this->enriquecerSnapshot(
@@ -1169,18 +1170,14 @@ class OpController extends Controller
                 // Las unidades siguen a la cantidad: se crean las que faltan y se borran las
                 // que sobran. Antes esto no pasaba, y corregir una OP de 1 a 3 puertas dejaba
                 // dos unidades sin trabajo — sin QR, sin pasos y sin calidad.
-                if ($item->ensamble_id) {
-                    app(TrabajoAutoGeneratorService::class)->sincronizarParaItem($item, $cambioDeEnsamble);
-                }
+                app(TrabajoAutoGeneratorService::class)->sincronizarParaItem($item, $cambioDeEnsamble);
             } else {
                 $nuevo = OpItem::create($fill);
                 $idsEnviados[] = $nuevo->id;
 
-                // Igual que en generarDesdeCotizacion: genera el trabajo
-                // automáticamente para ítems nuevos vinculados a un ensamble.
-                if ($nuevo->ensamble_id) {
-                    app(TrabajoAutoGeneratorService::class)->generarParaItem($nuevo);
-                }
+                // Igual que en generarDesdeCotizacion: genera el trabajo automáticamente para
+                // ítems nuevos de un ensamble, o de un producto que se procesa en planta.
+                app(TrabajoAutoGeneratorService::class)->generarParaItem($nuevo);
             }
         }
 

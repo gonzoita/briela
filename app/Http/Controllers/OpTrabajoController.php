@@ -7,68 +7,34 @@ use App\Models\OpItem;
 use App\Models\OpItemTrabajo;
 use App\Models\OpItemTrabajoPaso;
 use App\Models\TemplateTrabajo;
+use App\Services\TrabajoAutoGeneratorService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
 class OpTrabajoController extends Controller
 {
+    /**
+     * «Procesar en planta»: le asigna un flujo a un ítem y crea todas sus unidades.
+     *
+     * Antes creaba **una** unidad por clic, sin revisión de calidad ni paso final, y marcaba el
+     * ítem «en proceso» por su cuenta, sin avisar a la orden. Ahora pasa por el mismo servicio
+     * que crea las unidades de un ensamble, así que nacen iguales: QR, pasos, revisión.
+     */
     public function iniciar(Request $request, Op $op, OpItem $item): RedirectResponse
     {
+        abort_if($item->op_id !== $op->id, 404);
+
         $request->validate(['template_id' => 'required|exists:templates_trabajo,id']);
 
-        $template  = TemplateTrabajo::with('pasos')->findOrFail($request->template_id);
-        $variables = $item->variables_instancia ?? [];
-        $cantidad  = (int) max(1, floor((float) $item->cantidad));
+        $template = TemplateTrabajo::findOrFail($request->template_id);
 
-        // Contar trabajos existentes
-        $trabajosExistentes = OpItemTrabajo::where('op_item_id', $item->id)->count();
-
-        if ($trabajosExistentes >= $cantidad) {
-            return back()->with('error',
-                "Ya existen {$trabajosExistentes} trabajo(s) para este ítem. Máximo permitido: {$cantidad}."
-            );
+        if ($motivo = app(TrabajoAutoGeneratorService::class)->procesarEnPlanta($item, $template)) {
+            return back()->with('error', $motivo);
         }
 
-        // Crear el siguiente trabajo en secuencia
-        $siguienteUnidad = $trabajosExistentes + 1;
+        $unidades = $item->trabajos()->count();
 
-        $trabajo = OpItemTrabajo::create([
-            'op_item_id'        => $item->id,
-            'template_id'       => $template->id,
-            'porcentaje_avance' => 0,
-            'numero_unidad'     => $siguienteUnidad,
-            'total_unidades'    => $cantidad,
-        ]);
-
-        $serie = now()->format('Ymd') . str_pad($item->id, 4, '0', STR_PAD_LEFT) . str_pad($siguienteUnidad, 3, '0', STR_PAD_LEFT);
-        if (!$item->numero_serie) {
-            $item->update(['numero_serie' => $serie]);
-        }
-
-        foreach ($template->pasos as $paso) {
-            $desc = preg_replace_callback('/\{(\w+)\}/', function ($m) use ($variables) {
-                return $variables[$m[1]] ?? $m[0];
-            }, $paso->descripcion);
-
-            OpItemTrabajoPaso::create([
-                'op_item_trabajo_id'   => $trabajo->id,
-                'template_paso_id'     => $paso->id,
-                'nombre'               => $paso->nombre,
-                'descripcion_resuelta' => $desc,
-                'peso_porcentaje'      => $paso->peso_porcentaje,
-                'orden'                => $paso->orden,
-            ]);
-        }
-
-        // Actualizar estado del ítem
-        $item->update(['estado_item' => 'en_proceso']);
-        $this->recalcularProgresoOp($op);
-
-        $quedan = $cantidad - $siguienteUnidad;
-        $msg = "Trabajo {$siguienteUnidad}/{$cantidad} creado con template \"{$template->nombre}\".";
-        if ($quedan > 0) $msg .= " Faltan {$quedan} trabajo(s) por iniciar.";
-
-        return back()->with('success', $msg);
+        return back()->with('success', "Listo: {$unidades} unidad(es) en planta con el flujo «{$template->nombre}».");
     }
 
     public function completarPaso(Request $request, Op $op, OpItem $item, OpItemTrabajoPaso $paso): RedirectResponse
@@ -157,17 +123,22 @@ class OpTrabajoController extends Controller
         return back()->with('success', 'Tiempo registrado.');
     }
 
+    /**
+     * Saca un ítem de planta: borra sus unidades, que todavía nadie tocó.
+     *
+     * Antes borraba todo sin mirar, con avance registrado y unidades ya remisionadas incluidas:
+     * se perdían pasos, tiempos y puntos de los operarios, y una unidad que ya iba en el camión
+     * dejaba de existir en el sistema.
+     */
     public function eliminarTrabajos(Request $request, Op $op, OpItem $item): RedirectResponse
     {
-        OpItemTrabajo::where('op_item_id', $item->id)->each(function ($t) {
-            $t->pasos()->each(fn ($p) => $p->operarios()->delete());
-            $t->pasos()->delete();
-            $t->delete();
-        });
-        $item->update(['estado_item' => 'pendiente', 'numero_serie' => null]);
-        $this->recalcularProgresoOp($op);
+        abort_if($item->op_id !== $op->id, 404);
 
-        return back()->with('success', 'Trabajos eliminados. Puedes asignar un nuevo template.');
+        if ($motivo = app(TrabajoAutoGeneratorService::class)->sacarDePlanta($item)) {
+            return back()->with('error', $motivo);
+        }
+
+        return back()->with('success', 'El ítem salió de planta. Puedes asignarle otro flujo, o alistarlo a mano.');
     }
 
     private function recalcularProgresoOp(Op $op): void

@@ -60,10 +60,15 @@ class CierrePasoService
         // la empresa decidió no usar.
         $conInventario = \App\Support\Modulos::activo('inventario');
 
+        // Solo lo que se fabrica desde una receta entra a bodega al terminarse. Un producto que
+        // pasa por planta —se corta, se pinta— ya estaba en el inventario: sale de él cuando
+        // sale la remisión, así que su paso final no pregunta bodegas ni mueve stock.
+        $entraABodega = $conInventario && $this->entraABodega($trabajo);
+
         if ($paso->es_paso_final) {
             $this->exigirQueSeaElUltimo($paso, $trabajo);
 
-            if ($conInventario) {
+            if ($entraABodega) {
                 $this->guardarBodegas($trabajo, $bodegaEntregaId, $bodegaMaterialId);
             }
         }
@@ -102,7 +107,7 @@ class CierrePasoService
 
         // La entrega va al final: necesita el avance ya recalculado y el paso ya cerrado, y
         // `entregado_at` la hace idempotente si el paso se vuelve a marcar.
-        if ($paso->es_paso_final && ! $yaEstaba && $conInventario) {
+        if ($paso->es_paso_final && ! $yaEstaba && $entraABodega) {
             return $this->almacen->entregar($trabajo->fresh());
         }
 
@@ -157,7 +162,15 @@ class CierrePasoService
         return [
             'entrega'  => $anterior?->bodega_entrega_id  ?? $op?->bodega_entrega_id,
             'material' => $anterior?->bodega_material_id ?? $op?->bodega_material_id,
+            // Si la pantalla tiene que preguntarlas: no, para un producto procesado en planta.
+            'pide'     => $this->entraABodega($trabajo),
         ];
+    }
+
+    /** Si la unidad entra a bodega al terminarse: la de un ensamble sí, la de un producto no. */
+    public function entraABodega(OpItemTrabajo $trabajo): bool
+    {
+        return (bool) $trabajo->opItem?->ensamble_id;
     }
 
     /**

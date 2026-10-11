@@ -20,10 +20,15 @@ todo precargado. **«Remisiones creadas»** es la lista de siempre, con sus esta
 **Qué está listo para remisionar** —una sola regla, la misma en la lista, en la orden y en el
 remisionador—:
 
-- un **producto** alistado (en Alistamiento o con «Marcar alistado» en la orden), menos lo que ya
-  salió;
-- una **unidad de ensamble** terminada en planta, **firmada por calidad** y sin remisionar;
+- un **producto** sin planta, **alistado o no** *(13 oct 2026)*, menos lo que ya salió: meterlo en
+  la remisión lo alista. La pestaña «Por remisionar» sigue mostrando solo lo alistado
+  (`OpItem::cantidadLista()`); el remisionador ofrece todo lo despachable
+  (`OpItem::cantidadDisponible()`) y marca «Sin alistar» lo que todavía no lo estaba;
+- una **unidad** de ensamble —o de un producto que pasó por planta— terminada, **firmada por
+  calidad** y sin remisionar;
 - los **servicios** nunca: se alistan, pero no viajan.
+
+Las órdenes en **borrador** también se pueden remisionar: la orden arranca sola al hacerlo.
 
 Antes la lista ofrecía órdenes con unidades sin aprobar —al abrirlas no había nada— y, al entrar
 desde la orden, **los productos alistados no aparecían**. El botón de remisión de la orden pedía el

@@ -328,7 +328,10 @@ watch(() => form.tipo, () => {
                                     <p class="text-sm font-medium text-tinta-900">{{ item.descripcion }}</p>
                                     <div class="flex flex-wrap gap-3 mt-1 text-xs text-tinta-400">
                                         <span>Total: <strong class="text-tinta-700">{{ item.total }}</strong></span>
-                                        <span class="text-aviso-verde">Completadas: <strong>{{ item.unidades_completadas }}</strong></span>
+                                        <span v-if="item.sin_alistar" class="px-1.5 rounded bg-pastel-ambar text-aviso-ambar">
+                                            Sin alistar: queda alistado al remisionar
+                                        </span>
+                                        <span v-else class="text-aviso-verde">Completadas: <strong>{{ item.unidades_completadas }}</strong></span>
                                         <span v-if="item.unidades_remisionadas > 0" class="text-aviso-ambar">
                                             Ya remisionadas: <strong>{{ item.unidades_remisionadas }}</strong>
                                         </span>

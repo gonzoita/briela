@@ -68,22 +68,41 @@ class OpItem extends Model
     /**
      * Cuántas unidades se pueden meter hoy en una remisión.
      *
-     * Un ensamble las cuenta por sus trabajos: terminados y todavía sin remisionar. Un
-     * producto no tiene trabajos, así que lo que manda es que esté marcado como alistado en la
-     * OP, y lo que quede por remisionar.
+     * Un ítem con unidades en planta las cuenta por sus trabajos: terminadas, firmadas por
+     * calidad y todavía sin remisionar. Un producto sin planta se puede remisionar **aunque nadie
+     * lo haya alistado**: meterlo en la remisión es la prueba de que está listo, y la remisión lo
+     * alista sola. Un servicio no viaja nunca.
      *
      * Hasta el 18 ago 2026 esto solo miraba los trabajos, y por eso **un producto nunca
      * aparecía en el remisionador**: la OP lo listaba y la remisión no lo dejaba escoger.
      */
     public function cantidadDisponible(): int
     {
+        if (in_array($this->tipo, Op::TIPOS_SIN_DESPACHO, true)) {
+            return 0;
+        }
+
         if ($this->sinTrabajos()) {
-            return $this->estado_item === 'terminado'
-                ? max(0, (int) $this->cantidad - (int) $this->cantidad_remisionada)
-                : 0;
+            return max(0, (int) $this->cantidad - (int) $this->cantidad_remisionada);
         }
 
         return $this->trabajos()->disponiblesParaRemision()->count();
+    }
+
+    /**
+     * Cuántas unidades están **listas**: alistadas a mano, o terminadas en planta y firmadas.
+     *
+     * Es lo que muestran Alistamiento y la pestaña «Por remisionar»: lo que ya está en el
+     * muelle. `cantidadDisponible()` es más ancho —deja remisionar un producto sin alistar—,
+     * pero listar ahí todo lo pendiente convertiría la pestaña en la lista de todas las órdenes.
+     */
+    public function cantidadLista(): int
+    {
+        if ($this->sinTrabajos() && $this->estado_item !== 'terminado') {
+            return 0;
+        }
+
+        return $this->cantidadDisponible();
     }
 
     /**

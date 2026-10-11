@@ -445,21 +445,22 @@ class Op extends Model
      * parte: cerrar un paso pasaba la orden a calidad, pero **alistar un producto no la movía**,
      * y una orden de productos se quedaba en «En producción» con todo listo en la bodega.
      *
-     *  - confirmada → **en producción** en cuanto algo queda listo;
+     *  - borrador o confirmada → **en producción** en cuanto algo queda listo;
      *  - todo listo → **calidad** (y se sella sola si no hay nada que revisar, como una orden de
      *    solo productos, que no tiene unidades);
      *  - algo vuelve a quedar pendiente estando en calidad → regresa a **en producción**;
      *  - todo lo que viaja ya salió en una remisión → **despachada**.
      *
-     * Un borrador no se toca: se confirma a mano, porque confirmar es decidir que se fabrica.
-     * Y nunca se devuelve una orden despachada: eso solo lo hace anular la remisión que la
+     * Un borrador sin nada listo no se toca: todavía se está armando. Pero si alguien ya alistó
+     * algo o remisionó, la orden arranca sola —el trabajo real manda— y se le precargan las
+     * bodegas que se habrían pedido al confirmar. Y nunca se devuelve una orden despachada: eso solo lo hace anular la remisión que la
      * despachó (el cambio manual a «despachada» es un respaldo legítimo y no se deshace solo).
      */
     public function sincronizarEstado(): void
     {
         $this->refresh();
 
-        if (in_array($this->estado, ['borrador', 'despachada'], true)) {
+        if ($this->estado === 'despachada') {
             return;
         }
 
@@ -490,8 +491,15 @@ class Op extends Model
         $terminados = $items->where('estado_item', 'terminado')->count();
         $todos      = $terminados === $items->count();
 
-        if ($this->estado === 'confirmada' && $terminados > 0) {
-            $this->update(['estado' => 'en_produccion']);
+        // Algo quedó listo: la orden está en producción, venga de donde venga. Una en borrador
+        // también —alguien ya la está trabajando, y el trabajo real manda sobre el clic de
+        // «Confirmar» que nadie hizo—. Un borrador sin nada listo se sigue armando en paz.
+        if (in_array($this->estado, ['borrador', 'confirmada'], true)) {
+            if ($terminados === 0) {
+                return;
+            }
+
+            $this->iniciarProduccionSiAplica();
         }
 
         if ($todos && in_array($this->estado, ['en_produccion', 'reproceso'], true)) {
@@ -643,9 +651,28 @@ class Op extends Model
      */
     public function iniciarProduccionSiAplica(): void
     {
-        if (in_array($this->estado, ['borrador', 'confirmada'], true)) {
-            $this->update(['estado' => 'en_produccion']);
+        if (! in_array($this->estado, ['borrador', 'confirmada'], true)) {
+            return;
         }
+
+        $cambios = ['estado' => 'en_produccion'];
+
+        // Una orden que arranca desde borrador nunca pasó por «Confirmar», que es donde se piden
+        // las dos bodegas. Se precargan con la principal para que el inventario sepa de dónde
+        // sacar y a dónde meter; se pueden cambiar en la orden, y el paso final las pregunta
+        // otra vez con lo que haya aquí ya elegido.
+        if (\App\Support\Modulos::activo('inventario') && (! $this->bodega_entrega_id || ! $this->bodega_material_id)) {
+            $bodega = Bodega::principal($this->sede_id)
+                ?? Bodega::principal()
+                ?? Bodega::where('activa', true)->orderBy('id')->first();
+
+            if ($bodega) {
+                $cambios['bodega_entrega_id']  = $this->bodega_entrega_id  ?: $bodega->id;
+                $cambios['bodega_material_id'] = $this->bodega_material_id ?: $bodega->id;
+            }
+        }
+
+        $this->update($cambios);
     }
 
     /**

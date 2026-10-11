@@ -28,8 +28,11 @@ use Inertia\Response;
  */
 class AlistamientoController extends Controller
 {
-    /** Las órdenes que ya se pueden alistar. Un borrador todavía se está armando. */
-    private const ESTADOS_OP = ['confirmada', 'en_produccion', 'calidad', 'reproceso', 'despachada'];
+    /**
+     * Las órdenes cuyos ítems se pueden alistar. Un borrador también: alistar algo es empezar a
+     * trabajarla, y la orden arranca sola (`Op::sincronizarEstado()`).
+     */
+    private const ESTADOS_OP = ['borrador', 'confirmada', 'en_produccion', 'calidad', 'reproceso', 'despachada'];
 
     public function index(Request $request): Response
     {
@@ -146,7 +149,7 @@ class AlistamientoController extends Controller
             // Un servicio se alista pero no se despacha: no hay nada que cargar en el camión.
             'despachable'  => $tipo !== 'servicio',
             'remisionado'  => (bool) $i->remisionado,
-            'disponible'   => $i->cantidadDisponible(),
+            'disponible'   => $i->cantidadLista(),
             // Un ítem sin trabajos no tiene avance que mostrar: nadie lo fabrica, sale de
             // bodega. Va en null y la pantalla enseña un guion, no un 0 % que asusta.
             'avance'       => $trabajos > 0 ? (int) round($i->trabajos()->avg('porcentaje_avance') ?? 0) : null,

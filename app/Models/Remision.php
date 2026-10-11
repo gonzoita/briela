@@ -146,12 +146,14 @@ class Remision extends Model
             $opItem   = $item->opItem;
             $producto = $item->producto ?? $opItem?->producto;
 
-            // Solo productos: un ítem de la orden con unidades es un ensamble, y un servicio no
-            // tiene stock.
+            // Solo productos: un ensamble sale de bodega por su propio camino (su material o su
+            // producto terminado, ver `Op::consumirMaterialesInventario()`), y un servicio no
+            // tiene stock. Un producto que pasó por planta —se cortó, se pintó— sí sale de aquí:
+            // ya estaba en el inventario, y procesarlo no lo movió.
             if (! $producto || $producto->tipo === 'servicio') {
                 continue;
             }
-            if ($opItem && (in_array($opItem->tipo, Op::TIPOS_SIN_DESPACHO, true) || ! $opItem->sinTrabajos())) {
+            if ($opItem && (in_array($opItem->tipo, Op::TIPOS_SIN_DESPACHO, true) || $opItem->ensamble_id)) {
                 continue;
             }
 

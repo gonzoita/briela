@@ -186,6 +186,10 @@ un ajuste de inventario, que lo decide quien cuenta el estante.
 
 ## El paso final pide las dos bodegas
 
+> **Salvo en un producto procesado en planta** *(13 oct 2026)*: no entra a bodega como producto
+> terminado —ya estaba en ella—, así que su paso final se cierra como cualquier otro y la pantalla
+> no pregunta bodegas (`bodegas_sugeridas.pide = false`).
+
 El paso marcado como final es el que **entrega la unidad**. Al cerrarlo se pregunta:
 
 | Pregunta | Para qué |

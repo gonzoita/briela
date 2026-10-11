@@ -585,8 +585,17 @@ Lo construido después de la fase 3, que conviene conocer antes de tocar algo ce
   (en camino/entregada), no al crearla; los **productos salen del inventario** en ese momento
   (`Remision::sacarDelInventario`, con candado `inventario_movido_at`) y el material de los
   ensambles una sola vez (`ops.inventario_consumido_at`). Lo remisionable es **una sola regla**:
-  producto alistado o unidad firmada por calidad (`OpItem::cantidadDisponible()` y el scope
+  producto con algo por despachar —alistado o no— o unidad firmada por calidad (`OpItem::cantidadDisponible()` y el scope
   `disponiblesParaRemision`); los servicios nunca viajan (`Op::TIPOS_SIN_DESPACHO`).
+- **Un producto también pasa por planta, y una OP en borrador arranca sola** (13 oct 2026). El flujo
+  de un producto cuelga de él (`templates_trabajo.producto_id`, `Producto::procesoEnPlanta()`); qué
+  flujo usa un ítem lo decide `TrabajoAutoGeneratorService::templateDe()` —las unidades que ya tiene,
+  el ensamble o el producto— y desde la orden se asigna con `procesarEnPlanta()`. **Una unidad de
+  producto no entra a bodega al terminarse** (`CierrePasoService::entraABodega()`): ya estaba en el
+  inventario y sale con la remisión. Un borrador con algo listo pasa a producción con las bodegas
+  precargadas (`Op::iniciarProduccionSiAplica()`). **Un producto sin planta se remisiona aunque no
+  esté alistado** y la remisión lo alista: `OpItem::cantidadDisponible()` es lo despachable,
+  `cantidadLista()` lo ya alistado (la pestaña «Por remisionar» y Alistamiento).
 - **Una OP con trabajo hecho no cambia sus ítems** (`Op::itemsBloqueados()`), y el candado está
   en el servidor.
 
@@ -651,7 +660,7 @@ decían lo contrario y estaban equivocadas.
   relaciones entre archivos antes de leer código a mano.
 - Conviene regenerarlo después de cambios que muevan estructura (borrar módulos,
   mover carpetas), porque un grafo desactualizado es peor que no tenerlo.
-- **Generado y al día.** Al 10 oct 2026: **10.873 nodos, 21.234 aristas, 645 comunidades**,
+- **Generado y al día.** Al 13 oct 2026: **10.925 nodos, 21.396 aristas, 644 comunidades**,
   reconstruido entero y anclado al commit `d5cc247`. Cubre el proyecto completo: 926 archivos de
   código por AST y los 70 documentos por subagentes. Se actualiza con
   `python -m graphify update . --force` y luego `cluster-only .` con

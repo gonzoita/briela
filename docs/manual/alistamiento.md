@@ -43,6 +43,16 @@ la devuelve a producción. Antes alistar solo marcaba el ítem y la orden seguí
 **Un ensamble con unidades no se alista a mano**: queda listo solo cuando sus unidades terminan en
 planta, y deja de estarlo si una se reabre. La lista lo dice en la fila en vez de ofrecer el botón.
 
+## Borradores y remisiones *(13 oct 2026)*
+
+La lista trae también los ítems de órdenes en **borrador**: alistar algo es empezar a trabajar la
+orden, y la orden arranca sola. Y **alistar ya no es obligatorio para despachar un producto**:
+remisionarlo lo alista. Alistar sigue sirviendo para que el almacenista deje constancia de lo que
+dejó en el muelle; la pestaña «Por remisionar» de Remisiones muestra solo eso.
+
+Un producto que se procesa en planta se comporta como un ensamble: lo alista la planta al terminar
+sus unidades, no la mano.
+
 ## Con qué se conecta
 
 - El botón «Marcar alistado» de la orden de producción hace lo mismo, y se queda como atajo

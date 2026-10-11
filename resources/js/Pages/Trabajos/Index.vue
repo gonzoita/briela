@@ -209,7 +209,16 @@ async function terminarUnidad(t) {
         if (! ok) return
     }
 
-    if (final) pedirBodegas(t, final)
+    if (! final) return
+
+    // Un producto procesado en planta no entra a bodega al terminarse: su paso final se cierra
+    // como cualquier otro.
+    if (t.bodegas_sugeridas?.pide === false || ! modulos.activo('inventario')) {
+        if (await alternarPaso(t, final)) sacarDelTablero(t)
+        return
+    }
+
+    pedirBodegas(t, final)
 }
 
 // ── El paso que entrega ───────────────────────────────────────────────────────
@@ -273,7 +282,7 @@ async function tocarPaso(t, paso) {
         || (! t.pasos.some(p => p.es_paso_final) && paso.orden === Math.max(...t.pasos.map(p => p.orden)))
 
     // Sin inventario no hay bodegas que elegir: el paso final se cierra como cualquier otro.
-    if (esElQueEntrega && ! paso.completado && modulos.activo('inventario')) {
+    if (esElQueEntrega && ! paso.completado && modulos.activo('inventario') && t.bodegas_sugeridas?.pide !== false) {
         pedirBodegas(t, paso)
         return
     }

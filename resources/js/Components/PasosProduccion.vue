@@ -20,6 +20,9 @@ const props = defineProps({
     // ensamble directo es solo suyo.
     compartidos:  { type: Boolean, default: false },
     nombrePlantilla: { type: String, default: '' },
+    // Lo que hace el paso final. Un ensamble entra a bodega al terminarse; un producto que se
+    // procesa en planta ya estaba en ella y solo queda listo para despachar.
+    textoFinal: { type: String, default: 'Paso final — entrega la unidad a bodega' },
 })
 
 const suma = computed(() =>
@@ -140,7 +143,7 @@ function marcarFinal(i) {
                         :class="paso.es_paso_final ? 'text-aviso-verde font-semibold' : 'text-tinta-400'">
                         <input type="radio" :checked="paso.es_paso_final" @change="marcarFinal(i)"
                             class="accent-emerald-600" />
-                        Paso final — entrega la unidad a bodega
+                        {{ textoFinal }}
                     </label>
                 </div>
             </div>

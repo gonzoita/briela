@@ -6,6 +6,7 @@ import GeneradorFichaIa from '@/Components/GeneradorFichaIa.vue'
 import PreciosPorCanal from '@/Components/PreciosPorCanal.vue'
 import ImagenVariante from '@/Components/ImagenVariante.vue'
 import ProveedoresProducto from '@/Components/ProveedoresProducto.vue'
+import ProcesoPlantaProducto from '@/Components/ProcesoPlantaProducto.vue'
 import { usePreciosPorCanal } from '@/composables/usePreciosPorCanal'
 import { useForm, router } from '@inertiajs/vue3'
 import { monedaBase } from '@/formato'
@@ -48,6 +49,10 @@ initStockInicial()
 
 // ── Variantes ─────────────────────────────────────────────────────────────────
 const esPadre = ref(false)
+
+// Si pasa por planta. Viaja como JSON: el formulario va como multipart y ahí un `false`
+// llega como '0'.
+const procesoPlanta = reactive({ activo: false, pasos: [], checks: [] })
 const variantes = ref([])
 
 const agregarVariante = () => {
@@ -348,6 +353,7 @@ const submit = () => {
         es_padre:           esPadre.value,
         atributo_variante:  esPadre.value ? data.atributo_variante : null,
         stock_inicial:      esPadre.value ? {} : buildStock(stockInicial.value),
+        proceso_planta:     esPadre.value ? null : JSON.stringify(procesoPlanta),
         variantes:          esPadre.value
             ? variantes.value.map(v => ({
                 valor_variante: v.valor_variante,
@@ -711,6 +717,9 @@ const badgeStyle = {
                     :colchon-pct="colchon_pct"
                     permite-moneda
                 />
+
+                <!-- ═══ Proceso en planta ═══════════════════════════════════ -->
+                <ProcesoPlantaProducto v-if="form.tipo !== 'servicio' && ! esPadre" :proceso="procesoPlanta" />
 
                 <!-- ═══ Importación ══════════════════════════════════════════ -->
                 <div v-if="form.tipo !== 'servicio'" class="bg-superficie rounded-xl border border-linea p-5">

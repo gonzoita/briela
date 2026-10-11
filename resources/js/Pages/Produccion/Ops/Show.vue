@@ -151,14 +151,22 @@ const puedeGestionar     = computed(() => ['administrador', 'jefe_produccion'].i
 
 const templatePorItem = ref({})
 
+/**
+ * Un ítem se puede mandar a planta si no es un servicio, todavía no tiene todas sus unidades y
+ * no ha salido nada de él. Un producto también: cortarlo, pintarlo o empacarlo es trabajo de
+ * planta, y sus unidades nacen igual que las de un ensamble.
+ */
+function puedeProcesar(item) {
+    return puedeGestionar.value
+        && ! ['servicio', 'texto_libre'].includes(item.tipo)
+        && (item.trabajos?.length ?? 0) < Math.floor(parseFloat(item.cantidad))
+        && ! (item.trabajos ?? []).some(t => t.remisionado)
+}
+
 function iniciarTrabajo(item) {
     const tid = templatePorItem.value[item.id]
     if (!tid) return
-    const cantidad   = Math.floor(parseFloat(item.cantidad))
-    const existentes = item.trabajos?.length ?? 0
-    if (existentes >= cantidad) {
-        if (!confirm('Ya existen todos los trabajos para este ítem. ¿Deseas resetearlos con el nuevo template?')) return
-    }
+    if (item.trabajos?.length && !confirm('Este ítem ya tiene unidades en planta. ¿Rehacerlas con este flujo? Solo se puede si nadie ha avanzado ninguna.')) return
     router.post(
         `/produccion/ops/${op.value.id}/items/${item.id}/trabajo/iniciar`,
         { template_id: tid },
@@ -273,7 +281,7 @@ function componentesPorSeccion(comps) {
 }
 
 function eliminarTrabajos(item) {
-    if (!confirm('¿Eliminar todos los trabajos de este ítem? Se perderá el progreso.')) return
+    if (!confirm('¿Sacar este ítem de planta? Se borran sus unidades; solo se puede si nadie ha avanzado ninguna.')) return
     router.delete(
         `/produccion/ops/${op.value.id}/items/${item.id}/trabajo/pasos-todos`,
         {
@@ -806,9 +814,9 @@ function marcarTerminado(item) {
                                             </div>
 
                                             <!-- Template de trabajo por ítem -->
-                                            <div v-if="item.tipo === 'ensamble' && item.trabajos?.length" class="flex items-center gap-2 flex-wrap mb-3">
+                                            <div v-if="item.trabajos?.length" class="flex items-center gap-2 flex-wrap mb-3">
                                                 <span class="text-xs px-2 py-1 rounded-full bg-pastel-azul text-aviso-azul font-medium">
-                                                    {{ item.trabajos.length }} de {{ Math.floor(parseFloat(item.cantidad)) }} trabajo(s)
+                                                    {{ item.trabajos.length }} unidad(es) en planta
                                                 </span>
                                                 <a v-for="t in item.trabajos" :key="t.id"
                                                     :href="`/produccion/ops/${op.id}/items/${item.id}/pdf`" target="_blank"
@@ -827,17 +835,17 @@ function marcarTerminado(item) {
                                                 <button v-if="puedeGestionar"
                                                     @click.stop="eliminarTrabajos(item)"
                                                     class="text-xs text-red-400 hover:text-aviso-rojo underline ml-2">
-                                                    Resetear
+                                                    Sacar de planta
                                                 </button>
                                             </div>
-                                            <div v-if="item.tipo === 'ensamble' && (item.trabajos?.length ?? 0) < Math.floor(parseFloat(item.cantidad)) && puedeGestionar">
+                                            <div v-if="puedeProcesar(item)">
                                                 <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-2">
-                                                    Template de trabajo
+                                                    Procesar en planta
                                                 </p>
                                                 <div class="flex gap-2">
                                                     <select v-model="templatePorItem[item.id]" @click.stop
                                                         class="flex-1 rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-2">
-                                                        <option value="">Seleccionar template...</option>
+                                                        <option value="">Elegir el flujo de pasos…</option>
                                                         <option v-for="t in templates" :key="t.id" :value="t.id">
                                                             {{ t.nombre }} ({{ t.pasos_count }} pasos)
                                                         </option>
@@ -846,11 +854,11 @@ function marcarTerminado(item) {
                                                         :disabled="!templatePorItem[item.id]"
                                                         class="px-4 py-2 rounded-xl text-white text-sm font-medium disabled:opacity-40"
                                                         style="background:var(--marca);">
-                                                        Iniciar
+                                                        Enviar a planta
                                                     </button>
                                                 </div>
                                                 <p class="text-xs text-tinta-300 mt-1">
-                                                    Trabajo {{ (item.trabajos?.length ?? 0) + 1 }} de {{ Math.floor(parseFloat(item.cantidad)) }}
+                                                    Se crean {{ Math.floor(parseFloat(item.cantidad)) }} unidad(es), cada una con su QR, sus pasos y su revisión. Al terminarlas queda lista para remisionar.
                                                 </p>
                                             </div>
 
@@ -1186,9 +1194,9 @@ function marcarTerminado(item) {
                             </div>
 
                             <!-- Template de trabajo por ítem -->
-                            <div v-if="item.tipo === 'ensamble' && item.trabajos?.length" class="flex items-center gap-2 flex-wrap mb-3">
+                            <div v-if="item.trabajos?.length" class="flex items-center gap-2 flex-wrap mb-3">
                                 <span class="text-xs px-2 py-1 rounded-full bg-pastel-azul text-aviso-azul font-medium">
-                                    {{ item.trabajos.length }} de {{ Math.floor(parseFloat(item.cantidad)) }} trabajo(s)
+                                    {{ item.trabajos.length }} unidad(es) en planta
                                 </span>
                                 <a v-for="t in item.trabajos" :key="t.id"
                                     :href="`/produccion/ops/${op.id}/items/${item.id}/pdf`" target="_blank"
@@ -1207,17 +1215,17 @@ function marcarTerminado(item) {
                                 <button v-if="puedeGestionar"
                                     @click.stop="eliminarTrabajos(item)"
                                     class="text-xs text-red-400 hover:text-aviso-rojo underline ml-2">
-                                    Resetear
+                                    Sacar de planta
                                 </button>
                             </div>
-                            <div v-if="item.tipo === 'ensamble' && (item.trabajos?.length ?? 0) < Math.floor(parseFloat(item.cantidad)) && puedeGestionar">
+                            <div v-if="puedeProcesar(item)">
                                 <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-2">
-                                    Template de trabajo
+                                    Procesar en planta
                                 </p>
                                 <div class="flex gap-2">
                                     <select v-model="templatePorItem[item.id]" @click.stop
                                         class="flex-1 rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-2">
-                                        <option value="">Seleccionar template...</option>
+                                        <option value="">Elegir el flujo de pasos…</option>
                                         <option v-for="t in templates" :key="t.id" :value="t.id">
                                             {{ t.nombre }} ({{ t.pasos_count }} pasos)
                                         </option>
@@ -1226,11 +1234,11 @@ function marcarTerminado(item) {
                                         :disabled="!templatePorItem[item.id]"
                                         class="px-4 py-2 rounded-xl text-white text-sm font-medium disabled:opacity-40"
                                         style="background:var(--marca);">
-                                        Iniciar
+                                        Enviar a planta
                                     </button>
                                 </div>
                                 <p class="text-xs text-tinta-300 mt-1">
-                                    Trabajo {{ (item.trabajos?.length ?? 0) + 1 }} de {{ Math.floor(parseFloat(item.cantidad)) }}
+                                    Se crean {{ Math.floor(parseFloat(item.cantidad)) }} unidad(es), cada una con su QR, sus pasos y su revisión. Al terminarlas queda lista para remisionar.
                                 </p>
                             </div>
 

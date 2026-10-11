@@ -71,6 +71,8 @@ class RemisionController extends Controller
                 $item->unidades_completadas  = $item->unidadesCompletadas();
                 $item->unidades_remisionadas = $item->unidadesRemisionadas();
                 $item->total                 = (int) $item->cantidad;
+                // Un producto que nadie alistó todavía: la remisión lo alista sola al guardarse.
+                $item->sin_alistar           = $item->sinTrabajos() && $item->estado_item !== 'terminado';
             });
 
             // Ninguna unidad lista. Se dice por qué —está a medio fabricar, o esperando
@@ -83,8 +85,8 @@ class RemisionController extends Controller
                     ? "Esta orden tiene {$fabricadas} unidad(es) fabricadas, pero ninguna pasó control de calidad "
                         . 'todavía. Revísalas en Calidad y vuelve: se puede remisionar lo que ya esté aprobado, '
                         . 'sin esperar al resto.'
-                    : 'Esta orden no tiene nada listo para remisionar: los productos se alistan en Alistamiento y '
-                        . 'las unidades de ensamble, al terminar en planta y pasar calidad.');
+                    : 'Esta orden no tiene nada para remisionar todavía: lo que pasa por planta se remisiona al '
+                        . 'terminar sus pasos y pasar calidad, y lo que ya salió no vuelve a ofrecerse.');
             }
         }
 
@@ -203,6 +205,9 @@ class RemisionController extends Controller
                             'cantidad_remisionada' => $totalRemisionados,
                             'remisionado'          => $estaCompleto,
                             'remision_id'          => $estaCompleto ? $remision->id : $opItem->remision_id,
+                            // Remisionar un producto es la prueba de que está listo: queda
+                            // alistado sin que nadie tenga que pasar antes por Alistamiento.
+                            'estado_item'          => $totalTrabajos === 0 ? 'terminado' : $opItem->estado_item,
                         ]);
                     }
                 }
@@ -389,19 +394,24 @@ class RemisionController extends Controller
      * ítem quedó marcado como alistado en la OP. Sin la segunda rama, **los productos no
      * aparecían nunca** en el remisionador: solo salían los ensambles.
      */
-    private function itemsRemisionables($q)
+    /**
+     * Los ítems que se pueden remisionar: unidades terminadas y firmadas, o productos sin
+     * planta con algo por despachar. Con `$soloListos`, los productos solo si ya se alistaron:
+     * es lo que muestra la pestaña «Por remisionar».
+     */
+    private function itemsRemisionables($q, bool $soloListos = false)
     {
         return $q
             // Un servicio se alista —alguien declara que está hecho— pero no viaja: no hay
             // nada que cargar en el camión, y ofrecerlo en la remisión solo confunde.
             ->whereNotIn('tipo', Op::TIPOS_SIN_DESPACHO)
-            ->where(function ($q) {
+            ->where(function ($q) use ($soloListos) {
                 // Las MISMAS unidades que deja escoger el remisionador: armadas, sin remisionar y
                 // firmadas por calidad. Antes aquí bastaba con estar armadas, así que salían
                 // órdenes en la lista que al abrirlas no tenían nada que despachar.
                 $q->whereHas('trabajos', fn ($t) => $t->disponiblesParaRemision())
                   ->orWhere(fn ($q2) => $q2->doesntHave('trabajos')
-                      ->where('estado_item', 'terminado')
+                      ->when($soloListos, fn ($q3) => $q3->where('estado_item', 'terminado'))
                       ->whereRaw('COALESCE(cantidad_remisionada, 0) < cantidad'));
             });
     }
@@ -434,7 +444,7 @@ class RemisionController extends Controller
                            ->orWhere('apellido', 'like', "%{$texto}%"));
                 });
             })
-            ->whereIn('estado', ['confirmada', 'en_produccion', 'calidad', 'reproceso', 'despachada'])
+            ->whereIn('estado', ['borrador', 'confirmada', 'en_produccion', 'calidad', 'reproceso', 'despachada'])
             ->orderByDesc('id')
             ->limit(20)
             ->get()
@@ -462,6 +472,7 @@ class RemisionController extends Controller
                 'unidades_disponibles' => $i->cantidadDisponible(),
                 'unidades_completadas' => $i->unidadesCompletadas(),
                 'unidades_remisionadas'=> $i->unidadesRemisionadas(),
+                'sin_alistar'          => $i->sinTrabajos() && $i->estado_item !== 'terminado',
                 'total'                => (int) $i->cantidad,
                 'numero_serie'         => $i->numero_serie,
                 'tipo'                 => $i->tipo,
@@ -544,10 +555,10 @@ class RemisionController extends Controller
         return \App\Support\ContextoSede::aplicar(Op::query())
             ->with([
                 'cliente:id,nombre,apellido,tipo',
-                'items' => fn ($q) => $this->itemsRemisionables($q)->with('trabajos')->orderBy('orden'),
+                'items' => fn ($q) => $this->itemsRemisionables($q, true)->with('trabajos')->orderBy('orden'),
             ])
-            ->whereHas('items', fn ($q) => $this->itemsRemisionables($q))
-            ->whereIn('estado', ['confirmada', 'en_produccion', 'calidad', 'reproceso'])
+            ->whereHas('items', fn ($q) => $this->itemsRemisionables($q, true))
+            ->whereIn('estado', ['borrador', 'confirmada', 'en_produccion', 'calidad', 'reproceso'])
             ->orderBy('fecha_entrega_estimada')
             ->orderBy('id')
             ->limit(100)
@@ -562,7 +573,7 @@ class RemisionController extends Controller
                 'items'          => $op->items->map(fn (OpItem $i) => [
                     'descripcion' => $i->descripcion,
                     'tipo'        => $i->tipo,
-                    'disponibles' => $i->cantidadDisponible(),
+                    'disponibles' => $i->cantidadLista(),
                     'total'       => (int) $i->cantidad,
                 ])->filter(fn ($i) => $i['disponibles'] > 0)->values(),
             ])

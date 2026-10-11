@@ -83,17 +83,41 @@ remisión. Reglas:
 
 | Pasa | Cuándo |
 |---|---|
-| confirmada → **en producción** | algo queda listo (un producto alistado, una unidad terminada) |
+| borrador o confirmada → **en producción** | algo queda listo (un producto alistado o remisionado, una unidad terminada) o se avanza un paso en planta |
 | → **calidad** | todo listo: productos alistados y todas las unidades terminadas |
 | se **sella** `calidad_aprobada_at` | todo listo, **todas** las unidades firmadas y nada pendiente; una orden sin unidades, al quedar todo listo |
 | calidad → **en producción** | algo vuelve a quedar pendiente (se desalista, se reabre una unidad); el sello se retira |
 | → **despachada** | todo lo que viaja ya salió en remisiones en camino o entregadas; una orden de solo servicios, al quedar todo hecha |
 
-El estado del ítem de un ensamble lo deciden sus unidades (y se corrige si quedó desfasado). Un
-borrador no se toca: se confirma a mano. Una orden despachada solo vuelve atrás si se anula la
+El estado del ítem con unidades lo deciden sus unidades (y se corrige si quedó desfasado). Un
+borrador sin nada listo no se toca: todavía se está armando. **Pero si alguien ya lo está
+trabajando —alista un producto, lo remisiona o avanza un paso— arranca solo** *(13 oct 2026)*, y
+como nunca pasó por «Confirmar», se le precargan las dos bodegas con la principal
+(`Op::iniciarProduccionSiAplica()`); se pueden cambiar en la orden. Una orden despachada solo vuelve atrás si se anula la
 remisión que la despachó. Las órdenes que quedaron atascadas se ponen al día al abrirlas, al
 actualizar (`ops:sincronizar-estados` corre en el despliegue y al instalar una versión) o a mano
 con ese mismo comando.
+
+## Un producto también puede pasar por planta *(13 oct 2026)*
+
+Hasta ahora solo los ensambles tenían trabajos. Un producto que hay que cortar, pintar o empacar
+antes de entregar no tenía cómo registrarse: se alistaba a mano y en planta no quedaba rastro.
+
+- **En la ficha del producto**, «Se procesa en planta» con sus pasos y su revisión de calidad
+  (`templates_trabajo.producto_id`, la revisión por `checksCalidad()` como un ensamble directo).
+  Cada vez que el producto entra a una orden, sus unidades nacen con QR, pasos y revisión.
+- **Desde la orden**, «Procesar en planta» en cualquier ítem que no sea servicio: se elige un flujo
+  (de una plantilla, un ensamble o un producto) y se crean todas las unidades de una vez
+  (`TrabajoAutoGeneratorService::procesarEnPlanta()`). «Sacar de planta» las borra mientras nadie
+  haya avanzado ninguna; con avance o unidades remisionadas, no.
+- Un producto con unidades **se alista solo** al terminarlas, igual que un ensamble, y se remisiona
+  por unidad firmada por calidad.
+- **Su paso final no pide bodegas ni mueve inventario**: el producto ya estaba en la bodega, no se
+  fabricó desde una receta. Sale del inventario cuando sale la remisión, como cualquier producto
+  (`CierrePasoService::entraABodega()`, `Remision::moverProductos()`).
+
+Lo mismo vale para el botón viejo «Iniciar» de la orden: creaba una unidad por clic, sin revisión
+ni paso final, y marcaba el ítem «en proceso» sin avisar a la orden. Ahora pasa por el servicio.
 
 ## Cómo se llega a "Despachada"
 

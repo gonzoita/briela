@@ -126,6 +126,17 @@ Sirve para lo que hoy se hace a mano: un catálogo con veinte productos que se
 diferencian en dos campos, donde volver a escribir precios y comisiones es la
 forma de equivocarse en uno.
 
+## Se procesa en planta *(nuevo 13 oct 2026)*
+
+Un producto no se fabrica desde una receta, pero a veces sí pasa por planta antes de salir: se
+corta a medida, se pinta, se empaca. La ficha tiene un interruptor **«Se procesa en planta»** con
+sus pasos (el mismo editor de los ensambles: nombre, descripción, peso, paso final) y su lista de
+revisión de calidad. Con eso prendido, cada vez que el producto entra a una orden sus unidades
+salen a **Trabajos** con QR y pasos, y quedan listas para remisionar al terminarlas y pasar
+calidad. Apagarlo no borra el flujo —lo desactiva—, porque las unidades que ya nacieron con él lo
+siguen nombrando. Procesarlo no mueve el inventario: el producto sale de la bodega cuando sale la
+remisión. Ver `produccion-op.md`.
+
 ## Precios
 
 Cada producto guarda **un precio por canal**, y los canales los defines tú: son
