@@ -4,12 +4,12 @@
 - cluster-only mode — file stats not available
 
 ## Summary
-- 10798 nodes · 21016 edges · 624 communities (320 shown, 304 thin omitted)
-- Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 287 edges (avg confidence: 0.87)
+- 10798 nodes · 21017 edges · 624 communities (320 shown, 304 thin omitted)
+- Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 288 edges (avg confidence: 0.87)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `6cd686d4`
+- Built from commit: `90b3bc88`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -576,6 +576,8 @@
 10. `TestCase` - 79 edges
 
 ## Surprising Connections (you probably didn't know these)
+- `Lo que falta: la conexión con el banco` --references--> `LicenciaService`  [INFERRED]
+  docs/manual/verificador-pagos.md → app/Services/LicenciaService.php
 - `IaService y sus cuatro puntos de salida` --semantically_similar_to--> `IaService — único punto de salida a IA`  [INFERRED] [semantically similar]
   docs/BRIELA-PLAN.md → CLAUDE.md
 - `php artisan briela:empaquetar` --semantically_similar_to--> `php artisan briela:empaquetar`  [INFERRED] [semantically similar]
@@ -584,8 +586,6 @@
   docs/BRIELA-PLAN.md → CLAUDE.md
 - `Lo que se publica hacia afuera (rutas sin login)` --semantically_similar_to--> `Portales públicos sin login`  [INFERRED] [semantically similar]
   docs/MANUAL-BRIELA.md → CLAUDE.md
-- `App\Support\Canales` --semantically_similar_to--> `App\Support\Canales — las reglas de cada canal`  [INFERRED] [semantically similar]
-  docs/manual/bandeja.md → CLAUDE.md
 
 ## Import Cycles
 - None detected.

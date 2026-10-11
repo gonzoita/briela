@@ -105260,7 +105260,7 @@
       "node_kind": "heading",
       "norm_label": "avisos",
       "source_file": "docs/manual/verificador-pagos.md",
-      "source_location": "L113"
+      "source_location": "L141"
     },
     {
       "id": "docs_manual_verificador_pagos_c\u00f3mo_entra_el_dinero_a_briela",
@@ -105332,7 +105332,7 @@
       "node_kind": "heading",
       "norm_label": "preguntas para belvo (o para cualquier agregador)",
       "source_file": "docs/manual/verificador-pagos.md",
-      "source_location": "L98"
+      "source_location": "L125"
     },
     {
       "id": "docs_manual_verificador_pagos_verificador_de_pagos_confirmar_con_el_banco_que_el_dinero_lleg\u00f3",
@@ -284874,18 +284874,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "docs/manual/verificador-pagos.md",
-      "source_location": "L98",
-      "weight": 1.0
-    },
-    {
-      "source": "docs_manual_verificador_pagos_verificador_de_pagos_confirmar_con_el_banco_que_el_dinero_lleg\u00f3",
-      "target": "docs_manual_verificador_pagos_avisos",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "docs/manual/verificador-pagos.md",
-      "source_location": "L113",
+      "source_location": "L125",
       "weight": 1.0
     },
     {
@@ -284897,6 +284886,17 @@
       "confidence_score": 1.0,
       "source_file": "docs/manual/verificador-pagos.md",
       "source_location": "L14",
+      "weight": 1.0
+    },
+    {
+      "source": "docs_manual_verificador_pagos_verificador_de_pagos_confirmar_con_el_banco_que_el_dinero_lleg\u00f3",
+      "target": "docs_manual_verificador_pagos_avisos",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/manual/verificador-pagos.md",
+      "source_location": "L141",
       "weight": 1.0
     },
     {
@@ -361324,6 +361324,18 @@
       "weight": 1.0
     },
     {
+      "source": "docs_manual_verificador_pagos_lo_que_falta_la_conexi\u00f3n_con_el_banco",
+      "target": "app_services_licenciaservice_licenciaservice",
+      "relation": "references",
+      "_origin": "ast",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "context": "LicenciaService",
+      "source_file": "docs/manual/verificador-pagos.md",
+      "source_location": "L102",
+      "weight": 1.0
+    },
+    {
       "source": "docs_manual_calidad_calidad_aprobada_at",
       "target": "docs_manual_cotizacion_a_op_consumo_de_inventario",
       "relation": "conceptually_related_to",
@@ -372242,5 +372254,5 @@
       "source_file": "docs/manual/logistica.md"
     }
   ],
-  "built_at_commit": "6cd686d4f9092b254cd2a6689a96a927a465edb0"
+  "built_at_commit": "90b3bc88002a55c3d4eb02f1aaafb41ba67c993a"
 }

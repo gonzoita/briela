@@ -80,17 +80,44 @@ saldo de la orden—, con una diferencia: lleva la fecha en que el banco lo conf
 ## Lo que falta: la conexión con el banco
 
 La **banca abierta** da los abonos casi en vivo, sin subir nada. Está decidido hacerla con
-**Belvo**, contratado por Briela (no por cada cliente) y a través del superadmin, igual que la
-IA: la llave del proveedor vive en el superadmin y nunca en la instalación; la instalación pide
-los movimientos con su serial y recoge los avisos en su siguiente consulta.
+**Belvo**, y con una regla firme: **los datos bancarios de una empresa nunca pasan por el
+superadmin ni se guardan allí.** Cada instalación es de su dueño y tiene su base aparte; ese
+aislamiento es lo que se vende, y un servidor central con los movimientos de todas las empresas lo
+rompería.
+
+Por eso la conexión **se configura en la cuenta de cada empresa**, desde su propia instalación:
+
+- La instalación habla **directamente** con el proveedor y guarda sus movimientos solo en su base.
+- Las credenciales del proveedor se guardan **cifradas en la instalación** (como los permisos de las
+  redes sociales), nunca en el código ni en un registro.
+- El superadmin no ve movimientos, saldos ni cuentas. Solo sabe, como siempre, el serial y el estado
+  de la membresía.
+- Los avisos de «entró un movimiento» llegan a la propia instalación (una ruta firmada, como los
+  webhooks de Meta) o se recogen con la tarea programada de siempre; la ruta rechaza lo que no
+  pueda verificar.
+
+**La membresía.** La conexión en vivo es parte de lo que se paga, así que sigue la misma regla que
+la IA: con la suscripción vencida **deja de consultar al banco**, pero no detiene la operación.
+El extracto subido a mano y todo el emparejamiento siguen funcionando: quien está cobrando no puede
+quedarse sin sistema por una fecha (ver `LicenciaService`).
+
+Qué credenciales usa cada empresa es lo que falta por decidir, y depende de lo que permita el
+proveedor:
+
+1. **Cada empresa contrata al proveedor** y pone sus propias credenciales en Configuración. Es lo
+   más simple y no requiere nada de Briela, pero cada cliente hace su registro y paga su consumo.
+2. **Briela contrata una vez y le entrega a cada instalación sus propias credenciales**, separadas y
+   revocables, con las que la instalación habla directo con el proveedor. El superadmin solo emite
+   y revoca esas credenciales, sin ver nada de los datos. Solo es posible si el proveedor permite
+   subcuentas o credenciales por empresa: es la primera pregunta de la lista.
 
 Falta, y no depende del código:
 
-- Que Belvo confirme **cobertura de cuentas empresariales** y la lista de bancos.
+- Que el proveedor confirme **cobertura de cuentas empresariales** y la lista de bancos.
 - Si **avisa** de cada movimiento nuevo o solo permite consultarlo, y el costo por conexión.
-- El contrato y las credenciales.
-- Tratar con un abogado los datos bancarios que pasarían por el superadmin (Ley 1581): guardarlos
-  solo el tiempo necesario.
+- Si permite **credenciales separadas por empresa** (la opción 2).
+- El contrato y las credenciales de prueba.
+- Tratar con un abogado el consentimiento de cada empresa y el manejo de datos bancarios (Ley 1581).
 
 Cuando eso esté, la conexión es **otra fuente** que llama a `importar()`; nada del emparejamiento
 cambia.
@@ -104,11 +131,12 @@ Antes de firmar nada, las mismas a cada proveedor, para poder comparar:
    se actualizan los movimientos?
 3. ¿Cada movimiento trae un **identificador único**, la **referencia** de la transferencia y el
    **nombre de quien pagó**? Sin eso, el emparejamiento depende solo del valor.
-4. ¿Cuánto cuesta por conexión y por consulta? ¿Se puede contratar **una vez y conectar muchas
-   empresas**, que es lo que haría Briela?
-5. ¿Cómo autoriza la empresa la conexión a su cuenta, y cada cuánto hay que renovarla?
-6. ¿Dónde se guardan los datos y por cuánto tiempo? ¿Cumplen la Ley 1581?
-7. ¿Hay un ambiente de pruebas con movimientos de ejemplo?
+4. ¿Cuánto cuesta por conexión y por consulta?
+5. ¿Se pueden crear **credenciales separadas por empresa**, bajo un mismo contrato, para que cada
+   instalación hable directo con ustedes y los datos no pasen por Briela?
+6. ¿Cómo autoriza la empresa la conexión a su cuenta, y cada cuánto hay que renovarla?
+7. ¿Dónde se guardan los datos y por cuánto tiempo? ¿Cumplen la Ley 1581?
+8. ¿Hay un ambiente de pruebas con movimientos de ejemplo?
 
 ## Avisos
 
