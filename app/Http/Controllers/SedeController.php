@@ -27,6 +27,9 @@ class SedeController extends Controller
                     'nit'              => $s->nit,
                     'direccion'        => $s->direccion,
                     'ciudad'           => $s->ciudad,
+                    'pais'             => $s->pais ?: 'CO',
+                    'moneda'           => $s->moneda,
+                    'moneda_documentos' => $s->monedaDocumentos(),
                     'zona_horaria'     => $s->zona_horaria,
                     'telefono'         => $s->telefono,
                     'email'            => $s->email,
@@ -42,6 +45,9 @@ class SedeController extends Controller
                 ->map(fn ($etiqueta, $valor) => ['valor' => $valor, 'etiqueta' => $etiqueta])
                 ->values(),
             'zona_global' => \App\Support\HoraSistema::zonaGlobal(),
+            'paises'      => \App\Support\Paises::lista(),
+            'monedas'     => collect(\App\Support\Monedas::CATALOGO)->map(fn ($m, $c) => ['codigo' => $c, 'nombre' => $m['nombre']])->values(),
+            'moneda_base' => \App\Support\Monedas::base(),
         ]);
     }
 
@@ -52,6 +58,7 @@ class SedeController extends Controller
         $sede = Sede::create($data);
 
         $this->sincronizarPrincipal($sede, $request->boolean('es_principal'));
+        \App\Support\Paises::olvidar();
         $this->crearSecuenciasPorDefecto($sede);
 
         return back()->with('success', 'Sede creada. Revisa su numeración en Configuración → Numeración.');
@@ -64,6 +71,7 @@ class SedeController extends Controller
         $sede->update($data);
 
         $this->sincronizarPrincipal($sede, $request->boolean('es_principal'));
+        \App\Support\Paises::olvidar();
 
         return back()->with('success', 'Sede actualizada.');
     }
@@ -128,6 +136,10 @@ class SedeController extends Controller
             'nit'              => 'nullable|string|max:50',
             'direccion'        => 'nullable|string|max:200',
             'ciudad'           => 'nullable|string|max:100',
+            // El país decide qué impuestos e identificaciones usa la sede (Configuración → Países).
+            'pais'             => ['required', 'string', Rule::in(array_keys(\App\Support\Paises::CATALOGO))],
+            // Null: la sede escribe sus documentos en la moneda de su país.
+            'moneda'           => ['nullable', 'string', Rule::in(array_keys(\App\Support\Monedas::CATALOGO))],
             // La zona decide en qué hora vive esa sede, y la de la sede principal
             // es la hora global del sistema.
             'zona_horaria'     => 'required|string|in:' . implode(',', array_keys(\App\Support\HoraSistema::zonasDisponibles())),

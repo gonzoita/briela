@@ -248,7 +248,7 @@ body {
         <div class="precio-valor">${{ number_format($producto->precio_cliente_final, 0, ',', '.') }}</div>
       </div>
     </div>
-    <div class="precio-nota">* Precios en COP · IVA no incluido · Sujetos a cambio sin aviso previo</div>
+    <div class="precio-nota">* Precios en {{ \App\Support\Monedas::base() }} · IVA no incluido · Sujetos a cambio sin aviso previo</div>
   </div>
   @endif
 

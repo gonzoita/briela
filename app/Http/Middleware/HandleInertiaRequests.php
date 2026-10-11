@@ -102,6 +102,9 @@ class HandleInertiaRequests extends Middleware
                 'viendo_todas' => $viendoTodas,
                 'puede_todas'  => $user ? $user->puedeVerTodasLasSedes() : false,
             ],
+            // La moneda en la que se guarda todo. Cuesta una lectura de Configuración, que ya
+            // está en memoria desde `marca`.
+            'moneda_base' => \App\Support\Monedas::base(),
             // Identidad visual, para que el logo del encabezado y del menú
             // salgan de Ajustes en vez de estar quemados en el código.
             'marca' => [

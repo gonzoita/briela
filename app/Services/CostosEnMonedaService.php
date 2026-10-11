@@ -31,7 +31,7 @@ class CostosEnMonedaService
     {
         $cambiados = 0;
 
-        Producto::where('moneda_costo', '!=', Monedas::LOCAL)
+        Producto::where('moneda_costo', '!=', Monedas::base())
             ->where('costo_moneda', '>', 0)
             ->with('preciosPorCanal.canal')
             ->chunkById(100, function ($productos) use (&$cambiados) {

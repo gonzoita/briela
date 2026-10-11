@@ -52,6 +52,8 @@ class ProveedorController extends Controller
             'proveedores' => $proveedores,
             'orden'      => $orden,
             'filters'     => $request->only(['buscar', 'tipo', 'activo']),
+            'paises'      => \App\Support\Paises::lista(),
+            'pais_casa'   => \App\Support\Paises::casa(),
             'catalogo_fiscal' => \App\Support\Fiscal::catalogo(),
         ]);
     }
@@ -72,13 +74,14 @@ class ProveedorController extends Controller
         $request->validate([
             'archivo' => 'required|file|max:10240|mimetypes:' . implode(',', \App\Services\IA\LectorRutService::TIPOS),
             'excluir' => 'nullable|integer',
+            'pais'    => 'nullable|string|size:2',
         ], [
             'archivo.mimetypes' => 'El archivo tiene que ser un PDF o una foto (JPG, PNG o WEBP).',
             'archivo.max'       => 'El archivo pesa más de 10 MB.',
         ]);
 
         try {
-            $lectura = $lector->leer($request->file('archivo'));
+            $lectura = $lector->leer($request->file('archivo'), $request->input('pais') ?: null);
         } catch (\App\Exceptions\IaException $e) {
             return response()->json(['ok' => false, 'mensaje' => $e->getMessage()], 422);
         }
@@ -102,12 +105,15 @@ class ProveedorController extends Controller
             'telefono'  => 'nullable|string|max:20',
             'email'     => 'nullable|email|max:255',
             'ciudad'    => 'nullable|string|max:100',
+            // De dónde es: decide si comprarle es importar (Importaciones).
+            'pais'      => ['nullable', 'string', 'size:2', \Illuminate\Validation\Rule::in(array_keys(\App\Support\Paises::CATALOGO))],
             'direccion' => 'nullable|string|max:255',
             'tipo'      => 'required|in:materia_prima,insumos,mixto',
             'activo'    => 'boolean',
             'notas'     => 'nullable|string',
             'tipo_persona'               => 'nullable|in:empresa,persona',
-            'tipo_identificacion'        => 'nullable|in:CC,NIT,CE,PA,RUT',
+            // Los tipos dependen del país del proveedor (NIT, RUC, RIF…): ver `App\Support\Paises`.
+            'tipo_identificacion'        => 'nullable|string|max:10',
             'numero_identificacion'      => 'nullable|string|max:30',
             'digito_verificacion'        => 'nullable|string|max:1',
             'actividad_economica'        => 'nullable|string|max:10',
@@ -131,12 +137,15 @@ class ProveedorController extends Controller
             'telefono'  => 'nullable|string|max:20',
             'email'     => 'nullable|email|max:255',
             'ciudad'    => 'nullable|string|max:100',
+            // De dónde es: decide si comprarle es importar (Importaciones).
+            'pais'      => ['nullable', 'string', 'size:2', \Illuminate\Validation\Rule::in(array_keys(\App\Support\Paises::CATALOGO))],
             'direccion' => 'nullable|string|max:255',
             'tipo'      => 'required|in:materia_prima,insumos,mixto',
             'activo'    => 'boolean',
             'notas'     => 'nullable|string',
             'tipo_persona'               => 'nullable|in:empresa,persona',
-            'tipo_identificacion'        => 'nullable|in:CC,NIT,CE,PA,RUT',
+            // Los tipos dependen del país del proveedor (NIT, RUC, RIF…): ver `App\Support\Paises`.
+            'tipo_identificacion'        => 'nullable|string|max:10',
             'numero_identificacion'      => 'nullable|string|max:30',
             'digito_verificacion'        => 'nullable|string|max:1',
             'actividad_economica'        => 'nullable|string|max:10',

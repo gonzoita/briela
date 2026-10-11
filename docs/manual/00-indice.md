@@ -35,6 +35,7 @@ módulo por módulo.
 
 - [Productos e inventario](./productos-inventario.md)
 - [Compras, inventario y faltantes](./compras-inventario.md)
+- [Importaciones](./importaciones.md) — cuánto cuesta de verdad lo que se trae de afuera
 - [Recetas de corte](./recetas-corte.md)
 - [Unidades de medida](./unidades-medida.md)
 
@@ -89,6 +90,7 @@ módulo por módulo.
 - [Checklist de verificación (QA)](./verificacion-qa.md)
 - [Rendimiento — por qué el sistema se siente instantáneo](./rendimiento.md)
 - [Monedas, TRM, lectura del RUT y retenciones](./monedas-y-retenciones.md)
+- [Países: impuestos, identificaciones y moneda de cada sede](./paises.md)
 - [Correo — sale por el panel de Briela](./correo.md)
 
 ## Principio general del sistema

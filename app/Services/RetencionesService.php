@@ -158,6 +158,17 @@ class RetencionesService
     {
         $orden->loadMissing(['items.item:id,tipo', 'proveedor']);
 
+        // Las retenciones de este servicio son las colombianas: solo donde el paquete del país
+        // de la sede las declara.
+        $pais = \App\Support\Paises::deSede($orden->sede);
+
+        if (! \App\Support\Paises::perfil($pais)['retenciones']) {
+            return [
+                'aplica' => false, 'lineas' => [], 'total' => 0.0, 'avisos' => [],
+                'motivos' => ['En ' . \App\Support\Paises::nombre($pais) . ' Briela no calcula retenciones.'],
+            ];
+        }
+
         $lineas = $orden->items->map(fn ($i) => [
             'concepto' => $i->item?->tipo === 'servicio' ? 'servicios' : 'compras',
             'base'     => (float) $i->cantidad * (float) $i->precio_unitario,

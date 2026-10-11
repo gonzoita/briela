@@ -2,7 +2,7 @@
 import { ref, computed } from 'vue'
 import { router, usePage } from '@inertiajs/vue3'
 import SelloBriela from '@/Components/SelloBriela.vue'
-import { formatMoneda } from '@/formato'
+import { formatMoneda, monedaBase } from '@/formato'
 
 const props = defineProps({
     cotizacion: Object,
@@ -19,8 +19,8 @@ const formatCOP   = (v) =>
     new Intl.NumberFormat('es-CO', { maximumFractionDigits: 0 }).format(v ?? 0)
 
 // Los valores se guardan en pesos; al cliente se le muestran en la moneda de su cotización.
-const enOtraMoneda = cot.moneda && cot.moneda !== 'COP' && Number(cot.tasa_cambio) > 0
-const enMoneda     = (v) => formatMoneda(v, cot.moneda || 'COP', cot.tasa_cambio)
+const enOtraMoneda = cot.moneda && cot.moneda !== monedaBase() && Number(cot.tasa_cambio) > 0
+const enMoneda     = (v) => formatMoneda(v, cot.moneda || monedaBase(), cot.tasa_cambio)
 const formatTasa   = (v) => new Intl.NumberFormat('es-CO', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Number(v) || 0)
 const formatFecha = (d) =>
     d ? new Date(d).toLocaleDateString('es-CO', { day: '2-digit', month: 'long', year: 'numeric' }) : '—'
@@ -241,7 +241,7 @@ function calcularTotal(item) {
                         </div>
                         <p v-if="enOtraMoneda" class="text-[11px] text-tinta-400">
                             Valores en {{ cot.moneda }} a una tasa de ${{ formatTasa(cot.tasa_cambio) }}<span v-if="cot.tasa_fecha"> del {{ formatFecha(cot.tasa_fecha + 'T12:00:00') }}</span>.
-                            Equivalen a ${{ formatCOP(cot.total) }} pesos.
+                            Equivalen a {{ formatMoneda(cot.total) }} ({{ monedaBase() }}).
                         </p>
                     </div>
                 </div>

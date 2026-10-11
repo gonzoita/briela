@@ -11,7 +11,7 @@ class Sede extends Model
 
     protected $fillable = [
         'nombre', 'codigo', 'tiene_ventas', 'tiene_produccion', 'es_principal',
-        'nit', 'direccion', 'ciudad', 'telefono', 'email', 'activa',
+        'nit', 'direccion', 'ciudad', 'pais', 'moneda', 'telefono', 'email', 'activa',
     ];
 
     protected $casts = [
@@ -56,6 +56,14 @@ class Sede extends Model
     }
 
     // ─── Helpers ──────────────────────────────────────────────────────────────
+
+    /** La moneda en que esta sede escribe sus documentos: la suya, o la de su país. */
+    public function monedaDocumentos(): string
+    {
+        return \App\Support\Monedas::existe($this->moneda)
+            ? $this->moneda
+            : \App\Support\Paises::monedaDe($this->pais);
+    }
 
     public static function principal(): ?self
     {

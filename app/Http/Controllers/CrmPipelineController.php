@@ -277,7 +277,7 @@ class CrmPipelineController extends Controller
                 $cot = \App\Models\Cotizacion::create([
                     'lead_id'                 => $lead->id,
                     'cliente_id'               => $lead->cliente_id,
-                    'moneda'                   => 'COP',
+                    'moneda'                   => \App\Support\Monedas::base(),
                     'tasa_cambio'               => 1,
                     'responsable_id'            => $lead->responsable_id ?? auth()->id(),
                     'estado'                    => 'borrador',
@@ -353,7 +353,7 @@ class CrmPipelineController extends Controller
             $cot = \App\Models\Cotizacion::create([
                 'lead_id'                 => $lead->id,
                 'cliente_id'              => $cliente->id,
-                'moneda'                  => 'COP',
+                'moneda'                  => \App\Support\Monedas::base(),
                 'tasa_cambio'             => 1,
                 'responsable_id'          => $lead->responsable_id ?? auth()->id(),
                 'estado'                  => 'borrador',

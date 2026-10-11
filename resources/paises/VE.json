@@ -1,0 +1,26 @@
+{
+  "iso": "VE",
+  "version": "2026.10.1",
+  "revisado": false,
+  "documento_fiscal": "RIF",
+  "autoridad": "SENIAT",
+  "moneda": "VES",
+  "retenciones": false,
+  "facturacion": "Factura emitida con una imprenta digital autorizada por el SENIAT.",
+  "identificaciones": [
+    { "codigo": "RIF", "nombre": "RIF", "juridica": true, "patron": "^[JGVEPC]-?\\d{8}-?\\d$", "dv": null, "ayuda": "Letra, ocho dígitos y dígito final: J-12345678-9." },
+    { "codigo": "CI",  "nombre": "Cédula de identidad", "juridica": false, "patron": "^[VE]?-?\\d{5,9}$", "dv": null },
+    { "codigo": "PAS", "nombre": "Pasaporte", "juridica": false, "patron": "^[A-Za-z0-9]{4,15}$", "dv": null }
+  ],
+  "impuestos": [
+    { "clave": "iva", "nombre": "IVA", "tarifas": [16, 8, 0], "defecto": 16, "nota": "16% general y 8% reducida. Algunos bienes de lujo llevan además una alícuota adicional." }
+  ],
+  "otros": [
+    { "clave": "igtf", "nombre": "IGTF", "tarifa": 3, "aplica": "pago", "nota": "Impuesto a las grandes transacciones financieras: grava los pagos hechos en divisas. Se cobra al pagar, no en la cotización." }
+  ],
+  "importacion": { "iva_descontable": true, "nota": "El IVA de importación genera crédito fiscal." },
+  "notas": [
+    "Valores de partida: confírmalos con tu contador antes de facturar. La normativa venezolana cambia con frecuencia.",
+    "La tasa oficial no se trae sola: se escribe a mano en Configuración → Monedas."
+  ]
+}

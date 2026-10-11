@@ -2,9 +2,10 @@ import '../css/app.css';
 import './bootstrap';
 import { registerSW } from 'virtual:pwa-register';
 
-import { createInertiaApp } from '@inertiajs/vue3';
+import { createInertiaApp, router } from '@inertiajs/vue3';
 import { createApp, h } from 'vue';
 import { colorMarca } from '@/marca';
+import { setMonedaBase } from '@/formato';
 
 // El título de la pestaña sale de Ajustes > Marca, que app.blade.php deja en
 // un par de <meta>.
@@ -83,6 +84,12 @@ createInertiaApp({
         // Se montó: lo que sea que hubiera fallado, ya no falla. Se borra la marca para que
         // el próximo despliegue pueda recuperarse igual.
         sessionStorage.removeItem('briela:recarga-por-version');
+
+        // La moneda base sale del servidor: una instalación en pesos y otra en dólares se
+        // escriben distinto. Una sola vez al arrancar y cuando cambia (solo cambia al
+        // elegirla en Configuración), no en cada pantalla.
+        setMonedaBase(props.initialPage.props.moneda_base);
+        router.on('navigate', (evento) => setMonedaBase(evento.detail.page.props.moneda_base));
 
         const app = createApp({ render: () => h(App, props) });
 

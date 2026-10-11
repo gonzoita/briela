@@ -231,7 +231,7 @@ class AccionesIaService
                 'cliente_id'     => $cliente->id,
                 'responsable_id' => auth()->id(),
                 'estado'         => 'borrador',
-                'moneda'         => 'COP',
+                'moneda'         => \App\Support\Monedas::base(),
                 'notas_internas' => trim('Creada por el asistente. ' . ($p['notas'] ?? '')),
             ]);
 
@@ -284,7 +284,7 @@ class AccionesIaService
             'estado'     => 'borrador',
             'url'        => "/cotizaciones/{$cotizacion->id}",
             'total'      => round((float) $cotizacion->total),
-            'moneda'     => 'COP',
+            'moneda'     => \App\Support\Monedas::base(),
             'items'      => collect($encontrados)->map(fn ($l) => [
                 'producto' => $l['producto']->nombre,
                 'cantidad' => $l['cantidad'],

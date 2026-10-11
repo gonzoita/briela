@@ -183,7 +183,7 @@ tr:last-child td { border-bottom:none; }
 <!-- TOTAL DESTACADO -->
 <div class="total-box">
   <p class="total-label">Total a recibir por esta cotización</p>
-  <p class="total-value">${{ number_format($comision->total_comision, 0, ',', '.') }} COP</p>
+  <p class="total-value">${{ number_format($comision->total_comision, 0, ',', '.') }} {{ \App\Support\Monedas::base() }}</p>
 </div>
 
 <!-- FOOTER -->

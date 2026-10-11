@@ -7,6 +7,9 @@ const props = defineProps({
     sedes: Array,
     zonas: { type: Array, default: () => [] },
     zona_global: { type: String, default: 'America/Bogota' },
+    paises: { type: Array, default: () => [] },
+    monedas: { type: Array, default: () => [] },
+    moneda_base: { type: String, default: 'COP' },
 })
 
 const sedes = ref(props.sedes.map(s => ({ ...s })))
@@ -17,7 +20,7 @@ watch(() => props.sedes, (vals) => {
 
 const formVacio = {
     nombre: '', codigo: '', tiene_ventas: true, tiene_produccion: false,
-    es_principal: false, nit: '', direccion: '', ciudad: '', zona_horaria: 'America/Bogota', telefono: '',
+    es_principal: false, nit: '', direccion: '', ciudad: '', pais: 'CO', moneda: '', zona_horaria: 'America/Bogota', telefono: '',
     email: '', activa: true,
 }
 
@@ -30,12 +33,14 @@ function editar(s) {
         nombre: s.nombre, codigo: s.codigo,
         tiene_ventas: s.tiene_ventas, tiene_produccion: s.tiene_produccion,
         es_principal: s.es_principal, nit: s.nit ?? '', direccion: s.direccion ?? '',
-        ciudad: s.ciudad ?? '', zona_horaria: s.zona_horaria ?? 'America/Bogota',
+        ciudad: s.ciudad ?? '', pais: s.pais ?? 'CO', moneda: s.moneda ?? '', zona_horaria: s.zona_horaria ?? 'America/Bogota',
         telefono: s.telefono ?? '', email: s.email ?? '',
         activa: s.activa,
     }
     window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' })
 }
+
+const nombrePais = (iso) => props.paises.find(p => p.iso === iso)?.nombre ?? iso
 
 function cancelar() {
     editando.value = null
@@ -111,6 +116,7 @@ function eliminar(s) {
                                 <p class="text-xs text-tinta-300">
                                     {{ s.tipo_label }}
                                     <span v-if="s.ciudad"> · {{ s.ciudad }}</span>
+                                    · {{ nombrePais(s.pais) }} · {{ s.moneda_documentos }}
                                 </p>
                                 <p class="text-xs text-tinta-300 mt-0.5">
                                     {{ s.bodegas_count }} bodega(s) · {{ s.usuarios_count }} usuario(s)
@@ -175,6 +181,30 @@ function eliminar(s) {
                             <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1.5">Ciudad</label>
                             <input v-model="form.ciudad" type="text"
                                 class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]" />
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1.5">País</label>
+                            <select v-model="form.pais"
+                                class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm bg-superficie focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]">
+                                <option v-for="p in paises" :key="p.iso" :value="p.iso">{{ p.nombre }}{{ p.paquete ? '' : ' (sin paquete)' }}</option>
+                            </select>
+                            <p class="text-xs text-tinta-400 mt-1.5 leading-snug">
+                                Decide los impuestos y los tipos de identificación de esta sede.
+                                <a href="/configuracion/paises" @click.prevent="router.visit('/configuracion/paises')" class="font-semibold underline underline-offset-2">Ver el país</a>
+                            </p>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1.5">Moneda de sus documentos</label>
+                            <select v-model="form.moneda"
+                                class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm bg-superficie focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]">
+                                <option value="">La de su país</option>
+                                <option v-for="m in monedas" :key="m.codigo" :value="m.codigo">{{ m.codigo }} — {{ m.nombre }}</option>
+                            </select>
+                            <p class="text-xs text-tinta-400 mt-1.5 leading-snug">
+                                Con la que arrancan sus cotizaciones. Por dentro todo se guarda en {{ moneda_base }}.
+                            </p>
                         </div>
 
                         <div class="sm:col-span-2">

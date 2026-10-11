@@ -13,11 +13,19 @@ const props = defineProps({
     segmentacion_opciones: { type: Object, default: () => ({}) },
     sedes:                 { type: Array,  default: () => [] },
     catalogo_fiscal:       { type: Array,  default: () => [] },
+    // Los países, los documentos de identidad que acepta cada uno, y en cuáles hay lector
+    // de documento fiscal y retenciones (hoy, las del RUT colombiano).
+    paises:                { type: Array,  default: () => [] },
+    identificaciones_pais: { type: Object, default: () => ({}) },
+    pais_casa:             { type: String, default: 'CO' },
+    paises_con_retencion:  { type: Array,  default: () => [] },
+    paises_con_lector:     { type: Array,  default: () => [] },
 })
 
 const form = useForm({
     sede_id: props.sedes[0]?.id ?? null,
     tipo: 'empresa',
+    pais: props.pais_casa,
     tipo_identificacion: 'NIT',
     numero_identificacion: '',
     digito_verificacion: '',
@@ -48,23 +56,40 @@ watch(() => form.data(), checkChanges, { deep: true })
 
 const esPersona = computed(() => form.tipo === 'persona')
 
-const tiposId = computed(() =>
-    form.tipo === 'persona'
-        ? ['CC', 'CE', 'PA']
-        : ['NIT', 'RUT']
-)
+// Los documentos de identidad del país del cliente, según sea persona o empresa. Un país
+// cuyo paquete no distingue (todos con el mismo `juridica`) ofrece la lista entera.
+const tiposId = computed(() => {
+    const lista = props.identificaciones_pais[form.pais] ?? []
+    const propios = lista.filter(i => i.juridica === (form.tipo !== 'persona'))
+
+    return propios.length ? propios : lista
+})
+
+const defIdentificacion = computed(() =>
+    (props.identificaciones_pais[form.pais] ?? []).find(i => i.codigo === form.tipo_identificacion) ?? null)
+
+const tieneLector    = computed(() => props.paises_con_lector.includes(form.pais))
+const tieneRetencion = computed(() => props.paises_con_retencion.includes(form.pais))
 
 function setTipo(t) {
     form.tipo = t
-    form.tipo_identificacion = t === 'persona' ? 'CC' : 'NIT'
+    form.tipo_identificacion = tiposId.value[0]?.codigo ?? ''
     limpiar()
 }
+
+// Otro país, otros documentos: el tipo vuelve al primero que corresponda.
+watch(() => form.pais, () => {
+    if (! tiposId.value.some(i => i.codigo === form.tipo_identificacion)) {
+        form.tipo_identificacion = tiposId.value[0]?.codigo ?? ''
+    }
+    limpiar()
+})
 
 // ─── Consulta de identificación (DV, duplicados y RUES) ──────────────────────
 const { consultando, resultado, error: errorConsulta, consultar, limpiar } = useConsultaIdentificacion()
 
 function revisarIdentificacion() {
-    consultar(form.numero_identificacion, form.tipo_identificacion).then((r) => {
+    consultar(form.numero_identificacion, form.tipo_identificacion, null, form.pais).then((r) => {
         if (!r) return
         // El DV es automático: si el usuario lo escribió pegado, lo separamos
         // y dejamos el campo solo con el número base.
@@ -184,13 +209,20 @@ function submit() {
                 <div class="bg-superficie rounded-xl border border-linea p-4">
                     <div class="flex flex-wrap items-start justify-between gap-2 mb-3">
                         <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">Identificación</p>
-                        <LeerRut url="/clientes/leer-rut" @leido="usarRut" class="max-w-full"/>
+                        <LeerRut v-if="tieneLector" url="/clientes/leer-rut" :pais="form.pais"
+                            :texto="form.pais === 'CO' ? 'Leer RUT con IA' : 'Leer documento con IA'" @leido="usarRut" class="max-w-full"/>
                     </div>
-                    <div class="grid grid-cols-2 gap-3">
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                        <div class="col-span-2 sm:col-span-1">
+                            <label class="block text-xs font-medium text-tinta-700 mb-1">País</label>
+                            <select v-model="form.pais" :class="ic()">
+                                <option v-for="p in paises" :key="p.iso" :value="p.iso">{{ p.nombre }}</option>
+                            </select>
+                        </div>
                         <div>
                             <label class="block text-xs font-medium text-tinta-700 mb-1">Tipo ID</label>
                             <select v-model="form.tipo_identificacion" :class="ic()">
-                                <option v-for="t in tiposId" :key="t" :value="t">{{ t }}</option>
+                                <option v-for="t in tiposId" :key="t.codigo" :value="t.codigo" :title="t.nombre">{{ t.codigo }}</option>
                             </select>
                             <p v-if="form.errors.tipo_identificacion" class="text-aviso-rojo text-xs mt-1">{{ form.errors.tipo_identificacion }}</p>
                         </div>
@@ -198,7 +230,7 @@ function submit() {
                             <label class="block text-xs font-medium text-tinta-700 mb-1">Número</label>
                             <div class="relative">
                                 <input v-model="form.numero_identificacion" type="text" :class="ic('pr-12')"
-                                    placeholder="Ej: 900123456"
+                                    :placeholder="form.pais === 'CO' ? 'Ej: 900123456' : (defIdentificacion?.ayuda ?? '')"
                                     @blur="revisarIdentificacion"
                                     @keyup.enter.prevent="revisarIdentificacion"/>
                                 <!-- El DV no se escribe: se calcula y se muestra aquí -->
@@ -207,7 +239,8 @@ function submit() {
                                     &ndash;{{ form.digito_verificacion }}
                                 </span>
                             </div>
-                            <p class="text-xs text-tinta-300 mt-1">El dígito de verificación se calcula solo.</p>
+                            <p v-if="defIdentificacion?.dv" class="text-xs text-tinta-300 mt-1">El dígito de verificación se calcula solo.</p>
+                            <p v-else-if="defIdentificacion?.ayuda" class="text-xs text-tinta-300 mt-1">{{ defIdentificacion.ayuda }}</p>
                             <p v-if="form.errors.numero_identificacion" class="text-aviso-rojo text-xs mt-1">{{ form.errors.numero_identificacion }}</p>
                         </div>
                     </div>
@@ -395,7 +428,7 @@ function submit() {
                 </div>
 
                 <!-- Datos tributarios: deciden qué retenciones practica al pagar -->
-                <div class="bg-superficie rounded-xl border border-linea p-4">
+                <div v-if="tieneRetencion" class="bg-superficie rounded-xl border border-linea p-4">
                     <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-3">Datos tributarios</p>
                     <DatosFiscales :modelo="form" :catalogo="catalogo_fiscal"/>
                 </div>

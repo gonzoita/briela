@@ -538,7 +538,10 @@ Lo construido después de la fase 3, que conviene conocer antes de tocar algo ce
   con 20 días de margen lo que se puede renovar solo (Meta estirando el token, Google con su
   `refresh_token`) y avisa a los 15 de lo que exige reconectar a mano. El aviso va a los
   administradores, no a quien publica: reconectar exige entrar al Business Manager.
-- **Por dentro todo está en pesos** (`App\Support\Monedas`). Un costo en USD/EUR guarda
+- **Por dentro todo está en la moneda base** (`App\Support\Monedas::base()`, el peso colombiano
+  mientras la instalación no diga otra; se congela con la primera cotización u orden). Nunca
+  escribir `'COP'` ni «pesos» en código nuevo: pregunta `Monedas::base()` (PHP) o `monedaBase()`
+  (`formato.js`). Un costo en USD/EUR guarda
   `productos.costo_moneda` y `precio_costo` (pesos) sale de la tasa del día; una cotización en
   otra moneda guarda sus ítems en pesos y una tasa, que solo sirve para **mostrar**. Nunca
   guardar un monto en otra moneda en una columna que se suma en informes o comisiones. La tasa
@@ -547,6 +550,16 @@ Lo construido después de la fase 3, que conviene conocer antes de tocar algo ce
 - **Lo tributario no se escribe en el código.** UVT, tarifas y bases de retención viven en
   Configuración → Perfil fiscal (`App\Support\Fiscal`); la cuenta, en `RetencionesService`, y
   la pantalla se la pide al servidor en vez de repetirla.
+- **Lo que depende de un país es un paquete de datos, no código** (`App\Support\Paises`,
+  `resources/paises/{ISO}.json`): identificaciones, impuestos, tarifas, documento fiscal. Un país
+  nuevo es un archivo. Lo que la empresa ajuste va aparte (`paises_ajustes`) y una actualización
+  no lo pisa. La casa es el país de la sede principal; un cliente o proveedor sin país es de la
+  casa. **Los paquetes de Panamá y Venezuela no los ha revisado un contador**: no se presentan como
+  verdad. Ver `docs/manual/paises.md`.
+- **El costo puesto en bodega sale de una importación liquidada**
+  (`LiquidacionImportacionService`, la cuenta en un solo lugar; la pantalla la pide al servidor).
+  Liquidar reprecia lo calculado y deja el producto fuera de la tasa diaria; una liquidada no se
+  edita. Ver `docs/manual/importaciones.md`.
 - **El correo sale por el panel de Briela, como la IA.** `App\Mail\TransporteBriela` es un
   transporte de Laravel: todo `Mail::` va al superadmin con el serial, y el superadmin envía con
   Brevo o Amazon SES desde el subdominio verificado de la instalación (Cloudflare). La

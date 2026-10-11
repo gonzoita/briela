@@ -410,7 +410,7 @@ class CotizacionController extends Controller
         $nueva->fecha_validez  = now()->addDays(30)->toDateString();
 
         // Una cotización nueva nace con la tasa de hoy, no con la de la que se copió.
-        if ($nueva->moneda && $nueva->moneda !== \App\Support\Monedas::LOCAL
+        if ($nueva->moneda && $nueva->moneda !== \App\Support\Monedas::base()
             && $tasa = app(\App\Services\TasaCambioService::class)->vigente($nueva->moneda)) {
             $nueva->tasa_cambio = $tasa->valor;
             $nueva->tasa_fecha  = $tasa->fecha->toDateString();
@@ -453,6 +453,16 @@ class CotizacionController extends Controller
 
         $cliente = ! empty($datos['cliente_id']) ? \App\Models\Cliente::find($datos['cliente_id']) : null;
 
+        // Las retenciones colombianas solo existen donde el paquete del país las declara.
+        $pais = \App\Support\Paises::activo();
+
+        if (! \App\Support\Paises::perfil($pais)['retenciones']) {
+            return response()->json([
+                'aplica' => false, 'lineas' => [], 'total' => 0.0, 'avisos' => [],
+                'motivos' => ['En ' . \App\Support\Paises::nombre($pais) . ' Briela no calcula retenciones.'],
+            ]);
+        }
+
         return response()->json($retenciones->estimar(
             $retenciones->lineasDesdeFormulario($datos['items'] ?? []),
             (float) ($datos['iva'] ?? 0),
@@ -463,9 +473,23 @@ class CotizacionController extends Controller
     /** Las tasas vigentes y el modo, para la pantalla de crear y editar. */
     private function propsMonedas(): array
     {
+        $pais   = \App\Support\Paises::activo();
+        $perfil = \App\Support\Paises::perfil($pais);
+
         return [
             'tasas'     => app(\App\Services\TasaCambioService::class)->paraInterfaz(),
             'modo_tasa' => \App\Support\Monedas::modoCotizacion(),
+            // La moneda con la que arranca una cotización nueva: la de la sede activa.
+            'moneda_defecto'   => \App\Support\ContextoSede::actual()?->monedaDocumentos() ?? \App\Support\Monedas::base(),
+            'monedas_catalogo' => collect(\App\Support\Monedas::CATALOGO)
+                ->map(fn ($m, $c) => ['codigo' => $c, 'nombre' => $m['nombre']])->values(),
+            // Los impuestos del país de la sede: cómo se llama y qué tarifas se ofrecen.
+            'impuesto' => [
+                'nombre'  => \App\Support\Paises::nombreImpuesto($pais),
+                'tarifas' => \App\Support\Paises::tarifas($pais),
+                'pais'    => $pais,
+            ],
+            'retenciones_activas' => $perfil['retenciones'],
         ];
     }
 
@@ -480,7 +504,7 @@ class CotizacionController extends Controller
      */
     private function tasaDe(array $data): array
     {
-        if (($data['moneda'] ?? 'COP') === \App\Support\Monedas::LOCAL) {
+        if (($data['moneda'] ?? \App\Support\Monedas::base()) === \App\Support\Monedas::base()) {
             return ['tasa_cambio' => 1, 'tasa_fecha' => null];
         }
 
@@ -834,7 +858,7 @@ class CotizacionController extends Controller
             'cliente_id'               => 'nullable|exists:clientes,id',
             'contacto_id'              => 'nullable|exists:contactos_cliente,id',
             'nombre_contacto_override' => 'nullable|string|max:150',
-            'moneda'                   => 'required|in:COP,USD,EUR',
+            'moneda'                   => 'required|in:' . implode(',', array_keys(\App\Support\Monedas::CATALOGO)),
             'tasa_cambio'              => 'required|numeric|min:1',
             'tasa_fecha'               => 'nullable|date',
             'fecha_creacion'           => 'required|date',

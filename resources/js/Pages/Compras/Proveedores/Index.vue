@@ -14,6 +14,8 @@ const props = defineProps({
     filters:     Object,
     // El orden vigente, que decide el servidor: { campo, dir }.
     orden: { type: Object, default: () => ({}) },
+    paises: { type: Array, default: () => [] },
+    pais_casa: { type: String, default: 'CO' },
     // Los códigos de la casilla 53 del RUT que Briela conoce.
     catalogo_fiscal: { type: Array, default: () => [] },
 })
@@ -37,9 +39,16 @@ const guardando     = ref(false)
 
 // Una ficha vacía, con los datos fiscales que sale del RUT. Una sola definición: crear y
 // editar partían de dos copias y una se quedaba sin los campos nuevos.
+// Los tipos de documento habituales, más el que traiga la ficha (un RIF o un RUC leídos de otro país).
+const tiposIdentificacion = computed(() => {
+    const t = ['NIT', 'CC', 'CE', 'PA', 'RUC', 'RIF']
+    const actual = form.value?.tipo_identificacion
+    return actual && ! t.includes(actual) ? [...t, actual] : t
+})
+
 const fichaVacia = () => ({
     nombre: '', nit: '', contacto: '', telefono: '',
-    email: '', ciudad: '', direccion: '',
+    email: '', ciudad: '', pais: '', direccion: '',
     tipo: 'mixto', activo: true, notas: '',
     tipo_persona: '', tipo_identificacion: '', numero_identificacion: '', digito_verificacion: '',
     actividad_economica: '', responsabilidades_fiscales: [], datos_rut: null,
@@ -298,7 +307,7 @@ function tipoColor(t) {
                             <p class="text-xs text-tinta-500">
                                 Sube el RUT (PDF o foto) y se llenan los datos fiscales. Revísalos antes de guardar.
                             </p>
-                            <LeerRut url="/compras/proveedores/leer-rut" @leido="usarRut" class="shrink-0" />
+                            <LeerRut url="/compras/proveedores/leer-rut" :pais="form.pais || pais_casa" @leido="usarRut" class="shrink-0" />
                         </div>
                         <div v-if="otroProveedor" class="mt-3 rounded-lg border border-borde-aviso-ambar bg-pastel-ambar p-3 text-xs text-aviso-ambar">
                             Ya existe un proveedor con ese número: <b>{{ otroProveedor.nombre }}</b>.
@@ -343,6 +352,14 @@ function tipoColor(t) {
                                 <input v-model="form.email" type="email" class="w-full rounded-lg border border-tinta-200 px-3 py-2 text-sm focus:ring-4 focus:ring-[var(--marca-suave)] focus:outline-none" />
                             </div>
                         </div>
+                        <div>
+                            <label class="block text-sm font-medium text-tinta-700 mb-1">País</label>
+                            <select v-model="form.pais" class="w-full rounded-lg border border-tinta-200 px-3 py-2 text-sm bg-superficie focus:ring-4 focus:ring-[var(--marca-suave)] focus:outline-none">
+                                <option value="">El de la casa ({{ paises.find(p => p.iso === pais_casa)?.nombre }})</option>
+                                <option v-for="p in paises" :key="p.iso" :value="p.iso">{{ p.nombre }}</option>
+                            </select>
+                            <p class="text-xs text-tinta-400 mt-1">Si es de otro país, comprarle es importar: se liquida en Compras → Importaciones.</p>
+                        </div>
                         <div class="grid grid-cols-2 gap-3">
                             <div>
                                 <label class="block text-sm font-medium text-tinta-700 mb-1">Ciudad</label>
@@ -366,7 +383,7 @@ function tipoColor(t) {
                                     <label class="block text-xs font-medium text-tinta-700 mb-1">Tipo ID</label>
                                     <select v-model="form.tipo_identificacion" class="w-full rounded-lg border border-tinta-200 px-2 py-2 text-sm focus:outline-none">
                                         <option value="">—</option>
-                                        <option v-for="t in ['NIT', 'CC', 'CE', 'PA']" :key="t" :value="t">{{ t }}</option>
+                                        <option v-for="t in tiposIdentificacion" :key="t" :value="t">{{ t }}</option>
                                     </select>
                                 </div>
                                 <div>

@@ -11,7 +11,7 @@ class Proveedor extends Model
 
     protected $fillable = [
         'nombre', 'nit', 'contacto', 'telefono', 'email',
-        'ciudad', 'direccion', 'tipo', 'activo', 'notas',
+        'ciudad', 'pais', 'direccion', 'tipo', 'activo', 'notas',
         // Lo que sale del RUT: ver `LectorRutService`. Mismos nombres que en `clientes`.
         'tipo_persona', 'tipo_identificacion', 'numero_identificacion', 'digito_verificacion',
         'actividad_economica', 'responsabilidades_fiscales', 'datos_rut',

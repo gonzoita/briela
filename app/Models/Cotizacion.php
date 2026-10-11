@@ -57,7 +57,7 @@ class Cotizacion extends Model
         'descuento_total'  => 'decimal:2',
         'impuesto_total'   => 'decimal:2',
         'total'            => 'decimal:2',
-        'tasa_cambio'      => 'decimal:4',
+        'tasa_cambio'      => 'decimal:8',
         'tasa_fecha'       => 'date:Y-m-d',
         'en_produccion'    => 'boolean',
     ];
@@ -65,12 +65,12 @@ class Cotizacion extends Model
     /** Un valor en pesos, escrito en la moneda de esta cotización. */
     public function enSuMoneda(float|int|string|null $valorEnPesos): string
     {
-        return \App\Support\Monedas::formatear($valorEnPesos, (string) ($this->moneda ?: 'COP'), (float) ($this->tasa_cambio ?: 1));
+        return \App\Support\Monedas::formatear($valorEnPesos, (string) ($this->moneda ?: \App\Support\Monedas::base()), (float) ($this->tasa_cambio ?: 1));
     }
 
     public function esEnOtraMoneda(): bool
     {
-        return ($this->moneda ?: 'COP') !== \App\Support\Monedas::LOCAL && (float) $this->tasa_cambio > 0;
+        return ($this->moneda ?: \App\Support\Monedas::base()) !== \App\Support\Monedas::base() && (float) $this->tasa_cambio > 0;
     }
 
     protected static function boot(): void

@@ -30,6 +30,7 @@ class Cliente extends Model
         'telefono',
         'celular',
         'ciudad',
+        'pais',
         'direccion',
         'notas',
         'activo',

@@ -199,7 +199,7 @@ table.items td.left { text-align:left; }
       <p class="grand-sub">{{ $mesTitulo }} · Solo cotizaciones confirmadas</p>
     </div>
     <div class="gt-right">
-      <p class="grand-valor">${{ number_format($totalMes, 0, ',', '.') }} COP</p>
+      <p class="grand-valor">${{ number_format($totalMes, 0, ',', '.') }} {{ \App\Support\Monedas::base() }}</p>
     </div>
   </div>
 </div>

@@ -55,6 +55,8 @@ class Permisos
                 'proveedores' => ['label' => 'Proveedores',          'acciones' => ['ver', 'crear', 'editar', 'eliminar']],
                 'solicitudes' => ['label' => 'Solicitudes de compra','acciones' => ['ver', 'crear', 'editar', 'aprobar']],
                 'ordenes'     => ['label' => 'Órdenes de compra',    'acciones' => ['ver', 'crear', 'editar', 'recibir']],
+                // Liquidar fija el costo de los productos y sus precios: es una decisión aparte.
+                'importaciones' => ['label' => 'Importaciones',      'acciones' => ['ver', 'crear', 'editar', 'liquidar']],
             ],
             'Logística y Financiero' => [
                 'remisiones' => ['label' => 'Remisiones', 'acciones' => ['ver', 'crear', 'editar', 'despachar']],
@@ -155,6 +157,7 @@ class Permisos
                 'proveedores'   => ['ver', 'crear', 'editar'],
                 'solicitudes'   => ['ver', 'crear', 'editar', 'aprobar'],
                 'ordenes'       => ['ver', 'crear', 'editar', 'recibir'],
+                'importaciones' => ['ver', 'crear', 'editar'],
                 'remisiones'    => ['ver', 'crear', 'editar', 'despachar'],
                 'cartera'       => ['ver', 'editar'],
                 'rrhh'          => ['ver', 'crear', 'editar'],

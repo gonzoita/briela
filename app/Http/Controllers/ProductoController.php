@@ -138,7 +138,7 @@ class ProductoController extends Controller
             'descripcion_corta', 'descripcion_larga', 'descripcion_cotizacion',
             'inventariable', 'es_vendible', 'es_insumo',
             'stock_minimo', 'stock_maximo',
-            'precio_costo', 'moneda_costo', 'costo_moneda',
+            'precio_costo', 'moneda_costo', 'costo_moneda', 'codigo_hs', 'arancel_pct',
             'margen_mayorista', 'margen_distribuidor', 'margen_cliente_final',
             'precio_mayorista', 'precio_distribuidor', 'precio_cliente_final',
             'comision_pct_minima', 'comision_pct_maxima',
@@ -209,6 +209,8 @@ class ProductoController extends Controller
             'precio_costo'                => $request->precio_costo ?? 0,
             'moneda_costo'                => $request->moneda_costo,
             'costo_moneda'                => $request->costo_moneda,
+            'codigo_hs'                   => $request->filled('codigo_hs') ? strtoupper(preg_replace('/[^0-9A-Za-z.]/', '', (string) $request->codigo_hs)) : null,
+            'arancel_pct'                 => $request->filled('arancel_pct') ? $request->arancel_pct : null,
             'margen_mayorista'            => $request->margen_mayorista ?? 25,
             'margen_distribuidor'         => $request->margen_distribuidor ?? 30,
             'margen_cliente_final'        => $request->margen_cliente_final ?? 35,
@@ -307,10 +309,27 @@ class ProductoController extends Controller
             'stock_total'     => (float) $v->stocks->sum('cantidad'),
         ]);
 
+        // Lo que costó traerlo cada vez que se importó. Es información de costos: solo a quien
+        // puede verlos.
+        $importaciones = auth()->user()->tienePermiso('costos.ver')
+            ? \App\Models\ImportacionItem::with('importacion:id,numero,fecha,moneda,estado')
+                ->where('producto_id', $producto->id)->whereNotNull('costo_unitario')
+                ->whereHas('importacion', fn ($q) => $q->where('estado', 'liquidada'))
+                ->latest('id')->limit(5)->get()
+                ->map(fn ($i) => [
+                    'id' => $i->importacion_id, 'numero' => $i->importacion->numero, 'fecha' => $i->importacion->fecha?->toDateString(),
+                    'cantidad' => (float) $i->cantidad, 'fob' => (float) $i->fob, 'costo_total' => (float) $i->costo_total,
+                    'costo_unitario' => (float) $i->costo_unitario,
+                    // Cuánto más caro que la factura salió traerlo.
+                    'recargo_pct' => (float) $i->fob > 0 ? round(((float) $i->costo_total / (float) $i->fob - 1) * 100, 1) : null,
+                ])->values()
+            : [];
+
         // Un padre no tiene stock propio: sus movimientos son los de cada variante.
         $movimientos = $producto->es_padre ? ['data' => [], 'hay_mas' => false] : $this->movimientosDe($producto);
 
         return Inertia::render('Productos/Show', [
+            'importaciones' => $importaciones,
             'producto'   => array_merge($producto->toArray(), [
                 'stock_total'          => $producto->stockTotal(),
                 'tipo_label'           => $producto->tipoLabel(),
@@ -494,6 +513,8 @@ class ProductoController extends Controller
                 'precio_costo'                => $request->precio_costo ?? 0,
                 'moneda_costo'                => $request->moneda_costo,
                 'costo_moneda'                => $request->costo_moneda,
+            'codigo_hs'                   => $request->filled('codigo_hs') ? strtoupper(preg_replace('/[^0-9A-Za-z.]/', '', (string) $request->codigo_hs)) : null,
+            'arancel_pct'                 => $request->filled('arancel_pct') ? $request->arancel_pct : null,
                 'margen_mayorista'            => $request->margen_mayorista ?? 25,
                 'margen_distribuidor'         => $request->margen_distribuidor ?? 30,
                 'margen_cliente_final'        => $request->margen_cliente_final ?? 35,
@@ -1027,10 +1048,10 @@ class ProductoController extends Controller
      */
     private function aplicarMonedaCosto(Request $request): void
     {
-        $moneda = $request->input('moneda_costo') ?: Monedas::LOCAL;
+        $moneda = $request->input('moneda_costo') ?: Monedas::base();
 
-        if ($moneda === Monedas::LOCAL) {
-            $request->merge(['moneda_costo' => Monedas::LOCAL, 'costo_moneda' => null]);
+        if ($moneda === Monedas::base()) {
+            $request->merge(['moneda_costo' => Monedas::base(), 'costo_moneda' => null]);
 
             return;
         }
@@ -1109,6 +1130,9 @@ class ProductoController extends Controller
         return [
             'nombre'              => 'required|string|max:200',
             'referencia'          => $referenciaRule,
+            // Para liquidar importaciones: Sistema Armonizado (6 a 12 dígitos) y arancel habitual.
+            'codigo_hs'           => 'nullable|string|max:12',
+            'arancel_pct'         => 'nullable|numeric|min:0|max:100',
             'unidad_medida'       => 'nullable|string|max:30',
             'categoria_id'        => 'nullable|exists:categorias_producto,id',
             'proveedor_id'        => 'nullable|exists:proveedores,id',

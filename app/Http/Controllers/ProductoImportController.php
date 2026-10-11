@@ -186,7 +186,7 @@ class ProductoImportController extends Controller
                 'unidad_medida' => 'unidad', 'descripcion_corta' => 'Cuarto frío modular panel inyectado',
                 'es_vendible' => 'Si', 'es_insumo' => 'No', 'inventariable' => 'Si', 'activo' => 'Si',
                 'proveedor' => 'Proveedor de ejemplo', 'referencia_proveedor' => 'CF-33', 'precio_proveedor' => '3500000',
-                'precio_costo' => '3500000', 'moneda_costo' => 'COP', 'utilidad_minima_empresa_pct' => '15',
+                'precio_costo' => '3500000', 'moneda_costo' => \App\Support\Monedas::base(), 'utilidad_minima_empresa_pct' => '15',
                 'stock_minimo' => '1', 'stock_inicial' => '5', 'bodega' => $bodega, 'es_padre' => 'No',
             ], $margenes),
             [
@@ -363,7 +363,7 @@ class ProductoImportController extends Controller
                 // Un costo en otra moneda manda sobre el costo en pesos: el de pesos sale de
                 // la tasa del día, igual que en la ficha.
                 $moneda = strtoupper(trim((string) ($d['moneda_costo'] ?? '')))
-                    ?: ($producto?->moneda_costo ?? $heredaDe?->moneda_costo ?? \App\Support\Monedas::LOCAL);
+                    ?: ($producto?->moneda_costo ?? $heredaDe?->moneda_costo ?? \App\Support\Monedas::base());
 
                 if (! \App\Support\Monedas::existe($moneda)) {
                     throw new \RuntimeException("Moneda «{$moneda}» no reconocida: usa COP, USD o EUR.");
@@ -371,7 +371,7 @@ class ProductoImportController extends Controller
 
                 $costoMoneda = null;
 
-                if ($moneda !== \App\Support\Monedas::LOCAL) {
+                if ($moneda !== \App\Support\Monedas::base()) {
                     $costoMoneda = $this->numero($d['costo_moneda'] ?? null)
                         ?? (($producto ?? $heredaDe)?->moneda_costo === $moneda ? (float) ($producto ?? $heredaDe)->costo_moneda : null);
 
