@@ -612,6 +612,7 @@ class OpController extends Controller
             'anticipo_fecha_pago'  => 'nullable|date',
             'anticipo_referencia'  => 'nullable|string|max:200',
             'sede_id'              => 'nullable|exists:sedes,id',
+            'fecha_entrega_estimada' => 'nullable|date',
         ]);
 
         // ¿En qué fábrica se produce? Una sede de solo ventas (ej. Cúcuta)
@@ -633,6 +634,10 @@ class OpController extends Controller
             'responsable_id'=> auth()->id(),
             'estado'        => 'borrador',
             'fecha_creacion'=> now()->toDateString(),
+            // La fecha que se elige al generar, o la que sale del plazo prometido en la
+            // cotización. Sin ella la orden no tenía urgencia en planta ni fecha en Remisiones.
+            'fecha_entrega_estimada' => $request->input('fecha_entrega_estimada')
+                ?: $cotizacion->fechaEntregaSugerida()?->toDateString(),
             'anticipo'      => $request->anticipo ?? null,
         ]);
 

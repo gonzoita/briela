@@ -511,4 +511,68 @@ class FlujoOpRemisionTest extends TestCase
         $this->assertSame('aprobada', $cot->fresh()->estado);
         $this->assertSame('confirmada', $comision->fresh()->estado);
     }
+
+    // ─── Fecha de entrega desde la cotización ────────────────────────────────
+
+    private function cotizacionAprobada(?int $dias): \App\Models\Cotizacion
+    {
+        $this->sede->update(['tiene_produccion' => true, 'activa' => true]);
+        $cliente = \App\Models\Cliente::create(['tipo' => 'empresa', 'nombre' => 'Cliente '.uniqid(), 'tipo_identificacion' => 'NIT']);
+        $cot = \App\Models\Cotizacion::create([
+            'cliente_id' => $cliente->id, 'moneda' => 'COP', 'tasa_cambio' => 1, 'estado' => 'aprobada',
+            'responsable_id' => $this->admin->id, 'dias_entrega' => $dias,
+        ]);
+        \App\Models\CotizacionItem::create([
+            'cotizacion_id' => $cot->id, 'tipo' => 'texto_libre', 'descripcion' => 'Instalación', 'orden' => 0,
+            'cantidad' => 1, 'precio_unitario' => 1000, 'descuento_pct' => 0, 'impuesto_pct' => 0,
+            'subtotal' => 1000, 'total_linea' => 1000,
+        ]);
+
+        return $cot;
+    }
+
+    public function test_la_orden_nace_con_la_fecha_del_plazo_de_la_cotizacion(): void
+    {
+        $cot = $this->cotizacionAprobada(10);
+
+        $this->post("/produccion/ops/desde-cotizacion/{$cot->id}", ['sede_id' => $this->sede->id])->assertSessionHasNoErrors();
+
+        $op = Op::where('cotizacion_id', $cot->id)->firstOrFail();
+        $this->assertSame(today()->addWeekdays(10)->toDateString(), $op->fecha_entrega_estimada->toDateString());
+    }
+
+    public function test_la_fecha_elegida_al_generar_manda_sobre_el_plazo(): void
+    {
+        $cot   = $this->cotizacionAprobada(10);
+        $fecha = today()->addDays(30)->toDateString();
+
+        $this->post("/produccion/ops/desde-cotizacion/{$cot->id}", ['sede_id' => $this->sede->id, 'fecha_entrega_estimada' => $fecha]);
+
+        $this->assertSame($fecha, Op::where('cotizacion_id', $cot->id)->firstOrFail()->fecha_entrega_estimada->toDateString());
+    }
+
+    public function test_sin_plazo_ni_fecha_la_orden_nace_sin_fecha_como_antes(): void
+    {
+        $cot = $this->cotizacionAprobada(null);
+
+        $this->post("/produccion/ops/desde-cotizacion/{$cot->id}", ['sede_id' => $this->sede->id]);
+
+        $this->assertNull(Op::where('cotizacion_id', $cot->id)->firstOrFail()->fecha_entrega_estimada);
+    }
+
+    public function test_duplicar_una_cotizacion_en_produccion_da_una_nueva_editable(): void
+    {
+        $cot = $this->cotizacionAprobada(12);
+        $cot->update(['en_produccion' => true]);
+
+        $this->post("/cotizaciones/{$cot->id}/duplicar")->assertSessionHasNoErrors()->assertRedirect();
+
+        $nueva = \App\Models\Cotizacion::latest('id')->firstOrFail();
+        $this->assertNotSame($cot->id, $nueva->id);
+        $this->assertNotSame($cot->token_publico, $nueva->token_publico);
+        $this->assertSame('borrador', $nueva->estado);
+        $this->assertFalse((bool) $nueva->en_produccion);
+        $this->assertSame(12, $nueva->dias_entrega);
+        $this->assertSame(1, $nueva->items()->count());
+    }
 }

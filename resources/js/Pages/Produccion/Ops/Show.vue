@@ -56,6 +56,11 @@ const modalAnticipo  = ref(false)
 const nuevoEstado    = ref(props.op.estado)
 const financieroRef  = ref(null)
 
+const erroresEstado = computed(() => {
+    const e = usePage().props.errors ?? {}
+    return ['estado', 'bodega_material_id', 'bodega_entrega_id'].map(k => e[k]).filter(Boolean)
+})
+
 function cambiarEstado() {
     if (
         nuevoEstado.value === 'confirmada'
@@ -1311,6 +1316,14 @@ function marcarTerminado(item) {
                     <p v-if="!op.calidad_aprobada_at" class="text-xs text-tinta-300 mb-3">
                         "Despachada" no está disponible hasta aprobar control de calidad. Normalmente esto lo hace solo la remisión.
                     </p>
+                    <!-- Lo que el servidor rechazó. Sin esto, confirmar una orden sin bodegas no
+                         hacía nada visible: el modal se quedaba abierto y nadie sabía por qué. -->
+                    <div v-if="erroresEstado.length" class="mb-3 rounded-xl border border-borde-aviso-rojo bg-pastel-rojo p-3">
+                        <p v-for="(e, i) in erroresEstado" :key="i" class="text-xs text-aviso-rojo">{{ e }}</p>
+                        <a :href="`/produccion/ops/${op.id}/editar`" class="inline-block mt-1.5 text-xs font-semibold underline text-aviso-rojo">
+                            Editar la orden
+                        </a>
+                    </div>
                     <div class="flex gap-3">
                         <button @click="modalEstado = false"
                             class="flex-1 py-2.5 rounded-xl border border-linea text-sm text-tinta-500">

@@ -57,6 +57,9 @@
         <div class="numero">{{ $cotizacion->numero }}</div>
         <div class="fecha">Fecha: {{ $cotizacion->fecha_creacion->format('d/m/Y') }}</div>
         <div class="fecha">Válida hasta: {{ $cotizacion->fecha_validez->format('d/m/Y') }}</div>
+        @if ($cotizacion->dias_entrega)
+            <div class="fecha">Entrega: {{ $cotizacion->dias_entrega }} días hábiles</div>
+        @endif
         <div class="estado-badge" style="background-color: {{ $cotizacion->estado_badge['bg'] }}; color: {{ $cotizacion->estado_badge['text'] }};">
             {{ $cotizacion->estado_badge['label'] }}
         </div>

@@ -33,6 +33,8 @@ class Cotizacion extends Model
         'tasa_fecha',
         'fecha_creacion',
         'fecha_validez',
+        // El plazo prometido, en días hábiles: de aquí sale la fecha de entrega de la orden.
+        'dias_entrega',
         'responsable_id',
         'estado',
         'en_produccion',
@@ -53,6 +55,7 @@ class Cotizacion extends Model
         // ve vacío, y el usuario no puede leer ni corregir la fecha de su cotización.
         'fecha_creacion'   => 'date:Y-m-d',
         'fecha_validez'    => 'date:Y-m-d',
+        'dias_entrega'     => 'integer',
         'subtotal'         => 'decimal:2',
         'descuento_total'  => 'decimal:2',
         'impuesto_total'   => 'decimal:2',
@@ -218,5 +221,21 @@ class Cotizacion extends Model
             'en_produccion' => ['label' => 'En Producción', 'bg' => '#DBEAFE', 'text' => Marca::color()],
             default         => ['label' => $this->estado,   'bg' => '#F3F4F6', 'text' => '#6B7280'],
         };
+    }
+
+    /**
+     * La fecha de entrega que sale del plazo prometido, contando desde `$desde` (hoy, si no).
+     *
+     * Días hábiles de lunes a viernes: el plazo corre cuando arranca la orden, no cuando se
+     * cotizó. Los festivos no se descuentan; la fecha es una estimación y se ajusta al generar
+     * la orden o en la orden misma.
+     */
+    public function fechaEntregaSugerida(?\Carbon\CarbonInterface $desde = null): ?\Carbon\CarbonInterface
+    {
+        if (! $this->dias_entrega) {
+            return null;
+        }
+
+        return \Carbon\Carbon::parse($desde ?? today())->addWeekdays($this->dias_entrega);
     }
 }

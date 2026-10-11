@@ -114,10 +114,13 @@ const anticipoInput    = ref('')
 const anticipoMedio    = ref('efectivo')
 const anticipoFecha    = ref(new Date().toISOString().split('T')[0])
 const anticipoRef      = ref('')
+// Precargada con el plazo de la cotización; se puede corregir antes de crear la orden.
+const fechaEntregaOp   = ref(cot.fecha_entrega_sugerida ?? '')
 
 function confirmarGenerarOP() {
     router.post(`/produccion/ops/desde-cotizacion/${cot.id}`, {
         sede_id:             sedeFabricaId.value,
+        fecha_entrega_estimada: fechaEntregaOp.value || null,
         anticipo:            anticipoInput.value || null,
         anticipo_medio_pago: anticipoInput.value ? anticipoMedio.value : null,
         anticipo_fecha_pago: anticipoInput.value ? anticipoFecha.value : null,
@@ -318,6 +321,10 @@ function marcarEnviada() {
                             <span>{{ formatFecha(cot.fecha_validez) }}</span>
                         </div>
                         <div class="flex justify-between">
+                            <span class="text-tinta-400">Entrega</span>
+                            <span>{{ cot.dias_entrega ? `${cot.dias_entrega} días hábiles` : 'Sin plazo' }}</span>
+                        </div>
+                        <div class="flex justify-between">
                             <span class="text-tinta-400">Moneda</span>
                             <span>{{ cot.moneda }}</span>
                         </div>
@@ -477,6 +484,15 @@ function marcarEnviada() {
                             <option v-for="s in sedesFabrica" :key="s.id" :value="s.id">{{ s.nombre }}</option>
                         </select>
                     </div>
+
+                    <label class="block text-xs font-medium text-tinta-500 mb-1.5">Fecha de entrega</label>
+                    <input v-model="fechaEntregaOp" type="date"
+                        class="w-full rounded-xl border border-tinta-200 px-3 py-2.5 text-sm mb-1 focus:ring-2 focus:outline-none" />
+                    <p class="text-xs text-tinta-300 mb-3">
+                        {{ cot.dias_entrega
+                            ? `Sale del plazo de la cotización: ${cot.dias_entrega} días hábiles desde hoy.`
+                            : 'La cotización no tiene plazo de entrega: escribe la fecha que se le prometió al cliente.' }}
+                    </p>
 
                     <label class="block text-xs font-medium text-tinta-500 mb-1.5">Anticipo (opcional)</label>
                     <input v-model="anticipoInput" type="number" min="0" step="0.01" placeholder="0"

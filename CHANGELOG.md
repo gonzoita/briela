@@ -15,6 +15,9 @@ Formato: [versionado semántico](https://semver.org/lang/es/).
 ## [Sin publicar]
 
 ### Agregado
+- **Plazo de entrega en la cotización** (días hábiles). Se ve en la cotización, en el enlace del
+  cliente y en el PDF, y al generar la orden se convierte en su fecha de entrega, que se puede
+  ajustar ahí mismo. Antes la orden nacía sin fecha.
 - **Productos que pasan por planta.** En la ficha de un producto se puede prender «Se procesa en
   planta» con sus pasos y su revisión de calidad, para lo que hay que cortar, pintar o empacar antes
   de entregar. En cada orden sus unidades salen a Trabajos con su QR, y quedan listas para
@@ -39,6 +42,8 @@ Formato: [versionado semántico](https://semver.org/lang/es/).
 - **La comisión del vendedor se confirma cuando el cliente aprueba por el enlace**, sin esperar a
   que se genere la orden.
 - Al crear una remisión se abre la remisión, lista para confirmarla y despacharla.
+- **Duplicar una cotización** ya no da error, y la copia nace editable.
+- Confirmar una orden sin bodegas ahora **dice qué falta** en vez de no hacer nada.
 
 ## [1.4.0] — 2026-10-11
 

@@ -56,6 +56,7 @@ class PdfVariablesEngine
                 $datos['cotizacion.created_at']     = $registro->created_at;
                 $datos['cotizacion.fecha_creacion'] = $registro->created_at;
                 $datos['cotizacion.fecha_validez']  = $registro->fecha_validez ?? '';
+                $datos['cotizacion.dias_entrega']   = $registro->dias_entrega ?? '';
 
                 if ($registro->cliente) {
                     $datos = array_merge($datos, static::aplanarModelo($registro->cliente, 'cliente'));
@@ -508,6 +509,7 @@ class PdfVariablesEngine
                 ['var' => '{{cotizacion.total_cop}}',          'desc' => 'Total en pesos, ya escrito (sin filtro)', 'grupo' => 'Totales'],
                 ['var' => '{{cotizacion.created_at|fecha}}',     'desc' => 'Fecha de creación',      'grupo' => 'Fechas'],
                 ['var' => '{{cotizacion.fecha_validez|fecha}}',  'desc' => 'Validez formateada',     'grupo' => 'Fechas'],
+                ['var' => '{{cotizacion.dias_entrega}}',         'desc' => 'Plazo de entrega (días hábiles)', 'grupo' => 'Fechas'],
                 ['var' => '{{#items}}...{{/items}}',       'desc' => 'Bloque de items',              'grupo' => 'Tabla items'],
                 ['var' => '{{index}}',                     'desc' => 'Nº fila (dentro de #items)',   'grupo' => 'Tabla items'],
                 ['var' => '{{descripcion}}',               'desc' => 'Descripción',                  'grupo' => 'Tabla items'],

@@ -103,6 +103,8 @@ const form = useForm({
     tasa_fecha:               props.cotizacion?.tasa_fecha ?? null,
     fecha_creacion:           props.cotizacion?.fecha_creacion ?? hoy,
     fecha_validez:            props.cotizacion?.fecha_validez ?? hoy30,
+    // El plazo prometido, en días hábiles. De aquí sale la fecha de entrega de la orden.
+    dias_entrega:             props.cotizacion?.dias_entrega ?? null,
     responsable_id:           props.cotizacion?.responsable_id ?? props.usuario_actual,
     condiciones_comerciales:  props.cotizacion?.condiciones_comerciales ?? props.condiciones_default,
     notas_internas:           props.cotizacion?.notas_internas ?? '',
@@ -1251,6 +1253,12 @@ function submit() {
                                 class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:ring-2 focus:outline-none"/>
                         </div>
 
+                        <div>
+                            <label class="block text-xs font-medium text-tinta-500 mb-1.5">Entrega (días hábiles)</label>
+                            <input v-model.number="form.dias_entrega" type="number" min="0" max="365" step="1" placeholder="Ej: 15"
+                                class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:ring-2 focus:outline-none"/>
+                            <p class="text-xs text-tinta-300 mt-1">Se cuentan desde que se genera la orden. Con esto la orden nace con su fecha de entrega.</p>
+                        </div>
                         <div>
                             <label class="block text-xs font-medium text-tinta-500 mb-1.5">Responsable</label>
                             <select v-model="form.responsable_id"

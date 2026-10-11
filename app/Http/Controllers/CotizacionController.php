@@ -168,6 +168,7 @@ class CotizacionController extends Controller
             ...$this->tasaDe($data),
             'fecha_creacion'           => $data['fecha_creacion'],
             'fecha_validez'            => $data['fecha_validez'],
+            'dias_entrega'             => $data['dias_entrega'] ?? null,
             'responsable_id'           => $data['responsable_id'],
             'estado'                   => 'borrador',
             'condiciones_comerciales'  => $data['condiciones_comerciales'],
@@ -196,6 +197,8 @@ class CotizacionController extends Controller
                 ...$cotizacion->toArray(),
                 'estado_badge'       => $cotizacion->estadoBadge(),
                 'dias_sin_respuesta' => $cotizacion->diasSinRespuesta(),
+                // Para precargar la fecha de entrega al generar la orden.
+                'fecha_entrega_sugerida' => $cotizacion->fechaEntregaSugerida()?->toDateString(),
             ],
             // Lo que el cliente va a retener al pagar y lo que de verdad llega. Solo en la
             // pantalla interna: al cliente no se le muestra una estimación de sus impuestos.
@@ -368,6 +371,7 @@ class CotizacionController extends Controller
             ...$this->tasaDe($data),
             'fecha_creacion'           => $data['fecha_creacion'],
             'fecha_validez'            => $data['fecha_validez'],
+            'dias_entrega'             => $data['dias_entrega'] ?? null,
             'responsable_id'           => $data['responsable_id'],
             'condiciones_comerciales'  => $data['condiciones_comerciales'],
             'notas_internas'           => $data['notas_internas'],
@@ -404,7 +408,11 @@ class CotizacionController extends Controller
     {
         $cotizacion->load('items');
 
-        $nueva = $cotizacion->replicate(['numero', 'estado']);
+        // No se copia lo que es de la original: su número, su estado, su enlace público (es único:
+        // copiarlo hacía fallar el guardado con un error 500), si ya está en producción —la copia
+        // nacería bloqueada para editar— ni el motivo con que el cliente la rechazó.
+        $nueva = $cotizacion->replicate(['numero', 'estado', 'token_publico', 'en_produccion', 'motivo_rechazo']);
+        $nueva->en_produccion = false;
         $nueva->estado        = 'borrador';
         $nueva->fecha_creacion = now()->toDateString();
         $nueva->fecha_validez  = now()->addDays(30)->toDateString();
@@ -863,6 +871,7 @@ class CotizacionController extends Controller
             'tasa_fecha'               => 'nullable|date',
             'fecha_creacion'           => 'required|date',
             'fecha_validez'            => 'required|date|after_or_equal:fecha_creacion',
+            'dias_entrega'             => 'nullable|integer|min:0|max:365',
             'responsable_id'           => 'required|exists:users,id',
             'condiciones_comerciales'  => 'nullable|string',
             'notas_internas'           => 'nullable|string',

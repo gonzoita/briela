@@ -663,7 +663,7 @@ decían lo contrario y estaban equivocadas.
   relaciones entre archivos antes de leer código a mano.
 - Conviene regenerarlo después de cambios que muevan estructura (borrar módulos,
   mover carpetas), porque un grafo desactualizado es peor que no tenerlo.
-- **Generado y al día.** Al 13 oct 2026: **10.938 nodos, 21.425 aristas, 633 comunidades**,
+- **Generado y al día.** Al 13 oct 2026: **10.951 nodos, 21.449 aristas, 637 comunidades**,
   reconstruido entero y anclado al commit `d5cc247`. Cubre el proyecto completo: 926 archivos de
   código por AST y los 70 documentos por subagentes. Se actualiza con
   `python -m graphify update . --force` y luego `cluster-only .` con

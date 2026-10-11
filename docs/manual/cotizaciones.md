@@ -177,6 +177,18 @@ social o nombre, identificación, contacto —**obligatorio para empresas**— y
 de cliente**. Ese último no es un adorno: de él salen los precios. Si eliges un tipo
 que no define precio, el modal te avisa antes de guardar.
 
+## El plazo de entrega *(nuevo 13 oct 2026)*
+
+«Entrega (días hábiles)» en los datos de la cotización: lo que se le promete al cliente. Sale en la
+ficha, en el portal de aprobación y en el PDF (`{{cotizacion.dias_entrega}}` en las plantillas).
+Al generar la orden, la fecha de entrega se calcula con ese plazo **desde ese día**, de lunes a
+viernes (`Cotizacion::fechaEntregaSugerida()`; los festivos no se descuentan), y se puede corregir
+ahí mismo. Antes el plazo vivía solo en el texto de las condiciones y la orden nacía sin fecha: sin
+urgencia en planta y con «Sin fecha» en Remisiones.
+
+**Duplicar** ya no falla: copiaba el enlace público de la original, que es único, y el guardado
+daba error. Tampoco copia la marca «en producción», que dejaba la copia bloqueada para editar.
+
 ## Las condiciones comerciales
 
 El bloque del final de la cotización se edita en cada cotización, y arranca con el

@@ -148,6 +148,10 @@ function calcularTotal(item) {
                                 {{ formatFecha(cot.fecha_validez) }}
                             </span>
                         </div>
+                        <div v-if="cot.dias_entrega" class="flex justify-between">
+                            <span class="text-tinta-400">Tiempo de entrega</span>
+                            <span>{{ cot.dias_entrega }} días hábiles</span>
+                        </div>
                         <div class="flex justify-between">
                             <span class="text-tinta-400">Moneda</span>
                             <span>{{ cot.moneda }}</span>

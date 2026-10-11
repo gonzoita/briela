@@ -13,8 +13,11 @@ Botón: "Generar OP" en el detalle de la cotización (`/cotizaciones/{id}`).
 1. Desde una cotización, botón "Generar OP".
 2. Si el cliente pagó anticipo, se ingresa el valor y (desde ahora) también
    el medio de pago, fecha y referencia.
-3. Se crea la OP en estado "borrador", con todos los ítems, componentes y
-   trabajos de producción generados automáticamente.
+3. La **fecha de entrega** llega precargada con el plazo de la cotización (días hábiles desde
+   hoy) y se puede corregir *(13 oct 2026)*.
+4. Se crea la OP en estado "borrador", con todos los ítems, componentes y
+   trabajos de producción generados automáticamente (también los de un producto que se procesa en
+   planta). Arranca sola en cuanto alguien la trabaja: ver `produccion-op.md`.
 
 ## Automatizaciones activas
 
@@ -31,7 +34,8 @@ Botón: "Generar OP" en el detalle de la cotización (`/cotizaciones/{id}`).
    a "confirmada". Antes esto solo ocurría si alguien cambiaba el estado de
    la cotización a mano desde su propia pantalla — por el camino normal
    ("Generar OP") la comisión se quedaba parada en "proyectada" para
-   siempre.
+   siempre. Desde el 13 oct 2026 se confirma **al aprobarse la cotización**, por el camino que
+   sea —también cuando el cliente aprueba por el enlace— (`CotizacionObserver`).
 4. **Consumo de inventario automático**: al despachar la OP, se descuentan
    automáticamente del inventario los insumos usados según la receta de cada
    ensamble.
