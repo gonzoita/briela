@@ -13,6 +13,20 @@ ensambles configurados), totales calculados y un estado:
 Cuando se aprueba y se genera una Orden de Producción, queda marcada como
 `en_produccion` y ya no se puede editar.
 
+## Sin cliente no hay cotización *(15 oct 2026)*
+
+Una cotización sin cliente **no se guarda**. Las viejas que quedaron sin cliente se pueden abrir y
+editar, pero no se envían, no se aprueban (tampoco por el enlace del cliente), no se duplican ni
+generan orden hasta asignarles uno; la ficha lo avisa arriba. La regla está en cada puerta de
+entrada —pantalla, enlace público, guía, CRM— y el mensaje es uno solo (`Cotizacion::SIN_CLIENTE`).
+
+## Avisos de estado *(15 oct 2026)*
+
+El responsable se entera de **todo** cambio de estado que no hizo él —el cliente la aprobó o la
+rechazó por el enlace, otra persona la cambió, se venció—, con un aviso que lleva directo a la
+cotización (`CotizacionObserver::avisarAlResponsable`). Aparece en vivo, sin recargar, y si la
+tiene abierta la pantalla se recarga sola. Ver [Notificaciones](./notificaciones.md).
+
 ## Uso básico
 
 - **Crear**: "Nueva cotización". Si viene generada automáticamente desde un

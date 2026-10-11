@@ -13,6 +13,12 @@ Estados de una OP: `borrador → confirmada → en_produccion → calidad →
 despachada`, con la posibilidad de que calidad la mande a `reproceso` en vez
 de aprobarla, y desde ahí vuelva a `en_produccion`.
 
+## Sin cliente no se procesa *(15 oct 2026)*
+
+Una orden sin cliente **no se guarda**. Las viejas que quedaron sin cliente no se confirman, no se
+alistan, no se cierran pasos en planta ni se remisionan hasta asignarle uno
+(`Op::SIN_CLIENTE`); la ficha lo avisa arriba. Tampoco nace una orden de una cotización sin cliente.
+
 ## Automatizaciones activas
 
 1. **Trabajos de producción automáticos** al generar la OP desde una

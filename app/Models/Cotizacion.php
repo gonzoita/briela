@@ -15,6 +15,12 @@ use App\Support\Marca;
 #[ObservedBy(\App\Observers\CotizacionObserver::class)]
 class Cotizacion extends Model
 {
+    /**
+     * Una cotización sin cliente no se guarda, no se envía, no se aprueba ni genera orden.
+     * La columna sigue siendo nulable por las que ya existen: lo exige cada puerta de entrada.
+     */
+    public const SIN_CLIENTE = 'Esta cotización no tiene cliente. Asígnale uno antes de seguir.';
+
     use SoftDeletes, Auditable;
 
     protected $table = 'cotizaciones';
@@ -212,15 +218,26 @@ class Cotizacion extends Model
 
     public function estadoBadge(): array
     {
-        return match ($this->estado) {
-            'borrador'      => ['label' => 'Borrador',      'bg' => '#F3F4F6', 'text' => '#6B7280'],
-            'enviada'       => ['label' => 'Enviada',       'bg' => '#DBEAFE', 'text' => '#1D4ED8'],
-            'aprobada'      => ['label' => 'Aprobada',      'bg' => '#D1FAE5', 'text' => '#065F46'],
-            'rechazada'     => ['label' => 'Rechazada',     'bg' => '#FEE2E2', 'text' => '#991B1B'],
-            'vencida'       => ['label' => 'Vencida',       'bg' => '#FEF3C7', 'text' => '#92400E'],
-            'en_produccion' => ['label' => 'En Producción', 'bg' => '#DBEAFE', 'text' => Marca::color()],
-            default         => ['label' => $this->estado,   'bg' => '#F3F4F6', 'text' => '#6B7280'],
+        // `bg`/`text` son colores fijos para el PDF, que no entiende variables CSS. La pantalla
+        // usa `bg_tema`/`text_tema`, que cambian con el modo noche: con los fijos, la etiqueta
+        // quedaba como una mancha clara sobre la tabla oscura.
+        [$label, $bg, $text, $familia] = match ($this->estado) {
+            'borrador'      => ['Borrador',      '#F3F4F6', '#6B7280', null],
+            'enviada'       => ['Enviada',       '#DBEAFE', '#1D4ED8', 'azul'],
+            'aprobada'      => ['Aprobada',      '#D1FAE5', '#065F46', 'verde'],
+            'rechazada'     => ['Rechazada',     '#FEE2E2', '#991B1B', 'rojo'],
+            'vencida'       => ['Vencida',       '#FEF3C7', '#92400E', 'ambar'],
+            'en_produccion' => ['En Producción', '#DBEAFE', Marca::color(), 'violeta'],
+            default         => [$this->estado,   '#F3F4F6', '#6B7280', null],
         };
+
+        return [
+            'label'     => $label,
+            'bg'        => $bg,
+            'text'      => $text,
+            'bg_tema'   => $familia ? "var(--pastel-{$familia})" : 'var(--tinta-100)',
+            'text_tema' => $familia ? "var(--texto-{$familia})" : 'var(--texto-2)',
+        ];
     }
 
     /**

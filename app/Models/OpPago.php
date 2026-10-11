@@ -10,7 +10,7 @@ class OpPago extends Model
 
     protected $fillable = [
         'op_id', 'cuota_id', 'numero_recibo', 'valor',
-        'medio_pago', 'fecha_pago', 'referencia', 'notas', 'registrado_por', 'verificado_at',
+        'medio_pago', 'fecha_pago', 'referencia', 'notas', 'registrado_por', 'verificado_at', 'verificado_por',
     ];
 
     protected $casts = [
@@ -46,6 +46,19 @@ class OpPago extends Model
      * @param  array{valor: float|int|string, medio_pago: string, fecha_pago: string, cuota_id?: ?int,
      *               referencia?: ?string, notas?: ?string}  $datos
      */
+    /**
+     * Anotar, verificar o borrar un pago puede dejar la orden pagada, o devolverla a deber: sus
+     * remisiones entregadas se cierran o se reabren. Va en el modelo para que ningún camino
+     * —la cartera, el verificador, la guía— se lo salte.
+     */
+    protected static function booted(): void
+    {
+        $sincronizar = fn (OpPago $pago) => app(\App\Services\RemisionService::class)->sincronizarCierre($pago->op);
+
+        static::saved($sincronizar);
+        static::deleted($sincronizar);
+    }
+
     public static function registrar(Op $op, array $datos): self
     {
         $pago = \Illuminate\Support\Facades\DB::transaction(function () use ($datos, $op) {

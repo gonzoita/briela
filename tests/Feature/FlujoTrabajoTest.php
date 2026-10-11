@@ -83,6 +83,7 @@ class FlujoTrabajoTest extends TestCase
         ]);
 
         $op = Op::create([
+            'cliente_id' => $this->clientePrueba()->id,
             'sede_id'                => $sede->id,
             'estado'                 => 'confirmada',
             'responsable_id'         => $usuario->id,
@@ -253,6 +254,7 @@ class FlujoTrabajoTest extends TestCase
         $e = $this->escenario(cantidad: 1);
 
         $payload = [
+            'cliente_id'     => $e['op']->cliente_id,
             'responsable_id' => $this->admin()->id,
             'fecha_creacion' => now()->toDateString(),
             'items'          => [[
@@ -286,6 +288,7 @@ class FlujoTrabajoTest extends TestCase
 
         $this->actingAs($this->admin())
             ->put("/produccion/ops/{$e['op']->id}", [
+                'cliente_id'     => $e['op']->cliente_id,
                 'responsable_id' => $this->admin()->id,
                 'fecha_creacion' => now()->toDateString(),
                 'notas_internas' => 'Se cambió una nota, nada más.',

@@ -50,6 +50,7 @@ class GuiaTransaccionesTest extends TestCase
     private function opConProducto(int $cantidad = 4, int $stock = 10): array
     {
         $op = Op::create([
+            'cliente_id' => $this->clientePrueba()->id,
             'sede_id' => $this->sede->id, 'estado' => 'confirmada', 'responsable_id' => $this->admin->id,
             'bodega_entrega_id' => $this->bodega->id, 'bodega_material_id' => $this->bodega->id, 'fecha_creacion' => now(),
         ]);
@@ -128,7 +129,7 @@ class GuiaTransaccionesTest extends TestCase
 
     public function test_cerrar_los_pasos_de_una_unidad_y_aprobar_calidad(): void
     {
-        $op = Op::create(['sede_id' => $this->sede->id, 'estado' => 'confirmada', 'responsable_id' => $this->admin->id, 'fecha_creacion' => now()]);
+        $op = Op::create(['cliente_id' => $this->clientePrueba()->id, 'sede_id' => $this->sede->id, 'estado' => 'confirmada', 'responsable_id' => $this->admin->id, 'fecha_creacion' => now()]);
         $ens = Ensamble::create(['nombre' => 'Marco', 'tipo_armado' => 'directo', 'variables' => [], 'creado_por' => $this->admin->id, 'unidad_medida' => 'unidad', 'precio_costo' => 1000, 'componentes_resultado' => []]);
         $ens->obtenerOCrearTemplateTrabajo()->sincronizarPasos([
             ['nombre' => 'Cortar', 'peso_porcentaje' => 50, 'orden' => 0, 'es_paso_final' => false],

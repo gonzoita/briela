@@ -145,6 +145,19 @@
 </div>
 @endif
 
+{{-- Firma de quien hizo la orden de compra. --}}
+<table style="width:100%; margin-top:24px; border:none;">
+    <tr>
+        <td style="width:45%; border:none;">
+            @include('pdf._firma', ['firma' => $orden->creadoPor?->firma, 'nombre' => $orden->creadoPor?->name, 'cargo' => 'Elaboró la orden de compra'])
+        </td>
+        <td style="width:10%; border:none;"></td>
+        <td style="width:45%; border:none;">
+            @include('pdf._firma', ['firma' => null, 'nombre' => $orden->proveedor?->nombre, 'cargo' => 'Proveedor'])
+        </td>
+    </tr>
+</table>
+
 <div class="footer">
     <p>Generado el {{ now()->format('d/m/Y H:i') }} · {{ $marcaNombre }}</p>
 </div>

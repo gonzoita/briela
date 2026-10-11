@@ -203,6 +203,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::post('/profile/foto',    [ProfileController::class, 'subirFoto'])->name('profile.foto');
+    Route::delete('/profile/foto',  [ProfileController::class, 'quitarFoto']);
+    Route::post('/profile/firma',   [ProfileController::class, 'guardarFirma'])->name('profile.firma');
+    Route::delete('/profile/firma', [ProfileController::class, 'quitarFirma']);
 
     // ─── Producción — nuevo módulo OP ───────────────────────────────────────
     Route::middleware('permiso:ops.ver')->prefix('produccion')->name('produccion.')->group(function () {
@@ -358,6 +362,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/api/chat/grupos/{grupo}',  [ChatGrupoController::class, 'hilo'])->name('chat.grupos.hilo');
     Route::post('/api/chat/grupos/{grupo}', [ChatGrupoController::class, 'enviar'])->name('chat.grupos.enviar');
     Route::post('/api/chat/subir',          [ChatDirectoController::class, 'subirAdjunto'])->name('chat.subir');
+    // Los enlaces de las notificaciones del chat. No hay una pantalla de chat: el chat es la
+    // burbuja. Estas rutas llevan al tablero con la burbuja abierta en esa conversación (antes
+    // el enlace daba 404). Desde la campana ni se navega: la burbuja se abre donde uno esté.
+    Route::get('/chat/grupos/{grupo}', fn (\App\Models\ChatGrupo $grupo) => redirect('/dashboard?abrir_chat=g'.$grupo->id))->name('chat.abrir.grupo');
+    Route::get('/chat/{usuario}', fn (\App\Models\User $usuario) => redirect('/dashboard?abrir_chat=u'.$usuario->id))->whereNumber('usuario')->name('chat.abrir');
     Route::get('/api/chat/{usuario}',       [ChatDirectoController::class, 'hilo'])->name('chat.hilo');
     Route::post('/api/chat/{usuario}',      [ChatDirectoController::class, 'enviar'])->name('chat.enviar');
 
@@ -585,6 +594,7 @@ Route::middleware('auth')->group(function () {
 
     // ─── Notificaciones internas (campanita, todos los autenticados) ─────────
     Route::get('/notificaciones',                    [NotificacionController::class, 'index'])->name('notificaciones.index');
+    Route::get('/api/avisos/pulso',                  [NotificacionController::class, 'pulso'])->name('avisos.pulso');
     Route::post('/notificaciones/{notificacion}/leer', [NotificacionController::class, 'marcarLeida'])->name('notificaciones.leer');
     Route::post('/notificaciones/leer-todas',        [NotificacionController::class, 'marcarTodasLeidas'])->name('notificaciones.leer-todas');
 
@@ -916,6 +926,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/api/perfil-marca/probar-voz',          [PerfilMarcaController::class, 'probarVoz'])->name('perfil-marca.probar-voz');
         Route::post('/api/perfil-marca/generar',             [PerfilMarcaController::class, 'generar'])->name('perfil-marca.generar');
         Route::post('/api/perfil-marca/importar',            [PerfilMarcaController::class, 'importar'])->name('perfil-marca.importar');
+        Route::post('/api/perfil-marca/completar',           [PerfilMarcaController::class, 'completar'])->name('perfil-marca.completar');
     });
 
     // Integraciones → WordPress (plugin "Briela Connect", solo quien administra la configuración).
@@ -1024,6 +1035,10 @@ Route::middleware('auth')->group(function () {
         Route::post('/ops/{op}/pagos',              [OpPagoController::class, 'store']);
         Route::get('/financiero/pagos/{pago}/pdf',  [OpPagoController::class, 'pdf']);
         Route::delete('/financiero/pagos/{pago}',   [OpPagoController::class, 'destroy'])
+            ->middleware('permiso:cartera.eliminar');
+        Route::post('/financiero/pagos/{pago}/verificar',   [OpPagoController::class, 'verificar'])
+            ->middleware('permiso:cartera.editar');
+        Route::delete('/financiero/pagos/{pago}/verificar', [OpPagoController::class, 'desverificar'])
             ->middleware('permiso:cartera.eliminar');
 
         Route::get('/financiero/cartera', [CarteraController::class, 'index'])->name('financiero.cartera');

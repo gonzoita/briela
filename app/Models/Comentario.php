@@ -23,6 +23,7 @@ class Comentario extends Model
         'resuelto_at', 'resuelto_por', 'mencionados',
         'referencia_type', 'referencia_id', 'leido_at',
         'referencia_tipo', 'referencia_titulo', 'referencia_url',
+        'respuesta_a_id',
     ];
 
     protected $casts = [
@@ -99,6 +100,28 @@ class Comentario extends Model
                 $q->where(fn ($s) => $s->where('user_id', $unUsuario)->where('destinatario_id', $otroUsuario))
                   ->orWhere(fn ($s) => $s->where('user_id', $otroUsuario)->where('destinatario_id', $unUsuario));
             });
+    }
+
+    /** El mensaje al que este responde. */
+    public function respuestaA(): BelongsTo
+    {
+        return $this->belongsTo(self::class, 'respuesta_a_id');
+    }
+
+    /** La cita que se muestra encima de una respuesta: de quién era y un trozo del texto. */
+    public function citaParaChat(): ?array
+    {
+        $original = $this->respuestaA;
+
+        if (! $original) {
+            return null;
+        }
+
+        return [
+            'id'       => $original->id,
+            'autor'    => $original->autor?->name,
+            'extracto' => mb_strimwidth((string) $original->contenido, 0, 140, '…'),
+        ];
     }
 
     public function autor(): BelongsTo

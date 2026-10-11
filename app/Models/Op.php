@@ -63,6 +63,13 @@ class Op extends Model
     /** Lo que no viaja en una remisión: se declara hecho, pero no hay nada que cargar. */
     public const TIPOS_SIN_DESPACHO = ['texto_libre', 'servicio'];
 
+    /**
+     * Una orden sin cliente no se procesa: no se confirma, no se alista, no se trabaja en
+     * planta ni se remisiona. La columna sigue siendo nulable por las órdenes viejas; la regla
+     * la exige cada acción.
+     */
+    public const SIN_CLIENTE = 'Esta orden no tiene cliente. Asígnale uno antes de seguir.';
+
     protected static function booted(): void
     {
         static::creating(function (self $op) {
@@ -142,6 +149,11 @@ class Op extends Model
         return $this->hasMany(OpCuota::class)->orderBy('numero_cuota');
     }
 
+    public function remisiones(): HasMany
+    {
+        return $this->hasMany(Remision::class);
+    }
+
     public function pagos(): HasMany
     {
         return $this->hasMany(OpPago::class)->orderBy('created_at');
@@ -155,6 +167,23 @@ class Op extends Model
     public function getTotalPagadoAttribute(): float
     {
         return (float) $this->pagos()->sum('valor');
+    }
+
+    /**
+     * Lo pagado que alguien confirmó: el verificador con el extracto del banco, o una persona
+     * de cartera a mano (efectivo, cheque). Un pago anotado y sin verificar todavía no cierra
+     * nada.
+     */
+    public function totalVerificado(): float
+    {
+        return (float) $this->pagos()->whereNotNull('verificado_at')->sum('valor');
+    }
+
+    /** La orden está pagada del todo, con pagos verificados. Es lo que cierra sus remisiones. */
+    public function pagadaYVerificada(): bool
+    {
+        // Medio peso de holgura: los redondeos de los abonos no pueden dejar abierta una orden.
+        return (float) ($this->total ?? 0) <= $this->totalVerificado() + 0.5;
     }
 
     public function getSaldoPendienteAttribute(): float
@@ -368,12 +397,17 @@ class Op extends Model
         $reabiertos = $unidades->count();
 
         // Lo alistado a mano que todavía no salió vuelve a pendiente: hay que volver a mirarlo.
-        foreach ($this->items()->doesntHave('trabajos')->where('estado_item', 'terminado')->get() as $item) {
+        foreach ($this->items()->doesntHave('trabajos')->whereIn('estado_item', ['terminado', 'en_proceso'])->get() as $item) {
             if (in_array($item->tipo, self::TIPOS_SIN_DESPACHO, true) || $item->unidadesRemisionadas() >= (int) $item->cantidad) {
                 continue;
             }
 
-            $item->update(['estado_item' => 'pendiente']);
+            // Lo que ya salió no vuelve: solo lo alistado que sigue en la bodega.
+            $remisionadas = $item->unidadesRemisionadas();
+            $item->update([
+                'cantidad_alistada' => $remisionadas,
+                'estado_item'       => $remisionadas > 0 ? 'en_proceso' : 'pendiente',
+            ]);
             $reabiertos++;
         }
 
@@ -439,7 +473,8 @@ class Op extends Model
             }
         }
 
-        $terminados = $items->where('estado_item', 'terminado')->count();
+        // Lo alistado en parte (10 de 15) también es trabajo real: la orden arranca igual.
+        $terminados = $items->whereIn('estado_item', ['terminado', 'en_proceso'])->count();
         $todos      = self::cuentanParaListo($items)->every(fn ($i) => $i->estado_item === 'terminado');
 
         // Algo quedó listo: la orden está en producción, venga de donde venga. Una en borrador
@@ -563,7 +598,7 @@ class Op extends Model
     public static function unidadesQueSalieron(int $opItemId): float
     {
         return (float) RemisionItem::where('op_item_id', $opItemId)
-            ->whereHas('remision', fn ($q) => $q->whereIn('estado', ['en_camino', 'entregada']))
+            ->whereHas('remision', fn ($q) => $q->whereIn('estado', ['en_camino', 'entregada', 'cerrada']))
             ->sum('cantidad');
     }
 

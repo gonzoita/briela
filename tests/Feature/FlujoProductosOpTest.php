@@ -44,6 +44,7 @@ class FlujoProductosOpTest extends TestCase
     private function borrador(): Op
     {
         return Op::create([
+            'cliente_id' => $this->clientePrueba()->id,
             'sede_id' => $this->sede->id, 'estado' => 'borrador', 'responsable_id' => $this->admin->id,
             'fecha_creacion' => now(), 'fecha_entrega_estimada' => now()->addDays(5),
         ]);

@@ -188,6 +188,19 @@
 </div>
 @endif
 
+<!-- Firmas: la del responsable sale sola si la tiene guardada en su perfil -->
+<table style="width:100%; margin-top:28px; border:none;">
+    <tr>
+        <td style="width:45%; border:none;">
+            @include('pdf._firma', ['firma' => $cotizacion->responsable?->firma, 'nombre' => $cotizacion->responsable?->name, 'cargo' => 'Asesor comercial'])
+        </td>
+        <td style="width:10%; border:none;"></td>
+        <td style="width:45%; border:none;">
+            @include('pdf._firma', ['firma' => null, 'nombre' => $cotizacion->cliente?->nombreCompleto(), 'cargo' => 'Cliente'])
+        </td>
+    </tr>
+</table>
+
 <!-- Footer -->
 <div class="footer">
     <span>Generado el {{ now()->format('d/m/Y H:i') }}</span>

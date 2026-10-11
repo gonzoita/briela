@@ -36,6 +36,8 @@ class NotificacionService
         'trabajo_asignado'         => 'trabajos',
         'cotizacion_aprobada'      => 'cotizaciones',
         'cotizacion_rechazada'     => 'cotizaciones',
+        'cotizacion_vencida'       => 'cotizaciones',
+        'cotizacion_estado'        => 'cotizaciones',
         'cotizacion_sin_respuesta' => 'cotizaciones',
         'lead_nuevo'               => 'crm',
         'lead_repetido'            => 'crm',
@@ -98,6 +100,8 @@ class NotificacionService
             'Comercial' => [
                 ['tipo' => 'cotizacion_aprobada',    'label' => 'Cliente aprobó una cotización'],
                 ['tipo' => 'cotizacion_rechazada',   'label' => 'Cliente rechazó una cotización'],
+                ['tipo' => 'cotizacion_vencida',     'label' => 'Una cotización tuya se venció'],
+                ['tipo' => 'cotizacion_estado',      'label' => 'Otra persona cambió el estado de una cotización tuya'],
                 ['tipo' => 'lead_nuevo',             'label' => 'Lead nuevo (cualquier canal)'],
                 ['tipo' => 'lead_repetido',          'label' => 'Un lead que ya estaba volvió a escribir'],
                 ['tipo' => 'lead_quieto',            'label' => 'Lead sin movimiento hace varios días'],

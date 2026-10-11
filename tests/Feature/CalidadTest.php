@@ -33,6 +33,7 @@ class CalidadTest extends TestCase
     private function unidad(bool $exigeFoto = false): OpItemTrabajo
     {
         $op = Op::create([
+            'cliente_id' => $this->clientePrueba()->id,
             // La sede es la de siempre: el tablero filtra por la sede activa como todo el
             // resto, así que una orden sin sede no aparecería y la prueba mediría otra cosa.
             'sede_id'                => \App\Models\Sede::query()->value('id'),

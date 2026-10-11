@@ -72,7 +72,9 @@ class RemisionController extends Controller
                 $item->unidades_remisionadas = $item->unidadesRemisionadas();
                 $item->total                 = (int) $item->cantidad;
                 // Un producto que nadie alistó todavía: la remisión lo alista sola al guardarse.
-                $item->sin_alistar           = $item->sinTrabajos() && $item->estado_item !== 'terminado';
+                $item->sin_alistar           = $item->sinTrabajos() && $item->cantidadLista() === 0;
+                // Lo alistado y sin salir: la remisión propone eso, no todo lo vendido.
+                $item->unidades_listas       = $item->cantidadLista();
             });
 
             // Ninguna unidad lista. Se dice por qué —está a medio fabricar, o esperando
@@ -136,10 +138,11 @@ class RemisionController extends Controller
     public function show(Remision $remision)
     {
         $remision->load([
-            'op:id,numero,estado',
+            'op:id,numero,estado,total',
             'cliente:id,nombre,apellido,tipo',
             'items.opItem',
             'creadoPor:id,name',
+            'firmadoDespachoPor:id,name',
         ]);
 
         return Inertia::render('Logistica/Remisiones/Show', [
@@ -211,25 +214,49 @@ class RemisionController extends Controller
     public function guardarFirma(Request $request, Remision $remision)
     {
         $request->validate([
-            'tipo'  => 'required|in:despacho,recibido',
-            'firma' => 'required|string',
+            'tipo'            => 'required|in:despacho,recibido',
+            // Solo una imagen dibujada o subida, nunca otra cosa: va tal cual al PDF.
+            'firma'           => ['required', 'string', 'max:700000', 'regex:/^data:image\/(png|jpeg);base64,[A-Za-z0-9+\/=]+$/'],
+            'nombre_receptor' => 'nullable|string|max:150',
+        ], [
+            'firma.required' => 'Firma en el recuadro o sube la imagen de la firma.',
+            'firma.regex'    => 'La firma tiene que ser una imagen PNG o JPG.',
+            'firma.max'      => 'La imagen de la firma es muy pesada.',
         ]);
 
-        $campo = $request->tipo === 'despacho' ? 'firma_despacho' : 'firma_recibido';
-        $data  = [$campo => $request->firma];
+        $despacho = $request->tipo === 'despacho';
+
+        // Despacho, desde que se confirma; recibido, desde que salió. Una anulada no se firma.
+        $permitidos = $despacho ? ['confirmada', 'en_camino', 'entregada'] : ['en_camino', 'entregada'];
+        if (! in_array($remision->estado, $permitidos, true)) {
+            return back()->with('error', $despacho
+                ? 'La firma de despacho se pone cuando la remisión está confirmada.'
+                : 'La firma de recibido se pone cuando la remisión ya salió.');
+        }
+
+        if (! $despacho && ! trim((string) ($request->nombre_receptor ?: $remision->nombre_receptor))) {
+            return back()->withErrors(['nombre_receptor' => 'Escribe el nombre de quien recibe.']);
+        }
+
+        $data = $despacho
+            ? ['firma_despacho' => $request->firma, 'firma_despacho_por' => auth()->id(), 'firma_despacho_at' => now()]
+            : ['firma_recibido' => $request->firma, 'firma_recibido_at' => now(),
+               'nombre_receptor' => trim((string) ($request->nombre_receptor ?: $remision->nombre_receptor))];
         $mensaje = 'Firma guardada.';
 
         // La firma de "recibido" es la prueba de entrega: al guardarla, si la
         // remisión iba en camino, pasa sola a "entregada" con su fecha —
         // antes había que firmar Y además apretar "Marcar entregada" aparte.
-        if ($request->tipo === 'recibido' && $remision->estado === 'en_camino') {
+        if (! $despacho && $remision->estado === 'en_camino') {
             $data['estado']        = 'entregada';
             $data['fecha_entrega'] = $remision->fecha_entrega ?? now();
             $mensaje = 'Firma guardada — remisión marcada como entregada.';
         }
 
+        $servicio = app(\App\Services\RemisionService::class);
         $remision->update($data);
-        app(\App\Services\RemisionService::class)->alSalir($remision);
+        $servicio->alSalir($remision);
+        $servicio->cerrarSiCorresponde($remision);
 
         return back()->with('success', $mensaje);
     }
@@ -237,7 +264,7 @@ class RemisionController extends Controller
     public function destroy(Remision $remision)
     {
         // Lo que ya salió no se borra: se anula, que deja el rastro y devuelve el inventario.
-        if (in_array($remision->estado, ['en_camino', 'entregada'], true)) {
+        if (in_array($remision->estado, Remision::SALIDAS, true)) {
             return back()->with('error', 'Esta remisión ya salió: anúlala en vez de eliminarla.');
         }
 
@@ -264,7 +291,7 @@ class RemisionController extends Controller
             return $pdf->stream("remision-{$remision->numero}.pdf");
         }
 
-        $remision->load(['op:id,numero', 'cliente', 'items.opItem', 'creadoPor:id,name']);
+        $remision->load(['op:id,numero', 'cliente', 'items.opItem', 'creadoPor:id,name,firma', 'firmadoDespachoPor:id,name,firma']);
 
         $pdf = Pdf::loadView('pdf.remision', ['remision' => $remision])
             ->setPaper('letter', 'portrait');
@@ -359,7 +386,8 @@ class RemisionController extends Controller
                 'unidades_disponibles' => $i->cantidadDisponible(),
                 'unidades_completadas' => $i->unidadesCompletadas(),
                 'unidades_remisionadas'=> $i->unidadesRemisionadas(),
-                'sin_alistar'          => $i->sinTrabajos() && $i->estado_item !== 'terminado',
+                'sin_alistar'          => $i->sinTrabajos() && $i->cantidadLista() === 0,
+                'unidades_listas'      => $i->cantidadLista(),
                 'total'                => (int) $i->cantidad,
                 'numero_serie'         => $i->numero_serie,
                 'tipo'                 => $i->tipo,
@@ -432,6 +460,17 @@ class RemisionController extends Controller
             'firma_despacho'       => $remision->firma_despacho,
             'firma_recibido'       => $remision->firma_recibido,
             'nombre_receptor'      => $remision->nombre_receptor,
+            'firma_despacho_por'   => $remision->firmadoDespachoPor?->name,
+            'firma_despacho_at'    => $remision->firma_despacho_at?->toISOString(),
+            'firma_recibido_at'    => $remision->firma_recibido_at?->toISOString(),
+            'cerrada_at'           => $remision->cerrada_at?->toISOString(),
+            // La firma guardada en el perfil de quien mira, para «Usar mi firma».
+            'mi_firma'             => auth()->user()?->firma,
+            // Lo que falta cobrar de la orden: es lo que deja la remisión entregada sin cerrar.
+            'cobro'                => $remision->op ? [
+                'pagada'        => $remision->op->pagadaYVerificada(),
+                'por_verificar' => max(0, (float) $remision->op->total - $remision->op->totalVerificado()),
+            ] : null,
             'op'                   => $remision->op ? ['id' => $remision->op->id, 'numero' => $remision->op->numero] : null,
             'cliente'              => $remision->cliente ? ['id' => $remision->cliente->id, 'nombre' => $remision->cliente->nombreCompleto()] : null,
             'creado_por'           => $remision->creadoPor?->name,
@@ -443,6 +482,7 @@ class RemisionController extends Controller
                 'unidad'       => $item->unidad,
                 'numero_serie' => $item->numero_serie,
                 'notas'        => $item->notas,
+                'cantidad_pendiente' => $item->cantidad_pendiente !== null ? (float) $item->cantidad_pendiente : null,
                 'op_item_id'   => $item->op_item_id,
                 'producto_id'  => $item->producto_id,
             ])->values()->all(),

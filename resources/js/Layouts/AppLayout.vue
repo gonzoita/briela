@@ -14,6 +14,7 @@ import { useTema } from '@/composables/useTema'
 import {
     notificaciones, notifNoLeidas, cargarNotificaciones,
     iniciarAvisos, soloUnaVez, sinLeerTotal, refrescarSiHaceRato, bandejaSinLeer,
+    notificacionesNuevas,
 } from '@/composables/useAvisos'
 
 const props = defineProps({
@@ -60,6 +61,8 @@ const user     = computed(() => page.props.auth?.user)
 const permisos = computed(() => page.props.auth?.permisos)
 const flash    = computed(() => page.props.flash)
 const inicial  = computed(() => user.value?.name?.[0]?.toUpperCase() ?? '?')
+// La foto de perfil, si la puso; si no, la inicial. Viaja en `auth.user`: no cuesta una petición.
+const fotoUrl  = computed(() => user.value?.foto_url ?? null)
 
 // Muestra el nombre del rol configurable; si no tiene, el rol histórico.
 const rolLabel = computed(() => user.value?.rol_nombre ?? ({
@@ -376,7 +379,18 @@ async function abrirNotif(n) {
             headers: { 'X-XSRF-TOKEN': xsrfNotif(), Accept: 'application/json' },
         }).catch(() => {})
     }
-    if (n.url) { menuNotif.value = false; router.visit(n.url) }
+    if (! n.url) return
+    menuNotif.value = false
+
+    // Un aviso del chat abre la burbuja en esa conversación, donde uno esté: no hay una pantalla
+    // de chat a la cual navegar (por eso el enlace daba 404).
+    const chat = n.url.match(/^\/chat\/(?:(grupos)\/)?(\d+)/)
+    if (chat) {
+        abrirChatEn(chat[1] ? 'g' : 'u', Number(chat[2]))
+        return
+    }
+
+    router.visit(n.url)
 }
 
 async function marcarTodasLeidas() {
@@ -436,6 +450,26 @@ async function abrirChat() {
     await nextTick()
     chatRef.value?.abrir()
 }
+
+async function abrirChatEn(tipo, id) {
+    chatVivo.value = true
+    await nextTick()
+    chatRef.value?.abrirConversacion(tipo, id)
+}
+
+// El enlace de una notificación abierto desde el correo llega a /chat/5, que redirige aquí con
+// `?abrir_chat=u5` (o `g3` para un grupo). Se abre la burbuja y se limpia la URL. No pide nada
+// si el parámetro no está: no cuesta nada en las demás navegaciones.
+onMounted(() => {
+    const parametros = new URLSearchParams(window.location.search)
+    const pedido = parametros.get('abrir_chat')?.match(/^([ug])(\d+)$/)
+    if (! pedido) return
+
+    parametros.delete('abrir_chat')
+    const limpia = window.location.pathname + (parametros.toString() ? `?${parametros}` : '')
+    window.history.replaceState(window.history.state, '', limpia)
+    abrirChatEn(pedido[1], Number(pedido[2]))
+})
 
 provide('abrirAsistente', abrirAsistente)
 
@@ -549,6 +583,34 @@ watch(
     },
     { deep: true, immediate: true }
 )
+
+// ─── Avisos en vivo ───────────────────────────────────────────────────────────
+// Lo que llega a la campana mientras se trabaja aparece en una tarjeta que se toca para ir
+// directo al documento. Y si el aviso es de la pantalla abierta —la cotización que el cliente
+// acaba de aprobar mientras se mira—, sus datos se recargan solos: nadie tiene que oprimir F5.
+const avisoVivo  = ref(null)
+let   avisoTimer = null
+
+watch(notificacionesNuevas, (nuevas) => {
+    if (! nuevas?.length) return
+
+    avisoVivo.value = { ...nuevas[0], mas: nuevas.length - 1 }
+    clearTimeout(avisoTimer)
+    avisoTimer = setTimeout(() => { avisoVivo.value = null }, 8000)
+
+    const aqui = window.location.pathname
+    if (nuevas.some(n => n.url && n.url.split('?')[0] === aqui)) {
+        router.reload({ preserveScroll: true })
+    }
+})
+
+function abrirAvisoVivo() {
+    const n = avisoVivo.value
+    avisoVivo.value = null
+    if (n) abrirNotif(n)
+}
+
+onUnmounted(() => clearTimeout(avisoTimer))
 
 // ─── Notificaciones disciplinas (operarios) ───────────────────────────────────
 const modalDisciplinas      = ref(false)
@@ -891,7 +953,8 @@ onUnmounted(() => {
                         class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold shrink-0"
                         :style="{ background: 'var(--marca)', color: 'var(--marca-texto)' }"
                     >
-                        {{ inicial }}
+                        <img v-if="fotoUrl" :src="fotoUrl" alt="" class="w-full h-full rounded-full object-cover"/>
+                        <template v-else>{{ inicial }}</template>
                     </div>
                     <div v-if="! menuColapsado" class="min-w-0 text-left">
                         <p class="text-tinta-900 text-sm font-medium truncate">{{ user?.name }}</p>
@@ -1065,7 +1128,8 @@ onUnmounted(() => {
                             class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-semibold"
                             style="background-color: var(--marca); color: white;"
                         >
-                            {{ inicial }}
+                            <img v-if="fotoUrl" :src="fotoUrl" alt="" class="w-full h-full rounded-full object-cover"/>
+                        <template v-else>{{ inicial }}</template>
                         </div>
                         <div class="text-left hidden lg:block">
                             <p class="text-sm font-medium text-tinta-900 leading-none">{{ user?.name }}</p>
@@ -1182,7 +1246,8 @@ onUnmounted(() => {
                     class="w-8 h-8 rounded-full flex items-center justify-center font-semibold text-sm"
                     :style="{ background: 'var(--marca)', color: 'var(--marca-texto)' }"
                 >
-                    {{ inicial }}
+                    <img v-if="fotoUrl" :src="fotoUrl" alt="" class="w-full h-full rounded-full object-cover"/>
+                        <template v-else>{{ inicial }}</template>
                 </div>
             </div>
 
@@ -1254,6 +1319,33 @@ onUnmounted(() => {
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
                     </svg>
+                </button>
+            </div>
+        </Transition>
+
+        <!-- Aviso en vivo: lo que acaba de llegar a la campana, con enlace directo -->
+        <Transition
+            enter-active-class="transition duration-300 ease-out"
+            enter-from-class="transform translate-y-2 opacity-0"
+            enter-to-class="transform translate-y-0 opacity-100"
+            leave-active-class="transition duration-200 ease-in"
+            leave-from-class="opacity-100"
+            leave-to-class="opacity-0"
+        >
+            <div v-if="avisoVivo"
+                class="fixed top-20 right-4 md:right-6 z-50 max-w-sm w-[calc(100vw-2rem)] md:w-96 rounded-xl border border-linea bg-superficie shadow-lg">
+                <button type="button" @click="abrirAvisoVivo" class="w-full text-left flex items-start gap-3 px-4 py-3">
+                    <span class="mt-1 w-2.5 h-2.5 rounded-full shrink-0" style="background:var(--marca);"></span>
+                    <span class="min-w-0 flex-1">
+                        <span class="block text-sm font-semibold text-tinta-900">{{ avisoVivo.titulo }}</span>
+                        <span v-if="avisoVivo.mensaje" class="block text-xs text-tinta-500 line-clamp-2 mt-0.5">{{ avisoVivo.mensaje }}</span>
+                        <span class="block text-[11px] text-tinta-300 mt-1">
+                            {{ avisoVivo.url ? 'Toca para abrir' : 'Ahora' }}<template v-if="avisoVivo.mas > 0"> · y {{ avisoVivo.mas }} más en la campana</template>
+                        </span>
+                    </span>
+                </button>
+                <button type="button" @click="avisoVivo = null" class="absolute top-2 right-2 p-1 text-tinta-300 hover:text-tinta-600" aria-label="Cerrar aviso">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
             </div>
         </Transition>
@@ -1402,7 +1494,8 @@ onUnmounted(() => {
                         class="w-10 h-10 rounded-full flex items-center justify-center text-base font-semibold shrink-0"
                         style="background-color: var(--marca); color: white;"
                     >
-                        {{ inicial }}
+                        <img v-if="fotoUrl" :src="fotoUrl" alt="" class="w-full h-full rounded-full object-cover"/>
+                        <template v-else>{{ inicial }}</template>
                     </div>
                     <div class="min-w-0">
                         <p class="text-sm font-semibold text-tinta-900 truncate">{{ user?.name }}</p>

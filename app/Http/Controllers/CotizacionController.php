@@ -394,6 +394,10 @@ class CotizacionController extends Controller
             'estado' => 'required|in:borrador,enviada,aprobada,rechazada,vencida',
         ]);
 
+        if ($request->estado !== 'borrador' && ! $cotizacion->cliente_id) {
+            return back()->with('error', Cotizacion::SIN_CLIENTE);
+        }
+
         $cotizacion->update(['estado' => $request->estado]);
 
         if ($request->estado === 'aprobada') {
@@ -406,6 +410,10 @@ class CotizacionController extends Controller
 
     public function duplicar(Cotizacion $cotizacion): RedirectResponse
     {
+        if (! $cotizacion->cliente_id) {
+            return back()->with('error', Cotizacion::SIN_CLIENTE);
+        }
+
         $cotizacion->load('items');
 
         // No se copia lo que es de la original: su número, su estado, su enlace público (es único:
@@ -869,7 +877,7 @@ class CotizacionController extends Controller
     {
         return $request->validate([
             'lead_id'                  => 'nullable|exists:crm_leads,id',
-            'cliente_id'               => 'nullable|exists:clientes,id',
+            'cliente_id'               => 'required|exists:clientes,id',
             'contacto_id'              => 'nullable|exists:contactos_cliente,id',
             'nombre_contacto_override' => 'nullable|string|max:150',
             'moneda'                   => 'required|in:' . implode(',', array_keys(\App\Support\Monedas::CATALOGO)),
@@ -900,6 +908,8 @@ class CotizacionController extends Controller
             'items.*.imagenes_instancia'       => 'nullable|array',
             'items.*.comision_pct_aplicada'    => 'nullable|numeric|min:0',
             'items.*.comision_valor'           => 'nullable|numeric|min:0',
+        ], [
+            'cliente_id.required' => 'Elige el cliente: una cotización sin cliente no se puede guardar.',
         ]);
     }
 

@@ -36,6 +36,7 @@ class OpItem extends Model
         'remisionado',
         'remision_id',
         'cantidad_remisionada',
+        'cantidad_alistada',
     ];
 
     protected $casts = [
@@ -51,7 +52,30 @@ class OpItem extends Model
         'componentes_snapshot' => 'array',
         'remisionado'          => 'boolean',
         'cantidad_remisionada' => 'decimal:3',
+        'cantidad_alistada'    => 'decimal:3',
     ];
+    /**
+     * La marca del ítem y su cantidad alistada dicen lo mismo, la escriba quien la escriba.
+     *
+     * El formulario de la orden, el reproceso y la limpieza de `ops:sincronizar-estados`
+     * escriben `estado_item` directamente. Si la cantidad no lo siguiera, un producto marcado
+     * «Alistado» en el formulario seguiría con cero unidades alistadas, y Remisiones no lo vería.
+     */
+    protected static function booted(): void
+    {
+        static::saving(function (OpItem $item) {
+            if (! $item->isDirty('estado_item') || $item->isDirty('cantidad_alistada')) {
+                return;
+            }
+
+            if ($item->estado_item === 'terminado') {
+                $item->cantidad_alistada = $item->cantidad;
+            } elseif ($item->estado_item === 'pendiente') {
+                $item->cantidad_alistada = $item->cantidad_remisionada ?? 0;
+            }
+        });
+    }
+
 
     /**
      * Un ítem que nadie fabrica: un producto de bodega o un concepto libre.
@@ -98,11 +122,30 @@ class OpItem extends Model
      */
     public function cantidadLista(): int
     {
-        if ($this->sinTrabajos() && $this->estado_item !== 'terminado') {
-            return 0;
+        if ($this->sinTrabajos()) {
+            if (in_array($this->tipo, Op::TIPOS_SIN_DESPACHO, true)) {
+                return 0;
+            }
+
+            // Lo alistado que todavía no salió: de 15 vendidas, 10 alistadas y ninguna remisionada
+            // son 10 listas, no 15 ni 0.
+            return max(0, $this->cantidadAlistada() - (int) $this->cantidad_remisionada);
         }
 
         return $this->cantidadDisponible();
+    }
+
+    /**
+     * Cuántas unidades de un producto ya están alistadas. Lo remisionado cuenta como alistado:
+     * salió, así que estuvo listo.
+     */
+    public function cantidadAlistada(): int
+    {
+        if ($this->estado_item === 'terminado') {
+            return (int) $this->cantidad;
+        }
+
+        return min((int) $this->cantidad, max((int) $this->cantidad_alistada, (int) $this->cantidad_remisionada));
     }
 
     /**
@@ -118,8 +161,12 @@ class OpItem extends Model
      *
      * @return string|null  el motivo si no se pudo; null si quedó hecho
      */
-    public function alistar(bool $alistar = true): ?string
+    public function alistar(bool $alistar = true, ?int $cantidad = null): ?string
     {
+        if ($alistar && $this->op && ! $this->op->cliente_id) {
+            return Op::SIN_CLIENTE;
+        }
+
         if (! $this->sinTrabajos()) {
             return $alistar
                 ? 'Este ensamble se alista solo cuando terminan sus unidades en planta (van '
@@ -127,11 +174,26 @@ class OpItem extends Model
                 : 'Este ensamble está listo porque sus unidades terminaron en planta: para devolverlo, se reabre su trabajo.';
         }
 
-        if (! $alistar && $this->unidadesRemisionadas() > 0) {
-            return 'Este ítem ya tiene unidades remisionadas: no se puede devolver a pendiente.';
+        $total      = (int) $this->cantidad;
+        $remisionadas = $this->unidadesRemisionadas();
+
+        // `$cantidad` es cuántas quedan alistadas en total —10 de 15—; sin ella, todas. Nunca
+        // menos de lo que ya salió: eso no está en la bodega para devolverlo a pendiente.
+        $alistadas = $alistar ? ($cantidad === null ? $total : max(0, min($total, $cantidad))) : 0;
+        $alistadas = max($alistadas, $remisionadas);
+
+        if (! $alistar && $remisionadas > 0 && $remisionadas >= $this->cantidadAlistada()) {
+            return 'Lo alistado de este ítem ya salió en una remisión: no se puede devolver a pendiente.';
         }
 
-        $this->update(['estado_item' => $alistar ? 'terminado' : 'pendiente']);
+        if ($alistar && $alistadas === 0) {
+            return 'Di cuántas unidades quedaron alistadas.';
+        }
+
+        $this->update([
+            'cantidad_alistada' => $alistadas,
+            'estado_item'       => $alistadas >= $total ? 'terminado' : ($alistadas > 0 ? 'en_proceso' : 'pendiente'),
+        ]);
 
         $this->op?->sincronizarEstado();
 
@@ -153,7 +215,7 @@ class OpItem extends Model
     public function unidadesCompletadas(): int
     {
         if ($this->sinTrabajos()) {
-            return $this->estado_item === 'terminado' ? (int) $this->cantidad : 0;
+            return $this->cantidadAlistada();
         }
 
         return $this->trabajos()->completados()->count();

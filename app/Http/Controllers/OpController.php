@@ -428,6 +428,13 @@ class OpController extends Controller
         $estadoAnterior = $op->estado;
         $nuevoEstado    = $request->estado;
 
+        if ($nuevoEstado !== 'borrador' && ! $op->cliente_id) {
+            if ($request->wantsJson()) {
+                return response()->json(['error' => Op::SIN_CLIENTE], 422);
+            }
+            return back()->withErrors(['estado' => Op::SIN_CLIENTE]);
+        }
+
         // El control de calidad es obligatorio: no se puede saltar
         // manualmente a "despachada" sin que la OP haya sido aprobada.
         if ($nuevoEstado === 'despachada' && ! $op->calidad_aprobada_at) {
@@ -601,6 +608,10 @@ class OpController extends Controller
     {
         abort_if($cotizacion->en_produccion, 422, 'Esta cotización ya tiene una OP generada.');
 
+        if (! $cotizacion->cliente_id) {
+            return back()->with('error', Cotizacion::SIN_CLIENTE);
+        }
+
         $request->validate([
             'anticipo'             => 'nullable|numeric|min:0',
             'anticipo_medio_pago'  => 'nullable|in:efectivo,transferencia,cheque',
@@ -632,6 +643,11 @@ class OpController extends Controller
     public function generarOp(Cotizacion $cotizacion, array $opciones = []): Op
     {
         abort_if($cotizacion->en_produccion, 422, 'Esta cotización ya tiene una OP generada.');
+
+        // Sin cliente no nace ninguna orden, venga de la pantalla o de la guía.
+        if (! $cotizacion->cliente_id) {
+            throw new \RuntimeException(Cotizacion::SIN_CLIENTE);
+        }
 
         // ¿En qué fábrica se produce? Una sede de solo ventas (ej. Cúcuta)
         // debe mandar la OP a una sede con producción.
@@ -1069,7 +1085,7 @@ class OpController extends Controller
     private function validarForm(Request $request): array
     {
         return $request->validate([
-            'cliente_id'             => 'nullable|exists:clientes,id',
+            'cliente_id'             => 'required|exists:clientes,id',
             'cotizacion_id'          => 'nullable|exists:cotizaciones,id',
             'responsable_id'         => 'required|exists:users,id',
             // La pantalla vuelve a mandar el formulario con esto en true cuando el usuario ya
@@ -1105,6 +1121,8 @@ class OpController extends Controller
             'items.*.operario_id'    => 'nullable|exists:users,id',
             'items.*.estado_item'    => 'nullable|in:pendiente,en_proceso,terminado',
             'items.*.notas_item'     => 'nullable|string',
+        ], [
+            'cliente_id.required' => 'Elige el cliente: una orden de producción sin cliente no se puede guardar.',
         ]);
     }
 

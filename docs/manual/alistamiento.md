@@ -53,6 +53,20 @@ dejó en el muelle; la pestaña «Por remisionar» de Remisiones muestra solo es
 Un producto sencillo no pasa por planta *(14 oct 2026)*: se alista y queda remisionable. Solo los
 ensambles los deja listos la planta al terminar sus unidades.
 
+## Alistamiento parcial *(15 oct 2026)*
+
+De un producto con varias unidades se puede alistar **una parte**: si se vendieron 15 y hay 10
+listas, en la fila se escribe 10 y se toca «Alistar». El ítem queda **Parcial** («10 alistadas ·
+5 pendientes»), la orden arranca igual (alistar en parte también es trabajo real) y la remisión
+propone exactamente esas 10. Las otras 5 se alistan después, con el mismo botón.
+
+- La cantidad alistada vive en `op_items.cantidad_alistada`. La pone `OpItem::alistar($alistar,
+  $cantidad)`, que recibe **el total alistado** (10 de 15), nunca menos de lo que ya salió.
+- La marca del ítem la sigue sola: `terminado` con todo alistado, `en_proceso` con una parte,
+  `pendiente` con nada. Si el formulario de la orden cambia la marca, la cantidad la sigue
+  (`OpItem::booted`).
+- «Deshacer» devuelve a pendiente lo alistado que **no ha salido**; lo remisionado no vuelve.
+
 ## Con qué se conecta
 
 - El botón «Marcar alistado» de la orden de producción hace lo mismo, y se queda como atajo

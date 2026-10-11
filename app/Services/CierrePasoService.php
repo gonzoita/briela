@@ -55,6 +55,10 @@ class CierrePasoService
     ): ?Bodega {
         $trabajo = $paso->trabajo;
 
+        if (! $trabajo->opItem?->op?->cliente_id) {
+            throw ValidationException::withMessages(['paso' => \App\Models\Op::SIN_CLIENTE]);
+        }
+
         // Terminar en planta no mueve inventario: lo que se gastó sale del almacén cuando la
         // unidad se remisiona (InventarioRemisionService). Por eso el paso final ya no pide
         // bodegas; solo exige que no queden otros pasos pendientes.

@@ -38,9 +38,17 @@ function disponibleItem(item) {
     return item.unidades_disponibles ?? 0
 }
 
+// Lo que se propone remisionar: lo alistado que no ha salido. Si de 15 se alistaron 10, se
+// proponen 10 y las otras 5 quedan pendientes. Si no se alistó nada, todo lo disponible: remisionar
+// un producto también lo alista.
+function propuestaItem(item) {
+    const listas = item.unidades_listas ?? 0
+    return listas > 0 ? Math.min(listas, disponibleItem(item)) : disponibleItem(item)
+}
+
 function initCantidad(item) {
     if (itemsSeleccionados.value[item.id] && !cantidadesARemisionar.value[item.id]) {
-        cantidadesARemisionar.value[item.id] = disponibleItem(item)
+        cantidadesARemisionar.value[item.id] = propuestaItem(item)
     }
 }
 
@@ -49,7 +57,7 @@ if (props.op) {
     form.cliente_id = props.op.cliente?.id ?? null
     props.op.items?.forEach(item => {
         itemsSeleccionados.value[item.id] = true
-        cantidadesARemisionar.value[item.id] = disponibleItem(item)
+        cantidadesARemisionar.value[item.id] = propuestaItem(item)
     })
 }
 
@@ -101,7 +109,7 @@ async function seleccionarOp(op) {
         cantidadesARemisionar.value = {}
         data.items.forEach(i => {
             itemsSeleccionados.value[i.id]    = true
-            cantidadesARemisionar.value[i.id] = disponibleItem(i)
+            cantidadesARemisionar.value[i.id] = propuestaItem(i)
         })
     } catch { } finally { buscandoOp.value = false }
 }
@@ -331,7 +339,7 @@ watch(() => form.tipo, () => {
                                         <span v-if="item.sin_alistar" class="px-1.5 rounded bg-pastel-ambar text-aviso-ambar">
                                             Sin alistar: queda alistado al remisionar
                                         </span>
-                                        <span v-else class="text-aviso-verde">Completadas: <strong>{{ item.unidades_completadas }}</strong></span>
+                                        <span v-else class="text-aviso-verde">Listas: <strong>{{ item.unidades_completadas }}</strong></span>
                                         <span v-if="item.unidades_remisionadas > 0" class="text-aviso-ambar">
                                             Ya remisionadas: <strong>{{ item.unidades_remisionadas }}</strong>
                                         </span>
@@ -347,6 +355,11 @@ watch(() => form.tipo, () => {
                                             v-model.number="cantidadesARemisionar[item.id]"
                                             class="mt-1 w-full border border-borde-aviso-azul rounded-lg px-3 py-1.5 text-sm focus:outline-none"
                                             style="background:var(--superficie);"/>
+                                        <!-- Lo que no viaja queda registrado como pendiente en la remisión. -->
+                                        <p v-if="(item.total - (item.unidades_remisionadas ?? 0) - (cantidadesARemisionar[item.id] || 0)) > 0"
+                                            class="mt-1 text-xs text-aviso-ambar">
+                                            Quedan pendientes {{ item.total - (item.unidades_remisionadas ?? 0) - (cantidadesARemisionar[item.id] || 0) }}: la remisión lo dirá.
+                                        </p>
                                     </div>
                                 </div>
                             </label>

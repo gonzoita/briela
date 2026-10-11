@@ -1056,6 +1056,13 @@ function onDescuentoChange(item, index, nuevoPct) {
 
 // ─── Submit ───────────────────────────────────────────────────────────────────
 function submit() {
+    // Una cotización sin cliente no se guarda. El servidor también lo rechaza.
+    if (!form.cliente_id) {
+        form.setError('cliente_id', 'Elige el cliente: una cotización sin cliente no se puede guardar.')
+        window.scrollTo({ top: 0, behavior: 'smooth' })
+        return
+    }
+
     // Se avisa antes de mandar: dejar que el servidor lo rechace le hace perder un viaje a
     // quien llena el formulario, y el aviso vuelve al final de la pantalla sin decir la línea.
     if (itemsConProblema.value.length) {
@@ -1130,7 +1137,7 @@ function submit() {
 
                         <!-- Búsqueda cliente -->
                         <div class="md:col-span-2">
-                            <label class="block text-xs font-medium text-tinta-500 mb-1.5">Cliente</label>
+                            <label class="block text-xs font-medium text-tinta-500 mb-1.5">Cliente <span class="text-aviso-rojo">*</span></label>
                             <div class="relative">
                                 <div class="flex gap-2">
                                     <input :value="clienteQuery" @input="buscarCliente($event.target.value)"
@@ -1154,9 +1161,10 @@ function submit() {
                                     </button>
                                 </div>
                             </div>
+                            <p v-if="form.errors.cliente_id && !clienteSeleccionado" class="mt-1 text-xs text-aviso-rojo">{{ form.errors.cliente_id }}</p>
                             <div v-if="clienteSeleccionado"
                                 class="mt-2 flex items-center gap-3 px-3 py-2 rounded-xl"
-                                style="background:var(--pastel-azul); border:1px solid #BFDBFE;">
+                                style="background:var(--pastel-azul); border:1px solid var(--borde-azul);">
                                 <svg class="w-4 h-4 shrink-0" style="color:var(--marca)" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
                                 </svg>

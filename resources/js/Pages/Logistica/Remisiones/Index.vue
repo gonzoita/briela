@@ -34,6 +34,8 @@ const ESTADO_BADGE = {
     confirmada: { label: 'Confirmada', clases: 'bg-pastel-azul-2 text-aviso-azul' },
     en_camino:  { label: 'En camino',  clases: 'bg-pastel-ambar-2 text-aviso-ambar' },
     entregada:  { label: 'Entregada',  clases: 'bg-pastel-verde-2 text-aviso-verde' },
+    // Entregada y pagada con pagos verificados: se pone sola.
+    cerrada:    { label: 'Cerrada',    clases: 'bg-pastel-violeta-2 text-aviso-violeta' },
     anulada:    { label: 'Anulada',    clases: 'bg-pastel-rojo-2 text-aviso-rojo' },
 }
 
@@ -52,6 +54,7 @@ const TABS = [
     { value: 'confirmada',label: 'Confirmada'},
     { value: 'en_camino', label: 'En camino' },
     { value: 'entregada', label: 'Entregada' },
+    { value: 'cerrada',   label: 'Cerrada'   },
     { value: 'anulada',   label: 'Anulada'   },
 ]
 
@@ -245,7 +248,7 @@ function eliminar(id) {
                                         class="text-xs text-aviso-azul hover:underline">Ver</a>
                                     <a v-if="rem.estado === 'borrador'" :href="`/logistica/remisiones/${rem.id}/editar`"
                                         class="text-xs text-tinta-500 hover:underline">Editar</a>
-                                    <button v-if="!['anulada','entregada'].includes(rem.estado)"
+                                    <button v-if="!['anulada','entregada','cerrada'].includes(rem.estado)"
                                         @click="anular(rem.id)"
                                         class="text-xs text-aviso-rojo hover:underline">Anular</button>
                                 </div>
@@ -280,7 +283,7 @@ function eliminar(id) {
                             class="text-xs font-medium text-aviso-azul">Ver detalle →</a>
                         <a v-if="rem.estado === 'borrador'" :href="`/logistica/remisiones/${rem.id}/editar`"
                             class="text-xs font-medium text-tinta-500">Editar</a>
-                        <button v-if="!['anulada','entregada'].includes(rem.estado)"
+                        <button v-if="!['anulada','entregada','cerrada'].includes(rem.estado)"
                             @click="anular(rem.id)"
                             class="text-xs font-medium text-aviso-rojo ml-auto">Anular</button>
                     </div>

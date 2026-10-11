@@ -43,6 +43,7 @@ class FlujoOpRemisionTest extends TestCase
     private function op(string $estado = 'confirmada'): Op
     {
         return Op::create([
+            'cliente_id' => $this->clientePrueba()->id,
             'sede_id' => $this->sede->id, 'estado' => $estado, 'responsable_id' => $this->admin->id,
             'bodega_entrega_id' => $this->bodega->id, 'bodega_material_id' => $this->bodega->id,
             'fecha_creacion' => now(), 'fecha_entrega_estimada' => now()->addDays(5),
@@ -390,9 +391,11 @@ class FlujoOpRemisionTest extends TestCase
         $r = $this->remisionar($op, $prod, 1);
         $this->estado($r, 'en_camino');
         // (ya despachada al salir; la firma solo cierra la entrega)
-        $this->post("/logistica/remisiones/{$r->id}/firma", ['tipo' => 'recibido', 'firma' => 'data:image/png;base64,AAA']);
+        $this->post("/logistica/remisiones/{$r->id}/firma", ['tipo' => 'recibido', 'firma' => 'data:image/png;base64,AAA', 'nombre_receptor' => 'Laura Gómez']);
 
-        $this->assertSame('entregada', $r->fresh()->estado);
+        // La orden de prueba no tiene valor: no queda nada por cobrar y la remisión se cierra sola.
+        $this->assertSame('cerrada', $r->fresh()->estado);
+        $this->assertSame('Laura Gómez', $r->fresh()->nombre_receptor);
         $this->assertSame('despachada', $op->fresh()->estado);
         $this->assertEquals(4, $prod->producto->fresh()->stockTotal()); // una sola salida
     }

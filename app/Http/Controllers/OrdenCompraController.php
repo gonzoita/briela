@@ -314,7 +314,7 @@ class OrdenCompraController extends Controller
 
     public function pdf(OrdenCompra $orden): HttpResponse
     {
-        $orden->load(['proveedor', 'creadoPor:id,name', 'items.item:id,nombre,referencia']);
+        $orden->load(['proveedor', 'creadoPor:id,name,firma', 'items.item:id,nombre,referencia']);
 
         $pdf = Pdf::loadView('pdf.orden-compra', compact('orden'))
             ->setPaper('letter', 'portrait');

@@ -106,9 +106,13 @@ class PerfilMarcaController extends Controller
 
         abort_unless(array_key_exists($data['seccion'], PerfilMarca::catalogo()), 422);
 
+        // Guardar sin cambiar el texto que dejó la IA no le quita la marca «IA»: solo editarlo.
+        $actual = PerfilMarca::where('seccion', $data['seccion'])->first();
+        $igual  = $actual && trim((string) $actual->contenido) === trim((string) $data['contenido']);
+
         PerfilMarca::updateOrCreate(
             ['seccion' => $data['seccion']],
-            ['contenido' => $data['contenido'], 'generado_ia_at' => null]
+            ['contenido' => $data['contenido'], 'generado_ia_at' => $igual ? $actual->generado_ia_at : null]
         );
 
         return back()->with('success', 'Sección guardada.');
@@ -220,6 +224,150 @@ class PerfilMarcaController extends Controller
         }
 
         return response()->json(['secciones' => $guardadas]);
+    }
+
+    /**
+     * La IA arma el perfil sola: para cada sección formula la pregunta que le haría a ESTA
+     * empresa y la responde con lo que el sistema ya sabe de ella —sus datos, lo que vende, a
+     * quién le vende, lo que ya está en el perfil—.
+     *
+     * Por omisión solo llena las secciones vacías: lo que alguien escribió a mano no se pisa. Lo
+     * que no se puede sacar de los datos sale como propuesta marcada para revisar, nunca como un
+     * hecho inventado. Devuelve las preguntas y respuestas para mostrarlas.
+     */
+    public function completar(Request $request): JsonResponse
+    {
+        $data = $request->validate(['reescribir' => 'boolean']);
+
+        $catalogo  = PerfilMarca::catalogo();
+        $actuales  = PerfilMarca::pluck('contenido', 'seccion');
+        $pendientes = collect($catalogo)
+            ->filter(fn ($cfg, $clave) => ($data['reescribir'] ?? false) || blank($actuales[$clave] ?? null));
+
+        if ($pendientes->isEmpty()) {
+            return response()->json(['secciones' => 0, 'resultado' => [], 'mensaje' => 'Todas las secciones ya tienen contenido.']);
+        }
+
+        $lista = $pendientes->map(fn ($cfg, $clave) => "- {$clave}: {$cfg['label']} ({$cfg['ayuda']})")->implode("\n");
+
+        $instrucciones = <<<TXT
+        Eres consultor de marca. Vas a construir el perfil de marca de una empresa tú solo, a
+        partir de los datos reales que el sistema tiene de ella.
+
+        Para cada sección pedida:
+        1. Formula la pregunta concreta que le harías a ESTA empresa para escribir esa sección
+           (no una pregunta genérica: usa lo que sabes de su negocio).
+        2. Respóndela tú mismo con base en los datos. Escribe como habla la empresa, en primera
+           persona del plural, claro y concreto.
+
+        Reglas:
+        - Español colombiano neutro. Nunca uses voseo.
+        - No inventes hechos (años, cifras, premios, clientes con nombre). Lo que sí se deduce de
+          los datos —qué vende, a quién, dónde— úsalo con confianza.
+        - Si una sección no se puede sacar de los datos (por ejemplo, la historia), escribe una
+          propuesta razonable para ese tipo de negocio y empiézala con «[Propuesta para revisar]».
+        - Sin emojis, sin exageraciones publicitarias, sin signos de exclamación.
+
+        Devuelve ÚNICAMENTE un objeto JSON válido, sin explicaciones ni bloques de código, con
+        esta forma: {"clave": {"pregunta": "…", "respuesta": "…"}}. Usa exactamente las claves
+        pedidas.
+        TXT;
+
+        $prompt = "Secciones que debes llenar:\n{$lista}\n\n"
+            ."Lo que el sistema sabe de la empresa:\n".$this->datosDeLaEmpresa()."\n\n"
+            .(($contexto = PerfilMarca::comoContexto()) !== ''
+                ? "Lo que ya está escrito en el perfil (respétalo y no lo contradigas):\n{$contexto}\n"
+                : '');
+
+        try {
+            $respuesta = $this->ia->texto($prompt, $instrucciones, maxTokens: 8000);
+        } catch (IaException $e) {
+            return response()->json(['error' => $e->getMessage()], 422);
+        }
+
+        $limpio    = trim(preg_replace('/^```(?:json)?|```$/m', '', $respuesta));
+        $secciones = json_decode($limpio, true);
+
+        if (! is_array($secciones)) {
+            return response()->json(['error' => 'La IA no devolvió un resultado que se pueda leer. Intenta otra vez.'], 422);
+        }
+
+        $resultado = [];
+
+        foreach ($secciones as $clave => $par) {
+            if (! $pendientes->has($clave)) {
+                continue;
+            }
+
+            $texto = is_array($par) ? ($par['respuesta'] ?? '') : (string) $par;
+            if (is_array($texto)) {
+                $texto = implode("\n", $texto);
+            }
+            if (blank($texto)) {
+                continue;
+            }
+
+            PerfilMarca::updateOrCreate(['seccion' => $clave], ['contenido' => trim($texto), 'generado_ia_at' => now()]);
+
+            $resultado[] = [
+                'seccion'   => $clave,
+                'label'     => $catalogo[$clave]['label'],
+                'pregunta'  => is_array($par) ? ($par['pregunta'] ?? $catalogo[$clave]['pregunta']) : $catalogo[$clave]['pregunta'],
+                'respuesta' => trim($texto),
+            ];
+        }
+
+        return response()->json(['secciones' => count($resultado), 'resultado' => $resultado]);
+    }
+
+    /**
+     * Lo que el sistema sabe de la empresa, en pocas líneas: la base para que la IA escriba el
+     * perfil sin inventar. Solo agregados y nombres —nada de datos de personas—.
+     */
+    private function datosDeLaEmpresa(): string
+    {
+        $c = fn (string $k) => trim((string) \App\Models\Configuracion::get($k, ''));
+
+        $lineas = array_filter([
+            'Nombre: '.\App\Support\Marca::nombreEmpresa(),
+            $c('empresa_ciudad') ? 'Ciudad: '.$c('empresa_ciudad') : null,
+            ($web = $c('empresa_web') ?: $c('empresa_sitio_web')) ? "Sitio web: {$web}" : null,
+            $c('empresa_horario') ? 'Horario: '.$c('empresa_horario') : null,
+        ]);
+
+        $categorias = \App\Models\CategoriaProducto::query()->limit(25)->pluck('nombre')->filter()->implode(', ');
+        if ($categorias) {
+            $lineas[] = "Categorías de lo que vende: {$categorias}";
+        }
+
+        $productos = \App\Models\Producto::where('activo', true)->latest('id')->limit(30)->pluck('nombre')->filter()->implode(', ');
+        if ($productos) {
+            $lineas[] = "Algunos productos: {$productos}";
+        }
+
+        if (class_exists(\App\Models\PlantillaEnsamble::class)) {
+            $ensambles = \App\Models\PlantillaEnsamble::query()->limit(20)->pluck('nombre')->filter()->implode(', ');
+            if ($ensambles) {
+                $lineas[] = "Lo que fabrica a la medida (plantillas): {$ensambles}";
+            }
+        }
+
+        $clientes = \App\Models\Cliente::count();
+        if ($clientes) {
+            $empresas = \App\Models\Cliente::where('tipo', 'empresa')->count();
+            $ciudades = \App\Models\Cliente::whereNotNull('ciudad')->where('ciudad', '!=', '')
+                ->selectRaw('ciudad, COUNT(*) as n')->groupBy('ciudad')->orderByDesc('n')->limit(5)->pluck('ciudad')->implode(', ');
+            $lineas[] = "Clientes registrados: {$clientes} ({$empresas} empresas, ".($clientes - $empresas).' personas)'
+                .($ciudades ? ". Ciudades principales: {$ciudades}" : '');
+        }
+
+        $cotizaciones = \App\Models\Cotizacion::count();
+        if ($cotizaciones) {
+            $aprobadas = \App\Models\Cotizacion::where('estado', 'aprobada')->orWhere('en_produccion', true)->count();
+            $lineas[] = "Cotizaciones hechas: {$cotizaciones}, aprobadas: {$aprobadas}";
+        }
+
+        return implode("\n", $lineas);
     }
 
     /**

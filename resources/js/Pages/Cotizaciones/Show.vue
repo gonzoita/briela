@@ -50,14 +50,19 @@ const estadoActual = ref(cot.estado)
 const modalEstado  = ref(false)
 const nuevoEstado  = ref(cot.estado)
 
-const estadoBadgeActual = ref({ ...(cot.estado_badge ?? {}) })
+// Con los colores del tema: los fijos quedaban como una mancha clara en modo noche.
+const estadoBadgeActual = ref({
+    ...(cot.estado_badge ?? {}),
+    bg:   cot.estado_badge?.bg_tema   ?? cot.estado_badge?.bg,
+    text: cot.estado_badge?.text_tema ?? cot.estado_badge?.text,
+})
 
 const BADGES = {
-    borrador:  { bg: '#F3F4F6', text: '#374151', label: 'Borrador'  },
-    enviada:   { bg: '#DBEAFE', text: '#1D4ED8', label: 'Enviada'   },
-    aprobada:  { bg: '#D1FAE5', text: '#065F46', label: 'Aprobada'  },
-    rechazada: { bg: '#FEE2E2', text: '#991B1B', label: 'Rechazada' },
-    vencida:   { bg: '#FEF3C7', text: '#92400E', label: 'Vencida'   },
+    borrador:  { bg: 'var(--tinta-100)',      text: 'var(--texto-2)',     label: 'Borrador'  },
+    enviada:   { bg: 'var(--pastel-azul)',    text: 'var(--texto-azul)',  label: 'Enviada'   },
+    aprobada:  { bg: 'var(--pastel-verde)',   text: 'var(--texto-verde)', label: 'Aprobada'  },
+    rechazada: { bg: 'var(--pastel-rojo)',    text: 'var(--texto-rojo)',  label: 'Rechazada' },
+    vencida:   { bg: 'var(--pastel-ambar)',   text: 'var(--texto-ambar)', label: 'Vencida'   },
 }
 
 const estados = [
@@ -171,6 +176,12 @@ function marcarEnviada() {
 <template>
     <AppLayout :title="cot.numero">
         <div class="max-w-4xl mx-auto">
+
+            <!-- Sin cliente no se procesa nada: se dice arriba, antes de tocar un botón. -->
+            <div v-if="!cot.cliente_id" class="mb-4 rounded-xl border border-borde-aviso-rojo bg-pastel-rojo px-4 py-3 text-sm text-aviso-rojo">
+                <strong>Esta cotización no tiene cliente.</strong> No se puede enviar, aprobar ni generar la orden hasta asignarle uno.
+                <a :href="`/cotizaciones/${cot.id}/editar`" class="underline font-medium ml-1">Asignar cliente</a>
+            </div>
 
             <!-- Cabecera nav -->
             <div class="flex items-center justify-between mb-4">

@@ -36,6 +36,39 @@ Antes la lista ofrecía órdenes con unidades sin aprobar —al abrirlas no hab�
 desde la orden, **los productos alistados no aparecían**. El botón de remisión de la orden pedía el
 sello de calidad de la orden entera, que una orden de productos nunca tiene, y quedaba bloqueado.
 
+## Remisión parcial: lo que queda pendiente *(15 oct 2026)*
+
+Una remisión puede llevar solo una parte de un ítem: de 15 bisagras, las 10 alistadas. Al
+crearla, cada renglón guarda lo que **quedó por entregar** de ese ítem
+(`remision_items.cantidad_pendiente`, una foto que no cambia después). La ficha de la remisión y
+su PDF lo dicen: «Pendiente por entregar: 5». Al crear la remisión, lo que lleva **ya salió de la
+empresa**: sale del inventario en ese momento (ver más abajo).
+
+## Cerrada: entregada y pagada *(15 oct 2026)*
+
+«Entregada» es lo físico: el cliente recibió. La remisión **no está terminada** mientras la orden
+tenga saldo: se ve «Entregada — pendiente de pago» con lo que falta verificar. Se pasa sola a
+**Cerrada** (`remisiones.cerrada_at`) cuando la orden queda pagada del todo **con pagos
+verificados** —por el verificador de pagos con el extracto, o marcados a mano en la cartera—.
+Nadie la elige en la pantalla. Si después se borra o se desverifica un pago, vuelve a «Entregada».
+
+- La regla vive en `RemisionService::sincronizarCierre()` y la llaman los pagos (eventos de
+  `OpPago`: anotar, verificar, borrar) y la remisión al entregarse.
+- Una remisión suelta, sin orden, no tiene nada que cobrar: se cierra al entregarse.
+- Una cerrada no se anula ni se borra: ya salió y ya se cobró.
+
+## Firmas *(arregladas el 15 oct 2026)*
+
+La firma de despacho se pone desde que la remisión está **confirmada**; la de recibido, desde que
+sale, con el nombre de quien recibe (firmarla con la remisión en camino la marca entregada). Se
+dibujan con el dedo o el mouse (`FirmaPad.vue`), o la de despacho con «Usar mi firma», la guardada
+en el perfil. Antes el trazo caía lejos del dedo (el lienzo se estiraba sin escalar los puntos), un
+recuadro en blanco se guardaba y un error no se mostraba.
+
+El servidor solo acepta una imagen PNG o JPG en base64 y guarda quién firmó el despacho y cuándo.
+En el PDF salen las dos; si nadie dibujó la de despacho, sale la del perfil de quien la firmó o la
+creó.
+
 ## Flujo normal
 
 1. **Crear** desde una OP: se eligen las unidades a despachar. La remisión nace

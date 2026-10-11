@@ -169,14 +169,23 @@ class ChatDirectoController extends Controller
         return response()->json(['conversaciones' => array_values($conversaciones)]);
     }
 
-    /** La conversación con una persona. Al abrirla se marca como leída. */
-    public function hilo(User $usuario): JsonResponse
+    /**
+     * La conversación con una persona. Al abrirla se marca como leída.
+     *
+     * Con `?desde={id}` devuelve solo lo que llegó después de ese mensaje: es lo que la
+     * conversación abierta pide cada pocos segundos para verse en vivo, sin bajar el historial
+     * entero en cada vuelta.
+     */
+    public function hilo(Request $request, User $usuario): JsonResponse
     {
-        $yo = auth()->id();
+        $yo    = auth()->id();
+        $desde = (int) $request->query('desde', 0);
 
         $mensajes = Comentario::entre($yo, $usuario->id)
-            ->with(['autor:id,name', 'asignado:id,name', 'resueltoPor:id,name', 'referencia', 'archivos'])
+            ->when($desde > 0, fn ($q) => $q->where('id', '>', $desde))
+            ->with(['autor:id,name', 'asignado:id,name', 'resueltoPor:id,name', 'referencia', 'archivos', 'respuestaA.autor:id,name'])
             ->orderBy('created_at')
+            ->orderBy('id')
             ->get();
 
         Comentario::entre($yo, $usuario->id)
@@ -195,7 +204,7 @@ class ChatDirectoController extends Controller
         abort_if($usuario->id === auth()->id(), 422, 'No puedes escribirte a ti mismo.');
 
         $datos = $request->validate([
-            'contenido'    => 'required|string|max:5000',
+            'contenido'    => 'required_without:archivos|nullable|string|max:5000',
             'tipo'         => 'required|in:comentario,solicitud,tarea',
             'fecha_limite' => 'nullable|date',
             // Adjunto: lo que devolvió el buscador (tipo, título y ruta interna).
@@ -209,7 +218,14 @@ class ChatDirectoController extends Controller
             'archivos.*.mime'      => 'nullable|string|max:120',
             'archivos.*.extension' => 'nullable|string|max:10',
             'archivos.*.tamano'    => 'nullable|integer',
+            'respuesta_a_id'       => 'nullable|integer',
         ]);
+
+        // Solo se responde a un mensaje de esta misma conversación.
+        if (! empty($datos['respuesta_a_id'])
+            && ! Comentario::entre(auth()->id(), $usuario->id)->whereKey($datos['respuesta_a_id'])->exists()) {
+            abort(422, 'Ese mensaje no es de esta conversación.');
+        }
 
         // Solo rutas internas. Aceptar una URL externa convertiría el chat en
         // un vector de phishing: un mensaje "de un compañero" con un enlace a
@@ -221,7 +237,7 @@ class ChatDirectoController extends Controller
         $mensaje = Comentario::create([
             'user_id'         => auth()->id(),
             'destinatario_id' => $usuario->id,
-            'contenido'       => $datos['contenido'],
+            'contenido'       => $datos['contenido'] ?? '',
             'tipo'            => $datos['tipo'],
             // Una solicitud o tarea directa queda a cargo de quien la recibe.
             'estado'          => $datos['tipo'] === 'comentario' ? null : 'pendiente',
@@ -230,6 +246,7 @@ class ChatDirectoController extends Controller
             'referencia_tipo'   => $datos['ref_tipo'] ?? null,
             'referencia_titulo' => $datos['ref_titulo'] ?? null,
             'referencia_url'    => $datos['ref_url'] ?? null,
+            'respuesta_a_id'    => $datos['respuesta_a_id'] ?? null,
         ]);
 
         foreach ($datos['archivos'] ?? [] as $a) {
@@ -256,11 +273,12 @@ class ChatDirectoController extends Controller
                 'solicitud' => "{$autor} te hizo una solicitud",
                 default     => "{$autor} te escribió",
             },
-            mb_strimwidth($datos['contenido'], 0, 120, '...'),
+            mb_strimwidth($datos['contenido'] ?? '📎 Envió un archivo', 0, 120, '...'),
+            // Abre el chat en esta conversación (ver la ruta /chat/{usuario}).
             '/chat/' . auth()->id()
         );
 
-        return response()->json(['mensaje' => $this->serializar($mensaje->fresh(['autor:id,name', 'asignado:id,name', 'referencia', 'archivos']))], 201);
+        return response()->json(['mensaje' => $this->serializar($mensaje->fresh(['autor:id,name', 'asignado:id,name', 'referencia', 'archivos', 'respuestaA.autor:id,name']))], 201);
     }
 
     /**
@@ -315,6 +333,7 @@ class ChatDirectoController extends Controller
             'fecha_limite'=> $m->fecha_limite?->format('Y-m-d'),
             'creado'      => $m->created_at->toIso8601String(),
             'leido'       => $m->leido_at !== null,
+            'respuesta'   => $m->citaParaChat(),
             'referencia'  => $m->referencia_url ? [
                 'tipo'     => $m->referencia_tipo,
                 'etiqueta' => $m->referencia_titulo,

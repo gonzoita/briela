@@ -65,6 +65,8 @@ class HandleInertiaRequests extends Middleware
                     'rol_nombre' => $user->rolConfigurable?->nombre,
                     'sede_id'    => $user->sede_id,
                     'activo'     => $user->activo,
+                    // Sale del mismo registro que ya se cargó: no cuesta una consulta por clic.
+                    'foto_url'   => $user->fotoUrl(),
                 ] : null,
                 // Estas banderas salen del rol y no de los permisos finos, así que no las filtra
                 // `User::permisos()`: el módulo apagado se descuenta aquí a mano.

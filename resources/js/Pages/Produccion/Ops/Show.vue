@@ -312,6 +312,12 @@ function marcarTerminado(item) {
     <AppLayout :title="op.numero">
         <div class="max-w-4xl mx-auto">
 
+            <!-- Sin cliente no se procesa nada: se dice arriba, antes de tocar un botón. -->
+            <div v-if="!op.cliente_id" class="mb-4 rounded-xl border border-borde-aviso-rojo bg-pastel-rojo px-4 py-3 text-sm text-aviso-rojo">
+                <strong>Esta orden no tiene cliente.</strong> No se puede confirmar, alistar, trabajar en planta ni remisionar hasta asignarle uno.
+                <a :href="`/produccion/ops/${op.id}/editar`" class="underline font-medium ml-1">Asignar cliente</a>
+            </div>
+
             <!-- Cabecera -->
             <div class="flex items-center justify-between mb-5">
                 <div class="flex items-center gap-3">

@@ -601,6 +601,28 @@ Lo construido después de la fase 3, que conviene conocer antes de tocar algo ce
   convertir a cliente reutiliza el que ya exista (documento, correo o celular), y un lead de otra sede
   no se abre por enlace directo. Todo lead entra por `LeadEntranteService`, también las novedades del
   agente de IA (canal `agente_ia`).
+- **Sin cliente no hay cotización ni orden** (`Cotizacion::SIN_CLIENTE`, `Op::SIN_CLIENTE`, 15 oct
+  2026). La columna sigue nulable por lo viejo; la regla la exige cada puerta: formularios, cambio de
+  estado, enlace público, duplicar, `generarOp`, alistar, cerrar paso (`CierrePasoService`),
+  `RemisionService::errores` y la guía. Una acción nueva sobre una orden o cotización pregunta lo mismo.
+- **Alistamiento parcial** (`op_items.cantidad_alistada`): `OpItem::alistar($alistar, $cantidad)`
+  recibe el **total** alistado; `cantidadLista()` es lo alistado sin salir y `cantidadAlistada()` lo
+  alistado (lo remisionado cuenta). `en_proceso` = alistado en parte, y también arranca la orden.
+  `OpItem::booted` hace que la cantidad siga a la marca cuando alguien escribe `estado_item`.
+  Cada renglón de remisión congela lo que quedó por entregar (`cantidad_pendiente`).
+- **La remisión entregada se cierra sola** (`cerrada`) cuando la orden está pagada con pagos
+  verificados (`Op::pagadaYVerificada()`; verificado = el verificador o `verificado_por` a mano). Un
+  solo sitio: `RemisionService::sincronizarCierre()`, llamado por los eventos de `OpPago` y al
+  entregar. «Salió» es `Remision::SALIDAS` (en camino, entregada, cerrada): nunca escribir
+  `['en_camino','entregada']` a mano.
+- **Firmas**: `FirmaPad.vue` es el único lienzo de firma (remisión y perfil). Una firma es siempre
+  `data:image/(png|jpeg);base64,…`, validada al guardar y otra vez al imprimir
+  (`PdfVariablesEngine::imgFirma`). La del usuario va en `users.firma` (oculta en `toArray`) y sale
+  en los PDF con el bloque `pdf/_firma.blade.php` o las variables `{{!vendedor.firma}}`,
+  `{{!responsable.firma}}`, `{{!firma.despacho}}`, `{{!firma.recibido}}`.
+- **Chat y campana en vivo sin websockets**: la conversación abierta pide `?desde={id}` cada 4 s;
+  la campana late contra `/api/avisos/pulso` cada 15 s y solo trae las listas si la firma cambió.
+  Los avisos del chat apuntan a `/chat/{usuario}` y `/chat/grupos/{grupo}`, que abren la burbuja.
 - **Una OP con trabajo hecho no cambia sus ítems** (`Op::itemsBloqueados()`), y el candado está
   en el servidor.
 

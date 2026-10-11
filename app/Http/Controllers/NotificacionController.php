@@ -45,6 +45,43 @@ class NotificacionController extends Controller
         ]);
     }
 
+    /**
+     * El pulso: ¿cambió algo desde la última vez? Una firma corta, no los datos.
+     *
+     * La campana y el chat se ven «en vivo» preguntando esto cada pocos segundos: son cuatro
+     * consultas de un número cada una, sin traer filas. Solo cuando la firma cambia, la pantalla
+     * pide las listas completas (`/notificaciones` y compañía). Así un cambio de estado —una
+     * cotización aprobada por el cliente— aparece sin recargar, sin pagar cuatro peticiones
+     * grandes cada vez.
+     */
+    public function pulso(): JsonResponse
+    {
+        $yo = auth()->id();
+
+        $notif = Notificacion::where('user_id', $yo)
+            ->selectRaw('MAX(id) as ultima, SUM(CASE WHEN leida = 0 THEN 1 ELSE 0 END) as no_leidas')
+            ->first();
+
+        $directos = \App\Models\Comentario::where('destinatario_id', $yo)
+            ->selectRaw('MAX(id) as ultimo, SUM(CASE WHEN leido_at IS NULL THEN 1 ELSE 0 END) as sin_leer')
+            ->first();
+
+        $enGrupos = \App\Models\Comentario::whereIn('grupo_id',
+            \Illuminate\Support\Facades\DB::table('chat_grupo_usuario')->where('user_id', $yo)->select('chat_grupo_id')
+        )->max('id');
+
+        $asignados = \App\Models\Comentario::where('asignado_a', $yo)->abiertos()->count();
+
+        return response()->json([
+            'firma' => implode('.', [
+                (int) $notif?->ultima, (int) $notif?->no_leidas,
+                (int) $directos?->ultimo, (int) $directos?->sin_leer,
+                (int) $enGrupos, $asignados,
+            ]),
+            'ultima_notificacion' => (int) $notif?->ultima,
+        ]);
+    }
+
     public function marcarLeida(Notificacion $notificacion): JsonResponse
     {
         abort_if($notificacion->user_id !== auth()->id(), 403);

@@ -47,6 +47,31 @@ class OpPagoController extends Controller
         return $pdf->download("REC-{$pago->numero_recibo}.pdf");
     }
 
+    /**
+     * Verificar a mano un pago que no pasa por el banco: efectivo, cheque, un abono que alguien
+     * vio entrar. Es lo que, con el saldo en cero, cierra las remisiones entregadas de la orden.
+     */
+    public function verificar(OpPago $pago)
+    {
+        if (! $pago->verificado_at) {
+            $pago->update(['verificado_at' => now(), 'verificado_por' => auth()->id()]);
+        }
+
+        return response()->json(['ok' => true]);
+    }
+
+    /** Deshacer una verificación manual. La del banco se deshace en el verificador de pagos. */
+    public function desverificar(OpPago $pago)
+    {
+        if ($pago->verificado_at && ! $pago->verificado_por) {
+            return response()->json(['message' => 'Este pago lo confirmó el banco: se deshace desde el verificador de pagos.'], 422);
+        }
+
+        $pago->update(['verificado_at' => null, 'verificado_por' => null]);
+
+        return response()->json(['ok' => true]);
+    }
+
     public function destroy(OpPago $pago)
     {
         DB::transaction(function () use ($pago) {

@@ -26,12 +26,23 @@ class User extends Authenticatable
         'rol_id',
         'sede_id',
         'activo',
+        'foto_path',
+        'firma',
     ];
 
     protected $hidden = [
         'password',
         'remember_token',
+        // La firma es una imagen en base64: ni pesa en cada respuesta ni sale a donde no toca.
+        // Se lee con `$user->firma` donde se necesita (los PDF y «Usar mi firma»).
+        'firma',
     ];
+
+    /** La URL de la foto de perfil, o null para mostrar la inicial. */
+    public function fotoUrl(): ?string
+    {
+        return $this->foto_path ? \Illuminate\Support\Facades\Storage::disk('public')->url($this->foto_path) : null;
+    }
 
     protected function casts(): array
     {

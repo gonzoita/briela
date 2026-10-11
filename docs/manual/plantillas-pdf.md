@@ -73,6 +73,25 @@ impide que un bloque se parta entre páginas, y los `<thead>` se repiten solos.
   y se reparte solo en encabezado, cuerpo y pie (marcas `<!-- ENCABEZADO -->`, `<!-- CUERPO -->`,
   `<!-- PIE -->`; sin marcas, todo va al cuerpo).
 
+## Firmas *(15 oct 2026)*
+
+Cada usuario guarda su firma en **Mi perfil** —dibujada o subida como imagen— y sale sola en los
+documentos a su cargo: la cotización (responsable), la orden de producción (responsable), la orden
+de compra (quien la hizo) y la remisión (quien despacha, si no se dibujó una en la remisión). En
+las plantillas van como imagen lista, sin escapar:
+
+| Variable | Dónde |
+|---|---|
+| `{{!vendedor.firma}}` | Cotización |
+| `{{!responsable.firma}}` | Orden de producción |
+| `{{!firma.despacho}}`, `{{despachado_por.nombre}}` | Remisión |
+| `{{!firma.recibido}}`, `{{recibido_por.nombre}}` | Remisión |
+| `{{pendiente}}` (dentro de `#items`) | Remisión: lo que quedó por entregar |
+
+Las plantillas de fábrica ya las traen; una migración las agregó a las instaladas **solo si
+seguían tal cual** —una plantilla que la empresa editó no se toca—. La firma se valida al guardarla
+(solo PNG o JPG en base64) y se vuelve a mirar antes de imprimirla.
+
 ## Lo que hereda de la marca
 
 El color y el logo salen del [perfil de marca](./marca.md) salvo que la plantilla los

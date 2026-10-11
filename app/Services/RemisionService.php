@@ -31,6 +31,10 @@ class RemisionService
     {
         $errores = [];
 
+        if ($opId && ! Op::whereKey($opId)->value('cliente_id')) {
+            return ['op_id' => Op::SIN_CLIENTE];
+        }
+
         foreach ($items as $idx => $item) {
             if (empty($item['op_item_id'])) {
                 continue;
@@ -85,7 +89,7 @@ class RemisionService
             foreach ($datos['items'] as $item) {
                 $unidades = (int) ($item['cantidad_unidades'] ?? $item['cantidad']);
 
-                RemisionItem::create([
+                $linea = RemisionItem::create([
                     'remision_id'  => $remision->id,
                     'op_item_id'   => $item['op_item_id'] ?? null,
                     'producto_id'  => $item['producto_id'] ?? null,
@@ -101,7 +105,17 @@ class RemisionService
                 }
 
                 $hayOpItems = true;
-                $this->marcarSalida(OpItem::find($item['op_item_id']), $remision, $unidades);
+                $opItem     = OpItem::find($item['op_item_id']);
+                $this->marcarSalida($opItem, $remision, $unidades);
+
+                // Lo que queda por entregar de ese ítem, congelado en la remisión: de 15 vendidas
+                // salen 10 y la remisión dice «quedan 5». Mañana tiene que seguir diciéndolo.
+                if ($opItem) {
+                    $opItem->refresh();
+                    $linea->update([
+                        'cantidad_pendiente' => max(0, (int) $opItem->cantidad - $opItem->unidadesRemisionadas()),
+                    ]);
+                }
             }
 
             // Lo que se remisiona sale del almacén, ya.
@@ -150,15 +164,60 @@ class RemisionService
 
             $remision->update($data);
             $this->alSalir($remision);
+            $this->cerrarSiCorresponde($remision);
         });
 
         return null;
     }
 
+    /**
+     * Una remisión entregada se cierra cuando ya no queda nada por cobrar: la orden pagada del
+     * todo con pagos verificados. Una remisión suelta, sin orden, no tiene nada que cobrar y se
+     * cierra al entregarse.
+     */
+    public function cerrarSiCorresponde(Remision $remision): void
+    {
+        if ($remision->estado !== 'entregada') {
+            return;
+        }
+
+        if ($remision->op_id) {
+            $this->sincronizarCierre($remision->op);
+
+            return;
+        }
+
+        $remision->update(['estado' => 'cerrada', 'cerrada_at' => now()]);
+    }
+
+    /**
+     * Cierra o reabre las remisiones entregadas de una orden según lo cobrado. Lo llaman los
+     * pagos al anotarse, verificarse o borrarse, y la remisión al entregarse.
+     *
+     * Reabrir es a propósito: si se borra o se desverifica un pago, la orden vuelve a deber y
+     * sus remisiones vuelven a «Entregada — pendiente de pago».
+     */
+    public function sincronizarCierre(?Op $op): void
+    {
+        if (! $op) {
+            return;
+        }
+
+        $pagada = $op->fresh()->pagadaYVerificada();
+
+        foreach ($op->remisiones()->whereIn('estado', ['entregada', 'cerrada'])->get() as $remision) {
+            if ($pagada && $remision->estado === 'entregada') {
+                $remision->update(['estado' => 'cerrada', 'cerrada_at' => now()]);
+            } elseif (! $pagada && $remision->estado === 'cerrada') {
+                $remision->update(['estado' => 'entregada', 'cerrada_at' => null]);
+            }
+        }
+    }
+
     /** Si la remisión salió (en camino o entregada), la orden se pone al día: puede quedar despachada. */
     public function alSalir(Remision $remision): void
     {
-        if (in_array($remision->estado, ['en_camino', 'entregada'], true) && $remision->op_id) {
+        if (in_array($remision->estado, Remision::SALIDAS, true) && $remision->op_id) {
             Op::find($remision->op_id)?->sincronizarEstado();
         }
     }
@@ -233,12 +292,20 @@ class RemisionService
             ? $opItem->trabajos()->where('remisionado', false)->doesntExist()
             : $remisionados >= (int) $opItem->cantidad;
 
-        $opItem->update([
+        $cambios = [
             'cantidad_remisionada' => $remisionados,
             'remisionado'          => $completo,
             'remision_id'          => $completo ? $remision->id : $opItem->remision_id,
-            // Remisionar un producto es la prueba de que está listo: queda alistado.
-            'estado_item'          => $totalTrabajos === 0 ? 'terminado' : $opItem->estado_item,
-        ]);
+        ];
+
+        // Remisionar un producto es la prueba de que lo que viaja está listo: queda alistado. Lo
+        // que viaja, no todo: de 15, remisionar 10 deja 10 alistadas y 5 pendientes.
+        if ($totalTrabajos === 0) {
+            $alistadas = max($opItem->cantidadAlistada(), $remisionados);
+            $cambios['cantidad_alistada'] = $alistadas;
+            $cambios['estado_item']       = $alistadas >= (int) $opItem->cantidad ? 'terminado' : 'en_proceso';
+        }
+
+        $opItem->update($cambios);
     }
 }

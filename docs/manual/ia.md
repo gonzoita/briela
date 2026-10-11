@@ -628,3 +628,13 @@ No están construidos todavía:
   más de lo estimado, por sede.
 - Sugerencias de precio y comisión. Toca dinero: conviene dejarlo de último y
   siempre como sugerencia revisable, nunca aplicando cambios solo.
+
+## Perfil de marca: Importar MD y Completar con IA *(15 oct 2026)*
+
+- **Importar MD**: se sube el perfil en un archivo Markdown (`.md`) —o se pega el texto— y la IA
+  lo reparte en las secciones.
+- **Completar con IA**: la IA formula la pregunta de cada sección para ESTA empresa y la responde
+  sola con lo que el sistema sabe de ella —nombre, ciudad, lo que vende, qué fabrica a la medida,
+  cuántos clientes y dónde— (`PerfilMarcaController::completar`). Por omisión solo llena las
+  vacías; lo escrito a mano no se pisa. Lo que no se puede saber por los datos sale como
+  «[Propuesta para revisar]». La pantalla muestra qué preguntó.

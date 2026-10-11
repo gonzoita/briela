@@ -98,6 +98,11 @@ class CrmLead extends Model
      */
     public function crearCotizacion(): Cotizacion
     {
+        // Quien llama ya revisó que el lead tenga cliente: sin él no nace ninguna cotización.
+        if (! $this->cliente_id) {
+            throw new \LogicException(Cotizacion::SIN_CLIENTE);
+        }
+
         $cot = Cotizacion::create([
             'lead_id'                 => $this->id,
             'cliente_id'              => $this->cliente_id,

@@ -15,6 +15,22 @@ Formato: [versionado semántico](https://semver.org/lang/es/).
 ## [Sin publicar]
 
 ### Agregado
+- **Alistamiento parcial**: de 15 unidades vendidas se pueden alistar 10 y remisionar esas 10. La
+  remisión dice cuánto queda pendiente de cada ítem, en pantalla y en el PDF.
+- **Remisión «Cerrada»**: una remisión entregada se cierra sola cuando la orden queda pagada con
+  pagos verificados. Mientras tanto se ve «Entregada — pendiente de pago». Los pagos en efectivo o
+  cheque se pueden marcar como verificados en la cartera.
+- **Foto de perfil y firma del usuario**: cada persona pone su foto y su firma (dibujada o subida) en
+  Mi perfil. La firma sale sola en cotizaciones, órdenes de producción, órdenes de compra y
+  remisiones.
+- **Perfil de marca: Completar con IA**: la IA formula las preguntas de cada sección para tu empresa
+  y las responde sola con lo que el sistema sabe de ella. «Importar documento» ahora es
+  «Importar MD» y acepta archivos Markdown.
+- **Chat**: los mensajes llegan en vivo con la conversación abierta, Enter envía, Ctrl+V pega una
+  imagen y se puede responder a un mensaje concreto.
+- **Avisos en vivo**: lo que llega a la campana aparece sin recargar, con enlace directo, y la
+  pantalla abierta se actualiza sola si el aviso es suyo. El responsable de una cotización se entera
+  de todo cambio de estado que no hizo él.
 - **La guía de Briela gestiona procesos.** Además de responder, ahora puede generar órdenes de
   producción, alistar, remisionar, mover remisiones, registrar pagos, confirmar abonos del banco,
   marcar pasos de planta, aprobar calidad, cambiar el estado de cotizaciones y mover o registrar
@@ -33,6 +49,12 @@ Formato: [versionado semántico](https://semver.org/lang/es/).
   terminados).
 
 ### Corregido
+- **Ninguna cotización ni orden de producción se procesa sin cliente**: no se guardan sin él, y las
+  viejas sin cliente no se envían, aprueban, alistan ni remisionan hasta asignarle uno.
+- **La firma de la remisión funciona**: el trazo cae donde está el dedo, no se guarda un recuadro en
+  blanco, los errores se muestran, se guarda quién firmó y las firmas salen en el PDF.
+- Las notificaciones del chat ya no dan error 404: abren la conversación.
+- Las etiquetas de estado de cotizaciones y remisiones ya se leen en modo noche.
 - **Un color de marca oscuro ya se lee en modo noche** (y uno muy claro, de día). Cada tema usa el
   mismo tono con la luz justa para que enlaces, menú activo y botones con borde se lean; si el color
   ya se lee, no cambia. La pantalla de Marca avisa cuando se ajustó, y los documentos conservan el

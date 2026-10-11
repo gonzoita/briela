@@ -108,7 +108,7 @@
                 <th style="width:15%">Referencia</th>
                 <th style="width:10%" class="td-center">Cantidad</th>
                 <th style="width:12%">Unidad</th>
-                <th style="width:25%">N° Serie</th>
+                <th style="width:25%">N° Serie / Pendiente</th>
             </tr>
         </thead>
         <tbody>
@@ -118,7 +118,14 @@
                 <td>{{ $item->opItem?->codigo_item ?? '—' }}</td>
                 <td class="td-center">{{ number_format($item->cantidad, 2, '.', '') }}</td>
                 <td>{{ $item->unidad ?? '—' }}</td>
-                <td style="font-family:monospace;font-size:9.5px;">{{ $item->numero_serie ?? '—' }}</td>
+                <td style="font-size:9.5px;">
+                    <span style="font-family:monospace;">{{ $item->numero_serie ?? '' }}</span>
+                    @if((float) $item->cantidad_pendiente > 0)
+                        <div style="color:#92400E;font-weight:bold;">Pendiente por entregar: {{ rtrim(rtrim(number_format((float) $item->cantidad_pendiente, 3, '.', ''), '0'), '.') }}</div>
+                    @elseif(! $item->numero_serie)
+                        —
+                    @endif
+                </td>
             </tr>
             @empty
             <tr><td colspan="5" style="text-align:center;padding:16px;color:#888;">Sin ítems registrados.</td></tr>
@@ -149,27 +156,26 @@
     </div>
     @endif
 
-    <!-- Firmas -->
-    <div class="firmas">
-        <div class="firma-box">
-            @if($remision->firma_despacho)
-                <img class="firma-img" src="{{ $remision->firma_despacho }}" alt="Firma despacho"/>
-            @else
-                <div class="firma-vacio"></div>
-            @endif
-            <div class="firma-label">Despachado por</div>
-            <div class="firma-nombre">{{ $remision->creadoPor?->name ?? '—' }}</div>
-        </div>
-        <div class="firma-box">
-            @if($remision->firma_recibido)
-                <img class="firma-img" src="{{ $remision->firma_recibido }}" alt="Firma recibido"/>
-            @else
-                <div class="firma-vacio"></div>
-            @endif
-            <div class="firma-label">Recibido por</div>
-            <div class="firma-nombre">{{ $remision->nombre_receptor ?? '—' }}</div>
-        </div>
-    </div>
+    <!-- Firmas: en tabla, porque dompdf no entiende flex -->
+    <table style="width:100%; margin-top:30px; border:none;">
+        <tr>
+            <td style="width:48%; border:none; vertical-align:bottom;">
+                @include('pdf._firma', [
+                    'firma'  => $remision->firma_despacho ?: ($remision->firmadoDespachoPor?->firma ?? $remision->creadoPor?->firma),
+                    'nombre' => $remision->firmadoDespachoPor?->name ?? $remision->creadoPor?->name,
+                    'cargo'  => 'Despachado por',
+                ])
+            </td>
+            <td style="width:4%; border:none;"></td>
+            <td style="width:48%; border:none; vertical-align:bottom;">
+                @include('pdf._firma', [
+                    'firma'  => $remision->firma_recibido,
+                    'nombre' => $remision->nombre_receptor,
+                    'cargo'  => 'Recibido por',
+                ])
+            </td>
+        </tr>
+    </table>
 
     <!-- Footer -->
     <div class="footer">

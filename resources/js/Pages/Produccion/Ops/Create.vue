@@ -430,6 +430,12 @@ const ESTADOS_ITEM = [
 // ── Submit ────────────────────────────────────────────────────────────────────
 function submit() {
     errores.value = {}
+    // Una orden sin cliente no se procesa: se avisa aquí para no perder el viaje al servidor.
+    if (!form.cliente_id) {
+        errores.value = { cliente_id: 'Elige el cliente: una orden de producción sin cliente no se puede guardar.' }
+        window.scrollTo({ top: 0, behavior: 'smooth' })
+        return
+    }
     procesando.value = true
     markClean()
     const payload = {
@@ -504,7 +510,7 @@ function submit() {
 
                 <!-- Cliente -->
                 <div class="relative">
-                    <label class="block text-xs font-medium text-tinta-400 mb-1">Cliente</label>
+                    <label class="block text-xs font-medium text-tinta-400 mb-1">Cliente <span class="text-aviso-rojo">*</span></label>
                     <div class="relative">
                         <input v-model="clienteBuscar" type="text"
                             placeholder="Buscar por nombre o NIT..."
@@ -526,6 +532,7 @@ function submit() {
                             <span v-if="c.numero_identificacion" class="ml-2 text-xs text-tinta-300">{{ c.numero_identificacion }}</span>
                         </button>
                     </div>
+                    <p v-if="errores.cliente_id" class="mt-1 text-xs text-aviso-rojo">{{ errores.cliente_id }}</p>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">

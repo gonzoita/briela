@@ -41,6 +41,44 @@ class CotizacionObserver
                 ->where('estado', 'proyectada')
                 ->update(['estado' => 'confirmada']));
         }
+
+        $this->sinRomper(fn () => $this->avisarAlResponsable($cotizacion));
+    }
+
+    /**
+     * El responsable se entera de todo cambio de estado que no hizo él: lo aprobó el cliente por
+     * el enlace, otra persona la marcó, o se venció. Antes solo avisaba el enlace público, y un
+     * cambio desde la pantalla o la guía no le llegaba a nadie.
+     *
+     * El aviso lleva a la cotización, y si el responsable la tiene abierta, la pantalla se
+     * recarga sola (ver «Avisos en vivo» en AppLayout).
+     */
+    private function avisarAlResponsable(Cotizacion $cotizacion): void
+    {
+        $responsable = $cotizacion->responsable_id;
+
+        if (! $responsable || $responsable === auth()->id() || $cotizacion->estado === 'borrador') {
+            return;
+        }
+
+        $quien = auth()->user()?->name;
+        $num   = $cotizacion->numero;
+
+        [$tipo, $titulo, $mensaje] = match ($cotizacion->estado) {
+            'aprobada'  => ['cotizacion_aprobada', "Cotización {$num} aprobada",
+                $quien ? "{$quien} la marcó como aprobada. Ya se puede generar la orden." : 'El cliente la aprobó. Ya se puede generar la orden.'],
+            'rechazada' => ['cotizacion_rechazada', "Cotización {$num} rechazada",
+                trim(($quien ? "{$quien} la marcó como rechazada." : 'El cliente la rechazó.')
+                    .($cotizacion->motivo_rechazo ? " Motivo: {$cotizacion->motivo_rechazo}" : ''))],
+            'vencida'   => ['cotizacion_vencida', "Cotización {$num} vencida",
+                'Pasó su fecha de validez sin respuesta del cliente.'],
+            default     => ['cotizacion_estado', "Cotización {$num}: ".mb_strtolower($cotizacion->estadoBadge()['label']),
+                $quien ? "{$quien} cambió su estado." : 'Cambió de estado.'],
+        };
+
+        app(\App\Services\NotificacionService::class)->crear(
+            $responsable, $tipo, $titulo, $mensaje, "/cotizaciones/{$cotizacion->id}",
+        );
     }
 
     /** Borrada (suave): sus unidades vuelven a estar libres. */

@@ -13,13 +13,15 @@ class RemisionItem extends Model
         'producto_id',
         'descripcion',
         'cantidad',
+        'cantidad_pendiente',
         'unidad',
         'numero_serie',
         'notas',
     ];
 
     protected $casts = [
-        'cantidad' => 'decimal:3',
+        'cantidad'           => 'decimal:3',
+        'cantidad_pendiente' => 'decimal:3',
     ];
 
     public function remision(): BelongsTo

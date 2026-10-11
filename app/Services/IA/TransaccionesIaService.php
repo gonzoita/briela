@@ -565,7 +565,13 @@ class TransaccionesIaService
             throw new FaltaDato('¿De qué orden de producción? Dime su número.');
         }
 
-        return $this->porNumero(ContextoSede::aplicar(Op::query()), $texto, 'orden');
+        $op = $this->porNumero(ContextoSede::aplicar(Op::query()), $texto, 'orden');
+
+        if (! $op->cliente_id) {
+            throw new FaltaDato("La orden {$op->numero} no tiene cliente: asígnaselo en la pantalla de la orden antes de seguir.");
+        }
+
+        return $op;
     }
 
     private function cotizacion(array $p): Cotizacion
@@ -575,7 +581,13 @@ class TransaccionesIaService
             throw new FaltaDato('¿Qué cotización? Dime su número.');
         }
 
-        return $this->porNumero(ContextoSede::aplicar(Cotizacion::query()), $texto, 'cotización');
+        $cot = $this->porNumero(ContextoSede::aplicar(Cotizacion::query()), $texto, 'cotización');
+
+        if (! $cot->cliente_id) {
+            throw new FaltaDato("La cotización {$cot->numero} no tiene cliente: asígnaselo en la pantalla de la cotización antes de seguir.");
+        }
+
+        return $cot;
     }
 
     /** Por número exacto, o por la parte numérica («12» encuentra «OP-0012»). */

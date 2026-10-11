@@ -166,7 +166,16 @@
           <div class="text-sm font-medium text-tinta-900">{{ pago.numero_recibo }}</div>
           <div class="text-xs text-tinta-300">{{ fmtFecha(pago.fecha_pago) }} · {{ pago.medio_pago }}</div>
           <!-- El banco confirmó que este dinero entró (ver el verificador de pagos). -->
-          <div v-if="pago.verificado_at" class="text-xs font-medium text-aviso-verde" title="Confirmado con el extracto del banco">✓ Verificado por el banco</div>
+          <div v-if="pago.verificado_at" class="text-xs font-medium text-aviso-verde"
+            :title="pago.verificado_a_mano ? 'Alguien de cartera confirmó que el dinero entró' : 'Confirmado con el extracto del banco'">
+            ✓ {{ pago.verificado_a_mano ? 'Verificado a mano' : 'Verificado por el banco' }}
+            <button v-if="pago.verificado_a_mano && permisos.desverificar" type="button" @click="cambiarVerificacion(pago, false)"
+              class="ml-1 text-tinta-300 underline font-normal hover:text-tinta-500">deshacer</button>
+          </div>
+          <!-- Sin verificar no cierra nada: la remisión espera a que alguien confirme el dinero. -->
+          <button v-else-if="permisos.verificar" type="button" @click="cambiarVerificacion(pago, true)"
+            class="text-xs text-aviso-azul underline underline-offset-2 hover:opacity-80">Marcar verificado</button>
+          <div v-else class="text-xs text-aviso-ambar">Sin verificar</div>
         </div>
         <div class="flex items-center gap-2 ml-2 flex-shrink-0">
           <span class="text-sm font-semibold text-aviso-verde">${{ fmt(pago.valor) }}</span>
@@ -192,6 +201,7 @@ const props = defineProps({
 })
 
 const cuotas         = ref([])
+const permisos       = ref({ verificar: false, desverificar: false })
 const cargando       = ref(false)
 const totalOpLocal   = ref(props.totalOp ?? 0)
 
@@ -243,12 +253,29 @@ async function cargar() {
     }
     const data = await res.json()
     cuotas.value       = data.cuotas ?? []
+    permisos.value     = { verificar: !! data.puede_verificar, desverificar: !! data.puede_desverificar }
     totalOpLocal.value = data.total_op ?? props.totalOp ?? 0
   } catch (e) {
     console.error('Error fetch cuotas:', e)
   } finally {
     cargando.value = false
   }
+}
+
+// Verificar a mano lo que no pasa por el banco (efectivo, cheque). Con la orden pagada y todo
+// verificado, sus remisiones entregadas se cierran solas.
+async function cambiarVerificacion(pago, verificar) {
+  const res = await fetch(`/financiero/pagos/${pago.id}/verificar`, {
+    method: verificar ? 'POST' : 'DELETE',
+    headers: { 'Accept': 'application/json', 'X-XSRF-TOKEN': getCookie('XSRF-TOKEN') },
+    credentials: 'same-origin',
+  })
+  if (! res.ok) {
+    const err = await res.json().catch(() => ({}))
+    alert(err.message ?? 'No se pudo cambiar la verificación.')
+    return
+  }
+  await cargar()
 }
 
 async function crearCuota() {

@@ -144,6 +144,10 @@ class AlistamientoController extends Controller
             'cantidad'     => (float) $i->cantidad,
             'numero_serie' => $i->numero_serie,
             'alistado'     => $i->estado_item === 'terminado',
+            // Alistamiento parcial: de 15 vendidas, 10 alistadas. Lo remisionado cuenta como
+            // alistado, porque salió.
+            'alistadas'    => $trabajos > 0 ? null : $i->cantidadAlistada(),
+            'remisionadas' => $i->unidadesRemisionadas(),
             // Un ensamble con unidades se alista solo, al terminarlas en planta.
             'automatico'   => $trabajos > 0,
             // Un servicio se alista pero no se despacha: no hay nada que cargar en el camión.
@@ -172,14 +176,22 @@ class AlistamientoController extends Controller
      */
     public function alternar(Request $request, OpItem $item): RedirectResponse
     {
-        $alistar = $request->boolean('alistado', true);
+        $request->validate(['cantidad' => 'nullable|integer|min:1']);
 
-        if ($motivo = $item->alistar($alistar)) {
+        $alistar  = $request->boolean('alistado', true);
+        $cantidad = $request->filled('cantidad') ? (int) $request->cantidad : null;
+
+        if ($motivo = $item->alistar($alistar, $cantidad)) {
             return back()->with('error', $motivo);
         }
 
-        return back()->with('success', $alistar
-            ? 'Ítem alistado, listo para remisionar.'
-            : 'Ítem devuelto a pendiente.');
+        $item->refresh();
+        $faltan = (int) $item->cantidad - $item->cantidadAlistada();
+
+        return back()->with('success', match (true) {
+            ! $alistar  => 'Ítem devuelto a pendiente.',
+            $faltan > 0 => "Quedan {$item->cantidadAlistada()} de ".(int) $item->cantidad." alistadas; {$faltan} siguen pendientes.",
+            default     => 'Ítem alistado, listo para remisionar.',
+        });
     }
 }
