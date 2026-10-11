@@ -114,13 +114,44 @@ class Marca
     }
 
     /**
-     * Paleta completa derivada del color principal.
+     * Contraste mínimo del color de la marca contra la superficie de cada tema.
+     *
+     * El mismo color sirve de fondo de un botón y de texto de un enlace, del menú activo o de un
+     * botón con borde. Un azul marino sobre el gris oscuro del modo noche queda en 1,3:1 —el
+     * enlace no se ve— y un amarillo sobre blanco, igual en el modo día. Por eso el color que
+     * se pinta es el de la empresa **ajustado lo justo** para llegar a este contraste: si ya
+     * lo cumple, sale tal cual.
+     *
+     * De noche se pide 4,5:1, lo de un texto normal: ahí nadie espera el tono exacto —todas las
+     * interfaces aclaran su color en modo oscuro— y lo que más se ve son enlaces y el menú.
+     * De día basta 3:1, lo de un componente o un texto en negrita: el botón lleno es la cara
+     * de la marca, y oscurecer un naranja que ya se lee le cambiaría la identidad a la empresa.
+     */
+    public const CONTRASTE_MINIMO = ['claro' => 3.0, 'oscuro' => 4.5];
+
+    /**
+     * Paleta completa derivada del color principal, para un tema.
      *
      * @return array<string,string>
      */
-    public static function paleta(): array
+    public static function paleta(?string $color = null, string $esquema = 'claro'): array
     {
-        $base = self::color();
+        $esquema   = $esquema === 'oscuro' ? 'oscuro' : 'claro';
+        $superficie = self::esquemas()[$esquema]['superficie'];
+        $base      = self::colorLegible($color ?? self::color(), $esquema);
+
+        if ($esquema === 'oscuro') {
+            // De noche los fondos suaves son tintes OSCUROS del color, mezclados con la
+            // superficie: aclarados hacia el blanco quedaban cajas claras con texto claro.
+            return [
+                'marca'        => $base,
+                'marca-oscuro' => self::ajustarLuz($base, -0.15),
+                'marca-suave'  => self::mezclar($base, $superficie, 0.16),
+                'marca-medio'  => self::mezclar($base, $superficie, 0.30),
+                'marca-texto'  => self::textoLegible($base),
+                'marca-borde'  => self::mezclar($base, $superficie, 0.40),
+            ];
+        }
 
         return [
             'marca'        => $base,
@@ -135,6 +166,89 @@ class Marca
             // lado de un color de marca se ve sucio.
             'marca-borde'  => self::ajustarLuz($base, 0.86),
         ];
+    }
+
+    /**
+     * El color de la empresa, aclarado (de noche) u oscurecido (de día) lo mínimo para que se
+     * lea sobre la superficie del tema. Conserva el tono y la saturación: solo se mueve la luz.
+     * Mezclarlo con blanco lo lavaba: un azul marino terminaba en un gris azulado sin carácter.
+     */
+    public static function colorLegible(string $hex, string $esquema = 'claro'): string
+    {
+        $esquema    = $esquema === 'oscuro' ? 'oscuro' : 'claro';
+        $superficie = self::esquemas()[$esquema]['superficie'];
+        $minimo     = self::CONTRASTE_MINIMO[$esquema];
+        $hex        = strtoupper($hex);
+
+        if (self::contraste($hex, $superficie) >= $minimo) {
+            return $hex;
+        }
+
+        [$h, $s, $l] = self::aHsl($hex);
+
+        for ($paso = 1; $paso <= 100; $paso++) {
+            $luz       = $esquema === 'oscuro' ? min(1, $l + $paso / 100) : max(0, $l - $paso / 100);
+            $candidato = self::desdeHsl($h, $s, $luz);
+
+            if (self::contraste($candidato, $superficie) >= $minimo) {
+                return $candidato;
+            }
+        }
+
+        return $esquema === 'oscuro' ? '#FFFFFF' : '#000000';
+    }
+
+    /** @return array{0:float,1:float,2:float} tono (0-360), saturación y luz (0-1) */
+    private static function aHsl(string $hex): array
+    {
+        [$r, $g, $b] = array_map(fn (int $c) => $c / 255, self::aRgb($hex));
+        $max = max($r, $g, $b);
+        $min = min($r, $g, $b);
+        $l   = ($max + $min) / 2;
+
+        if ($max === $min) {
+            return [0.0, 0.0, $l];
+        }
+
+        $d = $max - $min;
+        $s = $l > 0.5 ? $d / (2 - $max - $min) : $d / ($max + $min);
+        $h = match ($max) {
+            $r      => fmod(($g - $b) / $d + 6, 6),
+            $g      => ($b - $r) / $d + 2,
+            default => ($r - $g) / $d + 4,
+        };
+
+        return [$h * 60, $s, $l];
+    }
+
+    private static function desdeHsl(float $h, float $s, float $l): string
+    {
+        $c = (1 - abs(2 * $l - 1)) * $s;
+        $x = $c * (1 - abs(fmod($h / 60, 2) - 1));
+        $m = $l - $c / 2;
+
+        [$r, $g, $b] = match (true) {
+            $h < 60  => [$c, $x, 0],
+            $h < 120 => [$x, $c, 0],
+            $h < 180 => [0, $c, $x],
+            $h < 240 => [0, $x, $c],
+            $h < 300 => [$x, 0, $c],
+            default  => [$c, 0, $x],
+        };
+
+        return sprintf('#%02X%02X%02X', (int) round(($r + $m) * 255), (int) round(($g + $m) * 255), (int) round(($b + $m) * 255));
+    }
+
+    /** Relación de contraste WCAG entre dos colores, de 1 a 21. */
+    public static function contraste(string $a, string $b): float
+    {
+        [$claro, $oscuro] = [self::luminancia($a), self::luminancia($b)];
+
+        if ($claro < $oscuro) {
+            [$claro, $oscuro] = [$oscuro, $claro];
+        }
+
+        return ($claro + 0.05) / ($oscuro + 0.05);
     }
 
     /**
@@ -168,7 +282,7 @@ class Marca
         }
 
         $oscuro = [];
-        foreach ($esquemas['oscuro'] as $nombre => $valor) {
+        foreach (self::paleta(null, 'oscuro') + $esquemas['oscuro'] as $nombre => $valor) {
             $oscuro[] = "--{$nombre}:{$valor}";
         }
 
@@ -394,6 +508,12 @@ class Marca
      */
     public static function textoLegible(string $hex): string
     {
+        return self::luminancia($hex) > 0.45 ? '#111827' : '#FFFFFF';
+    }
+
+    /** Luminancia relativa (WCAG): el verde pesa mucho más que el azul para el ojo. */
+    public static function luminancia(string $hex): float
+    {
         [$r, $g, $b] = self::aRgb($hex);
 
         $canal = function (int $c): float {
@@ -402,9 +522,18 @@ class Marca
             return $s <= 0.03928 ? $s / 12.92 : (($s + 0.055) / 1.055) ** 2.4;
         };
 
-        $luminancia = 0.2126 * $canal($r) + 0.7152 * $canal($g) + 0.0722 * $canal($b);
+        return 0.2126 * $canal($r) + 0.7152 * $canal($g) + 0.0722 * $canal($b);
+    }
 
-        return $luminancia > 0.45 ? '#111827' : '#FFFFFF';
+    /** Mezcla dos colores: `$peso` es cuánto del primero queda (de 0 a 1). */
+    public static function mezclar(string $a, string $b, float $peso): string
+    {
+        [$r1, $g1, $b1] = self::aRgb($a);
+        [$r2, $g2, $b2] = self::aRgb($b);
+
+        $m = fn (int $x, int $y): int => (int) round($y + ($x - $y) * $peso);
+
+        return sprintf('#%02X%02X%02X', $m($r1, $r2), $m($g1, $g2), $m($b1, $b2));
     }
 
     /** @return array{0:int,1:int,2:int} */

@@ -33,6 +33,10 @@ Formato: [versionado semántico](https://semver.org/lang/es/).
   terminados).
 
 ### Corregido
+- **Un color de marca oscuro ya se lee en modo noche** (y uno muy claro, de día). Cada tema usa el
+  mismo tono con la luz justa para que enlaces, menú activo y botones con borde se lean; si el color
+  ya se lee, no cambia. La pantalla de Marca avisa cuando se ajustó, y los documentos conservan el
+  color exacto.
 - Convertir un lead en cliente ya no crea un cliente repetido: si ya existe con ese documento,
   correo o celular, se vincula. Una empresa nueva nace con su contacto.
 - La cotización que se crea sola desde el CRM usa las condiciones comerciales de la empresa.
