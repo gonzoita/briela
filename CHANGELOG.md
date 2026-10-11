@@ -15,6 +15,15 @@ Formato: [versionado semántico](https://semver.org/lang/es/).
 ## [Sin publicar]
 
 ### Agregado
+- **Informes con archivo desde el chat**: a la guía se le puede pedir un informe («cuántos clientes
+  llegaron el último mes, cuáles cotizaron y cómo mejorar») y responde con el análisis y una tarjeta
+  para descargarlo en Excel o CSV. Las cifras las calcula el sistema, no la IA, y el informe queda
+  guardado en Informes.
+- **Informes: seis fuentes nuevas** —leads del CRM, cotizaciones y ventas, clientes, órdenes de
+  producción, cartera e inventario— con periodo por nombre («el mes pasado»), resúmenes por canal,
+  vendedor, estado o mes, y cifras clave.
+- **Descarga en Excel (.xlsx)** con hojas de resumen, análisis, detalle y una por cada resumen; y CSV
+  que Excel en español abre bien.
 - **Alistamiento parcial**: de 15 unidades vendidas se pueden alistar 10 y remisionar esas 10. La
   remisión dice cuánto queda pendiente de cada ítem, en pantalla y en el PDF.
 - **Remisión «Cerrada»**: una remisión entregada se cierra sola cuando la orden queda pagada con

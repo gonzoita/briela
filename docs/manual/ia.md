@@ -638,3 +638,9 @@ No están construidos todavía:
   cuántos clientes y dónde— (`PerfilMarcaController::completar`). Por omisión solo llena las
   vacías; lo escrito a mano no se pisa. Lo que no se puede saber por los datos sale como
   «[Propuesta para revisar]». La pantalla muestra qué preguntó.
+
+## Informes con archivo desde el chat *(16 oct 2026)*
+
+La guía arma informes completos —con resúmenes, cifras clave y su análisis— que se descargan en
+Excel o CSV: la IA elige la fuente y el periodo, el servidor calcula y la IA solo ve los totales.
+Ver [Informes](./informes.md#pedírselo-a-la-guía-en-el-chat-16-oct-2026).

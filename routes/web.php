@@ -1004,6 +1004,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/{informe}/ejecutar',     [InformeController::class, 'ejecutar'])->name('ejecutar');
         Route::get('/{informe}/pdf',           [InformeController::class, 'exportarPdf'])->name('pdf');
         Route::get('/{informe}/csv',           [InformeController::class, 'exportarCsv'])->name('csv');
+        Route::get('/{informe}/xlsx',          [InformeController::class, 'exportarXlsx'])->name('xlsx');
         Route::delete('/{informe}',            [InformeController::class, 'destroy'])->name('destroy');
     });
 

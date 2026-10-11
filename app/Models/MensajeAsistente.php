@@ -15,7 +15,9 @@ class MensajeAsistente extends Model
     /** Cuántos se le mandan a la IA como contexto de la conversación. */
     public const CONTEXTO = 10;
 
-    protected $fillable = ['user_id', 'rol', 'contenido', 'consulta'];
+    protected $fillable = ['user_id', 'rol', 'contenido', 'consulta', 'informe'];
+
+    protected $casts = ['informe' => 'array'];
 
     public function user(): BelongsTo
     {
@@ -38,6 +40,8 @@ class MensajeAsistente extends Model
                 'rol'       => $m->rol,
                 'contenido' => $m->contenido,
                 'consulta'  => $m->consulta,
+                // La tarjeta del informe que dio la guía, tal como salió.
+                'informe'   => $m->informe,
             ])
             ->values();
     }
@@ -48,13 +52,14 @@ class MensajeAsistente extends Model
      * Sin el recorte, un usuario que use mucho el asistente acumularía miles
      * de filas que nadie va a leer.
      */
-    public static function registrar(int $userId, string $rol, string $contenido, ?string $consulta = null): void
+    public static function registrar(int $userId, string $rol, string $contenido, ?string $consulta = null, ?array $informe = null): void
     {
         static::create([
             'user_id'   => $userId,
             'rol'       => $rol,
             'contenido' => $contenido,
             'consulta'  => $consulta,
+            'informe'   => $informe,
         ]);
 
         static::recortar($userId);

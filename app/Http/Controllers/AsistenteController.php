@@ -25,10 +25,15 @@ class AsistenteController extends Controller
     /** La transacción que la guía propuso en esta respuesta, si propuso alguna: va a la tarjeta de confirmar. */
     private ?array $propuesta = null;
 
+    /** El informe que la guía generó en esta respuesta: va a la tarjeta con las descargas. */
+    private ?array $informe = null;
+    private ?int $informeId = null;
+
     public function __construct(
         private IaService $ia,
         private ConsultasDatosService $consultas,
         private AccionesIaService $acciones,
+        private \App\Services\Informes\MotorInformes $motor,
     ) {
     }
 
@@ -113,11 +118,13 @@ class AsistenteController extends Controller
         $consulta = empty($datos) ? null : implode(', ', array_keys($datos));
 
         MensajeAsistente::registrar($userId, 'usuario', $data['mensaje']);
-        MensajeAsistente::registrar($userId, 'asistente', $texto, $consulta);
+        MensajeAsistente::registrar($userId, 'asistente', $texto, $consulta, $this->informe);
+        $this->guardarAnalisis($texto);
 
         return response()->json([
             'respuesta' => $texto,
             'propuesta' => $this->propuesta,
+            'informe'   => $this->informe,
             // Se le dice al usuario de dónde salieron las cifras, para que
             // pueda verificarlas en la pantalla correspondiente.
             'consulta'  => $consulta,
@@ -205,22 +212,27 @@ class AsistenteController extends Controller
               . "(\"hazme una cotización\", \"remisiona la OP 12\", \"registra el pago\", \"marca el corte como hecho\"). "
               . "Nunca por iniciativa propia. Si falta un dato que el usuario sí dio antes en la conversación, tómalo de ahí.";
 
+        $catalogoInformes = $this->catalogoInformes();
+
         $instrucciones = <<<TXT
         Tu tarea es decidir si una pregunta necesita datos del sistema y cuál consulta usar.
 
         Consultas disponibles (solo leen):
-        {$catalogo}{$catalogoAcciones}
+        {$catalogo}{$catalogoAcciones}{$catalogoInformes}
 
         Responde ÚNICAMENTE con un objeto JSON válido, sin explicaciones ni bloques de código.
 
         Formato: {"consultas": [{"consulta": "nombre_exacto", "parametros": {"dias": 30}}],
-                  "accion": {"accion": "nombre_exacto", "parametros": {}}}
+                  "accion": {"accion": "nombre_exacto", "parametros": {}},
+                  "informe": {"fuente": "...", "periodo": "...", "columnas": [], "agrupar_por": [], "filtros": {}, "nombre": "..."}}
 
         - Si la pregunta toca VARIOS temas, incluye una consulta por cada tema.
           Ejemplo: "cómo va la producción y qué cotizaciones hay" necesita DOS consultas.
         - Si no necesita datos (saludos, preguntas sobre la marca o la empresa):
           responde {"consultas": []}
         - "accion" solo si el usuario pide explícitamente ejecutarla. Si no, omítela.
+        - "informe" solo si piden un informe, un listado, un análisis con detalle, una tabla o un archivo
+          (Excel, CSV). Si no, omítelo.
 
         Usa los nombres exactos de la lista. Máximo 3 consultas.
         TXT;
@@ -238,7 +250,8 @@ class AsistenteController extends Controller
 
         // Este paso solo elige una consulta de una lista: no necesita el modelo
         // bueno, necesita el rápido.
-        $respuesta = $this->ia->texto($prompt, $instrucciones, maxTokens: 300, rapido: true);
+        // Un plan de informe pide más espacio que elegir una consulta.
+        $respuesta = $this->ia->texto($prompt, $instrucciones, maxTokens: $catalogoInformes !== '' ? 700 : 300, rapido: true);
 
         $this->msDecision = $this->ia->ultimaDuracionMs;
 
@@ -273,6 +286,13 @@ class AsistenteController extends Controller
                     $this->propuesta = $hecho['propuesta'];
                 }
             }
+        }
+
+        // Un informe: el servidor lo calcula y lo guarda; a la redacción solo le llegan los totales.
+        $plan = $decidido['informe'] ?? null;
+
+        if (is_array($plan) && ! empty($plan['fuente']) && $catalogoInformes !== '') {
+            $resultados['informe'] = $this->generarInforme($plan, $pregunta);
         }
 
         foreach (array_slice($pedidas, 0, 3) as $pedida) {
@@ -417,6 +437,16 @@ class AsistenteController extends Controller
             $prompt .= "\n\n(No se consultaron datos del sistema para esta pregunta.)";
         }
 
+        // Un informe generado: la respuesta es el análisis, sobre los totales que llegaron.
+        if ($this->informe) {
+            $prompt .= "\n\nGENERASTE EL INFORME «{$this->informe['nombre']}» ({$this->informe['total_filas']} filas). "
+                .'Tu respuesta es su análisis: primero la cifra principal; luego de dos a cuatro hallazgos con números '
+                .'que vengan en "cifras" y "resumenes" (comparando canales, vendedores, meses o lo que haya); después '
+                .'recomendaciones concretas y accionables para mejorar, que salgan de esos números; y al final una frase '
+                .'diciendo que el detalle completo está en la tarjeta de abajo para descargar en Excel o CSV. '
+                .'No muestres el detalle fila por fila ni inventes cifras que no estén.';
+        }
+
         // Una transacción propuesta todavía NO se hizo: la guía no puede decir «listo».
         if ($this->propuesta) {
             $prompt .= "\n\nIMPORTANTE: propusiste esta acción y TODAVÍA NO SE HA HECHO: «{$this->propuesta['resumen']}». "
@@ -491,11 +521,13 @@ class AsistenteController extends Controller
                 );
 
                 MensajeAsistente::registrar($userId, 'usuario', $data['mensaje']);
-                MensajeAsistente::registrar($userId, 'asistente', $texto, $consulta);
+                MensajeAsistente::registrar($userId, 'asistente', $texto, $consulta, $this->informe);
+                $this->guardarAnalisis($texto);
 
                 $enviar('fin', [
                     'respuesta' => $texto,
                     'propuesta' => $this->propuesta,
+                    'informe'   => $this->informe,
                     'consulta'  => $consulta,
                     'tiempos'   => [
                         'decision'  => $this->msDecision,
@@ -515,5 +547,100 @@ class AsistenteController extends Controller
             // Nginx guarda las respuestas por defecto y anula el streaming.
             'X-Accel-Buffering' => 'no',
         ]);
+    }
+
+    // ─── Informes desde el chat ──────────────────────────────────────────────
+
+    /** El catálogo de informes para la decisión, o vacío si el módulo está apagado o no hay fuentes. */
+    private function catalogoInformes(): string
+    {
+        if (! \App\Support\Modulos::activo('informes')) {
+            return '';
+        }
+
+        $catalogo = $this->motor->catalogoParaIa(auth()->user());
+
+        return $catalogo === '' ? '' : "\n\nInformes que puedes GENERAR (el servidor arma la tabla completa, "
+            ."descargable en Excel y CSV, con resúmenes; tú solo eliges):\n{$catalogo}\n\n"
+            .'Para un informe elige la fuente, el periodo que pidieron (si no dicen, ultimos_30), las columnas '
+            .'útiles para la pregunta (si dudas, omítelas y salen las de siempre), de una a tres agrupaciones que '
+            .'sirvan para analizar (agrupar_por) y un nombre corto.';
+    }
+
+    /**
+     * Ejecuta el plan de la IA, guarda el informe y prepara la tarjeta. Devuelve lo que ve la
+     * redacción: totales y resúmenes, nunca las filas.
+     */
+    private function generarInforme(array $plan, string $pregunta): array
+    {
+        $usuario = auth()->user();
+        $norm    = $this->motor->normalizarPlan($plan, $usuario);
+
+        if (! $norm) {
+            return ['exito' => false, 'falta' => 'Ese informe no está disponible para tu usuario: sale de una pantalla a la que no tienes acceso.'];
+        }
+
+        try {
+            $resultado = $this->motor->ejecutarConfig($norm['fuente'], $norm['campos'], $norm['filtros'], $norm['agrupar'], $usuario);
+        } catch (\Throwable $e) {
+            report($e);
+
+            return ['exito' => false, 'falta' => 'No se pudo armar el informe. Intenta con otro periodo o pídelo de otra forma.'];
+        }
+
+        $informe = \App\Models\Informe::create([
+            'nombre'       => $norm['nombre'],
+            'descripcion'  => 'Generado por la guía desde el chat.',
+            'fuente'       => $norm['fuente'],
+            'campos'       => $norm['campos'],
+            'filtros'      => $norm['filtros'],
+            'agrupar'      => $norm['agrupar'],
+            'tipo_grafica' => 'ninguna',
+            'publico'      => false,
+            'origen'       => 'ia',
+            'pregunta'     => \Illuminate\Support\Str::limit($pregunta, 2000, ''),
+            'created_by'   => $usuario->id,
+        ]);
+
+        $this->informeId = $informe->id;
+        $this->informe   = $this->tarjetaInforme($informe, $resultado);
+
+        return ['exito' => true] + $this->motor->paraIa($resultado);
+    }
+
+    /** Lo que muestra la tarjeta del chat: cifras clave, un resumen, unas filas y las descargas. */
+    private function tarjetaInforme(\App\Models\Informe $informe, array $r): array
+    {
+        $resumen = $r['resumenes'][0] ?? null;
+
+        return [
+            'id'          => $informe->id,
+            'nombre'      => $informe->nombre,
+            'fuente'      => $r['fuente_etiqueta'],
+            'periodo'     => $r['periodo'],
+            'total_filas' => $r['total_filas'],
+            'metricas'    => array_slice(array_values(array_filter($r['metricas'], fn ($m) => $m['valor'] !== null)), 0, 6),
+            'resumen'     => $resumen ? [
+                'titulo'   => $resumen['titulo'],
+                'columnas' => array_slice($resumen['columnas'], 0, 4),
+                'filas'    => array_slice($resumen['filas'], 0, 6),
+            ] : null,
+            'columnas'    => array_slice($r['columnas'], 0, 5),
+            'muestra'     => array_slice($r['filas'], 0, 5),
+            'xlsx'        => \App\Services\Informes\EscritorXlsx::disponible(),
+            'urls'        => [
+                'xlsx' => "/informes/{$informe->id}/xlsx",
+                'csv'  => "/informes/{$informe->id}/csv",
+                'ver'  => "/informes/{$informe->id}",
+            ],
+        ];
+    }
+
+    /** El texto de la guía queda guardado como el análisis del informe. */
+    private function guardarAnalisis(string $texto): void
+    {
+        if ($this->informeId) {
+            \App\Models\Informe::whereKey($this->informeId)->update(['analisis' => $texto, 'analizado_at' => now()]);
+        }
     }
 }

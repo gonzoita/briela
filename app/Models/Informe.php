@@ -20,12 +20,19 @@ class Informe extends Model
         'tipo_grafica',
         'publico',
         'created_by',
+        'agrupar',
+        'origen',
+        'pregunta',
+        'analisis',
+        'analizado_at',
     ];
 
     protected $casts = [
         'campos'  => 'array',
         'filtros' => 'array',
         'publico' => 'boolean',
+        'agrupar' => 'array',
+        'analizado_at' => 'datetime',
     ];
 
     public function creador(): BelongsTo

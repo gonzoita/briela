@@ -623,6 +623,14 @@ Lo construido después de la fase 3, que conviene conocer antes de tocar algo ce
 - **Chat y campana en vivo sin websockets**: la conversación abierta pide `?desde={id}` cada 4 s;
   la campana late contra `/api/avisos/pulso` cada 15 s y solo trae las listas si la firma cambió.
   Los avisos del chat apuntan a `/chat/{usuario}` y `/chat/grupos/{grupo}`, que abren la burbuja.
+- **Informes: la IA elige, el servidor calcula** (`App\Services\Informes\MotorInformes`, 16 oct 2026).
+  Cada fuente es una clase (`Informes\Fuentes\*`) con columnas tipadas, dimensiones, medidas,
+  filtros y cifras clave; respeta el permiso de su pantalla y la sede. La guía pide un informe con
+  un plan JSON que `normalizarPlan()` limpia; a la redacción solo llega `paraIa()` —totales y
+  resúmenes, **nunca filas**— y el texto queda como `informes.analisis`. El periodo se guarda por
+  nombre (`Periodo`). Exportar: `ExportadorInformes` (CSV `;` + BOM + coma decimal + protección
+  contra fórmulas) y `EscritorXlsx` (sin librerías; sin `zip` cae al CSV). Una fuente nueva = una
+  clase en `MotorInformes::fuentes()`. Las cuatro de siempre siguen en `InformeService`.
 - **Una OP con trabajo hecho no cambia sus ítems** (`Op::itemsBloqueados()`), y el candado está
   en el servidor.
 

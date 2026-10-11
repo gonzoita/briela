@@ -69,11 +69,15 @@ function eliminar(informe) {
                             class="text-xs font-semibold px-2.5 py-1 rounded-full"
                             :class="fuenteConfig[informe.fuente]?.color ?? 'bg-tinta-100 text-tinta-500'"
                         >
-                            {{ fuenteConfig[informe.fuente]?.label ?? informe.fuente }}
+                            {{ fuenteConfig[informe.fuente]?.label ?? informe.fuente_etiqueta ?? informe.fuente }}
                         </span>
                         <span v-if="informe.publico"
                             class="text-xs font-semibold px-2.5 py-1 rounded-full bg-tinta-100 text-tinta-400">
                             Público
+                        </span>
+                        <span v-if="informe.origen === 'ia'"
+                            class="text-xs font-semibold px-2.5 py-1 rounded-full bg-pastel-violeta-2 text-aviso-violeta">
+                            Pedido a la guía
                         </span>
                         <span v-if="!informe.es_mio"
                             class="text-xs text-tinta-300 ml-auto">

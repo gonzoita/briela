@@ -11,6 +11,7 @@
  */
 import { computed, nextTick, ref } from 'vue'
 import TarjetaTransaccion from '@/Components/TarjetaTransaccion.vue'
+import TarjetaInforme from '@/Components/TarjetaInforme.vue'
 import { usePage } from '@inertiajs/vue3'
 import { formatearMensaje } from '@/utils/formatoMensaje'
 import { useVozAsistente } from '@/composables/useVozAsistente'
@@ -179,6 +180,8 @@ async function enviarEnVivo(pregunta) {
                     burbuja.tiempos     = carga.tiempos || null
                     // Una transacción que la guía propone: va con su tarjeta de confirmar.
                     burbuja.propuesta   = carga.propuesta || null
+                    // Un informe que la guía generó: va con su tarjeta de descargas.
+                    burbuja.informe     = carga.informe || null
                     burbuja.escribiendo = false
                 }
                 bajar()
@@ -233,6 +236,7 @@ async function enviarDeUnaVez(pregunta) {
         consulta: data.consulta || null,
         tiempos: data.tiempos || null,
         propuesta: data.propuesta || null,
+        informe: data.informe || null,
     })
     bajar()
 
@@ -357,6 +361,7 @@ async function limpiar() {
                                 style="background: var(--marca);"></span>
 
                             <TarjetaTransaccion v-if="m.propuesta && !m.escribiendo" :propuesta="m.propuesta" class="whitespace-normal" />
+                            <TarjetaInforme v-if="m.informe && !m.escribiendo" :informe="m.informe" />
 
                             <span v-if="m.consulta && !m.escribiendo" class="block mt-1.5 text-[11px] text-tinta-300">
                                 Datos de: {{ m.consulta.replace(/_/g, ' ') }}
