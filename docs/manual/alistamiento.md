@@ -50,8 +50,8 @@ orden, y la orden arranca sola. Y **alistar ya no es obligatorio para despachar 
 remisionarlo lo alista. Alistar sigue sirviendo para que el almacenista deje constancia de lo que
 dejó en el muelle; la pestaña «Por remisionar» de Remisiones muestra solo eso.
 
-Un producto que se procesa en planta se comporta como un ensamble: lo alista la planta al terminar
-sus unidades, no la mano.
+Un producto sencillo no pasa por planta *(14 oct 2026)*: se alista y queda remisionable. Solo los
+ensambles los deja listos la planta al terminar sus unidades.
 
 ## Con qué se conecta
 

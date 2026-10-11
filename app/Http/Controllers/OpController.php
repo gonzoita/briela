@@ -479,11 +479,6 @@ class OpController extends Controller
             $op->update(['estado' => $nuevoEstado]);
         }
 
-        // Consumo automático de materiales al despachar
-        if ($nuevoEstado === 'despachada' && $estadoAnterior !== 'despachada') {
-            $op->consumirMaterialesInventario();
-        }
-
         if ($request->wantsJson()) {
             return response()->json(['ok' => true]);
         }
@@ -615,12 +610,35 @@ class OpController extends Controller
             'fecha_entrega_estimada' => 'nullable|date',
         ]);
 
+        try {
+            $op = $this->generarOp($cotizacion, $request->only([
+                'anticipo', 'anticipo_medio_pago', 'anticipo_fecha_pago', 'anticipo_referencia', 'sede_id', 'fecha_entrega_estimada',
+            ]));
+        } catch (\RuntimeException $e) {
+            return back()->with('error', $e->getMessage());
+        }
+
+        return redirect("/produccion/ops/{$op->id}")
+            ->with('success', "Orden {$op->numero} generada desde cotización {$cotizacion->numero}.");
+    }
+
+    /**
+     * Crea la OP de una cotización. Lo usan el botón «Generar OP» y la guía, para que nazca igual
+     * venga de donde venga.
+     *
+     * @param  array<string, mixed>  $opciones  anticipo y sus datos, sede de fábrica, fecha de entrega
+     * @throws \RuntimeException si no se puede (sin sede de fábrica)
+     */
+    public function generarOp(Cotizacion $cotizacion, array $opciones = []): Op
+    {
+        abort_if($cotizacion->en_produccion, 422, 'Esta cotización ya tiene una OP generada.');
+
         // ¿En qué fábrica se produce? Una sede de solo ventas (ej. Cúcuta)
         // debe mandar la OP a una sede con producción.
-        $sedeFabrica = $this->resolverSedeFabrica($request->integer('sede_id') ?: null);
+        $sedeFabrica = $this->resolverSedeFabrica(((int) ($opciones['sede_id'] ?? 0)) ?: null);
 
         if (! $sedeFabrica) {
-            return back()->with('error', 'No hay ninguna sede con producción configurada para fabricar esta OP.');
+            throw new \RuntimeException('No hay ninguna sede con producción configurada para fabricar esta OP.');
         }
 
         $cotizacion->load(['items.ensamble.plantilla', 'items.producto']);
@@ -636,9 +654,9 @@ class OpController extends Controller
             'fecha_creacion'=> now()->toDateString(),
             // La fecha que se elige al generar, o la que sale del plazo prometido en la
             // cotización. Sin ella la orden no tenía urgencia en planta ni fecha en Remisiones.
-            'fecha_entrega_estimada' => $request->input('fecha_entrega_estimada')
+            'fecha_entrega_estimada' => ($opciones['fecha_entrega_estimada'] ?? null)
                 ?: $cotizacion->fechaEntregaSugerida()?->toDateString(),
-            'anticipo'      => $request->anticipo ?? null,
+            'anticipo'      => $opciones['anticipo'] ?? null,
         ]);
 
         foreach ($cotizacion->items as $i => $item) {
@@ -746,13 +764,13 @@ class OpController extends Controller
         // Si se registró un anticipo al generar la OP, se convierte de inmediato
         // en una cuota + pago reales dentro del sistema financiero — así no hay
         // que volver a pedirlo cuando la OP se confirme.
-        if ($request->filled('anticipo') && (float) $request->anticipo > 0) {
-            DB::transaction(function () use ($op, $request) {
+        if (! empty($opciones['anticipo']) && (float) $opciones['anticipo'] > 0) {
+            DB::transaction(function () use ($op, $opciones) {
                 $cuota = OpCuota::create([
                     'op_id'               => $op->id,
                     'numero_cuota'        => 1,
                     'concepto'            => 'Anticipo',
-                    'valor'               => $request->anticipo,
+                    'valor'               => $opciones['anticipo'],
                     'fecha_vencimiento'   => null,
                     'estado'              => 'pendiente',
                     'valor_pagado'        => 0,
@@ -763,10 +781,10 @@ class OpController extends Controller
                     'op_id'          => $op->id,
                     'cuota_id'       => $cuota->id,
                     'numero_recibo'  => 'REC-TMP',
-                    'valor'          => $request->anticipo,
-                    'medio_pago'     => $request->anticipo_medio_pago ?? 'efectivo',
-                    'fecha_pago'     => $request->anticipo_fecha_pago ?? now()->toDateString(),
-                    'referencia'     => $request->anticipo_referencia,
+                    'valor'          => $opciones['anticipo'],
+                    'medio_pago'     => $opciones['anticipo_medio_pago'] ?? 'efectivo',
+                    'fecha_pago'     => $opciones['anticipo_fecha_pago'] ?? now()->toDateString(),
+                    'referencia'     => $opciones['anticipo_referencia'] ?? null,
                     'notas'          => 'Anticipo registrado al generar la OP desde la cotización.',
                     'registrado_por' => auth()->id(),
                 ]);
@@ -816,8 +834,7 @@ class OpController extends Controller
             );
         }
 
-        return redirect("/produccion/ops/{$op->id}")
-            ->with('success', "Orden {$op->numero} generada desde cotización {$cotizacion->numero}.");
+        return $op;
     }
 
     public function generarPdf(Op $op): HttpResponse

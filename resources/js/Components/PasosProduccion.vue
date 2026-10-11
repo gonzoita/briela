@@ -20,9 +20,8 @@ const props = defineProps({
     // ensamble directo es solo suyo.
     compartidos:  { type: Boolean, default: false },
     nombrePlantilla: { type: String, default: '' },
-    // Lo que hace el paso final. Un ensamble entra a bodega al terminarse; un producto que se
-    // procesa en planta ya estaba en ella y solo queda listo para despachar.
-    textoFinal: { type: String, default: 'Paso final — entrega la unidad a bodega' },
+    // Lo que dice junto al paso final.
+    textoFinal: { type: String, default: 'Paso final — la unidad queda terminada' },
 })
 
 const suma = computed(() =>
@@ -76,10 +75,7 @@ function mover(i, delta) {
 }
 
 /**
- * El paso final es uno solo: es el que entrega la unidad a bodega.
- *
- * `EntregaAlmacenService` descuenta los materiales y registra el producto terminado cuando se
- * cierra ese paso. Con dos marcados, la entrega se haría dos veces.
+ * El paso final es uno solo: es el que da la unidad por terminada y la deja lista para calidad.
  */
 function marcarFinal(i) {
     props.pasos.forEach((p, idx) => { p.es_paso_final = idx === i })

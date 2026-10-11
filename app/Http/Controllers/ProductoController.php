@@ -243,10 +243,6 @@ class ProductoController extends Controller
             $this->guardarCanales($request, $producto);
             $this->guardarProveedores($request, $producto);
 
-            if (! $esPadre) {
-                $this->guardarProcesoPlanta($request, $producto);
-            }
-
             if ($esPadre) {
                 $imagenesDeVariantes = $this->crearVariantes($request, $producto, $datosBase);
             } else {
@@ -437,7 +433,6 @@ class ProductoController extends Controller
             // Con lo que ya tenga guardado, y en cero los canales creados después de este
             // producto: así aparecen para poder llenarlos.
             'canales'     => app(PreciosPorCanalService::class)->paraFormulario($producto),
-            'proceso_planta' => $this->procesoPlantaDe($producto),
         ]);
     }
 
@@ -540,7 +535,6 @@ class ProductoController extends Controller
 
             $this->guardarCanales($request, $producto);
             $this->guardarProveedores($request, $producto);
-            $this->guardarProcesoPlanta($request, $producto);
             $this->procesarImagenes($request, $producto);
         } catch (ValidationException $e) {
             throw $e;
@@ -559,89 +553,6 @@ class ProductoController extends Controller
      * apuntando al **preferido**, así que el código viejo sigue viendo un proveedor correcto
      * mientras el nuevo compara la lista completa.
      */
-    /** El flujo de planta del producto, como lo dibuja la ficha. */
-    private function procesoPlantaDe(Producto $producto): array
-    {
-        $template = $producto->templateTrabajo;
-
-        return [
-            'activo' => (bool) ($template?->activo && $template->pasos()->exists()),
-            'pasos'  => $template ? $template->pasos()->orderBy('orden')->get()->toArray() : [],
-            'checks' => $producto->checksCalidad()->get()->toArray(),
-        ];
-    }
-
-    /**
-     * Guarda si el producto pasa por planta, con sus pasos y su revisión de calidad.
-     *
-     * Llega como JSON porque la ficha viaja como `multipart/form-data` cuando hay imágenes, y ahí
-     * un `false` llega como `'0'` y una lista vacía desaparece. Apagarlo no borra el flujo: lo
-     * desactiva, porque las unidades que ya nacieron con él lo siguen nombrando. Una pantalla
-     * que no lo manda no lo toca.
-     */
-    private function guardarProcesoPlanta(Request $request, Producto $producto): void
-    {
-        if (! $request->has('proceso_planta') || $producto->tipo === 'servicio') {
-            return;
-        }
-
-        $datos = $request->input('proceso_planta');
-        $datos = is_string($datos) ? (json_decode($datos, true) ?? []) : (array) $datos;
-
-        $datos = \Illuminate\Support\Facades\Validator::make($datos, [
-            'activo'                  => 'nullable|boolean',
-            'pasos'                   => 'nullable|array',
-            'pasos.*.nombre'          => 'nullable|string|max:150',
-            'pasos.*.objetivo'        => 'nullable|string|max:255',
-            'pasos.*.descripcion'     => 'nullable|string|max:2000',
-            'pasos.*.peso_porcentaje' => 'nullable|numeric|min:0|max:100',
-            'pasos.*.nivel_dificultad'=> 'nullable|integer|min:1|max:5',
-            'pasos.*.depende_de'      => 'nullable|array',
-            'pasos.*.es_paso_final'   => 'nullable|boolean',
-            'checks'                  => 'nullable|array',
-            'checks.*.titulo'         => 'nullable|string|max:150',
-            'checks.*.descripcion'    => 'nullable|string|max:2000',
-            'checks.*.exige_foto'     => 'nullable|boolean',
-            'checks.*.es_critico'     => 'nullable|boolean',
-        ], [], ['pasos.*.nombre' => 'nombre del paso', 'checks.*.titulo' => 'punto de revisión'])->validate();
-
-        $pasos = array_values(array_filter(
-            (array) ($datos['pasos'] ?? []),
-            fn ($p) => trim((string) ($p['nombre'] ?? '')) !== ''
-        ));
-
-        $template = $producto->templateTrabajo;
-
-        if (! ($datos['activo'] ?? false) || $pasos === []) {
-            $template?->update(['activo' => false]);
-
-            return;
-        }
-
-        $template ??= \App\Models\TemplateTrabajo::create([
-            'producto_id' => $producto->id,
-            'nombre'      => $producto->nombre,
-            'activo'      => true,
-        ]);
-
-        $template->update(['activo' => true, 'nombre' => $producto->nombre]);
-
-        // Solo los campos que la ficha edita; el resto de cada paso se conserva tal cual llega.
-        $pasos = array_map(fn ($p) => [
-            'nombre'           => $p['nombre'],
-            'objetivo'         => $p['objetivo'] ?? null,
-            'descripcion'      => $p['descripcion'] ?? '',
-            'peso_porcentaje'  => $p['peso_porcentaje'] ?? 0,
-            'nivel_dificultad' => $p['nivel_dificultad'] ?? 1,
-            'depende_de'       => $p['depende_de'] ?? [],
-            'es_paso_final'    => $p['es_paso_final'] ?? false,
-            'bodega_destino_id'=> null,
-        ], $pasos);
-
-        \App\Support\ProcesoPlanta::guardarPasos($template, $pasos);
-        \App\Support\ProcesoPlanta::guardarChecks($producto, (array) ($datos['checks'] ?? []));
-    }
-
     private function guardarProveedores(Request $request, Producto $producto): void
     {
         $filas = $request->input('proveedores_precios');

@@ -22,6 +22,9 @@ class AsistenteController extends Controller
     private int $msConsultas = 0;
     private int $msRedaccion = 0;
 
+    /** La transacción que la guía propuso en esta respuesta, si propuso alguna: va a la tarjeta de confirmar. */
+    private ?array $propuesta = null;
+
     public function __construct(
         private IaService $ia,
         private ConsultasDatosService $consultas,
@@ -114,6 +117,7 @@ class AsistenteController extends Controller
 
         return response()->json([
             'respuesta' => $texto,
+            'propuesta' => $this->propuesta,
             // Se le dice al usuario de dónde salieron las cifras, para que
             // pueda verificarlas en la pantalla correspondiente.
             'consulta'  => $consulta,
@@ -127,6 +131,26 @@ class AsistenteController extends Controller
                 'total'     => (int) ((microtime(true) - $inicioTotal) * 1000),
             ],
         ]);
+    }
+
+    /**
+     * La persona tocó «Confirmar» en la tarjeta de una transacción propuesta por la guía.
+     *
+     * Se vuelven a revisar el permiso, la sede y el estado: entre la propuesta y el clic pudo
+     * cambiar algo, y los parámetros llegan del navegador. El resultado queda en la conversación.
+     */
+    public function confirmar(Request $request, \App\Services\IA\TransaccionesIaService $transacciones): JsonResponse
+    {
+        $data = $request->validate([
+            'accion'     => 'required|string|max:60',
+            'parametros' => 'nullable|array',
+        ]);
+
+        $resultado = $transacciones->ejecutar($data['accion'], $data['parametros'] ?? []);
+
+        MensajeAsistente::registrar(auth()->id(), 'asistente', ($resultado['exito'] ? '✓ ' : '✗ ') . $resultado['mensaje'], 'transaccion:' . $data['accion']);
+
+        return response()->json($resultado, $resultado['exito'] ? 200 : 422);
     }
 
     /** Historial guardado del usuario, para pintar el chat al abrirlo. */
@@ -176,9 +200,10 @@ class AsistenteController extends Controller
         $acciones = $this->acciones->disponibles();
         $catalogoAcciones = empty($acciones)
             ? ''
-            : "\n\nAcciones que puedes EJECUTAR (crean cosas en el sistema):\n" . $describir($acciones)
+            : "\n\nAcciones que puedes EJECUTAR (hacen cosas en el sistema):\n" . $describir($acciones)
               . "\n\nUsa una acción SOLO si el usuario claramente pide hacerla "
-              . "(\"hazme una cotización\", \"crea una cotización\"). Nunca por iniciativa propia.";
+              . "(\"hazme una cotización\", \"remisiona la OP 12\", \"registra el pago\", \"marca el corte como hecho\"). "
+              . "Nunca por iniciativa propia. Si falta un dato que el usuario sí dio antes en la conversación, tómalo de ahí.";
 
         $instrucciones = <<<TXT
         Tu tarea es decidir si una pregunta necesita datos del sistema y cuál consulta usar.
@@ -242,6 +267,11 @@ class AsistenteController extends Controller
 
             if ($hecho !== null) {
                 $resultados[$accion['accion']] = $hecho;
+
+                // Una transacción no se hizo: se propone, y la pantalla muestra el botón.
+                if (! empty($hecho['propuesta'])) {
+                    $this->propuesta = $hecho['propuesta'];
+                }
             }
         }
 
@@ -387,6 +417,13 @@ class AsistenteController extends Controller
             $prompt .= "\n\n(No se consultaron datos del sistema para esta pregunta.)";
         }
 
+        // Una transacción propuesta todavía NO se hizo: la guía no puede decir «listo».
+        if ($this->propuesta) {
+            $prompt .= "\n\nIMPORTANTE: propusiste esta acción y TODAVÍA NO SE HA HECHO: «{$this->propuesta['resumen']}». "
+                . 'Dilo en una o dos frases y pide que toque «Confirmar» en la tarjeta que aparece debajo. '
+                . 'No digas que ya quedó hecha.';
+        }
+
         // Con $alRecibir la respuesta se va entregando por pedazos; sin él, de
         // una sola vez. El prompt es idéntico en ambos casos.
         $texto = $alRecibir
@@ -458,6 +495,7 @@ class AsistenteController extends Controller
 
                 $enviar('fin', [
                     'respuesta' => $texto,
+                    'propuesta' => $this->propuesta,
                     'consulta'  => $consulta,
                     'tiempos'   => [
                         'decision'  => $this->msDecision,

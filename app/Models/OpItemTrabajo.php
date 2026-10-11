@@ -22,6 +22,8 @@ class OpItemTrabajo extends Model
         'terminado_at',
         'token_trabajo',
         'remisionado',
+        // En qué remisión salió: para soltar exactamente esta unidad si se anula.
+        'remision_id',
         // Cuándo entró a bodega la unidad y a cuál. Es el candado que evita que volver a
         // marcar el último paso meta la misma unidad dos veces al inventario.
         'entregado_at',

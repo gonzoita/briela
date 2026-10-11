@@ -10,8 +10,6 @@ use App\Models\Remision;
 use App\Models\Sede;
 use App\Models\TemplateTrabajo;
 use App\Models\User;
-use App\Services\CierrePasoService;
-use App\Services\PreciosPorCanalService;
 use App\Services\TrabajoAutoGeneratorService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -73,19 +71,6 @@ class FlujoProductosOpTest extends TestCase
         app(TrabajoAutoGeneratorService::class)->generarParaItem($item);
 
         return $item->fresh();
-    }
-
-    /** Un producto que se procesa en planta: dos pasos y un punto de revisión. */
-    private function conProceso(Producto $p): TemplateTrabajo
-    {
-        $template = TemplateTrabajo::create(['producto_id' => $p->id, 'nombre' => $p->nombre, 'activo' => true]);
-        $template->sincronizarPasos([
-            ['nombre' => 'Cortar',  'peso_porcentaje' => 50, 'orden' => 0, 'es_paso_final' => false],
-            ['nombre' => 'Empacar', 'peso_porcentaje' => 50, 'orden' => 1, 'es_paso_final' => true],
-        ]);
-        $p->checksCalidad()->create(['titulo' => 'Sin despicados', 'orden' => 0, 'activo' => true]);
-
-        return $template;
     }
 
     private function remisionar(Op $op, OpItem $item, int $unidades)
@@ -182,130 +167,72 @@ class FlujoProductosOpTest extends TestCase
         $this->remisionar($op, $item, 3)->assertSessionHasErrors();
     }
 
-    // ─── Producto que pasa por planta ────────────────────────────────────────
+    // ─── Un producto no pasa por planta (14 oct 2026) ─────────────────────────
 
-    public function test_un_producto_con_proceso_nace_con_unidades_en_planta(): void
+    public function test_un_producto_nunca_nace_con_unidades_aunque_tenga_un_flujo_viejo(): void
     {
         $prod = $this->productoBase();
-        $this->conProceso($prod);
+        // Un flujo que la 1.5.0 dejó colgar de un producto.
+        $t = TemplateTrabajo::create(['producto_id' => $prod->id, 'nombre' => $prod->nombre, 'activo' => true]);
+        $t->sincronizarPasos([['nombre' => 'Cortar', 'peso_porcentaje' => 100, 'orden' => 0, 'es_paso_final' => true]]);
 
         $item = $this->item($this->borrador(), $prod, 3);
 
-        $this->assertSame(3, $item->trabajos()->count());
-        $this->assertSame(2, $item->trabajos()->first()->pasos()->count());
-        $this->assertSame(1, $item->trabajos()->first()->checks()->count());
-        // Lo alista la planta, no la mano.
-        $this->assertNotNull($item->alistar());
-    }
-
-    public function test_un_producto_procesado_queda_listo_al_terminar_y_sale_del_inventario_al_despachar(): void
-    {
-        $prod = $this->productoBase(10);
-        $this->conProceso($prod);
-        $op   = $this->borrador();
-        $item = $this->item($op, $prod, 2);
-        $svc  = app(CierrePasoService::class);
-
-        foreach ($item->trabajos as $t) {
-            $svc->cerrar($t->pasos()->where('es_paso_final', false)->firstOrFail());
-            // El paso final de un producto no pide bodegas: no entra a bodega como terminado.
-            $svc->cerrar($t->pasos()->where('es_paso_final', true)->firstOrFail());
-        }
-
-        $item->refresh();
-        $op->refresh();
-        $this->assertSame('terminado', $item->estado_item);
-        $this->assertSame('calidad', $op->estado);
-        $this->assertNull($item->trabajos()->first()->entregado_at);
-        $this->assertSame(10.0, $this->stock($prod)); // procesarlo no lo movió
-
-        // Calidad firma las unidades: ahí se pueden remisionar.
-        $this->assertSame(0, $item->cantidadDisponible());
-        foreach ($item->trabajos as $t) {
-            $t->checks()->update(['resultado' => 'cumple']);
-            $t->firmarCalidad();
-        }
-        $op->sincronizarEstado();
-        $this->assertSame(2, $item->fresh()->cantidadDisponible());
-
-        $this->remisionar($op, $item, 2)->assertSessionHasNoErrors();
-        $remision = Remision::latest('id')->firstOrFail();
-        $this->patch("/logistica/remisiones/{$remision->id}/estado", ['estado' => 'en_camino'])->assertSessionHasNoErrors();
-
-        $this->assertSame('despachada', $op->fresh()->estado);
-        $this->assertSame(8.0, $this->stock($prod));
-    }
-
-    public function test_desde_la_orden_se_manda_a_planta_un_producto_sin_proceso(): void
-    {
-        $otro     = $this->productoBase();
-        $template = $this->conProceso($otro);
-        $op       = $this->borrador();
-        $item     = $this->item($op, $this->productoBase(), 2);
-        $this->assertSame(0, $item->trabajos()->count());
-
-        $this->post("/produccion/ops/{$op->id}/items/{$item->id}/trabajo/iniciar", ['template_id' => $template->id])
-            ->assertSessionHas('success');
-
-        $this->assertSame(2, $item->trabajos()->count());
-
-        // Con avance registrado ya no se le cambia el flujo ni se saca de planta.
-        app(CierrePasoService::class)->cerrar($item->trabajos()->first()->pasos()->where('es_paso_final', false)->firstOrFail());
-
-        $this->post("/produccion/ops/{$op->id}/items/{$item->id}/trabajo/iniciar", ['template_id' => $template->id])
-            ->assertSessionHas('error');
-        $this->delete("/produccion/ops/{$op->id}/items/{$item->id}/trabajo/pasos-todos")
-            ->assertSessionHas('error');
-        $this->assertSame(2, $item->trabajos()->count());
-        // Y avanzar un paso arrancó la orden.
-        $this->assertSame('en_produccion', $op->fresh()->estado);
-    }
-
-    public function test_sacar_de_planta_un_producto_que_nadie_toco_lo_deja_para_alistar(): void
-    {
-        $prod = $this->productoBase();
-        $this->conProceso($prod);
-        $op   = $this->borrador();
-        $item = $this->item($op, $prod, 2);
-
-        $this->delete("/produccion/ops/{$op->id}/items/{$item->id}/trabajo/pasos-todos")->assertSessionHas('success');
-
-        $item->refresh();
         $this->assertSame(0, $item->trabajos()->count());
         $this->assertNull($item->alistar());
         $this->assertSame('terminado', $item->fresh()->estado_item);
     }
 
-    public function test_la_ficha_del_producto_guarda_y_apaga_su_proceso_en_planta(): void
+    public function test_un_producto_no_se_puede_mandar_a_planta_desde_la_orden(): void
     {
-        $prod = $this->productoBase();
+        $ensamble = \App\Models\Ensamble::create([
+            'nombre' => 'Marco', 'tipo_armado' => 'directo', 'variables' => [], 'creado_por' => $this->admin->id,
+            'unidad_medida' => 'unidad', 'precio_costo' => 1000, 'componentes_resultado' => [],
+        ]);
+        $template = $ensamble->obtenerOCrearTemplateTrabajo();
+        $op       = $this->borrador();
+        $item     = $this->item($op, $this->productoBase(), 2);
 
-        $form = fn (array $proceso) => [
-            'tipo' => 'producto', 'nombre' => $prod->nombre, 'referencia' => $prod->referencia,
-            'unidad_medida' => 'unidad', 'inventariable' => true, 'es_vendible' => true, 'es_insumo' => false,
-            'precio_costo' => 1000, 'canales' => app(PreciosPorCanalService::class)->paraFormulario($prod),
-            'proceso_planta' => json_encode($proceso),
-        ];
+        $this->post("/produccion/ops/{$op->id}/items/{$item->id}/trabajo/iniciar", ['template_id' => $template->id])
+            ->assertSessionHas('error');
 
-        $this->put("/productos/{$prod->id}", $form([
-            'activo' => true,
-            'pasos'  => [
-                ['nombre' => 'Cortar', 'peso_porcentaje' => 60, 'es_paso_final' => true],
-                ['nombre' => 'Pulir',  'peso_porcentaje' => 40, 'es_paso_final' => false],
-            ],
-            'checks' => [['titulo' => 'Medidas correctas']],
-        ]))->assertSessionHasNoErrors();
+        $this->assertSame(0, $item->trabajos()->count());
+    }
 
-        $template = $prod->fresh()->procesoEnPlanta();
-        $this->assertNotNull($template);
-        $this->assertSame(['Cortar', 'Pulir'], $template->pasos()->pluck('nombre')->all());
-        $this->assertSame(1, $template->pasos()->where('es_paso_final', true)->count());
-        $this->assertSame(1, $prod->checksCalidad()->count());
+    public function test_los_productos_que_estaban_en_planta_vuelven_a_alistar(): void
+    {
+        $op        = $this->borrador();
+        $terminado = $this->item($op, $this->productoBase(), 2);
+        $amedias   = $this->item($op, $this->productoBase(), 1);
 
-        $this->put("/productos/{$prod->id}", $form(['activo' => false, 'pasos' => [], 'checks' => []]))
-            ->assertSessionHasNoErrors();
+        // Unidades como las que dejó crear la 1.5.0.
+        foreach ([[$terminado, 100], [$terminado, 100], [$amedias, 50]] as $i => [$it, $avance]) {
+            \App\Models\OpItemTrabajo::create([
+                'op_item_id' => $it->id, 'porcentaje_avance' => $avance, 'numero_unidad' => $i + 1, 'total_unidades' => 1,
+            ]);
+        }
 
-        $this->assertNull($prod->fresh()->procesoEnPlanta());
-        $this->assertSame(0, $this->item($this->borrador(), $prod->fresh())->trabajos()->count());
+        $this->artisan('ops:sincronizar-estados')->assertSuccessful();
+
+        $this->assertSame(0, \App\Models\OpItemTrabajo::count());
+        $this->assertSame('terminado', $terminado->fresh()->estado_item);
+        $this->assertSame('pendiente', $amedias->fresh()->estado_item);
+        $this->assertSame('en_produccion', $op->fresh()->estado);
+    }
+
+    public function test_remisionar_un_producto_lo_saca_del_almacen_al_crear_la_remision(): void
+    {
+        $op   = $this->borrador();
+        $prod = $this->productoBase(10);
+        $item = $this->item($op, $prod, 4);
+        $item->alistar();
+
+        $this->remisionar($op, $item, 4)->assertSessionHasNoErrors();
+
+        $this->assertSame(6.0, $this->stock($prod));
+        $mov = $prod->movimientos()->latest('id')->firstOrFail();
+        $this->assertSame('remision', $mov->origen_tipo);
+        $this->assertSame('salida', $mov->tipo);
+        $this->assertEquals(4, (float) $mov->cantidad);
     }
 }

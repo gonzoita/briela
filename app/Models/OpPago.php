@@ -38,4 +38,39 @@ class OpPago extends Model
     {
         return $this->belongsTo(User::class, 'registrado_por');
     }
+
+    /**
+     * Registra un pago de la orden: su recibo, lo que abona a la cuota y el saldo de la orden.
+     * Un solo sitio: lo usan la cartera de la orden y la guía.
+     *
+     * @param  array{valor: float|int|string, medio_pago: string, fecha_pago: string, cuota_id?: ?int,
+     *               referencia?: ?string, notas?: ?string}  $datos
+     */
+    public static function registrar(Op $op, array $datos): self
+    {
+        $pago = \Illuminate\Support\Facades\DB::transaction(function () use ($datos, $op) {
+            $pago = static::create([
+                ...$datos,
+                'op_id'          => $op->id,
+                'numero_recibo'  => 'REC-TMP',
+                'registrado_por' => auth()->id(),
+            ]);
+
+            $pago->numero_recibo = 'REC-' . str_pad($pago->id, 4, '0', STR_PAD_LEFT);
+            $pago->save();
+
+            if (! empty($datos['cuota_id'])) {
+                $cuota = OpCuota::find($datos['cuota_id']);
+                $cuota->valor_pagado += $datos['valor'];
+                $cuota->estado = $cuota->valor_pagado >= $cuota->valor ? 'pagado' : 'parcial';
+                $cuota->save();
+            }
+
+            return $pago;
+        });
+
+        $op->sincronizarSaldoPendiente();
+
+        return $pago;
+    }
 }

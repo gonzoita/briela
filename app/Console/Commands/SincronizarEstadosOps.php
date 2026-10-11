@@ -11,6 +11,9 @@ use Illuminate\Console\Command;
  * Hasta el 12 oct 2026 alistar un producto no movía la orden: hay órdenes con todo listo que
  * siguen «En producción». Esto les aplica la regla de `Op::sincronizarEstado()` una vez. Se puede
  * correr las veces que haga falta: a una orden que ya está al día no le cambia nada.
+ *
+ * También devuelve a «alistar» los productos que la 1.5.0 dejó mandar a planta (desde el 14 oct
+ * 2026 solo los ensambles pasan por planta).
  */
 class SincronizarEstadosOps extends Command
 {
@@ -20,6 +23,13 @@ class SincronizarEstadosOps extends Command
 
     public function handle(): int
     {
+        // Un producto no pasa por planta: los que la 1.5.0 alcanzó a mandar vuelven a alistar.
+        $productos = app(\App\Services\TrabajoAutoGeneratorService::class)->quitarUnidadesDeProductos();
+
+        if ($productos > 0) {
+            $this->line("{$productos} producto(s) salieron de planta y quedaron para alistar.");
+        }
+
         $cambiadas = 0;
 
         Op::whereIn('estado', ['confirmada', 'en_produccion', 'calidad', 'reproceso'])

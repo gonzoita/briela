@@ -897,6 +897,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/asistente',            [AsistenteController::class, 'index'])->name('asistente.index');
     Route::post('/api/asistente',       [AsistenteController::class, 'preguntar'])->name('asistente.preguntar');
     Route::post('/api/asistente/voz',   [AsistenteController::class, 'voz'])->name('asistente.voz');
+    // Una transacción que la guía propuso y la persona confirmó. Cada una revisa su permiso.
+    Route::post('/api/asistente/confirmar', [AsistenteController::class, 'confirmar'])->name('asistente.confirmar');
     // Respuesta en vivo, palabra por palabra. Si falla, el navegador usa
     // /api/asistente y todo sigue funcionando igual.
     Route::post('/api/asistente/stream', [AsistenteController::class, 'preguntarStream'])->name('asistente.stream');

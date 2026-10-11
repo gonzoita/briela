@@ -22,28 +22,7 @@ class OpPagoController extends Controller
             'notas'      => 'nullable|string',
         ]);
 
-        $pago = null;
-
-        DB::transaction(function () use ($data, $op, &$pago) {
-            $pago = OpPago::create([
-                ...$data,
-                'op_id'          => $op->id,
-                'numero_recibo'  => 'REC-TMP',
-                'registrado_por' => auth()->id(),
-            ]);
-
-            $pago->numero_recibo = 'REC-' . str_pad($pago->id, 4, '0', STR_PAD_LEFT);
-            $pago->save();
-
-            if (!empty($data['cuota_id'])) {
-                $cuota = OpCuota::find($data['cuota_id']);
-                $cuota->valor_pagado += $data['valor'];
-                $cuota->estado = $cuota->valor_pagado >= $cuota->valor ? 'pagado' : 'parcial';
-                $cuota->save();
-            }
-        });
-
-        $op->sincronizarSaldoPendiente();
+        $pago = OpPago::registrar($op, $data);
 
         return response()->json([
             'pago'          => $pago->load('cuota', 'registradoPor'),

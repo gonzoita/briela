@@ -237,116 +237,6 @@ class Op extends Model
             ->exists();
     }
 
-    public function consumirMaterialesInventario(): void
-    {
-        // Una sola vez por orden. Una remisión anulada devuelve la orden a calidad, y al volver a
-        // despacharla el material se descontaba otra vez: el inventario bajaba el doble.
-        if ($this->inventario_consumido_at || ! \App\Support\Modulos::activo('inventario')) return;
-
-        $bodegaPrincipal = Bodega::principal();
-        if (! $bodegaPrincipal) return;
-
-        $this->update(['inventario_consumido_at' => now()]);
-
-        $this->load(['items.ensamble']);
-
-        \Illuminate\Support\Facades\DB::transaction(function () use ($bodegaPrincipal) {
-            foreach ($this->items as $item) {
-                if (! $item->ensamble_id) continue;
-
-                // Lo que se fabricó en esta OP ya descontó su material al terminarse, cuando
-                // la unidad entró a bodega (ver `EntregaAlmacenService`). Volver a consumirlo
-                // aquí lo descontaría dos veces.
-                if ($item->trabajos()->whereNotNull('entregado_at')->exists()) {
-                    $this->descontarDelTerminado($item, $bodegaPrincipal);
-
-                    continue;
-                }
-
-                // Y si no se fabricó aquí pero hay unidades armadas en bodega, se despacha de
-                // ahí: su material se gastó el día que se armaron.
-                if ($this->descontarDelTerminado($item, $bodegaPrincipal)) continue;
-
-                $componentes = $item->componentes_snapshot ?? [];
-                if (empty($componentes) && $item->ensamble) {
-                    $componentes = $item->ensamble->componentes_resultado ?? [];
-                }
-
-                foreach ($componentes as $comp) {
-                    $componenteId = $comp['producto_id'] ?? $comp['componente_id'] ?? null;
-                    $cantReceta   = (float) ($comp['cantidad'] ?? 0);
-                    if (! $componenteId || $cantReceta <= 0) continue;
-
-                    $producto = Producto::find($componenteId);
-                    if (! $producto || ! $producto->es_insumo) continue;
-
-                    $cantTotal = $cantReceta * (float) $item->cantidad;
-
-                    $producto->registrarMovimiento(
-                        tipo: 'consumo_ensamble',
-                        cantidad: $cantTotal,
-                        bodegaId: $bodegaPrincipal->id,
-                        usuarioId: auth()->id(),
-                        origenTipo: 'op',
-                        origenId: $this->id,
-                        notas: "Consumo por OP #{$this->id}"
-                    );
-                }
-            }
-        });
-    }
-
-    /**
-     * Despacha un ítem desde el stock de unidades ya armadas, si alcanza.
-     *
-     * Devuelve true cuando lo hizo, y entonces los materiales de ese ítem **no** se
-     * consumen: se gastaron el día que la unidad se armó.
-     *
-     * Si el ensamble se guarda en bodega pero no hay suficientes armadas, devuelve false y se
-     * consumen los materiales como siempre — esa vez se fabricó contra pedido. Es la opción
-     * honesta: la alternativa sería dejar el stock en negativo para sostener la ficción de
-     * que estaba armado.
-     */
-    private function descontarDelTerminado(OpItem $item, Bodega $bodega): bool
-    {
-        $ensamble = $item->ensamble;
-
-        if (! $ensamble || ! $ensamble->maneja_stock) {
-            return false;
-        }
-
-        $terminado = $ensamble->productoTerminado()->first();
-
-        if (! $terminado) {
-            return false;
-        }
-
-        $piden = (float) $item->cantidad;
-
-        // Se saca de la bodega donde entraron las unidades al fabricarse, que puede no ser la
-        // principal: el último paso del flujo decide a cuál entran.
-        $entregada = $item->trabajos()->whereNotNull('bodega_entrega_id')->value('bodega_entrega_id');
-
-        if ($entregada) {
-            $bodega = Bodega::find($entregada) ?? $bodega;
-        }
-
-        if ($piden <= 0 || $terminado->stockEnBodega($bodega->id) < $piden) {
-            return false;
-        }
-
-        $terminado->registrarMovimiento(
-            tipo: 'salida',
-            cantidad: $piden,
-            bodegaId: $bodega->id,
-            usuarioId: auth()->id(),
-            origenTipo: 'op',
-            origenId: $this->id,
-            notas: "Despacho de unidades armadas · OP #{$this->id}"
-        );
-
-        return true;
-    }
 
     /**
      * Suma cuánto insumo pide cada ítem (según la receta del ensamble) y lo
@@ -703,8 +593,8 @@ class Op extends Model
             return;
         }
 
+        // El inventario ya salió con cada remisión al crearla; despachar solo cambia el estado.
         $this->update(['estado' => 'despachada']);
-        $this->consumirMaterialesInventario();
     }
 
     /**

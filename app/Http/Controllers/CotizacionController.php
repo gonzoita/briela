@@ -594,10 +594,16 @@ class CotizacionController extends Controller
     {
         $guardado = \App\Models\Configuracion::get('cotizacion_condiciones', '');
 
-        return filled($guardado)
-            ? $guardado
-            : 'Precios en pesos colombianos. Validez 30 días. Anticipo 50% para inicio de producción. '
-                .'Tiempo de entrega: 15 días hábiles.';
+        if (filled($guardado)) {
+            return $guardado;
+        }
+
+        // Sin texto propio, uno de partida que dice la moneda de la instalación: escribir
+        // «pesos colombianos» aquí le llegaba igual a una empresa de Panamá.
+        $moneda = mb_strtolower(\App\Support\Monedas::CATALOGO[\App\Support\Monedas::base()]['nombre'] ?? \App\Support\Monedas::base());
+
+        return "Precios en {$moneda}. Validez 30 días. Anticipo 50% para inicio de producción. "
+            .'Tiempo de entrega: 15 días hábiles.';
     }
 
     /**

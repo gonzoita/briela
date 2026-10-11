@@ -133,16 +133,11 @@ vendible y sin inventario. Antes los dos venían apagados: quien no tocaba los i
 un producto sin stock inicial —la sección ni se mostraba— y sin control de existencias, y la
 remisión lo despachaba sin que el inventario se enterara.
 
-## Se procesa en planta *(nuevo 13 oct 2026)*
+## Un producto no pasa por planta *(14 oct 2026)*
 
-Un producto no se fabrica desde una receta, pero a veces sí pasa por planta antes de salir: se
-corta a medida, se pinta, se empaca. La ficha tiene un interruptor **«Se procesa en planta»** con
-sus pasos (el mismo editor de los ensambles: nombre, descripción, peso, paso final) y su lista de
-revisión de calidad. Con eso prendido, cada vez que el producto entra a una orden sus unidades
-salen a **Trabajos** con QR y pasos, y quedan listas para remisionar al terminarlas y pasar
-calidad. Apagarlo no borra el flujo —lo desactiva—, porque las unidades que ya nacieron con él lo
-siguen nombrando. Procesarlo no mueve el inventario: el producto sale de la bodega cuando sale la
-remisión. Ver `produccion-op.md`.
+Un producto se alista y queda listo para remisionar; solo los ensambles se fabrican en planta. La
+ficha ya no tiene «Se procesa en planta» (la 1.5.0 alcanzó a tenerlo un día). Al remisionarlo, sale
+del almacén en ese momento, con su movimiento a la vista en la ficha.
 
 ## Precios
 

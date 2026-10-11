@@ -153,7 +153,7 @@ async function confirmarCierre() {
 const mostrarFormConvertir = ref(false)
 const convirtiendoCliente  = ref(false)
 const errorConvertir       = ref('')
-const formConvertir = ref({ tipo: 'empresa', nombre: '', email: '', celular: '', ciudad: '' })
+const formConvertir = ref({ tipo: 'empresa', nombre: '', numero_identificacion: '', email: '', celular: '', ciudad: '' })
 const clienteExistenteId   = ref('')
 
 watch(mostrarFormConvertir, (val) => {
@@ -187,10 +187,15 @@ async function convertirACliente() {
         mostrarFormConvertir.value = false
         emit('actualizado')
 
+        // Si ya existía (mismo documento, correo o celular), se vinculó en vez de duplicarlo.
+        const queHizo = data.ya_existia ? `Ese cliente ya existía (${data.cliente.nombre}): quedó vinculado al lead.` : 'Cliente creado.'
+
         if (data.cotizacion_id) {
-            if (confirm('Cliente creado. Se generó automáticamente una cotización en borrador. ¿Abrirla ahora?')) {
+            if (confirm(`${queHizo} Se generó automáticamente una cotización en borrador. ¿Abrirla ahora?`)) {
                 router.visit(`/cotizaciones/${data.cotizacion_id}`)
             }
+        } else if (data.ya_existia) {
+            alert(queHizo)
         }
     } catch {
         errorConvertir.value = 'Error de conexión.'
@@ -352,11 +357,19 @@ function formatFecha(fecha) {
                                                 class="w-full border border-tinta-200 rounded-lg px-2 py-1.5 text-sm"/>
                                         </div>
                                     </div>
+                                    <div class="grid grid-cols-2 gap-2">
+                                        <div>
+                                            <label class="text-xs text-tinta-400 block mb-1">{{ formConvertir.tipo === 'empresa' ? 'NIT' : 'Documento' }}</label>
+                                            <input v-model="formConvertir.numero_identificacion" inputmode="numeric"
+                                                class="w-full border border-tinta-200 rounded-lg px-2 py-1.5 text-sm"/>
+                                        </div>
                                     <div>
                                         <label class="text-xs text-tinta-400 block mb-1">Ciudad</label>
                                         <input v-model="formConvertir.ciudad"
                                             class="w-full border border-tinta-200 rounded-lg px-2 py-1.5 text-sm"/>
                                     </div>
+                                    </div>
+                                    <p class="text-xs text-tinta-400">Si ya existe un cliente con ese documento, correo o celular, se vincula en vez de crear otro.</p>
                                     <p v-if="errorConvertir" class="text-xs text-aviso-rojo bg-pastel-rojo rounded px-2 py-1">
                                         {{ errorConvertir }}
                                     </p>

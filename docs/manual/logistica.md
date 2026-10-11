@@ -39,7 +39,9 @@ sello de calidad de la orden entera, que una orden de productos nunca tiene, y q
 ## Flujo normal
 
 1. **Crear** desde una OP: se eligen las unidades a despachar. La remisión nace
-   en "borrador".
+   en "borrador" y **lo que lleva sale del almacén en ese momento** *(14 oct 2026)*: los productos
+   tal cual y los ensambles por sus componentes. Anularla o borrarla lo devuelve. Ver
+   `produccion-op.md`, «El inventario sale al remisionar».
 2. **Confirmar**: el documento queda listo (ya no se edita).
 3. **Marcar en camino**: se registran transportista, celular, placa y costo
    de flete. Queda la fecha de salida.

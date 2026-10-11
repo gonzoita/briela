@@ -119,111 +119,18 @@ class RemisionController extends Controller
             'items.*.producto_id'       => ['nullable', new ProductoSeleccionable],
         ]);
 
-        // Validar unidades disponibles para ítems de OP
-        foreach ($request->items as $idx => $item) {
-            if (!empty($item['op_item_id'])) {
-                $opItem = OpItem::with('trabajos')->find($item['op_item_id']);
+        $servicio = app(\App\Services\RemisionService::class);
 
-                // Un ítem de otra orden, o un servicio, no viaja en esta remisión.
-                if ($opItem && ((int) $opItem->op_id !== (int) $request->op_id || in_array($opItem->tipo, Op::TIPOS_SIN_DESPACHO, true))) {
-                    return back()->withErrors([
-                        "items.{$idx}.op_item_id" => 'Este ítem no se puede remisionar con esta orden.',
-                    ])->withInput();
-                }
-
-                if ($opItem) {
-                    $disponible = $opItem->cantidadDisponible();
-                    $solicitado = (int) ($item['cantidad_unidades'] ?? $item['cantidad']);
-                    if ($solicitado > $disponible) {
-                        return back()->withErrors([
-                            "items.{$idx}.cantidad_unidades" => "Las unidades solicitadas ({$solicitado}) superan las disponibles ({$disponible}).",
-                        ])->withInput();
-                    }
-                }
-            }
+        if ($errores = $servicio->errores($request->op_id, $request->items)) {
+            return back()->withErrors($errores)->withInput();
         }
 
-        $remision = DB::transaction(function () use ($request) {
-            $remision = Remision::create([
-                'tipo'           => $request->tipo,
-                'op_id'          => $request->op_id,
-                'cliente_id'     => $request->cliente_id,
-                'fecha_remision' => $request->fecha_remision ?? today(),
-                'notas'          => $request->notas,
-                'created_by'     => auth()->id(),
-            ]);
-
-            $hayOpItems = false;
-            foreach ($request->items as $item) {
-                RemisionItem::create([
-                    'remision_id'  => $remision->id,
-                    'op_item_id'   => $item['op_item_id'] ?? null,
-                    'producto_id'  => $item['producto_id'] ?? null,
-                    'descripcion'  => $item['descripcion'],
-                    'cantidad'     => $item['cantidad_unidades'] ?? $item['cantidad'],
-                    'unidad'       => $item['unidad'] ?? 'und',
-                    'numero_serie' => $item['numero_serie'] ?? null,
-                    'notas'        => $item['notas'] ?? null,
-                ]);
-
-                if (!empty($item['op_item_id'])) {
-                    $hayOpItems      = true;
-                    $cantidadUnidades = (int) ($item['cantidad_unidades'] ?? $item['cantidad']);
-                    $opItem           = OpItem::with('trabajos')->find($item['op_item_id']);
-
-                    if ($opItem && $cantidadUnidades > 0) {
-                        // Marcar los N trabajos completados no remisionados como remisionados
-                        $trabajosARemisionar = $opItem->trabajos()
-                            ->disponiblesParaRemision()
-                            ->orderBy('numero_unidad')
-                            ->take($cantidadUnidades)
-                            ->get();
-
-                        foreach ($trabajosARemisionar as $t) {
-                            $t->update(['remisionado' => true]);
-                        }
-
-                        // Recalcular campos del ítem. Un producto no tiene trabajos que
-                        // contar, así que lleva su propia cuenta: si se contara por trabajos,
-                        // su `cantidad_remisionada` volvería a cero en cada remisión y se
-                        // podría despachar la misma unidad muchas veces.
-                        $totalTrabajos     = $opItem->trabajos()->count();
-                        $totalRemisionados = $totalTrabajos > 0
-                            ? $opItem->trabajos()->where('remisionado', true)->count()
-                            : (int) $opItem->cantidad_remisionada + $cantidadUnidades;
-                        // «Completo» es que **no quede ninguna unidad sin remisionar**, y no que
-                        // no queden disponibles. Desde que el candado de calidad es por unidad,
-                        // «sin disponibles» también significa «las que faltan siguen en
-                        // revisión»: con el criterio viejo, despachar tres de diez marcaba el
-                        // ítem entero como remisionado y las otras siete desaparecían del
-                        // remisionador.
-                        $estaCompleto      = $totalTrabajos > 0
-                            ? $opItem->trabajos()->where('remisionado', false)->doesntExist()
-                            : $totalRemisionados >= (int) $opItem->cantidad;
-
-                        $opItem->update([
-                            'cantidad_remisionada' => $totalRemisionados,
-                            'remisionado'          => $estaCompleto,
-                            'remision_id'          => $estaCompleto ? $remision->id : $opItem->remision_id,
-                            // Remisionar un producto es la prueba de que está listo: queda
-                            // alistado sin que nadie tenga que pasar antes por Alistamiento.
-                            'estado_item'          => $totalTrabajos === 0 ? 'terminado' : $opItem->estado_item,
-                        ]);
-                    }
-                }
-            }
-
-            // Crear la remisión no despacha la orden: se despacha cuando la remisión **sale**.
-            if ($hayOpItems && $request->op_id) {
-                Op::find($request->op_id)?->sincronizarEstado();
-            }
-
-            return $remision;
-        });
+        // Crear la remisión saca del almacén lo que lleva: ver RemisionService e InventarioRemisionService.
+        $remision = $servicio->crear($request->only(['tipo', 'op_id', 'cliente_id', 'fecha_remision', 'notas', 'items']));
 
         // A la remisión recién creada: lo siguiente es confirmarla, firmarla y despacharla, y
         // devolver a la lista obligaba a buscarla para seguir.
-        return redirect("/logistica/remisiones/{$remision->id}")->with('success', 'Remisión creada. Confírmala y márcala en camino cuando salga.');
+        return redirect("/logistica/remisiones/{$remision->id}")->with('success', 'Remisión creada: lo que lleva ya salió del almacén. Confírmala y márcala en camino cuando salga.');
     }
 
     public function show(Remision $remision)
@@ -290,38 +197,13 @@ class RemisionController extends Controller
             'fecha_entrega'        => 'nullable|date',
         ]);
 
-        $nuevoEstado = $request->estado;
+        $motivo = app(\App\Services\RemisionService::class)->cambiarEstado($remision, $request->estado, $request->only([
+            'transportista', 'celular_transportista', 'placa', 'costo_flete', 'nombre_receptor', 'fecha_salida', 'fecha_entrega',
+        ]));
 
-        // Una remisión entregada o anulada ya no cambia; una anulada no «revive» a en camino.
-        if (! $remision->puedePasarA($nuevoEstado)) {
-            return back()->with('error', "Una remisión {$remision->estadoBadge()['label']} no puede pasar a ese estado.");
+        if ($motivo) {
+            return back()->with('error', $motivo);
         }
-
-        $data = ['estado' => $nuevoEstado];
-
-        if ($nuevoEstado === 'en_camino') {
-            $data['fecha_salida'] = $request->fecha_salida ?? now();
-            if ($request->filled('transportista'))         $data['transportista']         = $request->transportista;
-            if ($request->filled('celular_transportista')) $data['celular_transportista'] = $request->celular_transportista;
-            if ($request->filled('placa'))                 $data['placa']                 = $request->placa;
-            if ($request->filled('costo_flete'))           $data['costo_flete']           = $request->costo_flete;
-        }
-
-        if ($nuevoEstado === 'entregada') {
-            $data['fecha_entrega']   = $request->fecha_entrega ?? now();
-            $data['nombre_receptor'] = $request->nombre_receptor;
-        }
-
-        DB::transaction(function () use ($remision, $data, $nuevoEstado) {
-            if ($nuevoEstado === 'anulada') {
-                $this->desbloquearItems($remision);
-                $remision->devolverAlInventario();
-            }
-
-            $remision->update($data);
-
-            $this->alSalir($remision);
-        });
 
         return back()->with('success', 'Estado actualizado correctamente.');
     }
@@ -347,7 +229,7 @@ class RemisionController extends Controller
         }
 
         $remision->update($data);
-        $this->alSalir($remision);
+        app(\App\Services\RemisionService::class)->alSalir($remision);
 
         return back()->with('success', $mensaje);
     }
@@ -362,8 +244,9 @@ class RemisionController extends Controller
         DB::transaction(function () use ($remision) {
             // Una anulada ya liberó sus ítems al anularse. Liberarlos otra vez soltaba unidades
             // de OTRAS remisiones de la misma orden.
+            // Borrarla suelta lo suyo y devuelve al almacén lo que había sacado.
             if ($remision->estado !== 'anulada') {
-                $this->desbloquearItems($remision);
+                app(\App\Services\RemisionService::class)->liberar($remision);
             }
             $remision->delete();
         });
@@ -490,64 +373,6 @@ class RemisionController extends Controller
     }
 
     // ─── Helpers privados ──────────────────────────────────────────────────────
-
-    private function desbloquearItems(Remision $remision): void
-    {
-        $remisionItems = $remision->items()->whereNotNull('op_item_id')->get();
-
-        if ($remisionItems->isEmpty()) return;
-
-        foreach ($remisionItems as $remisionItem) {
-            $opItem = OpItem::with('trabajos')->find($remisionItem->op_item_id);
-            if (!$opItem) continue;
-
-            // Desmarcar los trabajos remisionados correspondientes a esta remisión
-            // (los más recientes en orden descendente de numero_unidad)
-            $cantidadADesmarcar = (int) $remisionItem->cantidad;
-            $trabajosRemisionados = $opItem->trabajos()
-                ->where('remisionado', true)
-                ->orderByDesc('numero_unidad')
-                ->take($cantidadADesmarcar)
-                ->get();
-
-            foreach ($trabajosRemisionados as $t) {
-                $t->update(['remisionado' => false]);
-            }
-
-            // Recalcular campos del ítem. Un producto no tiene unidades: se le resta lo que
-            // llevaba esta remisión. Antes se recontaba por unidades —cero— y anular una de dos
-            // remisiones de un producto lo devolvía entero, como si la otra no hubiera salido.
-            $totalRemisionados = $opItem->sinTrabajos()
-                ? max(0, (float) $opItem->cantidad_remisionada - (float) $remisionItem->cantidad)
-                : $opItem->trabajos()->where('remisionado', true)->count();
-
-            $opItem->update([
-                'cantidad_remisionada' => $totalRemisionados,
-                'remisionado'          => false,
-                'remision_id'          => $totalRemisionados > 0 ? $opItem->remision_id : null,
-            ]);
-        }
-
-        // Si esta remisión había despachado la orden, la orden vuelve a donde estaba antes de
-        // salir —calidad si todo está listo— y no a «en producción» a secas.
-        if ($remision->op_id) {
-            Op::find($remision->op_id)?->revertirDespacho();
-        }
-    }
-
-    /** La remisión salió (en camino o entregada): sale del inventario y la orden se pone al día. */
-    private function alSalir(Remision $remision): void
-    {
-        if (! in_array($remision->estado, ['en_camino', 'entregada'], true)) {
-            return;
-        }
-
-        $remision->sacarDelInventario();
-
-        if ($remision->op_id) {
-            Op::find($remision->op_id)?->sincronizarEstado();
-        }
-    }
 
     /**
      * Las órdenes con algo listo para remisionar, con lo que tiene cada una.

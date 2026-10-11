@@ -1,6 +1,6 @@
 # CRM — Pipeline de leads
 
-Ruta: `/crm/pipeline`
+Ruta: `/crm`
 
 ## Qué es
 
@@ -35,6 +35,37 @@ cliente asociado todavía.
 3. **Vínculo Lead ↔ Cotización**: toda cotización generada desde un lead queda
    registrada con `lead_id`, visible tanto en el detalle del lead (actividad)
    como en el encabezado de la cotización ("Origen: lead...").
+
+## La cotización mueve el lead *(14 oct 2026)*
+
+Lo que pasa con la cotización de un lead lo mueve solo (`CrmLead::alCambiarCotizacion()`, desde
+`CotizacionObserver`, así que vale por cualquier camino: la pantalla, el enlace del cliente, la guía
+o «Generar OP»):
+
+- **Aprobada** → el lead pasa a **ganado** y a la etapa marcada como ganado.
+- **Rechazada** o **vencida** → **perdido**, con el motivo (el que escribió el cliente, o «venció sin
+  respuesta»), pero solo si el lead no tiene otra cotización viva.
+- Un lead ganado no se vuelve perdido porque se venza otra cotización suya.
+
+La cotización automática usa las **condiciones comerciales que configuró la empresa** (antes llevaba
+un texto fijo que decía «pesos colombianos» en cualquier país).
+
+## Convertir a cliente sin duplicar *(14 oct 2026)*
+
+Pide nombre, tipo y, opcional, documento. Si ya existe un cliente con ese **documento, correo o
+celular**, se vincula en vez de crear otro y se avisa. Una empresa nueva nace con la persona del lead
+como contacto principal.
+
+## Las puertas de entrada
+
+Todo lead entra por `LeadEntranteService`, que reconoce a quien ya estaba (correo, o los últimos 10
+dígitos del teléfono) y registra cada canal por el que llegó: formularios públicos (`/f/{slug}`, con
+reparto fijo, rotativo o ponderado entre vendedores), plugin de WordPress, WhatsApp, Instagram y
+Messenger, el **agente de IA** (las novedades que reporta un cliente, con su propio canal), la guía y
+la carga manual. Si la persona vuelve a escribir por un formulario, el aviso dice «volvió a
+escribir» en vez de «nuevo lead».
+
+Abrir, editar, mover o borrar un lead de **otra sede** por enlace directo devuelve «no encontrado».
 
 ## Qué queda registrado
 

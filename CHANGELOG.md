@@ -14,6 +14,33 @@ Formato: [versionado semántico](https://semver.org/lang/es/).
 
 ## [Sin publicar]
 
+### Agregado
+- **La guía de Briela gestiona procesos.** Además de responder, ahora puede generar órdenes de
+  producción, alistar, remisionar, mover remisiones, registrar pagos, confirmar abonos del banco,
+  marcar pasos de planta, aprobar calidad, cambiar el estado de cotizaciones y mover o registrar
+  leads. Siempre muestra primero una tarjeta con lo que va a hacer y solo lo hace al tocar
+  «Confirmar», con los mismos permisos de quien la usa.
+- **El lead del CRM se mueve solo**: pasa a ganado cuando se aprueba su cotización, y a perdido
+  —con el motivo— cuando se rechaza o se vence, si no tiene otra cotización abierta.
+
+### Cambiado
+- **Lo remisionado sale del almacén al crear la remisión.** Un producto sale tal cual (si se
+  remisionan cuatro bisagras, salen cuatro bisagras) y un ensamble sale por todos sus componentes.
+  Cada salida queda en los movimientos del producto, y anular o borrar la remisión lo devuelve.
+  Terminar un ensamble en planta ya no mueve inventario ni pide bodegas.
+- **Un producto sencillo solo se alista**: ya no pasa por planta. Los productos que se habían
+  mandado a planta con la versión anterior quedan para alistar (o alistados, si ya estaban
+  terminados).
+
+### Corregido
+- Convertir un lead en cliente ya no crea un cliente repetido: si ya existe con ese documento,
+  correo o celular, se vincula. Una empresa nueva nace con su contacto.
+- La cotización que se crea sola desde el CRM usa las condiciones comerciales de la empresa.
+- Las novedades que reporta un cliente al agente de IA llegan al CRM con su origen y avisan a quien
+  debe atenderlas.
+- Si un cliente vuelve a llenar un formulario, el aviso dice que volvió a escribir.
+- Un lead de otra sede ya no se abre por enlace directo.
+
 ## [1.5.0] — 2026-10-11
 
 ### Agregado

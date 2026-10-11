@@ -47,8 +47,12 @@ class AccionesIaService
     {
         $user = auth()->user();
 
+        // Las transacciones de los procesos (OP, remisiones, pagos, planta, CRM) van aparte y
+        // nunca se ejecutan aquí: se proponen y la persona las confirma con un botón.
         return collect(static::catalogo())
             ->filter(fn ($cfg) => $user?->tienePermiso($cfg['permiso']))
+            ->merge(collect(app(TransaccionesIaService::class)->disponibles())
+                ->map(fn ($cfg) => $cfg + ['confirmar' => true]))
             ->all();
     }
 
@@ -63,7 +67,8 @@ class AccionesIaService
 
         return match ($accion) {
             'crear_cotizacion' => $this->crearCotizacion($parametros),
-            default            => null,
+            // Una transacción: aquí solo se arma la propuesta; se hace al confirmar.
+            default            => app(TransaccionesIaService::class)->proponer($accion, $parametros),
         };
     }
 

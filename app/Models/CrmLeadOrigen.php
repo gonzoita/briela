@@ -48,6 +48,8 @@ class CrmLeadOrigen extends Model
             'referido'   => ['etiqueta' => 'Referido',    'color' => '#026AA2', 'fondo' => '#F0F9FF', 'color_oscuro' => '#7CD4FD', 'fondo_oscuro' => '#0F2A3A'],
             'evento'     => ['etiqueta' => 'Feria o evento', 'color' => '#C4320A', 'fondo' => '#FEF6EE', 'color_oscuro' => '#F7B27A', 'fondo_oscuro' => '#37220F'],
             'importado'  => ['etiqueta' => 'Importado',   'color' => '#475467', 'fondo' => '#F9FAFB', 'color_oscuro' => '#B4BCCA', 'fondo_oscuro' => '#252B36'],
+            // El agente de IA que atiende a los clientes por WhatsApp o redes deja aquí las novedades.
+            'agente_ia'  => ['etiqueta' => 'Agente de IA', 'color' => '#6941C6', 'fondo' => '#F9F5FF', 'color_oscuro' => '#D6BBFB', 'fondo_oscuro' => '#2A1F45'],
             'manual'     => ['etiqueta' => 'Cargado a mano', 'color' => '#475467', 'fondo' => '#F9FAFB', 'color_oscuro' => '#B4BCCA', 'fondo_oscuro' => '#252B36'],
             'otro'       => ['etiqueta' => 'Otro',        'color' => '#475467', 'fondo' => '#F9FAFB', 'color_oscuro' => '#B4BCCA', 'fondo_oscuro' => '#252B36'],
         ];

@@ -18,7 +18,8 @@ class TemplateTrabajo extends Model
         // Un flujo de trabajo cuelga de una plantilla del cotizador, o —cuando el ensamble
         // es directo y no tiene plantilla— del ensamble mismo.
         'ensamble_id',
-        // O de un producto que se procesa en planta: cortarlo, pintarlo, empacarlo.
+        // La 1.5.0 dejó colgar flujos de productos; desde el 14 oct 2026 solo pasan por planta
+        // los ensambles. La columna se conserva (hacia adelante) pero nada la usa.
         'producto_id',
         'nombre',
         'activo',
@@ -36,11 +37,6 @@ class TemplateTrabajo extends Model
     public function ensamble(): BelongsTo
     {
         return $this->belongsTo(Ensamble::class, 'ensamble_id');
-    }
-
-    public function producto(): BelongsTo
-    {
-        return $this->belongsTo(Producto::class, 'producto_id');
     }
 
     public function pasos(): HasMany

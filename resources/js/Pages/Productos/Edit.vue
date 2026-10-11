@@ -5,7 +5,6 @@ import GeneradorFichaIa from '@/Components/GeneradorFichaIa.vue'
 import PreciosPorCanal from '@/Components/PreciosPorCanal.vue'
 import ImagenVariante from '@/Components/ImagenVariante.vue'
 import ProveedoresProducto from '@/Components/ProveedoresProducto.vue'
-import ProcesoPlantaProducto from '@/Components/ProcesoPlantaProducto.vue'
 import { usePreciosPorCanal } from '@/composables/usePreciosPorCanal'
 import EditorTexto from '@/Components/EditorTexto.vue'
 import { useForm, router } from '@inertiajs/vue3'
@@ -24,18 +23,9 @@ const props = defineProps({
     // Las tasas vigentes, para mostrar en pesos un costo escrito en otra moneda.
     tasas:       { type: Object, default: () => ({}) },
     colchon_pct: { type: Number, default: 0 },
-    // Si pasa por planta: { activo, pasos, checks }.
-    proceso_planta: { type: Object, default: () => ({ activo: false, pasos: [], checks: [] }) },
 })
 
 const p = props.producto
-
-// Viaja como JSON: el formulario va como multipart y ahí un `false` llega como '0'.
-const procesoPlanta = reactive({
-    activo: !! props.proceso_planta?.activo,
-    pasos:  (props.proceso_planta?.pasos ?? []).map(x => ({ ...x })),
-    checks: (props.proceso_planta?.checks ?? []).map(x => ({ ...x })),
-})
 
 // ── Redacción con IA ──────────────────────────────────────────────────────────
 // Pide el texto y lo pone en el campo; el usuario decide si lo deja o lo edita.
@@ -394,10 +384,7 @@ const submit = () => {
     aplicarDescuentosMax()
 
     markClean()
-    form.transform(data => ({
-        ...data,
-        proceso_planta: JSON.stringify(procesoPlanta),
-    })).post(`/productos/${p.id}`, { forceFormData: true })
+    form.post(`/productos/${p.id}`, { forceFormData: true })
 }
 
 const badgeStyle = {
@@ -782,9 +769,6 @@ const badgeStyle = {
                     :colchon-pct="colchon_pct"
                     permite-moneda
                 />
-
-                <!-- ═══ Proceso en planta ═══════════════════════════════════ -->
-                <ProcesoPlantaProducto v-if="form.tipo !== 'servicio'" :proceso="procesoPlanta" />
 
                 <!-- ═══ Importación ══════════════════════════════════════════ -->
                 <div v-if="form.tipo !== 'servicio'" class="bg-superficie rounded-xl border border-linea p-5">

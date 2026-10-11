@@ -31,6 +31,11 @@ class CotizacionObserver
         // Aprobada, por el camino que sea, la comisión del vendedor deja de ser una proyección.
         // Antes solo lo hacían la pantalla interna y «Generar OP»: si el cliente aprobaba por el
         // enlace público, la comisión seguía «proyectada» hasta que alguien generara la orden.
+        // El lead de donde salió se entera: aprobada → ganado; rechazada o vencida → perdido.
+        if ($cotizacion->lead_id) {
+            $this->sinRomper(fn () => $cotizacion->lead?->alCambiarCotizacion($cotizacion));
+        }
+
         if ($cotizacion->estado === 'aprobada') {
             $this->sinRomper(fn () => \App\Models\ComisionVendedor::where('cotizacion_id', $cotizacion->id)
                 ->where('estado', 'proyectada')

@@ -223,32 +223,6 @@ class Producto extends Model
         return $query->where('es_vendible', true);
     }
 
-    /**
-     * El flujo de pasos con que este producto se procesa en planta, si lo tiene.
-     *
-     * Un producto no se fabrica desde una receta, pero muchas veces sí pasa por planta antes de
-     * salir: cortarlo a medida, pintarlo, empacarlo. Para eso tiene su propio flujo, igual que
-     * un ensamble directo, y en la orden cada unidad sale con su QR y sus pasos.
-     */
-    public function templateTrabajo(): \Illuminate\Database\Eloquent\Relations\HasOne
-    {
-        return $this->hasOne(\App\Models\TemplateTrabajo::class, 'producto_id');
-    }
-
-    /** El flujo vigente: activo y con al menos un paso. Sin eso, el producto solo se alista. */
-    public function procesoEnPlanta(): ?\App\Models\TemplateTrabajo
-    {
-        $template = $this->templateTrabajo;
-
-        return $template && $template->activo && $template->pasos()->exists() ? $template : null;
-    }
-
-    /** Los puntos que calidad revisa en cada unidad procesada. */
-    public function checksCalidad(): \Illuminate\Database\Eloquent\Relations\MorphMany
-    {
-        return $this->morphMany(\App\Models\ChecklistCalidad::class, 'checkeable')->orderBy('orden');
-    }
-
     /** El ensamble del que este producto es el producto terminado, si lo es. */
     public function ensamble(): BelongsTo
     {

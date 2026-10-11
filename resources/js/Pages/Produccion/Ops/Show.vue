@@ -157,13 +157,12 @@ const puedeGestionar     = computed(() => ['administrador', 'jefe_produccion'].i
 const templatePorItem = ref({})
 
 /**
- * Un ítem se puede mandar a planta si no es un servicio, todavía no tiene todas sus unidades y
- * no ha salido nada de él. Un producto también: cortarlo, pintarlo o empacarlo es trabajo de
- * planta, y sus unidades nacen igual que las de un ensamble.
+ * Solo un ensamble pasa por planta, y solo si le faltan unidades y no ha salido nada de él. Un
+ * producto se alista y ya es remisionable.
  */
 function puedeProcesar(item) {
     return puedeGestionar.value
-        && ! ['servicio', 'texto_libre'].includes(item.tipo)
+        && item.tipo === 'ensamble'
         && (item.trabajos?.length ?? 0) < Math.floor(parseFloat(item.cantidad))
         && ! (item.trabajos ?? []).some(t => t.remisionado)
 }

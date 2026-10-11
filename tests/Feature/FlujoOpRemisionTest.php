@@ -264,12 +264,14 @@ class FlujoOpRemisionTest extends TestCase
 
         $r = $this->remisionar($op, $prod, 3);
 
-        $this->assertSame('calidad', $op->fresh()->estado); // en borrador sigue en la bodega
-        $this->assertEquals(10, $prod->producto->fresh()->stockTotal());
+        // Crear la remisión ya saca el producto del almacén, pero no despacha la orden.
+        $this->assertSame('calidad', $op->fresh()->estado);
+        $this->assertEquals(7, $prod->producto->fresh()->stockTotal());
+        $this->assertSame(1, \App\Models\ProductoMovimiento::where('origen_tipo', 'remision')->where('origen_id', $r->id)->where('tipo', 'salida')->count());
 
         $this->estado($r, 'en_camino')->assertSessionHas('success');
 
-        // El servicio no viaja y no impide despachar.
+        // El servicio no viaja y no impide despachar; salir no vuelve a descontar.
         $this->assertSame('despachada', $op->fresh()->estado);
         $this->assertEquals(7, $prod->producto->fresh()->stockTotal());
     }
@@ -303,7 +305,31 @@ class FlujoOpRemisionTest extends TestCase
         $this->estado($r2, 'en_camino');
 
         $this->assertEquals(7, $prod->producto->fresh()->stockTotal());
-        $this->assertNotNull($op->fresh()->inventario_consumido_at);
+    }
+
+    public function test_borrar_una_remision_en_borrador_devuelve_lo_que_saco(): void
+    {
+        $op   = $this->op();
+        $prod = $this->producto($op, 3, 10);
+
+        $r = $this->remisionar($op, $prod, 2);
+        $this->assertEquals(8, $prod->producto->fresh()->stockTotal());
+
+        $this->delete("/logistica/remisiones/{$r->id}");
+
+        $this->assertEquals(10, $prod->producto->fresh()->stockTotal());
+        $this->assertEquals(0, (float) $prod->fresh()->cantidad_remisionada);
+    }
+
+    public function test_si_no_alcanza_el_stock_se_descuenta_lo_que_hay_y_se_avisa(): void
+    {
+        $op   = $this->op();
+        $prod = $this->producto($op, 5, 3);
+
+        $this->remisionar($op, $prod, 5);
+
+        $this->assertEquals(0, $prod->producto->fresh()->stockTotal());
+        $this->assertTrue(\App\Models\Notificacion::where('tipo', 'material_faltante')->exists());
     }
 
     public function test_un_producto_en_dos_remisiones_se_anula_solo_lo_suyo(): void

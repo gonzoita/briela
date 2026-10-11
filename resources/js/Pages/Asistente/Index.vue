@@ -1,5 +1,6 @@
 <script setup>
 import { computed, nextTick, onMounted, ref } from 'vue'
+import TarjetaTransaccion from '@/Components/TarjetaTransaccion.vue'
 import { router } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
 import { formatearMensaje } from '@/utils/formatoMensaje'
@@ -145,6 +146,7 @@ async function enviar(texto = null) {
             contenido: data.respuesta,
             consulta: data.consulta || null,
             tiempos: data.tiempos || null,
+            propuesta: data.propuesta || null,
         })
         bajar()
 
@@ -228,6 +230,8 @@ async function enviar(texto = null) {
                                 redactar {{ (m.tiempos.redaccion / 1000).toFixed(1) }} s)
                             </span>
                         </span>
+
+                        <TarjetaTransaccion v-if="m.propuesta" :propuesta="m.propuesta" class="whitespace-normal" />
 
                         <span v-if="m.consulta" class="block mt-2 text-[11px] text-tinta-300">
                             Datos de: {{ m.consulta.replace(/_/g, ' ') }}

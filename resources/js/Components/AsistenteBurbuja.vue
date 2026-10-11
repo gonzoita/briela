@@ -10,6 +10,7 @@
  * lateral, y en celular la esquina inferior izquierda es el botón de Inicio.
  */
 import { computed, nextTick, ref } from 'vue'
+import TarjetaTransaccion from '@/Components/TarjetaTransaccion.vue'
 import { usePage } from '@inertiajs/vue3'
 import { formatearMensaje } from '@/utils/formatoMensaje'
 import { useVozAsistente } from '@/composables/useVozAsistente'
@@ -176,6 +177,8 @@ async function enviarEnVivo(pregunta) {
                     burbuja.contenido   = carga.respuesta
                     burbuja.consulta    = carga.consulta || null
                     burbuja.tiempos     = carga.tiempos || null
+                    // Una transacción que la guía propone: va con su tarjeta de confirmar.
+                    burbuja.propuesta   = carga.propuesta || null
                     burbuja.escribiendo = false
                 }
                 bajar()
@@ -229,6 +232,7 @@ async function enviarDeUnaVez(pregunta) {
         contenido: data.respuesta,
         consulta: data.consulta || null,
         tiempos: data.tiempos || null,
+        propuesta: data.propuesta || null,
     })
     bajar()
 
@@ -351,6 +355,8 @@ async function limpiar() {
                             <span v-if="m.escribiendo"
                                 class="inline-block w-1.5 h-4 align-middle ml-0.5 animate-pulse"
                                 style="background: var(--marca);"></span>
+
+                            <TarjetaTransaccion v-if="m.propuesta && !m.escribiendo" :propuesta="m.propuesta" class="whitespace-normal" />
 
                             <span v-if="m.consulta && !m.escribiendo" class="block mt-1.5 text-[11px] text-tinta-300">
                                 Datos de: {{ m.consulta.replace(/_/g, ' ') }}

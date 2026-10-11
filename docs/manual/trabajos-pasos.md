@@ -184,35 +184,12 @@ de la bodega ni repone el material** — se gastó de verdad, y la unidad está 
 estante. Deshacer ese movimiento diría que no existe algo que sí existe; lo que corresponde es
 un ajuste de inventario, que lo decide quien cuenta el estante.
 
-## El paso final pide las dos bodegas
+## El paso final ya no pide bodegas *(14 oct 2026)*
 
-> **Salvo en un producto procesado en planta** *(13 oct 2026)*: no entra a bodega como producto
-> terminado —ya estaba en ella—, así que su paso final se cierra como cualquier otro y la pantalla
-> no pregunta bodegas (`bodegas_sugeridas.pide = false`).
-
-El paso marcado como final es el que **entrega la unidad**. Al cerrarlo se pregunta:
-
-| Pregunta | Para qué |
-|---|---|
-| ¿A qué bodega entra la unidad terminada? | Ahí se registra la entrada del producto terminado |
-| ¿De qué bodega salieron los insumos? | De ahí se descuenta el material que se gastó |
-
-**Son dos y no una.** Una bodega de producto terminado no guarda insumos: descontar el material
-contra ella lo recorta a cero en silencio y el inventario queda mintiendo por los dos lados.
-
-Llegan **ya elegidas**, en este orden: lo que se eligió en la unidad anterior de la misma
-orden, y si no, lo que declaró la orden al confirmarse. Casi siempre es confirmar y seguir; el
-selector está para el caso real de que la puerta terminara en otro estante del que se planeó, o
-de que el material saliera de otra caja. En una orden de diez puertas, sin esa memoria serían
-veinte respuestas idénticas, y a la tercera se contestan sin leer.
-
-Se guardan **por unidad** (`op_item_trabajos.bodega_entrega_id` y `bodega_material_id`) porque
-un lote se puede partir: tres puertas con material de la principal y dos con el de la sucursal.
-
-**El paso final no se cierra con trabajo por delante.** Si quedan otros pasos pendientes, se
-rechaza y se dice cuántos faltan: entregar ahí metería al inventario una puerta que todavía no
-tiene marco. Y toda plantilla tiene garantizado un paso final —si nadie lo marca, lo es el
-último—, así que una unidad nunca se queda sin entrar a ninguna parte.
+Terminar en planta **no mueve inventario**. El paso final solo da la unidad por terminada (y no se
+cierra con otros pasos pendientes); lo que la unidad gastó sale del almacén cuando se remisiona
+(ver `produccion-op.md`, «El inventario sale al remisionar»). Antes ese paso pedía las dos bodegas
+y metía la unidad como producto terminado.
 
 ## El operario: entrar por QR
 
@@ -237,40 +214,6 @@ también **devuelve los puntos** otorgados, para que el ranking no quede inflado
 
 También se pueden agregar **pasos extra** sobre la marcha, para el trabajo que
 no estaba en la receta.
-
-## El último paso entrega a una bodega *(nuevo 15 ago 2026)*
-
-**Toda producción entra a bodega.** El último paso del flujo es el de entrega: quien lo
-cierra es quien físicamente deja la unidad en el estante, así que ese paso dice **en qué
-bodega**. Se define una vez en la plantilla de pasos, y se puede cambiar en una orden
-concreta si ese lote va a otra parte.
-
-Al cerrar ese paso, en la misma operación:
-
-1. Se **descuentan los materiales** de esa unidad. Es el momento honesto: es cuando se
-   gastaron.
-2. Se **registra la entrada** del producto terminado en esa bodega.
-
-Antes un trabajo terminaba y ahí quedaba: la unidad existía en el mundo real —armada,
-aprobada, en un estante— y en el sistema no existía en ninguna parte. El material recién
-se descontaba al despachar, así que entre fabricar y despachar el inventario mostraba
-insumos que ya no estaban y no mostraba el producto que sí estaba.
-
-Un trabajo es **una unidad física**, así que cada uno descuenta lo suyo cuando de verdad
-se armó. Una OP de cinco unidades a medio fabricar tiene el inventario que le
-corresponde, no el de las cinco.
-
-**No se puede entregar dos veces.** El trabajo guarda cuándo entró y a dónde, y esa marca
-es el candado: sin ella, volver a marcar el último paso —o dos personas marcándolo a la
-vez— metería la misma unidad dos veces al inventario, y eso no se nota hasta que alguien
-cuenta el estante.
-
-Al despachar, la remisión **saca de esa bodega y no vuelve a tocar los materiales**: ya se
-descontaron al fabricar.
-
-Si el ensamble no tenía prendido «se guarda en bodega», se prende solo al entregar la
-primera unidad: de ese ensamble sí hay unidades guardadas, aunque nadie lo hubiera
-declarado antes.
 
 ## Qué se dispara al avanzar
 

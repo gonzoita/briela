@@ -8,9 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 /**
  * Guardar el flujo de planta de algo que se fabrica o se procesa: sus pasos y su revisión.
  *
- * Lo usan la ficha del ensamble y la del producto. Es la misma lista con las mismas reglas —un
- * solo paso final, borrar y reescribir solo si cambió—, así que vive en un solo sitio: escrita
- * dos veces, el producto terminaría con dos pasos finales el día que se arregle solo uno.
+ * La usa la ficha del ensamble: un solo paso final, borrar y reescribir solo si cambió. Vive
+ * aparte del controlador para que la regla no se repita si otra pantalla llega a editar pasos.
  */
 class ProcesoPlanta
 {
@@ -105,7 +104,7 @@ class ProcesoPlanta
     }
 
     /**
-     * Guarda la lista de revisión de calidad de su dueño (plantilla, ensamble o producto).
+     * Guarda la lista de revisión de calidad de su dueño (plantilla o ensamble).
      *
      * Borra y reescribe, como los pasos. Lo ya revisado no se toca: cada unidad guarda su copia
      * del punto —título, descripción y si exigía foto— justo para que cambiar la lista no
