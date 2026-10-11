@@ -382,4 +382,50 @@ class VerificadorPagosTest extends TestCase
             ->assertOk()
             ->assertJsonPath('cuotas.0.pagos.0.verificado_at', fn ($v) => $v !== null);
     }
+
+    // ─── Avisos ──────────────────────────────────────────────────────────────
+
+    public function test_el_responsable_de_la_orden_se_entera_de_que_el_banco_confirmo_su_pago(): void
+    {
+        $vendedora = User::factory()->create(['rol' => 'vendedor']);
+        $op = $this->op('OP-2026-001', 'Muebles del Valle SAS', [5000000]);
+        $op->update(['responsable_id' => $vendedora->id]);
+
+        $this->importar($this->abono(5000000, 'PAGO', 'OP-2026-001'));
+
+        $this->assertDatabaseHas('notificaciones', ['user_id' => $vendedora->id, 'tipo' => 'pago_verificado']);
+        // Quien subió el extracto no recibe un aviso de lo que acaba de ver en pantalla.
+        $this->assertDatabaseMissing('notificaciones', ['user_id' => $this->admin->id, 'tipo' => 'pago_verificado']);
+    }
+
+    public function test_los_administradores_saben_cuando_un_extracto_deja_abonos_por_revisar(): void
+    {
+        $otroAdmin = User::factory()->create(['rol' => 'administrador']);
+        $this->op('OP-2026-001', 'Muebles del Valle SAS', [5000000]);
+
+        $this->importar($this->abono(1234567, 'ABONO MISTERIOSO'));
+
+        $this->assertDatabaseHas('notificaciones', ['user_id' => $otroAdmin->id, 'tipo' => 'abonos_por_revisar']);
+        $this->assertDatabaseMissing('notificaciones', ['user_id' => $this->admin->id, 'tipo' => 'abonos_por_revisar']);
+    }
+
+    public function test_si_todo_se_concilio_no_se_avisa_de_nada_por_revisar(): void
+    {
+        $otroAdmin = User::factory()->create(['rol' => 'administrador']);
+        $this->op('OP-2026-001', 'Muebles del Valle SAS', [5000000]);
+
+        $this->importar($this->abono(5000000, 'PAGO', 'OP-2026-001'));
+
+        $this->assertDatabaseMissing('notificaciones', ['user_id' => $otroAdmin->id, 'tipo' => 'abonos_por_revisar']);
+    }
+
+    public function test_con_el_modulo_apagado_no_hay_avisos(): void
+    {
+        $otroAdmin = User::factory()->create(['rol' => 'administrador']);
+        Modulos::guardar(['verificador_pagos'], 'test');
+
+        $this->importar($this->abono(1234567, 'ABONO MISTERIOSO'));
+
+        $this->assertDatabaseMissing('notificaciones', ['user_id' => $otroAdmin->id, 'tipo' => 'abonos_por_revisar']);
+    }
 }

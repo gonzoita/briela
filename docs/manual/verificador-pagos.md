@@ -94,3 +94,27 @@ Falta, y no depende del código:
 
 Cuando eso esté, la conexión es **otra fuente** que llama a `importar()`; nada del emparejamiento
 cambia.
+
+### Preguntas para Belvo (o para cualquier agregador)
+
+Antes de firmar nada, las mismas a cada proveedor, para poder comparar:
+
+1. ¿Funciona con **cuentas empresariales** de los bancos que usan los clientes? ¿Cuáles exactamente?
+2. ¿**Avisa** cuando entra un movimiento nuevo (webhook) o solo se puede consultar? ¿Cada cuánto
+   se actualizan los movimientos?
+3. ¿Cada movimiento trae un **identificador único**, la **referencia** de la transferencia y el
+   **nombre de quien pagó**? Sin eso, el emparejamiento depende solo del valor.
+4. ¿Cuánto cuesta por conexión y por consulta? ¿Se puede contratar **una vez y conectar muchas
+   empresas**, que es lo que haría Briela?
+5. ¿Cómo autoriza la empresa la conexión a su cuenta, y cada cuánto hay que renovarla?
+6. ¿Dónde se guardan los datos y por cuánto tiempo? ¿Cumplen la Ley 1581?
+7. ¿Hay un ambiente de pruebas con movimientos de ejemplo?
+
+## Avisos
+
+- **Un extracto que deja abonos por decidir o sin dueño** avisa a los administradores
+  (`abonos_por_revisar`), menos a quien lo subió.
+- **Cuando el banco confirma un pago**, el responsable de la orden se entera (`pago_verificado`),
+  si no fue él quien lo asignó.
+- Los dos se pueden apagar desde Configuración → Notificaciones, y desaparecen con el módulo.
+

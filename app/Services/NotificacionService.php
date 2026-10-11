@@ -28,6 +28,8 @@ class NotificacionService
         'stock_bajo'               => 'inventario',
         'stock_apartado_usado'     => 'inventario',
         'stock_apartado_vencido'   => 'inventario',
+        'abonos_por_revisar'       => 'verificador_pagos',
+        'pago_verificado'          => 'verificador_pagos',
         'op_a_calidad'             => 'calidad',
         'op_a_reproceso'           => 'calidad',
         'op_lista_despacho'        => 'remisiones',
@@ -118,6 +120,8 @@ class NotificacionService
             ],
             'Financiero' => [
                 ['tipo' => 'saldo_vencido',       'label' => 'Cuota / saldo de OP vencido'],
+                ['tipo' => 'pago_verificado',     'label' => 'El banco confirmó un pago de una de tus órdenes'],
+                ['tipo' => 'abonos_por_revisar',  'label' => 'Un extracto dejó abonos por revisar'],
             ],
             'Capacitación' => [
                 ['tipo' => 'evaluacion_por_revisar', 'label' => 'Evaluación por calificar'],

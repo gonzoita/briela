@@ -22,7 +22,9 @@ Formato: [versionado semántico](https://semver.org/lang/es/).
   pago «Verificado por el banco»; lo que tiene más de una explicación queda **por decidir** con
   un clic, y el dinero que nadie reclama queda a la vista como **sin dueño**. Subir dos veces el
   mismo extracto no duplica nada. Solo lee: no mueve ni paga nada, y solo guarda los últimos
-  dígitos de la cuenta. Es un módulo que se enciende y se apaga desde Configuración → Módulos.
+  dígitos de la cuenta. Es un módulo que se enciende y se apaga desde Configuración → Módulos. Avisa a los administradores
+  cuando un extracto deja abonos por revisar, y al responsable de la orden cuando el banco confirma
+  uno de sus pagos.
 - **Varios países.** Cada sede tiene su país y la moneda de sus documentos; los clientes y
   proveedores, el suyo. Las cotizaciones ofrecen los impuestos del país de la sede (IVA, ITBMS…),
   el cliente elige entre los documentos de identidad de su país (NIT, RUC, RIF…) y la IA lee el

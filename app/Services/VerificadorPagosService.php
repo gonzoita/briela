@@ -129,7 +129,36 @@ class VerificadorPagosService
             }
         }
 
+        $this->avisarLoPorRevisar($resumen, $abonos, $userId);
+
         return $resumen;
+    }
+
+    /**
+     * Quien administra se entera de que el extracto dejó dinero sin explicar, sin tener que abrir
+     * la pantalla a mirar. A quien subió el extracto no: ya vio el resultado en pantalla.
+     *
+     * @param  array<string, int>  $resumen
+     * @param  list<array<string, mixed>>  $abonos
+     */
+    private function avisarLoPorRevisar(array $resumen, array $abonos, ?int $userId): void
+    {
+        $porRevisar = $resumen['dudosos'] + $resumen['pendientes'];
+
+        if ($porRevisar === 0 || ! static::habilitado()) {
+            return;
+        }
+
+        $total = MovimientoBancario::whereIn('estado', ['pendiente', 'dudoso'])->sum('valor');
+
+        app(NotificacionService::class)->paraRol(
+            ['administrador'],
+            'abonos_por_revisar',
+            'Hay abonos por revisar',
+            "El último extracto dejó {$resumen['dudosos']} abonos por decidir y {$resumen['pendientes']} sin dueño. En total hay \$".number_format((float) $total, 0, ',', '.').' sin explicar.',
+            '/financiero/verificador-pagos',
+            excluirUserId: $userId,
+        );
     }
 
     // ─── El emparejamiento ───────────────────────────────────────────────────
@@ -268,6 +297,19 @@ class VerificadorPagosService
         });
 
         $cuota->op?->sincronizarSaldoPendiente();
+
+        // A quien responde por la orden: el banco ya confirmó que este pago entró. Si fue él quien
+        // lo asignó, no necesita que se lo cuenten.
+        $responsable = $cuota->op?->responsable_id;
+        if ($responsable && $responsable !== $userId) {
+            app(NotificacionService::class)->crear(
+                $responsable,
+                'pago_verificado',
+                'El banco confirmó un pago',
+                'Entraron \$'.number_format((float) $pago->valor, 0, ',', '.')." de «{$cuota->concepto}» de la orden {$cuota->op->numero}.",
+                "/produccion/ops/{$cuota->op_id}",
+            );
+        }
 
         return $pago;
     }
