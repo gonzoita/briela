@@ -1,5 +1,9 @@
 # Agentes
 
+> Esta página es de los agentes que **atienden a clientes**. Los que trabajan para el equipo
+> —leen datos, avisan y proponen— están en [Equipo de IA](./agentes-internos.md), en la pestaña
+> «Equipo interno» de la misma pantalla.
+
 Ruta: `/configuracion/agentes` · Permisos: `agentes.ver`, `agentes.gestionar`
 
 Quién atiende por WhatsApp, por Instagram, por Facebook y por el chat de la web a nombre de la

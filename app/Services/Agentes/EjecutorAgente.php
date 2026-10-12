@@ -60,8 +60,11 @@ class EjecutorAgente
 
             Auth::setUser($usuario);
             app()->forgetInstance('briela.permisos.' . $usuario->id);
-            // La sede de quien la pidió no es la del agente.
-            session()->forget('sede_activa_id');
+
+            // La sede de quien pidió la corrida no es la del agente. `ContextoSede` la lee de la
+            // sesión: sin sede propia se pone 0 («todas las sedes»); en un worker no hay sesión
+            // y, sin esto, el agente vería solo la primera sede a la que tiene acceso.
+            session()->put('sede_activa_id', $agente->sede_id ?: 0);
 
             IaService::conContexto('agentes', $agente->id, $ejecucion->id, function () use ($agente, $ejecucion, $usuario) {
                 $this->correr($agente, $ejecucion, $usuario);
@@ -72,9 +75,7 @@ class EjecutorAgente
             app()->forgetInstance('briela.permisos.' . ($usuario->id ?? 0));
             $previo ? Auth::setUser($previo) : Auth::forgetGuards();
 
-            if ($sedePrevia !== null) {
-                session()->put('sede_activa_id', $sedePrevia);
-            }
+            $sedePrevia !== null ? session()->put('sede_activa_id', $sedePrevia) : session()->forget('sede_activa_id');
         }
 
         return $ejecucion->fresh();
@@ -110,6 +111,13 @@ class EjecutorAgente
     {
         if (! $agente->activo && ! $ejecucion->prueba) {
             $ejecucion->update(['estado' => 'cancelada', 'terminada_at' => now(), 'error' => 'El agente está apagado.']);
+
+            return;
+        }
+
+        // La pausa general también alcanza lo que ya estaba en cola cuando se puso.
+        if (LanzadorAgentes::pausado() && ! $ejecucion->prueba) {
+            $ejecucion->update(['estado' => 'cancelada', 'terminada_at' => now(), 'error' => 'El Equipo de IA está en pausa general.']);
 
             return;
         }
@@ -292,6 +300,7 @@ class EjecutorAgente
                 'agente_propuesta',
                 $propuestas === 1 ? "{$agente->nombre} dejó 1 propuesta por aprobar" : "{$agente->nombre} dejó {$propuestas} propuestas por aprobar",
                 'Revísalas antes de que venzan.',
+                '/configuracion/agentes?equipo=1&vista=aprobaciones',
             );
 
             return;
@@ -325,12 +334,12 @@ class EjecutorAgente
     }
 
     /** @param list<int> $ids */
-    private function notificar(array $ids, string $tipo, string $titulo, ?string $mensaje): void
+    private function notificar(array $ids, string $tipo, string $titulo, ?string $mensaje, string $url = '/configuracion/agentes?equipo=1'): void
     {
         $servicio = app(NotificacionService::class);
 
         foreach ($ids as $id) {
-            $servicio->crear($id, $tipo, $titulo, $mensaje, '/configuracion/agentes?equipo=1');
+            $servicio->crear($id, $tipo, $titulo, $mensaje, $url);
         }
     }
 }

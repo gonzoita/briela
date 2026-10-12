@@ -21,7 +21,18 @@ class AgenteIaController extends Controller
 {
     public function index(ConsultasPublicasService $publicas, ConsultasClienteService $deCliente): Response
     {
+        $usuario = auth()->user();
+
         return Inertia::render('Agentes/Index', [
+            // La pestaña «Equipo interno» (agentes que trabajan para la empresa). Apagado el
+            // módulo no existe; encendido, cada botón depende de su permiso.
+            'equipo' => \App\Support\Modulos::activo('equipo_ia') && $usuario?->tienePermiso('equipo_ia.ver') ? [
+                'ver'       => true,
+                'ejecutar'  => $usuario->tienePermiso('equipo_ia.ejecutar'),
+                'aprobar'   => $usuario->tienePermiso('equipo_ia.aprobar'),
+                'gestionar' => $usuario->tienePermiso('equipo_ia.gestionar'),
+                'consumo'   => $usuario->tienePermiso('equipo_ia.consumo'),
+            ] : null,
             'agentes' => AgenteIa::orderBy('orden')->orderBy('id')->get()
                 ->map(fn ($a) => [
                     'id'            => $a->id,

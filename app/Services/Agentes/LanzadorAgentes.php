@@ -5,6 +5,7 @@ namespace App\Services\Agentes;
 use App\Jobs\EjecutarAgenteJob;
 use App\Models\AgenteEjecucion;
 use App\Models\AgenteInterno;
+use App\Models\Configuracion;
 use App\Models\User;
 use Carbon\CarbonInterface;
 
@@ -16,6 +17,15 @@ use Carbon\CarbonInterface;
  */
 class LanzadorAgentes
 {
+    /**
+     * El interruptor de emergencia: con la pausa general puesta, ningún agente arranca solo ni
+     * por botón. Las pruebas en seco siguen funcionando: no escriben nada.
+     */
+    public static function pausado(): bool
+    {
+        return Configuracion::get('equipo_ia_pausado', '0') === '1';
+    }
+
     /**
      * Una corrida a pedido de una persona. Si el agente ya tiene una en curso, no crea otra: dos
      * corridas a la vez del mismo agente se pisarían las propuestas y duplicarían el gasto.
@@ -51,6 +61,10 @@ class LanzadorAgentes
      */
     public function programadas(CarbonInterface $ahora): int
     {
+        if (self::pausado()) {
+            return 0;
+        }
+
         $creadas = 0;
 
         foreach (AgenteInterno::where('activo', true)->get() as $agente) {

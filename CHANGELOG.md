@@ -14,6 +14,32 @@ Formato: [versionado semántico](https://semver.org/lang/es/).
 
 ## [Sin publicar]
 
+### Agregado — 2.0.0 (Equipo de IA)
+- **Equipo de IA**: agentes internos que trabajan para tu equipo. Leen los datos del negocio con los
+  permisos de su cargo, te avisan lo importante y dejan **propuestas** que tú apruebas o rechazas;
+  ninguno cambia nada por su cuenta. Está en Agentes → pestaña «Equipo interno», y **viene apagado**:
+  se enciende en Configuración → Módulos.
+- Vienen tres agentes de fábrica, apagados: **Analista del día** (cómo amaneció la empresa),
+  **Vigía de producción** (por qué una orden no llega a tiempo) y **Seguimiento comercial** (deja
+  redactado el siguiente contacto de cotizaciones y leads parados).
+- Puedes crear tus propios **cargos** y **agentes**: eliges el modelo (con un modelo de respaldo si el
+  principal falla), editas las instrucciones —con vista previa del prompt final y versiones que se
+  pueden restaurar—, eliges qué herramientas tiene, cuándo corre y a quién avisa. «Probar» corre el
+  agente sin escribir nada ni avisar a nadie.
+- **Aprobaciones**: antes de hacer algo se vuelve a revisar tu permiso, la sede y el estado del
+  documento. Lo aprobado queda a tu nombre. Las propuestas vencen a las 72 horas.
+- **Consumo**: la IA ahora anota cada llamada (modelo, tokens, quién la hizo). Los agentes tienen un
+  **cupo diario aparte del asistente**: uno que se pasa no te deja sin asistente.
+- **Pausar todo** detiene a todos los agentes de inmediato.
+
+### Para quien instala
+- Hace falta el cron del servidor (`schedule:run` cada minuto): hace de *worker* de la cola. Sin él
+  los agentes no corren.
+- Migraciones nuevas, solo agregan: `ia_consumo`, cargos, agentes, ejecuciones, pasos y
+  propuestas. El módulo queda apagado en toda instalación existente.
+- El superadmin debe estar en la versión que trae el cupo de agentes
+  (`X-Briela-Origen: agentes`); sin ella los agentes comparten el cupo del asistente.
+
 ## [1.6.0] — 2026-10-12
 
 ### Agregado

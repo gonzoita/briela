@@ -9,8 +9,11 @@
 import { ref, computed } from 'vue'
 import { router } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
+import EquipoInterno from '@/Components/Equipo/EquipoInterno.vue'
 
 const props = defineProps({
+    // Los permisos de la pestaña «Equipo interno», o null si no existe (módulo apagado o sin permiso).
+    equipo:                { type: Object, default: null },
     agentes:               { type: Array, default: () => [] },
     herramientasPorPerfil: { type: Object, default: () => ({ publico: [], cliente: [] }) },
 })
@@ -22,6 +25,13 @@ const vacio = () => ({
 })
 
 const editando = ref(null)
+
+// Dos mundos con riesgos opuestos que comparten pantalla pero no datos: los agentes que hablan
+// con clientes y los que trabajan para el equipo. Un enlace de aviso puede abrir directo el
+// segundo (`?equipo=1&vista=aprobaciones`).
+const params = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : new URLSearchParams()
+const pestana = ref(props.equipo && params.get('equipo') ? 'equipo' : 'clientes')
+const vistaEquipo = params.get('vista') || 'oficina'
 
 const CANALES = [
     { clave: 'whatsapp',  label: 'WhatsApp' },
@@ -88,11 +98,30 @@ const motivos = [
                         Quién atiende por WhatsApp, por las redes y por la web, y hasta dónde puede llegar.
                     </p>
                 </div>
-                <button type="button" @click="abrir(null)"
+                <button v-if="pestana === 'clientes'" type="button" @click="abrir(null)"
                     class="px-4 py-2 rounded-xl text-white text-sm font-semibold" style="background:var(--marca);">
                     + Nuevo agente
                 </button>
             </div>
+
+            <!-- Solo aparece si el Equipo de IA está encendido y la persona puede verlo -->
+            <div v-if="equipo" class="flex gap-1 border-b border-linea mb-5 overflow-x-auto" role="tablist">
+                <button type="button" role="tab" :aria-selected="pestana === 'clientes'" @click="pestana = 'clientes'"
+                    :class="['px-4 py-2 text-sm whitespace-nowrap -mb-px border-b-2 transition-colors',
+                        pestana === 'clientes' ? 'border-[var(--marca)] text-tinta-900 font-semibold' : 'border-transparent text-tinta-400 hover:text-tinta-700']">
+                    Atención a clientes
+                </button>
+                <button type="button" role="tab" :aria-selected="pestana === 'equipo'" @click="pestana = 'equipo'"
+                    :class="['px-4 py-2 text-sm whitespace-nowrap -mb-px border-b-2 transition-colors',
+                        pestana === 'equipo' ? 'border-[var(--marca)] text-tinta-900 font-semibold' : 'border-transparent text-tinta-400 hover:text-tinta-700']">
+                    Equipo interno
+                </button>
+            </div>
+
+            <!-- Se monta al abrir la pestaña: nada de esto cuesta una petición en las demás pantallas -->
+            <EquipoInterno v-if="equipo && pestana === 'equipo'" :permisos="equipo" :vista-inicial="vistaEquipo" />
+
+            <template v-else>
 
             <!-- La lista -->
             <div class="space-y-3 mb-4">
@@ -256,6 +285,7 @@ const motivos = [
                     </button>
                 </div>
             </div>
+            </template>
         </div>
     </AppLayout>
 </template>

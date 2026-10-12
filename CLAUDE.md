@@ -634,6 +634,21 @@ Lo construido después de la fase 3, que conviene conocer antes de tocar algo ce
 - **Una OP con trabajo hecho no cambia sus ítems** (`Op::itemsBloqueados()`), y el candado está
   en el servidor.
 
+- **El Equipo de IA (2.0) son agentes INTERNOS, y no son `agentes_ia`.** Esos atienden clientes; estos
+  leen el negocio con el rol de su cargo y **proponen**. Un agente **nunca escribe**: deja una fila en
+  `agente_propuestas` y una persona la aprueba (`AprobacionService` revalida permiso, sede y estado y
+  ejecuta con los servicios de las pantallas, a nombre de quien aprobó). Todo lo que pueda hacer vive
+  en el catálogo cerrado `CatalogoHerramientas`; una capacidad nueva es una herramienta nueva, nunca un
+  parche por cliente. **Una corrida se crea en un solo sitio** (`LanzadorAgentes`) y corre en
+  `EjecutorAgente`. Actúan como un usuario `@agentes.invalid` que `User` esconde de todas las listas
+  y repartos con un alcance global. **Nunca** ven costos, márgenes, retenciones ni datos personales de
+  colaboradores. El **cupo de IA de los agentes es aparte** (`IaService::conContexto('agentes', …)`
+  manda `X-Briela-Origen: agentes` al superadmin) y el **módulo `equipo_ia` nace apagado**. Sin el cron
+  no corre nada: `queue:work --stop-when-empty` desde el scheduler hace de worker. Ver
+  `docs/manual/agentes-internos.md`.
+- **Todo gasto de IA se anota en un solo sitio**, `IaService::llamar()` → `ia_consumo` (tokens, no
+  dinero: el cobro lo lleva el superadmin). Una llamada nueva a la IA pasa por ahí o no existe.
+
 **Pendiente de negocio sin resolver, y es la más importante: a quién se le
 vende.** El sistema está hecho a la medida de fabricar por pedido con medidas
 variables. Es una ventaja enorme ante un fabricante parecido, y un problema ante

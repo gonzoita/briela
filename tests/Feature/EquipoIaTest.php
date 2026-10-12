@@ -215,6 +215,46 @@ class EquipoIaTest extends TestCase
         $this->assertSame(['producto' => 'Lámina', 'detalle' => [['cantidad' => 2]]], $limpio);
     }
 
+    // ─── Sedes ───────────────────────────────────────────────────────────────
+
+    /** Las cotizaciones que vio el agente en su primera consulta, tal como se las devolvió la herramienta. */
+    private function numerosVistos(AgenteInterno $a): array
+    {
+        // Un cliente HTTP limpio: los `fake` anteriores se quedarían con la respuesta primero.
+        Http::swap(new \Illuminate\Http\Client\Factory());
+        $this->secuencia($this->pideHerramienta('cotizaciones_sin_respuesta', ['dias' => 5]), $this->texto('Listo.'));
+        $e = $this->correr($a);
+        $this->assertSame('terminada', $e->estado, (string) $e->error);
+
+        $segunda = collect(Http::recorded())->map(fn ($par) => $par[0])->last();
+        $tool    = collect($segunda['messages'])->firstWhere('role', 'tool');
+
+        return collect(json_decode($tool['content'], true)['cotizaciones'])->pluck('numero')->sort()->values()->all();
+    }
+
+    public function test_un_agente_sin_sede_ve_todas_las_sedes_y_uno_con_sede_solo_la_suya(): void
+    {
+        $principal = Sede::first();
+        $otra      = Sede::create(['nombre' => 'Norte', 'codigo' => 'NOR']);
+
+        $a = $this->cotizacionSinRespuesta();
+        $b = $this->cotizacionSinRespuesta();
+        // (`update` por el constructor toca `updated_at`, y de ahí salen los días sin respuesta.)
+        Cotizacion::where('id', $a->id)->update(['sede_id' => $principal->id, 'updated_at' => now()->subDays(9)]);
+        Cotizacion::where('id', $b->id)->update(['sede_id' => $otra->id, 'updated_at' => now()->subDays(9)]);
+
+        // Quien pide la corrida está mirando OTRA sede: no debe contagiarle su vista al agente.
+        session()->put('sede_activa_id', $principal->id);
+
+        $agente = $this->agente('seguimiento_comercial');
+
+        $this->assertSame([$a->numero, $b->numero], $this->numerosVistos($agente), 'sin sede propia: todas');
+        $this->assertSame($principal->id, session()->get('sede_activa_id'), 'la sede de la persona se restaura');
+
+        $agente->update(['sede_id' => $otra->id]);
+        $this->assertSame([$b->numero], $this->numerosVistos($agente->fresh()), 'con sede propia: solo esa');
+    }
+
     // ─── Respaldo y errores ──────────────────────────────────────────────────
 
     public function test_si_el_modelo_falla_reintenta_una_vez_con_el_respaldo(): void

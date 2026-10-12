@@ -1,7 +1,13 @@
 # Plan maestro: agentes configurables y módulo de Automatizaciones
 
-> **Estado:** plan. No hay código, migraciones ni commits. Complementa `docs/agentes-ia.md`
-> (diagnóstico y oportunidades). Fecha: 12 oct 2026.
+> **Estado (13 oct 2026):** **Fases 0 y 1 implementadas** en la rama `claude/upbeat-cray-uw78tv`
+> (ERP y superadmin), sin publicar. El manual de lo construido es `docs/manual/agentes-internos.md`.
+> Quedan para después, tal como se acordó: Fase 2 (Automatizaciones), 3 (lienzo y marketing) y 4.
+> Complementa `docs/agentes-ia.md` (diagnóstico y oportunidades).
+>
+> Decisiones que cambiaron al construir: el respaldo de modelo se hace en el ejecutor (no con el
+> parámetro `models` de OpenRouter); el consumo local guarda tokens y no dinero; el módulo nace
+> apagado por migración.
 
 ## 0. Decisiones ya tomadas
 
