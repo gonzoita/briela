@@ -14,6 +14,8 @@ Formato: [versionado semántico](https://semver.org/lang/es/).
 
 ## [Sin publicar]
 
+## [1.6.0] — 2026-10-12
+
 ### Agregado
 - **Informes con archivo desde el chat**: a la guía se le puede pedir un informe («cuántos clientes
   llegaron el último mes, cuáles cotizaron y cómo mejorar») y responde con el análisis y una tarjeta
