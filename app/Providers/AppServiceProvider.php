@@ -32,6 +32,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Los eventos del negocio (cotización, lead, orden, pago) llegan a las automatizaciones.
+        \App\Services\Automatizaciones\EventosAutomatizacion::registrar();
+
         Vite::prefetch(concurrency: 3);
 
         // El transporte que entrega el correo al panel de Briela. El respaldo es el SMTP

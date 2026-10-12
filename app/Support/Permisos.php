@@ -83,6 +83,9 @@ class Permisos
                 // hacen, lanzarlos, decidir sus propuestas y configurarlos son cuatro permisos
                 // distintos, y el gasto es un quinto: como el costo, no se le muestra a todos.
                 'equipo_ia'     => ['label' => 'Equipo de IA',  'acciones' => ['ver', 'ejecutar', 'aprobar', 'gestionar', 'consumo']],
+                // Una automatización actúa sin que nadie la mire, con los permisos de quien la armó.
+                // Verlas, armarlas y lanzarlas a mano son tres permisos distintos.
+                'automatizaciones' => ['label' => 'Automatizaciones', 'acciones' => ['ver', 'gestionar', 'ejecutar']],
             ],
             'Administración' => [
                 'usuarios'      => ['label' => 'Usuarios y roles', 'acciones' => ['ver', 'crear', 'editar', 'eliminar']],

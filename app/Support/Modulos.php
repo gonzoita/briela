@@ -243,6 +243,16 @@ class Modulos
                 'depende'   => [],
                 'al_apagar' => 'Los agentes internos dejan de correr y de gastar IA. Lo que ya propusieron queda guardado.',
             ],
+            // Lo que Briela hace sola cuando pasa algo o a una hora. Actúa sin que nadie la mire, así que
+            // nace apagado y se prende cuando la empresa lo quiere.
+            'automatizaciones' => [
+                'label'     => 'Automatizaciones',
+                'grupo'     => 'Sistema',
+                'permisos'  => ['automatizaciones'],
+                'rutas'     => ['automatizaciones', 'api/automatizaciones'],
+                'depende'   => [],
+                'al_apagar' => 'Las automatizaciones dejan de arrancar y las que estaban esperando se cancelan. Lo ya hecho queda como está.',
+            ],
             'informes' => [
                 'label'     => 'Informes',
                 'grupo'     => 'Sistema',

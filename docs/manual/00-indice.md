@@ -57,6 +57,7 @@ módulo por módulo.
 
 - [Integración de IA (fichas, recomendación, asistente y voz)](./ia.md)
 - [Equipo de IA](./agentes-internos.md) — agentes internos que leen los datos, avisan y proponen; una persona decide
+- [Automatizaciones](./automatizaciones.md) — «cuando pase esto, haz aquello»: eventos, esperas y acciones acotadas
 - [Agentes](./agentes.md) — quién atiende por WhatsApp y por la web, y hasta dónde
 
 ## Transversal

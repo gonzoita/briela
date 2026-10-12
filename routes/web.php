@@ -928,6 +928,35 @@ Route::middleware('auth')->group(function () {
         Route::middleware('permiso:equipo_ia.consumo')->get('/consumo', [\App\Http\Controllers\EquipoIaController::class, 'consumo'])->name('consumo');
     });
 
+    // Automatizaciones: lo que Briela hace sola cuando pasa algo o a una hora. Una página y su API
+    // JSON; el módulo apagado corta los dos prefijos. Cada permiso abre solo lo suyo.
+    Route::middleware('permiso:automatizaciones.ver')->get('/automatizaciones', [\App\Http\Controllers\AutomatizacionController::class, 'index'])->name('automatizaciones.index');
+
+    Route::prefix('api/automatizaciones')->name('api.automatizaciones.')->group(function () {
+        $c = \App\Http\Controllers\AutomatizacionController::class;
+
+        Route::middleware('permiso:automatizaciones.ver')->group(function () use ($c) {
+            Route::get('/',                          [$c, 'lista'])->name('lista');
+            Route::get('/catalogo',                  [$c, 'catalogo'])->name('catalogo');
+            Route::get('/ejecuciones/{ejecucion}',   [$c, 'ejecucionDetalle'])->name('ejecucion');
+            Route::get('/{automatizacion}',          [$c, 'mostrar'])->whereNumber('automatizacion')->name('mostrar');
+            Route::get('/{automatizacion}/ejecuciones', [$c, 'ejecuciones'])->whereNumber('automatizacion')->name('ejecuciones');
+        });
+
+        Route::middleware('permiso:automatizaciones.gestionar')->group(function () use ($c) {
+            Route::post('/',                          [$c, 'crear'])->name('crear');
+            Route::post('/probar',                    [$c, 'probar'])->name('probar');
+            Route::put('/{automatizacion}',           [$c, 'actualizar'])->whereNumber('automatizacion')->name('actualizar');
+            Route::delete('/{automatizacion}',        [$c, 'eliminar'])->whereNumber('automatizacion')->name('eliminar');
+            Route::post('/{automatizacion}/activar',  [$c, 'activar'])->whereNumber('automatizacion')->name('activar');
+        });
+
+        Route::middleware('permiso:automatizaciones.ejecutar')->group(function () use ($c) {
+            Route::post('/{automatizacion}/ejecutar', [$c, 'ejecutar'])->whereNumber('automatizacion')->name('ejecutar');
+            Route::post('/ejecuciones/{ejecucion}/cancelar', [$c, 'cancelar'])->name('cancelar');
+        });
+    });
+
     // Los gráficos que la empresa arma para sus tableros. Ver es de cualquiera con acceso
     // al módulo; crear y borrar exige permiso, porque lo que uno arma lo ven todos.
     Route::get('/api/graficos',                [\App\Http\Controllers\GraficoDashboardController::class, 'index'])->name('graficos.index');

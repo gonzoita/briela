@@ -14,6 +14,13 @@ Formato: [versionado semántico](https://semver.org/lang/es/).
 
 ## [Sin publicar]
 
+### Agregado — 2.1.0 (Automatizaciones)
+- **Automatizaciones**: «cuando pase esto, haz aquello». Disparadores por evento (cotización, lead, orden,
+  pago), por horario o a mano; condiciones, esperas de hasta 90 días y acciones seguras (avisar, crear
+  tarea en el CRM, nota en la cotización, poner a trabajar a un agente). Nacen apagadas, se pueden
+  probar sin efectos, guardan su historial y se pausan solas tras cinco fallas. Vienen cuatro plantillas.
+  El módulo **viene apagado**: se enciende en Configuración → Módulos.
+
 ### Agregado — 2.0.0 (Equipo de IA)
 - **Equipo de IA**: agentes internos que trabajan para tu equipo. Leen los datos del negocio con los
   permisos de su cargo, te avisan lo importante y dejan **propuestas** que tú apruebas o rechazas;

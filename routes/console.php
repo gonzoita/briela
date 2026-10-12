@@ -102,4 +102,10 @@ Schedule::command('agentes:despachar')->everyFiveMinutes()->withoutOverlapping(1
 // El candado dura 5 minutos como máximo: con el de 24 horas por omisión, un proceso muerto
 // dejaría al worker sin arrancar un día entero.
 Schedule::command('queue:work --stop-when-empty --max-time=55 --tries=1')->everyMinute()->withoutOverlapping(5)
-    ->when(fn () => Modulos::activo('equipo_ia'));
+    ->when(fn () => Modulos::activo('equipo_ia') || Modulos::activo('automatizaciones'));
+
+// Automatizaciones: cada minuto crea las corridas por horario, retoma las que esperaban y rescata las
+// que se quedaron colgadas. Una espera de cinco días no deja nada corriendo: queda guardada con su
+// hora, y este comando la retoma.
+Schedule::command('automatizaciones:avanzar')->everyMinute()->withoutOverlapping(5)
+    ->when(fn () => Modulos::activo('automatizaciones'));

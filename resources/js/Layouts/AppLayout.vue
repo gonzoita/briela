@@ -195,6 +195,7 @@ const navItems = computed(() => {
             { label: 'Auditoría',      href: '/auditoria',                    icon: 'fingerprint', permiso: 'auditoria.ver' },
             { label: 'Configuración',  href: '/configuracion',                icon: 'gear',        permiso: 'configuracion.ver' },
             { label: 'Agentes',        href: '/configuracion/agentes',        icon: 'robot',       permiso: 'agentes.ver' },
+            { label: 'Automatizaciones', href: '/automatizaciones',           icon: 'gears',       permiso: 'automatizaciones.ver' },
             { label: 'Plantillas PDF', href: '/configuracion/plantillas-pdf', icon: 'file-pdf',    permiso: 'configuracion.editar' },
         ]},
     ]

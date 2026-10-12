@@ -57,6 +57,8 @@ class NotificacionService
         'agente_propuesta'         => 'equipo_ia',
         'agente_resumen'           => 'equipo_ia',
         'agente_fallo'             => 'equipo_ia',
+        'automatizacion_aviso'     => 'automatizaciones',
+        'automatizacion_fallo'     => 'automatizaciones',
     ];
 
     /**
@@ -147,6 +149,10 @@ class NotificacionService
                 ['tipo' => 'agente_propuesta', 'label' => 'Un agente dejó una propuesta por aprobar'],
                 ['tipo' => 'agente_resumen',   'label' => 'Un agente terminó su resumen'],
                 ['tipo' => 'agente_fallo',     'label' => 'Un agente falló o llegó a su límite'],
+            ],
+            'Automatizaciones' => [
+                ['tipo' => 'automatizacion_aviso', 'label' => 'Una automatización te avisa de algo'],
+                ['tipo' => 'automatizacion_fallo', 'label' => 'Una automatización falló o llegó a su límite'],
             ],
             'Sistema' => [
                 ['tipo' => 'backup_fallido', 'label' => 'El respaldo automático falló'],
