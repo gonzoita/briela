@@ -841,6 +841,12 @@ Route::middleware('auth')->group(function () {
         // ─── Números de WhatsApp ─────────────────────────────────────────────
         Route::get('/whatsapp-numeros',                       [WhatsappNumeroController::class, 'index'])->name('whatsapp-numeros.index');
         Route::post('/whatsapp-numeros/credenciales',         [WhatsappNumeroController::class, 'guardarCredenciales'])->name('whatsapp-numeros.credenciales');
+        // Embedded Signup: el botón «Conectar WhatsApp» entrega aquí el código y los identificadores.
+        // Responden JSON porque los llama el SDK de Facebook, no un formulario de Inertia.
+        Route::middleware('permiso:configuracion.editar')->group(function () {
+            Route::post('/whatsapp-numeros/embedded-signup',   [\App\Http\Controllers\MetaConexionController::class, 'embeddedSignup'])->name('whatsapp-numeros.embedded-signup');
+            Route::post('/whatsapp-numeros/suscribir-webhooks',[\App\Http\Controllers\MetaConexionController::class, 'suscribir'])->name('whatsapp-numeros.suscribir-webhooks');
+        });
         Route::post('/whatsapp-numeros/desconectar',          [WhatsappNumeroController::class, 'desconectar'])->name('whatsapp-numeros.desconectar');
         Route::post('/whatsapp-numeros/automatizacion',       [WhatsappNumeroController::class, 'guardarAutomatizacion'])->name('whatsapp-numeros.automatizacion');
         Route::post('/whatsapp-numeros/agente',               [WhatsappNumeroController::class, 'guardarAgente'])->name('whatsapp-numeros.agente');
@@ -988,6 +994,7 @@ Route::middleware('auth')->group(function () {
             Route::get('/',                   [CuentaRrssController::class, 'index'])->name('index');
             Route::post('/credenciales/{red}',[CuentaRrssController::class, 'guardarCredenciales'])->name('credenciales');
             Route::post('/automatizacion',    [CuentaRrssController::class, 'guardarAutomatizacion'])->name('automatizacion');
+            Route::post('/meta-config',       [CuentaRrssController::class, 'guardarConfigMeta'])->name('meta-config');
             Route::get('/conectar/{red}',     [CuentaRrssController::class, 'conectar'])->name('conectar');
             Route::get('/callback/{red}',     [CuentaRrssController::class, 'callback'])->name('callback');
             Route::delete('/{cuenta}',        [CuentaRrssController::class, 'destroy'])->name('destroy');

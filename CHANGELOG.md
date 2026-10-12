@@ -14,6 +14,21 @@ Formato: [versionado semántico](https://semver.org/lang/es/).
 
 ## [Sin publicar]
 
+### Agregado
+- **Conectar WhatsApp con un botón, sin sacar el número del celular.** La vinculación guiada de
+  Meta deja el número funcionando en Briela **y** en la app WhatsApp Business del teléfono: lo que se
+  escribe desde el celular aparece en la bandeja, y lo que se responde aquí sale por el mismo número.
+  El sistema guarda la cuenta, el número y el permiso, y deja suscritos los avisos de Meta sin pasos
+  manuales.
+- **Facebook e Instagram suscriben solos sus avisos** al conectarse la página, y hay un botón para
+  volver a suscribir todo cuando una conexión «salió bien» pero no llega nada.
+
+### Corregido
+- **Los mensajes y comentarios de Instagram y Facebook no entraban**: la dirección que recibe esos
+  avisos rechazaba a Meta. Ya entran; Meta reintenta lo pendiente.
+- Un aviso de «entregado» que llegaba tarde ya no deshace el «leído» de un mensaje de WhatsApp, y un
+  mensaje que no se pudo entregar dice por qué.
+
 ## [1.6.0] — 2026-10-12
 
 ### Agregado

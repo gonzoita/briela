@@ -46,6 +46,9 @@ class MetaRrssService
             'pages_show_list',
             'pages_read_engagement',
             'pages_manage_posts',
+            // Para suscribir la página a los webhooks (`/{page}/subscribed_apps`) sin que el
+            // administrador tenga que hacerlo a mano en el panel de Meta.
+            'pages_manage_metadata',
             'instagram_basic',
             'instagram_content_publish',
             'business_management',
@@ -127,6 +130,11 @@ class MetaRrssService
                 ]
             );
             $cuentas[] = $cuentaFb;
+
+            // Sin esto la página queda conectada y no entra ni un mensaje ni un comentario.
+            // Si falla no se detiene nada: el motivo queda en la cuenta y se reintenta desde
+            // la pantalla. Ver SuscripcionesMeta.
+            app(\App\Services\Meta\SuscripcionesMeta::class)->suscribirPagina($cuentaFb);
 
             if (!empty($pagina['instagram_business_account']['id'])) {
                 $ig = $pagina['instagram_business_account'];

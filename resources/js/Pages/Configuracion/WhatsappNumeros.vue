@@ -3,6 +3,7 @@ import { ref, computed, watch } from 'vue'
 import { router } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
 import ResultadoPrueba from '@/Components/ResultadoPrueba.vue'
+import ConectarMeta from '@/Components/ConectarMeta.vue'
 
 const props = defineProps({
     numeros: Array,
@@ -12,6 +13,7 @@ const props = defineProps({
     etapas: { type: Array, default: () => [] },
     agente: { type: Object, default: () => ({}) },
     plantillas: { type: Array, default: () => [] },
+    meta_login: { type: Object, default: () => ({ app_id: '', config_id: '', version: 'v21.0', listo: false }) },
 })
 
 // ── Llamadas que responden ahí mismo ─────────────────────────────────────────
@@ -319,6 +321,9 @@ async function enviarPrueba(n) {
                 </button>
                 <h1 class="text-xl font-semibold text-tinta-900">Números de WhatsApp</h1>
             </div>
+
+            <!-- ── Vinculación guiada (Embedded Signup, con coexistencia) ───── -->
+            <ConectarMeta :meta="meta_login" modo="whatsapp" />
 
             <!-- ── Conexión con Meta ─────────────────────────────────────── -->
             <div class="bg-superficie rounded-2xl border border-linea p-5 mb-4">
@@ -754,6 +759,11 @@ async function enviarPrueba(n) {
                                 <p class="text-sm font-medium text-tinta-900 truncate">{{ n.nombre }}</p>
                                 <p class="text-xs text-tinta-300 truncate">{{ n.numero_telefono }}</p>
                             </div>
+
+                            <span v-if="n.coexistencia" title="Sigue activo en la app WhatsApp Business del celular"
+                                class="text-xs px-2 py-0.5 rounded-full shrink-0 bg-pastel-azul-2 text-aviso-azul">
+                                Coexistencia
+                            </span>
 
                             <span class="text-xs px-2 py-0.5 rounded-full shrink-0"
                                 :class="n.rol === 'central' ? 'bg-[var(--marca)] text-white font-semibold' : 'bg-tinta-100 text-tinta-500'">

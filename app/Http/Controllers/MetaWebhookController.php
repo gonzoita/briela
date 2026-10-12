@@ -8,14 +8,21 @@ use App\Models\CuentaRrss;
 use App\Services\Bandeja\AdjuntoBandeja;
 use App\Services\Bandeja\BandejaAutomatizacionService;
 use App\Services\Rrss\MetaMensajeriaService;
+use App\Services\WhatsAppService;
 use App\Support\Canales;
 use App\Support\CredencialesRrss;
+use App\Support\FirmaMeta;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Log;
 
 /**
- * Lo que llega de Instagram y Facebook: mensajes directos y comentarios.
+ * Lo que llega de Meta: Instagram, Facebook y —desde la conexión por Embedded Signup— WhatsApp.
+ *
+ * **Una sola dirección para todo.** `/webhook/whatsapp` se conserva porque las instalaciones que
+ * ya lo tienen configurado en Meta no tienen por qué tocarlo, pero esta dirección entiende los
+ * tres objetos: `whatsapp_business_account` se reparte a `WhatsAppService` —el mismo código que
+ * atiende la otra ruta, sin una segunda copia—, y `page` e `instagram` se atienden aquí.
  *
  * **Una sola dirección para las dos redes y los cuatro canales**, porque Meta manda todo por el
  * mismo webhook de la misma aplicación: lo que cambia es el `object` del cuerpo (`page` o
@@ -36,6 +43,7 @@ class MetaWebhookController extends Controller
         private readonly MetaMensajeriaService $meta,
         private readonly AdjuntoBandeja $adjuntos,
         private readonly BandejaAutomatizacionService $automatizacion,
+        private readonly WhatsAppService $whatsapp,
     ) {
     }
 
@@ -60,7 +68,7 @@ class MetaWebhookController extends Controller
 
     public function receive(Request $peticion): Response
     {
-        if (! $this->firmaValida($peticion)) {
+        if (! FirmaMeta::valida($peticion, 'Meta')) {
             return response('Forbidden', 403);
         }
 
@@ -78,42 +86,6 @@ class MetaWebhookController extends Controller
         return response('OK', 200);
     }
 
-    /**
-     * Mismo mecanismo que el webhook de WhatsApp: HMAC-SHA256 del cuerpo con el App Secret.
-     *
-     * En `local` se deja pasar sin App Secret, porque ahí esto se prueba a mano con un cliente
-     * que no sabe firmar. Fuera de `local` no hay excusa: Meta siempre firma.
-     */
-    private function firmaValida(Request $peticion): bool
-    {
-        $secreto = CredencialesRrss::valor('meta', 'secret');
-
-        if ($secreto === '') {
-            if (app()->environment('local')) {
-                Log::warning('Webhook de Meta aceptado sin verificar: no hay App Secret y el entorno es local.');
-
-                return true;
-            }
-
-            Log::error(
-                'Webhook de Meta rechazado: falta el App Secret, así que no se puede comprobar que '
-                . 'el mensaje venga de Meta. Se carga en Redes Sociales → Cuentas.'
-            );
-
-            return false;
-        }
-
-        $recibida = (string) $peticion->header('X-Hub-Signature-256');
-
-        if ($recibida === '') {
-            Log::warning('Webhook de Meta rechazado: llegó sin la cabecera de firma.');
-
-            return false;
-        }
-
-        return hash_equals('sha256=' . hash_hmac('sha256', $peticion->getContent(), $secreto), $recibida);
-    }
-
     // ─── El reparto ──────────────────────────────────────────────────────────
 
     /**
@@ -128,6 +100,14 @@ class MetaWebhookController extends Controller
      */
     private function procesar(array $cuerpo): void
     {
+        // WhatsApp usa el mismo webhook de la misma aplicación. Su procesador ya es a prueba de
+        // excepciones y no sabe nada de páginas, así que se le entrega el cuerpo entero.
+        if (($cuerpo['object'] ?? '') === 'whatsapp_business_account') {
+            $this->whatsapp->procesarWebhookEntrante($cuerpo);
+
+            return;
+        }
+
         $red = ($cuerpo['object'] ?? '') === 'instagram' ? 'instagram' : 'facebook';
 
         foreach ($cuerpo['entry'] ?? [] as $entrada) {
