@@ -101,8 +101,11 @@
                 <td style="color:#999;">{{ $i + 1 }}</td>
                 <td>
                     {{ $item->descripcion }}
+                    @if($item->referencia_proveedor)
+                        <br><span style="font-size:10px;font-weight:600;">Cód. proveedor: {{ $item->referencia_proveedor }}</span>
+                    @endif
                     @if($item->item)
-                        <br><span style="font-size:9px;color:#999;">{{ $item->item->referencia }}</span>
+                        <br><span style="font-size:9px;color:#999;">Ref. interna: {{ $item->item->referencia }}</span>
                     @endif
                 </td>
                 <td class="right">{{ number_format($item->cantidad, 2) }}</td>
@@ -141,6 +144,19 @@
     @endif
 </div>
 @endif
+
+{{-- Firma de quien hizo la orden de compra. --}}
+<table style="width:100%; margin-top:24px; border:none;">
+    <tr>
+        <td style="width:45%; border:none;">
+            @include('pdf._firma', ['firma' => $orden->creadoPor?->firma, 'nombre' => $orden->creadoPor?->name, 'cargo' => 'Elaboró la orden de compra'])
+        </td>
+        <td style="width:10%; border:none;"></td>
+        <td style="width:45%; border:none;">
+            @include('pdf._firma', ['firma' => null, 'nombre' => $orden->proveedor?->nombre, 'cargo' => 'Proveedor'])
+        </td>
+    </tr>
+</table>
 
 <div class="footer">
     <p>Generado el {{ now()->format('d/m/Y H:i') }} · {{ $marcaNombre }}</p>

@@ -1,8 +1,8 @@
 <script setup>
 // Los porcentajes se guardan con dos decimales: redondearlos al mostrarlos contradecía
 // lo que la persona acababa de configurar.
-import { formatPct, formatMoneda } from '@/formato'
-import { ref, computed, watch, onMounted } from 'vue'
+import { formatPct, formatMoneda, formatCantidad, monedaBase } from '@/formato'
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useForm, router, usePage } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
 import EditorTexto from '@/Components/EditorTexto.vue'
@@ -27,6 +27,13 @@ const props = defineProps({
     // Las tasas vigentes por moneda, y si las cotizaciones abiertas siguen a la TRM.
     tasas:                 { type: Object, default: () => ({}) },
     modo_tasa:             { type: String, default: 'fija' },
+    // La moneda con la que arranca una cotización nueva (la de la sede activa) y las que hay.
+    moneda_defecto:        { type: String, default: null },
+    monedas_catalogo:      { type: Array, default: () => [] },
+    // El impuesto del país de la sede: su nombre (IVA, ITBMS…) y las tarifas que se ofrecen.
+    impuesto:              { type: Object, default: () => ({ nombre: 'IVA', tarifas: [19, 0] }) },
+    // Las retenciones solo existen en los países cuyo paquete las declara.
+    retenciones_activas:   { type: Boolean, default: true },
 })
 
 const esEdicion = computed(() => !!props.cotizacion)
@@ -91,11 +98,13 @@ const form = useForm({
     cliente_id:               props.cotizacion?.cliente_id ?? props.lead_preseleccionado?.cliente?.id ?? null,
     contacto_id:              props.cotizacion?.contacto_id ?? null,
     nombre_contacto_override: props.cotizacion?.nombre_contacto_override ?? '',
-    moneda:                   props.cotizacion?.moneda ?? 'COP',
+    moneda:                   props.cotizacion?.moneda ?? props.moneda_defecto ?? monedaBase(),
     tasa_cambio:              props.cotizacion?.tasa_cambio ?? 1,
     tasa_fecha:               props.cotizacion?.tasa_fecha ?? null,
     fecha_creacion:           props.cotizacion?.fecha_creacion ?? hoy,
     fecha_validez:            props.cotizacion?.fecha_validez ?? hoy30,
+    // El plazo prometido, en días hábiles. De aquí sale la fecha de entrega de la orden.
+    dias_entrega:             props.cotizacion?.dias_entrega ?? null,
     responsable_id:           props.cotizacion?.responsable_id ?? props.usuario_actual,
     condiciones_comerciales:  props.cotizacion?.condiciones_comerciales ?? props.condiciones_default,
     notas_internas:           props.cotizacion?.notas_internas ?? '',
@@ -146,6 +155,8 @@ const form = useForm({
         // El stock de hoy, que lo calcula el servidor al abrir. No se guarda en el ítem:
         // es una ayuda de pantalla, y el inventario de verdad se comprueba al despachar.
         stock_disponible: i.stock_disponible ?? null,
+        // Cuánto tienen apartado OTRAS cotizaciones de este producto (ver `ReservaStockService`).
+        stock_apartado:   Number(i.stock_apartado) || 0,
         stock_minimo:     Number(i.stock_minimo) || 0,
         inventariable:    i.inventariable !== false,
         // Las filas por canal del producto o del ensamble, para que la comisión y el
@@ -167,9 +178,9 @@ watch(() => form.data(), (v) => checkChanges(v), { deep: true })
 // dicen cómo se le muestran al cliente. Así las comisiones, la cartera y los informes no
 // tienen que convertir nada.
 const tasaDelDia   = computed(() => props.tasas?.[form.moneda] ?? null)
-const enOtraMoneda = computed(() => form.moneda !== 'COP' && Number(form.tasa_cambio) > 0)
+const enOtraMoneda = computed(() => form.moneda !== monedaBase() && Number(form.tasa_cambio) > 0)
 const enMoneda     = (pesos) => formatMoneda(pesos, form.moneda, form.tasa_cambio)
-const formatTasa   = (v) => new Intl.NumberFormat('es-CO', { minimumFractionDigits: 2, maximumFractionDigits: 4 }).format(Number(v) || 0)
+const formatTasa   = (v) => new Intl.NumberFormat('es-CO', { minimumFractionDigits: 2, maximumFractionDigits: 8 }).format(Number(v) || 0)
 const fechaCorta   = (f) => f ? new Date(String(f).slice(0, 10) + 'T12:00:00').toLocaleDateString('es-CO', { day: 'numeric', month: 'short', year: 'numeric' }) : ''
 
 function usarTasaDelDia() {
@@ -187,14 +198,25 @@ function tasaEscrita(valor) {
 
 // Al cambiar de moneda se pone la tasa del día. No corre al abrir: una cotización que se
 // reabre conserva la tasa con la que se hizo.
+/** Las tarifas del país, más la que ya tenga el ítem si es de otro: no se pierde al reabrir. */
+function opcionesImpuesto(item) {
+    const t = [...(props.impuesto?.tarifas ?? [0])]
+    const actual = Number(item.impuesto_pct)
+    if (Number.isFinite(actual) && ! t.includes(actual)) t.push(actual)
+    return t.sort((a, b) => b - a)
+}
+
 watch(() => form.moneda, (moneda) => {
-    if (moneda === 'COP') {
+    if (moneda === monedaBase()) {
         form.tasa_cambio = 1
         form.tasa_fecha  = null
         return
     }
     usarTasaDelDia()
 })
+
+// Una cotización nueva en una sede que cotiza en otra moneda arranca con la tasa del día.
+if (! props.cotizacion && form.moneda !== monedaBase()) usarTasaDelDia()
 
 // ─── Cliente ──────────────────────────────────────────────────────────────────
 const clienteQuery       = ref(props.cotizacion?.cliente?.nombre ?? props.lead_preseleccionado?.cliente?.nombre ?? '')
@@ -450,10 +472,56 @@ function buscarProducto(q) {
     clearTimeout(timerProd)
     if (q.length < 2) { productoResultados.value = []; return }
     timerProd = setTimeout(async () => {
-        const r = await fetch(`/api/cotizaciones/productos?q=${encodeURIComponent(q)}`)
+        const r = await fetch(`/api/cotizaciones/productos?q=${encodeURIComponent(q)}${props.cotizacion?.id ? `&cotizacion_id=${props.cotizacion.id}` : ''}`)
         productoResultados.value = await r.json()
     }, 300)
 }
+
+// ─── Stock apartado por otras cotizaciones ───────────────────────────────────
+// Una cotización se arma durante minutos, y en ese tiempo otra puede apartar lo mismo. Cada
+// minuto se vuelve a preguntar —una sola petición para todos los productos— en vez de mostrar
+// el número de cuando se abrió. Solo avisa: la cotización se puede hacer igual.
+const REFRESCO_APARTADO_MS = 60000
+let timerApartado = null
+
+async function refrescarDisponibilidad() {
+    if (document.hidden) return
+
+    const ids = [...new Set(form.items.filter(i => i.producto_id).map(i => i.producto_id))]
+    if (!ids.length) return
+
+    try {
+        const r = await fetch('/api/cotizaciones/disponibilidad', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Accept: 'application/json', 'X-XSRF-TOKEN': xsrf(), 'X-Requested-With': 'XMLHttpRequest' },
+            credentials: 'same-origin',
+            body: JSON.stringify({ producto_ids: ids, cotizacion_id: props.cotizacion?.id ?? null }),
+        })
+        if (!r.ok) return
+        const datos = await r.json()
+
+        form.items.forEach(item => {
+            const d = item.producto_id ? datos[item.producto_id] : null
+            if (!d) return
+            item.stock_disponible = d.stock
+            item.stock_apartado   = d.apartado
+        })
+    } catch (e) { /* una consulta de cortesía: si falla, se queda lo que había */ }
+}
+
+onMounted(() => { timerApartado = setInterval(refrescarDisponibilidad, REFRESCO_APARTADO_MS) })
+onUnmounted(() => clearInterval(timerApartado))
+
+// Cuántas de las que se piden no están libres: hay stock, pero otras cotizaciones lo tienen apartado.
+function apartadoEnConflicto(item) {
+    const apartado = Number(item.stock_apartado) || 0
+    if (!item.producto_id || apartado <= 0 || item.stock_disponible === null) return 0
+
+    const libres = Math.max(0, Number(item.stock_disponible) - apartado)
+
+    return Math.max(0, Number(item.cantidad) - libres) > 0 ? apartado : 0
+}
+
 function expandirProducto(p) {
     productoExpandido.value = productoExpandido.value?.id === p.id ? null : p
 }
@@ -503,6 +571,7 @@ function agregarItemDesdeProducto(prod) {
         // pasa. No se guarda en el ítem: es una ayuda de pantalla, y el inventario de
         // verdad se comprueba al despachar.
         stock_disponible: Number(prod.stock_total) || 0,
+        stock_apartado:   Number(prod.stock_apartado) || 0,
         stock_minimo:     Number(prod.stock_minimo) || 0,
         inventariable:    prod.inventariable !== false,
     })
@@ -865,7 +934,7 @@ const total          = computed(() => subtotalBruto.value - totalDescuento.value
 const { retenciones, cargando: cargandoRetenciones } = useRetenciones(() => ({
     cliente_id: form.cliente_id,
     iva:        Math.round(totalImpuesto.value * 100) / 100,
-    items:      form.items.map(i => {
+    items:      ! props.retenciones_activas ? [] : form.items.map(i => {
         const bruto = (Number(i.cantidad) || 0) * (Number(i.precio_unitario) || 0)
         return { producto_id: i.producto_id ?? null, base: Math.round(bruto * (1 - (Number(i.descuento_pct) || 0) / 100) * 100) / 100 }
     }),
@@ -987,6 +1056,13 @@ function onDescuentoChange(item, index, nuevoPct) {
 
 // ─── Submit ───────────────────────────────────────────────────────────────────
 function submit() {
+    // Una cotización sin cliente no se guarda. El servidor también lo rechaza.
+    if (!form.cliente_id) {
+        form.setError('cliente_id', 'Elige el cliente: una cotización sin cliente no se puede guardar.')
+        window.scrollTo({ top: 0, behavior: 'smooth' })
+        return
+    }
+
     // Se avisa antes de mandar: dejar que el servidor lo rechace le hace perder un viaje a
     // quien llena el formulario, y el aviso vuelve al final de la pantalla sin decir la línea.
     if (itemsConProblema.value.length) {
@@ -1061,7 +1137,7 @@ function submit() {
 
                         <!-- Búsqueda cliente -->
                         <div class="md:col-span-2">
-                            <label class="block text-xs font-medium text-tinta-500 mb-1.5">Cliente</label>
+                            <label class="block text-xs font-medium text-tinta-500 mb-1.5">Cliente <span class="text-aviso-rojo">*</span></label>
                             <div class="relative">
                                 <div class="flex gap-2">
                                     <input :value="clienteQuery" @input="buscarCliente($event.target.value)"
@@ -1085,9 +1161,10 @@ function submit() {
                                     </button>
                                 </div>
                             </div>
+                            <p v-if="form.errors.cliente_id && !clienteSeleccionado" class="mt-1 text-xs text-aviso-rojo">{{ form.errors.cliente_id }}</p>
                             <div v-if="clienteSeleccionado"
                                 class="mt-2 flex items-center gap-3 px-3 py-2 rounded-xl"
-                                style="background:var(--pastel-azul); border:1px solid #BFDBFE;">
+                                style="background:var(--pastel-azul); border:1px solid var(--borde-azul);">
                                 <svg class="w-4 h-4 shrink-0" style="color:var(--marca)" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
                                 </svg>
@@ -1149,16 +1226,14 @@ function submit() {
                             <label class="block text-xs font-medium text-tinta-500 mb-1.5">Moneda</label>
                             <select v-model="form.moneda"
                                 class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:ring-2 focus:outline-none">
-                                <option value="COP">COP — Peso colombiano</option>
-                                <option value="USD">USD — Dólar</option>
-                                <option value="EUR">EUR — Euro</option>
+                                <option v-for="m in monedas_catalogo" :key="m.codigo" :value="m.codigo">{{ m.codigo }} — {{ m.nombre }}</option>
                             </select>
                         </div>
 
-                        <div v-if="form.moneda !== 'COP'">
-                            <label class="block text-xs font-medium text-tinta-500 mb-1.5">Tasa de cambio (pesos por 1 {{ form.moneda }})</label>
+                        <div v-if="form.moneda !== monedaBase()">
+                            <label class="block text-xs font-medium text-tinta-500 mb-1.5">Tasa de cambio ({{ monedaBase() }} por 1 {{ form.moneda }})</label>
                             <input :value="form.tasa_cambio" @input="tasaEscrita(Number($event.target.value) || 0)"
-                                type="number" step="0.0001" min="1"
+                                type="number" step="any" min="0.00000001"
                                 class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:ring-2 focus:outline-none"/>
                             <p v-if="form.tasa_fecha" class="text-xs text-tinta-300 mt-1">
                                 Tasa del {{ fechaCorta(form.tasa_fecha) }}.
@@ -1186,6 +1261,12 @@ function submit() {
                                 class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:ring-2 focus:outline-none"/>
                         </div>
 
+                        <div>
+                            <label class="block text-xs font-medium text-tinta-500 mb-1.5">Entrega (días hábiles)</label>
+                            <input v-model.number="form.dias_entrega" type="number" min="0" max="365" step="1" placeholder="Ej: 15"
+                                class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm focus:ring-2 focus:outline-none"/>
+                            <p class="text-xs text-tinta-300 mt-1">Se cuentan desde que se genera la orden. Con esto la orden nace con su fecha de entrega.</p>
+                        </div>
                         <div>
                             <label class="block text-xs font-medium text-tinta-500 mb-1.5">Responsable</label>
                             <select v-model="form.responsable_id"
@@ -1303,6 +1384,12 @@ function submit() {
                                                 :pedida="item.cantidad"
                                             />
                                         </div>
+                                        <!-- Solo aviso, no bloquea: la cotización sale igual. Es de
+                                             uso interno; el cliente nunca ve el stock. -->
+                                        <p v-if="apartadoEnConflicto(item)" class="mb-1 text-[11px] leading-snug text-aviso-ambar"
+                                            title="Otras cotizaciones enviadas tienen unidades apartadas por 24 horas. Si alguna se aprueba antes, esas unidades se le ceden y se le avisa a su vendedor.">
+                                            ⏳ {{ formatCantidad(item.stock_apartado) }} apartadas en otras cotizaciones
+                                        </p>
                                         <input v-model.number="item.cantidad" type="number" step="0.001" min="0"
                                             :class="['w-full rounded-lg border px-2 py-1.5 text-sm text-right focus:outline-none',
                                                 (item.inventariable || Number(item.stock_disponible) !== 0) && item.stock_disponible !== null && Number(item.cantidad) > Number(item.stock_disponible)
@@ -1331,11 +1418,10 @@ function submit() {
                                                 : (item.descuento_pct = parseFloat($event.target.value) || 0))"/>
                                     </div>
                                     <div>
-                                        <label class="block text-xs text-tinta-400 mb-1">IVA %</label>
+                                        <label class="block text-xs text-tinta-400 mb-1">{{ impuesto.nombre }} %</label>
                                         <select v-model.number="item.impuesto_pct"
                                             class="w-full rounded-lg border border-tinta-200 px-2 py-1.5 text-sm focus:outline-none">
-                                            <option :value="0">0% (No grava)</option>
-                                            <option :value="19">19% (IVA)</option>
+                                            <option v-for="t in opcionesImpuesto(item)" :key="t" :value="t">{{ t === 0 ? '0% (No grava)' : `${formatPct(t)}% (${impuesto.nombre})` }}</option>
                                         </select>
                                     </div>
                                 </div>
@@ -1436,10 +1522,10 @@ function submit() {
                                         <span>{{ enMoneda(total) }}</span>
                                     </div>
                                     <p class="text-[11px] text-tinta-300">
-                                        Los precios se escriben en pesos; el cliente los ve en {{ form.moneda }} a la tasa de arriba.
+                                        Los precios se escriben en {{ monedaBase() }}; el cliente los ve en {{ form.moneda }} a la tasa de arriba.
                                     </p>
                                 </template>
-                                <RetencionesEstimadas :retenciones="retenciones" :cargando="cargandoRetenciones"
+                                <RetencionesEstimadas v-if="retenciones_activas" :retenciones="retenciones" :cargando="cargandoRetenciones"
                                     :total="total" :moneda="form.moneda" :tasa="form.tasa_cambio" />
                             </div>
                         </div>
@@ -1599,6 +1685,9 @@ function submit() {
                                                 completo
                                             />
                                         </div>
+                                        <p v-if="producto.stock_apartado > 0" class="mt-0.5 text-[11px] text-aviso-ambar">
+                                            ⏳ {{ formatCantidad(producto.stock_apartado) }} apartadas en otras cotizaciones
+                                        </p>
                                     </div>
                                 </template>
                             </ResultadosBuscadorProducto>

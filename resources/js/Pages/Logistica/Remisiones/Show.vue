@@ -1,8 +1,10 @@
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue'
+import { ref, reactive, computed } from 'vue'
 import { router, usePage } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
 import BtnPdf from '@/Components/BtnPdf.vue'
+import FirmaPad from '@/Components/FirmaPad.vue'
+import { formatCOP, formatCantidad } from '@/formato'
 
 const props = defineProps({
     remision: Object,
@@ -36,70 +38,45 @@ function confirmarEstado() {
     })
 }
 
-// ── Firma digital ──────────────────────────────────────────────────────────
-const canvasDespachoRef = ref(null)
-const canvasRecibidoRef = ref(null)
-const dibujandoDespacho = ref(false)
-const dibujandoRecibido = ref(false)
-const guardandoFirma    = ref(null)
+// ── Firmas ─────────────────────────────────────────────────────────────────
+// Despacho: desde que se confirma. Recibido: desde que sale. La de despacho puede ser la firma
+// guardada en el perfil de quien despacha («Usar mi firma»), para no dibujarla en cada remisión.
+const padDespacho     = ref(null)
+const padRecibido     = ref(null)
+const firmando        = reactive({ despacho: false, recibido: false })
+const guardandoFirma  = ref(null)
+const errorFirma      = reactive({ despacho: '', recibido: '' })
+const receptor        = ref(props.remision.nombre_receptor ?? '')
 
-function initCanvas(canvas, ref_drawing) {
-    if (!canvas) return
-    const ctx = canvas.getContext('2d')
-    ctx.strokeStyle = '#1E3A5F'
-    ctx.lineWidth   = 2.5
-    ctx.lineCap     = 'round'
+const puedeFirmarDespacho = computed(() => ['confirmada', 'en_camino', 'entregada', 'cerrada'].includes(props.remision.estado))
+const puedeFirmarRecibido = computed(() => ['en_camino', 'entregada', 'cerrada'].includes(props.remision.estado))
 
-    canvas.addEventListener('mousedown', e => {
-        ref_drawing.value = true
-        ctx.beginPath()
-        const r = canvas.getBoundingClientRect()
-        ctx.moveTo(e.clientX - r.left, e.clientY - r.top)
+function enviarFirma(tipo, firma) {
+    errorFirma[tipo] = ''
+    if (! firma) {
+        errorFirma[tipo] = 'Firma en el recuadro o sube la imagen de la firma.'
+        return
+    }
+    if (tipo === 'recibido' && ! receptor.value.trim()) {
+        errorFirma[tipo] = 'Escribe el nombre de quien recibe.'
+        return
+    }
+
+    guardandoFirma.value = tipo
+    router.post(`/logistica/remisiones/${props.remision.id}/firma`, {
+        tipo, firma, nombre_receptor: tipo === 'recibido' ? receptor.value.trim() : undefined,
+    }, {
+        preserveScroll: true,
+        onSuccess: () => { firmando[tipo] = false },
+        onError:   (e) => { errorFirma[tipo] = Object.values(e)[0] ?? 'No se pudo guardar la firma.' },
+        onFinish:  () => { guardandoFirma.value = null },
     })
-    canvas.addEventListener('mousemove', e => {
-        if (!ref_drawing.value) return
-        const r = canvas.getBoundingClientRect()
-        ctx.lineTo(e.clientX - r.left, e.clientY - r.top)
-        ctx.stroke()
-    })
-    canvas.addEventListener('mouseup', () => { ref_drawing.value = false })
-    canvas.addEventListener('mouseleave', () => { ref_drawing.value = false })
-
-    // Touch
-    canvas.addEventListener('touchstart', e => {
-        e.preventDefault(); ref_drawing.value = true; ctx.beginPath()
-        const r = canvas.getBoundingClientRect(); const t = e.touches[0]
-        ctx.moveTo(t.clientX - r.left, t.clientY - r.top)
-    }, { passive: false })
-    canvas.addEventListener('touchmove', e => {
-        e.preventDefault(); if (!ref_drawing.value) return
-        const r = canvas.getBoundingClientRect(); const t = e.touches[0]
-        ctx.lineTo(t.clientX - r.left, t.clientY - r.top); ctx.stroke()
-    }, { passive: false })
-    canvas.addEventListener('touchend', () => { ref_drawing.value = false })
-}
-
-function limpiarCanvas(tipo) {
-    const canvas = tipo === 'despacho' ? canvasDespachoRef.value : canvasRecibidoRef.value
-    if (!canvas) return
-    canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height)
 }
 
 function guardarFirma(tipo) {
-    const canvas = tipo === 'despacho' ? canvasDespachoRef.value : canvasRecibidoRef.value
-    if (!canvas) return
-    guardandoFirma.value = tipo
-    const firma = canvas.toDataURL('image/png')
-    router.post(`/logistica/remisiones/${props.remision.id}/firma`, { tipo, firma }, {
-        onSuccess: () => { guardandoFirma.value = null },
-        onError:   () => { guardandoFirma.value = null },
-    })
+    const pad = tipo === 'despacho' ? padDespacho.value : padRecibido.value
+    enviarFirma(tipo, pad?.valor())
 }
-
-onMounted(() => {
-    initCanvas(canvasDespachoRef.value, dibujandoDespacho)
-    initCanvas(canvasRecibidoRef.value, dibujandoRecibido)
-})
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 const formatFecha = (d) => {
@@ -123,6 +100,24 @@ function eliminar() {
                 class="mb-4 px-4 py-3 rounded-xl bg-pastel-verde border border-borde-aviso-verde text-aviso-verde text-sm">
                 {{ flash.success }}
             </div>
+            <!-- Un error que no se ve es un botón que «no hace nada»: así parecía rota la firma. -->
+            <div v-if="flash?.error || page.props.errors?.estado"
+                class="mb-4 px-4 py-3 rounded-xl bg-pastel-rojo border border-borde-aviso-rojo text-aviso-rojo text-sm">
+                {{ flash?.error ?? page.props.errors.estado }}
+            </div>
+
+            <!-- Entregada pero sin cobrar: no está terminada. Se cierra sola al quedar pagada. -->
+            <div v-if="remision.estado === 'entregada' && remision.cobro && ! remision.cobro.pagada"
+                class="mb-4 px-4 py-3 rounded-xl bg-pastel-ambar border border-borde-aviso-ambar text-aviso-ambar text-sm">
+                <strong>Entregada — pendiente de pago.</strong>
+                Falta verificar {{ formatCOP(remision.cobro.por_verificar) }} de la orden {{ remision.op?.numero }}.
+                La remisión se cierra sola cuando la orden quede pagada y los pagos verificados.
+                <a v-if="remision.op" :href="`/produccion/ops/${remision.op.id}`" class="underline font-medium ml-1">Ver cartera</a>
+            </div>
+            <div v-else-if="remision.estado === 'cerrada'"
+                class="mb-4 px-4 py-3 rounded-xl bg-pastel-violeta border border-borde-aviso-violeta text-aviso-violeta text-sm">
+                <strong>Cerrada.</strong> Entregada y pagada{{ remision.cerrada_at ? ' · ' + formatFecha(remision.cerrada_at) : '' }}.
+            </div>
 
             <!-- Cabecera -->
             <div class="flex items-start justify-between mb-5 gap-3 flex-wrap">
@@ -142,7 +137,7 @@ function eliminar() {
                             <span class="text-xs px-2 py-0.5 rounded-full"
                                 :style="remision.tipo === 'op'
                                     ? 'background:var(--pastel-violeta);color:var(--texto-violeta);'
-                                    : 'background:var(--pastel-azul-2);color:#0369A1;'">
+                                    : 'background:var(--pastel-azul-2);color:var(--texto-azul);'">
                                 {{ remision.tipo === 'op' ? 'Desde OP' : 'Manual' }}
                             </span>
                         </div>
@@ -230,10 +225,16 @@ function eliminar() {
                         <tbody class="divide-y divide-separador">
                             <tr v-for="item in remision.items" :key="item.id">
                                 <td class="px-4 py-3 text-sm text-tinta-900">{{ item.descripcion }}</td>
-                                <td class="px-3 py-3 text-center text-sm font-medium">{{ item.cantidad }}</td>
+                                <td class="px-3 py-3 text-center text-sm font-medium">{{ formatCantidad(item.cantidad) }}</td>
                                 <td class="px-3 py-3 text-sm text-tinta-400">{{ item.unidad ?? '—' }}</td>
                                 <td class="px-3 py-3 font-mono text-xs text-tinta-400">{{ item.numero_serie ?? '—' }}</td>
-                                <td class="px-3 py-3 text-xs text-tinta-300 italic">{{ item.notas ?? '—' }}</td>
+                                <td class="px-3 py-3 text-xs text-tinta-300 italic">
+                                    <span v-if="item.cantidad_pendiente > 0" class="not-italic inline-block mb-0.5 px-1.5 py-0.5 rounded bg-pastel-ambar text-aviso-ambar font-medium">
+                                        Pendiente por entregar: {{ formatCantidad(item.cantidad_pendiente) }}
+                                    </span>
+                                    <span v-if="item.notas" class="block">{{ item.notas }}</span>
+                                    <span v-else-if="! (item.cantidad_pendiente > 0)">—</span>
+                                </td>
                             </tr>
                         </tbody>
                     </table>
@@ -241,7 +242,7 @@ function eliminar() {
             </div>
 
             <!-- Despacho (desde confirmada) -->
-            <div v-if="['confirmada','en_camino','entregada'].includes(remision.estado)"
+            <div v-if="['confirmada','en_camino','entregada','cerrada'].includes(remision.estado)"
                 class="bg-superficie rounded-2xl border border-linea p-5 mb-5">
                 <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-3">Despacho</p>
                 <div class="grid grid-cols-2 gap-4 text-sm">
@@ -278,56 +279,69 @@ function eliminar() {
                 </div>
             </div>
 
-            <!-- Firmas (desde en_camino) -->
-            <div v-if="['en_camino','entregada'].includes(remision.estado)"
-                class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
+            <!-- Firmas: despacho desde que se confirma, recibido desde que sale -->
+            <div v-if="puedeFirmarDespacho" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
 
                 <!-- Firma despacho -->
                 <div class="bg-superficie rounded-2xl border border-linea p-5">
-                    <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-3">Firma Despachado por</p>
-                    <div v-if="remision.firma_despacho" class="mb-3">
-                        <img :src="remision.firma_despacho" alt="Firma despacho"
-                            class="w-full h-24 object-contain border border-linea rounded-lg bg-tinta-50"/>
-                        <p class="text-xs text-aviso-verde mt-1">✓ Firma guardada</p>
-                    </div>
-                    <canvas ref="canvasDespachoRef" width="280" height="100"
-                        class="w-full border-2 border-dashed border-linea rounded-xl cursor-crosshair bg-tinta-50 touch-none"/>
-                    <div class="flex gap-2 mt-2">
-                        <button @click="limpiarCanvas('despacho')" type="button"
-                            class="flex-1 py-1.5 rounded-lg border border-linea text-xs text-tinta-500 hover:bg-tinta-50">
-                            Limpiar
-                        </button>
-                        <button @click="guardarFirma('despacho')" type="button"
-                            :disabled="guardandoFirma === 'despacho'"
-                            class="flex-1 py-1.5 rounded-lg text-xs font-semibold text-white transition-opacity"
-                            style="background:var(--marca);">
-                            {{ guardandoFirma === 'despacho' ? 'Guardando…' : 'Guardar firma' }}
-                        </button>
-                    </div>
+                    <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-3">Despachado por</p>
+                    <template v-if="remision.firma_despacho && ! firmando.despacho">
+                        <div class="rounded-lg border border-linea bg-white p-2">
+                            <img :src="remision.firma_despacho" alt="Firma de despacho" class="w-full h-24 object-contain"/>
+                        </div>
+                        <p class="text-xs text-aviso-verde mt-1.5">
+                            ✓ {{ remision.firma_despacho_por ?? 'Firmada' }}{{ remision.firma_despacho_at ? ' · ' + formatFecha(remision.firma_despacho_at) : '' }}
+                        </p>
+                        <button v-if="remision.estado !== 'cerrada'" type="button" @click="firmando.despacho = true"
+                            class="mt-1 text-xs text-tinta-400 underline underline-offset-2 hover:text-tinta-600">Volver a firmar</button>
+                    </template>
+                    <template v-else>
+                        <FirmaPad ref="padDespacho" etiqueta="Firma de quien despacha" />
+                        <p v-if="errorFirma.despacho" class="mt-1 text-xs text-aviso-rojo">{{ errorFirma.despacho }}</p>
+                        <div class="flex gap-2 mt-2">
+                            <button v-if="remision.mi_firma" type="button" @click="enviarFirma('despacho', remision.mi_firma)"
+                                :disabled="guardandoFirma === 'despacho'"
+                                class="flex-1 py-1.5 rounded-lg border border-linea text-xs text-tinta-600 hover:bg-realce">
+                                Usar mi firma
+                            </button>
+                            <button @click="guardarFirma('despacho')" type="button"
+                                :disabled="guardandoFirma === 'despacho'"
+                                class="flex-1 py-1.5 rounded-lg text-xs font-semibold text-white transition-opacity disabled:opacity-60"
+                                style="background:var(--marca);">
+                                {{ guardandoFirma === 'despacho' ? 'Guardando…' : 'Guardar firma' }}
+                            </button>
+                        </div>
+                    </template>
                 </div>
 
                 <!-- Firma recibido -->
                 <div class="bg-superficie rounded-2xl border border-linea p-5">
-                    <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-3">Firma Recibido por</p>
-                    <div v-if="remision.firma_recibido" class="mb-3">
-                        <img :src="remision.firma_recibido" alt="Firma recibido"
-                            class="w-full h-24 object-contain border border-linea rounded-lg bg-tinta-50"/>
-                        <p class="text-xs text-aviso-verde mt-1">✓ Firma guardada</p>
-                    </div>
-                    <canvas ref="canvasRecibidoRef" width="280" height="100"
-                        class="w-full border-2 border-dashed border-linea rounded-xl cursor-crosshair bg-tinta-50 touch-none"/>
-                    <div class="flex gap-2 mt-2">
-                        <button @click="limpiarCanvas('recibido')" type="button"
-                            class="flex-1 py-1.5 rounded-lg border border-linea text-xs text-tinta-500 hover:bg-tinta-50">
-                            Limpiar
-                        </button>
+                    <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-3">Recibido por</p>
+                    <p v-if="! puedeFirmarRecibido" class="text-sm text-tinta-400">
+                        Se firma cuando la remisión salga («En camino»).
+                    </p>
+                    <template v-else-if="remision.firma_recibido && ! firmando.recibido">
+                        <div class="rounded-lg border border-linea bg-white p-2">
+                            <img :src="remision.firma_recibido" alt="Firma de recibido" class="w-full h-24 object-contain"/>
+                        </div>
+                        <p class="text-xs text-aviso-verde mt-1.5">
+                            ✓ {{ remision.nombre_receptor ?? 'Firmada' }}{{ remision.firma_recibido_at ? ' · ' + formatFecha(remision.firma_recibido_at) : '' }}
+                        </p>
+                        <button v-if="remision.estado !== 'cerrada'" type="button" @click="firmando.recibido = true"
+                            class="mt-1 text-xs text-tinta-400 underline underline-offset-2 hover:text-tinta-600">Volver a firmar</button>
+                    </template>
+                    <template v-else>
+                        <input v-model="receptor" type="text" placeholder="Nombre de quien recibe"
+                            class="w-full mb-2 border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[var(--marca)]"/>
+                        <FirmaPad ref="padRecibido" etiqueta="Firma de quien recibe" :permitir-subir="false" />
+                        <p v-if="errorFirma.recibido" class="mt-1 text-xs text-aviso-rojo">{{ errorFirma.recibido }}</p>
                         <button @click="guardarFirma('recibido')" type="button"
                             :disabled="guardandoFirma === 'recibido'"
-                            class="flex-1 py-1.5 rounded-lg text-xs font-semibold text-white transition-opacity"
+                            class="mt-2 w-full py-1.5 rounded-lg text-xs font-semibold text-white transition-opacity disabled:opacity-60"
                             style="background:var(--marca);">
-                            {{ guardandoFirma === 'recibido' ? 'Guardando…' : 'Guardar firma' }}
+                            {{ guardandoFirma === 'recibido' ? 'Guardando…' : (remision.estado === 'en_camino' ? 'Guardar firma y marcar entregada' : 'Guardar firma') }}
                         </button>
-                    </div>
+                    </template>
                 </div>
             </div>
 

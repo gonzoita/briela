@@ -20,6 +20,8 @@ const props = defineProps({
     // ensamble directo es solo suyo.
     compartidos:  { type: Boolean, default: false },
     nombrePlantilla: { type: String, default: '' },
+    // Lo que dice junto al paso final.
+    textoFinal: { type: String, default: 'Paso final — la unidad queda terminada' },
 })
 
 const suma = computed(() =>
@@ -73,10 +75,7 @@ function mover(i, delta) {
 }
 
 /**
- * El paso final es uno solo: es el que entrega la unidad a bodega.
- *
- * `EntregaAlmacenService` descuenta los materiales y registra el producto terminado cuando se
- * cierra ese paso. Con dos marcados, la entrega se haría dos veces.
+ * El paso final es uno solo: es el que da la unidad por terminada y la deja lista para calidad.
  */
 function marcarFinal(i) {
     props.pasos.forEach((p, idx) => { p.es_paso_final = idx === i })
@@ -140,7 +139,7 @@ function marcarFinal(i) {
                         :class="paso.es_paso_final ? 'text-aviso-verde font-semibold' : 'text-tinta-400'">
                         <input type="radio" :checked="paso.es_paso_final" @change="marcarFinal(i)"
                             class="accent-emerald-600" />
-                        Paso final — entrega la unidad a bodega
+                        {{ textoFinal }}
                     </label>
                 </div>
             </div>

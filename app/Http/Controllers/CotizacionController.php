@@ -168,6 +168,7 @@ class CotizacionController extends Controller
             ...$this->tasaDe($data),
             'fecha_creacion'           => $data['fecha_creacion'],
             'fecha_validez'            => $data['fecha_validez'],
+            'dias_entrega'             => $data['dias_entrega'] ?? null,
             'responsable_id'           => $data['responsable_id'],
             'estado'                   => 'borrador',
             'condiciones_comerciales'  => $data['condiciones_comerciales'],
@@ -196,10 +197,26 @@ class CotizacionController extends Controller
                 ...$cotizacion->toArray(),
                 'estado_badge'       => $cotizacion->estadoBadge(),
                 'dias_sin_respuesta' => $cotizacion->diasSinRespuesta(),
+                // Para precargar la fecha de entrega al generar la orden.
+                'fecha_entrega_sugerida' => $cotizacion->fechaEntregaSugerida()?->toDateString(),
             ],
             // Lo que el cliente va a retener al pagar y lo que de verdad llega. Solo en la
             // pantalla interna: al cliente no se le muestra una estimación de sus impuestos.
             'retenciones'  => app(\App\Services\RetencionesService::class)->paraCotizacion($cotizacion),
+            // El stock que esta cotización tiene apartado. Solo en la pantalla interna: ni el
+            // portal del cliente ni el PDF dicen nada del inventario.
+            'reservas'     => \App\Models\ReservaStock::where('cotizacion_id', $cotizacion->id)
+                ->with('producto:id,nombre,unidad_medida,producto_padre_id,valor_variante', 'producto.padre:id,nombre', 'cedidaA:id,numero')
+                ->orderBy('id')->get()->map(fn ($r) => [
+                    'id'        => $r->id,
+                    'producto'  => $r->producto?->nombre_completo,
+                    'unidad'    => $r->producto?->unidad_medida,
+                    'cantidad'  => (float) $r->cantidad,
+                    'cedida'    => (float) $r->cantidad_cedida,
+                    'estado'    => $r->estado,
+                    'expira_at' => $r->expira_at?->toIso8601String(),
+                    'cedida_a'  => $r->cedidaA?->numero,
+                ]),
             'responsables' => User::whereIn('rol', ['administrador', 'jefe_produccion', 'vendedor'])
                 ->where('activo', true)->get(['id', 'name']),
             // Para elegir en qué fábrica se produce al generar la OP.
@@ -292,7 +309,11 @@ class CotizacionController extends Controller
         // Mismo criterio que el buscador y el inventario: solo las bodegas de esta sede.
         $bodegas = \App\Support\ContextoSede::idsBodegasVisibles();
 
-        $datos['items'] = collect($datos['items'])->map(function (array $item) use ($productos, $ensambles, $bodegas) {
+        // Lo que OTRAS cotizaciones tienen apartado (no la propia: lo suyo no le resta a ella).
+        $apartado = app(\App\Services\ReservaStockService::class)
+            ->apartadoPorProducto($productos->keys()->all(), $cotizacion->id);
+
+        $datos['items'] = collect($datos['items'])->map(function (array $item) use ($productos, $ensambles, $bodegas, $apartado) {
             $producto = $item['producto_id'] ? $productos->get($item['producto_id']) : null;
 
             // Las filas por canal del producto o del ensamble, con la MISMA forma que manda
@@ -314,6 +335,7 @@ class CotizacionController extends Controller
             // Va el dato crudo, sin decidir aquí si se muestra: esa regla vive en
             // `EtiquetaStock.vue`, y tenerla en dos sitios es tenerla en ninguno.
             $item['stock_disponible'] = $producto ? $producto->stockEnBodegas($bodegas) : null;
+            $item['stock_apartado']   = $producto ? (float) ($apartado[$producto->id] ?? 0) : 0;
             $item['stock_minimo']     = (float) ($producto->stock_minimo ?? 0);
             $item['inventariable']    = (bool) ($producto->inventariable ?? false);
 
@@ -349,6 +371,7 @@ class CotizacionController extends Controller
             ...$this->tasaDe($data),
             'fecha_creacion'           => $data['fecha_creacion'],
             'fecha_validez'            => $data['fecha_validez'],
+            'dias_entrega'             => $data['dias_entrega'] ?? null,
             'responsable_id'           => $data['responsable_id'],
             'condiciones_comerciales'  => $data['condiciones_comerciales'],
             'notas_internas'           => $data['notas_internas'],
@@ -371,6 +394,10 @@ class CotizacionController extends Controller
             'estado' => 'required|in:borrador,enviada,aprobada,rechazada,vencida',
         ]);
 
+        if ($request->estado !== 'borrador' && ! $cotizacion->cliente_id) {
+            return back()->with('error', Cotizacion::SIN_CLIENTE);
+        }
+
         $cotizacion->update(['estado' => $request->estado]);
 
         if ($request->estado === 'aprobada') {
@@ -383,15 +410,23 @@ class CotizacionController extends Controller
 
     public function duplicar(Cotizacion $cotizacion): RedirectResponse
     {
+        if (! $cotizacion->cliente_id) {
+            return back()->with('error', Cotizacion::SIN_CLIENTE);
+        }
+
         $cotizacion->load('items');
 
-        $nueva = $cotizacion->replicate(['numero', 'estado']);
+        // No se copia lo que es de la original: su número, su estado, su enlace público (es único:
+        // copiarlo hacía fallar el guardado con un error 500), si ya está en producción —la copia
+        // nacería bloqueada para editar— ni el motivo con que el cliente la rechazó.
+        $nueva = $cotizacion->replicate(['numero', 'estado', 'token_publico', 'en_produccion', 'motivo_rechazo']);
+        $nueva->en_produccion = false;
         $nueva->estado        = 'borrador';
         $nueva->fecha_creacion = now()->toDateString();
         $nueva->fecha_validez  = now()->addDays(30)->toDateString();
 
         // Una cotización nueva nace con la tasa de hoy, no con la de la que se copió.
-        if ($nueva->moneda && $nueva->moneda !== \App\Support\Monedas::LOCAL
+        if ($nueva->moneda && $nueva->moneda !== \App\Support\Monedas::base()
             && $tasa = app(\App\Services\TasaCambioService::class)->vigente($nueva->moneda)) {
             $nueva->tasa_cambio = $tasa->valor;
             $nueva->tasa_fecha  = $tasa->fecha->toDateString();
@@ -434,6 +469,16 @@ class CotizacionController extends Controller
 
         $cliente = ! empty($datos['cliente_id']) ? \App\Models\Cliente::find($datos['cliente_id']) : null;
 
+        // Las retenciones colombianas solo existen donde el paquete del país las declara.
+        $pais = \App\Support\Paises::activo();
+
+        if (! \App\Support\Paises::perfil($pais)['retenciones']) {
+            return response()->json([
+                'aplica' => false, 'lineas' => [], 'total' => 0.0, 'avisos' => [],
+                'motivos' => ['En ' . \App\Support\Paises::nombre($pais) . ' Briela no calcula retenciones.'],
+            ]);
+        }
+
         return response()->json($retenciones->estimar(
             $retenciones->lineasDesdeFormulario($datos['items'] ?? []),
             (float) ($datos['iva'] ?? 0),
@@ -444,9 +489,23 @@ class CotizacionController extends Controller
     /** Las tasas vigentes y el modo, para la pantalla de crear y editar. */
     private function propsMonedas(): array
     {
+        $pais   = \App\Support\Paises::activo();
+        $perfil = \App\Support\Paises::perfil($pais);
+
         return [
             'tasas'     => app(\App\Services\TasaCambioService::class)->paraInterfaz(),
             'modo_tasa' => \App\Support\Monedas::modoCotizacion(),
+            // La moneda con la que arranca una cotización nueva: la de la sede activa.
+            'moneda_defecto'   => \App\Support\ContextoSede::actual()?->monedaDocumentos() ?? \App\Support\Monedas::base(),
+            'monedas_catalogo' => collect(\App\Support\Monedas::CATALOGO)
+                ->map(fn ($m, $c) => ['codigo' => $c, 'nombre' => $m['nombre']])->values(),
+            // Los impuestos del país de la sede: cómo se llama y qué tarifas se ofrecen.
+            'impuesto' => [
+                'nombre'  => \App\Support\Paises::nombreImpuesto($pais),
+                'tarifas' => \App\Support\Paises::tarifas($pais),
+                'pais'    => $pais,
+            ],
+            'retenciones_activas' => $perfil['retenciones'],
         ];
     }
 
@@ -461,7 +520,7 @@ class CotizacionController extends Controller
      */
     private function tasaDe(array $data): array
     {
-        if (($data['moneda'] ?? 'COP') === \App\Support\Monedas::LOCAL) {
+        if (($data['moneda'] ?? \App\Support\Monedas::base()) === \App\Support\Monedas::base()) {
             return ['tasa_cambio' => 1, 'tasa_fecha' => null];
         }
 
@@ -543,10 +602,16 @@ class CotizacionController extends Controller
     {
         $guardado = \App\Models\Configuracion::get('cotizacion_condiciones', '');
 
-        return filled($guardado)
-            ? $guardado
-            : 'Precios en pesos colombianos. Validez 30 días. Anticipo 50% para inicio de producción. '
-                .'Tiempo de entrega: 15 días hábiles.';
+        if (filled($guardado)) {
+            return $guardado;
+        }
+
+        // Sin texto propio, uno de partida que dice la moneda de la instalación: escribir
+        // «pesos colombianos» aquí le llegaba igual a una empresa de Panamá.
+        $moneda = mb_strtolower(\App\Support\Monedas::CATALOGO[\App\Support\Monedas::base()]['nombre'] ?? \App\Support\Monedas::base());
+
+        return "Precios en {$moneda}. Validez 30 días. Anticipo 50% para inicio de producción. "
+            .'Tiempo de entrega: 15 días hábiles.';
     }
 
     /**
@@ -578,8 +643,7 @@ class CotizacionController extends Controller
         $precios             = app(PreciosPorCanalService::class);
         $canalesConfigurados = app(\App\Services\CanalesPrecioService::class)->canales();
 
-        return response()->json(
-            Producto::with(['padre:id,nombre,atributo_variante', 'preciosPorCanal'])
+        $productos = Producto::with(['padre:id,nombre,atributo_variante', 'preciosPorCanal'])
                 ->seleccionables()
                 ->where('activo', true)
                 ->whereIn('tipo', ['producto', 'servicio'])
@@ -589,8 +653,15 @@ class CotizacionController extends Controller
                     ->orWhereHas('padre', fn ($q2) => $q2->where('nombre', 'like', "%{$buscar}%"))
                 )
                 ->take(20)
-                ->get()
-                ->map(fn ($p) => [
+                ->get();
+
+        // Lo que otras cotizaciones tienen apartado, para avisarlo al lado del stock. Se excluye
+        // la cotización abierta (si llega): lo suyo no le resta a ella.
+        $apartado = app(\App\Services\ReservaStockService::class)
+            ->apartadoPorProducto($productos->pluck('id')->all(), $request->integer('cotizacion_id') ?: null);
+
+        return response()->json(
+            $productos->map(fn ($p) => [
                     'id'                   => $p->id,
                     'nombre'               => $p->nombre,
                     'nombre_completo'      => $p->nombre_completo,
@@ -600,6 +671,7 @@ class CotizacionController extends Controller
                     'atributo_variante'    => $p->padre?->atributo_variante,
                     'valor_variante'       => $p->valor_variante,
                     'stock_total'          => $p->stockTotal(),
+                    'stock_apartado'       => (float) ($apartado[$p->id] ?? 0),
                     'unidad_medida'        => $p->unidad_medida,
                     'descripcion_corta'    => $p->descripcion_corta,
                     // El bloque que se imprime debajo del ítem en la cotización y en la OP
@@ -643,6 +715,28 @@ class CotizacionController extends Controller
                     })->values(),
                 ])
         );
+    }
+
+    /**
+     * Stock, apartado y disponible de unos productos, para refrescar la cotización abierta.
+     *
+     * Una cotización se arma durante minutos u horas, y en ese tiempo otra puede apartar lo
+     * mismo: la pantalla lo vuelve a preguntar cada minuto en vez de mostrar el número de
+     * cuando se abrió. Es solo de uso interno, nunca sale en el portal público ni en el PDF.
+     */
+    public function disponibilidad(Request $request): JsonResponse
+    {
+        $datos = $request->validate([
+            'producto_ids'    => 'required|array|max:100',
+            'producto_ids.*'  => 'integer',
+            'cotizacion_id'   => 'nullable|integer',
+        ]);
+
+        return response()->json(app(\App\Services\ReservaStockService::class)->disponibilidad(
+            $datos['producto_ids'],
+            \App\Support\ContextoSede::idsBodegasVisibles(),
+            $datos['cotizacion_id'] ?? null,
+        ));
     }
 
     /**
@@ -783,14 +877,15 @@ class CotizacionController extends Controller
     {
         return $request->validate([
             'lead_id'                  => 'nullable|exists:crm_leads,id',
-            'cliente_id'               => 'nullable|exists:clientes,id',
+            'cliente_id'               => 'required|exists:clientes,id',
             'contacto_id'              => 'nullable|exists:contactos_cliente,id',
             'nombre_contacto_override' => 'nullable|string|max:150',
-            'moneda'                   => 'required|in:COP,USD,EUR',
+            'moneda'                   => 'required|in:' . implode(',', array_keys(\App\Support\Monedas::CATALOGO)),
             'tasa_cambio'              => 'required|numeric|min:1',
             'tasa_fecha'               => 'nullable|date',
             'fecha_creacion'           => 'required|date',
             'fecha_validez'            => 'required|date|after_or_equal:fecha_creacion',
+            'dias_entrega'             => 'nullable|integer|min:0|max:365',
             'responsable_id'           => 'required|exists:users,id',
             'condiciones_comerciales'  => 'nullable|string',
             'notas_internas'           => 'nullable|string',
@@ -813,6 +908,8 @@ class CotizacionController extends Controller
             'items.*.imagenes_instancia'       => 'nullable|array',
             'items.*.comision_pct_aplicada'    => 'nullable|numeric|min:0',
             'items.*.comision_valor'           => 'nullable|numeric|min:0',
+        ], [
+            'cliente_id.required' => 'Elige el cliente: una cotización sin cliente no se puede guardar.',
         ]);
     }
 

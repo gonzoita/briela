@@ -14,6 +14,223 @@ Formato: [versionado semántico](https://semver.org/lang/es/).
 
 ## [Sin publicar]
 
+## [1.6.0] — 2026-10-12
+
+### Agregado
+- **Informes con archivo desde el chat**: a la guía se le puede pedir un informe («cuántos clientes
+  llegaron el último mes, cuáles cotizaron y cómo mejorar») y responde con el análisis y una tarjeta
+  para descargarlo en Excel o CSV. Las cifras las calcula el sistema, no la IA, y el informe queda
+  guardado en Informes.
+- **Informes: seis fuentes nuevas** —leads del CRM, cotizaciones y ventas, clientes, órdenes de
+  producción, cartera e inventario— con periodo por nombre («el mes pasado»), resúmenes por canal,
+  vendedor, estado o mes, y cifras clave.
+- **Descarga en Excel (.xlsx)** con hojas de resumen, análisis, detalle y una por cada resumen; y CSV
+  que Excel en español abre bien.
+- **Alistamiento parcial**: de 15 unidades vendidas se pueden alistar 10 y remisionar esas 10. La
+  remisión dice cuánto queda pendiente de cada ítem, en pantalla y en el PDF.
+- **Remisión «Cerrada»**: una remisión entregada se cierra sola cuando la orden queda pagada con
+  pagos verificados. Mientras tanto se ve «Entregada — pendiente de pago». Los pagos en efectivo o
+  cheque se pueden marcar como verificados en la cartera.
+- **Foto de perfil y firma del usuario**: cada persona pone su foto y su firma (dibujada o subida) en
+  Mi perfil. La firma sale sola en cotizaciones, órdenes de producción, órdenes de compra y
+  remisiones.
+- **Perfil de marca: Completar con IA**: la IA formula las preguntas de cada sección para tu empresa
+  y las responde sola con lo que el sistema sabe de ella. «Importar documento» ahora es
+  «Importar MD» y acepta archivos Markdown.
+- **Chat**: los mensajes llegan en vivo con la conversación abierta, Enter envía, Ctrl+V pega una
+  imagen y se puede responder a un mensaje concreto.
+- **Avisos en vivo**: lo que llega a la campana aparece sin recargar, con enlace directo, y la
+  pantalla abierta se actualiza sola si el aviso es suyo. El responsable de una cotización se entera
+  de todo cambio de estado que no hizo él.
+- **La guía de Briela gestiona procesos.** Además de responder, ahora puede generar órdenes de
+  producción, alistar, remisionar, mover remisiones, registrar pagos, confirmar abonos del banco,
+  marcar pasos de planta, aprobar calidad, cambiar el estado de cotizaciones y mover o registrar
+  leads. Siempre muestra primero una tarjeta con lo que va a hacer y solo lo hace al tocar
+  «Confirmar», con los mismos permisos de quien la usa.
+- **El lead del CRM se mueve solo**: pasa a ganado cuando se aprueba su cotización, y a perdido
+  —con el motivo— cuando se rechaza o se vence, si no tiene otra cotización abierta.
+
+### Cambiado
+- **Lo remisionado sale del almacén al crear la remisión.** Un producto sale tal cual (si se
+  remisionan cuatro bisagras, salen cuatro bisagras) y un ensamble sale por todos sus componentes.
+  Cada salida queda en los movimientos del producto, y anular o borrar la remisión lo devuelve.
+  Terminar un ensamble en planta ya no mueve inventario ni pide bodegas.
+- **Un producto sencillo solo se alista**: ya no pasa por planta. Los productos que se habían
+  mandado a planta con la versión anterior quedan para alistar (o alistados, si ya estaban
+  terminados).
+
+### Corregido
+- **Ninguna cotización ni orden de producción se procesa sin cliente**: no se guardan sin él, y las
+  viejas sin cliente no se envían, aprueban, alistan ni remisionan hasta asignarle uno.
+- **La firma de la remisión funciona**: el trazo cae donde está el dedo, no se guarda un recuadro en
+  blanco, los errores se muestran, se guarda quién firmó y las firmas salen en el PDF.
+- Las notificaciones del chat ya no dan error 404: abren la conversación.
+- Las etiquetas de estado de cotizaciones y remisiones ya se leen en modo noche.
+- **Un color de marca oscuro ya se lee en modo noche** (y uno muy claro, de día). Cada tema usa el
+  mismo tono con la luz justa para que enlaces, menú activo y botones con borde se lean; si el color
+  ya se lee, no cambia. La pantalla de Marca avisa cuando se ajustó, y los documentos conservan el
+  color exacto.
+- Convertir un lead en cliente ya no crea un cliente repetido: si ya existe con ese documento,
+  correo o celular, se vincula. Una empresa nueva nace con su contacto.
+- La cotización que se crea sola desde el CRM usa las condiciones comerciales de la empresa.
+- Las novedades que reporta un cliente al agente de IA llegan al CRM con su origen y avisan a quien
+  debe atenderlas.
+- Si un cliente vuelve a llenar un formulario, el aviso dice que volvió a escribir.
+- Un lead de otra sede ya no se abre por enlace directo.
+
+## [1.5.0] — 2026-10-11
+
+### Agregado
+- **Plazo de entrega en la cotización** (días hábiles). Se ve en la cotización, en el enlace del
+  cliente y en el PDF, y al generar la orden se convierte en su fecha de entrega, que se puede
+  ajustar ahí mismo. Antes la orden nacía sin fecha.
+- **Productos que pasan por planta.** En la ficha de un producto se puede prender «Se procesa en
+  planta» con sus pasos y su revisión de calidad, para lo que hay que cortar, pintar o empacar antes
+  de entregar. En cada orden sus unidades salen a Trabajos con su QR, y quedan listas para
+  remisionar al terminarlas. Desde la orden también se puede mandar a planta cualquier producto con
+  «Procesar en planta», eligiendo el flujo de pasos.
+
+### Corregido
+- **Una orden en borrador ya se puede trabajar.** Alistar un producto, remisionarlo o avanzar un
+  paso la pasa sola a «En producción», con las bodegas precargadas. Antes alistar en borrador no
+  movía nada, y Alistamiento y Remisiones ni siquiera mostraban la orden.
+- **Un producto se puede remisionar sin alistarlo antes**: al meterlo en la remisión queda alistado.
+  El remisionador marca los que todavía no lo estaban.
+- «Sacar de planta» ya no borra unidades con trabajo registrado ni unidades que ya salieron.
+- **Un servicio no frena la orden.** Una instalación en obra se hace después de entregar: la orden
+  pasa a calidad y se despacha cuando está listo lo que se fabrica, sin esperar a que el servicio
+  se marque como hecho.
+- **Rechazar en calidad devuelve el trabajo a planta**, también desde el botón de la orden: las
+  unidades a rehacer se reabren y pierden la aprobación, y la orden ya no vuelve sola a «Calidad»
+  al abrirla. Antes las unidades rechazadas se podían seguir remisionando.
+- **Un producto nuevo nace vendible e inventariable**, con su stock inicial a la vista. Antes nacía
+  sin control de existencias si nadie prendía el interruptor.
+- **La comisión del vendedor se confirma cuando el cliente aprueba por el enlace**, sin esperar a
+  que se genere la orden.
+- Al crear una remisión se abre la remisión, lista para confirmarla y despacharla.
+- **Duplicar una cotización** ya no da error, y la copia nace editable.
+- Confirmar una orden sin bodegas ahora **dice qué falta** en vez de no hacer nada.
+
+## [1.4.0] — 2026-10-11
+
+### Agregado
+- **Remisiones: «Por remisionar» y «Remisiones creadas».** La pantalla abre con las órdenes que
+  tienen algo listo y todavía no salieron, con cuántas unidades hay de cada cosa y un botón para
+  remisionarlas con todo precargado.
+- **Verificador de pagos.** Confirma con el banco que el dinero de cada cuota llegó, sin que alguien
+  tenga que revisar la cuenta. Subes el extracto del banco (Excel o CSV, de cualquier banco) y
+  Briela empareja cada abono con la cuota que corresponde: lo que no deja duda —la orden nombrada
+  y el valor exacto, o el valor exacto con el cliente en la descripción— se registra solo como
+  pago «Verificado por el banco»; lo que tiene más de una explicación queda **por decidir** con
+  un clic, y el dinero que nadie reclama queda a la vista como **sin dueño**. Subir dos veces el
+  mismo extracto no duplica nada. Solo lee: no mueve ni paga nada, y solo guarda los últimos
+  dígitos de la cuenta. Es un módulo que se enciende y se apaga desde Configuración → Módulos. Avisa a los administradores
+  cuando un extracto deja abonos por revisar, y al responsable de la orden cuando el banco confirma
+  uno de sus pagos.
+- **Varios países.** Cada sede tiene su país y la moneda de sus documentos; los clientes y
+  proveedores, el suyo. Las cotizaciones ofrecen los impuestos del país de la sede (IVA, ITBMS…),
+  el cliente elige entre los documentos de identidad de su país (NIT, RUC, RIF…) y la IA lee el
+  documento fiscal de cada país. Vienen los paquetes de Colombia, Panamá y Venezuela
+  —los dos últimos son valores de partida que debe confirmar un contador—, y cualquier otro país
+  funciona con lo que la empresa escriba en Configuración → Países.
+- **Moneda base a elección** y 20 monedas. Las que publica el Banco Central Europeo (dólar, euro,
+  libra, yuan, peso mexicano, real, dólar canadiense) se traen solas; las demás se escriben a mano.
+- **Importaciones** (Compras → Importaciones): se carga la factura del proveedor, el flete, el
+  seguro y los gastos, y Briela calcula cuánto cuesta cada producto puesto en bodega —con arancel,
+  impuesto y gastos repartidos por valor, peso o cantidad— y a cuánto quedaría en cada canal.
+  Al liquidar, ese pasa a ser el costo del producto y se recalculan sus precios. Los productos
+  guardan su código arancelario y su arancel habitual.
+
+### Corregido
+- **La orden de producción cambia de estado sola en todo el flujo.** Alistar un producto ya mueve
+  la orden (a «En producción» con el primero, a «Calidad» con todos, y de vuelta si se desalista);
+  antes solo lo hacía cerrar pasos en planta. Las órdenes que quedaron atascadas se ponen al día
+  solas al actualizar.
+- **Los productos alistados se pueden remisionar desde la orden.** El botón pedía una aprobación
+  de calidad que una orden de productos nunca tiene, y el remisionador no los ofrecía.
+- **La orden se despacha cuando la remisión sale**, no al crearla en borrador, y una orden con un
+  servicio incluido ya llega a «Despachada».
+- **Los productos despachados salen del inventario** al salir la remisión, y vuelven si se anula.
+  Despachar, anular y volver a despachar ya no descuenta dos veces.
+- **Anular una remisión devuelve solo lo suyo**: un producto repartido en dos remisiones ya no
+  vuelve entero, y eliminar una remisión anulada no suelta las unidades de otra.
+- **Calidad sella la orden cuando están todas las unidades revisadas**, no con la primera.
+- **Una unidad que vuelve a planta deja de figurar como lista.**
+- **La lista de órdenes para remisionar solo trae las que de verdad tienen algo listo.**
+- Una remisión entregada o anulada ya no cambia de estado, una que salió no se elimina (se anula),
+  y crear o mover remisiones pide su propio permiso.
+
+## [1.3.0] — 2026-10-10
+
+### Agregado
+- **La orden de compra es coherente con el módulo de productos.** El buscador encuentra **todo lo
+  que se puede comprar** —insumos, productos de reventa y variantes con su nombre completo—, no solo
+  los marcados como insumo, y lo encuentra por el nombre, la referencia interna **o el código de
+  cualquiera de sus proveedores** (`R125458` lleva a la bisagra `IC5260`). Cada línea muestra la
+  referencia interna, el código del proveedor de la orden y **«También lo venden»**: los otros
+  proveedores con su código, su precio, su nota y cuál es el más barato vigente. La ficha de la
+  orden lo muestra igual, con enlace al producto, y la recepción trae a la vista los dos códigos
+  para cotejarlos con la factura. El PDF que recibe el proveedor no dice a quién más se le compra.
+  La pantalla ya no carga todos los productos al abrirse: busca en el servidor.
+- **La calificación de proveedores se ajusta a lo que le importa a la empresa.** Configuración →
+  Calificación de proveedores: cuánto pesa cada componente (puntualidad, cumplimiento, entregas en
+  regla, precio), los días de gracia de una entrega tarde y cuántas órdenes hacen falta para dar
+  nota. Las notas no se guardan, así que cambian al instante.
+- **Retenciones en las órdenes de compra.** La ficha de la orden estima lo que la empresa le
+  retiene al proveedor al pagar —en la fuente y de IVA— según el RUT de la empresa y el del
+  proveedor, y muestra el neto a pagar. Cada retención que no aplica dice por qué. Es una
+  estimación: no cambia el total de la orden.
+- **Una cotización enviada aparta su stock por 24 horas.** Es una marca, no un movimiento: el
+  inventario no se mueve, pero quien cotiza ve «N apartadas en otras cotizaciones» junto al
+  stock (se refresca solo cada minuto) y puede cotizar igual. A las 24 horas se libera sola y se
+  le avisa al vendedor; guardar de nuevo no renueva el plazo. Si una venta se aprueba y necesita
+  unidades que otra cotización tenía apartadas, se le ceden —las más nuevas primero— y se avisa
+  al vendedor afectado **y** a administración. Pantalla nueva «Stock apartado» en Productos y
+  Existencias, y el recuadro «Stock apartado» en la ficha de cada cotización. Solo uso interno:
+  el cliente no ve nada de esto, ni en el portal ni en el PDF. Se libera con la tarea programada
+  del sistema (la misma del cron de siempre, cada 15 minutos): no hace falta configurar nada nuevo.
+- **Calificación automática de proveedores.** Cada proveedor tiene una nota de 0 a 100 que calcula
+  el sistema con sus órdenes del último año: puntualidad, cumplimiento de lo pedido, entregas que
+  llegaron con factura o remisión y a tiempo, y qué tan competitivo es su precio. Se ve en la
+  lista de proveedores, en su ficha y al elegirlo en una orden de compra. Con menos de tres
+  órdenes evaluables dice «Sin calificar» en vez de inventar una nota. El asistente la usa junto
+  al precio para recomendar a quién comprarle.
+- **Cada movimiento de inventario dice de dónde vino y con qué papel.** En la ficha del producto
+  ves, por cada movimiento, el stock antes y después, su origen con enlace (orden de compra, orden
+  de producción, ajuste), la factura o remisión con su número y fecha, y las observaciones.
+  También las remisiones en las que salió el producto, y el historial completo por tandas.
+- **Al recibir una orden de compra se registra la factura o remisión del proveedor**, la fecha de
+  llegada y las observaciones, en cada entrega. La ficha de la orden lista todas sus entregas.
+- **El ajuste de stock acepta el papel que lo respalda** (factura, remisión u otro).
+- **Cargar un proveedor desde su RUT.** En Proveedores, sube el RUT (PDF o foto) y se llenan sus
+  datos y responsabilidades tributarias. Avisa si ese proveedor ya existe. En la orden de compra,
+  un proveedor que según su RUT no es responsable de IVA arranca sin IVA.
+- **La orden de compra lleva el código de cada proveedor.** Un mismo producto lo pueden vender
+  varios proveedores con códigos distintos; la orden manda el de quien la recibe, y el PDF lo
+  muestra primero. Se configura en la ficha del producto o directamente al armar la orden: si
+  escribes un código nuevo, queda guardado para las próximas. Al elegir proveedor, cada línea
+  se llena sola con su código y su último precio, y se avisa si ese precio tiene más de 90 días.
+- **Historial de precios por proveedor.** Cada vez que una orden se envía, el precio queda
+  anotado. El asistente puede comparar proveedores con esos datos y no recomienda un precio viejo.
+- **Cada variante puede tener su propia imagen.** Al crear un producto con variantes, o al
+  agregar una variante desde la ficha del producto principal, puedes subir su imagen. Si no
+  subes ninguna, usa la del producto principal en el buscador de cotizaciones, en su ficha y
+  en el catálogo; y si el principal cambia su foto, las variantes que la heredan cambian con él.
+
+### Corregido
+- **Mover el inventario exige permiso.** Ajustar el stock (desde la ficha del producto y desde
+  Stock y materiales) y recibir una orden de compra no pedían ninguno: cualquiera que pudiera
+  ver la pantalla podía cambiar las existencias. Ahora piden «Stock y movimientos: editar» y
+  «Órdenes de compra: recibir», y los botones solo se muestran a quien los tiene.
+- **La referencia de un producto eliminado queda libre.** Antes, si eliminabas un producto y
+  volvías a crear otro con la misma referencia, el sistema decía que ya estaba en uso, de algo
+  que ya no veías. Ahora la reutilizas sin más. Vale al crear, al editar, en las variantes y al
+  importar. Lo eliminado conserva su historial: solo cambia su referencia por «REF~elim123».
+- **Si la referencia sí la tiene un producto vivo, el mensaje dice cuál.** Antes decía «El campo
+  variantes.0.referencia ya está en uso».
+
+## [1.2.0] — 2026-10-10
+
 ### Agregado
 - **El correo sale por Briela, firmado y sin caer en spam.** Cuando Briela activa el
   dominio de envío de la instalación, las notificaciones, las cotizaciones y los formularios
@@ -22,6 +239,21 @@ Formato: [versionado semántico](https://semver.org/lang/es/).
 - **Configuración → Correo**: por dónde sale el correo, cuánto va del mes, un envío de prueba
   y las direcciones a las que ya no se les escribe porque rebotaron o se dieron de baja.
 - Las notificaciones del sistema no se cobran nunca.
+
+### Corregido
+- **Crear un producto con variantes ya no responde con error.** Un valor de variante largo
+  hacía que la referencia generada no cupiera y el guardado fallaba después de crear el
+  padre, dejando un producto a medias. Ahora la referencia se acorta sin perder el prefijo
+  del padre, y dos variantes nunca comparten referencia.
+- **Las referencias automáticas ya no saltan ni chocan.** El contador ya no cuenta las
+  variantes, así que los productos nuevos salen en orden (PROD-0001, PROD-0002…), y una
+  referencia escrita a mano no bloquea la siguiente.
+- **Las variantes tienen los precios de todos los canales**, incluidos los que la empresa
+  creó por su cuenta. Antes, una variante podía cotizarse en cero por un canal propio.
+- **Agregar una variante desde la ficha de editar ya no deja sus precios en cero.** La
+  variante nueva copia los precios del padre.
+- **Guardar un producto con proveedor sin todos sus datos ya no falla.** La importación y la
+  API mandan solo lo que tienen.
 
 ## [1.1.0] — 2026-10-04
 

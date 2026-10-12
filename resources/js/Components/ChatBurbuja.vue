@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, watch, nextTick, onUnmounted } from 'vue'
 import { usePage, router } from '@inertiajs/vue3'
 import HiloComentarios from '@/Components/HiloComentarios.vue'
 // Los contadores viven en el módulo y no en el componente: este se destruye y se
@@ -57,7 +57,11 @@ function elegirDocumento(grupo, r) {
 
 async function subirArchivo(e) {
     const file = e.target.files?.[0]
-    if (!file) return
+    e.target.value = ''
+    if (file) await subir(file)
+}
+
+async function subir(file) {
     subiendo.value = true
     try {
         const fd = new FormData()
@@ -68,8 +72,127 @@ async function subirArchivo(e) {
         })
         if (res.ok) archivos.value.push(await res.json())
     } catch { /* el usuario puede reintentar */ }
-    finally { subiendo.value = false; e.target.value = '' }
+    finally { subiendo.value = false }
 }
+
+// Ctrl+V con una imagen copiada (una captura de pantalla, una foto del navegador): se sube
+// como si se hubiera elegido el archivo. El texto se pega normal.
+async function pegar(e) {
+    const imagenes = [...(e.clipboardData?.items ?? [])]
+        .filter(i => i.kind === 'file' && i.type.startsWith('image/'))
+        .map(i => i.getAsFile())
+        .filter(Boolean)
+
+    if (! imagenes.length) return
+    e.preventDefault()
+
+    for (const img of imagenes) {
+        const ext = (img.type.split('/')[1] || 'png').replace('jpeg', 'jpg')
+        // La captura llega como «image.png»: se le pone un nombre que diga cuándo se pegó.
+        const nombre = img.name && img.name !== 'image.png' ? img.name : `captura-${new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-')}.${ext}`
+        await subir(new File([img], nombre, { type: img.type }))
+    }
+}
+
+// Enter envía; Shift+Enter hace un salto de línea. Mientras se compone con acentos o en un
+// teclado de idioma (isComposing), Enter no envía.
+function alPresionarTecla(e) {
+    if (e.key !== 'Enter' || e.shiftKey || e.isComposing) return
+    e.preventDefault()
+    enviarMensaje()
+}
+
+// ── Responder a un mensaje ───────────────────────────────────────────────────
+const respondiendoA = ref(null)   // { id, autor, extracto }
+const campoMensaje  = ref(null)
+
+function responder(m) {
+    respondiendoA.value = {
+        id: m.id,
+        autor: m.mio ? 'Tú' : (m.autor?.name ?? ''),
+        extracto: (m.contenido ?? '').slice(0, 140),
+    }
+    nextTick(() => campoMensaje.value?.focus())
+}
+
+function irAlMensaje(id) {
+    const el = document.getElementById(`chat-msg-${id}`)
+    if (! el) return
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    el.classList.add('resaltado')
+    setTimeout(() => el.classList.remove('resaltado'), 1200)
+}
+
+// ── En vivo ──────────────────────────────────────────────────────────────────
+// Con una conversación abierta se pregunta cada pocos segundos por lo NUEVO (`?desde=`): una
+// consulta pequeña, solo mientras se mira, y en pausa con la pestaña oculta. Antes la
+// conversación se pedía una vez al abrirla y lo que llegaba después no aparecía hasta cerrarla
+// y volver a abrirla. No hay websockets: la instalación vive en el hosting del cliente.
+const CADA_MS   = 4000
+const cuerpo    = ref(null)
+let reloj       = null
+let preguntando = false
+
+const ultimoId = () => mensajes.value.reduce((max, m) => Math.max(max, m.id || 0), 0)
+
+function alFondo(forzar = false) {
+    nextTick(() => {
+        const el = cuerpo.value
+        if (! el) return
+        const cerca = el.scrollHeight - el.scrollTop - el.clientHeight < 160
+        if (forzar || cerca) el.scrollTop = el.scrollHeight
+    })
+}
+
+async function traerNuevos() {
+    if (preguntando || document.hidden || vista.value !== 'hilo' || ! abierto.value) return
+    const url = enGrupo.value
+        ? `/api/chat/grupos/${enGrupo.value.id}`
+        : conQuien.value ? `/api/chat/${conQuien.value.usuario_id ?? conQuien.value.id}` : null
+    if (! url) return
+
+    preguntando = true
+    try {
+        const d = await api(`${url}?desde=${ultimoId()}`)
+        const conocidos = new Set(mensajes.value.map(m => m.id))
+        const nuevos = (d.mensajes ?? []).filter(m => ! conocidos.has(m.id))
+        if (nuevos.length) {
+            mensajes.value.push(...nuevos)
+            alFondo()
+        }
+    } catch { /* la siguiente vuelta lo intenta otra vez */ }
+    finally { preguntando = false }
+}
+
+function detenerVivo() {
+    clearInterval(reloj)
+    reloj = null
+}
+
+function iniciarVivo() {
+    detenerVivo()
+    reloj = setInterval(traerNuevos, CADA_MS)
+}
+
+// Al volver a la pestaña se pregunta de una vez, sin esperar la siguiente vuelta.
+function alCambiarVisibilidad() {
+    if (! document.hidden) traerNuevos()
+}
+
+watch([abierto, vista], ([a, v]) => {
+    if (a && v === 'hilo') {
+        iniciarVivo()
+        document.addEventListener('visibilitychange', alCambiarVisibilidad)
+    } else {
+        detenerVivo()
+        document.removeEventListener('visibilitychange', alCambiarVisibilidad)
+    }
+})
+
+onUnmounted(() => {
+    detenerVivo()
+    document.removeEventListener('visibilitychange', alCambiarVisibilidad)
+})
 
 const enGrupo      = ref(null)
 const creandoGrupo = ref(false)
@@ -110,11 +233,15 @@ async function abrirPersonas() {
 async function abrirGrupo(g) {
     enGrupo.value = g
     conQuien.value = null
+    respondiendoA.value = null
     vista.value = 'hilo'
     mensajes.value = []
     try {
         const d = await api('/api/chat/grupos/' + g.id)
         mensajes.value = d.mensajes
+        // Llegando desde una notificación solo se sabe el id: el nombre lo trae el hilo.
+        if (d.grupo) enGrupo.value = { ...g, ...d.grupo }
+        alFondo(true)
         await cargarGrupos()
     } catch { /* queda vacío */ }
 }
@@ -142,6 +269,7 @@ function buscarUsuarios() {
 async function abrirHilo(usuario) {
     enGrupo.value = null
     conQuien.value = usuario
+    respondiendoA.value = null
     vista.value = 'hilo'
     mensajes.value = []
     try {
@@ -150,12 +278,16 @@ async function abrirHilo(usuario) {
         // no `usuario_id`) la URL quedaba /api/chat/undefined.
         const d = await api('/api/chat/' + (usuario.usuario_id ?? usuario.id))
         mensajes.value = d.mensajes
+        if (d.usuario && ! (usuario.nombre || usuario.name)) conQuien.value = { ...usuario, name: d.usuario.name }
+        alFondo(true)
         await cargarConversaciones()
     } catch { /* queda vacío */ }
 }
 
 async function enviarMensaje() {
-    if (!nuevo.value.contenido.trim() || (!conQuien.value && !enGrupo.value)) return
+    // Una imagen pegada sola también se manda, sin texto.
+    if (enviando.value || subiendo.value) return
+    if ((!nuevo.value.contenido.trim() && !archivos.value.length) || (!conQuien.value && !enGrupo.value)) return
     enviando.value = true
     try {
         const url = enGrupo.value
@@ -170,14 +302,18 @@ async function enviarMensaje() {
                 nombre: a.nombre, ruta: a.ruta,
                 mime: a.mime, extension: a.extension, tamano: a.tamano,
             })),
+            respuesta_a_id: respondiendoA.value?.id ?? null,
         }
         const d = await api(url, { method: 'POST', body: JSON.stringify(cuerpo) })
-        // El grupo no devuelve el mensaje armado: se recarga el hilo.
-        if (enGrupo.value) { await abrirGrupo(enGrupo.value) }
-        else { mensajes.value.push(d.mensaje) }
+        // El grupo no devuelve el mensaje armado: se trae lo nuevo, que es lo mismo que
+        // hace la conversación en vivo (antes se recargaba el hilo entero).
+        if (enGrupo.value) { await traerNuevos() }
+        else if (! mensajes.value.some(m => m.id === d.mensaje.id)) { mensajes.value.push(d.mensaje) }
+        alFondo(true)
         nuevo.value = { contenido: '', tipo: 'comentario', fecha_limite: '' }
         refAdjunta.value = null
         archivos.value = []
+        respondiendoA.value = null
     } catch { /* se conserva lo escrito para reintentar */ }
     finally { enviando.value = false }
 }
@@ -231,8 +367,18 @@ function ir(url) {
     router.visit(url)
 }
 
+/**
+ * Abre el chat directamente en una conversación. Lo usan las notificaciones del chat y el
+ * enlace /chat/{id} (que redirige con `?abrir_chat=u5` o `g3`): antes ese enlace daba 404.
+ */
+async function abrirConversacion(tipo, id) {
+    abierto.value = true
+    if (tipo === 'g') await abrirGrupo({ id })
+    else await abrirHilo({ id })
+}
+
 // El lanzador flotante abre el panel y lee el contador de no leídos.
-defineExpose({ abrir: alternar, sinLeer })
+defineExpose({ abrir: alternar, sinLeer, abrirConversacion })
 
 const etiquetaTipo = { solicitud: 'Solicitud', tarea: 'Tarea' }
 </script>
@@ -289,7 +435,7 @@ const etiquetaTipo = { solicitud: 'Solicitud', tarea: 'Tarea' }
                     </button>
                 </div>
 
-                <div class="overflow-y-auto p-3" style="padding-bottom: calc(0.75rem + env(safe-area-inset-bottom));">
+                <div ref="cuerpo" class="overflow-y-auto p-3" style="padding-bottom: calc(0.75rem + env(safe-area-inset-bottom));">
                     <!-- ── Buscar persona ─────────────────────────────── -->
                     <template v-if="vista === 'personas'">
                         <input v-model="buscar" @input="buscarUsuarios" type="text" placeholder="Buscar a alguien..."
@@ -385,15 +531,30 @@ const etiquetaTipo = { solicitud: 'Solicitud', tarea: 'Tarea' }
                             <p v-if="!mensajes.length" class="text-xs text-tinta-300 py-6 text-center">
                                 Todavía no se han escrito. Manda el primer mensaje.
                             </p>
-                            <div v-for="m in mensajes" :key="m.id" class="flex" :class="m.mio ? 'justify-end' : 'justify-start'">
+                            <div v-for="m in mensajes" :key="m.id" :id="`chat-msg-${m.id}`"
+                                class="group flex items-end gap-1 rounded-2xl transition-colors" :class="m.mio ? 'justify-end' : 'justify-start'">
+                                <!-- Responder: a la vista en el celular, al pasar el puntero en el computador. -->
+                                <button v-if="m.mio" type="button" @click="responder(m)"
+                                    class="shrink-0 p-1 rounded-lg text-tinta-300 hover:text-tinta-600 hover:bg-realce sm:opacity-0 sm:group-hover:opacity-100 focus:opacity-100 transition-opacity"
+                                    title="Responder" aria-label="Responder este mensaje">
+                                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M9 15 3 9m0 0 6-6M3 9h12a6 6 0 0 1 0 12h-3"/></svg>
+                                </button>
                                 <div class="max-w-[85%] rounded-2xl px-3 py-2"
                                     :class="m.mio ? 'text-white' : 'bg-tinta-100 text-tinta-900'"
                                     :style="m.mio ? 'background:#0F766E;' : ''">
+                                    <p v-if="enGrupo && ! m.mio && m.autor" class="text-[11px] font-semibold mb-0.5 opacity-80">{{ m.autor.name }}</p>
+                                    <!-- La cita del mensaje al que responde: un toque lleva hasta él. -->
+                                    <button v-if="m.respuesta" type="button" @click="irAlMensaje(m.respuesta.id)"
+                                        class="mb-1 block w-full text-left rounded-lg px-2 py-1 border-l-2 text-[11px]"
+                                        :class="m.mio ? 'bg-black/15 border-white/60 text-white/90' : 'bg-superficie border-[var(--marca)] text-tinta-500'">
+                                        <span class="font-semibold block">{{ m.respuesta.autor }}</span>
+                                        <span class="line-clamp-2">{{ m.respuesta.extracto }}</span>
+                                    </button>
                                     <p v-if="m.tipo !== 'comentario'"
                                         class="text-[10px] font-semibold uppercase tracking-[0.12em] mb-0.5 opacity-80">
                                         {{ m.tipo }}<template v-if="m.estado"> · {{ m.estado }}</template>
                                     </p>
-                                    <p class="text-sm whitespace-pre-line">{{ m.contenido }}</p>
+                                    <p v-if="m.contenido" class="text-sm whitespace-pre-line">{{ m.contenido }}</p>
                                     <a v-if="m.referencia" :href="m.referencia.url"
                                         class="mt-1 block text-[11px] underline"
                                         :class="m.mio ? 'text-white/90' : 'text-aviso-azul'">
@@ -418,6 +579,11 @@ const etiquetaTipo = { solicitud: 'Solicitud', tarea: 'Tarea' }
                                         {{ new Date(m.creado).toLocaleString('es-CO', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' }) }}
                                     </p>
                                 </div>
+                                <button v-if="! m.mio" type="button" @click="responder(m)"
+                                    class="shrink-0 p-1 rounded-lg text-tinta-300 hover:text-tinta-600 hover:bg-realce sm:opacity-0 sm:group-hover:opacity-100 focus:opacity-100 transition-opacity"
+                                    title="Responder" aria-label="Responder este mensaje">
+                                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M9 15 3 9m0 0 6-6M3 9h12a6 6 0 0 1 0 12h-3"/></svg>
+                                </button>
                             </div>
                         </div>
 
@@ -456,7 +622,18 @@ const etiquetaTipo = { solicitud: 'Solicitud', tarea: 'Tarea' }
                                 </span>
                             </div>
 
-                            <textarea v-model="nuevo.contenido" rows="2" placeholder="Escribe un mensaje..."
+                            <!-- Respondiendo a… -->
+                            <div v-if="respondiendoA" class="flex items-start gap-2 rounded-lg border-l-2 border-[var(--marca)] bg-realce px-2 py-1.5">
+                                <div class="min-w-0 flex-1 text-[11px]">
+                                    <p class="font-semibold text-tinta-700">Respondiendo a {{ respondiendoA.autor }}</p>
+                                    <p class="text-tinta-400 line-clamp-2">{{ respondiendoA.extracto }}</p>
+                                </div>
+                                <button type="button" @click="respondiendoA = null" class="text-tinta-400 hover:text-tinta-700 text-xs" aria-label="Cancelar respuesta">✕</button>
+                            </div>
+
+                            <textarea ref="campoMensaje" v-model="nuevo.contenido" rows="2"
+                                placeholder="Escribe un mensaje… (Enter envía · Shift+Enter, nueva línea · Ctrl+V pega una imagen)"
+                                @keydown="alPresionarTecla" @paste="pegar"
                                 class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[var(--marca)]"></textarea>
                             <div class="flex flex-wrap gap-2 items-center">
                                 <button type="button" @click="buscadorAbierto = !buscadorAbierto"
@@ -474,7 +651,7 @@ const etiquetaTipo = { solicitud: 'Solicitud', tarea: 'Tarea' }
                                 </select>
                                 <input v-if="nuevo.tipo !== 'comentario'" v-model="nuevo.fecha_limite" type="date"
                                     class="border border-linea rounded-lg px-2 py-1.5 text-xs focus:outline-none" />
-                                <button @click="enviarMensaje" :disabled="enviando || !nuevo.contenido.trim()"
+                                <button @click="enviarMensaje" :disabled="enviando || subiendo || (!nuevo.contenido.trim() && !archivos.length)"
                                     class="ml-auto px-4 py-1.5 rounded-lg text-xs font-semibold text-white disabled:opacity-50"
                                     style="background:#0F766E;">
                                     {{ enviando ? 'Enviando...' : 'Enviar' }}
@@ -582,6 +759,8 @@ const etiquetaTipo = { solicitud: 'Solicitud', tarea: 'Tarea' }
 @keyframes entrar { from { opacity: 0; transform: scale(0.5) translateY(10px); } to { opacity: 1; transform: scale(1); } }
 @keyframes latir  { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.15); } }
 @keyframes subir  { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+
+.resaltado { background: var(--realce); }
 
 @media (prefers-reduced-motion: reduce) {
     .burbuja-chat, .globito, .panel { animation: none; transition: none; }

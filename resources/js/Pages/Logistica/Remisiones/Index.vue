@@ -8,6 +8,10 @@ import { useOrden } from '@/composables/useOrden'
 const props = defineProps({
     remisiones: Object,
     filtros:    Object,
+    // Órdenes con algo listo y todavía sin remisión, con lo que tiene cada una.
+    pendientes: { type: Array, default: () => [] },
+    // 'pendientes' (por remisionar) o 'creadas' (las remisiones ya hechas).
+    vista:      { type: String, default: 'creadas' },
     // El orden vigente, que decide el servidor: { campo, dir }.
     orden: { type: Object, default: () => ({}) },
 })
@@ -24,13 +28,25 @@ const camposOrden = [
 const page    = usePage()
 const flash   = computed(() => page.props.flash)
 
+// Familias del tema, no colores fijos: de noche un fondo claro escrito a mano queda ilegible.
 const ESTADO_BADGE = {
-    borrador:   { label: 'Borrador',   bg: '#F3F4F6', text: '#374151' },
-    confirmada: { label: 'Confirmada', bg: '#DBEAFE', text: '#1D4ED8' },
-    en_camino:  { label: 'En camino',  bg: '#FEF3C7', text: '#92400E' },
-    entregada:  { label: 'Entregada',  bg: '#D1FAE5', text: '#065F46' },
-    anulada:    { label: 'Anulada',    bg: '#FEE2E2', text: '#991B1B' },
+    borrador:   { label: 'Borrador',   clases: 'bg-tinta-100 text-tinta-700' },
+    confirmada: { label: 'Confirmada', clases: 'bg-pastel-azul-2 text-aviso-azul' },
+    en_camino:  { label: 'En camino',  clases: 'bg-pastel-ambar-2 text-aviso-ambar' },
+    entregada:  { label: 'Entregada',  clases: 'bg-pastel-verde-2 text-aviso-verde' },
+    // Entregada y pagada con pagos verificados: se pone sola.
+    cerrada:    { label: 'Cerrada',    clases: 'bg-pastel-violeta-2 text-aviso-violeta' },
+    anulada:    { label: 'Anulada',    clases: 'bg-pastel-rojo-2 text-aviso-rojo' },
 }
+
+// ── Por remisionar / creadas ───────────────────────────────────────────────
+const vistaActiva = ref(props.vista)
+function cambiarVista(v) {
+    vistaActiva.value = v
+    router.get('/logistica/remisiones', { ...props.filtros, vista: v }, { preserveState: true, preserveScroll: true, replace: true })
+}
+const unidadesListas = (op) => op.items.reduce((t, i) => t + i.disponibles, 0)
+const formatFechaCorta = (d) => d ? new Date(`${d}T00:00:00`).toLocaleDateString('es-CO', { day: '2-digit', month: 'short' }) : 'Sin fecha'
 
 const TABS = [
     { value: '',          label: 'Todas'     },
@@ -38,6 +54,7 @@ const TABS = [
     { value: 'confirmada',label: 'Confirmada'},
     { value: 'en_camino', label: 'En camino' },
     { value: 'entregada', label: 'Entregada' },
+    { value: 'cerrada',   label: 'Cerrada'   },
     { value: 'anulada',   label: 'Anulada'   },
 ]
 
@@ -46,12 +63,12 @@ const tipoFiltro   = ref(props.filtros?.tipo ?? '')
 
 function filtrar(estado) {
     estadoActivo.value = estado
-    router.get('/logistica/remisiones', { estado, tipo: tipoFiltro.value }, { preserveState: true, replace: true })
+    router.get('/logistica/remisiones', { estado, tipo: tipoFiltro.value, vista: 'creadas' }, { preserveState: true, replace: true })
 }
 
 function filtrarTipo(e) {
     tipoFiltro.value = e.target.value
-    router.get('/logistica/remisiones', { estado: estadoActivo.value, tipo: tipoFiltro.value }, { preserveState: true, replace: true })
+    router.get('/logistica/remisiones', { estado: estadoActivo.value, tipo: tipoFiltro.value, vista: 'creadas' }, { preserveState: true, replace: true })
 }
 
 const formatFecha = (d) => {
@@ -97,6 +114,59 @@ function eliminar(id) {
                 </a>
             </div>
 
+            <!-- Dos listas: lo que está listo y falta remisionar, y las remisiones ya hechas. -->
+            <div class="flex rounded-xl border border-linea overflow-hidden bg-superficie mb-4">
+                <button type="button" @click="cambiarVista('pendientes')"
+                    class="flex-1 py-2.5 text-sm font-medium"
+                    :class="vistaActiva === 'pendientes' ? 'text-white' : 'text-tinta-500 hover:bg-realce'"
+                    :style="vistaActiva === 'pendientes' ? 'background:var(--marca);' : ''">
+                    Por remisionar <span v-if="pendientes.length">({{ pendientes.length }})</span>
+                </button>
+                <button type="button" @click="cambiarVista('creadas')"
+                    class="flex-1 py-2.5 text-sm font-medium"
+                    :class="vistaActiva === 'creadas' ? 'text-white' : 'text-tinta-500 hover:bg-realce'"
+                    :style="vistaActiva === 'creadas' ? 'background:var(--marca);' : ''">
+                    Remisiones creadas
+                </button>
+            </div>
+
+            <!-- ═══ Por remisionar ═══ -->
+            <template v-if="vistaActiva === 'pendientes'">
+                <p class="text-xs text-tinta-400 mb-3">
+                    Órdenes con algo listo y todavía sin remisión: productos alistados y unidades de ensamble terminadas
+                    y aprobadas por calidad. Los servicios no se remisionan.
+                </p>
+                <div v-if="!pendientes.length" class="bg-superficie rounded-2xl border border-linea p-8 text-center text-sm text-tinta-300">
+                    No hay nada listo para remisionar. Los productos se alistan en
+                    <a href="/produccion/alistamiento" class="underline underline-offset-2 font-medium">Alistamiento</a>;
+                    las unidades de ensamble, al terminar en planta y pasar calidad.
+                </div>
+                <div v-else class="space-y-3">
+                    <div v-for="op in pendientes" :key="op.id" class="bg-superficie rounded-2xl border border-linea p-4">
+                        <div class="flex flex-wrap items-start justify-between gap-3">
+                            <div class="min-w-0">
+                                <a :href="`/produccion/ops/${op.id}`" class="font-mono text-sm font-semibold text-tinta-900 hover:underline">{{ op.numero }}</a>
+                                <span class="ml-2 text-xs px-2 py-0.5 rounded-full bg-tinta-100 text-tinta-500">{{ op.estado_label }}</span>
+                                <p class="text-sm text-tinta-700 mt-0.5">{{ op.cliente }}</p>
+                                <p class="text-xs text-tinta-400">Entrega: {{ formatFechaCorta(op.fecha_entrega) }}</p>
+                            </div>
+                            <a :href="`/logistica/remisiones/crear?op_id=${op.id}`"
+                                class="shrink-0 px-4 py-2 rounded-xl text-sm font-semibold text-white" style="background:var(--marca);">
+                                Remisionar {{ unidadesListas(op) }} {{ unidadesListas(op) === 1 ? 'unidad' : 'unidades' }}
+                            </a>
+                        </div>
+                        <ul class="mt-3 divide-y divide-separador text-sm">
+                            <li v-for="(i, k) in op.items" :key="k" class="py-1.5 flex justify-between gap-3">
+                                <span class="text-tinta-700 min-w-0">{{ i.descripcion }}</span>
+                                <span class="shrink-0 text-xs text-aviso-verde font-medium">{{ i.disponibles }} de {{ i.total }} listas</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </template>
+
+            <!-- ═══ Remisiones creadas ═══ -->
+            <template v-else>
             <!-- Ordenar. Vale para las listas que son tabla y para las que son tarjetas, y
                  en celular es el único camino: ahí no hay encabezados donde hacer clic. -->
             <div class="mb-3">
@@ -152,9 +222,7 @@ function eliminar(id) {
                             </td>
                             <td class="px-4 py-3">
                                 <span class="text-xs px-2 py-0.5 rounded-full"
-                                    :style="rem.tipo === 'op'
-                                        ? 'background:var(--pastel-violeta);color:var(--texto-violeta);'
-                                        : 'background:var(--pastel-azul-2);color:#0369A1;'">
+                                    :class="rem.tipo === 'op' ? 'bg-pastel-violeta-2 text-aviso-violeta' : 'bg-pastel-azul-2 text-aviso-azul'">
                                     {{ rem.tipo === 'op' ? 'OP' : 'Manual' }}
                                 </span>
                             </td>
@@ -167,7 +235,7 @@ function eliminar(id) {
                             </td>
                             <td class="px-4 py-3">
                                 <span class="text-xs px-2.5 py-1 rounded-full font-semibold"
-                                    :style="`background:${badge(rem.estado).bg};color:${badge(rem.estado).text};`">
+                                    :class="badge(rem.estado).clases">
                                     {{ badge(rem.estado).label }}
                                 </span>
                             </td>
@@ -180,7 +248,7 @@ function eliminar(id) {
                                         class="text-xs text-aviso-azul hover:underline">Ver</a>
                                     <a v-if="rem.estado === 'borrador'" :href="`/logistica/remisiones/${rem.id}/editar`"
                                         class="text-xs text-tinta-500 hover:underline">Editar</a>
-                                    <button v-if="!['anulada','entregada'].includes(rem.estado)"
+                                    <button v-if="!['anulada','entregada','cerrada'].includes(rem.estado)"
                                         @click="anular(rem.id)"
                                         class="text-xs text-aviso-rojo hover:underline">Anular</button>
                                 </div>
@@ -200,7 +268,7 @@ function eliminar(id) {
                     <div class="flex items-center justify-between mb-2">
                         <span class="font-mono text-sm font-semibold text-tinta-900">{{ rem.numero }}</span>
                         <span class="text-xs px-2.5 py-1 rounded-full font-semibold"
-                            :style="`background:${badge(rem.estado).bg};color:${badge(rem.estado).text};`">
+                            :class="badge(rem.estado).clases">
                             {{ badge(rem.estado).label }}
                         </span>
                     </div>
@@ -215,7 +283,7 @@ function eliminar(id) {
                             class="text-xs font-medium text-aviso-azul">Ver detalle →</a>
                         <a v-if="rem.estado === 'borrador'" :href="`/logistica/remisiones/${rem.id}/editar`"
                             class="text-xs font-medium text-tinta-500">Editar</a>
-                        <button v-if="!['anulada','entregada'].includes(rem.estado)"
+                        <button v-if="!['anulada','entregada','cerrada'].includes(rem.estado)"
                             @click="anular(rem.id)"
                             class="text-xs font-medium text-aviso-rojo ml-auto">Anular</button>
                     </div>
@@ -236,6 +304,7 @@ function eliminar(id) {
                     Siguiente →
                 </a>
             </div>
+            </template>
 
         </div>
     </AppLayout>

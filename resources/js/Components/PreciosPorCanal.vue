@@ -12,7 +12,7 @@
 import { computed, watch } from 'vue'
 import { router } from '@inertiajs/vue3'
 import { usePreciosPorCanal } from '@/composables/usePreciosPorCanal'
-import { formatPct } from '@/formato'
+import { formatPct, formatCOP, monedaBase, codigosMoneda } from '@/formato'
 
 const props = defineProps({
     // Las filas por canal. Se mutan aquí: es el mismo arreglo del formulario del padre.
@@ -24,7 +24,7 @@ const props = defineProps({
     // Un producto se puede comprar en otra moneda; un ensamble no, su costo es la suma
     // de los componentes. Solo la pantalla del producto lo pide.
     permiteMoneda: { type: Boolean, default: false },
-    monedaCosto:   { type: String, default: 'COP' },
+    monedaCosto:   { type: String, default: '' },
     costoMoneda:   { type: [Number, String], default: null },
     tasas:         { type: Object, default: () => ({}) },
     colchonPct:    { type: Number, default: 0 },
@@ -37,7 +37,7 @@ const emit = defineEmits(['update:precioCosto', 'update:monedaCosto', 'update:co
 // alimenta los precios de cada canal igual que si se hubiera escrito a mano. Al guardar,
 // el servidor lo vuelve a calcular con la tasa de ese momento: la pantalla muestra, el
 // servidor decide.
-const enOtraMoneda = computed(() => props.permiteMoneda && props.monedaCosto && props.monedaCosto !== 'COP')
+const enOtraMoneda = computed(() => props.permiteMoneda && props.monedaCosto && props.monedaCosto !== monedaBase())
 const tasaMoneda   = computed(() => enOtraMoneda.value ? (props.tasas?.[props.monedaCosto] ?? null) : null)
 
 watch([enOtraMoneda, () => props.costoMoneda, tasaMoneda, () => props.colchonPct], () => {
@@ -51,11 +51,11 @@ watch([enOtraMoneda, () => props.costoMoneda, tasaMoneda, () => props.colchonPct
 
 function cambiarMoneda(moneda) {
     emit('update:monedaCosto', moneda)
-    if (moneda === 'COP') emit('update:costoMoneda', null)
+    if (moneda === monedaBase()) emit('update:costoMoneda', null)
 }
 
 const formatFecha = (f) => f ? new Date(f + 'T12:00:00').toLocaleDateString('es-CO', { day: 'numeric', month: 'short' }) : ''
-const formatTasa  = (v) => new Intl.NumberFormat('es-CO', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(v ?? 0)
+const formatTasa  = (v) => new Intl.NumberFormat('es-CO', { minimumFractionDigits: 2, maximumFractionDigits: 8 }).format(v ?? 0)
 
 const canalesRef = computed(() => props.canales)
 const costoRef   = computed(() => Number(props.precioCosto) || 0)
@@ -65,8 +65,6 @@ const {
     errorEscalera, descuentoMaxDe, sugerirComisiones,
 } = usePreciosPorCanal(canalesRef, costoRef)
 
-const formatCOP = (v) =>
-    new Intl.NumberFormat('es-CO', { maximumFractionDigits: 0 }).format(Math.round(v ?? 0))
 </script>
 
 <template>
@@ -82,12 +80,10 @@ const formatCOP = (v) =>
                 <!-- En otra moneda: se escribe lo que cobra el proveedor y el costo en pesos
                      sale de la tasa del día. -->
                 <div v-if="costoEditable && permiteMoneda" class="flex gap-2 mb-2">
-                    <select :value="monedaCosto || 'COP'" @change="cambiarMoneda($event.target.value)"
+                    <select :value="monedaCosto || monedaBase()" @change="cambiarMoneda($event.target.value)"
                         class="shrink-0 border border-linea rounded-xl pl-3 pr-9 py-2 text-sm bg-superficie focus:outline-none focus:border-[var(--marca)]"
                         aria-label="Moneda del costo">
-                        <option value="COP">COP</option>
-                        <option value="USD">USD</option>
-                        <option value="EUR">EUR</option>
+                        <option v-for="m in codigosMoneda()" :key="m" :value="m">{{ m }}</option>
                     </select>
                     <input v-if="enOtraMoneda"
                         :value="costoMoneda" @input="emit('update:costoMoneda', $event.target.value === '' ? null : Number($event.target.value))"
@@ -96,7 +92,7 @@ const formatCOP = (v) =>
                 </div>
 
                 <div class="relative">
-                    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-tinta-300">$</span>
+                    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-tinta-300">{{ monedaBase() === 'COP' ? '$' : monedaBase() }}</span>
                     <input v-if="costoEditable && enOtraMoneda" :value="formatCOP(precioCosto)" readonly
                         class="w-full border border-linea rounded-xl pl-7 pr-3 py-2 text-sm bg-tinta-50 font-semibold text-tinta-700" />
                     <input v-else-if="costoEditable"
@@ -111,7 +107,7 @@ const formatCOP = (v) =>
                 </p>
                 <template v-else-if="enOtraMoneda">
                     <p v-if="tasaMoneda" class="text-xs text-tinta-400 mt-1">
-                        En pesos, a la tasa de {{ monedaCosto }} del {{ formatFecha(tasaMoneda.fecha) }}
+                        En {{ monedaBase() }}, a la tasa de {{ monedaCosto }} del {{ formatFecha(tasaMoneda.fecha) }}
                         (${{ formatTasa(tasaMoneda.valor) }})<span v-if="colchonPct > 0"> más el colchón de {{ formatPct(colchonPct) }}%</span>.
                         Se recalcula solo cada día, y con él los precios.
                     </p>
@@ -142,7 +138,7 @@ const formatCOP = (v) =>
                     <div>
                         <label class="block text-xs font-medium text-tinta-400 mb-1">Precio</label>
                         <div class="relative">
-                            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-tinta-300">$</span>
+                            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-tinta-300">{{ monedaBase() === 'COP' ? '$' : monedaBase() }}</span>
                             <input :value="formatCOP(canal.precio)" readonly
                                 class="w-full border border-linea rounded-xl pl-7 pr-3 py-2 text-sm bg-tinta-50 font-semibold text-tinta-700" />
                         </div>

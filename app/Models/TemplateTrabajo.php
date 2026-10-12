@@ -18,6 +18,9 @@ class TemplateTrabajo extends Model
         // Un flujo de trabajo cuelga de una plantilla del cotizador, o —cuando el ensamble
         // es directo y no tiene plantilla— del ensamble mismo.
         'ensamble_id',
+        // La 1.5.0 dejó colgar flujos de productos; desde el 14 oct 2026 solo pasan por planta
+        // los ensambles. La columna se conserva (hacia adelante) pero nada la usa.
+        'producto_id',
         'nombre',
         'activo',
     ];

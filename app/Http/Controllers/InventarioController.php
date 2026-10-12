@@ -259,6 +259,45 @@ class InventarioController extends Controller
         ]);
     }
 
+    /**
+     * Lo que las cotizaciones enviadas tienen apartado, y qué pasó con lo reciente.
+     *
+     * Es la pantalla para estar pendiente: quien administra ve qué está apartado y hasta cuándo,
+     * y qué se cedió a una venta o se venció en los últimos días. Apartar es solo una marca; el
+     * stock real no se mueve.
+     */
+    public function apartados(): Response
+    {
+        $fila = fn (\App\Models\ReservaStock $r) => [
+            'id'           => $r->id,
+            'producto'     => $r->producto?->nombre_completo ?? $r->producto?->nombre,
+            'producto_id'  => $r->producto_id,
+            'unidad'       => $r->producto?->unidad_medida,
+            'cotizacion'   => $r->cotizacion?->numero,
+            'cotizacion_id' => $r->cotizacion_id,
+            'vendedor'     => $r->cotizacion?->responsable?->name,
+            'cantidad'     => (float) $r->cantidad,
+            'cedida'       => (float) $r->cantidad_cedida,
+            'estado'       => $r->estado,
+            'expira_at'    => $r->expira_at?->toIso8601String(),
+            'cerrada_at'   => $r->cerrada_at?->toIso8601String(),
+            'cedida_a'     => $r->cedidaA?->numero,
+        ];
+
+        $con = ['producto:id,nombre,unidad_medida,producto_padre_id,valor_variante', 'producto.padre:id,nombre', 'cotizacion:id,numero,responsable_id', 'cotizacion.responsable:id,name', 'cedidaA:id,numero'];
+
+        return Inertia::render('Compras/Inventario/Apartados', [
+            'activas'   => \App\Models\ReservaStock::vigentes()->with($con)->orderBy('expira_at')->limit(300)->get()->map($fila),
+            // Lo que pasó en la última semana con lo que ya no aparta: cedido a una venta o vencido.
+            'recientes' => \App\Models\ReservaStock::where('updated_at', '>=', now()->subDays(7))
+                ->where(fn ($q) => $q->whereIn('estado', ['cedida', 'vencida'])
+                    ->orWhere(fn ($q2) => $q2->where('estado', 'activa')->where('cantidad_cedida', '>', 0)))
+                ->with($con)->orderByDesc('updated_at')->limit(100)->get()->map($fila),
+            'horas'     => \App\Services\ReservaStockService::HORAS,
+            'activo'    => \App\Services\ReservaStockService::habilitado(),
+        ]);
+    }
+
     public function buscar(Request $request): JsonResponse
     {
         $items = Producto::insumos()

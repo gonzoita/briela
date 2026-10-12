@@ -65,6 +65,8 @@ class HandleInertiaRequests extends Middleware
                     'rol_nombre' => $user->rolConfigurable?->nombre,
                     'sede_id'    => $user->sede_id,
                     'activo'     => $user->activo,
+                    // Sale del mismo registro que ya se cargó: no cuesta una consulta por clic.
+                    'foto_url'   => $user->fotoUrl(),
                 ] : null,
                 // Estas banderas salen del rol y no de los permisos finos, así que no las filtra
                 // `User::permisos()`: el módulo apagado se descuenta aquí a mano.
@@ -102,6 +104,9 @@ class HandleInertiaRequests extends Middleware
                 'viendo_todas' => $viendoTodas,
                 'puede_todas'  => $user ? $user->puedeVerTodasLasSedes() : false,
             ],
+            // La moneda en la que se guarda todo. Cuesta una lectura de Configuración, que ya
+            // está en memoria desde `marca`.
+            'moneda_base' => \App\Support\Monedas::base(),
             // Identidad visual, para que el logo del encabezado y del menú
             // salgan de Ajustes en vez de estar quemados en el código.
             'marca' => [

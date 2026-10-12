@@ -15,6 +15,6 @@ class TasaCambio extends Model
 
     protected $casts = [
         'fecha' => 'date',
-        'valor' => 'decimal:4',
+        'valor' => 'decimal:8',
     ];
 }

@@ -205,6 +205,10 @@ class OpController extends Controller
 
     public function show(Op $op): Response
     {
+        // Las órdenes que quedaron atascadas antes de que el estado se decidiera en un solo
+        // sitio se ponen al día al abrirlas: todo alistado y la orden seguía en producción.
+        $op->sincronizarEstado();
+
         $op->load([
             'cliente', 'responsable', 'cotizacion',
             'items.producto',
@@ -222,6 +226,12 @@ class OpController extends Controller
                 ...$op->toArray(),
                 'estado_badge'      => $op->estadoBadge(),
                 'tiene_cuotas'      => $op->cuotas()->exists(),
+                // Cuántas unidades se pueden remisionar hoy. Es lo que abre el botón de
+                // remisión: no el sello de calidad de la orden, que una orden de productos no
+                // tiene nunca —no hay unidades que firmar— y dejaba el botón bloqueado.
+                'por_remisionar'    => $op->items
+                    ->reject(fn ($i) => in_array($i->tipo, Op::TIPOS_SIN_DESPACHO, true))
+                    ->sum(fn ($i) => $i->cantidadDisponible()),
                 'fotos_calidad'     => $op->archivos->map(fn ($a) => [
                     'id'     => $a->id,
                     'url'    => $a->url,
@@ -313,7 +323,9 @@ class OpController extends Controller
             ],
             'responsables'  => User::where('activo', true)->get(['id', 'name', 'rol']),
             'operarios'     => Operario::all(['id', 'nombre']),
-            'templates'     => TemplateTrabajo::where('activo', true)->withCount('pasos')->get(['id', 'nombre']),
+            // Los flujos que se pueden usar para mandar un ítem a planta: los de plantillas,
+            // ensambles y productos, siempre que tengan pasos.
+            'templates'     => TemplateTrabajo::where('activo', true)->has('pasos')->withCount('pasos')->orderBy('nombre')->get(['id', 'nombre']),
         ]);
     }
 
@@ -416,6 +428,13 @@ class OpController extends Controller
         $estadoAnterior = $op->estado;
         $nuevoEstado    = $request->estado;
 
+        if ($nuevoEstado !== 'borrador' && ! $op->cliente_id) {
+            if ($request->wantsJson()) {
+                return response()->json(['error' => Op::SIN_CLIENTE], 422);
+            }
+            return back()->withErrors(['estado' => Op::SIN_CLIENTE]);
+        }
+
         // El control de calidad es obligatorio: no se puede saltar
         // manualmente a "despachada" sin que la OP haya sido aprobada.
         if ($nuevoEstado === 'despachada' && ! $op->calidad_aprobada_at) {
@@ -465,11 +484,6 @@ class OpController extends Controller
         if ($nuevoEstado === 'confirmada') {
             $nuevoEstado = 'en_produccion';
             $op->update(['estado' => $nuevoEstado]);
-        }
-
-        // Consumo automático de materiales al despachar
-        if ($nuevoEstado === 'despachada' && $estadoAnterior !== 'despachada') {
-            $op->consumirMaterialesInventario();
         }
 
         if ($request->wantsJson()) {
@@ -522,6 +536,12 @@ class OpController extends Controller
             ]);
             $mensaje = 'Calidad aprobada — ya se puede generar la remisión y despachar.';
 
+            // Aprobar la orden firma sus unidades, igual que cerrarla desde Calidad: lo que abre
+            // la remisión es la firma de cada unidad, y sin esto la aprobación no abría nada.
+            foreach (\App\Models\OpItemTrabajo::whereHas('opItem', fn ($q) => $q->where('op_id', $op->id))->get() as $unidad) {
+                $unidad->firmarCalidad();
+            }
+
             // Aviso a logística/almacén: la OP ya se puede remisionar.
             app(\App\Services\NotificacionService::class)->paraRol(
                 ['administrador', 'jefe_produccion'],
@@ -531,13 +551,12 @@ class OpController extends Controller
                 "/produccion/ops/{$op->id}",
             );
         } else {
-            $op->update([
-                'observaciones_calidad' => $data['observaciones_calidad'] ?? $op->observaciones_calidad,
-                'motivo_rechazo'        => $data['motivo_rechazo'],
-                'calidad_aprobada_at'   => null,
-                'estado'                => 'reproceso',
-            ]);
-            $mensaje = 'Calidad rechazada — la OP volvió a reproceso.';
+            $op->update(['observaciones_calidad' => $data['observaciones_calidad'] ?? $op->observaciones_calidad]);
+
+            // La misma regla que en Calidad: lo que hay que rehacer vuelve a planta y pierde la
+            // firma. Cambiar solo la etiqueta dejaba las unidades remisionables.
+            $reabiertos = $op->mandarAReproceso($data['motivo_rechazo']);
+            $mensaje = "Calidad rechazada — la OP volvió a reproceso ({$reabiertos} por rehacer).";
         }
 
         return back()->with('success', $mensaje);
@@ -546,8 +565,14 @@ class OpController extends Controller
     public function marcarTerminado(Op $op, OpItem $item): RedirectResponse
     {
         abort_if($item->op_id !== $op->id, 404);
-        $item->update(['estado_item' => 'terminado']);
-        return back()->with('success', 'Ítem marcado como terminado.');
+
+        // El mismo alistado que el de Alistamiento: mueve la orden, y un ensamble con unidades
+        // no se alista a mano.
+        if ($motivo = $item->alistar(true)) {
+            return back()->with('error', $motivo);
+        }
+
+        return back()->with('success', 'Ítem alistado, listo para remisionar.');
     }
 
     /**
@@ -583,20 +608,53 @@ class OpController extends Controller
     {
         abort_if($cotizacion->en_produccion, 422, 'Esta cotización ya tiene una OP generada.');
 
+        if (! $cotizacion->cliente_id) {
+            return back()->with('error', Cotizacion::SIN_CLIENTE);
+        }
+
         $request->validate([
             'anticipo'             => 'nullable|numeric|min:0',
             'anticipo_medio_pago'  => 'nullable|in:efectivo,transferencia,cheque',
             'anticipo_fecha_pago'  => 'nullable|date',
             'anticipo_referencia'  => 'nullable|string|max:200',
             'sede_id'              => 'nullable|exists:sedes,id',
+            'fecha_entrega_estimada' => 'nullable|date',
         ]);
+
+        try {
+            $op = $this->generarOp($cotizacion, $request->only([
+                'anticipo', 'anticipo_medio_pago', 'anticipo_fecha_pago', 'anticipo_referencia', 'sede_id', 'fecha_entrega_estimada',
+            ]));
+        } catch (\RuntimeException $e) {
+            return back()->with('error', $e->getMessage());
+        }
+
+        return redirect("/produccion/ops/{$op->id}")
+            ->with('success', "Orden {$op->numero} generada desde cotización {$cotizacion->numero}.");
+    }
+
+    /**
+     * Crea la OP de una cotización. Lo usan el botón «Generar OP» y la guía, para que nazca igual
+     * venga de donde venga.
+     *
+     * @param  array<string, mixed>  $opciones  anticipo y sus datos, sede de fábrica, fecha de entrega
+     * @throws \RuntimeException si no se puede (sin sede de fábrica)
+     */
+    public function generarOp(Cotizacion $cotizacion, array $opciones = []): Op
+    {
+        abort_if($cotizacion->en_produccion, 422, 'Esta cotización ya tiene una OP generada.');
+
+        // Sin cliente no nace ninguna orden, venga de la pantalla o de la guía.
+        if (! $cotizacion->cliente_id) {
+            throw new \RuntimeException(Cotizacion::SIN_CLIENTE);
+        }
 
         // ¿En qué fábrica se produce? Una sede de solo ventas (ej. Cúcuta)
         // debe mandar la OP a una sede con producción.
-        $sedeFabrica = $this->resolverSedeFabrica($request->integer('sede_id') ?: null);
+        $sedeFabrica = $this->resolverSedeFabrica(((int) ($opciones['sede_id'] ?? 0)) ?: null);
 
         if (! $sedeFabrica) {
-            return back()->with('error', 'No hay ninguna sede con producción configurada para fabricar esta OP.');
+            throw new \RuntimeException('No hay ninguna sede con producción configurada para fabricar esta OP.');
         }
 
         $cotizacion->load(['items.ensamble.plantilla', 'items.producto']);
@@ -610,7 +668,11 @@ class OpController extends Controller
             'responsable_id'=> auth()->id(),
             'estado'        => 'borrador',
             'fecha_creacion'=> now()->toDateString(),
-            'anticipo'      => $request->anticipo ?? null,
+            // La fecha que se elige al generar, o la que sale del plazo prometido en la
+            // cotización. Sin ella la orden no tenía urgencia en planta ni fecha en Remisiones.
+            'fecha_entrega_estimada' => ($opciones['fecha_entrega_estimada'] ?? null)
+                ?: $cotizacion->fechaEntregaSugerida()?->toDateString(),
+            'anticipo'      => $opciones['anticipo'] ?? null,
         ]);
 
         foreach ($cotizacion->items as $i => $item) {
@@ -643,9 +705,8 @@ class OpController extends Controller
             // Fusión Plantillas de Ensamble <-> Trabajo: genera automáticamente
             // el/los OpItemTrabajo (uno por unidad) con sus pasos, sin que
             // nadie tenga que entrar a producción a elegir un template a mano.
-            if ($opItem->ensamble_id) {
-                app(TrabajoAutoGeneratorService::class)->generarParaItem($opItem);
-            }
+            // Vale también para un producto que se procesa en planta; el servicio decide.
+            app(TrabajoAutoGeneratorService::class)->generarParaItem($opItem);
 
             // Generar componentes desde snapshot (solo los marcados visible_op)
             $snapshotEnriquecido = $this->enriquecerSnapshot(
@@ -719,13 +780,13 @@ class OpController extends Controller
         // Si se registró un anticipo al generar la OP, se convierte de inmediato
         // en una cuota + pago reales dentro del sistema financiero — así no hay
         // que volver a pedirlo cuando la OP se confirme.
-        if ($request->filled('anticipo') && (float) $request->anticipo > 0) {
-            DB::transaction(function () use ($op, $request) {
+        if (! empty($opciones['anticipo']) && (float) $opciones['anticipo'] > 0) {
+            DB::transaction(function () use ($op, $opciones) {
                 $cuota = OpCuota::create([
                     'op_id'               => $op->id,
                     'numero_cuota'        => 1,
                     'concepto'            => 'Anticipo',
-                    'valor'               => $request->anticipo,
+                    'valor'               => $opciones['anticipo'],
                     'fecha_vencimiento'   => null,
                     'estado'              => 'pendiente',
                     'valor_pagado'        => 0,
@@ -736,10 +797,10 @@ class OpController extends Controller
                     'op_id'          => $op->id,
                     'cuota_id'       => $cuota->id,
                     'numero_recibo'  => 'REC-TMP',
-                    'valor'          => $request->anticipo,
-                    'medio_pago'     => $request->anticipo_medio_pago ?? 'efectivo',
-                    'fecha_pago'     => $request->anticipo_fecha_pago ?? now()->toDateString(),
-                    'referencia'     => $request->anticipo_referencia,
+                    'valor'          => $opciones['anticipo'],
+                    'medio_pago'     => $opciones['anticipo_medio_pago'] ?? 'efectivo',
+                    'fecha_pago'     => $opciones['anticipo_fecha_pago'] ?? now()->toDateString(),
+                    'referencia'     => $opciones['anticipo_referencia'] ?? null,
                     'notas'          => 'Anticipo registrado al generar la OP desde la cotización.',
                     'registrado_por' => auth()->id(),
                 ]);
@@ -789,8 +850,7 @@ class OpController extends Controller
             );
         }
 
-        return redirect("/produccion/ops/{$op->id}")
-            ->with('success', "Orden {$op->numero} generada desde cotización {$cotizacion->numero}.");
+        return $op;
     }
 
     public function generarPdf(Op $op): HttpResponse
@@ -1025,7 +1085,7 @@ class OpController extends Controller
     private function validarForm(Request $request): array
     {
         return $request->validate([
-            'cliente_id'             => 'nullable|exists:clientes,id',
+            'cliente_id'             => 'required|exists:clientes,id',
             'cotizacion_id'          => 'nullable|exists:cotizaciones,id',
             'responsable_id'         => 'required|exists:users,id',
             // La pantalla vuelve a mandar el formulario con esto en true cuando el usuario ya
@@ -1061,6 +1121,8 @@ class OpController extends Controller
             'items.*.operario_id'    => 'nullable|exists:users,id',
             'items.*.estado_item'    => 'nullable|in:pendiente,en_proceso,terminado',
             'items.*.notas_item'     => 'nullable|string',
+        ], [
+            'cliente_id.required' => 'Elige el cliente: una orden de producción sin cliente no se puede guardar.',
         ]);
     }
 
@@ -1147,18 +1209,14 @@ class OpController extends Controller
                 // Las unidades siguen a la cantidad: se crean las que faltan y se borran las
                 // que sobran. Antes esto no pasaba, y corregir una OP de 1 a 3 puertas dejaba
                 // dos unidades sin trabajo — sin QR, sin pasos y sin calidad.
-                if ($item->ensamble_id) {
-                    app(TrabajoAutoGeneratorService::class)->sincronizarParaItem($item, $cambioDeEnsamble);
-                }
+                app(TrabajoAutoGeneratorService::class)->sincronizarParaItem($item, $cambioDeEnsamble);
             } else {
                 $nuevo = OpItem::create($fill);
                 $idsEnviados[] = $nuevo->id;
 
-                // Igual que en generarDesdeCotizacion: genera el trabajo
-                // automáticamente para ítems nuevos vinculados a un ensamble.
-                if ($nuevo->ensamble_id) {
-                    app(TrabajoAutoGeneratorService::class)->generarParaItem($nuevo);
-                }
+                // Igual que en generarDesdeCotizacion: genera el trabajo automáticamente para
+                // ítems nuevos de un ensamble, o de un producto que se procesa en planta.
+                app(TrabajoAutoGeneratorService::class)->generarParaItem($nuevo);
             }
         }
 

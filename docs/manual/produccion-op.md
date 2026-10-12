@@ -13,6 +13,12 @@ Estados de una OP: `borrador → confirmada → en_produccion → calidad →
 despachada`, con la posibilidad de que calidad la mande a `reproceso` en vez
 de aprobarla, y desde ahí vuelva a `en_produccion`.
 
+## Sin cliente no se procesa *(15 oct 2026)*
+
+Una orden sin cliente **no se guarda**. Las viejas que quedaron sin cliente no se confirman, no se
+alistan, no se cierran pasos en planta ni se remisionan hasta asignarle uno
+(`Op::SIN_CLIENTE`); la ficha lo avisa arriba. Tampoco nace una orden de una cotización sin cliente.
+
 ## Automatizaciones activas
 
 1. **Trabajos de producción automáticos** al generar la OP desde una
@@ -75,17 +81,61 @@ de aprobarla, y desde ahí vuelva a `en_produccion`.
    duro: ni el cambio de estado manual a "Despachada" ni la generación de
    la remisión funcionan si la OP no tiene `calidad_aprobada_at`.
 
+## El estado se decide en un solo sitio *(12 oct 2026)*
+
+`Op::sincronizarEstado()` es el punto único del flujo. Lo llaman alistar un ítem (Alistamiento y
+el botón de la orden), cerrar o reabrir un paso, firmar calidad y que salga o se anule una
+remisión. Reglas:
+
+| Pasa | Cuándo |
+|---|---|
+| borrador o confirmada → **en producción** | algo queda listo (un producto alistado o remisionado, una unidad terminada) o se avanza un paso en planta |
+| → **calidad** | todo listo: productos alistados y todas las unidades terminadas. **Los servicios no esperan** *(13 oct 2026)*: una instalación se hace después de entregar, así que solo cuentan en una orden de solo servicios (`Op::cuentanParaListo()`) |
+| se **sella** `calidad_aprobada_at` | todo listo, **todas** las unidades firmadas y nada pendiente; una orden sin unidades, al quedar todo listo |
+| calidad → **en producción** | algo vuelve a quedar pendiente (se desalista, se reabre una unidad); el sello se retira |
+| → **despachada** | todo lo que viaja ya salió en remisiones en camino o entregadas; una orden de solo servicios, al quedar todo hecha |
+
+El estado del ítem con unidades lo deciden sus unidades (y se corrige si quedó desfasado). Un
+borrador sin nada listo no se toca: todavía se está armando. **Pero si alguien ya lo está
+trabajando —alista un producto, lo remisiona o avanza un paso— arranca solo** *(13 oct 2026)*, y
+como nunca pasó por «Confirmar», se le precargan las dos bodegas con la principal
+(`Op::iniciarProduccionSiAplica()`); se pueden cambiar en la orden. Una orden despachada solo vuelve atrás si se anula la
+remisión que la despachó. Las órdenes que quedaron atascadas se ponen al día al abrirlas, al
+actualizar (`ops:sincronizar-estados` corre en el despliegue y al instalar una versión) o a mano
+con ese mismo comando.
+
+## Rechazar en calidad devuelve el trabajo a planta *(13 oct 2026)*
+
+Calidad rechaza desde su módulo o desde el botón de la orden, y los dos caminos hacen lo mismo
+(`Op::mandarAReproceso()`): la orden pasa a **Reproceso**, las unidades con una falla marcada se
+reabren en planta (su paso final) y pierden la firma, y si ninguna tenía falla se reabren todas
+las que no han salido. En una orden de productos, lo alistado que no salió vuelve a pendiente.
+Vuelve sola a Calidad cuando se rehace.
+
+Antes el botón de la orden solo cambiaba la etiqueta: las unidades seguían firmadas —se podían
+remisionar— y al abrir la orden el estado se recalculaba y volvía solo a «Calidad».
+
+## Solo los ensambles pasan por planta *(14 oct 2026)*
+
+Un **producto** sencillo —una bisagra, un vidrio de catálogo— no tiene unidades, pasos ni revisión
+de calidad: **se alista y queda remisionable**. Solo los ensambles nacen con unidades en planta
+(`TrabajoAutoGeneratorService::templateDe()` devuelve nada para un producto, y «Procesar en planta»
+lo rechaza).
+
+La versión 1.5.0 alcanzó a dejar mandar productos a planta. Al actualizar, `ops:sincronizar-estados`
+les quita esas unidades (`quitarUnidadesDeProductos()`): si estaban terminadas el producto queda
+alistado, si no, pendiente de alistar; las que ya salieron en una remisión no se tocan.
+
+«Procesar en planta» queda para un ensamble sin unidades o al que hay que cambiarle el flujo antes de
+empezar: crea todas las unidades de una vez, con su revisión. «Sacar de planta» las borra mientras
+nadie haya avanzado ninguna.
+
 ## Cómo se llega a "Despachada"
 
-El consumo automático de inventario (descontar los insumos usados) se
-dispara la primera vez que la OP llega a "Despachada", sin importar por cuál
-de los dos caminos:
-
-1. **Remisión completa** (el camino normal): cuando almacén remisiona el
-   último ítem pendiente de una OP ya aprobada en calidad, el sistema marca
-   la OP como despachada automáticamente.
-2. **Cambio de estado manual**: solo permitido si la OP ya tiene calidad
-   aprobada — pensado como vía de respaldo, no como el flujo normal.
+La orden se despacha cuando **todo lo que viaja ya salió** en remisiones en camino o entregadas
+(`Op::sincronizarEstado()`). Despachar ya no mueve inventario: lo remisionado salió del almacén al
+**crear** cada remisión (ver «El inventario sale al remisionar»). El cambio manual a «Despachada»
+sigue existiendo como respaldo y exige la aprobación de calidad.
 
 ## Quién puede ver qué
 
@@ -188,82 +238,34 @@ orden). Si no coincide, no muestra nada. Así nadie puede espiar pedidos
 ajenos probando números. El link por QR (`/op/{token}`) no pide esto porque
 el token ya es imposible de adivinar.
 
-## Las dos bodegas de una OP
+## El inventario sale al remisionar *(14 oct 2026)*
 
-Cada OP declara **dos** bodegas, y responden preguntas contrarias:
+**Lo que se remisiona sale del almacén en el momento de crear la remisión**, y queda en los
+movimientos con origen «remisión» (`InventarioRemisionService`, llamado por `RemisionService::crear`):
 
-| Campo | Qué dice |
-|---|---|
-| **Bodega del material** | De dónde salen los insumos que se gastan al fabricar |
-| **Bodega de entrega** | A dónde entra lo fabricado, como producto terminado |
+| Qué viaja | Qué sale del almacén | De qué bodega |
+|---|---|---|
+| Un **producto** | El producto, la cantidad remisionada | La de entrega de la orden (o la principal) |
+| Un **ensamble** | **Sus componentes**: la receta de una unidad × las unidades que viajan | La de material de la orden (o la principal) |
+| Un servicio | Nada | — |
 
-Las dos son obligatorias para **confirmar** la orden. Pueden ser la misma —quien fabrica y
-guarda en un solo sitio elige la misma dos veces— pero el sistema no lo asume.
+Terminar en planta **no mueve inventario** ni pide bodegas: el paso final solo da la unidad por
+terminada. Cada unidad sabe en qué remisión salió (`op_item_trabajos.remision_id`).
 
-### Por qué son dos y no una
+**Anular o borrar** la remisión devuelve exactamente lo que sacó: se leen sus movimientos y se
+revierten, sin recalcular la receta —que pudo cambiar— ni adivinar unidades. Las unidades y los
+productos quedan otra vez disponibles para remisionar.
 
-Hasta el 22 ago 2026 eran la misma, y eso producía un **descuento fantasma**. Si la OP entregaba
-en una bodega de producto terminado —que por definición no guarda insumos— el descuento se hacía
-contra una bodega con cero. Como el inventario no admite negativos, el descuento se recortaba a
-cero y el material seguía figurando entero en la bodega donde de verdad estaba.
+**Si algo no alcanza**, se descuenta lo que hay —el camión ya salió— y llega un aviso
+`material_faltante` a administración y jefatura con el detalle de qué faltó y en qué bodega.
 
-Sin error, sin stock en rojo, sin nada raro en pantalla: simplemente no pasaba. El almacén decía
-tener 250 láminas que ya se habían usado.
+Las dos bodegas de la orden siguen exigidas al **confirmar** (o se precargan con la principal si la
+orden arranca sola desde borrador), con este sentido: la **de material** es de dónde salen los
+componentes de los ensambles; la **de entrega**, de dónde salen los productos.
 
-## La bodega de entrega
+### Antes de este cambio
 
-Cada OP declara **a qué bodega entra lo que fabrica**. El campo está en la orden, junto al
-responsable, y es obligatorio para **confirmarla**: se puede guardar un borrador sin elegirla
-—mientras se arma la orden todavía no hay nada que guardar en ninguna parte—, pero confirmar es
-decir «esto se fabrica», y todo lo que se fabrica queda en algún estante.
-
-Al cerrarse el último paso de cada unidad, esa unidad entra ahí como producto terminado y los
-materiales se descuentan. El operario ya no elige nada.
-
-### Por qué se movió aquí
-
-Hasta el 22 ago 2026 la bodega se preguntaba en dos sitios equivocados:
-
-- **En el último paso de cada unidad**, en la pantalla del operario. Es una decisión de quien
-  planea la producción, no de quien la arma.
-- **Predefinida en el ensamble.** El ensamble es un catálogo, y lo mismo se fabrica hoy para una
-  bodega y mañana para otra. Por eso el interruptor «se guarda en bodega» desapareció de su
-  ficha.
-
-Ya no se pregunta si un ensamble «se guarda en bodega»: **todo lo que produce una OP entra a una
-bodega**, y su ficha de inventario —con stock, movimientos y aviso de stock bajo— nace sola la
-primera vez que se entrega una unidad.
-
-### La plantilla ya no la predefine
-
-Hasta el 22 ago 2026 el paso final de una plantilla llevaba un campo «Entrega en», y la
-pantalla del operario lo dejaba cambiar al cerrar el paso. Los dos desaparecieron: la bodega la
-declara la OP y punto.
-
-En la pantalla del operario, donde antes había un selector, ahora dice a qué bodega va y quién
-lo decidió. El selector solo reaparece en las órdenes viejas, que no tienen el campo.
-
-### Las órdenes viejas
-
-Las OPs creadas antes de que el campo existiera no tienen bodega declarada, y ponerles una a la
-fuerza sería inventar dónde quedó algo que ya se fabricó. Para ellas sigue valiendo el orden de
-respaldo de siempre: la bodega del paso final y, si tampoco la hay, la principal. Al operario
-solo se le pregunta en ese caso.
-
-## Cuando no alcanza el material
-
-Al cerrarse el último paso, si en la bodega del material no hay lo suficiente, **el trabajo se
-registra igual**: la unidad ya está físicamente armada y negarlo no devuelve el material. Se
-descuenta hasta donde alcance y sale un aviso a administración y jefatura de producción con el
-detalle exacto:
-
-> Se fabricó una unidad pero 1 insumo(s) no alcanzaron en Bodega 1.
-> Lamina: faltaron 5 m2 (pedía 5, había 0)
-
-Antes pasaba lo mismo pero **en silencio**, y ese silencio era el problema: nadie se enteraba de
-que el inventario había quedado descuadrado.
-
-No se bloquea al operario a propósito. Él no puede arreglar un inventario descuadrado desde la
-pantalla del código QR, y frenarle el cierre esconde dos problemas en vez de uno: el material
-que falta y el trabajo que no queda registrado.
-
+Hasta el 13 oct 2026 el material de cada unidad se descontaba al cerrar su paso final y la unidad
+entraba a bodega como **producto terminado**; al despachar salía ese producto terminado, y los
+productos sueltos bajaban recién cuando la remisión salía. Una unidad que alcanzó a entrar así
+(`entregado_at`) sale ahora como ese producto terminado, sin volver a descontar sus componentes.

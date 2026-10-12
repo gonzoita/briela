@@ -4,7 +4,6 @@ namespace App\Services\IA;
 
 use App\Models\Cliente;
 use App\Models\Cotizacion;
-use App\Models\CrmLead;
 use App\Models\Op;
 use Illuminate\Support\Facades\Log;
 
@@ -126,15 +125,18 @@ class ConsultasClienteService
         }
 
         try {
-            $lead = CrmLead::create([
-                'titulo'      => 'Novedad de ' . $cliente->nombre,
-                'cliente_id'  => $cliente->id,
-                'descripcion' => $texto,
-                'fuente'      => 'agente_ia',
-                // La primera etapa del embudo: la novedad entra por donde entra todo lo demás,
-                // no en una bandeja aparte que nadie abre.
-                'etapa_id'    => \App\Models\CrmEtapa::orderBy('orden')->value('id'),
-            ]);
+            // Por la puerta única de leads, como todo lo demás: así queda con su origen (filtrable
+            // en el embudo), en su orden dentro de la etapa, y avisa a quien tiene que atenderla.
+            // Antes se creaba a mano y entraba callada. Sin correo ni teléfono a propósito: una
+            // novedad de un cliente no es una oportunidad de venta y no se funde con una abierta.
+            $lead = app(\App\Services\LeadEntranteService::class)->registrar([
+                'canal'   => 'agente_ia',
+                'detalle' => 'Novedad de cliente',
+                'nombre'  => $cliente->nombreCompleto(),
+                'mensaje' => $texto,
+            ])['lead'];
+
+            $lead->update(['titulo' => 'Novedad de ' . $cliente->nombre, 'cliente_id' => $cliente->id]);
 
             return ['registrada' => true, 'referencia' => $lead->id];
         } catch (\Throwable $e) {

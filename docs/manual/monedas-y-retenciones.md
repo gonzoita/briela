@@ -1,9 +1,16 @@
 # Monedas, TRM, lectura del RUT y retenciones
 
-## La regla de fondo: por dentro todo está en pesos
+## La regla de fondo: por dentro todo está en la moneda base
+
+> **Desde octubre de 2026 la moneda base es una decisión de la instalación** (Configuración →
+> Monedas): el peso colombiano mientras no se diga otra, y se congela en cuanto hay cotizaciones
+> u órdenes. Donde este documento dice «pesos», léase «la moneda base». El catálogo trae 20
+> monedas; las que publica el Banco Central Europeo (USD, EUR, GBP, CNY, MXN, BRL, CAD) se traen
+> solas y las demás se escriben a mano. Con base en pesos, la TRM da el dólar; con otra base, se
+> cruza directo con el BCE. Ver [Países](./paises.md).
 
 Costos, precios del catálogo, ítems de cotización, comisiones, cartera e informes se guardan
-**siempre en pesos**. La moneda extranjera entra por dos puertas y ninguna cambia esa regla:
+**siempre en la moneda base**. La moneda extranjera entra por dos puertas y ninguna cambia esa regla:
 
 1. **Un costo en otra moneda** se convierte a pesos con la tasa del día.
 2. **Una cotización en otra moneda** guarda sus ítems en pesos más una tasa, y con esa tasa
@@ -101,3 +108,21 @@ Cada retención que no aplica dice por qué («Por qué» en la pantalla).
 
 Pendiente. El camino previsto es un proveedor tecnológico habilitado por la DIAN, configurable
 por instalación.
+
+### Retenciones en las compras — `RetencionesService::paraCompra()`
+
+El espejo de lo anterior: en una **orden de compra** quien paga es la empresa, así que es **su**
+RUT el que decide si retiene. Se ven en la ficha de la orden, con el «neto a pagar al proveedor».
+
+| Retención | Aplica cuando |
+|---|---|
+| En la fuente (renta) | La empresa tiene 07 o 13, y el proveedor **no** tiene 15 (autorretenedor) ni 47 (régimen simple). Por concepto —un insumo es *compras*, un servicio es *servicios*— si la base pasa su mínimo en UVT |
+| De IVA | La empresa tiene 09 o 13, la orden lleva IVA, y el proveedor no es gran contribuyente (13) ni no responsable de IVA |
+| De ICA | **No se estima** en compras: depende del municipio de cada proveedor y no hay de dónde sacarlo sin inventarlo |
+
+- Sin las responsabilidades de la empresa (Configuración → Perfil fiscal) no se calcula nada y se
+  dice por qué.
+- Sin el RUT del proveedor sí se calcula —la obligación es de la empresa—, pero avisa que está
+  afinado a medias. Cargarlo en su ficha (botón «Leer RUT») lo corrige.
+- Es una estimación: no cambia el total de la orden ni se guarda; la liquida contabilidad al pagar.
+

@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\Configuracion;
 use App\Models\CrmEtapa;
 use App\Models\CrmFormulario;
-use App\Models\CrmLead;
 use App\Services\SmtpConfigService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
@@ -60,7 +59,6 @@ class CrmFormularioPublicoController extends Controller
         $data = $request->validate($rules);
 
         $etapaId = $formulario->etapa_id ?? CrmEtapa::orderBy('orden')->value('id');
-        $orden   = CrmLead::where('etapa_id', $etapaId)->max('orden_en_etapa') + 1;
 
         $resultado = app(\App\Services\LeadEntranteService::class)->registrar([
             'canal'    => 'formulario',
@@ -78,18 +76,14 @@ class CrmFormularioPublicoController extends Controller
 
         $lead = $resultado['lead'];
 
-        // Aviso interno al vendedor asignado (o a admin si no hay asignado).
-        $notif = app(\App\Services\NotificacionService::class);
+        // Aviso interno al vendedor asignado (o a admin si no hay asignado). Si la persona ya
+        // estaba en el embudo se dice así: avisar «nuevo lead» de alguien conocido confunde.
+        $notif  = app(\App\Services\NotificacionService::class);
+        $titulo = $resultado['nuevo'] ? 'Nuevo lead desde la web' : 'Volvió a escribir desde la web';
         if ($lead->responsable_id) {
-            $notif->crear(
-                $lead->responsable_id,
-                'lead_nuevo',
-                'Nuevo lead desde la web',
-                $lead->titulo,
-                '/crm',
-            );
+            $notif->crear($lead->responsable_id, 'lead_nuevo', $titulo, $lead->titulo, '/crm');
         } else {
-            $notif->paraRol(['administrador'], 'lead_nuevo', 'Nuevo lead desde la web', $lead->titulo, '/crm');
+            $notif->paraRol(['administrador'], 'lead_nuevo', $titulo, $lead->titulo, '/crm');
         }
 
         // Email de notificación

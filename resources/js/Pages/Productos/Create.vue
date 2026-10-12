@@ -4,9 +4,11 @@ import EditorTexto from '@/Components/EditorTexto.vue'
 import SelectorUnidad from '@/Components/SelectorUnidad.vue'
 import GeneradorFichaIa from '@/Components/GeneradorFichaIa.vue'
 import PreciosPorCanal from '@/Components/PreciosPorCanal.vue'
+import ImagenVariante from '@/Components/ImagenVariante.vue'
 import ProveedoresProducto from '@/Components/ProveedoresProducto.vue'
 import { usePreciosPorCanal } from '@/composables/usePreciosPorCanal'
 import { useForm, router } from '@inertiajs/vue3'
+import { monedaBase } from '@/formato'
 import { ref, computed, watch, reactive, onMounted } from 'vue'
 import { useUnsavedChanges } from '@/composables/useUnsavedChanges'
 import { colorMarca } from '@/marca'
@@ -51,7 +53,7 @@ const variantes = ref([])
 const agregarVariante = () => {
     const stockPorBodega = {}
     ;(props.bodegas ?? []).forEach(b => { stockPorBodega[b.id] = '' })
-    variantes.value.push({ valor_variante: '', referencia: '', stock_inicial: stockPorBodega })
+    variantes.value.push({ valor_variante: '', referencia: '', imagen: null, stock_inicial: stockPorBodega })
 }
 
 const quitarVariante = (idx) => variantes.value.splice(idx, 1)
@@ -72,15 +74,21 @@ const form = useForm({
     // El técnico corto, el que sale en cotizaciones y órdenes de producción.
     descripcion_cotizacion: '',
     descripcion_larga:   '',
-    inventariable:       false,
-    es_vendible:         false,
+    // Un producto es «un ítem físico inventariable» —lo dice la tarjeta que se acaba de
+    // tocar— y casi siempre se vende: nace así. Naciendo apagado, quien no veía los
+    // interruptores creaba un producto sin stock inicial ni control de existencias, y la
+    // remisión lo despachaba sin que el inventario se enterara.
+    inventariable:       tipoSeleccionado.value !== 'servicio',
+    es_vendible:         true,
     es_insumo:           false,
     atributo_variante:   '',
     stock_minimo:        0,
     stock_maximo:        0,
     precio_costo:                0,
-    moneda_costo:                'COP',
+    moneda_costo:                monedaBase(),
     costo_moneda:                null,
+    codigo_hs:                   '',
+    arancel_pct:                 null,
     margen_mayorista:            25,
     margen_distribuidor:         30,
     margen_cliente_final:        35,
@@ -106,7 +114,12 @@ const form = useForm({
     canales:                     [],
 })
 
-watch(tipoSeleccionado, (v) => { form.tipo = v; form.unidad_medida = 'unidad' })
+watch(tipoSeleccionado, (v) => {
+    form.tipo = v
+    form.unidad_medida = 'unidad'
+    // Un servicio no tiene existencias; un producto sí.
+    form.inventariable = v !== 'servicio'
+})
 
 const calcPrecio = (costo, margenPct) => {
     if (!costo || margenPct >= 100) return 0
@@ -162,7 +175,7 @@ if (props.base) {
         const stockPorBodega = {}
         ;(props.bodegas ?? []).forEach(b => { stockPorBodega[b.id] = '' })
 
-        return { valor_variante: v.valor_variante, referencia: '', stock_inicial: stockPorBodega }
+        return { valor_variante: v.valor_variante, referencia: '', imagen: null, stock_inicial: stockPorBodega }
     })
 }
 
@@ -348,6 +361,8 @@ const submit = () => {
             ? variantes.value.map(v => ({
                 valor_variante: v.valor_variante,
                 referencia:     v.referencia || null,
+                // Solo si hay archivo: sin él la variante usa la imagen del producto principal.
+                ...(v.imagen ? { imagen: v.imagen } : {}),
                 stock_inicial:  buildStock(v.stock_inicial),
               }))
             : [],
@@ -670,6 +685,7 @@ const badgeStyle = {
                                         class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none bg-superficie focus:border-[var(--marca)]" />
                                 </div>
                             </div>
+                            <ImagenVariante v-model="v.imagen" />
                             <div v-if="props.bodegas?.length">
                                 <p class="text-xs font-medium text-tinta-500 mb-1.5">Stock inicial por bodega</p>
                                 <div class="space-y-2">
@@ -704,6 +720,27 @@ const badgeStyle = {
                     :colchon-pct="colchon_pct"
                     permite-moneda
                 />
+
+                <!-- ═══ Importación ══════════════════════════════════════════ -->
+                <div v-if="form.tipo !== 'servicio'" class="bg-superficie rounded-xl border border-linea p-5">
+                    <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1">Si se importa</p>
+                    <p class="text-xs text-tinta-400 mb-3">
+                        El código arancelario y el arancel habitual arrancan cada liquidación en
+                        <span class="font-semibold">Compras → Importaciones</span>; ahí se calcula lo que cuesta de verdad puesto en bodega.
+                    </p>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-medium text-tinta-500 mb-1">Código arancelario (HS)</label>
+                            <input v-model="form.codigo_hs" type="text" maxlength="12" inputmode="numeric" placeholder="Ej: 8302.41"
+                                class="w-full border border-linea rounded-xl px-3 py-2 text-sm bg-superficie focus:outline-none focus:border-[var(--marca)]"/>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-tinta-500 mb-1">Arancel habitual (%)</label>
+                            <input v-model.number="form.arancel_pct" type="number" min="0" max="100" step="0.01"
+                                class="w-full border border-linea rounded-xl px-3 py-2 text-sm bg-superficie focus:outline-none focus:border-[var(--marca)]"/>
+                        </div>
+                    </div>
+                </div>
 
                 <!-- Errores de validación -->
                 <div v-if="Object.keys(form.errors).length" class="bg-pastel-rojo border border-borde-aviso-rojo rounded-xl p-4">

@@ -45,11 +45,26 @@ export const sinLeerTotal = computed(() =>
     + grupos.value.reduce((s, g) => s + (g.sin_leer || 0), 0)
 )
 
-const CADA = 60000
+/**
+ * Lo que acaba de llegar a la campana desde la última ronda (las más nuevas primero).
+ *
+ * El layout lo mira para mostrar el aviso flotante y, si el aviso es de la pantalla abierta
+ * —la cotización que el cliente acaba de aprobar mientras se mira—, recargar sus datos sin que
+ * nadie toque F5. La primera carga no cuenta como nueva: lo viejo no se anuncia.
+ */
+export const notificacionesNuevas = ref([])
+
+// El pulso pregunta «¿cambió algo?» cada 15 s; las listas completas se piden solo cuando sí, o
+// cada dos minutos por si acaso (la bandeja de clientes no entra en la firma del pulso).
+const CADA_PULSO = 15000
+const CADA       = 120000
 
 let arrancado = false
 let timer     = null
+let reloj     = null
 let ultimo    = 0
+let firma     = null
+let ultimaVista = 0
 
 async function pedir(url) {
     try {
@@ -71,6 +86,13 @@ export async function cargarNotificaciones() {
     notificaciones.value = d.notificaciones ?? []
     notifNoLeidas.value  = d.no_leidas ?? 0
     bandejaSinLeer.value = d.bandeja_sin_leer ?? 0
+
+    const maxId = notificaciones.value.reduce((m, n) => Math.max(m, n.id), 0)
+    if (ultimaVista > 0) {
+        const nuevas = notificaciones.value.filter(n => n.id > ultimaVista && ! n.leida)
+        if (nuevas.length) notificacionesNuevas.value = nuevas
+    }
+    ultimaVista = Math.max(ultimaVista, maxId)
 }
 
 export async function cargarPendientes() {
@@ -121,12 +143,32 @@ export function refrescarSiHaceRato(ms = 30000) {
  * encabezado que lo necesita. Al cerrar sesión la página se recarga entera y el
  * módulo muere con ella.
  */
+/** ¿Cambió algo? Si la firma del servidor es otra, se traen las listas. */
+async function latir() {
+    const d = await pedir('/api/avisos/pulso')
+    if (! d?.firma) return
+    if (firma !== null && d.firma !== firma) refrescarAvisos()
+    firma = d.firma
+}
+
+function arrancarRelojes() {
+    timer = setInterval(refrescarAvisos, CADA)
+    reloj = setInterval(latir, CADA_PULSO)
+}
+
+function pararRelojes() {
+    clearInterval(timer)
+    clearInterval(reloj)
+    timer = reloj = null
+}
+
 export function iniciarAvisos() {
     if (arrancado) return
     arrancado = true
 
     refrescarAvisos()
-    timer = setInterval(refrescarAvisos, CADA)
+    latir()
+    arrancarRelojes()
 
     // Una pestaña en segundo plano no necesita contadores frescos, y el navegador
     // acumula los temporizadores dormidos para dispararlos todos juntos al volver.
@@ -137,11 +179,11 @@ export function iniciarAvisos() {
     // consultas aunque hubieran pasado dos segundos.
     document.addEventListener('visibilitychange', () => {
         if (document.hidden) {
-            clearInterval(timer)
-            timer = null
+            pararRelojes()
         } else if (! timer) {
-            refrescarSiHaceRato()
-            timer = setInterval(refrescarAvisos, CADA)
+            // Al volver, el pulso dice de una vez si algo cambió mientras no se miraba.
+            latir()
+            arrancarRelojes()
         }
     })
 }

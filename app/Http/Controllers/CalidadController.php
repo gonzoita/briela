@@ -271,41 +271,21 @@ class CalidadController extends Controller
     {
         $data = $request->validate(['motivo_rechazo' => 'required|string|max:2000']);
 
-        $unidades = $op->unidadesEnReproceso();
-
-        $op->update([
-            'motivo_rechazo'      => $data['motivo_rechazo'],
-            'calidad_aprobada_at' => null,
-            'estado'              => 'reproceso',
-        ]);
-
-        $cierre = app(\App\Services\CierrePasoService::class);
-
-        foreach ($unidades as $unidad) {
-            $final = $unidad->pasos()->where('es_paso_final', true)->where('completado', true)->first();
-
-            if ($final) {
-                $cierre->reabrir($final);
-            }
-
-            // Y pierde la firma de calidad: una unidad que vuelve a planta no está aprobada.
-            $unidad->firmarCalidad(false);
-        }
-
-        $cuantas = $unidades->count();
+        // Una sola regla de reproceso, la misma que usa el botón de la orden.
+        $cuantas = $op->mandarAReproceso($data['motivo_rechazo']);
 
         app(NotificacionService::class)->paraRol(
             ['administrador', 'jefe_produccion'],
             'op_a_reproceso',
             "OP {$op->numero} volvió a reproceso",
             $cuantas > 0
-                ? "{$cuantas} unidad(es) para rehacer. Motivo: {$data['motivo_rechazo']}"
+                ? "{$cuantas} cosa(s) para rehacer. Motivo: {$data['motivo_rechazo']}"
                 : "Motivo: {$data['motivo_rechazo']}",
             "/trabajos?op_numero={$op->numero}",
         );
 
         return back()->with('success', $cuantas > 0
-            ? "{$op->numero} volvió a reproceso: {$cuantas} unidad(es) reabiertas en Trabajos."
+            ? "{$op->numero} volvió a reproceso: {$cuantas} unidad(es) o ítem(s) reabiertos."
             : "{$op->numero} volvió a reproceso.");
     }
 
@@ -492,9 +472,10 @@ class CalidadController extends Controller
             return;
         }
 
-        if ($this->checksQueBloquean($op) === 0 && ! $op->calidad_aprobada_at) {
-            $op->update(['calidad_aprobada_at' => now()]);
-        }
+        // La regla vive en la orden: todas las unidades firmadas y nada pendiente. Contar solo
+        // los puntos pendientes sellaba la orden con la primera unidad revisada.
+        $op->sincronizarEstado();
+        $op->sellarCalidadSiCorresponde();
     }
 
     private function recargar(OpItemTrabajo $trabajo): OpItemTrabajo

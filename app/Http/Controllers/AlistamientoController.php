@@ -28,8 +28,11 @@ use Inertia\Response;
  */
 class AlistamientoController extends Controller
 {
-    /** Las órdenes que ya se pueden alistar. Un borrador todavía se está armando. */
-    private const ESTADOS_OP = ['confirmada', 'en_produccion', 'calidad', 'reproceso', 'despachada'];
+    /**
+     * Las órdenes cuyos ítems se pueden alistar. Un borrador también: alistar algo es empezar a
+     * trabajarla, y la orden arranca sola (`Op::sincronizarEstado()`).
+     */
+    private const ESTADOS_OP = ['borrador', 'confirmada', 'en_produccion', 'calidad', 'reproceso', 'despachada'];
 
     public function index(Request $request): Response
     {
@@ -141,10 +144,16 @@ class AlistamientoController extends Controller
             'cantidad'     => (float) $i->cantidad,
             'numero_serie' => $i->numero_serie,
             'alistado'     => $i->estado_item === 'terminado',
+            // Alistamiento parcial: de 15 vendidas, 10 alistadas. Lo remisionado cuenta como
+            // alistado, porque salió.
+            'alistadas'    => $trabajos > 0 ? null : $i->cantidadAlistada(),
+            'remisionadas' => $i->unidadesRemisionadas(),
+            // Un ensamble con unidades se alista solo, al terminarlas en planta.
+            'automatico'   => $trabajos > 0,
             // Un servicio se alista pero no se despacha: no hay nada que cargar en el camión.
             'despachable'  => $tipo !== 'servicio',
             'remisionado'  => (bool) $i->remisionado,
-            'disponible'   => $i->cantidadDisponible(),
+            'disponible'   => $i->cantidadLista(),
             // Un ítem sin trabajos no tiene avance que mostrar: nadie lo fabrica, sale de
             // bodega. Va en null y la pantalla enseña un guion, no un 0 % que asusta.
             'avance'       => $trabajos > 0 ? (int) round($i->trabajos()->avg('porcentaje_avance') ?? 0) : null,
@@ -167,18 +176,22 @@ class AlistamientoController extends Controller
      */
     public function alternar(Request $request, OpItem $item): RedirectResponse
     {
-        $alistar = $request->boolean('alistado', true);
+        $request->validate(['cantidad' => 'nullable|integer|min:1']);
 
-        if (! $alistar && $item->unidadesRemisionadas() > 0) {
-            return back()->withErrors([
-                'alistado' => 'Este ítem ya tiene unidades remisionadas: no se puede devolver a pendiente.',
-            ]);
+        $alistar  = $request->boolean('alistado', true);
+        $cantidad = $request->filled('cantidad') ? (int) $request->cantidad : null;
+
+        if ($motivo = $item->alistar($alistar, $cantidad)) {
+            return back()->with('error', $motivo);
         }
 
-        $item->update(['estado_item' => $alistar ? 'terminado' : 'pendiente']);
+        $item->refresh();
+        $faltan = (int) $item->cantidad - $item->cantidadAlistada();
 
-        return back()->with('success', $alistar
-            ? 'Ítem alistado, listo para remisionar.'
-            : 'Ítem devuelto a pendiente.');
+        return back()->with('success', match (true) {
+            ! $alistar  => 'Ítem devuelto a pendiente.',
+            $faltan > 0 => "Quedan {$item->cantidadAlistada()} de ".(int) $item->cantidad." alistadas; {$faltan} siguen pendientes.",
+            default     => 'Ítem alistado, listo para remisionar.',
+        });
     }
 }

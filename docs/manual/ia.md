@@ -386,7 +386,7 @@ Además:
 
 ### Crear cotizaciones por conversación
 
-Se le puede pedir: *"hazme una cotización para IK Colombia de 20 paneles de
+Se le puede pedir: *"hazme una cotización para Frío Andino de 20 paneles de
 100mm"*. Ofe identifica el cliente y los productos y **crea la cotización en
 borrador**.
 
@@ -404,12 +404,44 @@ Reglas que no se rompen:
 - Si algún producto quedó **sin precio cargado**, te lo advierte para que lo
   corrijas antes de enviar.
 
-Requiere el permiso **Cotizaciones → Crear**. Es la única cosa que Ofe puede
-escribir en el sistema; todo lo demás es solo lectura.
+Requiere el permiso **Cotizaciones → Crear**.
 
 Qué revisar siempre antes de enviarla: que la variante del producto sea la
 correcta (100mm y no 150mm), las cantidades, y los descuentos, que Ofe deja
 en cero.
+
+### Hacer transacciones en los procesos *(14 oct 2026)*
+
+La guía también **gestiona procesos**, siempre con confirmación: se le pide *«remisiona la OP 12»*,
+*«registra un pago de 250 mil por transferencia a la OP 8»*, *«marca el corte de la ventana como
+hecho»*, y responde con una **tarjeta** que resume exactamente lo que va a hacer. Solo se hace al
+tocar **Confirmar**.
+
+| Transacción | Qué hace | Permiso |
+|---|---|---|
+| `generar_op` | La OP de una cotización aprobada, con su fecha de entrega | Órdenes → Crear |
+| `alistar` | Alista los productos pendientes de una orden (o uno) | Alistamiento → Alistar |
+| `remisionar` | Remisión con todo lo listo; sale del almacén al crearla | Remisiones → Crear |
+| `mover_remision` | Confirmada, en camino, entregada o anulada | Remisiones → Editar |
+| `registrar_pago` | Pago a la cuota pendiente más antigua de la orden | Cartera → Editar |
+| `confirmar_abono` | Aplica un abono por decidir del verificador a una orden | Verificador → Editar |
+| `cerrar_paso` | Un paso de planta de un ensamble, o todos los pendientes de la unidad | Trabajos → Editar |
+| `aprobar_calidad` | Firma las unidades terminadas (las que exigen foto, desde Calidad) | Órdenes → Calidad |
+| `cambiar_estado_cotizacion` | Enviada, aprobada o rechazada | Cotizaciones → Editar |
+| `mover_lead` / `crear_lead` | Embudo del CRM | CRM → Editar / Crear |
+
+Cómo está hecho (`App\Services\IA\TransaccionesIaService`):
+
+- **Proponer no escribe nada.** Ubica la orden, el producto o el pago, revisa que se pueda y arma el
+  resumen. Si falta algo —qué orden, qué etapa— lo pregunta.
+- **Confirmar vuelve a revisar** permiso, sede y estado (`POST /api/asistente/confirmar`). Si entre la
+  propuesta y el clic cambió lo que se iba a hacer —otro lo alistó, alguien remisionó primero—, no se
+  hace a ciegas: pide repetirlo.
+- **Los mismos servicios que las pantallas**: `RemisionService`, `CierrePasoService`,
+  `OpItem::alistar()`, `OpPago::registrar()`, `OpController::generarOp()`. La guía no tiene camino
+  propio, así que lo que hace queda igual que hecho a mano.
+- La guía **no puede más que quien la usa**: cada transacción exige el permiso de su pantalla, y un
+  módulo apagado se lleva sus permisos.
 
 ### Respeta permisos y sede
 
@@ -596,3 +628,19 @@ No están construidos todavía:
   más de lo estimado, por sede.
 - Sugerencias de precio y comisión. Toca dinero: conviene dejarlo de último y
   siempre como sugerencia revisable, nunca aplicando cambios solo.
+
+## Perfil de marca: Importar MD y Completar con IA *(15 oct 2026)*
+
+- **Importar MD**: se sube el perfil en un archivo Markdown (`.md`) —o se pega el texto— y la IA
+  lo reparte en las secciones.
+- **Completar con IA**: la IA formula la pregunta de cada sección para ESTA empresa y la responde
+  sola con lo que el sistema sabe de ella —nombre, ciudad, lo que vende, qué fabrica a la medida,
+  cuántos clientes y dónde— (`PerfilMarcaController::completar`). Por omisión solo llena las
+  vacías; lo escrito a mano no se pisa. Lo que no se puede saber por los datos sale como
+  «[Propuesta para revisar]». La pantalla muestra qué preguntó.
+
+## Informes con archivo desde el chat *(16 oct 2026)*
+
+La guía arma informes completos —con resúmenes, cifras clave y su análisis— que se descargan en
+Excel o CSV: la IA elige la fuente y el periodo, el servidor calcula y la IA solo ve los totales.
+Ver [Informes](./informes.md#pedírselo-a-la-guía-en-el-chat-16-oct-2026).

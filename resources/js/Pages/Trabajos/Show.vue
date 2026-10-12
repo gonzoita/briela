@@ -535,7 +535,7 @@ const circuloPaso = (paso) => {
                                 <!-- El paso final entrega la unidad, y para eso hacen falta las
                                      dos bodegas. Vienen ya elegidas de la orden: casi siempre
                                      es confirmar y seguir. -->
-                                <div v-if="paso.es_paso_final && ! paso.completado && modulos.activo('inventario')" class="w-full mb-2 space-y-3">
+                                <div v-if="paso.es_paso_final && ! paso.completado && modulos.activo('inventario') && bodegas_sugeridas?.pide !== false" class="w-full mb-2 space-y-3">
                                     <div>
                                         <label class="block text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-1">
                                             La unidad entra en

@@ -5,7 +5,7 @@ import AppLayout from '@/Layouts/AppLayout.vue'
 import BtnPdf from '@/Components/BtnPdf.vue'
 import { useClipboard } from '@/composables/useClipboard'
 import RetencionesEstimadas from '@/Components/RetencionesEstimadas.vue'
-import { formatMoneda } from '@/formato'
+import { formatMoneda, formatCantidad, monedaBase } from '@/formato'
 
 const props = defineProps({
     cotizacion:   Object,
@@ -14,6 +14,8 @@ const props = defineProps({
     sedesFabrica: { type: Array, default: () => [] },
     // Lo que el cliente va a retener al pagar, calculado en el servidor.
     retenciones:  { type: Object, default: null },
+    // El stock que esta cotización tiene apartado (solo se ve aquí, nunca en el portal ni el PDF).
+    reservas:     { type: Array, default: () => [] },
 })
 
 const { copyText } = useClipboard()
@@ -30,12 +32,16 @@ async function copiarLink() {
 
 const cot = props.cotizacion
 
+const fechaHora = (iso) => iso
+    ? new Date(iso).toLocaleString('es-CO', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })
+    : ''
+
 const formatCOP = (v) =>
     new Intl.NumberFormat('es-CO', { maximumFractionDigits: 0 }).format(v ?? 0)
 
 // Por dentro todo está en pesos; así lo ve el cliente.
-const enOtraMoneda = cot.moneda && cot.moneda !== 'COP' && Number(cot.tasa_cambio) > 0
-const enMoneda     = (v) => formatMoneda(v, cot.moneda || 'COP', cot.tasa_cambio)
+const enOtraMoneda = cot.moneda && cot.moneda !== monedaBase() && Number(cot.tasa_cambio) > 0
+const enMoneda     = (v) => formatMoneda(v, cot.moneda || monedaBase(), cot.tasa_cambio)
 const formatTasa   = (v) => new Intl.NumberFormat('es-CO', { minimumFractionDigits: 2, maximumFractionDigits: 4 }).format(Number(v) || 0)
 const formatFecha = (d) =>
     d ? new Date(d).toLocaleDateString('es-CO', { day: '2-digit', month: 'long', year: 'numeric' }) : '—'
@@ -44,14 +50,19 @@ const estadoActual = ref(cot.estado)
 const modalEstado  = ref(false)
 const nuevoEstado  = ref(cot.estado)
 
-const estadoBadgeActual = ref({ ...(cot.estado_badge ?? {}) })
+// Con los colores del tema: los fijos quedaban como una mancha clara en modo noche.
+const estadoBadgeActual = ref({
+    ...(cot.estado_badge ?? {}),
+    bg:   cot.estado_badge?.bg_tema   ?? cot.estado_badge?.bg,
+    text: cot.estado_badge?.text_tema ?? cot.estado_badge?.text,
+})
 
 const BADGES = {
-    borrador:  { bg: '#F3F4F6', text: '#374151', label: 'Borrador'  },
-    enviada:   { bg: '#DBEAFE', text: '#1D4ED8', label: 'Enviada'   },
-    aprobada:  { bg: '#D1FAE5', text: '#065F46', label: 'Aprobada'  },
-    rechazada: { bg: '#FEE2E2', text: '#991B1B', label: 'Rechazada' },
-    vencida:   { bg: '#FEF3C7', text: '#92400E', label: 'Vencida'   },
+    borrador:  { bg: 'var(--tinta-100)',      text: 'var(--texto-2)',     label: 'Borrador'  },
+    enviada:   { bg: 'var(--pastel-azul)',    text: 'var(--texto-azul)',  label: 'Enviada'   },
+    aprobada:  { bg: 'var(--pastel-verde)',   text: 'var(--texto-verde)', label: 'Aprobada'  },
+    rechazada: { bg: 'var(--pastel-rojo)',    text: 'var(--texto-rojo)',  label: 'Rechazada' },
+    vencida:   { bg: 'var(--pastel-ambar)',   text: 'var(--texto-ambar)', label: 'Vencida'   },
 }
 
 const estados = [
@@ -108,10 +119,13 @@ const anticipoInput    = ref('')
 const anticipoMedio    = ref('efectivo')
 const anticipoFecha    = ref(new Date().toISOString().split('T')[0])
 const anticipoRef      = ref('')
+// Precargada con el plazo de la cotización; se puede corregir antes de crear la orden.
+const fechaEntregaOp   = ref(cot.fecha_entrega_sugerida ?? '')
 
 function confirmarGenerarOP() {
     router.post(`/produccion/ops/desde-cotizacion/${cot.id}`, {
         sede_id:             sedeFabricaId.value,
+        fecha_entrega_estimada: fechaEntregaOp.value || null,
         anticipo:            anticipoInput.value || null,
         anticipo_medio_pago: anticipoInput.value ? anticipoMedio.value : null,
         anticipo_fecha_pago: anticipoInput.value ? anticipoFecha.value : null,
@@ -162,6 +176,12 @@ function marcarEnviada() {
 <template>
     <AppLayout :title="cot.numero">
         <div class="max-w-4xl mx-auto">
+
+            <!-- Sin cliente no se procesa nada: se dice arriba, antes de tocar un botón. -->
+            <div v-if="!cot.cliente_id" class="mb-4 rounded-xl border border-borde-aviso-rojo bg-pastel-rojo px-4 py-3 text-sm text-aviso-rojo">
+                <strong>Esta cotización no tiene cliente.</strong> No se puede enviar, aprobar ni generar la orden hasta asignarle uno.
+                <a :href="`/cotizaciones/${cot.id}/editar`" class="underline font-medium ml-1">Asignar cliente</a>
+            </div>
 
             <!-- Cabecera nav -->
             <div class="flex items-center justify-between mb-4">
@@ -312,6 +332,10 @@ function marcarEnviada() {
                             <span>{{ formatFecha(cot.fecha_validez) }}</span>
                         </div>
                         <div class="flex justify-between">
+                            <span class="text-tinta-400">Entrega</span>
+                            <span>{{ cot.dias_entrega ? `${cot.dias_entrega} días hábiles` : 'Sin plazo' }}</span>
+                        </div>
+                        <div class="flex justify-between">
                             <span class="text-tinta-400">Moneda</span>
                             <span>{{ cot.moneda }}</span>
                         </div>
@@ -377,10 +401,10 @@ function marcarEnviada() {
                             <span>{{ enMoneda(cot.total) }}</span>
                         </div>
                         <p v-if="enOtraMoneda" class="text-[11px] text-tinta-300 text-right">
-                            Equivale a ${{ formatCOP(cot.total) }} pesos.
+                            Equivale a {{ formatMoneda(cot.total) }} ({{ monedaBase() }}).
                         </p>
                         <RetencionesEstimadas :retenciones="retenciones" :total="Number(cot.total)"
-                            :moneda="cot.moneda || 'COP'" :tasa="cot.tasa_cambio" />
+                            :moneda="cot.moneda || monedaBase()" :tasa="cot.tasa_cambio" />
                     </div>
                 </div>
             </div>
@@ -392,6 +416,25 @@ function marcarEnviada() {
             </div>
 
             <!-- Seguimiento -->
+            <!-- Stock apartado: uso interno. Una cotización enviada aparta sus productos por 24 h;
+                 es una marca, el inventario no se mueve. -->
+            <div v-if="reservas.length" class="bg-superficie rounded-2xl border border-linea p-5 mb-4">
+                <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-3">Stock apartado</p>
+                <ul class="space-y-2">
+                    <li v-for="r in reservas" :key="r.id" class="flex flex-wrap items-baseline justify-between gap-2 text-sm">
+                        <span class="text-tinta-700">{{ r.producto }} · {{ formatCantidad(r.cantidad - r.cedida) }} {{ r.unidad === 'unidad' && (r.cantidad - r.cedida) !== 1 ? 'unidades' : r.unidad }}</span>
+                        <span class="text-xs"
+                            :class="{ 'text-aviso-verde': r.estado === 'activa', 'text-aviso-ambar': r.estado === 'cedida', 'text-aviso-rojo': r.estado === 'vencida', 'text-tinta-400': ['liberada', 'concretada'].includes(r.estado) }">
+                            <template v-if="r.estado === 'activa'">hasta {{ fechaHora(r.expira_at) }}<span v-if="r.cedida > 0"> · se cedieron {{ formatCantidad(r.cedida) }} a una venta</span></template>
+                            <template v-else-if="r.estado === 'cedida'">se cedió a la venta {{ r.cedida_a }}</template>
+                            <template v-else-if="r.estado === 'vencida'">venció el plazo de 24 h</template>
+                            <template v-else-if="r.estado === 'concretada'">vendida</template>
+                            <template v-else>liberada</template>
+                        </span>
+                    </li>
+                </ul>
+            </div>
+
             <div class="bg-superficie rounded-2xl border border-linea p-5 mb-4">
                 <div class="flex items-center justify-between mb-3">
                     <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">Seguimiento</p>
@@ -452,6 +495,15 @@ function marcarEnviada() {
                             <option v-for="s in sedesFabrica" :key="s.id" :value="s.id">{{ s.nombre }}</option>
                         </select>
                     </div>
+
+                    <label class="block text-xs font-medium text-tinta-500 mb-1.5">Fecha de entrega</label>
+                    <input v-model="fechaEntregaOp" type="date"
+                        class="w-full rounded-xl border border-tinta-200 px-3 py-2.5 text-sm mb-1 focus:ring-2 focus:outline-none" />
+                    <p class="text-xs text-tinta-300 mb-3">
+                        {{ cot.dias_entrega
+                            ? `Sale del plazo de la cotización: ${cot.dias_entrega} días hábiles desde hoy.`
+                            : 'La cotización no tiene plazo de entrega: escribe la fecha que se le prometió al cliente.' }}
+                    </p>
 
                     <label class="block text-xs font-medium text-tinta-500 mb-1.5">Anticipo (opcional)</label>
                     <input v-model="anticipoInput" type="number" min="0" step="0.01" placeholder="0"

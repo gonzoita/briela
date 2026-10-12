@@ -26,12 +26,18 @@ class NotificacionService
         'entrega_proxima'          => 'ops',
         'material_faltante'        => 'inventario',
         'stock_bajo'               => 'inventario',
+        'stock_apartado_usado'     => 'inventario',
+        'stock_apartado_vencido'   => 'inventario',
+        'abonos_por_revisar'       => 'verificador_pagos',
+        'pago_verificado'          => 'verificador_pagos',
         'op_a_calidad'             => 'calidad',
         'op_a_reproceso'           => 'calidad',
         'op_lista_despacho'        => 'remisiones',
         'trabajo_asignado'         => 'trabajos',
         'cotizacion_aprobada'      => 'cotizaciones',
         'cotizacion_rechazada'     => 'cotizaciones',
+        'cotizacion_vencida'       => 'cotizaciones',
+        'cotizacion_estado'        => 'cotizaciones',
         'cotizacion_sin_respuesta' => 'cotizaciones',
         'lead_nuevo'               => 'crm',
         'lead_repetido'            => 'crm',
@@ -49,6 +55,16 @@ class NotificacionService
         'bandeja_mensaje_nuevo'    => 'bandeja',
         'rrss_token_por_vencer'    => 'rrss',
     ];
+
+    /**
+     * Los avisos que, si nadie dice lo contrario, también salen por correo.
+     *
+     * Por omisión el correo está apagado, y casi siempre es lo correcto: la campanita basta. Pero
+     * que se haya usado stock que un vendedor tenía apartado es algo que se descubre tarde si se
+     * queda esperando a que alguien abra el sistema: la persona ya le prometió esas unidades a
+     * un cliente. Se puede apagar desde Configuración como cualquier otro.
+     */
+    private const CON_CORREO_POR_DEFECTO = ['stock_apartado_usado'];
 
     public static function moduloActivoPara(string $tipo): bool
     {
@@ -84,12 +100,16 @@ class NotificacionService
             'Comercial' => [
                 ['tipo' => 'cotizacion_aprobada',    'label' => 'Cliente aprobó una cotización'],
                 ['tipo' => 'cotizacion_rechazada',   'label' => 'Cliente rechazó una cotización'],
+                ['tipo' => 'cotizacion_vencida',     'label' => 'Una cotización tuya se venció'],
+                ['tipo' => 'cotizacion_estado',      'label' => 'Otra persona cambió el estado de una cotización tuya'],
                 ['tipo' => 'lead_nuevo',             'label' => 'Lead nuevo (cualquier canal)'],
                 ['tipo' => 'lead_repetido',          'label' => 'Un lead que ya estaba volvió a escribir'],
                 ['tipo' => 'lead_quieto',            'label' => 'Lead sin movimiento hace varios días'],
                 ['tipo' => 'whatsapp_mensaje_nuevo', 'label' => 'Mensaje nuevo de WhatsApp'],
                 ['tipo' => 'bandeja_mensaje_nuevo',  'label' => 'Mensaje o comentario nuevo en una red'],
                 ['tipo' => 'cotizacion_sin_respuesta','label' => 'Cotización sin respuesta (recordatorio)'],
+                ['tipo' => 'stock_apartado_usado',   'label' => 'Una venta usó stock que tenías apartado'],
+                ['tipo' => 'stock_apartado_vencido', 'label' => 'Se liberó el stock apartado de una cotización'],
             ],
             'Hilos internos' => [
                 ['tipo' => 'chat_mensaje',        'label' => 'Alguien te escribió por el chat'],
@@ -104,6 +124,8 @@ class NotificacionService
             ],
             'Financiero' => [
                 ['tipo' => 'saldo_vencido',       'label' => 'Cuota / saldo de OP vencido'],
+                ['tipo' => 'pago_verificado',     'label' => 'El banco confirmó un pago de una de tus órdenes'],
+                ['tipo' => 'abonos_por_revisar',  'label' => 'Un extracto dejó abonos por revisar'],
             ],
             'Capacitación' => [
                 ['tipo' => 'evaluacion_por_revisar', 'label' => 'Evaluación por calificar'],
@@ -160,7 +182,7 @@ class NotificacionService
         // Canal email opcional — apagado por defecto. Solo se manda si en
         // Ajustes se activó "también por email" para este tipo y hay SMTP
         // configurado. Nunca rompe el flujo si el correo falla.
-        if (Configuracion::get("notif_{$tipo}_email", '0') === '1') {
+        if (Configuracion::get("notif_{$tipo}_email", in_array($tipo, self::CON_CORREO_POR_DEFECTO, true) ? '1' : '0') === '1') {
             $this->enviarEmail($userId, $titulo, $mensaje, $url);
         }
     }

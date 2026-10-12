@@ -196,6 +196,8 @@ class CrmPipelineController extends Controller
 
     public function showLead(CrmLead $lead)
     {
+        $this->deLaSede($lead);
+
         $lead->load([
             'etapa',
             'responsable:id,name',
@@ -209,6 +211,8 @@ class CrmPipelineController extends Controller
 
     public function updateLead(Request $request, CrmLead $lead)
     {
+        $this->deLaSede($lead);
+
         $data = $request->validate([
             'titulo'            => 'sometimes|string|max:200',
             'nombre_contacto'   => 'nullable|string|max:200',
@@ -227,6 +231,8 @@ class CrmPipelineController extends Controller
 
     public function moverLead(Request $request, CrmLead $lead)
     {
+        $this->deLaSede($lead);
+
         $data = $request->validate([
             'etapa_id'       => 'required|exists:crm_etapas,id',
             'orden_en_etapa' => 'required|integer|min:0',
@@ -274,24 +280,7 @@ class CrmPipelineController extends Controller
             // Si el lead ya tiene cliente asociado y no tiene una cotización
             // vinculada todavía, se crea automáticamente un borrador.
             if ($lead->cliente_id && ! $lead->cotizaciones()->exists()) {
-                $cot = \App\Models\Cotizacion::create([
-                    'lead_id'                 => $lead->id,
-                    'cliente_id'               => $lead->cliente_id,
-                    'moneda'                   => 'COP',
-                    'tasa_cambio'               => 1,
-                    'responsable_id'            => $lead->responsable_id ?? auth()->id(),
-                    'estado'                    => 'borrador',
-                    'condiciones_comerciales'   => 'Precios en pesos colombianos. Validez 30 días. Anticipo 50% para inicio de producción. Tiempo de entrega: 15 días hábiles.',
-                    'notas_internas'            => "Generada automáticamente desde el lead \"{$lead->titulo}\".",
-                ]);
-
-                \App\Models\CrmActividad::registrar(
-                    $lead->id,
-                    'cotizacion',
-                    "Cotización {$cot->numero} generada automáticamente",
-                    ['cotizacion_id' => $cot->id]
-                );
-
+                $cot          = $lead->crearCotizacion();
                 $accion       = 'cotizacion_creada';
                 $cotizacionId = $cot->id;
             } elseif (! $lead->cliente_id) {
@@ -308,27 +297,60 @@ class CrmPipelineController extends Controller
 
     public function destroyLead(CrmLead $lead)
     {
+        $this->deLaSede($lead);
+
         $lead->delete();
         return response()->json(['ok' => true]);
     }
 
     public function convertirCliente(Request $request, CrmLead $lead)
     {
+        $this->deLaSede($lead);
+
         $data = $request->validate([
-            'nombre'   => 'required|string|max:200',
-            'email'    => 'nullable|email',
-            'telefono' => 'nullable|string|max:20',
-            'celular'  => 'nullable|string|max:20',
-            'ciudad'   => 'nullable|string|max:100',
-            'tipo'     => 'required|in:persona,empresa',
+            'nombre'                => 'required|string|max:200',
+            'email'                 => 'nullable|email',
+            'telefono'              => 'nullable|string|max:20',
+            'celular'               => 'nullable|string|max:20',
+            'ciudad'                => 'nullable|string|max:100',
+            'tipo'                  => 'required|in:persona,empresa',
+            'tipo_identificacion'   => 'nullable|string|max:20',
+            'numero_identificacion' => 'nullable|string|max:30',
         ]);
 
-        $cliente = Cliente::create([...$data, 'activo' => true]);
+        // Si ya existe —mismo documento, correo o celular—, se vincula en vez de crear otro.
+        // Antes cada conversión creaba un cliente nuevo, y el mismo cliente quedaba repetido
+        // con sus cotizaciones y su cartera repartidas entre las copias.
+        $cliente = $this->clienteExistente($data);
+        $yaExistia = (bool) $cliente;
+
+        if (! $cliente) {
+            $documento = $data['numero_identificacion'] ?? null;
+
+            $cliente = Cliente::create([
+                ...collect($data)->except(['tipo_identificacion', 'numero_identificacion'])->all(),
+                'tipo_identificacion'   => $documento ? ($data['tipo_identificacion'] ?? ($data['tipo'] === 'empresa' ? 'NIT' : 'CC')) : null,
+                'numero_identificacion' => $documento,
+                'activo'                => true,
+            ]);
+
+            // Una empresa sin contacto queda sin a quién escribirle: el contacto es la persona
+            // del lead.
+            if ($cliente->tipo === 'empresa' && $lead->nombre_contacto) {
+                \App\Models\ContactoCliente::create([
+                    'cliente_id'   => $cliente->id,
+                    'nombre'       => $lead->nombre_contacto,
+                    'email'        => $lead->email_contacto,
+                    'celular'      => $lead->telefono_contacto,
+                    'es_principal' => true,
+                ]);
+            }
+        }
 
         \App\Models\CrmActividad::registrar(
             $lead->id,
             'conversion',
-            "Convertido a cliente: {$cliente->nombre}",
+            ($yaExistia ? 'Vinculado al cliente que ya existía: ' : 'Convertido a cliente: ') . $cliente->nombre,
             ['cliente_id' => $cliente->id]
         );
 
@@ -350,32 +372,57 @@ class CrmPipelineController extends Controller
 
         $cotizacionId = null;
         if ($etapaDestino && $etapaDestino->accion_automatica === 'cotizacion' && ! $lead->cotizaciones()->exists()) {
-            $cot = \App\Models\Cotizacion::create([
-                'lead_id'                 => $lead->id,
-                'cliente_id'              => $cliente->id,
-                'moneda'                  => 'COP',
-                'tasa_cambio'             => 1,
-                'responsable_id'          => $lead->responsable_id ?? auth()->id(),
-                'estado'                  => 'borrador',
-                'condiciones_comerciales' => 'Precios en pesos colombianos. Validez 30 días. Anticipo 50% para inicio de producción. Tiempo de entrega: 15 días hábiles.',
-                'notas_internas'          => "Generada automáticamente desde el lead \"{$lead->titulo}\".",
-            ]);
-
-            \App\Models\CrmActividad::registrar(
-                $lead->id,
-                'cotizacion',
-                "Cotización {$cot->numero} generada automáticamente",
-                ['cotizacion_id' => $cot->id]
-            );
-
-            $cotizacionId = $cot->id;
+            $cotizacionId = $lead->fresh()->crearCotizacion()->id;
         }
 
         return response()->json([
             'cliente'       => $cliente,
+            'ya_existia'    => $yaExistia,
             'lead'          => $lead->fresh()->load('etapa', 'cliente:id,nombre'),
             'etapa_id'      => $etapaDestino?->id,
             'cotizacion_id' => $cotizacionId,
         ]);
+    }
+
+    /** Un cliente que ya está: mismo documento, mismo correo o mismo celular (últimos 10 dígitos). */
+    private function clienteExistente(array $data): ?Cliente
+    {
+        $documento = preg_replace('/\D/', '', (string) ($data['numero_identificacion'] ?? ''));
+        $email     = mb_strtolower(trim((string) ($data['email'] ?? '')));
+        $celular   = substr(preg_replace('/\D/', '', (string) ($data['celular'] ?? $data['telefono'] ?? '')), -10);
+
+        if ($documento !== '') {
+            $porDocumento = Cliente::whereRaw("REGEXP_REPLACE(COALESCE(numero_identificacion,''), '[^0-9]', '') = ?", [$documento])->first();
+            if ($porDocumento) {
+                return $porDocumento;
+            }
+        }
+
+        if ($email !== '') {
+            $porEmail = Cliente::whereRaw('LOWER(TRIM(email)) = ?', [$email])->first();
+            if ($porEmail) {
+                return $porEmail;
+            }
+        }
+
+        if (strlen($celular) === 10) {
+            return Cliente::where(function ($q) use ($celular) {
+                $q->whereRaw("RIGHT(REGEXP_REPLACE(COALESCE(celular,''), '[^0-9]', ''), 10) = ?", [$celular])
+                  ->orWhereRaw("RIGHT(REGEXP_REPLACE(COALESCE(telefono,''), '[^0-9]', ''), 10) = ?", [$celular]);
+            })->first();
+        }
+
+        return null;
+    }
+
+    /**
+     * Un lead de otra sede no se abre ni se toca por enlace directo. El tablero ya filtraba por la
+     * sede activa, pero abrir, editar, mover o borrar un lead por su id no lo miraba.
+     */
+    private function deLaSede(CrmLead $lead): void
+    {
+        $sede = \App\Support\ContextoSede::id();
+
+        abort_if($sede && $lead->sede_id && (int) $lead->sede_id !== (int) $sede, 404);
     }
 }

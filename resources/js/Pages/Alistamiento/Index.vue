@@ -59,6 +59,26 @@ function alternar(item) {
     })
 }
 
+// Alistamiento parcial: cuántas se alistan ahora, de las que faltan. Arranca con todas las que
+// faltan; quien alista 10 de 15 cambia el número y deja 5 pendientes.
+const porAlistar = ref({})
+const faltan = (item) => Math.max(0, (item.cantidad ?? 0) - (item.alistadas ?? 0))
+const esParcializable = (item) => item.alistadas !== null && item.cantidad > 1 && item.despachable
+
+function alistarParte(item) {
+    const ahora = parseInt(porAlistar.value[item.id] ?? faltan(item), 10)
+    if (! ahora || ahora < 1) return
+
+    router.patch(`/produccion/alistamiento/${item.id}`, {
+        alistado: true,
+        cantidad: Math.min(item.cantidad, (item.alistadas ?? 0) + ahora),
+    }, {
+        preserveScroll: true,
+        preserveState: true,
+        onSuccess: () => { delete porAlistar.value[item.id] },
+    })
+}
+
 const colorTipo = (t) => t === 'ensamble'
     ? 'bg-pastel-violeta text-aviso-violeta'
     : t === 'servicio' ? 'bg-pastel-ambar text-aviso-ambar' : 'bg-pastel-azul text-aviso-azul'
@@ -186,7 +206,12 @@ const colorTipo = (t) => t === 'ensamble'
                                         class="text-[var(--marca)] hover:underline">{{ item.op.numero }}</button>
                                     <p class="text-xs text-tinta-300">{{ item.op.cliente ?? '—' }}</p>
                                 </td>
-                                <td class="px-4 py-3 text-right text-tinta-700">{{ item.cantidad }}</td>
+                                <td class="px-4 py-3 text-right text-tinta-700">
+                                    {{ item.cantidad }}
+                                    <p v-if="esParcializable(item) && item.alistadas > 0 && item.alistadas < item.cantidad"
+                                        class="text-xs text-aviso-ambar whitespace-nowrap">{{ item.alistadas }} alistadas · {{ faltan(item) }} pendientes</p>
+                                    <p v-if="item.remisionadas > 0 && ! item.remisionado" class="text-xs text-tinta-300 whitespace-nowrap">{{ item.remisionadas }} ya salieron</p>
+                                </td>
                                 <td class="px-4 py-3">
                                     <span v-if="item.avance === null" class="text-xs text-tinta-300">—</span>
                                     <div v-else class="flex items-center gap-2">
@@ -199,13 +224,37 @@ const colorTipo = (t) => t === 'ensamble'
                                 <td class="px-4 py-3">
                                     <span v-if="item.remisionado" class="text-xs px-2 py-0.5 rounded-full bg-pastel-azul text-aviso-azul">Despachado</span>
                                     <span v-else-if="item.alistado" class="text-xs px-2 py-0.5 rounded-full bg-pastel-verde text-aviso-verde">Alistado</span>
+                                    <span v-else-if="item.alistadas > 0" class="text-xs px-2 py-0.5 rounded-full bg-pastel-azul text-aviso-azul">Parcial</span>
                                     <span v-else class="text-xs px-2 py-0.5 rounded-full bg-pastel-ambar text-aviso-ambar">Pendiente</span>
                                     <!-- Un servicio se alista pero no viaja: mejor decirlo aquí que
                                          dejar que lo busquen en la remisión y no aparezca. -->
                                     <p v-if="! item.despachable" class="text-xs text-tinta-300 mt-0.5">No se remisiona</p>
                                 </td>
                                 <td class="px-4 py-3 text-right">
-                                    <button v-if="puedeAlistar && ! item.remisionado" type="button" @click="alternar(item)"
+                                    <!-- Un ensamble con unidades se alista solo, al terminarlas en planta:
+                                         no tiene botón, para que nadie lo dé por listo antes de tiempo. -->
+                                    <span v-if="item.automatico && ! item.remisionado" class="text-xs text-tinta-400"
+                                        title="Se alista solo cuando terminan sus unidades en planta">
+                                        {{ item.alistado ? 'Listo en planta' : 'Se alista al terminar en planta' }}
+                                    </span>
+                                    <!-- De varias unidades se puede alistar una parte: 10 de 15. -->
+                                    <div v-else-if="puedeAlistar && ! item.remisionado && esParcializable(item) && faltan(item) > 0"
+                                        class="flex items-center justify-end gap-1.5">
+                                        <input type="number" min="1" :max="faltan(item)" step="1"
+                                            :value="porAlistar[item.id] ?? faltan(item)"
+                                            @input="porAlistar[item.id] = $event.target.value"
+                                            class="w-16 border border-linea rounded-lg px-2 py-1 text-xs text-right focus:outline-none focus:border-[var(--marca)]"
+                                            :aria-label="`Unidades a alistar de ${item.descripcion}`"/>
+                                        <button type="button" @click="alistarParte(item)"
+                                            class="text-xs px-3 py-1.5 rounded-lg border border-borde-aviso-verde text-aviso-verde hover:bg-pastel-verde transition-colors whitespace-nowrap">
+                                            Alistar
+                                        </button>
+                                        <button v-if="item.alistadas > item.remisionadas" type="button" @click="alternar({ ...item, alistado: true })"
+                                            class="text-xs px-2 py-1.5 rounded-lg border border-linea text-tinta-500 hover:bg-realce" title="Devolver a pendiente lo alistado que no ha salido">
+                                            Deshacer
+                                        </button>
+                                    </div>
+                                    <button v-else-if="puedeAlistar && ! item.remisionado" type="button" @click="alternar(item)"
                                         :class="['text-xs px-3 py-1.5 rounded-lg border transition-colors',
                                             item.alistado
                                                 ? 'border-linea text-tinta-500 hover:bg-realce'

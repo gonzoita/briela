@@ -1,0 +1,24 @@
+{
+  "iso": "CO",
+  "version": "2026.10.1",
+  "revisado": true,
+  "documento_fiscal": "RUT",
+  "autoridad": "DIAN",
+  "moneda": "COP",
+  "retenciones": true,
+  "facturacion": "Factura electrónica con un proveedor tecnológico autorizado por la DIAN.",
+  "identificaciones": [
+    { "codigo": "NIT", "nombre": "NIT", "juridica": true, "patron": "^\\d{5,10}$", "dv": "nit_co", "ayuda": "Sin el dígito de verificación." },
+    { "codigo": "CC",  "nombre": "Cédula de ciudadanía", "juridica": false, "patron": "^\\d{4,12}$", "dv": null },
+    { "codigo": "CE",  "nombre": "Cédula de extranjería", "juridica": false, "patron": "^[A-Za-z0-9]{4,15}$", "dv": null },
+    { "codigo": "PA",  "nombre": "Pasaporte", "juridica": false, "patron": "^[A-Za-z0-9]{4,15}$", "dv": null },
+    { "codigo": "RUT", "nombre": "RUT", "juridica": true, "patron": "^\\d{5,10}$", "dv": "nit_co" }
+  ],
+  "impuestos": [
+    { "clave": "iva", "nombre": "IVA", "tarifas": [19, 5, 0], "defecto": 19, "nota": "0% cubre bienes excluidos, exentos y exportaciones." }
+  ],
+  "importacion": { "iva_descontable": true, "nota": "El IVA pagado en una importación es descontable para un responsable de IVA." },
+  "notas": [
+    "Las retenciones (fuente, IVA e ICA) se configuran en Configuración → Perfil fiscal."
+  ]
+}

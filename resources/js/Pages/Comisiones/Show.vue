@@ -1,4 +1,5 @@
 <script setup>
+import { monedaBase } from '@/formato'
 import { router } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
 
@@ -35,7 +36,7 @@ const formatMes = (mes) => {
 }
 
 const formatCOP = (val) => new Intl.NumberFormat('es-CO', {
-    style: 'currency', currency: 'COP',
+    style: 'currency', currency: monedaBase(),
     minimumFractionDigits: 0, maximumFractionDigits: 0
 }).format(val || 0)
 

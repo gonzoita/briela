@@ -2,14 +2,25 @@
 import { ref, onMounted, computed } from 'vue'
 import AppLayout from '@/Layouts/AppLayout.vue'
 import { colorMarca } from '@/marca'
+import { formatoValor, esNumerico } from '@/informes'
+import { formatearMensaje } from '@/utils/formatoMensaje'
 
 const props = defineProps({
     informe:         Object,
     etiquetas_campos: Object,
+    xlsx_disponible: { type: Boolean, default: true },
 })
 
 const datos      = ref([])
 const totales    = ref({})
+
+// Lo del motor nuevo (leads, ventas, cartera…): columnas con tipo, cifras clave y resúmenes.
+const columnas   = ref([])
+const metricas   = ref([])
+const resumenes  = ref([])
+const periodo    = ref('')
+const totalFilas = ref(0)
+const recortado  = ref(false)
 const cargando   = ref(false)
 const ejecutado  = ref(false)
 const error      = ref('')
@@ -51,6 +62,12 @@ async function ejecutar() {
         const json   = await res.json()
         datos.value    = json.datos ?? []
         totales.value  = json.totales ?? {}
+        columnas.value   = json.columnas ?? []
+        metricas.value   = json.metricas ?? []
+        resumenes.value  = json.resumenes ?? []
+        periodo.value    = json.periodo ?? ''
+        totalFilas.value = json.total ?? datos.value.length
+        recortado.value  = !! json.recortado
         ejecutado.value = true
     } catch (e) {
         error.value = 'No se pudo ejecutar el informe. Intenta de nuevo.'
@@ -143,7 +160,11 @@ const lineaPuntos = computed(() => {
                     <div>
                         <div class="flex items-center gap-2 mb-1">
                             <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-pastel-azul-2 text-aviso-azul">
-                                {{ fuenteLabel[informe.fuente] ?? informe.fuente }}
+                                {{ informe.fuente_etiqueta ?? fuenteLabel[informe.fuente] ?? informe.fuente }}
+                            </span>
+                            <span v-if="informe.origen === 'ia'"
+                                class="text-xs font-semibold px-2.5 py-1 rounded-full bg-pastel-violeta-2 text-aviso-violeta">
+                                Pedido a la guía
                             </span>
                             <span v-if="informe.publico"
                                 class="text-xs font-semibold px-2.5 py-1 rounded-full bg-tinta-100 text-tinta-400">
@@ -152,6 +173,7 @@ const lineaPuntos = computed(() => {
                         </div>
                         <h1 class="text-lg font-semibold text-tinta-900">{{ informe.nombre }}</h1>
                         <p v-if="informe.descripcion" class="text-sm text-tinta-400 mt-0.5">{{ informe.descripcion }}</p>
+                        <p v-if="periodo" class="text-xs text-tinta-400 mt-1">{{ periodo }}</p>
                     </div>
 
                     <!-- Acciones -->
@@ -172,6 +194,14 @@ const lineaPuntos = computed(() => {
                             </svg>
                             {{ cargando ? 'Ejecutando...' : 'Ejecutar' }}
                         </button>
+                        <a v-if="xlsx_disponible" :href="`/informes/${informe.id}/xlsx`"
+                            class="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-white"
+                            style="background:#107C41;" title="Un libro con el resumen, el análisis, el detalle y una hoja por cada resumen">
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                            </svg>
+                            Excel
+                        </a>
                         <a :href="`/informes/${informe.id}/csv`"
                             class="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold border border-linea text-tinta-700 hover:bg-tinta-50 transition-colors">
                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
@@ -187,6 +217,61 @@ const lineaPuntos = computed(() => {
                             PDF
                         </a>
                     </div>
+                </div>
+            </div>
+
+            <!-- Lo que se le preguntó a la guía y lo que respondió -->
+            <div v-if="informe.pregunta || informe.analisis" class="bg-superficie rounded-2xl border border-linea shadow-sm p-5 space-y-3">
+                <div v-if="informe.pregunta">
+                    <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">Pregunta</p>
+                    <p class="text-sm text-tinta-700 mt-1">{{ informe.pregunta }}</p>
+                </div>
+                <div v-if="informe.analisis">
+                    <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">
+                        Análisis de la guía <span v-if="informe.analizado_at" class="normal-case tracking-normal font-normal">· {{ informe.analizado_at }}</span>
+                    </p>
+                    <div class="text-sm text-tinta-800 mt-1 leading-relaxed" v-html="formatearMensaje(informe.analisis)"></div>
+                    <p class="text-[11px] text-tinta-300 mt-2">El análisis es de cuando se pidió. Las cifras de abajo se calculan de nuevo al ejecutar.</p>
+                </div>
+            </div>
+
+            <!-- Cifras clave -->
+            <div v-if="ejecutado && metricas.length" class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <div v-for="m in metricas" :key="m.clave" class="bg-superficie rounded-xl border border-linea px-4 py-3">
+                    <p class="text-[11px] text-tinta-400 leading-tight">{{ m.etiqueta }}</p>
+                    <p class="text-base font-semibold text-tinta-900 mt-1 truncate" :title="formatoValor(m.valor, m.tipo)">{{ formatoValor(m.valor, m.tipo) }}</p>
+                </div>
+            </div>
+
+            <!-- Resúmenes -->
+            <div v-for="r in (ejecutado ? resumenes : [])" :key="r.dimension"
+                class="bg-superficie rounded-2xl border border-linea shadow-sm overflow-hidden">
+                <div class="px-5 py-3 border-b border-linea flex items-center justify-between gap-3">
+                    <h2 class="text-sm font-semibold text-tinta-700 first-letter:uppercase">{{ r.titulo }}</h2>
+                    <a :href="`/informes/${informe.id}/csv?tabla=${r.dimension}`" class="text-xs text-aviso-azul hover:underline">CSV de este resumen</a>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead>
+                            <tr class="bg-tinta-50 border-b border-linea">
+                                <th v-for="c in r.columnas" :key="c.clave"
+                                    class="px-4 py-2.5 text-xs font-semibold text-tinta-400 uppercase tracking-wide whitespace-nowrap"
+                                    :class="esNumerico(c.tipo) ? 'text-right' : 'text-left'">{{ c.etiqueta }}</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-separador">
+                            <tr v-for="(f, i) in r.filas" :key="i" class="hover:bg-realce transition-colors">
+                                <td v-for="c in r.columnas" :key="c.clave" class="px-4 py-2.5 text-tinta-900 whitespace-nowrap"
+                                    :class="esNumerico(c.tipo) ? 'text-right' : 'text-left'">{{ formatoValor(f[c.clave], c.tipo) }}</td>
+                            </tr>
+                        </tbody>
+                        <tfoot>
+                            <tr class="border-t-2 border-linea bg-tinta-50 font-semibold">
+                                <td v-for="c in r.columnas" :key="c.clave" class="px-4 py-2.5 whitespace-nowrap"
+                                    :class="esNumerico(c.tipo) ? 'text-right' : 'text-left'">{{ formatoValor(r.total[c.clave], c.tipo) }}</td>
+                            </tr>
+                        </tfoot>
+                    </table>
                 </div>
             </div>
 
@@ -287,12 +372,33 @@ const lineaPuntos = computed(() => {
             <!-- Tabla de resultados -->
             <div v-if="ejecutado" class="bg-superficie rounded-2xl border border-linea shadow-sm overflow-hidden">
                 <div class="px-5 py-3 border-b border-linea flex items-center justify-between">
-                    <h2 class="text-sm font-semibold text-tinta-700">Resultados</h2>
-                    <span class="text-xs text-tinta-300 font-medium">{{ datos.length }} registro(s)</span>
+                    <h2 class="text-sm font-semibold text-tinta-700">{{ informe.motor ? 'Detalle' : 'Resultados' }}</h2>
+                    <span class="text-xs text-tinta-300 font-medium">
+                        {{ formatoValor(totalFilas, 'entero') }} registro(s)<template v-if="recortado"> · se muestran {{ datos.length }}; el resto en el Excel o el CSV</template>
+                    </span>
                 </div>
 
                 <div v-if="!datos.length" class="px-5 py-12 text-center text-sm text-tinta-300">
                     No se encontraron resultados con los filtros configurados.
+                </div>
+
+                <!-- Motor nuevo: columnas con tipo -->
+                <div v-else-if="columnas.length" class="overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead>
+                            <tr class="bg-tinta-50 border-b border-linea">
+                                <th v-for="c in columnas" :key="c.clave"
+                                    class="px-4 py-3 text-xs font-semibold text-tinta-400 uppercase tracking-wide whitespace-nowrap"
+                                    :class="esNumerico(c.tipo) ? 'text-right' : 'text-left'">{{ c.etiqueta }}</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-separador">
+                            <tr v-for="(fila, i) in datos" :key="i" class="hover:bg-realce transition-colors">
+                                <td v-for="c in columnas" :key="c.clave" class="px-4 py-3 text-tinta-900 whitespace-nowrap max-w-xs truncate"
+                                    :class="esNumerico(c.tipo) ? 'text-right' : 'text-left'">{{ formatoValor(fila[c.clave], c.tipo) }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
 
                 <div v-else class="overflow-x-auto">
@@ -312,7 +418,7 @@ const lineaPuntos = computed(() => {
                             <tr
                                 v-for="(fila, i) in datos"
                                 :key="i"
-                                class="hover:bg-tinta-50 transition-colors"
+                                class="hover:bg-realce transition-colors"
                             >
                                 <td
                                     v-for="campo in informe.campos"

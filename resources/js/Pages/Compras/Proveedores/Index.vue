@@ -5,12 +5,19 @@ import AppLayout from '@/Layouts/AppLayout.vue'
 import OrdenarLista from '@/Components/OrdenarLista.vue'
 import { useOrden } from '@/composables/useOrden'
 import BuscadorModulo from '@/Components/BuscadorModulo.vue'
+import LeerRut from '@/Components/LeerRut.vue'
+import DatosFiscales from '@/Components/DatosFiscales.vue'
+import CalificacionProveedor from '@/Components/CalificacionProveedor.vue'
 
 const props = defineProps({
     proveedores: Object,
     filters:     Object,
     // El orden vigente, que decide el servidor: { campo, dir }.
     orden: { type: Object, default: () => ({}) },
+    paises: { type: Array, default: () => [] },
+    pais_casa: { type: String, default: 'CO' },
+    // Los códigos de la casilla 53 del RUT que Briela conoce.
+    catalogo_fiscal: { type: Array, default: () => [] },
 })
 
 // Ordenar mantiene los filtros: reordenar no es empezar de cero.
@@ -30,11 +37,65 @@ const modalAbierto  = ref(false)
 const editando      = ref(null)
 const guardando     = ref(false)
 
-const form = ref({
-    nombre: '', nit: '', contacto: '', telefono: '',
-    email: '', ciudad: '', direccion: '',
-    tipo: 'mixto', activo: true, notas: '',
+// Una ficha vacía, con los datos fiscales que sale del RUT. Una sola definición: crear y
+// editar partían de dos copias y una se quedaba sin los campos nuevos.
+// Los tipos de documento habituales, más el que traiga la ficha (un RIF o un RUC leídos de otro país).
+const tiposIdentificacion = computed(() => {
+    const t = ['NIT', 'CC', 'CE', 'PA', 'RUC', 'RIF']
+    const actual = form.value?.tipo_identificacion
+    return actual && ! t.includes(actual) ? [...t, actual] : t
 })
+
+const fichaVacia = () => ({
+    nombre: '', nit: '', contacto: '', telefono: '',
+    email: '', ciudad: '', pais: '', direccion: '',
+    tipo: 'mixto', activo: true, notas: '',
+    tipo_persona: '', tipo_identificacion: '', numero_identificacion: '', digito_verificacion: '',
+    actividad_economica: '', responsabilidades_fiscales: [], datos_rut: null,
+})
+
+const form = ref(fichaVacia())
+
+// Lo que dejó la lectura del RUT: avisos para revisar, y si ese proveedor ya existe.
+const avisosRut    = ref([])
+const otroProveedor = ref(null)
+
+function usarRut({ datos, avisos = [], existente = null }) {
+    const f = form.value
+    const poner = (campo, valor) => {
+        const vacio = valor === null || valor === undefined || valor === '' || (Array.isArray(valor) && !valor.length)
+        if (!vacio) f[campo] = valor
+    }
+
+    // Una persona natural viene con nombres y apellidos por separado.
+    poner('nombre', [datos.nombre, datos.apellido].filter(Boolean).join(' '))
+    poner('telefono', datos.telefono)
+    poner('email', datos.email)
+    poner('ciudad', datos.ciudad)
+    poner('direccion', datos.direccion)
+    poner('tipo_persona', datos.tipo)
+    poner('tipo_identificacion', datos.tipo_identificacion)
+    poner('numero_identificacion', datos.numero_identificacion)
+    poner('digito_verificacion', datos.digito_verificacion)
+    poner('actividad_economica', datos.actividad_economica)
+    poner('responsabilidades_fiscales', datos.responsabilidades_fiscales)
+    poner('datos_rut', datos.datos_rut)
+
+    if (datos.numero_identificacion) {
+        f.nit = datos.numero_identificacion + (datos.digito_verificacion ? `-${datos.digito_verificacion}` : '')
+    }
+
+    avisosRut.value = avisos
+    // Editando este mismo proveedor, «ya existe» es él mismo: no es un aviso.
+    otroProveedor.value = existente && existente.id !== editando.value?.id ? existente : null
+}
+
+// Ya existe: en vez de duplicarlo, se va a su ficha.
+function irAlExistente() {
+    buscar.value = otroProveedor.value.nombre
+    cerrarModal()
+    aplicarFiltros()
+}
 
 function aplicarFiltros() {
     router.get('/compras/proveedores', {
@@ -46,13 +107,19 @@ function aplicarFiltros() {
 
 function abrirCrear() {
     editando.value = null
-    form.value = { nombre: '', nit: '', contacto: '', telefono: '', email: '', ciudad: '', direccion: '', tipo: 'mixto', activo: true, notas: '' }
+    form.value = fichaVacia()
+    avisosRut.value = []
+    otroProveedor.value = null
     modalAbierto.value = true
 }
 
 function abrirEditar(p) {
     editando.value = p
-    form.value = { ...p }
+    form.value = { ...fichaVacia(), ...p }
+    // Un proveedor anterior al RUT trae nulo: el componente espera una lista.
+    form.value.responsabilidades_fiscales ??= []
+    avisosRut.value = []
+    otroProveedor.value = null
     modalAbierto.value = true
 }
 
@@ -153,6 +220,7 @@ function tipoColor(t) {
                             <p class="font-semibold text-tinta-900">{{ p.nombre }}</p>
                             <p class="text-sm text-tinta-400">{{ p.nit ?? '—' }}</p>
                             <p class="text-sm text-tinta-400">{{ p.telefono ?? '—' }} · {{ p.email ?? '—' }}</p>
+                            <CalificacionProveedor :calificacion="p.calificacion" class="mt-2" />
                         </div>
                         <div class="flex flex-col items-end gap-1">
                             <span :class="['text-xs px-2 py-0.5 rounded-full font-medium', tipoColor(p.tipo)]">{{ tipoLabel(p.tipo) }}</span>
@@ -177,6 +245,7 @@ function tipoColor(t) {
                             <th class="text-left px-4 py-3 font-semibold text-tinta-500">Nombre</th>
                             <th class="text-left px-4 py-3 font-semibold text-tinta-500">NIT</th>
                             <th class="text-left px-4 py-3 font-semibold text-tinta-500">Tipo</th>
+                            <th class="text-left px-4 py-3 font-semibold text-tinta-500">Calificación</th>
                             <th class="text-left px-4 py-3 font-semibold text-tinta-500">Teléfono</th>
                             <th class="text-left px-4 py-3 font-semibold text-tinta-500">Email</th>
                             <th class="text-left px-4 py-3 font-semibold text-tinta-500">Estado</th>
@@ -190,6 +259,7 @@ function tipoColor(t) {
                             <td class="px-4 py-3">
                                 <span :class="['text-xs px-2 py-0.5 rounded-full font-medium', tipoColor(p.tipo)]">{{ tipoLabel(p.tipo) }}</span>
                             </td>
+                            <td class="px-4 py-3"><CalificacionProveedor :calificacion="p.calificacion" /></td>
                             <td class="px-4 py-3 text-tinta-400">{{ p.telefono ?? '—' }}</td>
                             <td class="px-4 py-3 text-tinta-400">{{ p.email ?? '—' }}</td>
                             <td class="px-4 py-3">
@@ -204,7 +274,7 @@ function tipoColor(t) {
                             </td>
                         </tr>
                         <tr v-if="!proveedores.data?.length">
-                            <td colspan="7" class="px-4 py-8 text-center text-tinta-300">No hay proveedores</td>
+                            <td colspan="8" class="px-4 py-8 text-center text-tinta-300">No hay proveedores</td>
                         </tr>
                     </tbody>
                 </table>
@@ -231,6 +301,24 @@ function tipoColor(t) {
                     <h2 class="text-lg font-semibold text-tinta-900 mb-4">
                         {{ editando ? 'Editar proveedor' : 'Nuevo proveedor' }}
                     </h2>
+                    <!-- Cargar desde el RUT: llena los datos y las responsabilidades. Se revisan antes de guardar. -->
+                    <div class="mb-4 rounded-xl border border-linea p-3" style="background:var(--superficie-2);">
+                        <div class="flex items-start justify-between gap-3">
+                            <p class="text-xs text-tinta-500">
+                                Sube el RUT (PDF o foto) y se llenan los datos fiscales. Revísalos antes de guardar.
+                            </p>
+                            <LeerRut url="/compras/proveedores/leer-rut" :pais="form.pais || pais_casa" @leido="usarRut" class="shrink-0" />
+                        </div>
+                        <div v-if="otroProveedor" class="mt-3 rounded-lg border border-borde-aviso-ambar bg-pastel-ambar p-3 text-xs text-aviso-ambar">
+                            Ya existe un proveedor con ese número: <b>{{ otroProveedor.nombre }}</b>.
+                            Mejor edítalo en vez de crear otro.
+                            <button type="button" class="underline font-medium ml-1" @click="irAlExistente">Buscarlo</button>
+                        </div>
+                        <ul v-if="avisosRut.length" class="mt-3 space-y-1 text-xs text-aviso-ambar list-disc list-inside">
+                            <li v-for="(a, i) in avisosRut" :key="i">{{ a }}</li>
+                        </ul>
+                    </div>
+
                     <div class="space-y-3">
                         <div>
                             <label class="block text-sm font-medium text-tinta-700 mb-1">Nombre *</label>
@@ -264,6 +352,14 @@ function tipoColor(t) {
                                 <input v-model="form.email" type="email" class="w-full rounded-lg border border-tinta-200 px-3 py-2 text-sm focus:ring-4 focus:ring-[var(--marca-suave)] focus:outline-none" />
                             </div>
                         </div>
+                        <div>
+                            <label class="block text-sm font-medium text-tinta-700 mb-1">País</label>
+                            <select v-model="form.pais" class="w-full rounded-lg border border-tinta-200 px-3 py-2 text-sm bg-superficie focus:ring-4 focus:ring-[var(--marca-suave)] focus:outline-none">
+                                <option value="">El de la casa ({{ paises.find(p => p.iso === pais_casa)?.nombre }})</option>
+                                <option v-for="p in paises" :key="p.iso" :value="p.iso">{{ p.nombre }}</option>
+                            </select>
+                            <p class="text-xs text-tinta-400 mt-1">Si es de otro país, comprarle es importar: se liquida en Compras → Importaciones.</p>
+                        </div>
                         <div class="grid grid-cols-2 gap-3">
                             <div>
                                 <label class="block text-sm font-medium text-tinta-700 mb-1">Ciudad</label>
@@ -273,6 +369,36 @@ function tipoColor(t) {
                                 <label class="block text-sm font-medium text-tinta-700 mb-1">Dirección</label>
                                 <input v-model="form.direccion" type="text" class="w-full rounded-lg border border-tinta-200 px-3 py-2 text-sm focus:ring-4 focus:ring-[var(--marca-suave)] focus:outline-none" />
                             </div>
+                        </div>
+                        <!-- La nota la calcula el sistema con las órdenes del último año: nadie la escribe. -->
+                        <div v-if="editando?.calificacion" class="rounded-xl border border-linea p-3">
+                            <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em] mb-2">Calificación</p>
+                            <CalificacionProveedor :calificacion="editando.calificacion" detalle />
+                        </div>
+
+                        <div class="rounded-xl border border-linea p-3 space-y-3">
+                            <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">Datos fiscales</p>
+                            <div class="grid grid-cols-3 gap-3">
+                                <div>
+                                    <label class="block text-xs font-medium text-tinta-700 mb-1">Tipo ID</label>
+                                    <select v-model="form.tipo_identificacion" class="w-full rounded-lg border border-tinta-200 px-2 py-2 text-sm focus:outline-none">
+                                        <option value="">—</option>
+                                        <option v-for="t in tiposIdentificacion" :key="t" :value="t">{{ t }}</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-medium text-tinta-700 mb-1">Número</label>
+                                    <input v-model="form.numero_identificacion" type="text" inputmode="numeric" maxlength="30"
+                                        class="w-full rounded-lg border border-tinta-200 px-3 py-2 text-sm focus:outline-none" />
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-medium text-tinta-700 mb-1">DV</label>
+                                    <input v-model="form.digito_verificacion" type="text" inputmode="numeric" maxlength="1"
+                                        class="w-full rounded-lg border border-tinta-200 px-3 py-2 text-sm focus:outline-none" />
+                                </div>
+                            </div>
+                            <!-- Las responsabilidades deciden si factura IVA y qué retenciones se le practican. -->
+                            <DatosFiscales :modelo="form" :catalogo="catalogo_fiscal" :con-ica="false" />
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-tinta-700 mb-1">Notas</label>

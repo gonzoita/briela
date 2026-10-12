@@ -286,6 +286,49 @@ class ConsultaNitService
     }
 
     /**
+     * La consulta para un cliente de otro país: no hay dígito de verificación ni RUES que
+     * valgan —son colombianos—, pero sí se avisa del formato y de los duplicados.
+     *
+     * @return array<string, mixed>  La misma forma que `consultar()`, para que la pantalla no distinga.
+     */
+    public function consultarOtroPais(string $numero, string $pais, string $tipo, ?int $ignorarId = null): array
+    {
+        $numero    = trim($numero);
+        $comparable = strtoupper(preg_replace('/[^A-Za-z0-9]/', '', $numero) ?? '');
+
+        $duplicado = null;
+
+        if ($comparable !== '') {
+            $cliente = Cliente::query()
+                ->with('sede:id,nombre')
+                ->when($ignorarId, fn ($q) => $q->where('id', '!=', $ignorarId))
+                ->whereRaw(
+                    "UPPER(REPLACE(REPLACE(REPLACE(REPLACE(numero_identificacion, '.', ''), '-', ''), ' ', ''), '/', '')) = ?",
+                    [$comparable]
+                )
+                ->first();
+
+            $duplicado = $cliente ? [
+                'id'     => $cliente->id,
+                'nombre' => trim($cliente->nombre . ' ' . ($cliente->apellido ?? '')),
+                'numero' => $cliente->numero_identificacion,
+                'sede'   => $cliente->sede?->nombre,
+                'activo' => (bool) $cliente->activo,
+                'url'    => "/clientes/{$cliente->id}",
+            ] : null;
+        }
+
+        return [
+            'base'       => $numero,
+            'dv'         => null,
+            'dv_aviso'   => \App\Support\Paises::avisoIdentificacion($pais, $tipo, $numero),
+            'duplicado'  => $duplicado,
+            'rues'       => null,
+            'rues_aviso' => null,
+        ];
+    }
+
+    /**
      * Punto de entrada único: junta las tres capas en una sola respuesta.
      */
     public function consultar(string $numero, string $tipoIdentificacion, ?int $ignorarId = null): array

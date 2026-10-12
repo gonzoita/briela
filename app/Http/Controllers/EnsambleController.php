@@ -423,136 +423,35 @@ class EnsambleController extends Controller
     }
 
     /**
-     * Guarda la lista de revisión de calidad.
-     *
-     * Borra y reescribe, como los pasos. Lo ya revisado no se toca: cada unidad guarda su copia
-     * del punto —título, descripción y si exigía foto— justo para que cambiar la plantilla no
-     * reescriba un historial de calidad.
+     * Guarda la lista de revisión de calidad: la del ensamble si es directo, la de la plantilla
+     * si no. La regla de guardado vive en `ProcesoPlanta`, compartida con los productos.
      */
     private function guardarChecksCalidad(Ensamble $ensamble, array $checks): void
     {
         $dueno = $ensamble->esDirecto() ? $ensamble : $ensamble->plantilla;
 
-        if (! $dueno) {
-            return;
-        }
-
-        $checks = array_values(array_filter($checks, fn ($c) => trim((string) ($c['titulo'] ?? '')) !== ''));
-
-        $dueno->checksCalidad()->delete();
-
-        foreach ($checks as $i => $check) {
-            $dueno->checksCalidad()->create([
-                'titulo'      => $check['titulo'],
-                'descripcion' => $check['descripcion'] ?? null,
-                'orden'       => $i,
-                'exige_foto'  => filter_var($check['exige_foto'] ?? false, FILTER_VALIDATE_BOOLEAN),
-                'es_critico'  => filter_var($check['es_critico'] ?? true, FILTER_VALIDATE_BOOLEAN),
-                'activo'      => true,
-            ]);
+        if ($dueno) {
+            \App\Support\ProcesoPlanta::guardarChecks($dueno, $checks);
         }
     }
 
     /**
-     * Guarda el flujo de produccion del ensamble.
+     * Guarda el flujo de producción del ensamble.
      *
-     * Antes un ensamble se podia guardar sin ninguno. El servidor le inventaba un paso unico
+     * Antes un ensamble se podía guardar sin ninguno. El servidor le inventaba un paso único
      * la primera vez que una OP lo necesitaba —y solo si era directo—: los de plantilla
-     * llegaban a produccion con el trabajo vacio, sin nada que el operario pudiera marcar y
-     * con la OP quieta en «confirmada» sin explicacion. Ahora la ficha los exige.
-     *
-     * Solo escribe si algo cambio. `sincronizarPasos()` borra y recrea las filas, y cada
-     * recreacion deja en null el `template_paso_id` de los trabajos que esten en curso: no
-     * pierden sus pasos —cada uno guarda su copia— pero si el hilo con la plantilla.
+     * llegaban a producción con el trabajo vacío, sin nada que el operario pudiera marcar y
+     * con la OP quieta en «confirmada» sin explicación. Ahora la ficha los exige.
      */
     private function guardarPasosTrabajo(Ensamble $ensamble, array $pasos): void
     {
-        $pasos = array_values(array_filter($pasos, fn ($p) => trim((string) ($p['nombre'] ?? '')) !== ''));
-
-        if ($pasos === []) {
-            return;
-        }
-
         $template = $ensamble->esDirecto()
             ? $ensamble->obtenerOCrearTemplateTrabajo()
             : $ensamble->plantilla?->obtenerOCrearTemplateTrabajo();
 
-        if (! $template) {
-            return;
+        if ($template) {
+            \App\Support\ProcesoPlanta::guardarPasos($template, $pasos);
         }
-
-        $pasos = $this->normalizarPasos($pasos);
-
-        if ($this->mismosPasos($template, $pasos)) {
-            return;
-        }
-
-        $template->sincronizarPasos($pasos);
-    }
-
-    /**
-     * Ordena la lista y deja un unico paso final.
-     *
-     * El paso final es el que entrega la unidad a bodega: `EntregaAlmacenService` descuenta
-     * los materiales y registra el producto terminado al cerrarlo. Con dos marcados la
-     * entrega se haria dos veces, y con ninguno no se haria nunca.
-     *
-     * @param  array<int, array<string, mixed>>  $pasos
-     * @return array<int, array<string, mixed>>
-     */
-    private function normalizarPasos(array $pasos): array
-    {
-        $final = null;
-
-        foreach ($pasos as $i => $paso) {
-            if (filter_var($paso['es_paso_final'] ?? false, FILTER_VALIDATE_BOOLEAN)) {
-                $final = $i;
-            }
-        }
-
-        $final ??= count($pasos) - 1;
-
-        foreach ($pasos as $i => $paso) {
-            $pasos[$i]['orden']           = $i;
-            $pasos[$i]['peso_porcentaje'] = (float) ($paso['peso_porcentaje'] ?? 0);
-            $pasos[$i]['es_paso_final']   = $i === $final;
-        }
-
-        return $pasos;
-    }
-
-    /**
-     * Si la lista que llega dice lo mismo que la guardada.
-     *
-     * @param  array<int, array<string, mixed>>  $pasos
-     */
-    private function mismosPasos(\App\Models\TemplateTrabajo $template, array $pasos): bool
-    {
-        $guardados = $template->pasos()->orderBy('orden')->get();
-
-        if ($guardados->count() !== count($pasos)) {
-            return false;
-        }
-
-        foreach ($guardados as $i => $g) {
-            $p = $pasos[$i];
-
-            $igual = $g->nombre === ($p['nombre'] ?? null)
-                && (string) $g->descripcion === (string) ($p['descripcion'] ?? '')
-                && (string) $g->objetivo === (string) ($p['objetivo'] ?? '')
-                && abs((float) $g->peso_porcentaje - (float) ($p['peso_porcentaje'] ?? 0)) < 0.01
-                && (bool) $g->es_paso_final === (bool) ($p['es_paso_final'] ?? false)
-                && (int) $g->nivel_dificultad === (int) ($p['nivel_dificultad'] ?? 1)
-                && $g->bodega_destino_id == ($p['bodega_destino_id'] ?? null)
-                && (string) $g->imagen === (string) ($p['imagen'] ?? '')
-                && (string) $g->archivo_plano === (string) ($p['archivo_plano'] ?? '');
-
-            if (! $igual) {
-                return false;
-            }
-        }
-
-        return true;
     }
 
     /**

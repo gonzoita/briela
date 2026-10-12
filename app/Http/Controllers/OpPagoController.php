@@ -22,28 +22,7 @@ class OpPagoController extends Controller
             'notas'      => 'nullable|string',
         ]);
 
-        $pago = null;
-
-        DB::transaction(function () use ($data, $op, &$pago) {
-            $pago = OpPago::create([
-                ...$data,
-                'op_id'          => $op->id,
-                'numero_recibo'  => 'REC-TMP',
-                'registrado_por' => auth()->id(),
-            ]);
-
-            $pago->numero_recibo = 'REC-' . str_pad($pago->id, 4, '0', STR_PAD_LEFT);
-            $pago->save();
-
-            if (!empty($data['cuota_id'])) {
-                $cuota = OpCuota::find($data['cuota_id']);
-                $cuota->valor_pagado += $data['valor'];
-                $cuota->estado = $cuota->valor_pagado >= $cuota->valor ? 'pagado' : 'parcial';
-                $cuota->save();
-            }
-        });
-
-        $op->sincronizarSaldoPendiente();
+        $pago = OpPago::registrar($op, $data);
 
         return response()->json([
             'pago'          => $pago->load('cuota', 'registradoPor'),
@@ -68,6 +47,31 @@ class OpPagoController extends Controller
         return $pdf->download("REC-{$pago->numero_recibo}.pdf");
     }
 
+    /**
+     * Verificar a mano un pago que no pasa por el banco: efectivo, cheque, un abono que alguien
+     * vio entrar. Es lo que, con el saldo en cero, cierra las remisiones entregadas de la orden.
+     */
+    public function verificar(OpPago $pago)
+    {
+        if (! $pago->verificado_at) {
+            $pago->update(['verificado_at' => now(), 'verificado_por' => auth()->id()]);
+        }
+
+        return response()->json(['ok' => true]);
+    }
+
+    /** Deshacer una verificación manual. La del banco se deshace en el verificador de pagos. */
+    public function desverificar(OpPago $pago)
+    {
+        if ($pago->verificado_at && ! $pago->verificado_por) {
+            return response()->json(['message' => 'Este pago lo confirmó el banco: se deshace desde el verificador de pagos.'], 422);
+        }
+
+        $pago->update(['verificado_at' => null, 'verificado_por' => null]);
+
+        return response()->json(['ok' => true]);
+    }
+
     public function destroy(OpPago $pago)
     {
         DB::transaction(function () use ($pago) {
@@ -77,6 +81,9 @@ class OpPagoController extends Controller
                 $cuota->estado = $cuota->valor_pagado <= 0 ? 'pendiente' : 'parcial';
                 $cuota->save();
             }
+            // Si el banco había confirmado este pago, el abono vuelve a la bandeja del verificador:
+            // el dinero sigue en la cuenta aunque el pago ya no esté anotado.
+            app(\App\Services\VerificadorPagosService::class)->pagoBorrado($pago->id);
             $pago->delete();
         });
 

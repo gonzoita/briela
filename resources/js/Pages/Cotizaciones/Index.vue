@@ -293,7 +293,7 @@ const chartPoints = computed(() => {
                                 <td class="px-4 py-3 text-right font-semibold text-tinta-900">${{ formatCOP(cot.total) }}</td>
                                 <td class="px-3 py-3 text-center">
                                     <span class="text-xs px-2 py-0.5 rounded-full font-medium"
-                                        :style="`background:${cot.estado_badge?.bg};color:${cot.estado_badge?.text};`">
+                                        :style="`background:${cot.estado_badge?.bg_tema ?? cot.estado_badge?.bg};color:${cot.estado_badge?.text_tema ?? cot.estado_badge?.text};`">
                                         {{ cot.estado_badge?.label }}
                                     </span>
                                     <span v-if="cot.dias_sin_respuesta >= 5"
@@ -347,7 +347,7 @@ const chartPoints = computed(() => {
                         <div class="flex items-center justify-between mb-2">
                             <a :href="`/cotizaciones/${cot.id}`" class="font-semibold text-sm" style="color:var(--marca);">{{ cot.numero }}</a>
                             <span class="text-xs px-2 py-0.5 rounded-full font-medium"
-                                :style="`background:${cot.estado_badge?.bg};color:${cot.estado_badge?.text};`">
+                                :style="`background:${cot.estado_badge?.bg_tema ?? cot.estado_badge?.bg};color:${cot.estado_badge?.text_tema ?? cot.estado_badge?.text};`">
                                 {{ cot.estado_badge?.label }}
                             </span>
                         </div>

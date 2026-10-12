@@ -6,6 +6,10 @@ use App\Models\Bodega;
 use App\Models\CategoriaProducto;
 use App\Models\ImagenProducto;
 use App\Models\Producto;
+use App\Models\RemisionItem;
+use App\Models\ProductoMovimiento;
+use App\Models\OrdenCompra;
+use App\Models\Op;
 use App\Models\Proveedor;
 use App\Services\ArchivoServidorService;
 use App\Services\PreciosPorCanalService;
@@ -134,7 +138,7 @@ class ProductoController extends Controller
             'descripcion_corta', 'descripcion_larga', 'descripcion_cotizacion',
             'inventariable', 'es_vendible', 'es_insumo',
             'stock_minimo', 'stock_maximo',
-            'precio_costo', 'moneda_costo', 'costo_moneda',
+            'precio_costo', 'moneda_costo', 'costo_moneda', 'codigo_hs', 'arancel_pct',
             'margen_mayorista', 'margen_distribuidor', 'margen_cliente_final',
             'precio_mayorista', 'precio_distribuidor', 'precio_cliente_final',
             'comision_pct_minima', 'comision_pct_maxima',
@@ -205,6 +209,8 @@ class ProductoController extends Controller
             'precio_costo'                => $request->precio_costo ?? 0,
             'moneda_costo'                => $request->moneda_costo,
             'costo_moneda'                => $request->costo_moneda,
+            'codigo_hs'                   => $request->filled('codigo_hs') ? strtoupper(preg_replace('/[^0-9A-Za-z.]/', '', (string) $request->codigo_hs)) : null,
+            'arancel_pct'                 => $request->filled('arancel_pct') ? $request->arancel_pct : null,
             'margen_mayorista'            => $request->margen_mayorista ?? 25,
             'margen_distribuidor'         => $request->margen_distribuidor ?? 30,
             'margen_cliente_final'        => $request->margen_cliente_final ?? 35,
@@ -223,7 +229,11 @@ class ProductoController extends Controller
             'descuento_max_mayorista'     => $request->descuento_max_mayorista ?? 8,
         ];
 
-        $producto = DB::transaction(function () use ($request, $datosBase, $esPadre) {
+        $imagenesDeVariantes = [];
+
+        $producto = DB::transaction(function () use ($request, $datosBase, $esPadre, &$imagenesDeVariantes) {
+            Producto::liberarReferencia($request->referencia);
+
             $producto = Producto::create(array_merge($datosBase, [
                 'es_padre'          => $esPadre,
                 'atributo_variante' => $esPadre ? $request->atributo_variante : null,
@@ -234,9 +244,7 @@ class ProductoController extends Controller
             $this->guardarProveedores($request, $producto);
 
             if ($esPadre) {
-                foreach ($request->input('variantes', []) as $variante) {
-                    $this->crearVariante($producto, $datosBase, $variante);
-                }
+                $imagenesDeVariantes = $this->crearVariantes($request, $producto, $datosBase);
             } else {
                 // Stock inicial por bodega
                 $stockInicial = $request->input('stock_inicial', []);
@@ -259,6 +267,7 @@ class ProductoController extends Controller
         });
 
         $this->procesarImagenes($request, $producto);
+        $this->subirImagenesDeVariantes($imagenesDeVariantes);
 
         if ($request->boolean('crear_otro')) {
             return redirect('/productos/crear')->with('success', 'Producto creado. Agrega otro.');
@@ -276,17 +285,12 @@ class ProductoController extends Controller
             'imagenes',
             'proveedor:id,nombre',
             'proveedores.proveedor:id,nombre',
-            'padre:id,nombre',
+            'padre.imagenes',
             'stocks.bodega',
             'variantes.stocks',
-            'movimientos' => fn ($q) => $q->latest()->limit(20)->with([
-                'bodega:id,nombre',
-                'bodegaDestino:id,nombre',
-                'usuario:id,name',
-            ]),
         ])->findOrFail($id);
 
-        $imagenes = $producto->imagenes->map(fn ($img) => array_merge($img->toArray(), [
+        $imagenes = $producto->imagenesVisibles()->map(fn ($img) => array_merge($img->toArray(), [
             'url' => $img->url,
         ]));
 
@@ -305,7 +309,27 @@ class ProductoController extends Controller
             'stock_total'     => (float) $v->stocks->sum('cantidad'),
         ]);
 
+        // Lo que costó traerlo cada vez que se importó. Es información de costos: solo a quien
+        // puede verlos.
+        $importaciones = auth()->user()->tienePermiso('costos.ver')
+            ? \App\Models\ImportacionItem::with('importacion:id,numero,fecha,moneda,estado')
+                ->where('producto_id', $producto->id)->whereNotNull('costo_unitario')
+                ->whereHas('importacion', fn ($q) => $q->where('estado', 'liquidada'))
+                ->latest('id')->limit(5)->get()
+                ->map(fn ($i) => [
+                    'id' => $i->importacion_id, 'numero' => $i->importacion->numero, 'fecha' => $i->importacion->fecha?->toDateString(),
+                    'cantidad' => (float) $i->cantidad, 'fob' => (float) $i->fob, 'costo_total' => (float) $i->costo_total,
+                    'costo_unitario' => (float) $i->costo_unitario,
+                    // Cuánto más caro que la factura salió traerlo.
+                    'recargo_pct' => (float) $i->fob > 0 ? round(((float) $i->costo_total / (float) $i->fob - 1) * 100, 1) : null,
+                ])->values()
+            : [];
+
+        // Un padre no tiene stock propio: sus movimientos son los de cada variante.
+        $movimientos = $producto->es_padre ? ['data' => [], 'hay_mas' => false] : $this->movimientosDe($producto);
+
         return Inertia::render('Productos/Show', [
+            'importaciones' => $importaciones,
             'producto'   => array_merge($producto->toArray(), [
                 'stock_total'          => $producto->stockTotal(),
                 'tipo_label'           => $producto->tipoLabel(),
@@ -315,7 +339,9 @@ class ProductoController extends Controller
                 'imagenes'             => $imagenes,
                 'stocks'               => $stocks,
                 'variantes'            => $variantes,
-                'movimientos_recientes' => $producto->es_padre ? [] : $producto->movimientos,
+                'movimientos_recientes' => $movimientos['data'],
+                'movimientos_hay_mas'   => $movimientos['hay_mas'],
+                'remisiones'            => $producto->es_padre ? [] : $this->remisionesDe($producto),
                 // La comparación de proveedores, ya resuelta: la ficha muestra quién lo
                 // vende más barato y cuánto se ahorra. Antes solo salía el último al que se
                 // le compró, y comparar era abrir un cuaderno.
@@ -422,13 +448,16 @@ class ProductoController extends Controller
                 'atributo_variante'            => 'nullable|string|max:60',
                 'variantes'                    => 'nullable|array',
                 'variantes.*.valor_variante'   => 'required_with:variantes|string|max:60',
-                'variantes.*.referencia'       => 'nullable|string|max:60|distinct|unique:productos,referencia',
-                'variantes.*.stock_inicial'    => 'nullable|array',
+                'variantes.*.referencia'       => ['nullable', 'string', 'max:60', 'distinct', $this->referenciaLibre()],
+                'variantes.*.imagen'           => 'nullable|image|max:5120',
+            'variantes.*.stock_inicial'    => 'nullable|array',
                 'variantes.*.stock_inicial.*'  => 'nullable|numeric|min:0',
             ]);
 
             try {
-                DB::transaction(function () use ($request, $producto) {
+                $imagenesDeVariantes = [];
+
+                DB::transaction(function () use ($request, $producto, &$imagenesDeVariantes) {
                     $producto->update([
                         'nombre'            => $request->nombre,
                         'categoria_id'       => $request->categoria_id ?: null,
@@ -450,10 +479,10 @@ class ProductoController extends Controller
                     ])->toArray();
                     $datosBase['inventariable'] = true;
 
-                    foreach ($request->input('variantes', []) as $variante) {
-                        $this->crearVariante($producto, $datosBase, $variante);
-                    }
+                    $imagenesDeVariantes = $this->crearVariantes($request, $producto, $datosBase);
                 });
+
+                $this->subirImagenesDeVariantes($imagenesDeVariantes);
             } catch (\Exception $e) {
                 return back()->withErrors(['error' => $e->getMessage()]);
             }
@@ -465,6 +494,8 @@ class ProductoController extends Controller
         $this->aplicarMonedaCosto($request);
 
         try {
+            Producto::liberarReferencia($request->referencia, $producto->id);
+
             $producto->update([
                 'categoria_id'         => $request->categoria_id ?: null,
                 'proveedor_id'         => $request->proveedor_id ?: null,
@@ -482,6 +513,8 @@ class ProductoController extends Controller
                 'precio_costo'                => $request->precio_costo ?? 0,
                 'moneda_costo'                => $request->moneda_costo,
                 'costo_moneda'                => $request->costo_moneda,
+            'codigo_hs'                   => $request->filled('codigo_hs') ? strtoupper(preg_replace('/[^0-9A-Za-z.]/', '', (string) $request->codigo_hs)) : null,
+            'arancel_pct'                 => $request->filled('arancel_pct') ? $request->arancel_pct : null,
                 'margen_mayorista'            => $request->margen_mayorista ?? 25,
                 'margen_distribuidor'         => $request->margen_distribuidor ?? 30,
                 'margen_cliente_final'        => $request->margen_cliente_final ?? 35,
@@ -503,6 +536,8 @@ class ProductoController extends Controller
             $this->guardarCanales($request, $producto);
             $this->guardarProveedores($request, $producto);
             $this->procesarImagenes($request, $producto);
+        } catch (ValidationException $e) {
+            throw $e;
         } catch (\Exception $e) {
             return back()->withErrors(['error' => $e->getMessage()]);
         }
@@ -546,9 +581,13 @@ class ProductoController extends Controller
                 [
                     'referencia_proveedor' => $fila['referencia_proveedor'] ?? null,
                     'precio'               => (float) ($fila['precio'] ?? 0),
-                    'dias_entrega'         => $fila['dias_entrega'] !== null && $fila['dias_entrega'] !== ''
+                    // Con `??`, no con un `!== null` a secas: la fila no siempre trae las
+                    // seis claves. La importación y la API mandan solo lo que tienen, y
+                    // leer una clave ausente es un warning que Laravel convierte en
+                    // excepción — un 500 al guardar un producto con proveedor.
+                    'dias_entrega'         => ($fila['dias_entrega'] ?? null) !== null && $fila['dias_entrega'] !== ''
                         ? (int) $fila['dias_entrega'] : null,
-                    'minimo_compra'        => $fila['minimo_compra'] !== null && $fila['minimo_compra'] !== ''
+                    'minimo_compra'        => ($fila['minimo_compra'] ?? null) !== null && $fila['minimo_compra'] !== ''
                         ? (float) $fila['minimo_compra'] : null,
                     'es_preferido'         => (bool) ($fila['es_preferido'] ?? false),
                     'actualizado_el'       => $fila['actualizado_el'] ?? null,
@@ -659,6 +698,130 @@ class ProductoController extends Controller
         $producto->delete();
     }
 
+    /** Cuántos movimientos se traen por vez. */
+    private const MOVIMIENTOS_POR_PAGINA = 30;
+
+    /**
+     * Más movimientos de un producto, hacia atrás: la ficha trae los primeros y pide el resto
+     * por tandas. Un cursor (`antes` = el id del último que se ve) y no un número de página:
+     * si entra un movimiento mientras alguien lee, la página 2 repetiría el último de la 1.
+     */
+    public function movimientos(Request $request, int $id): JsonResponse
+    {
+        $request->validate([
+            'antes' => 'nullable|integer|min:1',
+            'tipo'  => 'nullable|in:entrada,salida,ajuste,transferencia,devolucion,consumo_ensamble,venta',
+        ]);
+
+        $producto = Producto::findOrFail($id);
+
+        return response()->json($this->movimientosDe(
+            $producto,
+            $request->filled('antes') ? $request->integer('antes') : null,
+            $request->input('tipo'),
+        ));
+    }
+
+    /**
+     * Los movimientos de un producto, con su origen y su papel ya resueltos.
+     *
+     * @return array{data: list<array<string, mixed>>, hay_mas: bool}
+     */
+    private function movimientosDe(Producto $producto, ?int $antes = null, ?string $tipo = null): array
+    {
+        $filas = $producto->movimientos()
+            ->with(['bodega:id,nombre', 'bodegaDestino:id,nombre', 'usuario:id,name'])
+            ->when($antes, fn ($q) => $q->where('id', '<', $antes))
+            ->when($tipo, fn ($q) => $q->where('tipo', $tipo))
+            ->orderByDesc('id')
+            ->limit(self::MOVIMIENTOS_POR_PAGINA + 1)
+            ->get();
+
+        $hayMas = $filas->count() > self::MOVIMIENTOS_POR_PAGINA;
+        $filas  = $filas->take(self::MOVIMIENTOS_POR_PAGINA);
+
+        // Los orígenes en bloque: una consulta por tipo, no una por movimiento.
+        $ordenes = OrdenCompra::with('proveedor:id,nombre')
+            ->whereIn('id', $filas->where('origen_tipo', 'orden_compra')->pluck('origen_id')->filter())
+            ->get(['id', 'numero', 'proveedor_id'])->keyBy('id');
+
+        $ops = Op::withTrashed()
+            ->whereIn('id', $filas->where('origen_tipo', 'op')->pluck('origen_id')->filter())
+            ->get(['id', 'numero'])->keyBy('id');
+
+        return [
+            'data'    => $filas->map(fn (ProductoMovimiento $m) => $this->filaMovimiento($m, $ordenes, $ops))->values()->all(),
+            'hay_mas' => $hayMas,
+        ];
+    }
+
+    /** @return array<string, mixed> */
+    private function filaMovimiento(ProductoMovimiento $m, $ordenes, $ops): array
+    {
+        $origen = match ($m->origen_tipo) {
+            null                => null,
+            'orden_compra'      => ($oc = $ordenes->get($m->origen_id))
+                ? ['etiqueta' => "Orden {$oc->numero}".($oc->proveedor ? " · {$oc->proveedor->nombre}" : ''), 'url' => "/compras/ordenes/{$oc->id}"]
+                : ['etiqueta' => 'Orden de compra', 'url' => null],
+            'op'                => ($op = $ops->get($m->origen_id))
+                ? ['etiqueta' => "Orden de producción {$op->numero}", 'url' => "/produccion/ops/{$op->id}"]
+                : ['etiqueta' => 'Orden de producción', 'url' => null],
+            'remision'          => ['etiqueta' => 'Remisión', 'url' => $m->origen_id ? "/logistica/remisiones/{$m->origen_id}" : null],
+            'ajuste_manual'     => ['etiqueta' => 'Ajuste manual', 'url' => null],
+            'creacion_producto' => ['etiqueta' => 'Stock inicial', 'url' => null],
+            'importacion_csv'   => ['etiqueta' => 'Importación', 'url' => null],
+            'corte'             => ['etiqueta' => 'Corte de material', 'url' => null],
+            default             => ['etiqueta' => ucfirst(str_replace('_', ' ', $m->origen_tipo)), 'url' => null],
+        };
+
+        return [
+            'id'              => $m->id,
+            'created_at'      => $m->created_at?->toIso8601String(),
+            'tipo'            => $m->tipo,
+            'cantidad'        => (float) $m->cantidad,
+            'stock_anterior'  => (float) $m->stock_anterior,
+            'stock_nuevo'     => (float) $m->stock_nuevo,
+            'precio_unitario' => $m->precio_unitario !== null ? (float) $m->precio_unitario : null,
+            'bodega'          => $m->bodega ? ['nombre' => $m->bodega->nombre] : null,
+            'bodega_destino'  => $m->bodegaDestino ? ['nombre' => $m->bodegaDestino->nombre] : null,
+            'usuario'         => $m->usuario ? ['name' => $m->usuario->name] : null,
+            'notas'           => $m->notas,
+            'origen'          => $origen,
+            // El papel que lo respalda: factura, remisión u otro, con su número y su fecha.
+            'documento'       => filled($m->documento_numero) ? [
+                'etiqueta' => ['factura' => 'Factura', 'remision' => 'Remisión'][$m->documento_tipo] ?? 'Documento',
+                'numero'   => $m->documento_numero,
+                'fecha'    => $m->documento_fecha?->toDateString(),
+            ] : null,
+        ];
+    }
+
+    /**
+     * Las remisiones en las que salió este producto: las últimas diez.
+     *
+     * @return list<array<string, mixed>>
+     */
+    private function remisionesDe(Producto $producto): array
+    {
+        return RemisionItem::where('producto_id', $producto->id)
+            ->with(['remision:id,numero,estado,fecha_remision,cliente_id', 'remision.cliente:id,nombre'])
+            ->latest('id')
+            ->limit(10)
+            ->get()
+            ->filter(fn (RemisionItem $i) => $i->remision)
+            ->map(fn (RemisionItem $i) => [
+                'id'       => $i->remision->id,
+                'numero'   => $i->remision->numero,
+                'estado'   => $i->remision->estado,
+                'fecha'    => $i->remision->fecha_remision ? \Illuminate\Support\Carbon::parse($i->remision->fecha_remision)->toDateString() : null,
+                'cliente'  => $i->remision->cliente?->nombre,
+                'cantidad' => (float) $i->cantidad,
+                'unidad'   => $i->unidad,
+            ])
+            ->values()
+            ->all();
+    }
+
     public function ajusteStock(Request $request, int $id): RedirectResponse
     {
         $producto = Producto::findOrFail($id);
@@ -674,6 +837,11 @@ class ProductoController extends Controller
             'bodega_destino_id'=> 'required_if:tipo,transferencia|nullable|exists:bodegas,id|different:bodega_id',
             'precio_unitario'  => 'nullable|numeric|min:0',
             'notas'            => 'nullable|string|max:500',
+            // El papel que respalda el ajuste, si lo hay: una entrada sin factura ni remisión
+            // es un número que nadie puede comprobar.
+            'documento_tipo'   => 'nullable|in:factura,remision,otro',
+            'documento_numero' => 'nullable|string|max:60|required_with:documento_tipo',
+            'documento_fecha'  => 'nullable|date',
         ]);
 
         $producto->registrarMovimiento(
@@ -684,7 +852,10 @@ class ProductoController extends Controller
             bodegaDestinoId: isset($data['bodega_destino_id']) ? (int) $data['bodega_destino_id'] : null,
             precioUnitario: isset($data['precio_unitario']) ? (float) $data['precio_unitario'] : null,
             origenTipo: 'ajuste_manual',
-            notas: $data['notas'] ?? null
+            notas: $data['notas'] ?? null,
+            documentoTipo: $data['documento_tipo'] ?? null,
+            documentoNumero: $data['documento_numero'] ?? null,
+            documentoFecha: $data['documento_fecha'] ?? null,
         );
 
         return back()->with('success', 'Ajuste de stock registrado.');
@@ -733,7 +904,7 @@ class ProductoController extends Controller
         // sede no es el de esta, y quien cotiza necesita saber con qué cuenta él.
         $bodegas = \App\Support\ContextoSede::idsBodegasVisibles();
 
-        $productos = Producto::with(['imagenes', 'padre:id,nombre'])
+        $productos = Producto::with(['imagenes', 'padre.imagenes'])
             ->seleccionables()
             ->where('activo', true)
             ->whereIn('tipo', ['producto', 'servicio'])
@@ -747,7 +918,7 @@ class ProductoController extends Controller
             ->limit(20)
             ->get()
             ->map(function ($p) use ($bodegas) {
-                $img = $p->imagenes->firstWhere('es_principal', true) ?? $p->imagenes->first();
+                $img = $p->imagenVisible();
                 return [
                     'id'                   => $p->id,
                     'nombre'               => $p->nombre,
@@ -785,9 +956,54 @@ class ProductoController extends Controller
 
     // ── Helpers ───────────────────────────────────────────────────────────────────
 
+    /**
+     * Crea las variantes que llegan en la petición y devuelve sus imágenes pendientes.
+     *
+     * La imagen NO se sube aquí, que es dentro de la transacción: si algo falla después y se
+     * deshace, el archivo quedaría en el disco sin que nada lo apunte. Se sube al terminar.
+     * Tampoco viaja con `input('variantes')`: los archivos no vienen ahí, se piden por su
+     * posición con `file()`.
+     *
+     * @return list<array{0: Producto, 1: \Illuminate\Http\UploadedFile}>
+     */
+    private function crearVariantes(Request $request, Producto $padre, array $datosBase): array
+    {
+        $pendientes = [];
+
+        foreach ($request->input('variantes', []) as $i => $variante) {
+            $hijo = $this->crearVariante($padre, $datosBase, $variante);
+
+            if ($archivo = $request->file("variantes.{$i}.imagen")) {
+                $pendientes[] = [$hijo, $archivo];
+            }
+        }
+
+        return $pendientes;
+    }
+
+    /** @param list<array{0: Producto, 1: \Illuminate\Http\UploadedFile}> $pendientes */
+    private function subirImagenesDeVariantes(array $pendientes): void
+    {
+        foreach ($pendientes as [$variante, $archivo]) {
+            $this->guardarImagenes($variante, [$archivo]);
+        }
+    }
+
+    /**
+     * Crea una variante con los datos del padre y su propia referencia.
+     *
+     * **Los precios por canal se guardan también en la variante.** Lo que se cotiza es la
+     * variante, no el padre —`Producto::scopeSeleccionables()` deja fuera a los padres—,
+     * así que una variante sin filas en `canal_precios` se cotizaba en **cero** por
+     * cualquier canal que la empresa hubiera creado por su cuenta: los tres de fábrica
+     * tenían el respaldo de las columnas viejas, que sí se copian, y el cuarto no tenía
+     * nada de dónde salir. Un precio en cero que nadie pidió se firma.
+     */
     private function crearVariante(Producto $padre, array $datosBase, array $variante): Producto
     {
         $referencia = ($variante['referencia'] ?? null) ?: Producto::generarReferenciaVariante($padre, $variante['valor_variante']);
+
+        Producto::liberarReferencia($referencia);
 
         $hijo = Producto::create(array_merge($datosBase, [
             'referencia'         => $referencia,
@@ -796,6 +1012,8 @@ class ProductoController extends Controller
             'atributo_variante'  => null,
             'valor_variante'     => $variante['valor_variante'],
         ]));
+
+        app(PreciosPorCanalService::class)->copiar($padre, $hijo);
 
         foreach (($variante['stock_inicial'] ?? []) as $bodegaId => $cantidad) {
             $cantidad = (float) $cantidad;
@@ -833,10 +1051,10 @@ class ProductoController extends Controller
      */
     private function aplicarMonedaCosto(Request $request): void
     {
-        $moneda = $request->input('moneda_costo') ?: Monedas::LOCAL;
+        $moneda = $request->input('moneda_costo') ?: Monedas::base();
 
-        if ($moneda === Monedas::LOCAL) {
-            $request->merge(['moneda_costo' => Monedas::LOCAL, 'costo_moneda' => null]);
+        if ($moneda === Monedas::base()) {
+            $request->merge(['moneda_costo' => Monedas::base(), 'costo_moneda' => null]);
 
             return;
         }
@@ -875,15 +1093,49 @@ class ProductoController extends Controller
         $request->merge($cambios);
     }
 
+    /**
+     * Que la referencia no la tenga ya otro producto VIVO, diciendo CUÁL la tiene.
+     *
+     * Antes era `unique:productos,referencia` y el mensaje decía «El campo
+     * variantes.0.referencia ya está en uso»: ni de quién, ni dónde. Además contaba los
+     * productos eliminados, que la persona ya no ve.
+     *
+     * Lo eliminado no bloquea: al guardar, `Producto::liberarReferencia()` le cambia la
+     * referencia al eliminado y deja la original para quien la pide.
+     */
+    private function referenciaLibre(?int $ignoreId = null): \Closure
+    {
+        return function (string $atributo, mixed $valor, \Closure $falla) use ($ignoreId) {
+            if (! is_string($valor) || $valor === '') {
+                return;
+            }
+
+            $dueno = Producto::where('referencia', $valor)
+                ->when($ignoreId, fn ($q) => $q->where('id', '!=', $ignoreId))
+                ->first(['id', 'nombre']);
+
+            if (! $dueno) {
+                return;
+            }
+
+            $de = preg_match('/variantes\.(\d+)\./', $atributo, $m)
+                ? 'La referencia de la variante '.($m[1] + 1)
+                : 'Esa referencia';
+
+            $falla("{$de} ya la usa «{$dueno->nombre}». Déjala vacía para que se genere sola, o escribe otra.");
+        };
+    }
+
     private function reglas(string $tipo, ?int $ignoreId = null, bool $esPadre = false): array
     {
-        $referenciaRule = $ignoreId
-            ? "required|string|max:60|unique:productos,referencia,{$ignoreId}"
-            : 'required|string|max:60|unique:productos,referencia';
+        $referenciaRule = ['required', 'string', 'max:60', $this->referenciaLibre($ignoreId)];
 
         return [
             'nombre'              => 'required|string|max:200',
             'referencia'          => $referenciaRule,
+            // Para liquidar importaciones: Sistema Armonizado (6 a 12 dígitos) y arancel habitual.
+            'codigo_hs'           => 'nullable|string|max:12',
+            'arancel_pct'         => 'nullable|numeric|min:0|max:100',
             'unidad_medida'       => 'nullable|string|max:30',
             'categoria_id'        => 'nullable|exists:categorias_producto,id',
             'proveedor_id'        => 'nullable|exists:proveedores,id',
@@ -914,7 +1166,8 @@ class ProductoController extends Controller
             'atributo_variante'   => 'nullable|string|max:60',
             'variantes'                    => ($esPadre ? 'required' : 'nullable') . '|array' . ($esPadre ? '|min:1' : ''),
             'variantes.*.valor_variante'   => 'required_with:variantes|string|max:60',
-            'variantes.*.referencia'       => 'nullable|string|max:60|distinct|unique:productos,referencia',
+            'variantes.*.referencia'       => ['nullable', 'string', 'max:60', 'distinct', $this->referenciaLibre()],
+            'variantes.*.imagen'           => 'nullable|image|max:5120',
             'variantes.*.stock_inicial'    => 'nullable|array',
             'variantes.*.stock_inicial.*'  => 'nullable|numeric|min:0',
             'precio_costo'                => 'nullable|numeric|min:0',
@@ -946,9 +1199,15 @@ class ProductoController extends Controller
     {
         if (! $request->hasFile('imagenes')) return;
 
+        $this->guardarImagenes($producto, $request->file('imagenes'));
+    }
+
+    /** @param array<int, \Illuminate\Http\UploadedFile> $archivos */
+    private function guardarImagenes(Producto $producto, array $archivos): void
+    {
         $orden = $producto->imagenes()->max('orden') ?? 0;
 
-        foreach ($request->file('imagenes') as $archivo) {
+        foreach ($archivos as $archivo) {
             $resultado = ArchivoServidorService::subir($archivo, 'productos');
             $orden++;
 

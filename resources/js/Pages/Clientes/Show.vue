@@ -1,4 +1,5 @@
 <script setup>
+import { monedaBase } from '@/formato'
 import { computed } from 'vue'
 import { router } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
@@ -42,7 +43,7 @@ const bloques = computed(() =>
 function dinero(v) {
     if (v == null) return ''
     return new Intl.NumberFormat('es-CO', {
-        style: 'currency', currency: 'COP', maximumFractionDigits: 0,
+        style: 'currency', currency: monedaBase(), maximumFractionDigits: 0,
     }).format(v)
 }
 

@@ -52,6 +52,103 @@ recibida_parcial/recibida)`.
 - **Enviar una orden al proveedor**: es una comunicación real que alguien
   decide cuándo hacer.
 
+## Cargar un proveedor desde su RUT *(nuevo, 10 oct 2026)*
+
+En **Compras → Proveedores**, al crear o editar, el botón **Leer RUT con IA** sube el RUT (PDF
+o foto) y llena la ficha: nombre o razón social, número y dígito de verificación, dirección,
+ciudad, teléfono, correo, actividad económica (CIIU) y las **responsabilidades de la casilla
+53**. Es el mismo lector de los clientes (`LectorRutService`), con los mismos campos.
+
+- **No guarda nada.** Pone los datos en el formulario para que alguien los revise: un 7 que
+  parece un 1 en una foto torcida es el NIT de otra empresa. Si el dígito de verificación no
+  cuadra con el NIT leído, lo dice.
+- **Avisa si ya existe.** Si hay un proveedor con ese número, lo dice antes de que se cree un
+  duplicado, con sus precios y órdenes repartidos entre dos fichas.
+- **Qué decide el RUT.** Si el proveedor es responsable de IVA (código 48) o no (49). Un
+  proveedor **no responsable** no factura IVA: en la orden de compra sus líneas arrancan en
+  0 %. Para uno responsable no se pone tarifa —depende del bien, y lo tributario no se escribe
+  en el código—: la pone quien compra. Sin RUT cargado no se asume nada, y la orden avisa.
+- Permiso: `proveedores.crear` o `proveedores.editar`, porque cada lectura es una llamada a la IA.
+- Las retenciones que se le practican al pagarle a un proveedor **no** se calculan todavía:
+  hoy el sistema estima retenciones sobre las ventas.
+
+## Recibir mercancía con su papel *(nuevo, 10 oct 2026)*
+
+Al **registrar una recepción** se pide con qué llegó: la **factura** y/o la **remisión** del
+proveedor, la fecha del documento, cuándo llegó la mercancía y las observaciones. Es opcional,
+pero sin papel la entrega **no se puede comprobar**, y la pantalla lo dice.
+
+- **Una fila por entrega, no por orden** (`ordenes_compra_recepciones`). Una orden llega a veces
+  en tres entregas, cada una con su remisión y su factura; guardar «la» factura de la orden
+  obligaba a escoger una. La ficha de la orden las lista todas.
+- **El papel pasa a cada movimiento de inventario** que genera la recepción: con factura manda la
+  factura; sin ella, la remisión. Y las observaciones se suman a la nota del movimiento. Así, en
+  la ficha del producto, cada entrada dice con qué papel llegó.
+- **La fecha de llegada es la de la mercancía**, no la del día que se digitó, y no puede ser
+  futura. Es lo que permite saber si una entrega llegó dentro del plazo pactado.
+
+## La calificación del proveedor *(nuevo, 10 oct 2026)*
+
+Cada proveedor tiene una **nota de 0 a 100** que **nadie escribe**: el sistema la calcula con lo
+que de verdad pasó en las órdenes y con los precios. Se ve en la lista de proveedores, en su
+ficha (con el desglose) y al elegirlo en una orden de compra. El asistente la lee junto al
+precio al comparar proveedores: barato no es lo mismo que conveniente.
+
+| Componente | Pesa | Qué mide |
+|---|---|---|
+| **Puntualidad** | 30 | Si la orden llegó **completa** para la fecha pactada. A tiempo vale todo; hasta 3 días tarde, la mitad; más tarde, o vencida sin llegar completa, nada |
+| **Cumplimiento** | 25 | Qué parte de lo pedido entregó. Lo que sobra en una línea no compensa lo que falta en otra |
+| **Entregas en regla** | 25 | De sus entregas, cuántas llegaron **con factura o remisión Y dentro del plazo**. Una por entrega, no por orden: una orden en tres entregas, una sin papel, cuenta como dos buenas y una mala |
+| **Precio** | 20 | Qué tan cerca está de lo más barato **vigente** para los mismos productos. Solo cuenta donde al menos dos proveedores lo venden con precio de menos de 90 días |
+
+Las reglas que conviene saber:
+
+- **Sin datos no hay nota.** Con menos de **3 órdenes evaluables** dice «Sin calificar» y cuántas
+  faltan: calificar por una sola orden es una anécdota con cara de estadística. Cuenta una orden
+  que tiene **fecha de entrega pactada** y ya llegó completa o ya venció; una que aún tiene plazo
+  no es ni buena ni mala. Por eso conviene poner siempre la fecha esperada al crear la orden.
+- **Un componente sin datos no cuenta como cero:** sale del promedio y los demás se reparten su
+  peso. A un proveedor al que nadie le ha comparado el precio no se le castiga por eso.
+- **Solo el último año.** Un proveedor que mejoró no carga con lo de hace tres.
+- **Lo anterior al registro de entregas** (órdenes recibidas antes de que se pidiera la factura o
+  remisión) se juzga en puntualidad y cumplimiento, pero no en papel: no se sabe qué traía.
+- **Se ajusta desde Configuración → Calificación de proveedores:** los pesos (30/25/25/20 de
+  fábrica; no tienen que sumar 100, se reparten en proporción), los días de gracia (3) y el mínimo
+  de órdenes (3). Las notas no se guardan, así que cambian al instante. Se guardan en
+  `Configuracion` (`calificacion_peso_*`, `calificacion_gracia_dias`, `calificacion_muestra_minima`)
+  y `CalificacionProveedorService::ajustes()` es el único que las lee. Todos los pesos en cero
+  vuelven a los de fábrica.
+
+Niveles: 85 o más **excelente**, 70 a 84 **bueno**, 50 a 69 **regular**, menos de 50 **deficiente**.
+
+## Cada proveedor llama distinto al mismo producto *(nuevo, 10 oct 2026)*
+
+La bisagra que la empresa llama `IC5260` la pueden vender varios proveedores con códigos
+distintos —`1256899P`, `R125458`…—. La orden de compra lleva **el código de quien la
+recibe**, no el interno: si no, mandan otra cosa o llaman a preguntar.
+
+- **Dónde se configura.** En la ficha del producto, en la lista de proveedores (código, precio,
+  entrega, mínimo). O **al armar la orden**: cada línea tiene «Código del proveedor». Si
+  escribes uno, queda guardado como equivalencia para las próximas órdenes. La segunda puerta
+  es la que se usa de verdad: el código del proveedor se descubre al armar la orden.
+- **Qué se llena solo.** Al elegir proveedor, cada línea toma su código y su último precio.
+  Lo que escribas a mano **nunca se pisa**. Debajo de cada línea se ve qué se sabe de ese
+  proveedor para ese ítem, y se avisa si su precio tiene más de 90 días.
+- **Desde una solicitud.** Al convertirla en orden se usan el código y el precio del proveedor
+  elegido; si no tiene precio, la estimación de quien pidió.
+- **En la línea queda el código que se mandó** (`ordenes_compra_items.referencia_proveedor`),
+  no una referencia a la ficha: si el proveedor cambia su catálogo mañana, las órdenes viejas
+  siguen diciendo lo que se pidió ese día. El PDF y la ficha de la orden lo muestran primero
+  («Cód. proveedor») y el interno después («Ref. interna»).
+- **Control de precios.** Al **enviar** la orden, el precio de cada línea pasa a ser el último
+  de ese proveedor y se anota en el historial (`producto_proveedor_precios`). En el borrador
+  no: es una intención. Es lo que permite comparar con datos y no con la última cifra escrita.
+- **Lo que lee el asistente.** La consulta `comparar_proveedores` (exige `costos.ver`) pone los
+  proveedores de un producto uno al lado del otro: código, precio, entrega, mínimo, antigüedad
+  del precio y las últimas compras. **Un precio de más de 90 días no cuenta como oferta**: si
+  ninguno está vigente, el asistente lo dice en vez de recomendar al más barato de hace un año.
+  La cuenta vive en `ProveedoresProductoService::comparar()`.
+
 ## Aviso de material faltante en una OP *(nuevo, 23 jul 2026)*
 
 Antes, el proceso de negocio descrito como "compras centralizado atiende
@@ -76,3 +173,26 @@ Este aviso lee del inventario real (`Producto`). Desde que Compras se
 unificó a ese mismo inventario (ver arriba), comprar y recibir material
 por el módulo de Compras **sí** hace desaparecer el faltante del aviso de
 la OP — el flujo completo ya cierra.
+
+## La orden de compra, completa y coherente con los productos *(nuevo, 10 oct 2026)*
+
+- **Qué se puede comprar.** Todo producto activo de tipo *producto* que no sea un padre de variantes
+  ni algo que la empresa fabrica (un producto terminado de un ensamble): insumos, reventa y
+  variantes. Antes solo salían los marcados como insumo, y un producto de reventa no se podía
+  pedir. Los servicios no se compran con una orden de compra.
+- **Cómo se encuentra** (`GET /compras/ordenes/buscar-productos?q=`, mínimo dos letras): por nombre,
+  por referencia interna o por el código de **cualquiera** de sus proveedores. Si lo encontró el
+  código de un proveedor, la lista lo dice. Va al servidor porque con miles de productos cargarlos
+  todos en cada «Nueva orden» se pagaría en cada clic.
+- **Cada línea muestra:** la referencia interna, el código del proveedor de la orden (editable;
+  si se escribe, queda guardado como equivalencia) y **«También lo venden»**: los demás
+  proveedores del producto con su código, precio, nota y el **más barato vigente**. Un precio de
+  más de 90 días sale marcado «precio viejo» y no gana.
+- **La ficha** de la orden muestra lo mismo (plegado), con enlace al producto; un ítem manual
+  avisa que no está ligado a un producto y por eso **no entra al inventario** al recibirse. La
+  ventana de recepción trae el código del proveedor y la referencia interna para cotejar contra
+  la factura.
+- **El PDF no lleva las equivalencias.** El proveedor recibe su propio código y nuestra
+  referencia, nada más: no tiene por qué saber a quién más se le compra ni a cuánto.
+- Una sola fuente: `ProveedoresProductoService::equivalencias()`, la misma que lee el asistente.
+

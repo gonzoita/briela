@@ -8,11 +8,19 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Support\Str;
 use App\Support\Marca;
 
+#[ObservedBy(\App\Observers\CotizacionObserver::class)]
 class Cotizacion extends Model
 {
+    /**
+     * Una cotización sin cliente no se guarda, no se envía, no se aprueba ni genera orden.
+     * La columna sigue siendo nulable por las que ya existen: lo exige cada puerta de entrada.
+     */
+    public const SIN_CLIENTE = 'Esta cotización no tiene cliente. Asígnale uno antes de seguir.';
+
     use SoftDeletes, Auditable;
 
     protected $table = 'cotizaciones';
@@ -31,6 +39,8 @@ class Cotizacion extends Model
         'tasa_fecha',
         'fecha_creacion',
         'fecha_validez',
+        // El plazo prometido, en días hábiles: de aquí sale la fecha de entrega de la orden.
+        'dias_entrega',
         'responsable_id',
         'estado',
         'en_produccion',
@@ -51,11 +61,12 @@ class Cotizacion extends Model
         // ve vacío, y el usuario no puede leer ni corregir la fecha de su cotización.
         'fecha_creacion'   => 'date:Y-m-d',
         'fecha_validez'    => 'date:Y-m-d',
+        'dias_entrega'     => 'integer',
         'subtotal'         => 'decimal:2',
         'descuento_total'  => 'decimal:2',
         'impuesto_total'   => 'decimal:2',
         'total'            => 'decimal:2',
-        'tasa_cambio'      => 'decimal:4',
+        'tasa_cambio'      => 'decimal:8',
         'tasa_fecha'       => 'date:Y-m-d',
         'en_produccion'    => 'boolean',
     ];
@@ -63,12 +74,12 @@ class Cotizacion extends Model
     /** Un valor en pesos, escrito en la moneda de esta cotización. */
     public function enSuMoneda(float|int|string|null $valorEnPesos): string
     {
-        return \App\Support\Monedas::formatear($valorEnPesos, (string) ($this->moneda ?: 'COP'), (float) ($this->tasa_cambio ?: 1));
+        return \App\Support\Monedas::formatear($valorEnPesos, (string) ($this->moneda ?: \App\Support\Monedas::base()), (float) ($this->tasa_cambio ?: 1));
     }
 
     public function esEnOtraMoneda(): bool
     {
-        return ($this->moneda ?: 'COP') !== \App\Support\Monedas::LOCAL && (float) $this->tasa_cambio > 0;
+        return ($this->moneda ?: \App\Support\Monedas::base()) !== \App\Support\Monedas::base() && (float) $this->tasa_cambio > 0;
     }
 
     protected static function boot(): void
@@ -173,6 +184,15 @@ class Cotizacion extends Model
             'impuesto_total'  => $impuestoTotal,
             'total'           => $subtotal - $descuentoTotal + $impuestoTotal,
         ]);
+
+        // Se recalcula cuando cambian las líneas —crear, editar, duplicar—, así que es el punto
+        // por el que pasa todo cambio de lo que se promete. Si la cotización ya está enviada,
+        // lo apartado la sigue. Nunca rompe el guardado: apartar es secundario.
+        try {
+            app(\App\Services\ReservaStockService::class)->alCambiarLineas($this);
+        } catch (\Throwable $e) {
+            report($e);
+        }
     }
 
     public function diasSinRespuesta(): ?int
@@ -198,14 +218,41 @@ class Cotizacion extends Model
 
     public function estadoBadge(): array
     {
-        return match ($this->estado) {
-            'borrador'      => ['label' => 'Borrador',      'bg' => '#F3F4F6', 'text' => '#6B7280'],
-            'enviada'       => ['label' => 'Enviada',       'bg' => '#DBEAFE', 'text' => '#1D4ED8'],
-            'aprobada'      => ['label' => 'Aprobada',      'bg' => '#D1FAE5', 'text' => '#065F46'],
-            'rechazada'     => ['label' => 'Rechazada',     'bg' => '#FEE2E2', 'text' => '#991B1B'],
-            'vencida'       => ['label' => 'Vencida',       'bg' => '#FEF3C7', 'text' => '#92400E'],
-            'en_produccion' => ['label' => 'En Producción', 'bg' => '#DBEAFE', 'text' => Marca::color()],
-            default         => ['label' => $this->estado,   'bg' => '#F3F4F6', 'text' => '#6B7280'],
+        // `bg`/`text` son colores fijos para el PDF, que no entiende variables CSS. La pantalla
+        // usa `bg_tema`/`text_tema`, que cambian con el modo noche: con los fijos, la etiqueta
+        // quedaba como una mancha clara sobre la tabla oscura.
+        [$label, $bg, $text, $familia] = match ($this->estado) {
+            'borrador'      => ['Borrador',      '#F3F4F6', '#6B7280', null],
+            'enviada'       => ['Enviada',       '#DBEAFE', '#1D4ED8', 'azul'],
+            'aprobada'      => ['Aprobada',      '#D1FAE5', '#065F46', 'verde'],
+            'rechazada'     => ['Rechazada',     '#FEE2E2', '#991B1B', 'rojo'],
+            'vencida'       => ['Vencida',       '#FEF3C7', '#92400E', 'ambar'],
+            'en_produccion' => ['En Producción', '#DBEAFE', Marca::color(), 'violeta'],
+            default         => [$this->estado,   '#F3F4F6', '#6B7280', null],
         };
+
+        return [
+            'label'     => $label,
+            'bg'        => $bg,
+            'text'      => $text,
+            'bg_tema'   => $familia ? "var(--pastel-{$familia})" : 'var(--tinta-100)',
+            'text_tema' => $familia ? "var(--texto-{$familia})" : 'var(--texto-2)',
+        ];
+    }
+
+    /**
+     * La fecha de entrega que sale del plazo prometido, contando desde `$desde` (hoy, si no).
+     *
+     * Días hábiles de lunes a viernes: el plazo corre cuando arranca la orden, no cuando se
+     * cotizó. Los festivos no se descuentan; la fecha es una estimación y se ajusta al generar
+     * la orden o en la orden misma.
+     */
+    public function fechaEntregaSugerida(?\Carbon\CarbonInterface $desde = null): ?\Carbon\CarbonInterface
+    {
+        if (! $this->dias_entrega) {
+            return null;
+        }
+
+        return \Carbon\Carbon::parse($desde ?? today())->addWeekdays($this->dias_entrega);
     }
 }

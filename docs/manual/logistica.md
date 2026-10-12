@@ -11,10 +11,70 @@ despachan, los datos del transporte y las firmas de despacho y recibido.
 Estados: `borrador → confirmada → en_camino → entregada`, con `anulada`
 como salida en cualquier punto antes de entregar.
 
+## Dos listas: por remisionar y creadas *(nuevo, 12 oct 2026)*
+
+La pantalla abre en **«Por remisionar»**: las órdenes con algo listo y todavía sin remisión, con
+cuántas unidades tiene lista cada ítem y un botón «Remisionar N unidades» que abre la remisión con
+todo precargado. **«Remisiones creadas»** es la lista de siempre, con sus estados.
+
+**Qué está listo para remisionar** —una sola regla, la misma en la lista, en la orden y en el
+remisionador—:
+
+- un **producto** sin planta, **alistado o no** *(13 oct 2026)*, menos lo que ya salió: meterlo en
+  la remisión lo alista. La pestaña «Por remisionar» sigue mostrando solo lo alistado
+  (`OpItem::cantidadLista()`); el remisionador ofrece todo lo despachable
+  (`OpItem::cantidadDisponible()`) y marca «Sin alistar» lo que todavía no lo estaba;
+- una **unidad** de ensamble —o de un producto que pasó por planta— terminada, **firmada por
+  calidad** y sin remisionar;
+- los **servicios** nunca: se alistan, pero no viajan.
+
+Las órdenes en **borrador** también se pueden remisionar: la orden arranca sola al hacerlo. Al
+crear la remisión se abre la remisión misma *(13 oct 2026)*: lo siguiente es confirmarla y
+marcarla en camino.
+
+Antes la lista ofrecía órdenes con unidades sin aprobar —al abrirlas no había nada— y, al entrar
+desde la orden, **los productos alistados no aparecían**. El botón de remisión de la orden pedía el
+sello de calidad de la orden entera, que una orden de productos nunca tiene, y quedaba bloqueado.
+
+## Remisión parcial: lo que queda pendiente *(15 oct 2026)*
+
+Una remisión puede llevar solo una parte de un ítem: de 15 bisagras, las 10 alistadas. Al
+crearla, cada renglón guarda lo que **quedó por entregar** de ese ítem
+(`remision_items.cantidad_pendiente`, una foto que no cambia después). La ficha de la remisión y
+su PDF lo dicen: «Pendiente por entregar: 5». Al crear la remisión, lo que lleva **ya salió de la
+empresa**: sale del inventario en ese momento (ver más abajo).
+
+## Cerrada: entregada y pagada *(15 oct 2026)*
+
+«Entregada» es lo físico: el cliente recibió. La remisión **no está terminada** mientras la orden
+tenga saldo: se ve «Entregada — pendiente de pago» con lo que falta verificar. Se pasa sola a
+**Cerrada** (`remisiones.cerrada_at`) cuando la orden queda pagada del todo **con pagos
+verificados** —por el verificador de pagos con el extracto, o marcados a mano en la cartera—.
+Nadie la elige en la pantalla. Si después se borra o se desverifica un pago, vuelve a «Entregada».
+
+- La regla vive en `RemisionService::sincronizarCierre()` y la llaman los pagos (eventos de
+  `OpPago`: anotar, verificar, borrar) y la remisión al entregarse.
+- Una remisión suelta, sin orden, no tiene nada que cobrar: se cierra al entregarse.
+- Una cerrada no se anula ni se borra: ya salió y ya se cobró.
+
+## Firmas *(arregladas el 15 oct 2026)*
+
+La firma de despacho se pone desde que la remisión está **confirmada**; la de recibido, desde que
+sale, con el nombre de quien recibe (firmarla con la remisión en camino la marca entregada). Se
+dibujan con el dedo o el mouse (`FirmaPad.vue`), o la de despacho con «Usar mi firma», la guardada
+en el perfil. Antes el trazo caía lejos del dedo (el lienzo se estiraba sin escalar los puntos), un
+recuadro en blanco se guardaba y un error no se mostraba.
+
+El servidor solo acepta una imagen PNG o JPG en base64 y guarda quién firmó el despacho y cuándo.
+En el PDF salen las dos; si nadie dibujó la de despacho, sale la del perfil de quien la firmó o la
+creó.
+
 ## Flujo normal
 
 1. **Crear** desde una OP: se eligen las unidades a despachar. La remisión nace
-   en "borrador".
+   en "borrador" y **lo que lleva sale del almacén en ese momento** *(14 oct 2026)*: los productos
+   tal cual y los ensambles por sus componentes. Anularla o borrarla lo devuelve. Ver
+   `produccion-op.md`, «El inventario sale al remisionar».
 2. **Confirmar**: el documento queda listo (ya no se edita).
 3. **Marcar en camino**: se registran transportista, celular, placa y costo
    de flete. Queda la fecha de salida.
@@ -48,13 +108,23 @@ fabricadas pero ninguna pasó calidad»— en vez de mostrar una pantalla vacía
   veces la firma quedaba guardada pero la remisión seguía figurando "en
   camino". El botón manual "Marcar entregada" sigue existiendo como
   respaldo (por si se entrega sin firma).
-- **OP despachada automáticamente**: cuando se remisiona el último ítem
-  pendiente de una OP, la OP pasa sola a "despachada" y se descuenta el
-  inventario de los insumos usados (ver la nota de abajo sobre *cuándo*
-  ocurre esto).
-- **Anular libera los ítems**: al anular una remisión, los ítems vuelven a
-  quedar disponibles para remisionar en otra, y si la OP estaba
-  "despachada" por esta remisión, regresa a "en producción".
+- **OP despachada al salir** *(corregido el 12 oct 2026)*: la orden pasa sola a "despachada"
+  cuando **todo lo que viaja ya salió** —sus remisiones están en camino o entregadas—, no al
+  crear la remisión. Antes bastaba con crearla en borrador, y una orden con un servicio incluido
+  no llegaba nunca a despachada (se contaba el servicio, que no se remisiona).
+- **Los productos salen del inventario al salir la remisión** *(nuevo)*: al pasar a en camino (o
+  entregada), cada producto de la remisión se descuenta de la bodega de entrega de la orden (o de
+  la principal), con origen «Remisión». Antes un producto despachado **nunca** bajaba del
+  inventario. Los ensambles los sigue descontando la orden al despacharse, **una sola vez**
+  (`ops.inventario_consumido_at`).
+- **Anular devuelve todo**: los ítems vuelven a quedar disponibles, los productos regresan a la
+  bodega si ya habían salido (`remisiones.inventario_movido_at` evita moverlos dos veces), y si la
+  orden estaba despachada por esta remisión vuelve a **calidad** (o a producción si algo quedó
+  pendiente). Un producto repartido en dos remisiones recupera solo lo de la anulada.
+- **Estados que no retroceden**: una remisión entregada o anulada ya no cambia, y una que salió
+  no se elimina —se anula—. Eliminar una anulada no vuelve a liberar nada.
+- **Permisos**: crear pide `remisiones.crear`; editar, cambiar de estado, firmar y eliminar piden
+  `remisiones.editar`. Antes todo se podía con `remisiones.ver`.
 
 ## Correctamente manual (no son gaps)
 

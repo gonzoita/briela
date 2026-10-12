@@ -32,6 +32,23 @@ class Remision extends Model
         'firma_recibido',
         'nombre_receptor',
         'created_by',
+        'inventario_movido_at',
+        'cerrada_at',
+        'firma_despacho_por',
+        'firma_despacho_at',
+        'firma_recibido_at',
+    ];
+
+    /** Las transiciones permitidas. Una remisión entregada o anulada ya no cambia. */
+    public const TRANSICIONES = [
+        'borrador'   => ['confirmada', 'en_camino', 'entregada', 'anulada'],
+        'confirmada' => ['en_camino', 'entregada', 'anulada'],
+        'en_camino'  => ['entregada', 'anulada'],
+        // Entregada → cerrada la pone el sistema cuando la orden queda pagada y verificada
+        // (`RemisionService::sincronizarCierre`); nadie la elige en la pantalla.
+        'entregada'  => [],
+        'cerrada'    => [],
+        'anulada'    => [],
     ];
 
     protected $casts = [
@@ -43,7 +60,14 @@ class Remision extends Model
         'fecha_salida'   => 'datetime',
         'fecha_entrega'  => 'datetime',
         'costo_flete'    => 'decimal:2',
+        'inventario_movido_at' => 'datetime',
+        'cerrada_at'           => 'datetime',
+        'firma_despacho_at'    => 'datetime',
+        'firma_recibido_at'    => 'datetime',
     ];
+
+    /** Salió de la empresa: en camino, entregada o ya cerrada. */
+    public const SALIDAS = ['en_camino', 'entregada', 'cerrada'];
 
     protected static function booted(): void
     {
@@ -78,9 +102,34 @@ class Remision extends Model
         return $this->belongsTo(User::class, 'created_by');
     }
 
+    public function firmadoDespachoPor(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'firma_despacho_por');
+    }
+
     public function items(): HasMany
     {
         return $this->hasMany(RemisionItem::class);
+    }
+
+    public function puedePasarA(string $estado): bool
+    {
+        return in_array($estado, self::TRANSICIONES[$this->estado] ?? [], true);
+    }
+
+    /**
+     * Saca del almacén lo que lleva esta remisión, una sola vez (candado `inventario_movido_at`).
+     * Ocurre al crearla; la regla vive en `InventarioRemisionService`.
+     */
+    public function sacarDelInventario(): void
+    {
+        app(\App\Services\InventarioRemisionService::class)->sacar($this);
+    }
+
+    /** Anulada o borrada: lo que sacó vuelve a la bodega. */
+    public function devolverAlInventario(): void
+    {
+        app(\App\Services\InventarioRemisionService::class)->devolver($this);
     }
 
     public function scopePendientes($query)
@@ -95,13 +144,18 @@ class Remision extends Model
 
     public function estadoBadge(): array
     {
+        // Colores del tema (variables CSS), no fijos: cambian con el modo noche.
+        $familia = fn (string $f) => ['bg' => "var(--pastel-{$f})", 'text' => "var(--texto-{$f})"];
+
         return match ($this->estado) {
-            'borrador'   => ['label' => 'Borrador',    'bg' => '#F3F4F6', 'text' => '#374151'],
-            'confirmada' => ['label' => 'Confirmada',  'bg' => '#DBEAFE', 'text' => '#1D4ED8'],
-            'en_camino'  => ['label' => 'En camino',   'bg' => '#FEF3C7', 'text' => '#92400E'],
-            'entregada'  => ['label' => 'Entregada',   'bg' => '#D1FAE5', 'text' => '#065F46'],
-            'anulada'    => ['label' => 'Anulada',     'bg' => '#FEE2E2', 'text' => '#991B1B'],
-            default      => ['label' => $this->estado, 'bg' => '#F3F4F6', 'text' => '#374151'],
+            'borrador'   => ['label' => 'Borrador',   'bg' => 'var(--tinta-100)', 'text' => 'var(--texto-2)'],
+            'confirmada' => ['label' => 'Confirmada'] + $familia('azul'),
+            'en_camino'  => ['label' => 'En camino'] + $familia('ambar'),
+            'entregada'  => ['label' => 'Entregada'] + $familia('verde'),
+            // Entregada y pagada: el final del camino.
+            'cerrada'    => ['label' => 'Cerrada'] + $familia('violeta'),
+            'anulada'    => ['label' => 'Anulada'] + $familia('rojo'),
+            default      => ['label' => $this->estado, 'bg' => 'var(--tinta-100)', 'text' => 'var(--texto-2)'],
         };
     }
 }

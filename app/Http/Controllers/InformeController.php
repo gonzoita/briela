@@ -4,31 +4,54 @@ namespace App\Http\Controllers;
 
 use App\Models\Informe;
 use App\Services\InformeService;
+use App\Services\Informes\ExportadorInformes;
+use App\Services\Informes\MotorInformes;
+use App\Services\Informes\Periodo;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 
+/**
+ * Informes: los que cada quien arma a mano y los que pide a la guía en el chat.
+ *
+ * Hay dos motores por historia. Las cuatro fuentes de siempre (órdenes, colaboradores,
+ * cotizaciones, pasos) siguen en `InformeService`; las nuevas —leads, ventas, clientes,
+ * producción, cartera, inventario— en `MotorInformes`, que además resume («por canal») y saca
+ * cifras clave. La pantalla y las exportaciones tratan a los dos igual.
+ */
 class InformeController extends Controller
 {
-    public function __construct(private InformeService $service) {}
+    private const LEGADAS = ['ops', 'colaboradores', 'cotizaciones', 'pasos'];
+
+    /** Lo que se muestra en pantalla; el resto se descarga. */
+    private const FILAS_EN_PANTALLA = 500;
+
+    public function __construct(
+        private InformeService $service,
+        private MotorInformes $motor,
+        private ExportadorInformes $exportador,
+    ) {}
 
     public function index()
     {
         $user = Auth::user();
 
-        $informes = Informe::where('created_by', $user->id)
-            ->orWhere('publico', true)
+        $informes = Informe::where(fn ($q) => $q->where('created_by', $user->id)->orWhere('publico', true))
             ->with('creador')
             ->latest()
+            ->latest('id')
             ->get()
             ->map(fn ($i) => [
                 'id'          => $i->id,
                 'nombre'      => $i->nombre,
                 'descripcion' => $i->descripcion,
                 'fuente'      => $i->fuente,
+                'fuente_etiqueta' => $this->motor->fuente($i->fuente)?->etiqueta() ?? Str::ucfirst($i->fuente),
                 'tipo_grafica'=> $i->tipo_grafica,
                 'publico'     => $i->publico,
+                'origen'      => $i->origen ?? 'manual',
                 'es_mio'      => $i->created_by === $user->id,
                 'creador'     => $i->creador?->name,
                 'created_at'  => $i->created_at?->format('d/m/Y'),
@@ -41,31 +64,38 @@ class InformeController extends Controller
 
     public function create()
     {
-        $user    = Auth::user();
-        $fuentes = ['ops', 'colaboradores', 'cotizaciones', 'pasos'];
-
         $metadatos = [];
-        foreach ($fuentes as $fuente) {
+        foreach (self::LEGADAS as $fuente) {
             $metadatos[$fuente] = [
+                'motor'   => false,
                 'campos'  => $this->service->camposDisponibles($fuente),
                 'filtros' => $this->service->filtrosDisponibles($fuente),
             ];
         }
 
+        foreach ($this->motor->metadatos(Auth::user()) as $clave => $meta) {
+            $metadatos[$clave] = ['motor' => true] + $meta;
+        }
+
         return Inertia::render('Informes/Create', [
             'metadatos' => $metadatos,
+            'periodos'  => collect(Periodo::OPCIONES)->map(fn ($l, $k) => ['key' => $k, 'label' => $l])->values(),
         ]);
     }
 
     public function store(Request $request)
     {
+        $permitidas = array_merge(self::LEGADAS, array_keys($this->motor->disponiblesPara(Auth::user())));
+
         $data = $request->validate([
             'nombre'      => 'required|string|max:255',
             'descripcion' => 'nullable|string|max:500',
-            'fuente'      => 'required|in:ops,colaboradores,cotizaciones,pasos',
+            'fuente'      => 'required|in:'.implode(',', $permitidas),
             'campos'      => 'required|array|min:1',
             'campos.*'    => 'string',
             'filtros'     => 'nullable|array',
+            'agrupar'     => 'nullable|array',
+            'agrupar.*'   => 'string',
             'tipo_grafica'=> 'nullable|in:barras,lineas,torta,ninguna',
             'publico'     => 'boolean',
         ]);
@@ -73,10 +103,12 @@ class InformeController extends Controller
         $informe = Informe::create([
             ...$data,
             'filtros'    => $data['filtros'] ?? [],
+            'agrupar'    => $data['agrupar'] ?? [],
+            'origen'     => 'manual',
             'created_by' => Auth::id(),
         ]);
 
-        return redirect('/informes/' . $informe->id)
+        return redirect('/informes/'.$informe->id)
             ->with('success', 'Informe creado correctamente.');
     }
 
@@ -84,21 +116,31 @@ class InformeController extends Controller
     {
         $this->autorizarVer($informe);
 
+        $fuente = $this->motor->fuente($informe->fuente);
+
         return Inertia::render('Informes/Show', [
             'informe' => [
                 'id'          => $informe->id,
                 'nombre'      => $informe->nombre,
                 'descripcion' => $informe->descripcion,
                 'fuente'      => $informe->fuente,
+                'fuente_etiqueta' => $fuente?->etiqueta() ?? Str::ucfirst($informe->fuente),
+                'motor'       => (bool) $fuente,
                 'campos'      => $informe->campos,
                 'filtros'     => $informe->filtros,
+                'agrupar'     => $informe->agrupar ?? [],
                 'tipo_grafica'=> $informe->tipo_grafica,
                 'publico'     => $informe->publico,
+                'origen'      => $informe->origen ?? 'manual',
+                'pregunta'    => $informe->pregunta,
+                'analisis'    => $informe->analisis,
+                'analizado_at'=> $informe->analizado_at?->format('d/m/Y H:i'),
                 'es_mio'      => $informe->created_by === Auth::id(),
             ],
-            'etiquetas_campos' => collect($this->service->camposDisponibles($informe->fuente))
-                ->pluck('label', 'key')
-                ->toArray(),
+            'etiquetas_campos' => $fuente
+                ? collect($fuente->columnas())->map(fn ($c) => $c[0])->toArray()
+                : collect($this->service->camposDisponibles($informe->fuente))->pluck('label', 'key')->toArray(),
+            'xlsx_disponible' => \App\Services\Informes\EscritorXlsx::disponible(),
         ]);
     }
 
@@ -106,9 +148,28 @@ class InformeController extends Controller
     {
         $this->autorizarVer($informe);
 
+        if ($this->motor->esDelMotor($informe->fuente)) {
+            $r = $this->resultadoDelMotor($informe);
+
+            return response()->json([
+                'motor'       => true,
+                'columnas'    => $r['columnas'],
+                'datos'       => array_slice($r['filas'], 0, self::FILAS_EN_PANTALLA),
+                'total'       => $r['total_filas'],
+                'recortado'   => $r['total_filas'] > self::FILAS_EN_PANTALLA,
+                'metricas'    => $r['metricas'],
+                'resumenes'   => $r['resumenes'],
+                'periodo'     => $r['periodo'],
+                'sobre'       => $r['sobre'],
+                'campos'      => array_column($r['columnas'], 'clave'),
+                'totales'     => [],
+            ]);
+        }
+
         $datos = $this->service->ejecutar($informe);
 
         return response()->json([
+            'motor'   => false,
             'datos'   => $datos,
             'totales' => $this->service->calcularAgregados($informe->fuente, $informe->campos, $datos),
             'campos'  => $informe->campos,
@@ -119,6 +180,19 @@ class InformeController extends Controller
     public function exportarPdf(Informe $informe)
     {
         $this->autorizarVer($informe);
+
+        $nombre = 'informe-'.Str::slug($informe->nombre).'.pdf';
+
+        if ($this->motor->esDelMotor($informe->fuente)) {
+            $r = $this->resultadoDelMotor($informe);
+
+            return Pdf::loadView('pdf.informe-motor', [
+                'informe'   => $informe,
+                'r'         => $r,
+                'filas'     => array_slice($r['filas'], 0, self::FILAS_EN_PANTALLA),
+                'fecha'     => now()->format('d/m/Y H:i'),
+            ])->setPaper('a4', 'landscape')->download($nombre);
+        }
 
         $datos = $this->service->ejecutar($informe);
         $etiquetas = collect($this->service->camposDisponibles($informe->fuente))
@@ -133,54 +207,31 @@ class InformeController extends Controller
             'fecha'     => now()->setTimezone('America/Bogota')->format('d/m/Y H:i'),
         ])->setPaper('a4', 'landscape');
 
-        $nombre = 'informe-' . \Illuminate\Support\Str::slug($informe->nombre) . '.pdf';
-
         return $pdf->download($nombre);
     }
 
-    public function exportarCsv(Informe $informe)
+    /** CSV del detalle, o de un resumen con `?tabla=canal`. */
+    public function exportarCsv(Request $request, Informe $informe)
     {
         $this->autorizarVer($informe);
 
-        $datos = $this->service->ejecutar($informe);
-        $etiquetas = collect($this->service->camposDisponibles($informe->fuente))
-            ->pluck('label', 'key')
-            ->toArray();
-        $totales = $this->service->calcularAgregados($informe->fuente, $informe->campos, $datos);
+        return $this->exportador->csv($this->resultadoParaExportar($informe), 'informe-'.$informe->nombre, $request->query('tabla'));
+    }
 
-        $nombre = 'informe-' . \Illuminate\Support\Str::slug($informe->nombre) . '.csv';
+    /** El libro de Excel con todas las hojas. Si el servidor no puede escribirlo, se ofrece el CSV. */
+    public function exportarXlsx(Informe $informe)
+    {
+        $this->autorizarVer($informe);
 
-        $headers = [
-            'Content-Type'        => 'text/csv; charset=UTF-8',
-            'Content-Disposition' => "attachment; filename=\"{$nombre}\"",
-        ];
+        $respuesta = $this->exportador->xlsx(
+            $this->resultadoParaExportar($informe),
+            $informe->nombre,
+            $informe->analisis,
+            $informe->pregunta,
+        );
 
-        $callback = function () use ($datos, $informe, $etiquetas, $totales) {
-            $handle = fopen('php://output', 'w');
-            fprintf($handle, chr(0xEF) . chr(0xBB) . chr(0xBF)); // BOM UTF-8
-
-            // Cabecera
-            fputcsv($handle, array_map(fn ($c) => $etiquetas[$c] ?? $c, $informe->campos), ';');
-
-            // Filas
-            foreach ($datos as $fila) {
-                fputcsv($handle, array_values($fila), ';');
-            }
-
-            // Fila de totales al final (si hay columnas agregables)
-            if (! empty($totales)) {
-                $filaTotales = array_map(function ($campo) use ($totales) {
-                    return isset($totales[$campo])
-                        ? ($totales[$campo]['tipo'] === 'promedio' ? 'Prom: ' : 'Total: ') . $totales[$campo]['texto']
-                        : '';
-                }, $informe->campos);
-                fputcsv($handle, $filaTotales, ';');
-            }
-
-            fclose($handle);
-        };
-
-        return response()->stream($callback, 200, $headers);
+        return $respuesta ?? redirect("/informes/{$informe->id}")
+            ->with('error', 'Este servidor no puede generar archivos de Excel (falta la extensión zip de PHP). Descarga el CSV, que Excel abre igual.');
     }
 
     public function destroy(Informe $informe)
@@ -191,7 +242,33 @@ class InformeController extends Controller
         return redirect('/informes')->with('success', 'Informe eliminado.');
     }
 
-    // ─── Helpers de autorización ───────────────────────────────────────────────
+    // ─── Por dentro ────────────────────────────────────────────────────────────
+
+    private function resultadoDelMotor(Informe $informe): array
+    {
+        try {
+            return $this->motor->ejecutar($informe, Auth::user());
+        } catch (\RuntimeException $e) {
+            abort(403, $e->getMessage());
+        }
+    }
+
+    private function resultadoParaExportar(Informe $informe): array
+    {
+        if ($this->motor->esDelMotor($informe->fuente)) {
+            return $this->resultadoDelMotor($informe);
+        }
+
+        $datos = $this->service->ejecutar($informe);
+
+        return ExportadorInformes::desdeLegado(
+            $informe->fuente,
+            $informe->campos,
+            collect($this->service->camposDisponibles($informe->fuente))->pluck('label', 'key')->toArray(),
+            $datos,
+            $this->service->calcularAgregados($informe->fuente, $informe->campos, $datos),
+        );
+    }
 
     private function autorizarVer(Informe $informe): void
     {

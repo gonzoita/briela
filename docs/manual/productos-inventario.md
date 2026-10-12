@@ -47,6 +47,14 @@ Dos reglas que se siguen de eso:
 La referencia de cada variante se genera sola a partir de la del padre más el
 valor de la variante, y el sistema se encarga de que no se repita.
 
+**La imagen de una variante es propia o heredada.** Al crear la variante, o al agregarla
+desde la ficha del padre, se puede subir una imagen suya. Si no se sube ninguna, donde la
+variante se muestre sola —el buscador de cotizaciones y órdenes, su ficha, el catálogo
+público— se usa la imagen del producto principal. No se copia ningún archivo: se mira al
+padre al mostrar, así que si el principal cambia su foto, las variantes que la heredan
+cambian con él. La variante que ya existe cambia su imagen desde su propia ficha, y la
+ficha avisa cuando la que se ve es la del principal (`Producto::imagenVisible()`).
+
 ## La unidad de medida la defines tú
 
 El selector de unidad sale de una lista que administra la empresa: el **+** que
@@ -106,7 +114,7 @@ Tres cosas no se copian, a propósito:
 
 | No se copia | Por qué |
 |---|---|
-| La **referencia** | Es única en el sistema. Se genera nueva sola |
+| La **referencia** | Es única entre los productos vivos. Se genera nueva sola. La de un producto **eliminado** queda libre: si la reutilizas, al eliminado se le cambia por «REF~elim123» y conserva su historial (`Producto::liberarReferencia()`) |
 | El **stock** | El inventario es de cada producto, no del molde |
 | Las **imágenes** | Son archivos en el servidor; copiarlas duplica el disco de la instalación |
 
@@ -117,6 +125,19 @@ mismo nombre si alguien guarda sin mirar. De las variantes se copia el valor
 Sirve para lo que hoy se hace a mano: un catálogo con veinte productos que se
 diferencian en dos campos, donde volver a escribir precios y comisiones es la
 forma de equivocarse en uno.
+
+## Un producto nace vendible e inventariable *(13 oct 2026)*
+
+Al crear un **producto**, «Es vendible» e «Inventariable» vienen prendidos; un **servicio** nace
+vendible y sin inventario. Antes los dos venían apagados: quien no tocaba los interruptores creaba
+un producto sin stock inicial —la sección ni se mostraba— y sin control de existencias, y la
+remisión lo despachaba sin que el inventario se enterara.
+
+## Un producto no pasa por planta *(14 oct 2026)*
+
+Un producto se alista y queda listo para remisionar; solo los ensambles se fabrican en planta. La
+ficha ya no tiene «Se procesa en planta» (la 1.5.0 alcanzó a tenerlo un día). Al remisionarlo, sale
+del almacén en ese momento, con su movimiento a la vista en la ficha.
 
 ## Precios
 
@@ -212,6 +233,27 @@ su responsable y su origen.
 Cuando el conteo físico no coincide con el sistema, se registra un **ajuste**.
 No se edita el número directamente: se deja el rastro de la corrección, con
 notas. Así el kardex sigue explicando la realidad.
+
+**El ajuste vive en la ficha del producto** (botón «+ Ajuste» de la tarjeta de stock) y **pide el
+permiso `inventario.editar`**: mueve el inventario, y la ruta no pedía ninguno. Se escribe la
+bodega, el tipo, la cantidad y las **observaciones**, y se puede indicar el **papel que lo
+respalda**: factura, remisión u otro, con su número y su fecha. Un tipo de papel sin número se
+rechaza. Una entrada sin factura ni remisión es un número que nadie puede comprobar.
+
+**Movimientos con detalle** *(10 oct 2026)*. La ficha muestra cada movimiento con:
+
+| Columna | Qué dice |
+|---|---|
+| Tipo y cantidad | Entrada, salida, ajuste… y cuánto |
+| Stock | El stock **antes → después** de ese movimiento |
+| Origen | De dónde vino, con enlace: la orden de compra (con su proveedor), la orden de producción, un ajuste manual, el stock inicial |
+| Papel | La factura o remisión con su número y fecha |
+| Observaciones | Lo que se escribió al registrarlo |
+
+Se ven los 30 últimos; «Ver movimientos anteriores» trae los siguientes con un cursor (el id del
+último que se ve), no con número de página: si entra un movimiento mientras se lee, la página 2
+repetiría el último de la 1. Debajo, **Remisiones** lista las últimas diez en las que salió el
+producto, con su cliente y cantidad. Las cuentas están en `ProductoController::movimientosDe()`.
 
 ## Avisos de stock bajo
 

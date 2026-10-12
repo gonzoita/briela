@@ -38,9 +38,17 @@ function disponibleItem(item) {
     return item.unidades_disponibles ?? 0
 }
 
+// Lo que se propone remisionar: lo alistado que no ha salido. Si de 15 se alistaron 10, se
+// proponen 10 y las otras 5 quedan pendientes. Si no se alistó nada, todo lo disponible: remisionar
+// un producto también lo alista.
+function propuestaItem(item) {
+    const listas = item.unidades_listas ?? 0
+    return listas > 0 ? Math.min(listas, disponibleItem(item)) : disponibleItem(item)
+}
+
 function initCantidad(item) {
     if (itemsSeleccionados.value[item.id] && !cantidadesARemisionar.value[item.id]) {
-        cantidadesARemisionar.value[item.id] = disponibleItem(item)
+        cantidadesARemisionar.value[item.id] = propuestaItem(item)
     }
 }
 
@@ -49,7 +57,7 @@ if (props.op) {
     form.cliente_id = props.op.cliente?.id ?? null
     props.op.items?.forEach(item => {
         itemsSeleccionados.value[item.id] = true
-        cantidadesARemisionar.value[item.id] = disponibleItem(item)
+        cantidadesARemisionar.value[item.id] = propuestaItem(item)
     })
 }
 
@@ -101,7 +109,7 @@ async function seleccionarOp(op) {
         cantidadesARemisionar.value = {}
         data.items.forEach(i => {
             itemsSeleccionados.value[i.id]    = true
-            cantidadesARemisionar.value[i.id] = disponibleItem(i)
+            cantidadesARemisionar.value[i.id] = propuestaItem(i)
         })
     } catch { } finally { buscandoOp.value = false }
 }
@@ -299,11 +307,11 @@ watch(() => form.tipo, () => {
                             <svg class="w-4 h-4 text-aviso-ambar shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                             </svg>
-                            <p class="text-xs text-aviso-ambar">Solo se remisionan <strong>unidades con avance 100%</strong> que no hayan sido remisionadas antes.</p>
+                            <p class="text-xs text-aviso-ambar">Se remisionan los <strong>productos</strong> que falten por salir —los que no estén alistados quedan alistados al guardar— y las <strong>unidades que pasaron por planta</strong> ya terminadas y aprobadas por calidad.</p>
                         </div>
 
                         <div v-if="!opCargada.items?.length" class="text-sm text-tinta-300 py-4 text-center">
-                            No hay unidades completadas disponibles para remisionar.
+                            No hay nada listo para remisionar en esta orden.
                         </div>
 
                         <div v-else class="space-y-2">
@@ -328,7 +336,10 @@ watch(() => form.tipo, () => {
                                     <p class="text-sm font-medium text-tinta-900">{{ item.descripcion }}</p>
                                     <div class="flex flex-wrap gap-3 mt-1 text-xs text-tinta-400">
                                         <span>Total: <strong class="text-tinta-700">{{ item.total }}</strong></span>
-                                        <span class="text-aviso-verde">Completadas: <strong>{{ item.unidades_completadas }}</strong></span>
+                                        <span v-if="item.sin_alistar" class="px-1.5 rounded bg-pastel-ambar text-aviso-ambar">
+                                            Sin alistar: queda alistado al remisionar
+                                        </span>
+                                        <span v-else class="text-aviso-verde">Listas: <strong>{{ item.unidades_completadas }}</strong></span>
                                         <span v-if="item.unidades_remisionadas > 0" class="text-aviso-ambar">
                                             Ya remisionadas: <strong>{{ item.unidades_remisionadas }}</strong>
                                         </span>
@@ -344,6 +355,11 @@ watch(() => form.tipo, () => {
                                             v-model.number="cantidadesARemisionar[item.id]"
                                             class="mt-1 w-full border border-borde-aviso-azul rounded-lg px-3 py-1.5 text-sm focus:outline-none"
                                             style="background:var(--superficie);"/>
+                                        <!-- Lo que no viaja queda registrado como pendiente en la remisión. -->
+                                        <p v-if="(item.total - (item.unidades_remisionadas ?? 0) - (cantidadesARemisionar[item.id] || 0)) > 0"
+                                            class="mt-1 text-xs text-aviso-ambar">
+                                            Quedan pendientes {{ item.total - (item.unidades_remisionadas ?? 0) - (cantidadesARemisionar[item.id] || 0) }}: la remisión lo dirá.
+                                        </p>
                                     </div>
                                 </div>
                             </label>

@@ -1,6 +1,6 @@
 <script setup>
 import { ref, computed } from 'vue'
-import { router } from '@inertiajs/vue3'
+import { router, usePage } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
 import OrdenarLista from '@/Components/OrdenarLista.vue'
 import { useOrden } from '@/composables/useOrden'
@@ -106,6 +106,9 @@ function guardar() {
         })
     }
 }
+
+// El ajuste mueve el inventario: sin `inventario.editar` el servidor responde 403, así que ni se ofrece.
+const puedeAjustar = computed(() => (usePage().props.auth?.permisosLista ?? []).includes('inventario.editar'))
 
 function abrirAjuste(item) {
     itemAjuste.value = item
@@ -256,7 +259,7 @@ function fmt(n) {
                             <td class="px-4 py-3">
                                 <div class="flex items-center gap-2 justify-end">
                                     <button @click="verMovimientos(item)" class="text-xs text-aviso-azul font-medium">Movimientos</button>
-                                    <button @click="abrirAjuste(item)" class="text-xs text-aviso-verde font-medium">Ajuste</button>
+                                    <button v-if="puedeAjustar" @click="abrirAjuste(item)" class="text-xs text-aviso-verde font-medium">Ajuste</button>
                                     <button @click="abrirEditar(item)" class="text-xs text-tinta-400 font-medium">Editar</button>
                                 </div>
                             </td>

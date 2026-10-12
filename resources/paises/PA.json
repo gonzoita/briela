@@ -1,0 +1,23 @@
+{
+  "iso": "PA",
+  "version": "2026.10.1",
+  "revisado": false,
+  "documento_fiscal": "Aviso de operación / RUC",
+  "autoridad": "DGI",
+  "moneda": "USD",
+  "retenciones": false,
+  "facturacion": "Factura electrónica con un Proveedor de Autorización Calificado (PAC) de la DGI.",
+  "identificaciones": [
+    { "codigo": "RUC", "nombre": "RUC", "juridica": true, "patron": "^[0-9A-Za-z]{1,12}(-[0-9A-Za-z]{1,8}){0,3}$", "dv": null, "ayuda": "Con sus guiones, como aparece en el documento. El DV va aparte." },
+    { "codigo": "CIP", "nombre": "Cédula de identidad personal", "juridica": false, "patron": "^(PE|E|N)?-?[0-9]{1,2}(AV|PI)?-?[0-9]{1,4}-?[0-9]{1,6}$", "dv": null },
+    { "codigo": "PAS", "nombre": "Pasaporte", "juridica": false, "patron": "^[A-Za-z0-9]{4,15}$", "dv": null }
+  ],
+  "impuestos": [
+    { "clave": "itbms", "nombre": "ITBMS", "tarifas": [7, 10, 15, 0], "defecto": 7, "nota": "7% general; 10% y 15% para algunos servicios y productos específicos." }
+  ],
+  "importacion": { "iva_descontable": true, "nota": "El ITBMS pagado al importar es crédito fiscal para el contribuyente." },
+  "notas": [
+    "Valores de partida: confírmalos con tu contador antes de facturar.",
+    "El balboa circula a la par con el dólar, por eso la moneda de los documentos es el dólar."
+  ]
+}

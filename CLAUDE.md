@@ -341,7 +341,7 @@ tocar los seeders.
 
 **Tareas programadas** (`routes/console.php`, requieren cron):
 `cotizaciones:marcar-vencidas` · `notificaciones:entregas-proximas` ·
-`notificaciones:cursos-por-vencer` · `notificaciones:recordatorios` ·
+`notificaciones:cursos-por-vencer` · `notificaciones:recordatorios` · `stock:liberar-reservas` ·
 `rrss:publicar-programadas` · `rrss:revisar-tokens` ·
 `whatsapp:sincronizar-plantillas`
 
@@ -370,8 +370,8 @@ El QR de trabajo del operario (`/trabajo/{token}`) **sí exige login**.
 6. Cuando todos los ítems terminan, la OP pasa sola a `calidad`.
 7. Calidad: foto + observaciones. Falla → `reproceso`. Aprueba → se sella
    `calidad_aprobada_at`, **candado obligatorio** para remisionar.
-8. Remisión con firma → la OP se despacha y **consume el inventario al salir**
-   (admite parciales).
+8. Remisión → **lo remisionado sale del almacén al crearla** (productos tal cual, ensambles por sus
+   componentes); la OP se despacha cuando la remisión sale (admite parciales).
 
 **Principio de fondo:** cada acción real dispara sola el siguiente paso del
 proceso. Al construir algo nuevo, evaluarlo también bajo ese criterio.
@@ -414,25 +414,20 @@ Lo construido después de la fase 3, que conviene conocer antes de tocar algo ce
 - **Ensamble directo** (`ensambles.tipo_armado`): receta escrita a mano, sin plantilla ni
   fórmulas. Guarda sus componentes con la MISMA forma que los calculados, y por eso la OP, el
   inventario y los PDF no los distinguen.
-- **Una OP declara DOS bodegas, y confundirlas descuenta contra el vacío.**
-  `ops.bodega_material_id` es de dónde salen los insumos; `ops.bodega_entrega_id`, a dónde entra
-  lo fabricado. Las dos exigidas al **confirmar** y no antes. Mientras fueron una sola, una OP
-  que entregaba en bodega de producto terminado descontaba contra una bodega en cero,
-  `registrarMovimiento()` lo recortaba con `max(0, …)` y el material seguía figurando entero
-  donde estaba: un descuento que no descontaba nada, sin error y sin stock en rojo.
-  Si el material no alcanza, se descuenta lo que hay y **se avisa** (`material_faltante` a
-  administración y jefatura); no se bloquea al operario, que no puede arreglar un inventario
-  desde la pantalla del QR.
-- **Producción entra a bodega, y la bodega la decide la OP.** `ops.bodega_entrega_id`, exigido
-  al **confirmar** la orden y no antes. Al cerrar el último paso, `EntregaAlmacenService`
-  descuenta los materiales de esa unidad y registra su entrada como **producto terminado**
-  (`productos.ensamble_id`). El despacho ya no vuelve a consumir material.
-  `op_item_trabajos.entregado_at` es el candado contra la doble entrada.
-  El `bodega_destino_id` del paso y la principal siguen como respaldo **solo** para las OPs
-  nacidas antes del campo. El ensamble ya **no** pregunta «se guarda en bodega»: `maneja_stock`
-  la prende sola la primera entrega, y por eso el formulario del ensamble **no debe volver a
-  escribir esa columna** — mandarla en `false` desactivaría el producto terminado de un ensamble
-  que sí tiene unidades en una estantería.
+- **Una OP declara DOS bodegas** (exigidas al confirmar, o precargadas con la principal si arranca
+  sola desde borrador): `ops.bodega_material_id`, de dónde salen los **componentes de los
+  ensambles** al remisionar; `ops.bodega_entrega_id`, de dónde salen los **productos**. Confundirlas
+  descontaba contra una bodega en cero y `registrarMovimiento()` lo recortaba en silencio.
+- **El inventario sale al CREAR la remisión, y por un solo sitio** (`InventarioRemisionService`,
+  llamado por `RemisionService::crear`; 14 oct 2026). Un producto sale tal cual; un ensamble sale por
+  sus **componentes** (receta de una unidad × unidades que viajan); un servicio no se mueve. Cada
+  movimiento queda con origen `remision`, y **anular o borrar devuelve exactamente esos movimientos**
+  —leídos de la base, no recalculados—. Si algo no alcanza se descuenta lo que hay y se avisa
+  (`material_faltante`). **Terminar en planta no mueve inventario** y ya no existe
+  `EntregaAlmacenService`; una unidad que alcanzó a entrar como producto terminado (`entregado_at`)
+  sale como tal. Cada unidad sabe en qué remisión salió (`op_item_trabajos.remision_id`), y anular
+  suelta exactamente esas. **Crear, mover y anular remisiones pasa por `RemisionService`**, lo use la
+  pantalla o la guía.
 - **Una lista de bodegas para elegir sale de `ContextoSede::bodegasParaElegir()`**, nunca de
   `idsBodegasVisibles()` a secas: esa cruza bodegas con sedes y devuelve **cero** en una
   instalación donde las bodegas no tienen sede asignada, que es el estado natural de una empresa
@@ -460,12 +455,8 @@ Lo construido después de la fase 3, que conviene conocer antes de tocar algo ce
   **es** la hora de llegada a calidad, no hay una segunda columna: es un solo hecho. Van ahí
   porque es el punto único por el que pasa cualquier cambio de avance; escritas en las cuatro
   pantallas que cierran pasos, la fecha dependería de por dónde entró quien marcó.
-- **El paso final entrega la unidad, y pide LAS DOS bodegas**: a dónde entra lo fabricado
-  (`op_item_trabajos.bodega_entrega_id`) y de dónde salió el material (`bodega_material_id`).
-  Se guardan por unidad porque un lote se puede partir. Llegan precargadas —de la unidad
-  anterior de la misma orden, o de la OP— y se pueden corregir: quien deja la unidad en el
-  estante es el único que sabe en cuál quedó. **No se cierra con otros pasos pendientes**:
-  entregar ahí metería al inventario una puerta sin marco.
+- **El paso final solo da la unidad por terminada**: no pide bodegas ni mueve inventario
+  (`bodegas_sugeridas.pide = false`), y **no se cierra con otros pasos pendientes**.
 - **Las unidades siguen a la cantidad del ítem** (`TrabajoAutoGeneratorService::
   sincronizarParaItem`), y la pantalla lo **pregunta** antes de guardar. Nunca se borra una
   unidad con avance. Y `items.*.id` **tiene que seguir en las reglas de validación** de
@@ -538,7 +529,10 @@ Lo construido después de la fase 3, que conviene conocer antes de tocar algo ce
   con 20 días de margen lo que se puede renovar solo (Meta estirando el token, Google con su
   `refresh_token`) y avisa a los 15 de lo que exige reconectar a mano. El aviso va a los
   administradores, no a quien publica: reconectar exige entrar al Business Manager.
-- **Por dentro todo está en pesos** (`App\Support\Monedas`). Un costo en USD/EUR guarda
+- **Por dentro todo está en la moneda base** (`App\Support\Monedas::base()`, el peso colombiano
+  mientras la instalación no diga otra; se congela con la primera cotización u orden). Nunca
+  escribir `'COP'` ni «pesos» en código nuevo: pregunta `Monedas::base()` (PHP) o `monedaBase()`
+  (`formato.js`). Un costo en USD/EUR guarda
   `productos.costo_moneda` y `precio_costo` (pesos) sale de la tasa del día; una cotización en
   otra moneda guarda sus ítems en pesos y una tasa, que solo sirve para **mostrar**. Nunca
   guardar un monto en otra moneda en una columna que se suma en informes o comisiones. La tasa
@@ -547,12 +541,96 @@ Lo construido después de la fase 3, que conviene conocer antes de tocar algo ce
 - **Lo tributario no se escribe en el código.** UVT, tarifas y bases de retención viven en
   Configuración → Perfil fiscal (`App\Support\Fiscal`); la cuenta, en `RetencionesService`, y
   la pantalla se la pide al servidor en vez de repetirla.
+- **Lo que depende de un país es un paquete de datos, no código** (`App\Support\Paises`,
+  `resources/paises/{ISO}.json`): identificaciones, impuestos, tarifas, documento fiscal. Un país
+  nuevo es un archivo. Lo que la empresa ajuste va aparte (`paises_ajustes`) y una actualización
+  no lo pisa. La casa es el país de la sede principal; un cliente o proveedor sin país es de la
+  casa. **Los paquetes de Panamá y Venezuela no los ha revisado un contador**: no se presentan como
+  verdad. Ver `docs/manual/paises.md`.
+- **El costo puesto en bodega sale de una importación liquidada**
+  (`LiquidacionImportacionService`, la cuenta en un solo lugar; la pantalla la pide al servidor).
+  Liquidar reprecia lo calculado y deja el producto fuera de la tasa diaria; una liquidada no se
+  edita. Ver `docs/manual/importaciones.md`.
 - **El correo sale por el panel de Briela, como la IA.** `App\Mail\TransporteBriela` es un
   transporte de Laravel: todo `Mail::` va al superadmin con el serial, y el superadmin envía con
   Brevo o Amazon SES desde el subdominio verificado de la instalación (Cloudflare). La
   instalación **no** guarda credenciales de correo; el SMTP propio es solo respaldo. Un correo
   masivo se marca con `X-Briela-Tipo: masivo`; las notificaciones no se cobran nunca. Ver
   `docs/manual/correo.md`.
+- **El verificador de pagos solo LEE, y toda fuente entra por un solo sitio**
+  (`VerificadorPagosService::importar()`). Hoy la fuente es el extracto subido (`.xlsx`/`.csv`,
+  `App\Services\Banco\`); la conexión de banca abierta (Belvo) será **otra fuente** que llama a ese mismo
+  método. **Los datos bancarios de una empresa nunca pasan por el superadmin ni se guardan allí**:
+  la conexión se configura en la cuenta de cada instalación, que habla directo con el proveedor con
+  credenciales cifradas propias; la membresía solo decide si la conexión en vivo consulta (como la
+  IA) y nunca detiene la operación. Solo pasan los **abonos**, y solo se concilia sola una cuota cuando no queda duda —la orden
+  nombrada con el valor exacto, o el valor exacto con el cliente en la descripción—: ante dos
+  explicaciones se pregunta, nunca se adivina. El pago que registra es el mismo de la cartera
+  (`op_pagos`), marcado con `verificado_at`; deshacerlo pide `cartera.eliminar`. Ver
+  `docs/manual/verificador-pagos.md`.
+- **El estado de la OP se decide en `Op::sincronizarEstado()`, y en ningún otro sitio.** Lo
+  llaman alistar (`OpItem::alistar()`, el único que escribe la marca de un producto), cerrar o
+  reabrir un paso, firmar calidad y que salga o se anule una remisión. **Una acción nueva que
+  cambie algo de la orden llama ahí; nunca escribe `estado` a mano.** Antes cada camino hacía su
+  parte y alistar un producto no movía la orden. La orden se **despacha cuando la remisión sale**
+  (en camino/entregada), no al crearla; el inventario ya salió al **crear** la remisión (candado
+  `remisiones.inventario_movido_at`). Lo remisionable es **una sola regla**:
+  producto con algo por despachar —alistado o no— o unidad firmada por calidad (`OpItem::cantidadDisponible()` y el scope
+  `disponiblesParaRemision`); los servicios nunca viajan (`Op::TIPOS_SIN_DESPACHO`) **ni frenan**
+  el paso a calidad (`Op::cuentanParaListo()`). Rechazar en calidad, por cualquier pantalla, es
+  `Op::mandarAReproceso()`: reabre lo que hay que rehacer y le quita la firma; cambiar solo la
+  etiqueta dejaba las unidades remisionables y la orden rebotaba sola a «Calidad».
+- **Solo los ensambles pasan por planta; un producto se alista y ya es remisionable** (14 oct 2026).
+  `TrabajoAutoGeneratorService::templateDe()` devuelve nada para un producto y `procesarEnPlanta()`
+  lo rechaza; los que la 1.5.0 alcanzó a mandar a planta vuelven a alistar en
+  `ops:sincronizar-estados` (`quitarUnidadesDeProductos()`). **Una OP en borrador arranca sola** en
+  cuanto algo queda listo, con las bodegas precargadas (`Op::iniciarProduccionSiAplica()`). **Un
+  producto se remisiona aunque no esté alistado** y la remisión lo alista: `OpItem::cantidadDisponible()`
+  es lo despachable, `cantidadLista()` lo ya alistado (la pestaña «Por remisionar» y Alistamiento).
+- **La guía hace transacciones, siempre con confirmación** (`App\Services\IA\TransaccionesIaService`,
+  14 oct 2026): generar OP, alistar, remisionar, mover remisión, registrar pago, confirmar abono del
+  verificador, cerrar pasos, aprobar calidad, cambiar estado de cotización, mover y crear leads.
+  **Proponer no escribe**: ubica todo y arma un resumen que la pantalla muestra en una tarjeta.
+  **Confirmar** (`POST /api/asistente/confirmar`) vuelve a resolver, exige que salga lo mismo que se
+  propuso y ejecuta con **los mismos servicios que las pantallas** —nunca un camino propio—. Cada una
+  exige el permiso de su pantalla. Una transacción nueva se agrega al catálogo con su `preparar…` y su
+  `hacer…`.
+- **El CRM se entera de la cotización** (`CrmLead::alCambiarCotizacion()`, desde `CotizacionObserver`):
+  aprobada → lead ganado; rechazada o vencida → perdido con el motivo, si no le queda otra cotización
+  viva. La cotización automática del lead usa las condiciones configuradas (`CrmLead::crearCotizacion()`),
+  convertir a cliente reutiliza el que ya exista (documento, correo o celular), y un lead de otra sede
+  no se abre por enlace directo. Todo lead entra por `LeadEntranteService`, también las novedades del
+  agente de IA (canal `agente_ia`).
+- **Sin cliente no hay cotización ni orden** (`Cotizacion::SIN_CLIENTE`, `Op::SIN_CLIENTE`, 15 oct
+  2026). La columna sigue nulable por lo viejo; la regla la exige cada puerta: formularios, cambio de
+  estado, enlace público, duplicar, `generarOp`, alistar, cerrar paso (`CierrePasoService`),
+  `RemisionService::errores` y la guía. Una acción nueva sobre una orden o cotización pregunta lo mismo.
+- **Alistamiento parcial** (`op_items.cantidad_alistada`): `OpItem::alistar($alistar, $cantidad)`
+  recibe el **total** alistado; `cantidadLista()` es lo alistado sin salir y `cantidadAlistada()` lo
+  alistado (lo remisionado cuenta). `en_proceso` = alistado en parte, y también arranca la orden.
+  `OpItem::booted` hace que la cantidad siga a la marca cuando alguien escribe `estado_item`.
+  Cada renglón de remisión congela lo que quedó por entregar (`cantidad_pendiente`).
+- **La remisión entregada se cierra sola** (`cerrada`) cuando la orden está pagada con pagos
+  verificados (`Op::pagadaYVerificada()`; verificado = el verificador o `verificado_por` a mano). Un
+  solo sitio: `RemisionService::sincronizarCierre()`, llamado por los eventos de `OpPago` y al
+  entregar. «Salió» es `Remision::SALIDAS` (en camino, entregada, cerrada): nunca escribir
+  `['en_camino','entregada']` a mano.
+- **Firmas**: `FirmaPad.vue` es el único lienzo de firma (remisión y perfil). Una firma es siempre
+  `data:image/(png|jpeg);base64,…`, validada al guardar y otra vez al imprimir
+  (`PdfVariablesEngine::imgFirma`). La del usuario va en `users.firma` (oculta en `toArray`) y sale
+  en los PDF con el bloque `pdf/_firma.blade.php` o las variables `{{!vendedor.firma}}`,
+  `{{!responsable.firma}}`, `{{!firma.despacho}}`, `{{!firma.recibido}}`.
+- **Chat y campana en vivo sin websockets**: la conversación abierta pide `?desde={id}` cada 4 s;
+  la campana late contra `/api/avisos/pulso` cada 15 s y solo trae las listas si la firma cambió.
+  Los avisos del chat apuntan a `/chat/{usuario}` y `/chat/grupos/{grupo}`, que abren la burbuja.
+- **Informes: la IA elige, el servidor calcula** (`App\Services\Informes\MotorInformes`, 16 oct 2026).
+  Cada fuente es una clase (`Informes\Fuentes\*`) con columnas tipadas, dimensiones, medidas,
+  filtros y cifras clave; respeta el permiso de su pantalla y la sede. La guía pide un informe con
+  un plan JSON que `normalizarPlan()` limpia; a la redacción solo llega `paraIa()` —totales y
+  resúmenes, **nunca filas**— y el texto queda como `informes.analisis`. El periodo se guarda por
+  nombre (`Periodo`). Exportar: `ExportadorInformes` (CSV `;` + BOM + coma decimal + protección
+  contra fórmulas) y `EscritorXlsx` (sin librerías; sin `zip` cae al CSV). Una fuente nueva = una
+  clase en `MotorInformes::fuentes()`. Las cuatro de siempre siguen en `InformeService`.
 - **Una OP con trabajo hecho no cambia sus ítems** (`Op::itemsBloqueados()`), y el candado está
   en el servidor.
 
@@ -617,11 +695,17 @@ decían lo contrario y estaban equivocadas.
   relaciones entre archivos antes de leer código a mano.
 - Conviene regenerarlo después de cambios que muevan estructura (borrar módulos,
   mover carpetas), porque un grafo desactualizado es peor que no tenerlo.
-- **Generado y al día.** Al 17 sep 2026: 7.596 nodos, 14.529 aristas, 563 comunidades,
-  anclado al commit `e8cbe9c0`. Se actualiza con
+- **Generado y al día.** Al 12 oct 2026: **11.552 nodos, 22.662 aristas, 665 comunidades**,
+  actualizado sobre el commit `2e15785`. Cubre el proyecto completo: 926 archivos de
+  código por AST y los 70 documentos por subagentes. Se actualiza con
   `python -m graphify update . --force` y luego `cluster-only .` con
-  `GRAPHIFY_VIZ_NODE_LIMIT=10000`: pasado de 5.000 nodos, graphify no escribe `graph.html` si no. Se reconstruye entero con la extracción AST
-  (gratis, sin LLM) y `parallel=False`.
+  `GRAPHIFY_VIZ_NODE_LIMIT=10000`: pasado de 5.000 nodos, graphify no escribe `graph.html` si no.
+  La reconstrucción entera con la extracción AST es gratis, sin LLM.
+- **La caché semántica de los documentos va en `graphify-out/cache/` y NO al repo.** Guarda
+  rutas absolutas de la máquina donde se extrajo, igual que los `.graphify_*`. Eso significa que
+  **en una máquina nueva la parte de documentos se vuelve a pagar en subagentes**: lo que llega
+  gratis en el clon es `graph.json`, que ya los trae dentro. Reconstruir en frío ahí sin volver a
+  extraer los documentos **encoge el grafo** y graphify lo rechaza, que es lo correcto.
 - **Las comunidades se nombran solas, con su archivo dominante** —«Servicios · IaService»— y
   **no** con una lista escrita a mano. Louvain las renumera en cada reconstrucción: el id 12 de
   hoy no es el de ayer, así que un mapa de nombres a mano termina poniendo «Autenticación»

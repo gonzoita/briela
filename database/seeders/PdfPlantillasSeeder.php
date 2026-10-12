@@ -152,7 +152,7 @@ td{padding:5px 7px;border-bottom:1px solid #eee;font-size:9px;vertical-align:top
 
 <div class="row" style="margin-top:36px;">
   <div class="col" style="width:45%;">
-    <div style="height:30px;"></div>
+    <div style="height:56px;text-align:center;">{{!vendedor.firma}}</div>
     <div class="firma-linea">
       <p style="margin:2px 0;font-weight:bold;">{{vendedor.nombre}}</p>
       <p style="margin:0;color:#888;">Asesor Comercial &mdash; {{empresa.nombre}}</p>
@@ -263,7 +263,7 @@ td{padding:5px 7px;border-bottom:1px solid #eee;font-size:9px;vertical-align:top
       <td style="font-family:Courier,monospace;font-size:8px;">{{codigo}}</td>
       <td>{{descripcion}}</td>
       <td style="text-align:center;">{{cantidad}}</td>
-      <td style="font-family:Courier,monospace;font-size:8px;">{{serie}}</td>
+      <td style="font-family:Courier,monospace;font-size:8px;">{{serie}}{{#if pendiente}}<div style="font-family:Helvetica,Arial,sans-serif;color:#92400e;font-weight:bold;">{{pendiente}}</div>{{/if}}</td>
       <td>{{estado_item}}</td>
     </tr>
     {{/items}}
@@ -289,6 +289,16 @@ td{padding:5px 7px;border-bottom:1px solid #eee;font-size:9px;vertical-align:top
 <p class="sec" style="margin-top:10px;">Observaciones internas</p>
 <div style="background:#fffbeb;border:1px solid #fde68a;padding:8px;font-size:9px;color:#92400e;">{{op.notas_internas}}</div>
 {{/if}}
+
+<div class="row" style="margin-top:24px;">
+  <div class="col" style="width:45%;">
+    <div style="height:56px;text-align:center;">{{!responsable.firma}}</div>
+    <div style="border-top:1px solid #555;padding-top:4px;text-align:center;font-size:8px;color:#555;margin:0 16px;">
+      <p style="margin:2px 0;font-weight:bold;">{{responsable.nombre}}</p>
+      <p style="margin:0;color:#888;">Responsable de la orden</p>
+    </div>
+  </div>
+</div>
 
 <div class="footer">
   <div class="row">
@@ -397,18 +407,18 @@ td{padding:5px 7px;border-bottom:1px solid #eee;font-size:9px;}
 
 <div class="row" style="margin-top:28px;">
   <div class="col" style="width:45%;">
-    <div style="height:36px;"></div>
+    <div style="height:58px;text-align:center;">{{!firma.despacho}}</div>
     <div class="firma-box">
-      <p style="margin:2px 0;font-weight:bold;">{{empresa.nombre}}</p>
-      <p style="margin:0;font-size:8px;color:#666;">Entrega conforme</p>
+      <p style="margin:2px 0;font-weight:bold;">{{despachado_por.nombre}}</p>
+      <p style="margin:0;font-size:8px;color:#666;">Entrega conforme &mdash; {{empresa.nombre}}</p>
     </div>
   </div>
   <div class="col" style="width:10%;"></div>
   <div class="col" style="width:45%;">
-    <div style="height:36px;"></div>
+    <div style="height:58px;text-align:center;">{{!firma.recibido}}</div>
     <div class="firma-box">
       <p style="margin:2px 0;font-weight:bold;">{{cliente.nombre}}</p>
-      <p style="margin:0;font-size:8px;color:#666;">Recibe conforme &mdash; C.C.: _____________</p>
+      <p style="margin:0;font-size:8px;color:#666;">Recibe conforme{{#if recibido_por.nombre}}: {{recibido_por.nombre}}{{else}} &mdash; C.C.: _____________{{/if}}</p>
     </div>
   </div>
 </div>

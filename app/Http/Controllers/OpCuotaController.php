@@ -32,11 +32,19 @@ class OpCuotaController extends Controller
                     'fecha_pago'    => $p->fecha_pago?->format('Y-m-d'),
                     'referencia'    => $p->referencia,
                     'notas'         => $p->notas,
+                    // Cuándo el banco confirmó que este dinero entró (verificador de pagos).
+                    'verificado_at' => $p->verificado_at?->toIso8601String(),
+                    // A mano (efectivo, cheque) o por el banco: se dice cuál, porque solo el
+                    // manual se deshace desde aquí; el del banco, desde el verificador.
+                    'verificado_a_mano' => (bool) $p->verificado_por,
                 ]),
             ]),
             'total_op'        => (float) ($op->total ?? 0),
             'total_pagado'    => $op->total_pagado,
             'saldo_pendiente' => $op->saldo_pendiente,
+            'total_verificado' => $op->totalVerificado(),
+            'puede_verificar'  => (bool) auth()->user()?->tienePermiso('cartera.editar'),
+            'puede_desverificar' => (bool) auth()->user()?->tienePermiso('cartera.eliminar'),
         ]);
     }
 

@@ -1,0 +1,607 @@
+<?php
+
+namespace Tests\Feature;
+
+use App\Models\Bodega;
+use App\Models\Ensamble;
+use App\Models\Op;
+use App\Models\OpItem;
+use App\Models\Producto;
+use App\Models\Remision;
+use App\Models\Sede;
+use App\Models\User;
+use App\Services\CierrePasoService;
+use App\Services\TrabajoAutoGeneratorService;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
+
+/**
+ * El flujo después de la cotización, de punta a punta: alistar, fabricar, calidad, remisionar y
+ * despachar — y que la orden cambie de estado sola con cada paso real.
+ *
+ * El estado se decide en un solo sitio (`Op::sincronizarEstado`). Antes cada pantalla hacía su
+ * parte: cerrar un paso pasaba la orden a calidad, pero alistar un producto no la movía.
+ */
+class FlujoOpRemisionTest extends TestCase
+{
+    use RefreshDatabase;
+
+    private User $admin;
+    private Bodega $bodega;
+    private Sede $sede;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->admin  = User::factory()->create(['rol' => 'administrador']);
+        $this->sede   = Sede::query()->first() ?? Sede::create(['nombre' => 'Principal']);
+        $this->bodega = Bodega::create(['sede_id' => $this->sede->id, 'nombre' => 'Terminado', 'activa' => true, 'es_principal' => true]);
+        $this->actingAs($this->admin);
+    }
+
+    private function op(string $estado = 'confirmada'): Op
+    {
+        return Op::create([
+            'cliente_id' => $this->clientePrueba()->id,
+            'sede_id' => $this->sede->id, 'estado' => $estado, 'responsable_id' => $this->admin->id,
+            'bodega_entrega_id' => $this->bodega->id, 'bodega_material_id' => $this->bodega->id,
+            'fecha_creacion' => now(), 'fecha_entrega_estimada' => now()->addDays(5),
+        ]);
+    }
+
+    /** Un producto de bodega en la orden, con stock. */
+    private function producto(Op $op, int $cantidad = 3, int $stock = 10): OpItem
+    {
+        $p = Producto::create([
+            'tipo' => 'producto', 'nombre' => 'Bisagra '.uniqid(), 'referencia' => 'B-'.uniqid(),
+            'unidad_medida' => 'unidad', 'inventariable' => true, 'activo' => true,
+        ]);
+        $p->registrarMovimiento('entrada', $stock, $this->bodega->id, $this->admin->id);
+
+        return OpItem::create([
+            'op_id' => $op->id, 'tipo' => 'producto', 'producto_id' => $p->id, 'descripcion' => $p->nombre,
+            'cantidad' => $cantidad, 'precio_unitario' => 1000, 'subtotal' => 1000 * $cantidad, 'total_linea' => 1000 * $cantidad,
+            'orden' => 0, 'estado_item' => 'pendiente',
+        ]);
+    }
+
+    private function servicio(Op $op): OpItem
+    {
+        return OpItem::create([
+            'op_id' => $op->id, 'tipo' => 'servicio', 'descripcion' => 'Instalación', 'cantidad' => 1,
+            'precio_unitario' => 500, 'subtotal' => 500, 'total_linea' => 500, 'orden' => 9, 'estado_item' => 'pendiente',
+        ]);
+    }
+
+    /** Un ensamble con unidades (dos pasos cada una), como lo genera la orden real. */
+    private function ensamble(Op $op, int $cantidad = 2): OpItem
+    {
+        $ensamble = Ensamble::create([
+            'nombre' => 'Puerta', 'tipo_armado' => 'directo', 'variables' => [], 'creado_por' => $this->admin->id,
+            'unidad_medida' => 'unidad', 'precio_costo' => 1000, 'componentes_resultado' => [],
+        ]);
+        $ensamble->obtenerOCrearTemplateTrabajo()->sincronizarPasos([
+            ['nombre' => 'Cortar', 'peso_porcentaje' => 50, 'orden' => 0, 'es_paso_final' => false],
+            ['nombre' => 'Armar',  'peso_porcentaje' => 50, 'orden' => 1, 'es_paso_final' => true],
+        ]);
+
+        $item = OpItem::create([
+            'op_id' => $op->id, 'ensamble_id' => $ensamble->id, 'tipo' => 'ensamble', 'descripcion' => 'Puerta',
+            'cantidad' => $cantidad, 'precio_unitario' => 1000, 'subtotal' => 1000, 'total_linea' => 1000, 'orden' => 1,
+        ]);
+        app(TrabajoAutoGeneratorService::class)->generarParaItem($item);
+
+        return $item->fresh();
+    }
+
+    private function fabricar(OpItem $item, ?int $unidades = null): void
+    {
+        $svc = app(CierrePasoService::class);
+        foreach ($item->trabajos()->orderBy('numero_unidad')->take($unidades ?? 99)->get() as $t) {
+            $svc->cerrar($t->pasos()->where('es_paso_final', false)->firstOrFail());
+            $svc->cerrar($t->pasos()->where('es_paso_final', true)->firstOrFail());
+        }
+    }
+
+    private function alistar(OpItem $item, bool $alistado = true)
+    {
+        return $this->patch("/produccion/alistamiento/{$item->id}", ['alistado' => $alistado]);
+    }
+
+    private function remisionar(Op $op, OpItem $item, int $unidades): Remision
+    {
+        $this->post('/logistica/remisiones', [
+            'tipo' => 'op', 'op_id' => $op->id,
+            'items' => [['descripcion' => $item->descripcion, 'cantidad' => $unidades, 'cantidad_unidades' => $unidades, 'op_item_id' => $item->id]],
+        ])->assertSessionHasNoErrors();
+
+        return Remision::latest('id')->firstOrFail();
+    }
+
+    private function estado(Remision $r, string $estado)
+    {
+        return $this->patch("/logistica/remisiones/{$r->id}/estado", ['estado' => $estado]);
+    }
+
+    // ─── Alistar mueve la orden ──────────────────────────────────────────────
+
+    public function test_alistar_productos_mueve_la_orden_hasta_calidad_y_la_sella_sola(): void
+    {
+        $op = $this->op();
+        $a  = $this->producto($op);
+        $b  = $this->producto($op);
+
+        $this->alistar($a)->assertSessionHas('success');
+        $this->assertSame('en_produccion', $op->fresh()->estado); // algo listo: arrancó
+
+        $this->alistar($b);
+        $op->refresh();
+        $this->assertSame('calidad', $op->estado);               // todo listo
+        $this->assertNotNull($op->calidad_aprobada_at);           // sin unidades no hay qué firmar
+    }
+
+    public function test_desalistar_un_producto_devuelve_la_orden_a_produccion(): void
+    {
+        $op = $this->op();
+        $a  = $this->producto($op);
+        $this->alistar($a);
+        $this->assertSame('calidad', $op->fresh()->estado);
+
+        $this->alistar($a, false);
+
+        $op->refresh();
+        $this->assertSame('en_produccion', $op->estado);
+        $this->assertNull($op->calidad_aprobada_at);
+    }
+
+    public function test_el_boton_de_la_orden_alista_igual_que_alistamiento(): void
+    {
+        $op = $this->op();
+        $a  = $this->producto($op);
+
+        $this->patch("/produccion/ops/{$op->id}/items/{$a->id}/terminar")->assertSessionHas('success');
+
+        $this->assertSame('calidad', $op->fresh()->estado);
+    }
+
+    public function test_un_ensamble_con_unidades_no_se_alista_a_mano(): void
+    {
+        $op   = $this->op();
+        $item = $this->ensamble($op);
+
+        $this->alistar($item)->assertSessionHas('error');
+
+        $this->assertSame('pendiente', $item->fresh()->estado_item ?? 'pendiente');
+        $this->assertSame('confirmada', $op->fresh()->estado);
+    }
+
+    // ─── Trabajos y calidad ──────────────────────────────────────────────────
+
+    public function test_terminar_las_unidades_lleva_la_orden_a_calidad_y_el_ensamble_queda_listo_solo(): void
+    {
+        $op   = $this->op();
+        $item = $this->ensamble($op);
+        $prod = $this->producto($op);
+
+        $this->alistar($prod);
+        $this->fabricar($item);
+
+        $this->assertSame('terminado', $item->fresh()->estado_item);
+        $this->assertSame('calidad', $op->fresh()->estado);
+        // Las unidades todavía no tienen firma: la orden no está sellada.
+        $this->assertNull($op->fresh()->calidad_aprobada_at);
+    }
+
+    public function test_la_orden_no_se_sella_con_la_primera_unidad_revisada(): void
+    {
+        $op   = $this->op();
+        $item = $this->ensamble($op, 2);
+        $this->fabricar($item);
+
+        $primera = $item->trabajos()->orderBy('numero_unidad')->first();
+        $this->post("/calidad/unidades/{$primera->id}/terminar")->assertOk();
+
+        $this->assertNull($op->fresh()->calidad_aprobada_at); // falta la segunda
+
+        $segunda = $item->trabajos()->orderBy('numero_unidad')->skip(1)->first();
+        $this->post("/calidad/unidades/{$segunda->id}/terminar")->assertOk();
+
+        $this->assertNotNull($op->fresh()->calidad_aprobada_at);
+    }
+
+    public function test_una_unidad_reabierta_deja_el_item_pendiente_otra_vez(): void
+    {
+        $op   = $this->op();
+        $item = $this->ensamble($op, 1);
+        $this->fabricar($item);
+        $this->assertSame('terminado', $item->fresh()->estado_item);
+
+        $final = $item->trabajos()->first()->pasos()->where('es_paso_final', true)->first();
+        app(CierrePasoService::class)->reabrir($final);
+
+        $this->assertSame('pendiente', $item->fresh()->estado_item);
+        $this->assertSame('en_produccion', $op->fresh()->estado);
+    }
+
+    // ─── Remisiones ──────────────────────────────────────────────────────────
+
+    public function test_una_orden_de_productos_alistados_se_puede_remisionar_desde_la_orden(): void
+    {
+        $op = $this->op();
+        $a  = $this->producto($op);
+        $this->alistar($a);
+
+        $this->get("/produccion/ops/{$op->id}")
+            ->assertInertia(fn ($page) => $page->where('op.por_remisionar', 3));
+
+        $this->get("/logistica/remisiones/crear?op_id={$op->id}")
+            ->assertOk()
+            ->assertInertia(fn ($page) => $page->component('Logistica/Remisiones/Create')->has('op.items', 1));
+    }
+
+    public function test_la_lista_de_ordenes_solo_trae_lo_que_de_verdad_se_puede_remisionar(): void
+    {
+        $sinCalidad = $this->op();
+        $item = $this->ensamble($sinCalidad, 1);
+        $this->fabricar($item); // fabricada, sin firmar por calidad
+
+        $lista = $this->op();
+        $this->alistar($this->producto($lista));
+
+        $ids = collect($this->getJson('/logistica/api/ops/buscar')->json())->pluck('id');
+
+        $this->assertTrue($ids->contains($lista->id));
+        $this->assertFalse($ids->contains($sinCalidad->id));
+    }
+
+    public function test_crear_la_remision_no_despacha_salir_si_y_descuenta_el_producto(): void
+    {
+        $op   = $this->op();
+        $prod = $this->producto($op, 3, 10);
+        $this->servicio($op);
+        $this->alistar($prod);
+        $this->alistar($op->items()->where('tipo', 'servicio')->first());
+
+        $r = $this->remisionar($op, $prod, 3);
+
+        // Crear la remisión ya saca el producto del almacén, pero no despacha la orden.
+        $this->assertSame('calidad', $op->fresh()->estado);
+        $this->assertEquals(7, $prod->producto->fresh()->stockTotal());
+        $this->assertSame(1, \App\Models\ProductoMovimiento::where('origen_tipo', 'remision')->where('origen_id', $r->id)->where('tipo', 'salida')->count());
+
+        $this->estado($r, 'en_camino')->assertSessionHas('success');
+
+        // El servicio no viaja y no impide despachar; salir no vuelve a descontar.
+        $this->assertSame('despachada', $op->fresh()->estado);
+        $this->assertEquals(7, $prod->producto->fresh()->stockTotal());
+    }
+
+    public function test_anular_una_remision_que_salio_devuelve_el_stock_y_la_orden_a_calidad(): void
+    {
+        $op   = $this->op();
+        $prod = $this->producto($op, 3, 10);
+        $this->alistar($prod);
+        $r = $this->remisionar($op, $prod, 3);
+        $this->estado($r, 'en_camino');
+
+        $this->estado($r, 'anulada')->assertSessionHas('success');
+
+        $this->assertSame('calidad', $op->fresh()->estado);
+        $this->assertEquals(10, $prod->producto->fresh()->stockTotal());
+        $this->assertSame(3, $prod->fresh()->cantidadDisponible()); // se puede volver a despachar
+    }
+
+    public function test_despachar_dos_veces_no_descuenta_dos_veces(): void
+    {
+        $op   = $this->op();
+        $prod = $this->producto($op, 3, 10);
+        $this->alistar($prod);
+
+        $r1 = $this->remisionar($op, $prod, 3);
+        $this->estado($r1, 'en_camino');
+        $this->estado($r1, 'anulada');
+
+        $r2 = $this->remisionar($op, $prod, 3);
+        $this->estado($r2, 'en_camino');
+
+        $this->assertEquals(7, $prod->producto->fresh()->stockTotal());
+    }
+
+    public function test_borrar_una_remision_en_borrador_devuelve_lo_que_saco(): void
+    {
+        $op   = $this->op();
+        $prod = $this->producto($op, 3, 10);
+
+        $r = $this->remisionar($op, $prod, 2);
+        $this->assertEquals(8, $prod->producto->fresh()->stockTotal());
+
+        $this->delete("/logistica/remisiones/{$r->id}");
+
+        $this->assertEquals(10, $prod->producto->fresh()->stockTotal());
+        $this->assertEquals(0, (float) $prod->fresh()->cantidad_remisionada);
+    }
+
+    public function test_si_no_alcanza_el_stock_se_descuenta_lo_que_hay_y_se_avisa(): void
+    {
+        $op   = $this->op();
+        $prod = $this->producto($op, 5, 3);
+
+        $this->remisionar($op, $prod, 5);
+
+        $this->assertEquals(0, $prod->producto->fresh()->stockTotal());
+        $this->assertTrue(\App\Models\Notificacion::where('tipo', 'material_faltante')->exists());
+    }
+
+    public function test_un_producto_en_dos_remisiones_se_anula_solo_lo_suyo(): void
+    {
+        $op   = $this->op();
+        $prod = $this->producto($op, 4, 10);
+        $this->alistar($prod);
+
+        $this->remisionar($op, $prod, 1);
+        $b = $this->remisionar($op, $prod, 3);
+
+        $this->estado($b, 'anulada');
+
+        // Antes volvía entero: se recontaba por unidades, y un producto no tiene.
+        $this->assertEquals(1, (float) $prod->fresh()->cantidad_remisionada);
+        $this->assertSame(3, $prod->fresh()->cantidadDisponible());
+    }
+
+    public function test_eliminar_una_remision_anulada_no_libera_las_unidades_de_otra(): void
+    {
+        $op   = $this->op();
+        $item = $this->ensamble($op, 2);
+        $this->fabricar($item);
+        $this->post("/calidad/ops/{$op->id}/terminar")->assertSessionHasNoErrors();
+
+        $a = $this->remisionar($op, $item, 1);
+        $b = $this->remisionar($op, $item, 1);
+
+        $this->estado($b, 'anulada');
+        $this->delete("/logistica/remisiones/{$b->id}");
+
+        // La unidad de A sigue remisionada: liberarla otra vez la soltaba.
+        $this->assertSame(1, $item->trabajos()->where('remisionado', true)->count());
+        $this->assertNotNull($a->fresh());
+    }
+
+    public function test_una_remision_anulada_no_revive_y_una_que_salio_no_se_elimina(): void
+    {
+        $op   = $this->op();
+        $prod = $this->producto($op, 2, 10);
+        $this->alistar($prod);
+        $r = $this->remisionar($op, $prod, 1);
+
+        $this->estado($r, 'en_camino');
+        $this->delete("/logistica/remisiones/{$r->id}")->assertSessionHas('error');
+        $this->assertNotNull($r->fresh());
+
+        $this->estado($r, 'anulada');
+        $this->estado($r, 'en_camino')->assertSessionHas('error');
+        $this->assertSame('anulada', $r->fresh()->estado);
+    }
+
+    public function test_la_firma_de_recibido_tambien_despacha(): void
+    {
+        $op   = $this->op();
+        $prod = $this->producto($op, 1, 5);
+        $this->alistar($prod);
+        $r = $this->remisionar($op, $prod, 1);
+        $this->estado($r, 'en_camino');
+        // (ya despachada al salir; la firma solo cierra la entrega)
+        $this->post("/logistica/remisiones/{$r->id}/firma", ['tipo' => 'recibido', 'firma' => 'data:image/png;base64,AAA', 'nombre_receptor' => 'Laura Gómez']);
+
+        // La orden de prueba no tiene valor: no queda nada por cobrar y la remisión se cierra sola.
+        $this->assertSame('cerrada', $r->fresh()->estado);
+        $this->assertSame('Laura Gómez', $r->fresh()->nombre_receptor);
+        $this->assertSame('despachada', $op->fresh()->estado);
+        $this->assertEquals(4, $prod->producto->fresh()->stockTotal()); // una sola salida
+    }
+
+    // ─── Pantalla de remisiones ──────────────────────────────────────────────
+
+    public function test_remisiones_muestra_lo_pendiente_por_remisionar_y_lo_creado(): void
+    {
+        $op   = $this->op();
+        $prod = $this->producto($op, 3, 10);
+        $this->alistar($prod);
+
+        $this->get('/logistica/remisiones')
+            ->assertInertia(fn ($page) => $page
+                ->where('vista', 'pendientes')
+                ->has('pendientes', 1)
+                ->where('pendientes.0.id', $op->id)
+                ->where('pendientes.0.items.0.disponibles', 3));
+
+        $this->remisionar($op, $prod, 3);
+
+        $this->get('/logistica/remisiones')
+            ->assertInertia(fn ($page) => $page
+                ->where('vista', 'creadas')
+                ->has('pendientes', 0)
+                ->has('remisiones.data', 1));
+    }
+
+    // ─── Órdenes ya atascadas ────────────────────────────────────────────────
+
+    public function test_el_comando_pone_al_dia_las_ordenes_atascadas(): void
+    {
+        // Como quedaban antes: todo alistado y la orden en producción.
+        $op   = $this->op('en_produccion');
+        $prod = $this->producto($op);
+        $prod->update(['estado_item' => 'terminado']);
+
+        $this->artisan('ops:sincronizar-estados')->assertSuccessful();
+
+        $this->assertSame('calidad', $op->fresh()->estado);
+    }
+
+    public function test_abrir_la_orden_tambien_la_pone_al_dia(): void
+    {
+        $op   = $this->op('en_produccion');
+        $prod = $this->producto($op);
+        $prod->update(['estado_item' => 'terminado']);
+
+        $this->get("/produccion/ops/{$op->id}")->assertOk();
+
+        $this->assertSame('calidad', $op->fresh()->estado);
+    }
+
+    // ─── Revisión de punta a punta (13 oct 2026) ─────────────────────────────
+
+    public function test_un_servicio_sin_hacer_no_frena_la_orden_en_produccion(): void
+    {
+        $op = $this->op();
+        $p  = $this->producto($op);
+        $this->servicio($op); // la instalación se hace después de entregar
+
+        $this->alistar($p);
+
+        $op->refresh();
+        $this->assertSame('calidad', $op->estado);
+        $this->assertNotNull($op->calidad_aprobada_at);
+    }
+
+    public function test_rechazar_desde_la_orden_reabre_las_unidades_y_no_vuelve_sola_a_calidad(): void
+    {
+        $op   = $this->op();
+        $item = $this->ensamble($op, 2);
+        $this->fabricar($item);
+        foreach ($item->trabajos as $t) {
+            $t->firmarCalidad();
+        }
+        $op->sincronizarEstado();
+        $this->assertNotNull($op->fresh()->calidad_aprobada_at);
+
+        $this->post("/produccion/ops/{$op->id}/calidad", ['accion' => 'rechazar', 'motivo_rechazo' => 'Rayadas'])
+            ->assertSessionHasNoErrors();
+
+        $op->refresh();
+        $this->assertSame('reproceso', $op->estado);
+        $this->assertSame(0, $item->fresh()->cantidadDisponible()); // ya no se pueden remisionar
+        $this->assertSame(0, $item->trabajos()->whereNotNull('calidad_revisada_at')->count());
+
+        // Abrir la orden recalcula su estado: no puede saltar a calidad sin que nada cambie.
+        $this->get("/produccion/ops/{$op->id}")->assertOk();
+        $this->assertSame('reproceso', $op->fresh()->estado);
+
+        // Al rehacer en planta vuelve a calidad.
+        $svc = app(CierrePasoService::class);
+        foreach ($item->trabajos as $t) {
+            $svc->cerrar($t->pasos()->where('es_paso_final', true)->firstOrFail());
+        }
+        $this->assertSame('calidad', $op->fresh()->estado);
+    }
+
+    public function test_rechazar_una_orden_de_productos_los_devuelve_a_pendiente(): void
+    {
+        $op = $this->op();
+        $p  = $this->producto($op);
+        $this->alistar($p);
+        $this->assertSame('calidad', $op->fresh()->estado);
+
+        $this->post("/produccion/ops/{$op->id}/calidad", ['accion' => 'rechazar', 'motivo_rechazo' => 'Referencia equivocada']);
+
+        $this->assertSame('pendiente', $p->fresh()->estado_item);
+        $this->get("/produccion/ops/{$op->id}");
+        $this->assertSame('reproceso', $op->fresh()->estado);
+
+        $this->alistar($p);
+        $this->assertSame('calidad', $op->fresh()->estado);
+    }
+
+    public function test_crear_una_remision_lleva_a_la_remision(): void
+    {
+        $op = $this->op();
+        $p  = $this->producto($op, 2);
+
+        $this->post('/logistica/remisiones', [
+            'tipo' => 'op', 'op_id' => $op->id,
+            'items' => [['descripcion' => $p->descripcion, 'cantidad' => 2, 'cantidad_unidades' => 2, 'op_item_id' => $p->id]],
+        ])->assertRedirect('/logistica/remisiones/'.Remision::latest('id')->value('id'));
+    }
+
+    public function test_aprobar_por_el_enlace_publico_confirma_la_comision(): void
+    {
+        $cliente = \App\Models\Cliente::create(['tipo' => 'empresa', 'nombre' => 'Cliente '.uniqid(), 'tipo_identificacion' => 'NIT']);
+        $cot = \App\Models\Cotizacion::create([
+            'cliente_id' => $cliente->id, 'moneda' => 'COP', 'tasa_cambio' => 1, 'estado' => 'enviada',
+            'responsable_id' => $this->admin->id,
+        ]);
+        $comision = \App\Models\ComisionVendedor::create([
+            'cotizacion_id' => $cot->id, 'user_id' => $this->admin->id, 'total_comision' => 1000, 'estado' => 'proyectada',
+        ]);
+
+        auth()->logout();
+        $this->post("/cotizaciones/{$cot->token_publico}/aprobar");
+
+        $this->assertSame('aprobada', $cot->fresh()->estado);
+        $this->assertSame('confirmada', $comision->fresh()->estado);
+    }
+
+    // ─── Fecha de entrega desde la cotización ────────────────────────────────
+
+    private function cotizacionAprobada(?int $dias): \App\Models\Cotizacion
+    {
+        $this->sede->update(['tiene_produccion' => true, 'activa' => true]);
+        $cliente = \App\Models\Cliente::create(['tipo' => 'empresa', 'nombre' => 'Cliente '.uniqid(), 'tipo_identificacion' => 'NIT']);
+        $cot = \App\Models\Cotizacion::create([
+            'cliente_id' => $cliente->id, 'moneda' => 'COP', 'tasa_cambio' => 1, 'estado' => 'aprobada',
+            'responsable_id' => $this->admin->id, 'dias_entrega' => $dias,
+        ]);
+        \App\Models\CotizacionItem::create([
+            'cotizacion_id' => $cot->id, 'tipo' => 'texto_libre', 'descripcion' => 'Instalación', 'orden' => 0,
+            'cantidad' => 1, 'precio_unitario' => 1000, 'descuento_pct' => 0, 'impuesto_pct' => 0,
+            'subtotal' => 1000, 'total_linea' => 1000,
+        ]);
+
+        return $cot;
+    }
+
+    public function test_la_orden_nace_con_la_fecha_del_plazo_de_la_cotizacion(): void
+    {
+        $cot = $this->cotizacionAprobada(10);
+
+        $this->post("/produccion/ops/desde-cotizacion/{$cot->id}", ['sede_id' => $this->sede->id])->assertSessionHasNoErrors();
+
+        $op = Op::where('cotizacion_id', $cot->id)->firstOrFail();
+        $this->assertSame(today()->addWeekdays(10)->toDateString(), $op->fecha_entrega_estimada->toDateString());
+    }
+
+    public function test_la_fecha_elegida_al_generar_manda_sobre_el_plazo(): void
+    {
+        $cot   = $this->cotizacionAprobada(10);
+        $fecha = today()->addDays(30)->toDateString();
+
+        $this->post("/produccion/ops/desde-cotizacion/{$cot->id}", ['sede_id' => $this->sede->id, 'fecha_entrega_estimada' => $fecha]);
+
+        $this->assertSame($fecha, Op::where('cotizacion_id', $cot->id)->firstOrFail()->fecha_entrega_estimada->toDateString());
+    }
+
+    public function test_sin_plazo_ni_fecha_la_orden_nace_sin_fecha_como_antes(): void
+    {
+        $cot = $this->cotizacionAprobada(null);
+
+        $this->post("/produccion/ops/desde-cotizacion/{$cot->id}", ['sede_id' => $this->sede->id]);
+
+        $this->assertNull(Op::where('cotizacion_id', $cot->id)->firstOrFail()->fecha_entrega_estimada);
+    }
+
+    public function test_duplicar_una_cotizacion_en_produccion_da_una_nueva_editable(): void
+    {
+        $cot = $this->cotizacionAprobada(12);
+        $cot->update(['en_produccion' => true]);
+
+        $this->post("/cotizaciones/{$cot->id}/duplicar")->assertSessionHasNoErrors()->assertRedirect();
+
+        $nueva = \App\Models\Cotizacion::latest('id')->firstOrFail();
+        $this->assertNotSame($cot->id, $nueva->id);
+        $this->assertNotSame($cot->token_publico, $nueva->token_publico);
+        $this->assertSame('borrador', $nueva->estado);
+        $this->assertFalse((bool) $nueva->en_produccion);
+        $this->assertSame(12, $nueva->dias_entrega);
+        $this->assertSame(1, $nueva->items()->count());
+    }
+}

@@ -5,6 +5,7 @@ import AppLayout from '@/Layouts/AppLayout.vue'
 
 const props = defineProps({
     metadatos: Object,
+    periodos:  { type: Array, default: () => [] },
 })
 
 // ─── Stepper ────────────────────────────────────────────────────────────────
@@ -21,8 +22,22 @@ const tipoGrafica  = ref('ninguna')
 const publico      = ref(false)
 const enviando     = ref(false)
 
+// Fuentes del motor nuevo (leads, ventas, cartera…): periodo con nombre y «resumir por».
+const periodo      = ref('ultimos_30')
+const desde        = ref('')
+const hasta        = ref('')
+const agrupar      = ref([])
+const esMotor      = computed(() => !! props.metadatos[fuente.value]?.motor)
+const dimensiones  = computed(() => props.metadatos[fuente.value]?.dimensiones ?? [])
+
+function toggleAgrupar(key) {
+    const idx = agrupar.value.indexOf(key)
+    if (idx === -1) agrupar.value.push(key)
+    else agrupar.value.splice(idx, 1)
+}
+
 // ─── Fuentes disponibles ─────────────────────────────────────────────────────
-const fuentes = [
+const fuentesDeSiempre = [
     {
         key: 'ops',
         label: 'Órdenes de Producción',
@@ -57,6 +72,17 @@ const fuentes = [
     },
 ]
 
+// Las de siempre primero y después las del motor, con lo que dice el servidor de cada una.
+const fuentes = computed(() => [
+    ...fuentesDeSiempre.filter(f => props.metadatos[f.key] && ! props.metadatos[f.key].motor),
+    ...Object.entries(props.metadatos)
+        .filter(([, m]) => m.motor)
+        .map(([key, m]) => ({
+            key, label: m.etiqueta, desc: m.descripcion,
+            colorActivo: 'border-blue-500 bg-pastel-azul', icon: 'clipboard',
+        })),
+])
+
 const camposDisponibles = computed(() =>
     fuente.value ? (props.metadatos[fuente.value]?.campos ?? []) : []
 )
@@ -68,8 +94,11 @@ const filtrosDisponibles = computed(() =>
 // ─── Navegación del stepper ──────────────────────────────────────────────────
 function seleccionarFuente(key) {
     fuente.value      = key
-    camposSelec.value = []
-    filtrosValor.value = {}
+    // En las del motor arranca con las columnas de siempre: se quitan las que sobren.
+    camposSelec.value = [...(props.metadatos[key]?.por_defecto ?? [])]
+    // Cada filtro arranca en «— Todos —»: sin valor, la lista se veía en blanco.
+    filtrosValor.value = Object.fromEntries((props.metadatos[key]?.filtros ?? []).map(f => [f.key, '']))
+    agrupar.value     = []
 }
 
 function siguientePaso() {
@@ -98,13 +127,22 @@ function guardar() {
         if (v !== '' && v !== null && v !== undefined) filtrosLimpios[k] = v
     }
 
+    if (esMotor.value) {
+        filtrosLimpios.periodo = periodo.value
+        if (periodo.value === 'personalizado') {
+            if (desde.value) filtrosLimpios.desde = desde.value
+            if (hasta.value) filtrosLimpios.hasta = hasta.value
+        }
+    }
+
     router.post('/informes', {
         nombre:       nombre.value,
         descripcion:  descripcion.value,
         fuente:       fuente.value,
         campos:       camposSelec.value,
         filtros:      filtrosLimpios,
-        tipo_grafica: tipoGrafica.value || 'ninguna',
+        agrupar:      esMotor.value ? agrupar.value : [],
+        tipo_grafica: esMotor.value ? 'ninguna' : (tipoGrafica.value || 'ninguna'),
         publico:      publico.value,
     }, {
         onFinish: () => { enviando.value = false },
@@ -251,6 +289,33 @@ function guardar() {
                 <h2 class="text-lg font-semibold text-tinta-900 mb-1">Configura los filtros</h2>
                 <p class="text-sm text-tinta-400 mb-5">Todos los filtros son opcionales.</p>
 
+                <!-- Motor: el periodo va con nombre («el mes pasado»): al volver a correr el informe trae ESE periodo de nuevo. -->
+                <div v-if="esMotor" class="space-y-4 mb-6">
+                    <div>
+                        <label class="block text-xs font-semibold text-tinta-500 mb-1.5 uppercase tracking-wide">Periodo</label>
+                        <select v-model="periodo"
+                            class="w-full rounded-xl border border-linea bg-superficie px-3 py-2.5 text-sm text-tinta-900 focus:outline-none focus:border-[var(--marca)]">
+                            <option v-for="p in periodos" :key="p.key" :value="p.key">{{ p.label }}</option>
+                        </select>
+                        <p class="text-xs text-tinta-400 mt-1">Filtra por {{ metadatos[fuente]?.sobre }}.</p>
+                    </div>
+                    <div v-if="periodo === 'personalizado'" class="grid grid-cols-2 gap-3">
+                        <input type="date" v-model="desde" class="rounded-xl border border-linea bg-superficie px-3 py-2.5 text-sm focus:outline-none focus:border-[var(--marca)]"/>
+                        <input type="date" v-model="hasta" class="rounded-xl border border-linea bg-superficie px-3 py-2.5 text-sm focus:outline-none focus:border-[var(--marca)]"/>
+                    </div>
+                    <div v-if="dimensiones.length">
+                        <label class="block text-xs font-semibold text-tinta-500 mb-1.5 uppercase tracking-wide">Resumir por</label>
+                        <div class="flex flex-wrap gap-2">
+                            <button v-for="d in dimensiones" :key="d.key" type="button" @click="toggleAgrupar(d.key)"
+                                class="px-3 py-1.5 rounded-lg border text-xs font-medium transition-colors"
+                                :class="agrupar.includes(d.key) ? 'border-borde-aviso-azul bg-pastel-azul text-aviso-azul' : 'border-linea text-tinta-500 hover:bg-realce'">
+                                {{ d.label }}
+                            </button>
+                        </div>
+                        <p class="text-xs text-tinta-400 mt-1">Cada uno sale como una tabla con totales, y como una hoja aparte en el Excel.</p>
+                    </div>
+                </div>
+
                 <div v-if="filtrosDisponibles.length" class="space-y-4">
                     <div v-for="filtro in filtrosDisponibles" :key="filtro.key">
                         <label class="block text-xs font-semibold text-tinta-500 mb-1.5 uppercase tracking-wide">
@@ -340,8 +405,8 @@ function guardar() {
                         />
                     </div>
 
-                    <!-- Tipo gráfica -->
-                    <div>
+                    <!-- Tipo gráfica: las fuentes del motor traen resúmenes en su lugar -->
+                    <div v-if="! esMotor">
                         <label class="block text-xs font-semibold text-tinta-500 mb-2 uppercase tracking-wide">
                             Tipo de gráfica
                         </label>

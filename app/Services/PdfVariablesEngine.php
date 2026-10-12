@@ -56,6 +56,7 @@ class PdfVariablesEngine
                 $datos['cotizacion.created_at']     = $registro->created_at;
                 $datos['cotizacion.fecha_creacion'] = $registro->created_at;
                 $datos['cotizacion.fecha_validez']  = $registro->fecha_validez ?? '';
+                $datos['cotizacion.dias_entrega']   = $registro->dias_entrega ?? '';
 
                 if ($registro->cliente) {
                     $datos = array_merge($datos, static::aplanarModelo($registro->cliente, 'cliente'));
@@ -72,6 +73,8 @@ class PdfVariablesEngine
                     $datos['vendedor.nombre'] = $registro->responsable->name;
                     $datos['vendedor.email']  = $registro->responsable->email ?? '';
                 }
+                // La firma guardada en el perfil del responsable, lista: {{!vendedor.firma}}.
+                $datos['vendedor.firma'] = static::imgFirma($registro->responsable?->firma);
 
                 $datos['items'] = $registro->items->map(fn ($item, $i) => array_merge(
                     static::aplanarModeloSimple($item),
@@ -106,6 +109,7 @@ class PdfVariablesEngine
                 if ($registro->responsable) {
                     $datos['responsable.nombre'] = $registro->responsable->name;
                 }
+                $datos['responsable.firma'] = static::imgFirma($registro->responsable?->firma);
 
                 // QR de seguimiento público
                 if ($registro->token_publico ?? null) {
@@ -152,6 +156,16 @@ class PdfVariablesEngine
                 }
                 $datos['op.numero'] = $registro->op?->numero ?? '';
 
+                // Las firmas, listas para {{!firma.despacho}} y {{!firma.recibido}}. La de
+                // despacho es la que se dibujó en la remisión; si no, la del perfil de quien la
+                // firmó o la creó: así la remisión sale firmada aunque nadie haya dibujado nada.
+                $registro->loadMissing(['firmadoDespachoPor', 'creadoPor']);
+                $despacha = $registro->firmadoDespachoPor ?? $registro->creadoPor;
+                $datos['firma.despacho']         = static::imgFirma($registro->firma_despacho ?: $despacha?->firma);
+                $datos['firma.recibido']         = static::imgFirma($registro->firma_recibido);
+                $datos['despachado_por.nombre']  = $despacha?->name ?? '';
+                $datos['recibido_por.nombre']    = $registro->nombre_receptor ?? '';
+
                 $datos['items'] = ($registro->items ?? collect())->values()->map(fn ($item, $i) => [
                     'index'       => $i + 1,
                     'descripcion' => $item->descripcion ?: ($item->opItem?->descripcion ?? ''),
@@ -159,6 +173,10 @@ class PdfVariablesEngine
                     'unidad'      => $item->unidad ?? '',
                     'serie'       => $item->numero_serie ?: ($item->opItem?->numero_serie ?? ''),
                     'notas'       => $item->notas ?? '',
+                    // Lo que quedó por entregar de ese ítem cuando salió esta remisión.
+                    'pendiente'   => (float) $item->cantidad_pendiente > 0
+                        ? 'Pendiente por entregar: '.rtrim(rtrim(number_format((float) $item->cantidad_pendiente, 3, '.', ''), '0'), '.')
+                        : '',
                 ])->toArray();
                 break;
 
@@ -209,6 +227,21 @@ class PdfVariablesEngine
         }
 
         return $resultado;
+    }
+
+    /**
+     * Una firma como `<img>` lista para la plantilla (`{{!vendedor.firma}}`), o vacío.
+     *
+     * Solo una imagen en base64: la firma ya se validó al guardarla, y aquí se vuelve a mirar
+     * porque esto sale sin escapar.
+     */
+    public static function imgFirma(?string $dataUrl): string
+    {
+        if (! $dataUrl || ! preg_match('/^data:image\/(png|jpeg);base64,[A-Za-z0-9+\/=]+$/', $dataUrl)) {
+            return '';
+        }
+
+        return '<img src="'.$dataUrl.'" alt="Firma" style="max-height:54px;max-width:190px;"/>';
     }
 
     private static function aplanarModeloSimple(object $modelo): array
@@ -491,6 +524,7 @@ class PdfVariablesEngine
                 ['var' => '{{contacto.nombre}}',           'desc' => 'Nombre del contacto',          'grupo' => 'Cliente'],
                 ['var' => '{{vendedor.nombre}}',           'desc' => 'Nombre del vendedor',          'grupo' => 'Vendedor'],
                 ['var' => '{{vendedor.email}}',            'desc' => 'Email del vendedor',           'grupo' => 'Vendedor'],
+                ['var' => '{{!vendedor.firma}}',           'desc' => 'Firma del vendedor (imagen de su perfil)', 'grupo' => 'Vendedor'],
                 ['var' => '{{empresa.nombre}}',            'desc' => 'Nombre de la empresa',         'grupo' => 'Empresa'],
                 ['var' => '{{empresa.nit}}',               'desc' => 'NIT de la empresa',            'grupo' => 'Empresa'],
                 ['var' => '{{empresa.ciudad}}',            'desc' => 'Ciudad de la empresa',         'grupo' => 'Empresa'],
@@ -508,6 +542,7 @@ class PdfVariablesEngine
                 ['var' => '{{cotizacion.total_cop}}',          'desc' => 'Total en pesos, ya escrito (sin filtro)', 'grupo' => 'Totales'],
                 ['var' => '{{cotizacion.created_at|fecha}}',     'desc' => 'Fecha de creación',      'grupo' => 'Fechas'],
                 ['var' => '{{cotizacion.fecha_validez|fecha}}',  'desc' => 'Validez formateada',     'grupo' => 'Fechas'],
+                ['var' => '{{cotizacion.dias_entrega}}',         'desc' => 'Plazo de entrega (días hábiles)', 'grupo' => 'Fechas'],
                 ['var' => '{{#items}}...{{/items}}',       'desc' => 'Bloque de items',              'grupo' => 'Tabla items'],
                 ['var' => '{{index}}',                     'desc' => 'Nº fila (dentro de #items)',   'grupo' => 'Tabla items'],
                 ['var' => '{{descripcion}}',               'desc' => 'Descripción',                  'grupo' => 'Tabla items'],
@@ -531,6 +566,7 @@ class PdfVariablesEngine
                 ['var' => '{{cliente.ciudad}}',                    'desc' => 'Ciudad',                     'grupo' => 'Cliente'],
                 ['var' => '{{cliente.celular}}',                   'desc' => 'Celular',                    'grupo' => 'Cliente'],
                 ['var' => '{{responsable.nombre}}',                'desc' => 'Responsable de la OP',       'grupo' => 'Responsable'],
+                ['var' => '{{!responsable.firma}}',                'desc' => 'Firma del responsable (imagen de su perfil)', 'grupo' => 'Responsable'],
                 ['var' => '{{empresa.nombre}}',                    'desc' => 'Empresa',                    'grupo' => 'Empresa'],
                 ['var' => '{{empresa.logo_url}}',                  'desc' => 'URL del logo de la empresa',  'grupo' => 'Empresa'],
                 ['var' => '{{empresa.color}}',                     'desc' => 'Color de marca (hex)',        'grupo' => 'Empresa'],
@@ -562,6 +598,11 @@ class PdfVariablesEngine
                 ['var' => '{{descripcion}}',       'desc' => 'Descripción',          'grupo' => 'Tabla items'],
                 ['var' => '{{cantidad}}',          'desc' => 'Cantidad',             'grupo' => 'Tabla items'],
                 ['var' => '{{serie}}',             'desc' => 'Serie',                'grupo' => 'Tabla items'],
+                ['var' => '{{pendiente}}',         'desc' => 'Lo que quedó por entregar del ítem', 'grupo' => 'Tabla items'],
+                ['var' => '{{!firma.despacho}}',   'desc' => 'Firma de quien despacha (imagen)',   'grupo' => 'Firmas'],
+                ['var' => '{{despachado_por.nombre}}', 'desc' => 'Quien despacha',               'grupo' => 'Firmas'],
+                ['var' => '{{!firma.recibido}}',   'desc' => 'Firma de quien recibe (imagen)',     'grupo' => 'Firmas'],
+                ['var' => '{{recibido_por.nombre}}', 'desc' => 'Quien recibe',                   'grupo' => 'Firmas'],
             ],
             'recibo_pago' => [
                 ['var' => '{{cuota.concepto}}',        'desc' => 'Concepto de la cuota', 'grupo' => 'Pago'],

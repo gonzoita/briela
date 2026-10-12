@@ -416,6 +416,18 @@ class ActualizadorService
                 Artisan::call($comando);
             }
 
+            // Lo mismo que hace el despliegue por git (`scripts/traer-cambios.sh`): los permisos
+            // nuevos llegan a los roles —sin esto un módulo nuevo queda instalado e invisible— y
+            // las órdenes se ponen al día con las reglas de la versión. Ninguno es fatal: si
+            // falla, la actualización igual quedó hecha.
+            foreach (['permisos:sincronizar', 'ops:sincronizar-estados'] as $comando) {
+                try {
+                    Artisan::call($comando);
+                } catch (Throwable $e) {
+                    report($e);
+                }
+            }
+
             File::put(base_path('version.txt'), ($estado['version'] ?? '') . PHP_EOL);
 
             // Se le dice al servidor de licencias en qué versión quedó, sin esperar

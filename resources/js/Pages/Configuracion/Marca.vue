@@ -3,6 +3,7 @@ import { ref, computed, watch } from 'vue'
 import { useForm, router } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
 import { colorMarca } from '@/marca'
+import { useTema } from '@/composables/useTema'
 
 const props = defineProps({
     marca:             { type: Object, default: () => ({}) },
@@ -25,7 +26,21 @@ const pilaElegida = computed(
 // La paleta que se está viendo en la vista previa. Arranca con la guardada y
 // se recalcula en el servidor cada vez que se mueve el selector, para que la
 // previa use exactamente la misma fórmula que la aplicación real.
-const paleta = ref({ ...(props.marca.paleta ?? {}) })
+const paleta       = ref({ ...(props.marca.paleta ?? {}) })
+const paletaOscura = ref({ ...(props.marca.paleta_oscura ?? {}) })
+
+// El color que de verdad se pinta en cada tema. Si no es el elegido, es porque no se leía
+// sobre ese fondo y se aclaró (de noche) u oscureció (de día) lo justo: se dice, para que
+// nadie crea que el sistema cambió su color por error.
+const elegido   = computed(() => (form.color || '').toUpperCase())
+const ajustes   = computed(() => [
+    { tema: 'De día',   color: paleta.value['marca'] },
+    { tema: 'De noche', color: paletaOscura.value['marca'] },
+].filter(a => a.color && a.color.toUpperCase() !== elegido.value))
+
+// La vista previa se dibuja sobre el fondo del tema que está puesto, así que lleva su paleta.
+const { temaEfectivo } = useTema()
+const paletaVisible = computed(() => temaEfectivo.value === 'oscuro' ? paletaOscura.value : paleta.value)
 
 let temporizador = null
 watch(() => form.color, (color) => {
@@ -46,7 +61,11 @@ async function pedirPaleta(color) {
             },
             body: JSON.stringify({ color }),
         })
-        if (resp.ok) paleta.value = await resp.json()
+        if (resp.ok) {
+            const json = await resp.json()
+            paleta.value       = json.claro ?? {}
+            paletaOscura.value = json.oscuro ?? {}
+        }
     } catch (e) {
         // Si falla, la previa se queda como está. No es crítico.
     }
@@ -61,11 +80,11 @@ function tokenCsrf() {
 // Estilo de la vista previa: usa la paleta calculada, no las variables
 // globales, para poder mostrar el color nuevo sin haberlo aplicado todavía.
 const estiloPrevia = computed(() => ({
-    '--p':        paleta.value['marca']        ?? form.color,
-    '--p-oscuro': paleta.value['marca-oscuro'] ?? form.color,
-    '--p-suave':  paleta.value['marca-suave']  ?? '#EFF6FF',
-    '--p-medio':  paleta.value['marca-medio']  ?? '#DBEAFE',
-    '--p-texto':  paleta.value['marca-texto']  ?? '#FFFFFF',
+    '--p':        paletaVisible.value['marca']        ?? form.color,
+    '--p-oscuro': paletaVisible.value['marca-oscuro'] ?? form.color,
+    '--p-suave':  paletaVisible.value['marca-suave']  ?? '#EFF6FF',
+    '--p-medio':  paletaVisible.value['marca-medio']  ?? '#DBEAFE',
+    '--p-texto':  paletaVisible.value['marca-texto']  ?? '#FFFFFF',
 }))
 
 // El título tal como saldría en la pestaña.
@@ -192,9 +211,18 @@ function ic(extra = '') {
                 </div>
                 <p v-if="form.errors.color" class="text-aviso-rojo text-xs">{{ form.errors.color }}</p>
 
+                <!-- Cuando el color no se lee sobre un fondo, se ajusta solo en ese tema -->
+                <div v-if="ajustes.length" class="rounded-lg border border-borde-aviso-azul bg-pastel-azul p-3 space-y-1.5">
+                    <p v-for="a in ajustes" :key="a.tema" class="flex items-center gap-2 text-xs text-aviso-azul">
+                        <span class="w-4 h-4 rounded shrink-0 border border-linea" :style="{ backgroundColor: a.color }"></span>
+                        <span><strong>{{ a.tema }}</strong> se usa <span class="font-mono">{{ a.color }}</span>, para que los enlaces y el menú se lean sobre ese fondo.</span>
+                    </p>
+                    <p class="text-[11px] text-aviso-azul">Es el mismo tono con otra luz. Los documentos, el PDF y el correo llevan siempre tu color exacto.</p>
+                </div>
+
                 <!-- Paleta derivada -->
                 <div class="grid grid-cols-5 gap-2">
-                    <div v-for="(valor, nombre) in paleta" :key="nombre" class="text-center">
+                    <div v-for="(valor, nombre) in paletaVisible" :key="nombre" class="text-center">
                         <div class="h-10 rounded-lg border border-linea" :style="{ backgroundColor: valor }"></div>
                         <p class="text-[10px] text-tinta-300 mt-1 truncate">{{ nombre.replace('marca-', '').replace('marca', 'base') }}</p>
                     </div>

@@ -201,16 +201,26 @@ class SolicitudCompraController extends Controller
             'creado_por'   => auth()->id(),
         ]);
 
+        $proveedores = app(\App\Services\ProveedoresProductoService::class);
+
         foreach ($solicitud->items as $scItem) {
+            // Lo que ESE proveedor cobra y cómo llama al producto, si ya lo sabemos; si no, la
+            // estimación de quien pidió. Un precio de proveedor en cero no es un precio.
+            $deProveedor = $proveedores->de($scItem->item_id, (int) $data['proveedor_id']);
+            $precio      = $deProveedor && (float) $deProveedor->precio > 0
+                ? (float) $deProveedor->precio
+                : (float) ($scItem->precio_estimado ?? 0);
+
             OrdenCompraItem::create([
-                'orden_id'       => $orden->id,
-                'item_id'        => $scItem->item_id,
-                'descripcion'    => $scItem->descripcion,
-                'cantidad'       => $scItem->cantidad,
-                'unidad'         => $scItem->unidad,
-                'precio_unitario'=> $scItem->precio_estimado ?? 0,
-                'impuesto_pct'   => 0,
-                'total_linea'    => ($scItem->precio_estimado ?? 0) * $scItem->cantidad,
+                'orden_id'             => $orden->id,
+                'item_id'              => $scItem->item_id,
+                'referencia_proveedor' => $deProveedor?->referencia_proveedor,
+                'descripcion'          => $scItem->descripcion,
+                'cantidad'             => $scItem->cantidad,
+                'unidad'               => $scItem->unidad,
+                'precio_unitario'      => $precio,
+                'impuesto_pct'         => 0,
+                'total_linea'          => $precio * $scItem->cantidad,
             ]);
         }
 

@@ -13,6 +13,20 @@ ensambles configurados), totales calculados y un estado:
 Cuando se aprueba y se genera una Orden de Producción, queda marcada como
 `en_produccion` y ya no se puede editar.
 
+## Sin cliente no hay cotización *(15 oct 2026)*
+
+Una cotización sin cliente **no se guarda**. Las viejas que quedaron sin cliente se pueden abrir y
+editar, pero no se envían, no se aprueban (tampoco por el enlace del cliente), no se duplican ni
+generan orden hasta asignarles uno; la ficha lo avisa arriba. La regla está en cada puerta de
+entrada —pantalla, enlace público, guía, CRM— y el mensaje es uno solo (`Cotizacion::SIN_CLIENTE`).
+
+## Avisos de estado *(15 oct 2026)*
+
+El responsable se entera de **todo** cambio de estado que no hizo él —el cliente la aprobó o la
+rechazó por el enlace, otra persona la cambió, se venció—, con un aviso que lleva directo a la
+cotización (`CotizacionObserver::avisarAlResponsable`). Aparece en vivo, sin recargar, y si la
+tiene abierta la pantalla se recarga sola. Ver [Notificaciones](./notificaciones.md).
+
 ## Uso básico
 
 - **Crear**: "Nueva cotización". Si viene generada automáticamente desde un
@@ -177,6 +191,18 @@ social o nombre, identificación, contacto —**obligatorio para empresas**— y
 de cliente**. Ese último no es un adorno: de él salen los precios. Si eliges un tipo
 que no define precio, el modal te avisa antes de guardar.
 
+## El plazo de entrega *(nuevo 13 oct 2026)*
+
+«Entrega (días hábiles)» en los datos de la cotización: lo que se le promete al cliente. Sale en la
+ficha, en el portal de aprobación y en el PDF (`{{cotizacion.dias_entrega}}` en las plantillas).
+Al generar la orden, la fecha de entrega se calcula con ese plazo **desde ese día**, de lunes a
+viernes (`Cotizacion::fechaEntregaSugerida()`; los festivos no se descuentan), y se puede corregir
+ahí mismo. Antes el plazo vivía solo en el texto de las condiciones y la orden nacía sin fecha: sin
+urgencia en planta y con «Sin fecha» en Remisiones.
+
+**Duplicar** ya no falla: copiaba el enlace público de la original, que es único, y el guardado
+daba error. Tampoco copia la marca «en producción», que dejaba la copia bloqueada para editar.
+
 ## Las condiciones comerciales
 
 El bloque del final de la cotización se edita en cada cotización, y arranca con el
@@ -298,3 +324,32 @@ en ámbar con «por omisión». Nunca se cotiza en cero por falta de segmentaci�
 Si aun así un ítem entra en cero, es que ese producto no tiene precio cargado para ese
 canal —pasa con canales creados después del producto— y el sistema lo dice al agregarlo,
 con el nombre del canal que falta.
+
+
+## Stock apartado por 24 horas
+
+Una cotización que pasa a **enviada** aparta cada producto de sus líneas durante 24 horas.
+Detalles que importan:
+
+- **Es una marca, no un movimiento.** El inventario no baja; apartar solo cambia lo que se le dice
+  a quien cotiza («hay 12, pero 5 las tienen apartadas otras cotizaciones»). Por eso soltar es
+  borrar la marca y no hay nada que deshacer.
+- **Solo avisa, no bloquea.** Se puede cotizar por más de lo disponible. En la pantalla de
+  cotizar, junto a la etiqueta de stock, aparece «⏳ N apartadas en otras cotizaciones», y se
+  vuelve a consultar cada minuto (`POST /api/cotizaciones/disponibilidad`).
+- **Plazo máximo de 24 h** (`ReservaStockService::HORAS`). Guardar la cotización otra vez no lo
+  renueva; lo vencido no se reactiva por editar. `stock:liberar-reservas` (cada 15 minutos)
+  marca lo vencido y le avisa al vendedor, una vez, si la cotización sigue abierta.
+- **Se libera** al rechazar, vencer, volver a borrador, borrar la cotización o quitar la línea.
+  Al **aprobar**, la reserva pasa a `concretada`: de ahí en adelante manda la OP.
+- **Cuando una venta usa lo apartado por otra.** Al aprobarse una cotización se mira el stock
+  libre (stock − apartado por las demás). Solo lo que falte sale de las reservas, de las más
+  nuevas primero, y únicamente hasta lo que **existe** de verdad: ceder sobre un stock en cero
+  no avisa a nadie. Se avisa (`stock_apartado_usado`, con correo por defecto) al vendedor afectado
+  y a administración; si el vendedor es administrador, recibe un solo aviso.
+- **Solo productos.** Los ensambles se fabrican por pedido y no tienen unidades que apartar.
+- **Solo uso interno.** El portal público y el PDF no dicen nada del inventario.
+- Necesita los módulos **Inventario** y **Cotizaciones** encendidos; si uno está apagado todo
+  esto se salta.
+- Dónde verlo: pantalla **Stock apartado** (`/inventario/apartados`) y el recuadro de la ficha
+  de la cotización.

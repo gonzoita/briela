@@ -1,14 +1,70 @@
 <script setup>
-import { ref } from 'vue'
-import { Head, Link, useForm, usePage } from '@inertiajs/vue3'
+import { ref, computed } from 'vue'
+import { Head, Link, useForm, usePage, router } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
+import FirmaPad from '@/Components/FirmaPad.vue'
 
-defineProps({
+const props = defineProps({
     mustVerifyEmail: { type: Boolean, default: false },
     status:          { type: String,  default: '' },
+    firma:           { type: String,  default: null },
 })
 
-const user = usePage().props.auth.user
+const page = usePage()
+const user = page.props.auth.user
+const fotoUrl = computed(() => page.props.auth.user?.foto_url)
+const flash   = computed(() => page.props.flash ?? {})
+
+// ── Foto de perfil ──────────────────────────────────────────────────────────
+const subiendoFoto = ref(false)
+const errorFoto    = ref('')
+
+function elegirFoto(e) {
+    const archivo = e.target.files?.[0]
+    e.target.value = ''
+    if (! archivo) return
+    errorFoto.value = ''
+    subiendoFoto.value = true
+    router.post('/profile/foto', { foto: archivo }, {
+        forceFormData: true,
+        preserveScroll: true,
+        onError: (err) => { errorFoto.value = err.foto ?? 'No se pudo subir la foto.' },
+        onFinish: () => { subiendoFoto.value = false },
+    })
+}
+
+function quitarFoto() {
+    if (! confirm('¿Quitar tu foto de perfil?')) return
+    router.delete('/profile/foto', { preserveScroll: true })
+}
+
+// ── Firma ───────────────────────────────────────────────────────────────────
+// Se dibuja aquí o se sube la imagen; sale sola en cotizaciones, órdenes y remisiones.
+const pad           = ref(null)
+const cambiandoFirma = ref(! props.firma)
+const errorFirma    = ref('')
+const guardandoFirma = ref(false)
+
+function guardarFirma() {
+    errorFirma.value = ''
+    const firma = pad.value?.valor()
+    if (! firma) {
+        errorFirma.value = 'Firma en el recuadro o sube la imagen de tu firma.'
+        return
+    }
+    guardandoFirma.value = true
+    router.post('/profile/firma', { firma }, {
+        preserveScroll: true,
+        onSuccess: () => { cambiandoFirma.value = false },
+        onError:   (e) => { errorFirma.value = e.firma ?? 'No se pudo guardar la firma.' },
+        onFinish:  () => { guardandoFirma.value = false },
+    })
+}
+
+function quitarFirma() {
+    if (! confirm('¿Quitar tu firma? Tus documentos saldrán sin firma.')) return
+    router.delete('/profile/firma', { preserveScroll: true, onSuccess: () => { cambiandoFirma.value = true } })
+}
 
 const formDatos = useForm({
     name:  user.name,
@@ -58,17 +114,66 @@ function ic(extra = '') {
     <AppLayout title="Mi perfil">
         <div class="max-w-2xl mx-auto space-y-4 pb-8">
 
-            <!-- Quién soy -->
+            <div v-if="flash.success" class="rounded-xl border border-borde-aviso-verde bg-pastel-verde px-4 py-3 text-sm text-aviso-verde">{{ flash.success }}</div>
+            <div v-if="flash.error" class="rounded-xl border border-borde-aviso-rojo bg-pastel-rojo px-4 py-3 text-sm text-aviso-rojo">{{ flash.error }}</div>
+
+            <!-- Quién soy, con la foto -->
             <div class="bg-superficie rounded-xl border border-linea p-4">
-                <div class="flex items-center gap-3">
-                    <div class="w-12 h-12 rounded-full bg-[var(--marca)] flex items-center justify-center text-white text-lg font-semibold shrink-0">
-                        {{ (user.name || '?').charAt(0).toUpperCase() }}
+                <div class="flex items-center gap-4">
+                    <div class="relative shrink-0">
+                        <img v-if="fotoUrl" :src="fotoUrl" alt="Tu foto" class="w-16 h-16 rounded-full object-cover border border-linea"/>
+                        <div v-else class="w-16 h-16 rounded-full bg-[var(--marca)] flex items-center justify-center text-[var(--marca-texto)] text-2xl font-semibold">
+                            {{ (user.name || '?').charAt(0).toUpperCase() }}
+                        </div>
                     </div>
-                    <div class="min-w-0">
+                    <div class="min-w-0 flex-1">
                         <p class="font-semibold text-tinta-900 truncate">{{ user.name }}</p>
                         <p class="text-xs text-tinta-400 truncate">{{ user.email }}</p>
+                        <div class="mt-2 flex items-center gap-3 flex-wrap">
+                            <label class="text-xs font-medium text-aviso-azul underline underline-offset-2 cursor-pointer hover:opacity-80">
+                                {{ subiendoFoto ? 'Subiendo…' : (fotoUrl ? 'Cambiar foto' : 'Poner foto') }}
+                                <input type="file" accept="image/png,image/jpeg,image/webp" class="hidden" :disabled="subiendoFoto" @change="elegirFoto"/>
+                            </label>
+                            <button v-if="fotoUrl" type="button" @click="quitarFoto" class="text-xs text-tinta-400 underline underline-offset-2 hover:text-tinta-600">Quitar</button>
+                        </div>
+                        <p v-if="errorFoto" class="text-xs text-aviso-rojo mt-1">{{ errorFoto }}</p>
                     </div>
                 </div>
+            </div>
+
+            <!-- Firma -->
+            <div class="bg-superficie rounded-xl border border-linea p-4 space-y-3">
+                <div>
+                    <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">Tu firma</p>
+                    <p class="text-xs text-tinta-400 mt-1">
+                        Sale sola en las cotizaciones, órdenes de producción, órdenes de compra y remisiones que
+                        tengas a tu cargo. Dibújala con el dedo o el mouse, o sube una foto de tu firma en papel blanco.
+                    </p>
+                </div>
+
+                <template v-if="firma && ! cambiandoFirma">
+                    <div class="rounded-lg border border-linea bg-white p-3">
+                        <img :src="firma" alt="Tu firma" class="mx-auto max-h-24 object-contain"/>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <button type="button" @click="cambiandoFirma = true"
+                            class="rounded-lg border border-linea px-4 py-2 text-sm text-tinta-700 hover:bg-realce">Cambiar firma</button>
+                        <button type="button" @click="quitarFirma" class="text-xs text-aviso-rojo underline underline-offset-2">Quitar</button>
+                    </div>
+                </template>
+                <template v-else>
+                    <FirmaPad ref="pad" :alto="160" etiqueta="Firma aquí" />
+                    <p v-if="errorFirma" class="text-xs text-aviso-rojo">{{ errorFirma }}</p>
+                    <div class="flex items-center gap-3">
+                        <button type="button" @click="guardarFirma" :disabled="guardandoFirma"
+                            class="rounded-lg px-4 py-2 text-sm font-semibold text-[var(--marca-texto)] disabled:opacity-50"
+                            style="background:var(--marca);">
+                            {{ guardandoFirma ? 'Guardando…' : 'Guardar firma' }}
+                        </button>
+                        <button v-if="firma" type="button" @click="cambiandoFirma = false"
+                            class="text-xs text-tinta-400 underline underline-offset-2">Cancelar</button>
+                    </div>
+                </template>
             </div>
 
             <!-- Datos de la cuenta -->

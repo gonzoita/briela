@@ -83,6 +83,7 @@ class FlujoTrabajoTest extends TestCase
         ]);
 
         $op = Op::create([
+            'cliente_id' => $this->clientePrueba()->id,
             'sede_id'                => $sede->id,
             'estado'                 => 'confirmada',
             'responsable_id'         => $usuario->id,
@@ -125,7 +126,7 @@ class FlujoTrabajoTest extends TestCase
         app(CierrePasoService::class)->cerrar($final);
     }
 
-    public function test_cerrar_el_paso_final_entrega_la_unidad_y_descuenta_de_la_otra_bodega(): void
+    public function test_terminar_en_planta_no_mueve_inventario(): void
     {
         $e       = $this->escenario();
         $trabajo = $e['item']->trabajos()->firstOrFail();
@@ -134,39 +135,44 @@ class FlujoTrabajoTest extends TestCase
         $svc = app(CierrePasoService::class);
 
         $svc->cerrar($trabajo->pasos()->where('es_paso_final', false)->firstOrFail());
+        $this->assertNull($svc->cerrar($trabajo->pasos()->where('es_paso_final', true)->firstOrFail()));
 
-        $bodega = $svc->cerrar($trabajo->pasos()->where('es_paso_final', true)->firstOrFail());
-
-        $this->assertSame($e['terminado']->id, $bodega?->id);
-
-        // La unidad entró como producto terminado a la bodega de entrega…
-        $terminado = Producto::where('ensamble_id', $e['ensamble']->id)->firstOrFail();
-        $this->assertSame(1.0, (float) $terminado->stockEnBodega($e['terminado']->id));
-
-        // …y su material salió de la OTRA. Si se descontara de la de entrega, el recorte a cero
-        // de `registrarMovimiento()` dejaría la lámina intacta y sin decir nada.
-        $this->assertSame(48.0, (float) $e['lamina']->stockEnBodega($e['insumos']->id));
-
-        $this->assertNotNull($trabajo->fresh()->entregado_at);
+        // Lo que la unidad gasta sale del almacén cuando se remisiona, no al terminarla.
+        $this->assertSame(50.0, (float) $e['lamina']->stockEnBodega($e['insumos']->id));
+        $this->assertFalse(Producto::where('ensamble_id', $e['ensamble']->id)->exists());
+        $this->assertNull($trabajo->fresh()->entregado_at);
+        $this->assertSame(100.0, (float) $trabajo->fresh()->porcentaje_avance);
     }
 
-    public function test_la_unidad_no_entra_dos_veces_aunque_se_vuelva_a_cerrar_el_paso(): void
+    public function test_remisionar_el_ensamble_saca_sus_componentes_de_la_bodega_de_material(): void
     {
-        $e       = $this->escenario();
-        $trabajo = $e['item']->trabajos()->firstOrFail();
-
+        $e = $this->escenario(cantidad: 2);
         $this->actingAs($this->admin());
-        $svc = app(CierrePasoService::class);
 
-        $svc->cerrar($trabajo->pasos()->where('es_paso_final', false)->firstOrFail());
-        $final = $trabajo->pasos()->where('es_paso_final', true)->firstOrFail();
-        $svc->cerrar($final);
-        $svc->cerrar($final->fresh());
+        foreach ($e['item']->trabajos as $t) {
+            $this->fabricar($t);
+            $t->checks()->update(['resultado' => 'cumple']);
+            $t->firmarCalidad();
+        }
+        $e['op']->sincronizarEstado();
 
-        $terminado = Producto::where('ensamble_id', $e['ensamble']->id)->firstOrFail();
+        $this->post('/logistica/remisiones', [
+            'tipo' => 'op', 'op_id' => $e['op']->id,
+            'items' => [['descripcion' => 'Puerta', 'cantidad' => 2, 'cantidad_unidades' => 2, 'op_item_id' => $e['item']->id]],
+        ])->assertSessionHasNoErrors();
 
-        $this->assertSame(1.0, (float) $terminado->stockEnBodega($e['terminado']->id));
-        $this->assertSame(48.0, (float) $e['lamina']->stockEnBodega($e['insumos']->id));
+        // Receta de 2 láminas por unidad × 2 unidades = 4, de la bodega de material de la orden.
+        $this->assertSame(46.0, (float) $e['lamina']->stockEnBodega($e['insumos']->id));
+
+        $remision = \App\Models\Remision::latest('id')->firstOrFail();
+        $mov = \App\Models\ProductoMovimiento::where('origen_tipo', 'remision')->where('origen_id', $remision->id)->firstOrFail();
+        $this->assertSame('consumo_ensamble', $mov->tipo);
+        $this->assertSame(2, $e['item']->trabajos()->where('remision_id', $remision->id)->count());
+
+        // Anularla devuelve exactamente lo que sacó.
+        $this->patch("/logistica/remisiones/{$remision->id}/estado", ['estado' => 'anulada']);
+        $this->assertSame(50.0, (float) $e['lamina']->fresh()->stockEnBodega($e['insumos']->id));
+        $this->assertSame(0, $e['item']->trabajos()->where('remisionado', true)->count());
     }
 
     public function test_cerrar_un_paso_desde_la_hoja_de_trabajo_tambien_otorga_puntos(): void
@@ -248,6 +254,7 @@ class FlujoTrabajoTest extends TestCase
         $e = $this->escenario(cantidad: 1);
 
         $payload = [
+            'cliente_id'     => $e['op']->cliente_id,
             'responsable_id' => $this->admin()->id,
             'fecha_creacion' => now()->toDateString(),
             'items'          => [[
@@ -281,6 +288,7 @@ class FlujoTrabajoTest extends TestCase
 
         $this->actingAs($this->admin())
             ->put("/produccion/ops/{$e['op']->id}", [
+                'cliente_id'     => $e['op']->cliente_id,
                 'responsable_id' => $this->admin()->id,
                 'fecha_creacion' => now()->toDateString(),
                 'notas_internas' => 'Se cambió una nota, nada más.',
@@ -460,9 +468,8 @@ class FlujoTrabajoTest extends TestCase
         // recordara: la orden se quedaba en reproceso con el trabajo ya rehecho.
         $this->assertSame('calidad', $e['op']->fresh()->estado);
 
-        // Y no entró dos veces a bodega por rehacerla.
-        $terminado = Producto::where('ensamble_id', $e['ensamble']->id)->firstOrFail();
-        $this->assertSame(1.0, (float) $terminado->stockEnBodega($e['terminado']->id));
+        // Y rehacerla no movió inventario: eso pasa solo al remisionar.
+        $this->assertSame(50.0, (float) $e['lamina']->fresh()->stockEnBodega($e['insumos']->id));
     }
 
     // ── La remisión es por unidad ────────────────────────────────────────────────

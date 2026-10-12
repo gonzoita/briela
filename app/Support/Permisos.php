@@ -55,10 +55,16 @@ class Permisos
                 'proveedores' => ['label' => 'Proveedores',          'acciones' => ['ver', 'crear', 'editar', 'eliminar']],
                 'solicitudes' => ['label' => 'Solicitudes de compra','acciones' => ['ver', 'crear', 'editar', 'aprobar']],
                 'ordenes'     => ['label' => 'Órdenes de compra',    'acciones' => ['ver', 'crear', 'editar', 'recibir']],
+                // Liquidar fija el costo de los productos y sus precios: es una decisión aparte.
+                'importaciones' => ['label' => 'Importaciones',      'acciones' => ['ver', 'crear', 'editar', 'liquidar']],
             ],
             'Logística y Financiero' => [
                 'remisiones' => ['label' => 'Remisiones', 'acciones' => ['ver', 'crear', 'editar', 'despachar']],
                 'cartera'    => ['label' => 'Cartera',    'acciones' => ['ver', 'editar', 'eliminar']],
+                // Confirmar con el banco que el dinero llegó: ver los abonos, subir extractos y
+                // conciliarlos. Deshacer una conciliación borra un pago, y eso sigue siendo
+                // `cartera.eliminar`.
+                'verificador' => ['label' => 'Verificador de pagos', 'acciones' => ['ver', 'editar']],
             ],
             'Personas' => [
                 'rrhh'         => ['label' => 'Colaboradores', 'acciones' => ['ver', 'crear', 'editar', 'eliminar']],
@@ -151,6 +157,7 @@ class Permisos
                 'proveedores'   => ['ver', 'crear', 'editar'],
                 'solicitudes'   => ['ver', 'crear', 'editar', 'aprobar'],
                 'ordenes'       => ['ver', 'crear', 'editar', 'recibir'],
+                'importaciones' => ['ver', 'crear', 'editar'],
                 'remisiones'    => ['ver', 'crear', 'editar', 'despachar'],
                 'cartera'       => ['ver', 'editar'],
                 'rrhh'          => ['ver', 'crear', 'editar'],

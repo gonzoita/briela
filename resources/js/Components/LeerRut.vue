@@ -12,6 +12,8 @@ const props = defineProps({
     // A dónde se sube: la ficha del cliente y el perfil fiscal usan rutas distintas.
     url:   { type: String, required: true },
     texto: { type: String, default: 'Leer RUT con IA' },
+    // El país del documento: cambia lo que se le pide leer a la IA.
+    pais:  { type: String, default: '' },
 })
 
 const emit = defineEmits(['leido'])
@@ -34,6 +36,7 @@ async function leer(evento) {
     try {
         const datos = new FormData()
         datos.append('archivo', archivo)
+        if (props.pais) datos.append('pais', props.pais)
 
         const xsrf = document.cookie.split('; ').find(r => r.startsWith('XSRF-TOKEN='))
         const res  = await fetch(props.url, {

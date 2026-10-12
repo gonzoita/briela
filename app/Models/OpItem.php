@@ -36,6 +36,7 @@ class OpItem extends Model
         'remisionado',
         'remision_id',
         'cantidad_remisionada',
+        'cantidad_alistada',
     ];
 
     protected $casts = [
@@ -51,7 +52,30 @@ class OpItem extends Model
         'componentes_snapshot' => 'array',
         'remisionado'          => 'boolean',
         'cantidad_remisionada' => 'decimal:3',
+        'cantidad_alistada'    => 'decimal:3',
     ];
+    /**
+     * La marca del ítem y su cantidad alistada dicen lo mismo, la escriba quien la escriba.
+     *
+     * El formulario de la orden, el reproceso y la limpieza de `ops:sincronizar-estados`
+     * escriben `estado_item` directamente. Si la cantidad no lo siguiera, un producto marcado
+     * «Alistado» en el formulario seguiría con cero unidades alistadas, y Remisiones no lo vería.
+     */
+    protected static function booted(): void
+    {
+        static::saving(function (OpItem $item) {
+            if (! $item->isDirty('estado_item') || $item->isDirty('cantidad_alistada')) {
+                return;
+            }
+
+            if ($item->estado_item === 'terminado') {
+                $item->cantidad_alistada = $item->cantidad;
+            } elseif ($item->estado_item === 'pendiente') {
+                $item->cantidad_alistada = $item->cantidad_remisionada ?? 0;
+            }
+        });
+    }
+
 
     /**
      * Un ítem que nadie fabrica: un producto de bodega o un concepto libre.
@@ -68,22 +92,112 @@ class OpItem extends Model
     /**
      * Cuántas unidades se pueden meter hoy en una remisión.
      *
-     * Un ensamble las cuenta por sus trabajos: terminados y todavía sin remisionar. Un
-     * producto no tiene trabajos, así que lo que manda es que esté marcado como alistado en la
-     * OP, y lo que quede por remisionar.
+     * Un ítem con unidades en planta las cuenta por sus trabajos: terminadas, firmadas por
+     * calidad y todavía sin remisionar. Un producto sin planta se puede remisionar **aunque nadie
+     * lo haya alistado**: meterlo en la remisión es la prueba de que está listo, y la remisión lo
+     * alista sola. Un servicio no viaja nunca.
      *
      * Hasta el 18 ago 2026 esto solo miraba los trabajos, y por eso **un producto nunca
      * aparecía en el remisionador**: la OP lo listaba y la remisión no lo dejaba escoger.
      */
     public function cantidadDisponible(): int
     {
+        if (in_array($this->tipo, Op::TIPOS_SIN_DESPACHO, true)) {
+            return 0;
+        }
+
         if ($this->sinTrabajos()) {
-            return $this->estado_item === 'terminado'
-                ? max(0, (int) $this->cantidad - (int) $this->cantidad_remisionada)
-                : 0;
+            return max(0, (int) $this->cantidad - (int) $this->cantidad_remisionada);
         }
 
         return $this->trabajos()->disponiblesParaRemision()->count();
+    }
+
+    /**
+     * Cuántas unidades están **listas**: alistadas a mano, o terminadas en planta y firmadas.
+     *
+     * Es lo que muestran Alistamiento y la pestaña «Por remisionar»: lo que ya está en el
+     * muelle. `cantidadDisponible()` es más ancho —deja remisionar un producto sin alistar—,
+     * pero listar ahí todo lo pendiente convertiría la pestaña en la lista de todas las órdenes.
+     */
+    public function cantidadLista(): int
+    {
+        if ($this->sinTrabajos()) {
+            if (in_array($this->tipo, Op::TIPOS_SIN_DESPACHO, true)) {
+                return 0;
+            }
+
+            // Lo alistado que todavía no salió: de 15 vendidas, 10 alistadas y ninguna remisionada
+            // son 10 listas, no 15 ni 0.
+            return max(0, $this->cantidadAlistada() - (int) $this->cantidad_remisionada);
+        }
+
+        return $this->cantidadDisponible();
+    }
+
+    /**
+     * Cuántas unidades de un producto ya están alistadas. Lo remisionado cuenta como alistado:
+     * salió, así que estuvo listo.
+     */
+    public function cantidadAlistada(): int
+    {
+        if ($this->estado_item === 'terminado') {
+            return (int) $this->cantidad;
+        }
+
+        return min((int) $this->cantidad, max((int) $this->cantidad_alistada, (int) $this->cantidad_remisionada));
+    }
+
+    /**
+     * Marca o desmarca el ítem como alistado, y mueve la orden.
+     *
+     * Es el único sitio que lo hace: lo llaman Alistamiento y el botón de la orden. Antes cada
+     * uno escribía `estado_item` por su cuenta y **ninguno avisaba a la orden**: se alistaban
+     * todos los productos y la orden seguía «En producción».
+     *
+     * Un ensamble con unidades no se alista a mano: queda listo solo cuando sus unidades
+     * terminan en planta. Alistarlo antes metería en la remisión algo que no existe todavía, y
+     * desalistarlo con todo terminado lo dejaría pendiente de algo que ya está hecho.
+     *
+     * @return string|null  el motivo si no se pudo; null si quedó hecho
+     */
+    public function alistar(bool $alistar = true, ?int $cantidad = null): ?string
+    {
+        if ($alistar && $this->op && ! $this->op->cliente_id) {
+            return Op::SIN_CLIENTE;
+        }
+
+        if (! $this->sinTrabajos()) {
+            return $alistar
+                ? 'Este ensamble se alista solo cuando terminan sus unidades en planta (van '
+                    .$this->trabajos()->completados()->count().' de '.$this->trabajos()->count().').'
+                : 'Este ensamble está listo porque sus unidades terminaron en planta: para devolverlo, se reabre su trabajo.';
+        }
+
+        $total      = (int) $this->cantidad;
+        $remisionadas = $this->unidadesRemisionadas();
+
+        // `$cantidad` es cuántas quedan alistadas en total —10 de 15—; sin ella, todas. Nunca
+        // menos de lo que ya salió: eso no está en la bodega para devolverlo a pendiente.
+        $alistadas = $alistar ? ($cantidad === null ? $total : max(0, min($total, $cantidad))) : 0;
+        $alistadas = max($alistadas, $remisionadas);
+
+        if (! $alistar && $remisionadas > 0 && $remisionadas >= $this->cantidadAlistada()) {
+            return 'Lo alistado de este ítem ya salió en una remisión: no se puede devolver a pendiente.';
+        }
+
+        if ($alistar && $alistadas === 0) {
+            return 'Di cuántas unidades quedaron alistadas.';
+        }
+
+        $this->update([
+            'cantidad_alistada' => $alistadas,
+            'estado_item'       => $alistadas >= $total ? 'terminado' : ($alistadas > 0 ? 'en_proceso' : 'pendiente'),
+        ]);
+
+        $this->op?->sincronizarEstado();
+
+        return null;
     }
 
     public function estaRemisionado(): bool
@@ -101,7 +215,7 @@ class OpItem extends Model
     public function unidadesCompletadas(): int
     {
         if ($this->sinTrabajos()) {
-            return $this->estado_item === 'terminado' ? (int) $this->cantidad : 0;
+            return $this->cantidadAlistada();
         }
 
         return $this->trabajos()->completados()->count();

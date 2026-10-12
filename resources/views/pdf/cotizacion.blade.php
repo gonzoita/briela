@@ -57,6 +57,9 @@
         <div class="numero">{{ $cotizacion->numero }}</div>
         <div class="fecha">Fecha: {{ $cotizacion->fecha_creacion->format('d/m/Y') }}</div>
         <div class="fecha">Válida hasta: {{ $cotizacion->fecha_validez->format('d/m/Y') }}</div>
+        @if ($cotizacion->dias_entrega)
+            <div class="fecha">Entrega: {{ $cotizacion->dias_entrega }} días hábiles</div>
+        @endif
         <div class="estado-badge" style="background-color: {{ $cotizacion->estado_badge['bg'] }}; color: {{ $cotizacion->estado_badge['text'] }};">
             {{ $cotizacion->estado_badge['label'] }}
         </div>
@@ -184,6 +187,19 @@
     <p>{{ $cotizacion->condiciones_comerciales }}</p>
 </div>
 @endif
+
+<!-- Firmas: la del responsable sale sola si la tiene guardada en su perfil -->
+<table style="width:100%; margin-top:28px; border:none;">
+    <tr>
+        <td style="width:45%; border:none;">
+            @include('pdf._firma', ['firma' => $cotizacion->responsable?->firma, 'nombre' => $cotizacion->responsable?->name, 'cargo' => 'Asesor comercial'])
+        </td>
+        <td style="width:10%; border:none;"></td>
+        <td style="width:45%; border:none;">
+            @include('pdf._firma', ['firma' => null, 'nombre' => $cotizacion->cliente?->nombreCompleto(), 'cargo' => 'Cliente'])
+        </td>
+    </tr>
+</table>
 
 <!-- Footer -->
 <div class="footer">

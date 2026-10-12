@@ -80,19 +80,24 @@ class ChatGrupoController extends Controller
             }
 
             $this->notificaciones->crear($id, 'chat_mensaje',
-                "{$autor} te agregó al grupo «{$grupo->nombre}»", null, '/dashboard');
+                "{$autor} te agregó al grupo «{$grupo->nombre}»", null, "/chat/grupos/{$grupo->id}");
         }
 
         return response()->json(['grupo' => ['id' => $grupo->id, 'nombre' => $grupo->nombre]], 201);
     }
 
-    public function hilo(ChatGrupo $grupo): JsonResponse
+    /** El hilo del grupo. Con `?desde={id}`, solo lo nuevo: así se ve en vivo con el chat abierto. */
+    public function hilo(Request $request, ChatGrupo $grupo): JsonResponse
     {
         $this->exigirMiembro($grupo);
 
+        $desde = (int) $request->query('desde', 0);
+
         $mensajes = $grupo->mensajes()
-            ->with(['autor:id,name', 'archivos'])
+            ->when($desde > 0, fn ($q) => $q->where('comentarios.id', '>', $desde))
+            ->with(['autor:id,name', 'archivos', 'respuestaA.autor:id,name'])
             ->orderBy('created_at')
+            ->orderBy('comentarios.id')
             ->get();
 
         // Marca hasta dónde leí. Es una fila por miembro, no por mensaje.
@@ -112,6 +117,7 @@ class ChatGrupoController extends Controller
                 'autor'     => $m->autor?->only(['id', 'name']),
                 'mio'       => $m->user_id === auth()->id(),
                 'creado'    => $m->created_at->toIso8601String(),
+                'respuesta' => $m->citaParaChat(),
                 'referencia'=> $m->referencia_url ? [
                     'etiqueta' => $m->referencia_titulo,
                     'url'      => $m->referencia_url,
@@ -130,7 +136,7 @@ class ChatGrupoController extends Controller
         $this->exigirMiembro($grupo);
 
         $datos = $request->validate([
-            'contenido'  => 'required|string|max:5000',
+            'contenido'  => 'required_without:archivos|nullable|string|max:5000',
             'tipo'       => 'required|in:comentario,solicitud,tarea',
             'ref_tipo'   => 'nullable|string|max:40',
             'ref_titulo' => 'nullable|string|max:200',
@@ -141,16 +147,23 @@ class ChatGrupoController extends Controller
             'archivos.*.mime'      => 'nullable|string|max:120',
             'archivos.*.extension' => 'nullable|string|max:10',
             'archivos.*.tamano'    => 'nullable|integer',
+            'respuesta_a_id'       => 'nullable|integer',
         ]);
 
         if (filled($datos['ref_url'] ?? null) && ! str_starts_with($datos['ref_url'], '/')) {
             abort(422, 'Solo se pueden adjuntar documentos del propio sistema.');
         }
 
+        if (! empty($datos['respuesta_a_id'])
+            && ! Comentario::where('grupo_id', $grupo->id)->whereKey($datos['respuesta_a_id'])->exists()) {
+            abort(422, 'Ese mensaje no es de este grupo.');
+        }
+
         $mensaje = Comentario::create([
             'user_id'   => auth()->id(),
             'grupo_id'  => $grupo->id,
-            'contenido' => $datos['contenido'],
+            'respuesta_a_id' => $datos['respuesta_a_id'] ?? null,
+            'contenido' => $datos['contenido'] ?? '',
             'tipo'      => $datos['tipo'],
             'estado'    => $datos['tipo'] === 'comentario' ? null : 'pendiente',
             'referencia_tipo'   => $datos['ref_tipo'] ?? null,
@@ -177,7 +190,7 @@ class ChatGrupoController extends Controller
         foreach ($grupo->miembros()->where('users.id', '!=', auth()->id())->pluck('users.id') as $id) {
             $this->notificaciones->crear($id, 'chat_mensaje',
                 "{$autor} escribió en «{$grupo->nombre}»",
-                mb_strimwidth($datos['contenido'], 0, 120, '...'), '/dashboard');
+                mb_strimwidth($datos['contenido'] ?? '📎 Envió un archivo', 0, 120, '...'), "/chat/grupos/{$grupo->id}");
         }
 
         return response()->json(['ok' => true, 'id' => $mensaje->id], 201);

@@ -25,9 +25,11 @@ export function useConsultaIdentificacion() {
      * @param {string} numero              lo que el usuario escribió
      * @param {string} tipoIdentificacion  CC, NIT, CE, PA o RUT
      * @param {number|null} ignorarId      el cliente que se está editando
+     * @param {string|null} pais           ISO del país del cliente; null = el de la casa
      */
-    async function consultar(numero, tipoIdentificacion, ignorarId = null) {
-        const limpio = (numero || '').replace(/\D/g, '')
+    async function consultar(numero, tipoIdentificacion, ignorarId = null, pais = null) {
+        // Letras y números: un RIF o un RUC no son solo dígitos.
+        const limpio = (numero || '').replace(/[^0-9A-Za-z]/g, '')
 
         // Menos de 5 dígitos no es una identificación todavía: no molestamos
         // al usuario con avisos mientras apenas va escribiendo.
@@ -45,6 +47,7 @@ export function useConsultaIdentificacion() {
                 tipo_identificacion: tipoIdentificacion,
             })
             if (ignorarId) params.append('ignorar_id', ignorarId)
+            if (pais) params.append('pais', pais)
 
             const resp = await fetch(`/clientes/consultar-identificacion?${params}`, {
                 headers: { Accept: 'application/json' },

@@ -62,6 +62,18 @@ con todos los avisos agrupados por módulo y **dos switches** por aviso:
   defecto). Requiere tener el SMTP configurado en la pestaña "Email"; si el
   correo falla, el aviso interno igual se guarda y nada se rompe.
 
+## En vivo, sin recargar *(15 oct 2026)*
+
+La campana pregunta cada 15 s por un **pulso** (`/api/avisos/pulso`): una firma corta hecha con
+cuatro conteos, sin traer filas. Solo si la firma cambió se piden las listas completas; además se
+refrescan cada dos minutos por la bandeja. Lo que llega mientras se trabaja aparece en una tarjeta
+que se toca para ir directo al documento, y si el aviso es de la pantalla abierta, sus datos se
+recargan solos.
+
+Tipos nuevos: `cotizacion_vencida` y `cotizacion_estado` (otra persona cambió el estado de una
+cotización tuya). Las de aprobada y rechazada ahora salen de todos los caminos, no solo del enlace
+público.
+
 ## Estado
 
 Sistema completo: campanita + canal email opcional + panel de configuración

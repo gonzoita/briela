@@ -47,18 +47,13 @@ class CotizacionPublicaController extends Controller
             return back()->withErrors(['error' => 'Esta cotización no puede ser aprobada en su estado actual.']);
         }
 
-        $cotizacion->update(['estado' => 'aprobada']);
-
-        // Aviso interno al vendedor responsable.
-        if ($cotizacion->responsable_id) {
-            app(\App\Services\NotificacionService::class)->crear(
-                $cotizacion->responsable_id,
-                'cotizacion_aprobada',
-                "Cotización {$cotizacion->numero} aprobada",
-                'El cliente aprobó la cotización. Ya se puede generar la OP.',
-                "/cotizaciones/{$cotizacion->id}",
-            );
+        // Una cotización vieja que salió sin cliente no se aprueba: no habría a quién fabricarle.
+        if (! $cotizacion->cliente_id) {
+            return back()->withErrors(['error' => 'Esta cotización todavía no se puede aprobar. Comunícate con quien te la envió.']);
         }
+
+        // El aviso al responsable lo da CotizacionObserver, para todos los caminos.
+        $cotizacion->update(['estado' => 'aprobada']);
 
         return redirect("/cotizaciones/{$token}/aprobar")
             ->with('success', '¡Cotización aprobada exitosamente!');
@@ -81,16 +76,7 @@ class CotizacionPublicaController extends Controller
             'motivo_rechazo'  => $request->motivo ?? null,
         ]);
 
-        // Aviso interno al vendedor responsable.
-        if ($cotizacion->responsable_id) {
-            app(\App\Services\NotificacionService::class)->crear(
-                $cotizacion->responsable_id,
-                'cotizacion_rechazada',
-                "Cotización {$cotizacion->numero} rechazada",
-                trim('El cliente rechazó la cotización. ' . ($request->motivo ? "Motivo: {$request->motivo}" : '')),
-                "/cotizaciones/{$cotizacion->id}",
-            );
-        }
+        // El aviso al responsable lo da CotizacionObserver, para todos los caminos.
 
         return redirect("/cotizaciones/{$token}/aprobar")
             ->with('success', 'Cotización rechazada.');

@@ -232,6 +232,62 @@ const textoImportar = ref('')
 const importando    = ref(false)
 const errorImportar = ref('')
 
+// Importar un archivo Markdown (.md): se lee en el navegador y se manda como texto. Es el
+// formato en que suele estar un perfil de marca hecho con otra IA o en un editor de notas.
+const nombreArchivoMd = ref('')
+
+function leerMd(e) {
+    errorImportar.value = ''
+    const archivo = e.target.files?.[0]
+    e.target.value = ''
+    if (! archivo) return
+
+    if (! /\.(md|markdown|txt)$/i.test(archivo.name)) {
+        errorImportar.value = 'Elige un archivo .md (Markdown).'
+        return
+    }
+    if (archivo.size > 60000 * 4) {
+        errorImportar.value = 'El archivo es muy grande: divide el documento en partes.'
+        return
+    }
+
+    const lector = new FileReader()
+    lector.onload = () => {
+        textoImportar.value   = String(lector.result ?? '').slice(0, 60000)
+        nombreArchivoMd.value = archivo.name
+    }
+    lector.onerror = () => { errorImportar.value = 'No se pudo leer el archivo.' }
+    lector.readAsText(archivo, 'utf-8')
+}
+
+// ── Completar con IA ──────────────────────────────────────────────────────────
+// La IA formula la pregunta de cada sección para ESTA empresa y la responde sola con lo que el
+// sistema sabe de ella. Por omisión solo llena las vacías.
+const completando   = ref(false)
+const reescribirTodo = ref(false)
+const errorCompletar = ref('')
+const resultadoIa   = ref([])
+
+async function completarConIa() {
+    if (reescribirTodo.value && ! confirm('La IA va a reescribir TODAS las secciones, también las que escribiste a mano. ¿Seguir?')) return
+    completando.value = true
+    errorCompletar.value = ''
+    resultadoIa.value = []
+
+    try {
+        const { ok, data } = await postJson('/api/perfil-marca/completar', { reescribir: reescribirTodo.value })
+        if (! ok) { errorCompletar.value = data.error ?? 'No se pudo completar.'; return }
+        if (! data.secciones) { errorCompletar.value = data.mensaje ?? 'No hubo nada que completar.'; return }
+
+        resultadoIa.value = data.resultado ?? []
+        router.reload({ preserveScroll: true })
+    } catch (e) {
+        errorCompletar.value = 'No se pudo conectar con la IA.'
+    } finally {
+        completando.value = false
+    }
+}
+
 async function importar() {
     if (!textoImportar.value.trim()) return
     importando.value = true
@@ -244,6 +300,7 @@ async function importar() {
 
         modalImportar.value = false
         textoImportar.value = ''
+        nombreArchivoMd.value = ''
         router.reload()
     } catch (e) {
         errorImportar.value = 'No se pudo conectar con la IA.'
@@ -580,16 +637,49 @@ async function importar() {
                 </div>
             </div>
 
-            <!-- Importar -->
-            <div class="flex items-center justify-between mb-3">
-                <p class="text-xs text-tinta-300">
-                    Cada sección se puede escribir a mano o dejar que la IA la redacte.
-                </p>
-                <button @click="modalImportar = true"
-                    class="text-xs font-semibold text-[var(--marca)] hover:underline shrink-0">
-                    Importar desde un documento
-                </button>
+            <!-- Completar con IA: la IA hace las preguntas y las responde sola -->
+            <div class="bg-superficie rounded-2xl border border-linea p-4 mb-4">
+                <div class="flex items-start justify-between gap-3 flex-wrap">
+                    <div class="min-w-0 flex-1">
+                        <p class="text-sm font-semibold text-tinta-900">Completar con la IA de Briela</p>
+                        <p class="text-xs text-tinta-400 mt-0.5">
+                            La IA formula la pregunta de cada sección para tu empresa y la responde sola, con lo que el
+                            sistema ya sabe de ti: lo que vendes, a quién y dónde. Lo que no se puede saber por los datos
+                            sale como «[Propuesta para revisar]». Revísalo y ajústalo a tu gusto.
+                        </p>
+                        <label class="mt-2 inline-flex items-center gap-2 text-xs text-tinta-500">
+                            <input v-model="reescribirTodo" type="checkbox" class="rounded" style="accent-color:var(--marca);"/>
+                            Reescribir también las secciones que ya tienen contenido
+                        </label>
+                    </div>
+                    <div class="flex items-center gap-3 shrink-0">
+                        <button @click="modalImportar = true"
+                            class="px-3 py-2 rounded-xl border border-linea text-xs font-semibold text-tinta-600 hover:bg-realce">
+                            Importar MD
+                        </button>
+                        <button @click="completarConIa" :disabled="completando"
+                            class="px-4 py-2 rounded-xl text-xs font-semibold text-[var(--marca-texto)] disabled:opacity-60"
+                            style="background:var(--marca);">
+                            {{ completando ? 'La IA está trabajando…' : 'Completar con IA' }}
+                        </button>
+                    </div>
+                </div>
+                <p v-if="errorCompletar" class="mt-2 text-xs text-aviso-rojo">{{ errorCompletar }}</p>
+
+                <!-- Lo que preguntó y respondió -->
+                <div v-if="resultadoIa.length" class="mt-3 rounded-xl border border-borde-aviso-verde bg-pastel-verde p-3">
+                    <p class="text-xs font-semibold text-aviso-verde mb-2">La IA completó {{ resultadoIa.length }} secciones. Esto fue lo que se preguntó:</p>
+                    <ul class="space-y-1.5">
+                        <li v-for="r in resultadoIa" :key="r.seccion" class="text-xs text-aviso-verde">
+                            <strong>{{ r.label }}:</strong> {{ r.pregunta }}
+                        </li>
+                    </ul>
+                </div>
             </div>
+
+            <p class="text-xs text-tinta-300 mb-3">
+                Cada sección se puede escribir a mano o dejar que la IA la redacte.
+            </p>
 
             <!-- Secciones -->
             <div class="space-y-3">
@@ -642,13 +732,17 @@ async function importar() {
                 <div v-if="modalImportar" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4"
                     style="background:rgba(0,0,0,0.5);" @click.self="modalImportar = false">
                     <div class="bg-superficie rounded-2xl shadow-xl w-full max-w-lg p-5">
-                        <h3 class="text-base font-semibold text-tinta-900 mb-1">Importar perfil de marca</h3>
+                        <h3 class="text-base font-semibold text-tinta-900 mb-1">Importar MD</h3>
                         <p class="text-sm text-tinta-400 mb-3">
-                            Pega aquí el texto de tu documento de marca. La IA lo reparte en las secciones.
-                            Reemplaza lo que ya haya en las secciones que encuentre.
+                            Sube tu perfil de marca en un archivo Markdown (.md) —o pega el texto— y la IA lo reparte
+                            en las secciones. Reemplaza lo que ya haya en las secciones que encuentre.
                         </p>
-                        <textarea v-model="textoImportar" rows="10" maxlength="60000"
-                            placeholder="Pega el contenido del documento…"
+                        <label class="mb-3 flex items-center justify-center gap-2 rounded-xl border-2 border-dashed border-linea px-3 py-4 text-sm text-tinta-500 cursor-pointer hover:bg-realce">
+                            <span>{{ nombreArchivoMd ? `📄 ${nombreArchivoMd}` : 'Elegir archivo .md' }}</span>
+                            <input type="file" accept=".md,.markdown,.txt,text/markdown,text/plain" class="hidden" @change="leerMd"/>
+                        </label>
+                        <textarea v-model="textoImportar" rows="8" maxlength="60000"
+                            placeholder="…o pega aquí el contenido en Markdown"
                             class="w-full rounded-xl border border-tinta-200 px-3 py-2 text-sm mb-3 focus:outline-none focus:ring-4 focus:ring-[var(--marca-suave)]"></textarea>
                         <p v-if="errorImportar" class="text-xs text-aviso-rojo mb-3">{{ errorImportar }}</p>
                         <div class="flex gap-3">

@@ -29,6 +29,31 @@ brillo promedio recibe texto blanco.
 La vista previa muestra un encabezado, una tarjeta, botones, un enlace y una
 etiqueta con el color que estés probando, **antes** de guardarlo.
 
+### Un color que no se lee se ajusta solo, por tema
+
+El mismo color sirve de fondo de un botón y de texto de un enlace, del menú activo
+o de un botón con borde. Un azul marino sobre el gris del modo noche quedaba en
+1,3:1: los números de las cotizaciones y el menú activo desaparecían. Un amarillo
+sobre blanco, igual de día.
+
+Por eso cada tema pinta **el mismo tono con la luz justa** para leerse sobre su
+superficie (`Marca::colorLegible()`), y si ya se lee sale tal cual:
+
+| Tema | Contraste mínimo | Por qué |
+|---|---|---|
+| Noche | 4,5:1 (texto normal) | Ahí nadie espera el tono exacto, y lo que más se ve son enlaces y el menú |
+| Día | 3:1 (componentes y negrita) | El botón lleno es la cara de la marca; oscurecer un naranja que ya se lee le cambiaría la identidad |
+
+Solo se mueve la luz (HSL), no se mezcla con blanco: mezclado, un azul marino
+terminaba en un gris azulado sin carácter. De noche, además, los fondos suaves
+(`suave`, `medio`, `borde`) son tintes **oscuros** del color sobre la superficie,
+no pasteles claros.
+
+La pantalla de Marca avisa cuando un tema usa una versión ajustada y muestra cuál.
+Los documentos, el PDF, el correo y el `theme-color` siguen con el color exacto
+(`Marca::color()`); el ajuste vive solo en las variables CSS de cada tema.
+`tests/Unit/ColorMarcaLegibleTest.php` fija los contrastes.
+
 ### Dónde se aplica
 
 En toda la plataforma: encabezado, menú lateral, barra inferior, botones,

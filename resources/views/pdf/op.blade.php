@@ -217,6 +217,18 @@ table.materiales td.num { text-align: right; }
     </div>
     @endif
 
+    @if($esUltimo)
+    {{-- Firma del responsable, al final de la última hoja. --}}
+    <table style="width:100%; margin-top:24px; border:none;">
+        <tr>
+            <td style="width:45%; border:none;">
+                @include('pdf._firma', ['firma' => $op->responsable?->firma, 'nombre' => $op->responsable?->name, 'cargo' => 'Responsable de la orden'])
+            </td>
+            <td style="width:55%; border:none;"></td>
+        </tr>
+    </table>
+    @endif
+
 </div>
 @endforeach
 

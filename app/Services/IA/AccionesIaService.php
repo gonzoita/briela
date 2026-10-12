@@ -47,8 +47,12 @@ class AccionesIaService
     {
         $user = auth()->user();
 
+        // Las transacciones de los procesos (OP, remisiones, pagos, planta, CRM) van aparte y
+        // nunca se ejecutan aquí: se proponen y la persona las confirma con un botón.
         return collect(static::catalogo())
             ->filter(fn ($cfg) => $user?->tienePermiso($cfg['permiso']))
+            ->merge(collect(app(TransaccionesIaService::class)->disponibles())
+                ->map(fn ($cfg) => $cfg + ['confirmar' => true]))
             ->all();
     }
 
@@ -63,7 +67,8 @@ class AccionesIaService
 
         return match ($accion) {
             'crear_cotizacion' => $this->crearCotizacion($parametros),
-            default            => null,
+            // Una transacción: aquí solo se arma la propuesta; se hace al confirmar.
+            default            => app(TransaccionesIaService::class)->proponer($accion, $parametros),
         };
     }
 
@@ -231,7 +236,7 @@ class AccionesIaService
                 'cliente_id'     => $cliente->id,
                 'responsable_id' => auth()->id(),
                 'estado'         => 'borrador',
-                'moneda'         => 'COP',
+                'moneda'         => \App\Support\Monedas::base(),
                 'notas_internas' => trim('Creada por el asistente. ' . ($p['notas'] ?? '')),
             ]);
 
@@ -284,7 +289,7 @@ class AccionesIaService
             'estado'     => 'borrador',
             'url'        => "/cotizaciones/{$cotizacion->id}",
             'total'      => round((float) $cotizacion->total),
-            'moneda'     => 'COP',
+            'moneda'     => \App\Support\Monedas::base(),
             'items'      => collect($encontrados)->map(fn ($l) => [
                 'producto' => $l['producto']->nombre,
                 'cantidad' => $l['cantidad'],

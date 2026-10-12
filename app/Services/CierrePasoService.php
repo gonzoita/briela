@@ -25,21 +25,21 @@ use Illuminate\Validation\ValidationException;
  * separar. Lo que decide la regla:
  *
  * 1. Un paso se cierra con su hora, sus operarios y sus puntos.
- * 2. **La unidad entra a bodega al cerrarse el paso final**, y solo si no queda ningún otro
- *    paso pendiente. Un paso final cerrado antes que los demás no entrega nada: la unidad no
- *    está armada, y meterla al inventario diría que sí.
- * 3. Las dos bodegas —a dónde entra lo fabricado, de dónde salió el material— se guardan en la
- *    unidad. Vienen de la orden y se pueden corregir al cerrar.
+ * 2. El paso final no se cierra con otros pasos pendientes: es el que da la unidad por
+ *    terminada.
+ * 3. **Terminar no mueve inventario** (desde el 14 oct 2026). Lo que la unidad gastó sale del
+ *    almacén cuando se remisiona (`InventarioRemisionService`), así que no se preguntan bodegas.
+ *    Antes la unidad entraba a bodega como producto terminado al cerrar el paso final.
  */
 class CierrePasoService
 {
     public function __construct(
-        private EntregaAlmacenService $almacen,
         private PuntosColaboradorService $puntos,
     ) {}
 
     /**
-     * Cierra un paso. Devuelve la bodega a la que entró la unidad, o null si no entró.
+     * Cierra un paso. Devuelve null: terminar ya no entra nada a bodega (se conserva la firma
+     * para que las pantallas que la leen no cambien).
      *
      * `$operarios` es la lista de quienes lo hicieron: `[['operario_id' => 1, 'tiempo_minutos'
      * => 30, 'observaciones' => '…'], …]`. Puede venir vacía —el tablero cierra de un toque—
@@ -55,20 +55,16 @@ class CierrePasoService
     ): ?Bodega {
         $trabajo = $paso->trabajo;
 
-        // Sin el módulo de inventario, el paso final cierra la unidad sin pedir bodegas ni mover
-        // stock: no hay existencias que llevar, y exigirlas bloquearía al operario por algo que
-        // la empresa decidió no usar.
-        $conInventario = \App\Support\Modulos::activo('inventario');
-
-        if ($paso->es_paso_final) {
-            $this->exigirQueSeaElUltimo($paso, $trabajo);
-
-            if ($conInventario) {
-                $this->guardarBodegas($trabajo, $bodegaEntregaId, $bodegaMaterialId);
-            }
+        if (! $trabajo->opItem?->op?->cliente_id) {
+            throw ValidationException::withMessages(['paso' => \App\Models\Op::SIN_CLIENTE]);
         }
 
-        $yaEstaba = (bool) $paso->completado;
+        // Terminar en planta no mueve inventario: lo que se gastó sale del almacén cuando la
+        // unidad se remisiona (InventarioRemisionService). Por eso el paso final ya no pide
+        // bodegas; solo exige que no queden otros pasos pendientes.
+        if ($paso->es_paso_final) {
+            $this->exigirQueSeaElUltimo($paso, $trabajo);
+        }
 
         $paso->update([
             'completado'     => true,
@@ -99,12 +95,6 @@ class CierrePasoService
         }
 
         $trabajo->recalcularAvance();
-
-        // La entrega va al final: necesita el avance ya recalculado y el paso ya cerrado, y
-        // `entregado_at` la hace idempotente si el paso se vuelve a marcar.
-        if ($paso->es_paso_final && ! $yaEstaba && $conInventario) {
-            return $this->almacen->entregar($trabajo->fresh());
-        }
 
         return null;
     }
@@ -157,8 +147,11 @@ class CierrePasoService
         return [
             'entrega'  => $anterior?->bodega_entrega_id  ?? $op?->bodega_entrega_id,
             'material' => $anterior?->bodega_material_id ?? $op?->bodega_material_id,
+            // La pantalla ya no las pregunta: terminar no mueve inventario.
+            'pide'     => false,
         ];
     }
+
 
     /**
      * El paso final es el que entrega, así que no se puede cerrar con trabajo por delante.
@@ -182,40 +175,4 @@ class CierrePasoService
         }
     }
 
-    /**
-     * Guarda las dos bodegas en la unidad, cayendo a las sugeridas si no llegó ninguna.
-     *
-     * Se exige tener las dos: sin la de entrega, la unidad no sabe a dónde entrar; sin la del
-     * material, el descuento se haría contra la de entrega —una bodega de producto terminado
-     * que no guarda insumos— y ahí `registrarMovimiento()` lo recorta a cero en silencio. Un
-     * descuento que no descuenta nada es peor que un error, porque nadie lo ve.
-     */
-    private function guardarBodegas(OpItemTrabajo $trabajo, ?int $entrega, ?int $material): void
-    {
-        $sugeridas = $this->bodegasSugeridas($trabajo);
-
-        $entrega  = $entrega  ?: ($trabajo->bodega_entrega_id  ?: $sugeridas['entrega']);
-        $material = $material ?: ($trabajo->bodega_material_id ?: $sugeridas['material']);
-
-        // El respaldo de las órdenes viejas: nacieron sin los campos de la orden, y lo único
-        // que les queda es lo que dejó la plantilla en el paso.
-        $entrega ??= $trabajo->pasos()
-            ->whereNotNull('bodega_destino_id')
-            ->orderByDesc('es_paso_final')
-            ->value('bodega_destino_id');
-
-        $faltan = [];
-
-        if (! $entrega)  $faltan['bodega_entrega_id']  = 'Elige a qué bodega entra la unidad terminada.';
-        if (! $material) $faltan['bodega_material_id'] = 'Elige de qué bodega salieron los insumos de esta unidad.';
-
-        if ($faltan !== []) {
-            throw ValidationException::withMessages($faltan);
-        }
-
-        $trabajo->update([
-            'bodega_entrega_id'  => $entrega,
-            'bodega_material_id' => $material,
-        ]);
-    }
 }

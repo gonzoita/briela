@@ -62,7 +62,7 @@ class PdfPlantillaMotor
      * La moneda del documento, para el filtro `moneda`. Los valores llegan ya convertidos
      * (ver PdfVariablesEngine); aquí solo se decide cómo se escriben.
      */
-    private string $moneda = 'COP';
+    private string $moneda = '';
 
     public static function render(string $html, array $datos): string
     {
@@ -84,7 +84,7 @@ class PdfPlantillaMotor
     {
         $this->raiz = $datos;
         $this->desconocidas = [];
-        $this->moneda = \App\Support\Monedas::existe($datos['__moneda'] ?? null) ? $datos['__moneda'] : 'COP';
+        $this->moneda = \App\Support\Monedas::existe($datos['__moneda'] ?? null) ? $datos['__moneda'] : \App\Support\Monedas::base();
         [$arbol, $errores] = $this->parsear($html);
         $salida = $this->recorrer($arbol, []);
 

@@ -104,6 +104,19 @@ class ConsultasDatosService
                 'parametros'  => ['texto' => 'nombre o referencia a buscar (obligatorio)'],
                 'permiso'     => 'productos.ver',
             ],
+            'comparar_proveedores' => [
+                'descripcion' => 'Compara los proveedores de un producto o insumo: el código con que cada uno lo '
+                    .'llama, su precio, cuánto tarda en entregar, el mínimo que exige, qué tan reciente es su '
+                    .'precio y cómo ha cambiado en las últimas órdenes, y su calificación (0 a 100: puntualidad, '
+                    .'cumplimiento, entregas con factura o remisión a tiempo, y precio). Barato no es lo mismo '
+                    .'que conveniente: pesa las dos cosas, y si un proveedor no tiene calificación, dilo. '
+                    .'Úsala para "a quién le compro X", '
+                    .'"quién me vende X más barato" o "cuál proveedor me conviene". Un precio de más de 90 días '
+                    .'NO cuenta como oferta: si ninguno está vigente, dilo y recomienda confirmar precios.',
+                'parametros'  => ['texto' => 'nombre o referencia del producto (obligatorio)'],
+                // Es costo: el mismo permiso que esconde el costo en el resto del sistema.
+                'permiso'     => 'costos.ver',
+            ],
             'recomendar_producto' => [
                 'descripcion' => 'Encuentra qué productos o ensambles del catálogo sirven para una '
                     .'necesidad descrita con palabras: uso, temperatura, medidas, material, presupuesto. '
@@ -159,6 +172,7 @@ class ConsultasDatosService
             'rrhh_resumen'          => $this->rrhhResumen(),
             'productividad'         => $this->productividad($dias ?: 30),
             'buscar_producto'       => $this->buscarProducto((string) ($parametros['texto'] ?? '')),
+            'comparar_proveedores'  => $this->compararProveedores((string) ($parametros['texto'] ?? '')),
             'recomendar_producto'   => app(RecomendadorProductosService::class)
                                             ->candidatos((string) ($parametros['necesidad'] ?? '')),
             'estado_op'             => $this->estadoOp((string) ($parametros['numero'] ?? '')),
@@ -196,7 +210,7 @@ class ConsultasDatosService
             ])->all(),
             'total_cotizado' => round((float) $filas->sum('monto')),
             'total_aprobado' => round((float) $filas->whereIn('estado', ['aprobada', 'en_produccion'])->sum('monto')),
-            'moneda'         => 'COP',
+            'moneda'         => \App\Support\Monedas::base(),
         ];
     }
 
@@ -218,7 +232,7 @@ class ConsultasDatosService
                 'cantidad' => (int) $f->cantidad,
                 'monto'    => round((float) $f->monto),
             ])->all(),
-            'moneda'    => 'COP',
+            'moneda'    => \App\Support\Monedas::base(),
         ];
     }
 
@@ -326,7 +340,7 @@ class ConsultasDatosService
                     'saldo'   => round($c->saldo),
                     'vencio'  => $c->fecha_vencimiento?->format('d/m/Y'),
                 ])->values()->all(),
-            'moneda'           => 'COP',
+            'moneda'           => \App\Support\Monedas::base(),
         ];
     }
 
@@ -395,7 +409,7 @@ class ConsultasDatosService
                 'cotizaciones' => (int) $f->cantidad,
                 'monto'        => round((float) $f->monto),
             ])->all(),
-            'moneda'  => 'COP',
+            'moneda'  => \App\Support\Monedas::base(),
         ];
     }
 
@@ -526,6 +540,35 @@ class ConsultasDatosService
         ];
     }
 
+    /**
+     * Los proveedores de un producto, uno al lado del otro. La cuenta de «el más barato
+     * vigente» vive en `ProveedoresProductoService::comparar()`, no aquí: la ficha del
+     * producto y el asistente tienen que decir lo mismo.
+     */
+    private function compararProveedores(string $texto): array
+    {
+        if (trim($texto) === '') {
+            return ['error' => 'Falta el nombre o la referencia del producto a comparar.'];
+        }
+
+        $servicio  = app(\App\Services\ProveedoresProductoService::class);
+        $productos = Producto::seleccionables()
+            ->where('activo', true)
+            ->where(fn ($q) => $q->where('nombre', 'like', "%{$texto}%")
+                                 ->orWhere('referencia', 'like', "%{$texto}%"))
+            ->limit(3)
+            ->get();
+
+        return [
+            'buscado'     => $texto,
+            'encontrados' => $productos->count(),
+            'productos'   => $productos->map(fn (Producto $p) => array_merge(
+                ['nombre' => $p->nombre, 'referencia' => $p->referencia],
+                $servicio->comparar($p->id),
+            ))->all(),
+        ];
+    }
+
     // ─── Diagnóstico de una OP ────────────────────────────────────────────────
 
     /**
@@ -592,7 +635,7 @@ class ConsultasDatosService
             // Veredicto ya calculado: la IA solo lo comunica, no lo deduce.
             'puede_despacharse'   => $calidadOk && $avanceOk && ! $yaDespachada,
             'que_falta'           => $faltantes,
-            'moneda'              => 'COP',
+            'moneda'              => \App\Support\Monedas::base(),
         ];
     }
 }

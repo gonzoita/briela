@@ -32,6 +32,7 @@ class MarcaController extends Controller
                 'favicon_oscuro_url' => ImagenMarcaService::url('marca_favicon_oscuro') ?? '',
                 'empresa'     => Marca::nombreEmpresa(),
                 'paleta'      => Marca::paleta(),
+                'paleta_oscura' => Marca::paleta(null, 'oscuro'),
                 'fuente'      => Marca::fuenteClave(),
             ],
             'color_por_defecto' => Marca::COLOR_POR_DEFECTO,
@@ -76,12 +77,11 @@ class MarcaController extends Controller
 
         $base = strtoupper($data['color']);
 
+        // Las dos, porque el color que se pinta puede no ser el elegido: se aclara de noche
+        // (o se oscurece de día) lo justo para leerse, y la pantalla lo avisa.
         return response()->json([
-            'marca'        => $base,
-            'marca-oscuro' => Marca::ajustarLuz($base, -0.18),
-            'marca-suave'  => Marca::ajustarLuz($base, 0.90),
-            'marca-medio'  => Marca::ajustarLuz($base, 0.75),
-            'marca-texto'  => Marca::textoLegible($base),
+            'claro'  => Marca::paleta($base),
+            'oscuro' => Marca::paleta($base, 'oscuro'),
         ]);
     }
 

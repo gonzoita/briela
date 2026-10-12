@@ -90,6 +90,7 @@ use App\Http\Controllers\TrabajoPdfController;
 use App\Http\Controllers\InventarioController;
 use App\Http\Controllers\RecetaCorteController;
 use App\Http\Controllers\OrdenCompraController;
+use App\Http\Controllers\ImportacionController;
 use App\Http\Controllers\PasoFotoController;
 use App\Http\Controllers\ProveedorController;
 use App\Http\Controllers\SolicitudCompraController;
@@ -202,6 +203,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::post('/profile/foto',    [ProfileController::class, 'subirFoto'])->name('profile.foto');
+    Route::delete('/profile/foto',  [ProfileController::class, 'quitarFoto']);
+    Route::post('/profile/firma',   [ProfileController::class, 'guardarFirma'])->name('profile.firma');
+    Route::delete('/profile/firma', [ProfileController::class, 'quitarFirma']);
 
     // ─── Producción — nuevo módulo OP ───────────────────────────────────────
     Route::middleware('permiso:ops.ver')->prefix('produccion')->name('produccion.')->group(function () {
@@ -331,7 +336,11 @@ Route::middleware('auth')->group(function () {
             Route::delete('/{id}',   [ProductoController::class, 'destroy'])->name('destroy');
         });
 
-        Route::post('/{id}/ajuste-stock',        [ProductoController::class, 'ajusteStock'])->name('ajuste-stock');
+        // Antes de /{id}: un ajuste mueve el inventario, así que pide el permiso de stock. La ruta
+        // no pedía ninguno, y la ficha mostraba el botón a cualquiera que pudiera verla.
+        Route::post('/{id}/ajuste-stock',        [ProductoController::class, 'ajusteStock'])
+            ->middleware('permiso:inventario.editar')->name('ajuste-stock');
+        Route::get('/{id}/movimientos',          [ProductoController::class, 'movimientos'])->name('movimientos');
         Route::patch('/{id}/precio-costo',       [ProductoController::class, 'actualizarCosto'])->name('precio-costo');
         Route::patch('/{id}/umbrales',           [ProductoController::class, 'umbrales'])->middleware('permiso:productos.editar')->name('umbrales');
         Route::delete('/imagenes/{id}',          [ImagenProductoController::class, 'destroy'])->name('imagenes.destroy');
@@ -353,6 +362,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/api/chat/grupos/{grupo}',  [ChatGrupoController::class, 'hilo'])->name('chat.grupos.hilo');
     Route::post('/api/chat/grupos/{grupo}', [ChatGrupoController::class, 'enviar'])->name('chat.grupos.enviar');
     Route::post('/api/chat/subir',          [ChatDirectoController::class, 'subirAdjunto'])->name('chat.subir');
+    // Los enlaces de las notificaciones del chat. No hay una pantalla de chat: el chat es la
+    // burbuja. Estas rutas llevan al tablero con la burbuja abierta en esa conversación (antes
+    // el enlace daba 404). Desde la campana ni se navega: la burbuja se abre donde uno esté.
+    Route::get('/chat/grupos/{grupo}', fn (\App\Models\ChatGrupo $grupo) => redirect('/dashboard?abrir_chat=g'.$grupo->id))->name('chat.abrir.grupo');
+    Route::get('/chat/{usuario}', fn (\App\Models\User $usuario) => redirect('/dashboard?abrir_chat=u'.$usuario->id))->whereNumber('usuario')->name('chat.abrir');
     Route::get('/api/chat/{usuario}',       [ChatDirectoController::class, 'hilo'])->name('chat.hilo');
     Route::post('/api/chat/{usuario}',      [ChatDirectoController::class, 'enviar'])->name('chat.enviar');
 
@@ -436,6 +450,7 @@ Route::middleware('auth')->group(function () {
         // APIs búsqueda cotizador
         Route::get('/api/cotizaciones/clientes',  [CotizacionController::class, 'buscarClientes'])->name('cotizaciones.clientes.buscar');
         Route::get('/api/cotizaciones/productos', [CotizacionController::class, 'buscarProductos'])->name('cotizaciones.productos.buscar');
+        Route::post('/api/cotizaciones/disponibilidad', [CotizacionController::class, 'disponibilidad'])->name('cotizaciones.disponibilidad');
 
         // Guardar el texto de condiciones comerciales como el general de la empresa. Pide
         // permiso de configuración: cambia cómo nacen TODAS las cotizaciones nuevas, no
@@ -579,6 +594,7 @@ Route::middleware('auth')->group(function () {
 
     // ─── Notificaciones internas (campanita, todos los autenticados) ─────────
     Route::get('/notificaciones',                    [NotificacionController::class, 'index'])->name('notificaciones.index');
+    Route::get('/api/avisos/pulso',                  [NotificacionController::class, 'pulso'])->name('avisos.pulso');
     Route::post('/notificaciones/{notificacion}/leer', [NotificacionController::class, 'marcarLeida'])->name('notificaciones.leer');
     Route::post('/notificaciones/leer-todas',        [NotificacionController::class, 'marcarTodasLeidas'])->name('notificaciones.leer-todas');
 
@@ -789,6 +805,14 @@ Route::middleware('auth')->group(function () {
             Route::post('/monedas',            [\App\Http\Controllers\MonedasConfigController::class, 'guardar'])->name('monedas.guardar');
             Route::post('/monedas/actualizar', [\App\Http\Controllers\MonedasConfigController::class, 'actualizar'])->name('monedas.actualizar');
             Route::post('/monedas/manual',     [\App\Http\Controllers\MonedasConfigController::class, 'manual'])->name('monedas.manual');
+            Route::post('/monedas/base',       [\App\Http\Controllers\MonedasConfigController::class, 'cambiarBase'])->name('monedas.base');
+        });
+
+        // ─── Países: impuestos, identificaciones y documentos de cada uno ────
+        Route::get('/paises', [\App\Http\Controllers\PaisesConfigController::class, 'index'])->name('paises.index');
+        Route::middleware('permiso:configuracion.editar')->group(function () {
+            Route::put('/paises/{iso}',    [\App\Http\Controllers\PaisesConfigController::class, 'guardar'])->name('paises.guardar');
+            Route::delete('/paises/{iso}', [\App\Http\Controllers\PaisesConfigController::class, 'restablecer'])->name('paises.restablecer');
         });
 
         // ─── Perfil fiscal: datos de la empresa y reglas de retención ────────
@@ -797,6 +821,11 @@ Route::middleware('auth')->group(function () {
             Route::post('/fiscal',          [\App\Http\Controllers\FiscalConfigController::class, 'guardar'])->name('fiscal.guardar');
             Route::post('/fiscal/leer-rut', [\App\Http\Controllers\FiscalConfigController::class, 'leerRut'])->name('fiscal.leer-rut');
         });
+
+        // ─── Calificación de proveedores: cuánto pesa cada cosa en la nota ───
+        Route::get('/calificacion-proveedores', [\App\Http\Controllers\CalificacionProveedoresConfigController::class, 'index'])->name('calificacion-proveedores.index');
+        Route::post('/calificacion-proveedores', [\App\Http\Controllers\CalificacionProveedoresConfigController::class, 'guardar'])
+            ->middleware('permiso:configuracion.editar')->name('calificacion-proveedores.guardar');
 
         // ─── Módulos: encender y apagar lo que la empresa usa ────────────────
         Route::get('/modulos',          [\App\Http\Controllers\ModuloController::class, 'index'])->name('modulos.index');
@@ -878,6 +907,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/asistente',            [AsistenteController::class, 'index'])->name('asistente.index');
     Route::post('/api/asistente',       [AsistenteController::class, 'preguntar'])->name('asistente.preguntar');
     Route::post('/api/asistente/voz',   [AsistenteController::class, 'voz'])->name('asistente.voz');
+    // Una transacción que la guía propuso y la persona confirmó. Cada una revisa su permiso.
+    Route::post('/api/asistente/confirmar', [AsistenteController::class, 'confirmar'])->name('asistente.confirmar');
     // Respuesta en vivo, palabra por palabra. Si falla, el navegador usa
     // /api/asistente y todo sigue funcionando igual.
     Route::post('/api/asistente/stream', [AsistenteController::class, 'preguntarStream'])->name('asistente.stream');
@@ -895,6 +926,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/api/perfil-marca/probar-voz',          [PerfilMarcaController::class, 'probarVoz'])->name('perfil-marca.probar-voz');
         Route::post('/api/perfil-marca/generar',             [PerfilMarcaController::class, 'generar'])->name('perfil-marca.generar');
         Route::post('/api/perfil-marca/importar',            [PerfilMarcaController::class, 'importar'])->name('perfil-marca.importar');
+        Route::post('/api/perfil-marca/completar',           [PerfilMarcaController::class, 'completar'])->name('perfil-marca.completar');
     });
 
     // Integraciones → WordPress (plugin "Briela Connect", solo quien administra la configuración).
@@ -972,20 +1004,23 @@ Route::middleware('auth')->group(function () {
         Route::post('/{informe}/ejecutar',     [InformeController::class, 'ejecutar'])->name('ejecutar');
         Route::get('/{informe}/pdf',           [InformeController::class, 'exportarPdf'])->name('pdf');
         Route::get('/{informe}/csv',           [InformeController::class, 'exportarCsv'])->name('csv');
+        Route::get('/{informe}/xlsx',          [InformeController::class, 'exportarXlsx'])->name('xlsx');
         Route::delete('/{informe}',            [InformeController::class, 'destroy'])->name('destroy');
     });
 
     // ─── Logística ───────────────────────────────────────────────────────────
     Route::middleware('permiso:remisiones.ver')->prefix('logistica')->name('logistica.')->group(function () {
         Route::get('/remisiones',                         [RemisionController::class, 'index'])->name('remisiones.index');
-        Route::get('/remisiones/crear',                   [RemisionController::class, 'create'])->name('remisiones.create');
-        Route::post('/remisiones',                        [RemisionController::class, 'store'])->name('remisiones.store');
+        // Crear y mover una remisión no es verla: piden su propio permiso. Antes todo esto se
+        // podía con `remisiones.ver`.
+        Route::get('/remisiones/crear',                   [RemisionController::class, 'create'])->middleware('permiso:remisiones.crear')->name('remisiones.create');
+        Route::post('/remisiones',                        [RemisionController::class, 'store'])->middleware('permiso:remisiones.crear')->name('remisiones.store');
         Route::get('/remisiones/{remision}',              [RemisionController::class, 'show'])->name('remisiones.show');
-        Route::get('/remisiones/{remision}/editar',       [RemisionController::class, 'edit'])->name('remisiones.edit');
-        Route::put('/remisiones/{remision}',              [RemisionController::class, 'update'])->name('remisiones.update');
-        Route::patch('/remisiones/{remision}/estado',     [RemisionController::class, 'cambiarEstado'])->name('remisiones.estado');
-        Route::post('/remisiones/{remision}/firma',       [RemisionController::class, 'guardarFirma'])->name('remisiones.firma');
-        Route::delete('/remisiones/{remision}',           [RemisionController::class, 'destroy'])->name('remisiones.destroy');
+        Route::get('/remisiones/{remision}/editar',       [RemisionController::class, 'edit'])->middleware('permiso:remisiones.editar')->name('remisiones.edit');
+        Route::put('/remisiones/{remision}',              [RemisionController::class, 'update'])->middleware('permiso:remisiones.editar')->name('remisiones.update');
+        Route::patch('/remisiones/{remision}/estado',     [RemisionController::class, 'cambiarEstado'])->middleware('permiso:remisiones.editar')->name('remisiones.estado');
+        Route::post('/remisiones/{remision}/firma',       [RemisionController::class, 'guardarFirma'])->middleware('permiso:remisiones.editar')->name('remisiones.firma');
+        Route::delete('/remisiones/{remision}',           [RemisionController::class, 'destroy'])->middleware('permiso:remisiones.editar')->name('remisiones.destroy');
         Route::get('/remisiones/{remision}/pdf',          [RemisionController::class, 'generarPdf'])->name('remisiones.pdf');
         Route::get('/api/ops/buscar',                     [RemisionController::class, 'buscarOp'])->name('ops.buscar');
         Route::get('/api/ops/{op}/items',                 [RemisionController::class, 'itemsOp'])->name('ops.items');
@@ -1002,8 +1037,31 @@ Route::middleware('auth')->group(function () {
         Route::get('/financiero/pagos/{pago}/pdf',  [OpPagoController::class, 'pdf']);
         Route::delete('/financiero/pagos/{pago}',   [OpPagoController::class, 'destroy'])
             ->middleware('permiso:cartera.eliminar');
+        Route::post('/financiero/pagos/{pago}/verificar',   [OpPagoController::class, 'verificar'])
+            ->middleware('permiso:cartera.editar');
+        Route::delete('/financiero/pagos/{pago}/verificar', [OpPagoController::class, 'desverificar'])
+            ->middleware('permiso:cartera.eliminar');
 
         Route::get('/financiero/cartera', [CarteraController::class, 'index'])->name('financiero.cartera');
+    });
+
+    // ─── Verificador de pagos: confirmar con el banco que el dinero llegó ────
+    Route::middleware('permiso:verificador.ver')->prefix('financiero/verificador-pagos')->name('verificador.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\VerificadorPagosController::class, 'index'])->name('index');
+        Route::get('/movimientos/{movimiento}/candidatas', [\App\Http\Controllers\VerificadorPagosController::class, 'candidatas'])->name('candidatas');
+
+        Route::middleware('permiso:verificador.editar')->group(function () {
+            Route::post('/cuentas', [\App\Http\Controllers\VerificadorPagosController::class, 'guardarCuenta'])->name('cuentas.guardar');
+            Route::post('/cuentas/{cuenta}/alternar', [\App\Http\Controllers\VerificadorPagosController::class, 'alternarCuenta'])->name('cuentas.alternar');
+            Route::post('/importar', [\App\Http\Controllers\VerificadorPagosController::class, 'importar'])->name('importar');
+            Route::post('/movimientos/{movimiento}/asignar', [\App\Http\Controllers\VerificadorPagosController::class, 'asignar'])->name('asignar');
+            Route::post('/movimientos/{movimiento}/ignorar', [\App\Http\Controllers\VerificadorPagosController::class, 'ignorar'])->name('ignorar');
+            Route::post('/movimientos/{movimiento}/restaurar', [\App\Http\Controllers\VerificadorPagosController::class, 'restaurar'])->name('restaurar');
+        });
+
+        // Deshacer borra un pago de la cartera: es el permiso de borrar pagos, no el de conciliar.
+        Route::post('/movimientos/{movimiento}/deshacer', [\App\Http\Controllers\VerificadorPagosController::class, 'deshacer'])
+            ->middleware('permiso:cartera.eliminar')->name('deshacer');
     });
 
     // ─── CRM — Pipeline de ventas ────────────────────────────────────────────
@@ -1037,6 +1095,8 @@ Route::middleware('auth')->group(function () {
     // ─── Compras — Proveedores ────────────────────────────────────────────────
     Route::middleware('permiso:proveedores.ver')->prefix('compras/proveedores')->group(function () {
         Route::get('/',              [ProveedorController::class, 'index'])->name('proveedores.index');
+        // Antes de /{proveedor}: Laravel resuelve por orden de registro.
+        Route::post('/leer-rut',     [ProveedorController::class, 'leerRut'])->name('proveedores.leer-rut');
         Route::post('/',             [ProveedorController::class, 'store']);
         Route::put('/{proveedor}',   [ProveedorController::class, 'update']);
         Route::delete('/{proveedor}',[ProveedorController::class, 'destroy']);
@@ -1057,12 +1117,30 @@ Route::middleware('auth')->group(function () {
     Route::middleware('permiso:ordenes.ver')->prefix('compras/ordenes')->group(function () {
         Route::get('/',               [OrdenCompraController::class, 'index'])->name('ordenes-compra.index');
         Route::get('/crear',          [OrdenCompraController::class, 'create'])->name('ordenes-compra.create');
+        Route::get('/buscar-productos', [OrdenCompraController::class, 'buscarProductos'])->name('ordenes-compra.buscar-productos');
         Route::post('/',              [OrdenCompraController::class, 'store']);
         Route::get('/{orden}',        [OrdenCompraController::class, 'show'])->name('ordenes-compra.show');
         Route::put('/{orden}',        [OrdenCompraController::class, 'update']);
         Route::post('/{orden}/enviar',[OrdenCompraController::class, 'enviar']);
-        Route::post('/{orden}/recibir',[OrdenCompraController::class, 'recibir']);
+        Route::post('/{orden}/recibir',[OrdenCompraController::class, 'recibir'])->middleware('permiso:ordenes.recibir');
         Route::get('/{orden}/pdf',    [OrdenCompraController::class, 'pdf']);
+    });
+
+    // ─── Compras — Importaciones (costo puesto en bodega) ────────────────────
+    Route::middleware('permiso:importaciones.ver')->group(function () {
+        Route::prefix('compras/importaciones')->group(function () {
+            Route::get('/',                          [ImportacionController::class, 'index'])->name('importaciones.index');
+            Route::get('/crear',                     [ImportacionController::class, 'create'])->middleware('permiso:importaciones.crear')->name('importaciones.create');
+            Route::post('/',                         [ImportacionController::class, 'store'])->middleware('permiso:importaciones.crear');
+            Route::post('/ajustes',                  [ImportacionController::class, 'ajustes'])->middleware('permiso:importaciones.liquidar');
+            Route::get('/{importacion}',             [ImportacionController::class, 'show'])->name('importaciones.show');
+            Route::get('/{importacion}/editar',      [ImportacionController::class, 'edit'])->middleware('permiso:importaciones.editar');
+            Route::put('/{importacion}',             [ImportacionController::class, 'update'])->middleware('permiso:importaciones.editar');
+            Route::post('/{importacion}/liquidar',   [ImportacionController::class, 'liquidar'])->middleware('permiso:importaciones.liquidar');
+            Route::delete('/{importacion}',          [ImportacionController::class, 'destroy'])->middleware('permiso:importaciones.editar');
+        });
+        Route::post('/api/importaciones/calcular', [ImportacionController::class, 'calcular']);
+        Route::get('/api/importaciones/productos', [ImportacionController::class, 'productos']);
     });
 
     // ─── Inventario (Stock & Materiales — fuente: Producto::insumos()) ───────────
@@ -1070,9 +1148,10 @@ Route::middleware('auth')->group(function () {
         Route::get('/',                         [InventarioController::class, 'index'])->name('inventario.index');
         Route::get('/dashboard',                [InventarioController::class, 'dashboard'])->name('inventario.dashboard');
         Route::get('/movimientos',              [InventarioController::class, 'kardex'])->name('inventario.movimientos');
+        Route::get('/apartados',                [InventarioController::class, 'apartados'])->name('inventario.apartados');
         Route::post('/',                        [InventarioController::class, 'store']);
         Route::put('/{item}',                   [InventarioController::class, 'update']);
-        Route::post('/{item}/ajuste',           [InventarioController::class, 'ajuste']);
+        Route::post('/{item}/ajuste',           [InventarioController::class, 'ajuste'])->middleware('permiso:inventario.editar');
         Route::get('/{item}/movimientos',       [InventarioController::class, 'movimientos']);
     });
     Route::get('/api/inventario/buscar', [InventarioController::class, 'buscar'])->middleware('auth');

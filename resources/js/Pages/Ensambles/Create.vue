@@ -50,11 +50,9 @@ const nombre                   = ref(inicial?.nombre ?? '')
 // duplicar tampoco se copia — dos ensambles con el mismo código no se pueden distinguir.
 const referencia               = ref(props.ensamble?.referencia ?? '')
 const unidadMedida             = ref(inicial?.unidad_medida ?? 'unidad')
-// Ya no se pregunta si el ensamble «se guarda en bodega»: todo lo que produce una OP entra a
-// una bodega, y cuál es lo dice la propia OP. El ensamble es un catálogo, y lo mismo se
-// fabrica hoy para una bodega y mañana para otra. La marca `maneja_stock` sigue existiendo en
-// la base y la prende sola `EntregaAlmacenService` la primera vez que se entrega una unidad:
-// de ahí sale la ficha de inventario del producto terminado, con su stock y sus movimientos.
+// Ya no se pregunta si el ensamble «se guarda en bodega»: terminar en planta no mueve
+// inventario, y al remisionar salen del almacén sus componentes (InventarioRemisionService).
+// La marca `maneja_stock` sigue en la base por las unidades que entraron antes de ese cambio.
 const margenesActuales         = ref({ mayorista: 30, distribuidor: 32.5, cliente_final: 35, por_defecto: 'distribuidor' })
 const variables                = reactive({})
 const componentes              = ref(inicial?.componentes_resultado ?? [])

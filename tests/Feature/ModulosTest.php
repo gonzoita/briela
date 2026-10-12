@@ -136,6 +136,7 @@ class ModulosTest extends TestCase
         ]);
 
         $op = Op::create([
+            'cliente_id' => $this->clientePrueba()->id,
             'sede_id'                => $sede->id,
             'estado'                 => 'en_produccion',
             'responsable_id'         => $usuario->id,
