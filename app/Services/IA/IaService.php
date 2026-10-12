@@ -27,6 +27,38 @@ class IaService
     private const OPENROUTER = 'https://openrouter.ai/api/v1';
 
     /**
+     * Quién está llamando ahora: el asistente (por omisión) o un agente interno. Lo fija
+     * `conContexto()` y se limpia siempre al terminar, aunque algo falle: en un proceso de
+     * cola corren muchas tareas seguidas y un contexto que sobreviviera a la suya
+     * atribuiría el consumo del siguiente al agente equivocado.
+     *
+     * @var array{origen: string, agente_id: ?int, ejecucion_id: ?int}|null
+     */
+    private static ?array $contexto = null;
+
+    /**
+     * Corre `$fn` con el contexto indicado. Todo lo que gaste IA ahí queda atribuido al agente,
+     * viaja al superadmin con la etiqueta `agentes` (su propio cupo) y se anota en `ia_consumo`.
+     */
+    public static function conContexto(string $origen, ?int $agenteId, ?int $ejecucionId, callable $fn): mixed
+    {
+        $anterior = self::$contexto;
+
+        self::$contexto = ['origen' => $origen, 'agente_id' => $agenteId, 'ejecucion_id' => $ejecucionId];
+
+        try {
+            return $fn();
+        } finally {
+            self::$contexto = $anterior;
+        }
+    }
+
+    private function origen(): string
+    {
+        return self::$contexto['origen'] ?? 'asistente';
+    }
+
+    /**
      * La configuración se lee primero de Ajustes (base de datos) y, si no está
      * ahí, del .env. Así se puede cambiar la credencial o el modelo desde la
      * app sin entrar al servidor — igual que ya se hace con el SMTP.
@@ -110,10 +142,17 @@ class IaService
     {
         $credencial = $this->porProxy() ? $this->serial() : $this->apiKey();
 
-        return array_merge([
+        $cabeceras = [
             'Authorization' => 'Bearer ' . $credencial,
             'Content-Type'  => 'application/json',
-        ], $extra);
+        ];
+
+        // El superadmin separa el cupo de los agentes del del asistente por esta etiqueta.
+        if ($this->porProxy() && $this->origen() === 'agentes') {
+            $cabeceras['X-Briela-Origen'] = 'agentes';
+        }
+
+        return array_merge($cabeceras, $extra);
     }
 
     public function configurado(): bool
@@ -141,6 +180,87 @@ class IaService
         }
 
         return 'La cuenta de IA se quedó sin saldo. Recarga en openrouter.ai.';
+    }
+
+    /**
+     * Anota una llamada en el libro local (`ia_consumo`). El único sitio donde se escribe.
+     *
+     * Nunca lanza: que falle la contabilidad no puede tumbar una respuesta que ya llegó. Guarda
+     * tokens y no dinero: el costo y el cobro los lleva el superadmin.
+     */
+    private function registrarConsumo(?string $modelo, array $usage, string $tipo = 'texto', bool $ok = true): void
+    {
+        try {
+            \App\Models\IaConsumo::create([
+                'fecha'          => now()->toDateString(),
+                'origen'         => $this->origen(),
+                'agente_id'      => self::$contexto['agente_id'] ?? null,
+                'ejecucion_id'   => self::$contexto['ejecucion_id'] ?? null,
+                'user_id'        => auth()->id(),
+                'tipo'           => $tipo,
+                'modelo'         => $modelo ? substr($modelo, 0, 100) : null,
+                'tokens_entrada' => (int) ($usage['prompt_tokens'] ?? 0),
+                'tokens_salida'  => (int) ($usage['completion_tokens'] ?? 0),
+                'ms'             => $this->ultimaDuracionMs,
+                'por_proxy'      => $this->porProxy(),
+                'ok'             => $ok,
+                'created_at'     => now(),
+            ]);
+        } catch (\Throwable $e) {
+            Log::warning('IA: no se pudo anotar el consumo local. ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Una vuelta de conversación con herramientas (*tool calling*).
+     *
+     * Es lo que necesita un agente que razona en varios pasos: el modelo puede pedir una o más
+     * herramientas, el servidor las ejecuta y devuelve el resultado en la vuelta siguiente.
+     * `texto()` sigue siendo el camino de una sola llamada; esto no lo reemplaza.
+     *
+     * Con herramientas el razonamiento queda apagado por omisión, por la misma razón que en
+     * `texto()`: los tokens de razonamiento salen del mismo `max_tokens` y un modelo razonador
+     * puede gastarlo entero pensando y devolver la vuelta vacía.
+     *
+     * @param  list<array<string,mixed>>  $mensajes     historial en formato de chat
+     * @param  list<array<string,mixed>>  $herramientas definiciones `{type: function, function: {...}}`
+     * @param  array{modelo?: string, max_tokens?: int, temperatura?: float, tool_choice?: string, razonar?: bool, timeout?: int}  $opciones
+     * @return array{mensaje: array<string,mixed>, tool_calls: list<array<string,mixed>>, finish_reason: ?string, usage: array<string,mixed>, modelo: string}
+     *
+     * @throws IaException
+     */
+    public function chat(array $mensajes, array $herramientas = [], array $opciones = []): array
+    {
+        $payload = [
+            'model'      => $opciones['modelo'] ?? $this->modeloTexto(),
+            'messages'   => $mensajes,
+            'max_tokens' => $opciones['max_tokens'] ?? 1500,
+        ];
+
+        if (isset($opciones['temperatura'])) {
+            $payload['temperature'] = $opciones['temperatura'];
+        }
+
+        if ($herramientas !== []) {
+            $payload['tools']       = array_values($herramientas);
+            $payload['tool_choice'] = $opciones['tool_choice'] ?? 'auto';
+        }
+
+        if (empty($opciones['razonar'])) {
+            $payload['reasoning'] = ['enabled' => false];
+        }
+
+        $data    = $this->llamar($payload, timeout: $opciones['timeout'] ?? 90);
+        $choice  = $data['choices'][0] ?? [];
+        $mensaje = $choice['message'] ?? [];
+
+        return [
+            'mensaje'       => $mensaje,
+            'tool_calls'    => $mensaje['tool_calls'] ?? [],
+            'finish_reason' => $choice['finish_reason'] ?? null,
+            'usage'         => $data['usage'] ?? [],
+            'modelo'        => $data['model'] ?? $payload['model'],
+        ];
     }
 
     /**
@@ -315,10 +435,10 @@ class IaService
             Log::error('IA: error al abrir el stream', ['status' => $resp->status(), 'respuesta' => $data]);
 
             if ($resp->status() === 402) {
-                throw new IaException($this->mensajeDe402($data));
+                throw new IaException($this->mensajeDe402($data), $data, 402);
             }
 
-            throw new IaException('La IA respondió con un error: ' . ($data['error']['message'] ?? $resp->body()));
+            throw new IaException('La IA respondió con un error: ' . ($data['error']['message'] ?? $resp->body()), $data, $resp->status());
         }
 
         $cuerpo      = $resp->toPsrResponse()->getBody();
@@ -326,6 +446,7 @@ class IaService
         $buffer      = '';
         $razonamiento = 0;   // cuánto "pensó" sin producir respuesta
         $motivoFin   = null;
+        $usoStream   = [];
 
         // OpenRouter manda "Server-Sent Events": líneas "data: {json}" y al
         // final "data: [DONE]". Puede partir un JSON entre dos lecturas, por
@@ -350,6 +471,11 @@ class IaService
                 $trozo = json_decode($json, true);
                 $delta = $trozo['choices'][0]['delta']['content'] ?? '';
 
+                // El consumo llega en el último trozo; se guarda el que traiga datos.
+                if (! empty($trozo['usage'])) {
+                    $usoStream = $trozo['usage'];
+                }
+
                 $motivoFin = $trozo['choices'][0]['finish_reason'] ?? $motivoFin;
 
                 // Algunos modelos razonan siempre, aunque se les pida que no.
@@ -365,6 +491,8 @@ class IaService
         }
 
         $this->ultimaDuracionMs = (int) ((microtime(true) - $inicio) * 1000);
+
+        $this->registrarConsumo($payload['model'], $usoStream, 'texto', trim($completo) !== '');
 
         if (trim($completo) === '') {
             Log::error('IA: stream sin contenido', [
@@ -737,7 +865,7 @@ class IaService
             return ['texto' => [], 'imagen' => [], 'voz' => []];
         }
 
-        return \Cache::remember('ia_modelos_openrouter_v3', now()->addDay(), function () {
+        return \Cache::remember('ia_modelos_openrouter_v4', now()->addDay(), function () {
             try {
                 $resp = Http::withHeaders($this->cabeceras())
                     ->timeout(20)
@@ -750,6 +878,7 @@ class IaService
                 $texto = [];
                 $imagen = [];
                 $voz = [];
+                $detalle = [];
 
                 foreach ($resp->json('data', []) as $m) {
                     $id     = $m['id'] ?? null;
@@ -758,6 +887,15 @@ class IaService
                     if (! $id) {
                         continue;
                     }
+
+                    // Un agente con herramientas solo sirve con un modelo que las soporte:
+                    // OpenRouter lo declara en `supported_parameters`.
+                    $detalle[$id] = [
+                        'herramientas' => in_array('tools', $m['supported_parameters'] ?? [], true),
+                        'contexto'     => (int) ($m['context_length'] ?? 0),
+                        'precio_in'    => isset($m['pricing']['prompt']) ? (float) $m['pricing']['prompt'] * 1_000_000 : null,
+                        'precio_out'   => isset($m['pricing']['completion']) ? (float) $m['pricing']['completion'] * 1_000_000 : null,
+                    ];
 
                     $salidas = $m['architecture']['output_modalities'] ?? ['text'];
 
@@ -788,7 +926,7 @@ class IaService
                 asort($imagen);
                 asort($voz);
 
-                return ['texto' => $texto, 'imagen' => $imagen, 'voz' => $voz];
+                return ['texto' => $texto, 'imagen' => $imagen, 'voz' => $voz, 'detalle' => $detalle];
             } catch (\Throwable $e) {
                 Log::warning('IA: no se pudo leer la lista de modelos', ['error' => $e->getMessage()]);
 
@@ -840,17 +978,23 @@ class IaService
                 'respuesta' => $data,
             ]);
 
+            $this->registrarConsumo($payload['model'] ?? null, [], 'texto', false);
+
             $detalle = $data['error']['message'] ?? $resp->body();
 
             // El caso más común en producción: se acabó el saldo, o la suscripción.
             if ($resp->status() === 402) {
-                throw new IaException($this->mensajeDe402($data), $data);
+                throw new IaException($this->mensajeDe402($data), $data, 402);
             }
 
-            throw new IaException("La IA respondió con un error: {$detalle}", $data);
+            throw new IaException("La IA respondió con un error: {$detalle}", $data, $resp->status());
         }
 
-        return $resp->json() ?? [];
+        $data = $resp->json() ?? [];
+
+        $this->registrarConsumo($data['model'] ?? ($payload['model'] ?? null), $data['usage'] ?? [], isset($payload['modalities']) ? 'imagen' : 'texto');
+
+        return $data;
     }
 
     /**

@@ -94,6 +94,8 @@ php artisan migrate --force
 # Sin esto, un modulo nuevo queda instalado e invisible — sin menu y con las rutas en 403.
 # Solo agrega: lo que la empresa le quito a un rol a mano se queda quitado.
 php artisan permisos:sincronizar
+# Los cargos y agentes de fabrica del Equipo de IA (solo si el modulo esta encendido; idempotente).
+php artisan agentes:sembrar || true
 # Las ordenes abiertas se ponen al dia con las reglas del flujo de esta version (no cambia nada
 # en una orden que ya esta al dia). No es fatal: un fallo aqui no detiene el despliegue.
 php artisan ops:sincronizar-estados || true

@@ -79,6 +79,10 @@ class Permisos
                 'multimedia'    => ['label' => 'Multimedia',    'acciones' => ['ver', 'crear', 'eliminar']],
                 'informes'      => ['label' => 'Informes',      'acciones' => ['ver', 'crear']],
                 'rrss'          => ['label' => 'Redes Sociales','acciones' => ['ver', 'crear', 'editar', 'eliminar']],
+                // Los agentes internos leen los datos del negocio y proponen cosas. Ver lo que
+                // hacen, lanzarlos, decidir sus propuestas y configurarlos son cuatro permisos
+                // distintos, y el gasto es un quinto: como el costo, no se le muestra a todos.
+                'equipo_ia'     => ['label' => 'Equipo de IA',  'acciones' => ['ver', 'ejecutar', 'aprobar', 'gestionar', 'consumo']],
             ],
             'Administración' => [
                 'usuarios'      => ['label' => 'Usuarios y roles', 'acciones' => ['ver', 'crear', 'editar', 'eliminar']],
@@ -106,6 +110,9 @@ class Permisos
             'liquidar'  => 'Liquidar',
             'responder' => 'Responder mensajes',
             'asignar'   => 'Asignar a alguien',
+            'ejecutar'  => 'Ejecutar',
+            'gestionar' => 'Configurar',
+            'consumo'   => 'Ver el consumo',
         ];
     }
 

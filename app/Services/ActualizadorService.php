@@ -420,7 +420,7 @@ class ActualizadorService
             // nuevos llegan a los roles —sin esto un módulo nuevo queda instalado e invisible— y
             // las órdenes se ponen al día con las reglas de la versión. Ninguno es fatal: si
             // falla, la actualización igual quedó hecha.
-            foreach (['permisos:sincronizar', 'ops:sincronizar-estados'] as $comando) {
+            foreach (['permisos:sincronizar', 'agentes:sembrar', 'ops:sincronizar-estados'] as $comando) {
                 try {
                     Artisan::call($comando);
                 } catch (Throwable $e) {

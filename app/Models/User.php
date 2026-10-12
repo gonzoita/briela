@@ -17,6 +17,28 @@ class User extends Authenticatable
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
 
+    /**
+     * El dominio de los correos de los agentes internos. `.invalid` está reservado y no resuelve
+     * nunca, así que ninguno puede recibir un correo ni iniciar sesión por error.
+     */
+    public const DOMINIO_AGENTES = 'agentes.invalid';
+
+    /**
+     * Los usuarios de servicio de los agentes no son personas: no entran a ninguna lista ni
+     * reparto (vendedores, responsables, comisiones, leads) y no pueden iniciar sesión, porque
+     * el proveedor de autenticación consulta este mismo modelo. Se identifican por el correo y
+     * no por una columna para no depender de que una migración ya haya corrido: este alcance
+     * se aplica en CADA consulta de usuarios, también durante una actualización.
+     *
+     * Quien los necesita (`AgenteInterno::usuario()`) los pide con `withoutGlobalScopes()`.
+     */
+    protected static function booted(): void
+    {
+        static::addGlobalScope('personas', function ($query) {
+            $query->where($query->getModel()->qualifyColumn('email'), 'not like', '%@' . self::DOMINIO_AGENTES);
+        });
+    }
+
     protected $fillable = [
         'name',
         'email',

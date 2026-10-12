@@ -30,7 +30,7 @@ use Illuminate\Support\Carbon;
  *
  * Lo que no está en el catálogo es núcleo y no se apaga: Dashboard, Clientes, Productos, costos,
  * Usuarios y roles, Configuración, Sedes, Auditoría, los gráficos del tablero, y el asistente y
- * los agentes de IA, que van siempre.
+ * los agentes de IA que atienden clientes, que van siempre.
  */
 class Modulos
 {
@@ -233,6 +233,16 @@ class Modulos
             ],
 
             // ─── Sistema ────────────────────────────────────────────────────────
+            // Los agentes internos corren solos y gastan IA con un cupo aparte del asistente,
+            // así que hay empresas que no los quieren: apagado no hay menú, ni tareas, ni gasto.
+            'equipo_ia' => [
+                'label'     => 'Equipo de IA',
+                'grupo'     => 'Sistema',
+                'permisos'  => ['equipo_ia'],
+                'rutas'     => ['configuracion/agentes/equipo', 'api/equipo-ia'],
+                'depende'   => [],
+                'al_apagar' => 'Los agentes internos dejan de correr y de gastar IA. Lo que ya propusieron queda guardado.',
+            ],
             'informes' => [
                 'label'     => 'Informes',
                 'grupo'     => 'Sistema',
