@@ -88,3 +88,18 @@ Schedule::command('backup:crear')
 Schedule::command('briela:ordenes')
     ->cron('37 */6 * * *')
     ->withoutOverlapping();
+
+// El Equipo de IA: agentes internos que corren solos. El módulo nace apagado y, apagado, no hay
+// despacho ni worker ni gasto.
+//
+// En un hosting compartido no existe un proceso que espere trabajo, así que el cron de cada minuto
+// hace de worker: toma lo que haya en cola y se apaga (`--stop-when-empty`), sin pasar de los 55
+// segundos para no pisar al minuto siguiente. Una corrida tarda segundos, y lo que no alcance
+// espera su turno. `agentes:despachar` solo CREA el trabajo y limpia lo viejo.
+Schedule::command('agentes:despachar')->everyFiveMinutes()->withoutOverlapping(10)
+    ->when(fn () => Modulos::activo('equipo_ia'));
+
+// El candado dura 5 minutos como máximo: con el de 24 horas por omisión, un proceso muerto
+// dejaría al worker sin arrancar un día entero.
+Schedule::command('queue:work --stop-when-empty --max-time=55 --tries=1')->everyMinute()->withoutOverlapping(5)
+    ->when(fn () => Modulos::activo('equipo_ia'));

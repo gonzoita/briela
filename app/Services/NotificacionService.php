@@ -54,6 +54,9 @@ class NotificacionService
         'whatsapp_mensaje_nuevo'   => 'bandeja',
         'bandeja_mensaje_nuevo'    => 'bandeja',
         'rrss_token_por_vencer'    => 'rrss',
+        'agente_propuesta'         => 'equipo_ia',
+        'agente_resumen'           => 'equipo_ia',
+        'agente_fallo'             => 'equipo_ia',
     ];
 
     /**
@@ -139,6 +142,11 @@ class NotificacionService
             'Redes Sociales' => [
                 ['tipo' => 'rrss_publicacion_fallida', 'label' => 'Publicación programada falló'],
                 ['tipo' => 'rrss_token_por_vencer',    'label' => 'El permiso de una red está por vencer'],
+            ],
+            'Equipo de IA' => [
+                ['tipo' => 'agente_propuesta', 'label' => 'Un agente dejó una propuesta por aprobar'],
+                ['tipo' => 'agente_resumen',   'label' => 'Un agente terminó su resumen'],
+                ['tipo' => 'agente_fallo',     'label' => 'Un agente falló o llegó a su límite'],
             ],
             'Sistema' => [
                 ['tipo' => 'backup_fallido', 'label' => 'El respaldo automático falló'],

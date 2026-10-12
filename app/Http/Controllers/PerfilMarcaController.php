@@ -408,7 +408,7 @@ class PerfilMarcaController extends Controller
         Configuracion::set('ia_max_tokens', (string) ($data['max_tokens'] ?? 3000));
 
         // Si cambió la credencial, la lista de modelos puede ser otra.
-        \Cache::forget('ia_modelos_openrouter_v3');
+        \Cache::forget('ia_modelos_openrouter_v4');
 
         return back()->with('success', 'Configuración de IA guardada.');
     }
@@ -515,7 +515,7 @@ class PerfilMarcaController extends Controller
         Configuracion::set('ia_voz_instrucciones', $data['voz_instrucciones'] ?? '');
 
         // La lista de modelos se recarga por si cambió algo en la cuenta.
-        \Cache::forget('ia_modelos_openrouter_v3');
+        \Cache::forget('ia_modelos_openrouter_v4');
 
         return back()->with('success', 'Asistente actualizado.');
     }

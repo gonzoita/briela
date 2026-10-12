@@ -887,6 +887,53 @@ Route::middleware('auth')->group(function () {
         Route::delete('/configuracion/agentes/{agente}',[\App\Http\Controllers\AgenteIaController::class, 'destroy'])->name('agentes.destroy');
     });
 
+    // El Equipo de IA: agentes internos que leen los datos del negocio y proponen. Viven en la
+    // pestaña «Equipo interno» de la pantalla Agentes; todo es JSON. El módulo apagado corta el
+    // prefijo entero (`Modulos`). Cada grupo lleva su permiso: ver, ejecutar, aprobar, gestionar y
+    // consumo son cinco cosas distintas.
+    Route::prefix('api/equipo-ia')->name('equipo-ia.')->group(function () {
+        $c = \App\Http\Controllers\EquipoIaController::class;
+
+        Route::middleware('permiso:equipo_ia.ver')->group(function () use ($c) {
+            Route::get('/oficina',                 [$c, 'oficina'])->name('oficina');
+            Route::get('/pulso',                   [$c, 'pulso'])->name('pulso');
+            Route::get('/ejecuciones/{ejecucion}', [$c, 'ejecucion'])->name('ejecucion');
+            Route::get('/agentes/{agente}/ejecuciones', [$c, 'ejecuciones'])->name('agente.ejecuciones');
+        });
+
+        Route::middleware('permiso:equipo_ia.ver,equipo_ia.aprobar')->get('/propuestas', [\App\Http\Controllers\EquipoIaController::class, 'propuestas'])->name('propuestas');
+
+        Route::middleware('permiso:equipo_ia.ejecutar')->group(function () use ($c) {
+            Route::post('/agentes/{agente}/ejecutar', [$c, 'ejecutarAgente'])->name('agente.ejecutar');
+            Route::post('/agentes/{agente}/probar',   [$c, 'probarAgente'])->name('agente.probar');
+        });
+
+        Route::middleware('permiso:equipo_ia.aprobar')->group(function () use ($c) {
+            Route::post('/propuestas/{propuesta}/aprobar',  [$c, 'aprobar'])->name('propuesta.aprobar');
+            Route::post('/propuestas/{propuesta}/rechazar', [$c, 'rechazar'])->name('propuesta.rechazar');
+        });
+
+        Route::middleware('permiso:equipo_ia.gestionar')->group(function () use ($c) {
+            Route::get('/catalogos',                  [$c, 'catalogos'])->name('catalogos');
+            Route::get('/agentes/{agente}',           [$c, 'agente'])->name('agente');
+            Route::post('/agentes',                   [$c, 'crearAgente'])->name('agente.crear');
+            Route::put('/agentes/{agente}',           [$c, 'actualizarAgente'])->name('agente.actualizar');
+            Route::delete('/agentes/{agente}',        [$c, 'eliminarAgente'])->name('agente.eliminar');
+            Route::post('/cargos',                    [$c, 'crearCargo'])->name('cargo.crear');
+            Route::put('/cargos/{cargo}',             [$c, 'actualizarCargo'])->name('cargo.actualizar');
+            Route::post('/cargos/{cargo}/copiar',     [$c, 'copiarCargo'])->name('cargo.copiar');
+            Route::delete('/cargos/{cargo}',          [$c, 'eliminarCargo'])->name('cargo.eliminar');
+            Route::post('/prompt/vista-previa',       [$c, 'vistaPrevia'])->name('prompt.vista-previa');
+            Route::get('/modelos',                    [$c, 'modelos'])->name('modelos');
+            Route::post('/recomendar-modelo',         [$c, 'recomendarModelo'])->name('recomendar-modelo');
+            Route::get('/versiones/{tipo}/{id}',      [$c, 'versiones'])->whereNumber('id')->name('versiones');
+            Route::post('/agentes/{agente}/restaurar/{version}', [$c, 'restaurarVersion'])->whereNumber('version')->name('agente.restaurar');
+            Route::post('/pausar',                    [$c, 'pausar'])->name('pausar');
+        });
+
+        Route::middleware('permiso:equipo_ia.consumo')->get('/consumo', [\App\Http\Controllers\EquipoIaController::class, 'consumo'])->name('consumo');
+    });
+
     // Los gráficos que la empresa arma para sus tableros. Ver es de cualquiera con acceso
     // al módulo; crear y borrar exige permiso, porque lo que uno arma lo ven todos.
     Route::get('/api/graficos',                [\App\Http\Controllers\GraficoDashboardController::class, 'index'])->name('graficos.index');

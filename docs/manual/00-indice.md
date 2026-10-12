@@ -56,6 +56,7 @@ módulo por módulo.
 ## Inteligencia artificial
 
 - [Integración de IA (fichas, recomendación, asistente y voz)](./ia.md)
+- [Equipo de IA](./agentes-internos.md) — agentes internos que leen los datos, avisan y proponen; una persona decide
 - [Agentes](./agentes.md) — quién atiende por WhatsApp y por la web, y hasta dónde
 
 ## Transversal
@@ -75,6 +76,7 @@ módulo por módulo.
 
 - [Catálogo público — fichas para compartir](./catalogo-publico.md)
 - [Publicar productos y ensambles en el sitio web (plugin Briela Connect)](./publicar-en-la-web.md)
+- [Guía: conectar WhatsApp, Instagram y Facebook (con prompt para Gemini)](./guia-conectar-redes.md)
 - [Bandeja de mensajes — atender a quien escribe](./bandeja.md)
 - [Redes Sociales — programador de publicaciones](./redes-sociales.md)
 - [WhatsApp — conexión y números](./whatsapp.md)
