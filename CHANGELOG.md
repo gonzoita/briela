@@ -14,6 +14,8 @@ Formato: [versionado semántico](https://semver.org/lang/es/).
 
 ## [Sin publicar]
 
+## [2.1.0] — 2026-10-13
+
 ### Agregado
 - **La oficina en vivo del Equipo de IA**, en pixel art como un juego: el nombre de tu empresa en la
   pared, la oficina del director y un cubículo por agente. Cada uno trabaja en su escritorio con un
