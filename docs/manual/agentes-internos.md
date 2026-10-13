@@ -59,6 +59,31 @@ lista cuando sí. Sin websockets. El temporizador se detiene al salir y con la p
 **Pausar todo** detiene a todos los agentes de inmediato (también lo que ya estaba en cola). Las
 pruebas en seco siguen funcionando porque no escriben nada.
 
+### La oficina en vivo *(13 oct 2026)*
+
+Es la vista con la que abre el Equipo interno (pestaña **En vivo**; la de siempre quedó como
+**Tarjetas**). Cada agente está en su escritorio y el estado se ve en el personaje:
+
+| Estado | Cómo se ve |
+|---|---|
+| Trabajando | Teclea, la pantalla brilla y el globo dice qué hace («Revisando cotizaciones sin respuesta») |
+| Necesita aprobación | Levanta la mano, con un «!» y «¡2 por revisar!» |
+| Con error | Humo sobre el computador y cara de preocupación |
+| Terminó | Sonríe, con un ✓ |
+| Libre | Toma café |
+| Apagado | Dormido, con «Zzz» |
+
+Lo que dice el globo **lo arma el servidor** con el último paso de la corrida
+(`CatalogoHerramientas::queHace()`, a partir del catálogo: una herramienta nueva se describe sola).
+Tocar a un agente abre su ficha —al lado en el computador, desde abajo en el celular— con lo que hace
+ahora, lo último que terminó y los botones de siempre: **Editar**, Ejecutar ahora, Probar, Actividad
+y **Ver paso a paso en vivo**. Hay un botón de **pantalla completa** para dejarla en un televisor.
+
+No cuesta consultas de más: usa los mismos datos y el mismo pulso que las tarjetas. El pulso ahora
+incluye el último paso registrado, para que el globo cambie a mitad de una corrida, y mientras alguien
+está trabajando y la vista en vivo está abierta, pregunta cada 4 s en vez de 8. Con «reducir
+movimiento» del sistema la escena se queda quieta.
+
 ## Crear o configurar un agente
 
 1. **Cargo.** Trae las instrucciones base, el techo de herramientas y el rol.

@@ -12,6 +12,7 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { get, post, mensajeDe } from '@/composables/useEquipoIa'
 import OficinaAgentes from './OficinaAgentes.vue'
+import OficinaEnVivo from './OficinaEnVivo.vue'
 import Aprobaciones from './Aprobaciones.vue'
 import CargosEquipo from './CargosEquipo.vue'
 import ConsumoEquipo from './ConsumoEquipo.vue'
@@ -21,7 +22,7 @@ import DetalleEjecucion from './DetalleEjecucion.vue'
 const props = defineProps({
     permisos: { type: Object, required: true },
     // La vista con la que abrir (un aviso de la campana puede llevar directo a las aprobaciones).
-    vistaInicial: { type: String, default: 'oficina' },
+    vistaInicial: { type: String, default: 'vivo' },
 })
 
 const vista     = ref(props.vistaInicial)
@@ -52,12 +53,17 @@ async function cargarCatalogos() {
 let firma = null
 let timer = null
 
+let enCurso = 0
+let activo = true
+
 async function pulso() {
     // Una pestaña del navegador oculta no necesita estar al día.
     if (typeof document !== 'undefined' && document.hidden) return
 
     const r = await get('/api/equipo-ia/pulso')
     if (! r.ok) return
+
+    enCurso = r.data.en_curso ?? 0
 
     if (firma !== null && r.data.firma !== firma) {
         await cargarOficina()
@@ -66,13 +72,23 @@ async function pulso() {
     firma = r.data.firma
 }
 
+/**
+ * Cada 8 s, salvo en la oficina en vivo con alguien corriendo: ahí cada 4 s, para que el globo
+ * siga el paso a paso. El pulso es una firma barata; la lista solo se pide si cambió.
+ */
+function programar() {
+    if (! activo) return
+    const espera = vista.value === 'vivo' && enCurso > 0 ? 4000 : 8000
+    timer = setTimeout(async () => { await pulso(); programar() }, espera)
+}
+
 onMounted(async () => {
     await Promise.all([cargarOficina(), cargarCatalogos()])
     await pulso()
-    timer = setInterval(pulso, 8000)
+    programar()
 })
 
-onUnmounted(() => { if (timer) clearInterval(timer) })
+onUnmounted(() => { activo = false; if (timer) clearTimeout(timer) })
 
 // ─── Acciones ────────────────────────────────────────────────────────────────
 
@@ -112,7 +128,8 @@ function probarDesdeFormulario(id) {
 }
 
 const pestanas = computed(() => [
-    ['oficina', 'Oficina', true],
+    ['vivo', 'En vivo', true],
+    ['oficina', 'Tarjetas', true],
     ['aprobaciones', 'Aprobaciones', props.permisos.ver || props.permisos.aprobar],
     ['cargos', 'Cargos', props.permisos.gestionar],
     ['consumo', 'Consumo', props.permisos.consumo],
@@ -145,7 +162,13 @@ const pestanas = computed(() => [
                 </button>
             </div>
 
-            <OficinaAgentes v-if="vista === 'oficina'" :agentes="oficina.agentes" :permisos="permisos" :pausado="oficina.pausado"
+            <OficinaEnVivo v-if="vista === 'vivo'" :agentes="oficina.agentes" :permisos="permisos" :pausado="oficina.pausado"
+                :ia-lista="oficina.ia_lista" :cargando="cargando" :esperando="esperando"
+                @configurar="a => formulario = { id: a.id }" @nuevo="formulario = { id: null }"
+                @ejecutar="a => lanzar(a, false)" @probar="a => lanzar(a, true)" @actividad="verActividad"
+                @aprobaciones="vista = 'aprobaciones'" @pausar="pausar" @detalle="id => detalle = id" />
+
+            <OficinaAgentes v-else-if="vista === 'oficina'" :agentes="oficina.agentes" :permisos="permisos" :pausado="oficina.pausado"
                 :ia-lista="oficina.ia_lista" :cargando="cargando" :esperando="esperando"
                 @configurar="a => formulario = { id: a.id }" @nuevo="formulario = { id: null }"
                 @ejecutar="a => lanzar(a, false)" @probar="a => lanzar(a, true)" @actividad="verActividad"

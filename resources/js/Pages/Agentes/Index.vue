@@ -31,7 +31,7 @@ const editando = ref(null)
 // segundo (`?equipo=1&vista=aprobaciones`).
 const params = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : new URLSearchParams()
 const pestana = ref(props.equipo && params.get('equipo') ? 'equipo' : 'clientes')
-const vistaEquipo = params.get('vista') || 'oficina'
+const vistaEquipo = params.get('vista') || 'vivo'
 
 const CANALES = [
     { clave: 'whatsapp',  label: 'WhatsApp' },

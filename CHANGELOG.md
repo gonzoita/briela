@@ -14,6 +14,12 @@ Formato: [versionado semántico](https://semver.org/lang/es/).
 
 ## [Sin publicar]
 
+### Agregado
+- **La oficina en vivo del Equipo de IA**: cada agente aparece en su escritorio trabajando —teclea,
+  levanta la mano cuando necesita tu aprobación, echa humo si algo falló, duerme si está apagado—, con
+  un globo que dice qué está haciendo en ese momento. Al tocarlo ves su ficha y lo puedes editar,
+  ejecutar, probar o seguir paso a paso. Tiene pantalla completa para dejarla en un televisor.
+
 ## [2.0.0] — 2026-10-13
 
 ### Agregado

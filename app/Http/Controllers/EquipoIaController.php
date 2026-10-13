@@ -53,8 +53,12 @@ class EquipoIaController extends Controller
             ->withExists(['ejecuciones as en_curso' => fn ($q) => $q->whereIn('estado', AgenteEjecucion::EN_CURSO)])
             ->withCount(['propuestas as pendientes' => fn ($q) => $q->where('estado', 'pendiente')])
             ->orderBy('orden')->orderBy('id')
-            ->get()
-            ->map(function (AgenteInterno $a) {
+            ->get();
+
+        $enCurso = $this->enCursoPorAgente();
+
+        $agentes = $agentes
+            ->map(function (AgenteInterno $a) use ($enCurso) {
                 $u = $a->ultimaEjecucion;
 
                 return [
@@ -77,6 +81,9 @@ class EquipoIaController extends Controller
                         'error'   => $u->error,
                         'cuando'  => ($u->terminada_at ?? $u->created_at)?->toIso8601String(),
                     ] : null,
+                    // Lo que hace ahora mismo, si está corriendo: la oficina en vivo lo pinta en
+                    // el globo del personaje.
+                    'actual'      => $enCurso[$a->id] ?? null,
                 ];
             });
 
@@ -92,12 +99,58 @@ class EquipoIaController extends Controller
      * Una firma barata de «qué cambió». La pantalla la pide cada pocos segundos y solo vuelve a
      * traer la lista completa si la firma cambió: mismo patrón que la campana de avisos.
      */
+    /**
+     * La corrida en curso de cada agente y su último paso, en dos consultas para toda la oficina.
+     *
+     * El resumen del paso va recortado, igual que en la bitácora: lo que se ve en el globo no
+     * debe repetir datos de clientes.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    private function enCursoPorAgente(): array
+    {
+        $corridas = AgenteEjecucion::whereIn('estado', AgenteEjecucion::EN_CURSO)
+            ->orderByDesc('id')->get(['id', 'agente_id', 'estado', 'iniciada_at', 'created_at'])
+            ->unique('agente_id');
+
+        if ($corridas->isEmpty()) {
+            return [];
+        }
+
+        $ultimos = \App\Models\AgentePaso::whereIn('ejecucion_id', $corridas->pluck('id'))
+            ->orderByDesc('orden')->get(['ejecucion_id', 'orden', 'tipo', 'herramienta', 'resumen', 'created_at'])
+            ->unique('ejecucion_id')->keyBy('ejecucion_id');
+
+        $resultado = [];
+
+        foreach ($corridas as $c) {
+            $paso = $ultimos[$c->id] ?? null;
+
+            $resultado[$c->agente_id] = [
+                'ejecucion_id' => $c->id,
+                'estado'       => $c->estado,
+                'desde'        => ($c->iniciada_at ?? $c->created_at)?->toIso8601String(),
+                'pasos'        => (int) ($paso?->orden ?? 0),
+                'accion'       => $c->estado === 'en_cola'
+                    ? 'Esperando turno'
+                    : \App\Services\Agentes\CatalogoHerramientas::queHace($paso?->tipo, $paso?->herramienta),
+                'detalle'      => $paso ? \Illuminate\Support\Str::limit((string) $paso->resumen, 140) : null,
+            ];
+        }
+
+        return $resultado;
+    }
+
     public function pulso(): JsonResponse
     {
         $ej = AgenteEjecucion::selectRaw("MAX(updated_at) as ultima, SUM(estado IN ('en_cola','corriendo')) as en_curso")->first();
         $pr = AgentePropuesta::selectRaw("MAX(updated_at) as ultima, SUM(estado = 'pendiente') as pendientes")->first();
 
-        $firma = md5(implode('|', [$ej->ultima, (int) $ej->en_curso, $pr->ultima, (int) $pr->pendientes, (int) $this->pausado()]));
+        // El último paso entra en la firma: sin él, la oficina en vivo no se enteraba de que un
+        // agente pasó de revisar cotizaciones a redactar una propuesta dentro de la misma corrida.
+        $paso = (int) \App\Models\AgentePaso::max('id');
+
+        $firma = md5(implode('|', [$ej->ultima, (int) $ej->en_curso, $pr->ultima, (int) $pr->pendientes, (int) $this->pausado(), $paso]));
 
         return response()->json(['firma' => $firma, 'pendientes' => (int) $pr->pendientes, 'en_curso' => (int) $ej->en_curso]);
     }

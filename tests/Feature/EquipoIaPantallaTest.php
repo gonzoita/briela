@@ -159,6 +159,51 @@ class EquipoIaPantallaTest extends TestCase
         $this->assertSame(1, $this->getJson('/api/equipo-ia/pulso')->json('en_curso'));
     }
 
+    // ─── La oficina en vivo ──────────────────────────────────────────────────
+
+    public function test_la_oficina_dice_que_esta_haciendo_cada_agente_que_corre(): void
+    {
+        app(AgentesDeFabrica::class)->sembrar();
+        $a = AgenteInterno::where('clave', 'seguimiento_comercial')->first() ?? AgenteInterno::first();
+        $a->update(['activo' => true]);
+        $actual = fn () => collect($this->getJson('/api/equipo-ia/oficina')->json('agentes'))->firstWhere('id', $a->id)['actual'];
+
+        $this->assertNull($actual(), 'sin corrida no hay nada en curso');
+
+        $e = AgenteEjecucion::create(['agente_id' => $a->id, 'estado' => 'en_cola', 'origen' => 'manual']);
+        $this->assertSame('Esperando turno', $actual()['accion']);
+
+        $e->update(['estado' => 'corriendo', 'iniciada_at' => now()]);
+        \App\Models\AgentePaso::create(['ejecucion_id' => $e->id, 'orden' => 1, 'tipo' => 'mensaje', 'resumen' => 'Pidió 1 herramienta(s).', 'created_at' => now()]);
+        $this->assertSame('Pensando', $actual()['accion']);
+
+        \App\Models\AgentePaso::create(['ejecucion_id' => $e->id, 'orden' => 2, 'tipo' => 'herramienta', 'herramienta' => 'cotizaciones_sin_respuesta', 'resumen' => '3 cotizaciones', 'created_at' => now()]);
+        $ahora = $actual();
+        $this->assertSame('Revisando cotizaciones sin respuesta', $ahora['accion']);
+        $this->assertSame('3 cotizaciones', $ahora['detalle']);
+        $this->assertSame(2, $ahora['pasos']);
+        $this->assertSame($e->id, $ahora['ejecucion_id']);
+
+        \App\Models\AgentePaso::create(['ejecucion_id' => $e->id, 'orden' => 3, 'tipo' => 'herramienta', 'herramienta' => 'proponer_nota_cotizacion', 'resumen' => 'Propuesta lista', 'created_at' => now()]);
+        $this->assertSame('Redactando una propuesta: nota cotizacion', $actual()['accion']);
+
+        $e->update(['estado' => 'terminada', 'terminada_at' => now()]);
+        $this->assertNull($actual(), 'al terminar ya no hay nada en curso');
+    }
+
+    public function test_el_pulso_se_entera_de_cada_paso_nuevo(): void
+    {
+        app(AgentesDeFabrica::class)->sembrar();
+        $e = AgenteEjecucion::create(['agente_id' => AgenteInterno::first()->id, 'estado' => 'corriendo', 'origen' => 'manual']);
+
+        $antes = $this->getJson('/api/equipo-ia/pulso')->json('firma');
+
+        // Un paso nuevo no toca la corrida, pero la oficina en vivo tiene que cambiar el globo.
+        \App\Models\AgentePaso::create(['ejecucion_id' => $e->id, 'orden' => 1, 'tipo' => 'herramienta', 'herramienta' => 'leads_quietos', 'created_at' => now()]);
+
+        $this->assertNotSame($antes, $this->getJson('/api/equipo-ia/pulso')->json('firma'));
+    }
+
     // ─── Crear y configurar ──────────────────────────────────────────────────
 
     public function test_crear_un_agente_recorta_las_herramientas_al_techo_del_cargo(): void

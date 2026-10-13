@@ -98,6 +98,30 @@ class CatalogoHerramientas
     }
 
     /**
+     * Qué está haciendo un agente, dicho para una persona, a partir de su último paso.
+     *
+     * Sale del catálogo y no de un mapa escrito a mano por herramienta: una herramienta nueva
+     * se describe sola. La de lectura dice qué revisa; la de propuesta, qué redacta.
+     */
+    public static function queHace(?string $tipoPaso, ?string $herramienta): string
+    {
+        if ($tipoPaso === 'error') {
+            return 'Resolviendo un problema';
+        }
+
+        if ($tipoPaso !== 'herramienta' || ! $herramienta) {
+            return 'Pensando';
+        }
+
+        $cfg = self::catalogo()[$herramienta] ?? null;
+        $legible = str_replace('_', ' ', preg_replace('/^proponer_/', '', $herramienta));
+
+        return ($cfg['tipo'] ?? 'lectura') === 'propuesta'
+            ? 'Redactando una propuesta: ' . $legible
+            : 'Revisando ' . $legible;
+    }
+
+    /**
      * Las herramientas que ESTE agente puede usar ahora: las de su lista, recortadas a lo que
      * el usuario de servicio tiene permitido ver, y sin las de propuesta si es de solo lectura.
      *
