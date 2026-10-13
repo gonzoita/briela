@@ -429,6 +429,10 @@ tocar **Confirmar**.
 | `aprobar_calidad` | Firma las unidades terminadas (las que exigen foto, desde Calidad) | Órdenes → Calidad |
 | `cambiar_estado_cotizacion` | Enviada, aprobada o rechazada | Cotizaciones → Editar |
 | `mover_lead` / `crear_lead` | Embudo del CRM | CRM → Editar / Crear |
+| `configurar_agente` | Enciende, apaga, programa o renombra un agente del Equipo de IA, o le cambia la tarea y las instrucciones | Equipo de IA → Gestionar |
+| `crear_agente` | Un agente interno nuevo, con las herramientas de su cargo; **nace apagado** | Equipo de IA → Gestionar |
+| `ejecutar_agente` | Pone a trabajar ya a un agente encendido | Equipo de IA → Ejecutar |
+| `configurar_agente_atencion` | Enciende o apaga un agente de atención a clientes, o le cambia instrucciones, saludo u horario | Agentes → Gestionar |
 
 Cómo está hecho (`App\Services\IA\TransaccionesIaService`):
 
@@ -442,6 +446,23 @@ Cómo está hecho (`App\Services\IA\TransaccionesIaService`):
   propio, así que lo que hace queda igual que hecho a mano.
 - La guía **no puede más que quien la usa**: cada transacción exige el permiso de su pantalla, y un
   módulo apagado se lleva sus permisos.
+
+### Configurar a los demás agentes *(13 oct 2026)*
+
+La guía es el **agente principal**: el que se configura aparte, el del chat. Desde la conversación
+configura a los otros —*«pon al analista a correr todos los días a las 7»*, *«apaga el agente de
+Instagram»*, *«crea un agente que revise la cartera vencida cada lunes»*, *«ponle al vigía de
+inventario que siempre mencione las referencias agotadas»*— con las mismas cuatro reglas de toda
+transacción: propone en una tarjeta, solo hace al confirmar, exige el permiso de la pantalla y guarda
+**con el mismo controlador de la pantalla** (`EquipoIaController::actualizarAgente`/`crearAgente`,
+`AgenteIaController::update`). Por eso las revisiones de la pantalla valen igual: un agente sin
+herramientas no se enciende, y la guía devuelve el mismo motivo. Cambiar las instrucciones deja
+versión, como al editarlas a mano. Lo que no se pidió queda igual. Está en
+`App\Services\IA\TransaccionesAgentes`.
+
+En la oficina del Equipo de IA la guía aparece **en el centro de control**, coordinando: de ella salen
+rayos de luz hacia cada agente que trabaja y hacia la oficina del director cuando hay algo por
+aprobar. Tocarla abre su ficha con **Hablar con ella** y atajos para preguntarle.
 
 ### Respeta permisos y sede
 

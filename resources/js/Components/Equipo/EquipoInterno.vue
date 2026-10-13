@@ -173,7 +173,7 @@ const pestanas = computed(() => [
                 :ia-lista="oficina.ia_lista" :cargando="cargando" :esperando="esperando"
                 @configurar="a => formulario = { id: a.id }" @nuevo="formulario = { id: null }"
                 @ejecutar="a => lanzar(a, false)" @probar="a => lanzar(a, true)" @actividad="verActividad"
-                :tablero="oficina.tablero"
+                :tablero="oficina.tablero" :guia="oficina.guia"
                 @aprobaciones="vista = 'aprobaciones'" @pausar="pausar" @detalle="id => detalle = id" />
 
             <OficinaAgentes v-else-if="vista === 'oficina'" :agentes="oficina.agentes" :permisos="permisos" :pausado="oficina.pausado"

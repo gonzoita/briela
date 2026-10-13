@@ -10,6 +10,7 @@ import { ref, computed } from 'vue'
 import { router } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
 import EquipoInterno from '@/Components/Equipo/EquipoInterno.vue'
+import RecepcionEnVivo from '@/Components/Agentes/RecepcionEnVivo.vue'
 
 const props = defineProps({
     // Los permisos de la pestaña «Equipo interno», o null si no existe (módulo apagado o sin permiso).
@@ -50,6 +51,11 @@ function abrir(agente) {
     editando.value = agente
         ? JSON.parse(JSON.stringify({ ...vacio(), ...agente }))
         : vacio()
+}
+
+function abrirPorId(id) {
+    const agente = props.agentes.find(a => a.id === id)
+    if (agente) abrir(agente)
 }
 
 /** Al cambiar de perfil, las herramientas del anterior dejan de existir para este agente. */
@@ -122,6 +128,9 @@ const motivos = [
             <EquipoInterno v-if="equipo && pestana === 'equipo'" :permisos="equipo" :vista-inicial="vistaEquipo" />
 
             <template v-else>
+
+            <!-- La recepción en vivo: los agentes atendiendo a quien llega por la bandeja -->
+            <RecepcionEnVivo @configurar="abrirPorId" />
 
             <!-- La lista -->
             <div class="space-y-3 mb-4">

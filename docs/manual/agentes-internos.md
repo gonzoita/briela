@@ -75,6 +75,14 @@ quien está mirando la pantalla— y un cubículo por agente. El estado decide d
 | Terminó | En la zona de café |
 | Apagado | No está: la silla vacía y el monitor apagado |
 
+En el **centro de control**, al frente, está **la guía** —el agente principal, el asistente del chat,
+con su nombre de Configuración—, de pie junto a su consola con un holograma que tiene una barra por
+agente. De ella salen rayos de luz hacia cada agente que está trabajando, y hacia la oficina del
+director cuando hay propuestas esperando. Su globo dice «Atendiendo una consulta» si alguien le
+escribió en los últimos dos minutos, o cuántos agentes coordina. Tocarla abre su ficha con **Hablar
+con …** y atajos («¿Cómo va el equipo de agentes?», «Quiero crear un agente nuevo»): ella configura a
+los demás desde el chat, siempre con confirmación (ver `ia.md`, «Configurar a los demás agentes»).
+
 Cuando un agente cambia de estado, **camina** a su nuevo sitio por el piso, sin atravesar
 escritorios ni paredes (búsqueda de camino sobre la cuadrícula).
 
@@ -97,8 +105,12 @@ botones de siempre: **Editar**, Ejecutar ahora, Probar, Revisar propuestas, Acti
 paso en vivo**. Con **Pantalla completa** el chat y el tablero flotan sobre la escena, para dejarla en
 un televisor.
 
-**Cómo está hecha.** `resources/js/oficina/pixel.js` dibuja todo en código: rectángulos de un píxel
-sobre un lienzo pequeño que después se amplía sin suavizar. No hay imágenes ni librerías de juegos,
+**Cómo está hecha.** Tres archivos en `resources/js/oficina/`: `motor.js` (la escena isométrica, el
+búfer, el camino, los letreros y lo que se puede tocar), `sprites.js` (las personas, píxel a píxel:
+cara con ojos que parpadean, cejas y boca según el ánimo; camisa con cuello y sombra; brazos que se
+balancean al caminar) y una escena por pantalla —`oficina.js` aquí, `recepcion.js` en Atención a
+clientes—. Todo se dibuja en código: rectángulos de un píxel sobre un lienzo pequeño que después se
+amplía sin suavizar, a escala entera cuando la pantalla lo permite, para que se vea nítido. No hay imágenes ni librerías de juegos,
 así que pesa casi nada, va igual en cada instalación y el plano se arma solo con un cubículo por
 agente. Los textos se escriben aparte, a la resolución real de la pantalla, y se acomodan para no
 taparse entre sí. Lo que dice el globo **lo arma el servidor** con el último paso de la corrida
@@ -107,7 +119,7 @@ taparse entre sí. Lo que dice el globo **lo arma el servidor** con el último p
 **No cuesta consultas de más.** Usa la misma petición y el mismo pulso que las tarjetas; el tablero
 llega en esa misma respuesta. El pulso incluye el último paso registrado, para que el globo cambie a
 mitad de una corrida; con alguien trabajando y la vista abierta pregunta cada 4 s en vez de 8, y el
-tablero se refresca cada 2 minutos. La animación (~12 cuadros por segundo) solo corre con el lienzo a
+tablero se refresca cada 2 minutos. La animación (~15 cuadros por segundo) solo corre con el lienzo a
 la vista y la pestaña abierta; con «reducir movimiento» del sistema la escena se queda quieta y nadie
 camina.
 

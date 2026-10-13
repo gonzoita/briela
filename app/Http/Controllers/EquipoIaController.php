@@ -93,7 +93,24 @@ class EquipoIaController extends Controller
             'ia_lista'  => $this->ia->configurado(),
             'pendientes' => (int) $agentes->sum('pendientes'),
             'tablero'   => $this->tablero($agentes),
+            'guia'      => $this->guia(),
         ]);
+    }
+
+    /**
+     * La guía —el agente principal, el del chat— como personaje de la oficina.
+     *
+     * «Ocupada» si alguien le escribió en los últimos dos minutos. No se dice a quién ni qué: la
+     * conversación con la guía es de cada persona.
+     *
+     * @return array{nombre: string, ocupada: bool}
+     */
+    private function guia(): array
+    {
+        return [
+            'nombre'  => (string) Configuracion::get('ia_asistente_nombre', 'Asistente'),
+            'ocupada' => \App\Models\MensajeAsistente::where('created_at', '>=', now()->subMinutes(2))->exists(),
+        ];
     }
 
     /**

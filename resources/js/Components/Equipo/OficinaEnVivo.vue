@@ -2,7 +2,9 @@
 /**
  * La oficina en vivo: el Equipo de IA en pixel art, trabajando a la vista.
  *
- * La escena la pinta `OficinaPixel` (resources/js/oficina/pixel.js) en un lienzo. Aquí van lo que
+ * La escena la pinta `OficinaPixel` (resources/js/oficina/oficina.js) en un lienzo. En el centro,
+ * en su consola, está la guía —el agente principal, el del chat—, que es quien coordina al equipo:
+ * tocarla abre su ficha y desde ahí se le habla. Aquí van lo que
  * es mejor en HTML: la ventana de chat, el tablero de control, la lista para elegir con el teclado
  * y la ficha del agente, con los mismos botones de siempre —editar, ejecutar, probar, ver la
  * corrida en vivo—. Ninguno es un camino propio: todos emiten lo mismo que la vista de tarjetas.
@@ -12,11 +14,11 @@
  * mientras el lienzo está a la vista y la pestaña del navegador abierta; con «reducir movimiento»
  * la escena se queda quieta y solo se vuelve a pintar cuando cambia algo.
  */
-import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted, nextTick, inject } from 'vue'
 import { usePage } from '@inertiajs/vue3'
 import { ESTADOS, hace } from '@/composables/useEquipoIa'
 import { formatCOP, monedaBase } from '@/formato'
-import { OficinaPixel } from '@/oficina/pixel'
+import { OficinaPixel } from '@/oficina/oficina'
 
 const props = defineProps({
     agentes:   { type: Array, default: () => [] },
@@ -26,6 +28,7 @@ const props = defineProps({
     cargando:  { type: Boolean, default: false },
     esperando: { type: Array, default: () => [] },
     tablero:   { type: Object, default: null },
+    guia:      { type: Object, default: null },
 })
 
 const emit = defineEmits(['configurar', 'ejecutar', 'probar', 'actividad', 'aprobaciones', 'pausar', 'nuevo', 'detalle'])
@@ -38,8 +41,31 @@ const elegidoId = ref(null)
 const elegido   = computed(() => props.agentes.find(a => a.id === elegidoId.value) ?? null)
 
 function elegir(id) {
+    guiaAbierta.value = false
     elegidoId.value = elegidoId.value === id ? null : id
 }
+
+// La guía no es un agente del equipo: es el asistente del chat. Su ficha solo invita a hablarle,
+// y lo que le pidas sobre los agentes pasa por la misma tarjeta de confirmación de siempre.
+const guiaAbierta = ref(false)
+const abrirAsistente = inject('abrirAsistente', null)
+const nombreGuia = computed(() => props.guia?.nombre || 'Asistente')
+
+function alternarGuia() {
+    elegidoId.value = null
+    guiaAbierta.value = ! guiaAbierta.value
+}
+
+function hablarConGuia(texto = '') {
+    guiaAbierta.value = false
+    abrirAsistente?.(texto)
+}
+
+const SUGERENCIAS_GUIA = [
+    '¿Cómo va el equipo de agentes?',
+    'Quiero crear un agente nuevo',
+    'Cambia el horario de un agente',
+]
 
 const cuenta = computed(() => {
     const c = { trabajando: 0, aprobacion: 0, error: 0 }
@@ -60,7 +86,7 @@ let aLaVista = true
 const quieto = typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
 
 function pasarDatos() {
-    motor?.datos({ agentes: props.agentes, empresa: empresa.value, director: director.value, elegido: elegidoId.value })
+    motor?.datos({ agentes: props.agentes, empresa: empresa.value, director: director.value, elegido: guiaAbierta.value ? 'guia' : elegidoId.value, guia: props.guia })
 }
 
 function animarSiToca() {
@@ -72,13 +98,15 @@ function animarSiToca() {
 function alCambiarVisibilidad() { animarSiToca() }
 
 function tocar(evento) {
-    const id = motor?.agenteEn(evento.clientX, evento.clientY)
-    if (id !== null && id !== undefined) elegir(id)
+    const cosa = motor?.queHayEn(evento.clientX, evento.clientY)
+    if (cosa?.tipo === 'agente') elegir(cosa.id)
+    else if (cosa?.tipo === 'guia') alternarGuia()
 }
 
 const sobreAgente = ref(false)
 function mover(evento) {
-    sobreAgente.value = (motor?.agenteEn(evento.clientX, evento.clientY) ?? null) !== null
+    const cosa = motor?.queHayEn(evento.clientX, evento.clientY)
+    sobreAgente.value = cosa?.tipo === 'agente' || cosa?.tipo === 'guia'
 }
 
 onMounted(async () => {
@@ -108,8 +136,8 @@ onUnmounted(() => {
 })
 
 watch(() => props.agentes, pasarDatos, { deep: true })
-watch(elegidoId, (id) => motor?.elegir(id))
-watch([empresa, director], pasarDatos)
+watch([elegidoId, guiaAbierta], ([id, guia]) => motor?.elegir(guia ? 'guia' : id))
+watch([empresa, director, () => props.guia], pasarDatos, { deep: true })
 
 // ─── La ventana de chat ──────────────────────────────────────────────────────
 
@@ -338,11 +366,54 @@ const puedePantallaCompleta = typeof document !== 'undefined' && !! document.doc
                 </div>
             </aside>
 
+            <!-- La ficha de la guía: el agente principal, el que se configura en el chat -->
+            <aside v-if="guiaAbierta && ! elegido"
+                class="fixed inset-x-0 bottom-0 z-50 max-h-[75vh] overflow-y-auto rounded-t-2xl border-t border-linea bg-superficie p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] shadow-xl
+                       lg:inset-x-auto lg:right-6 lg:top-24 lg:bottom-auto lg:w-80 lg:max-h-[80vh] lg:rounded-2xl lg:border lg:pb-4"
+                :aria-label="`Ficha de ${nombreGuia}`">
+                <div class="flex items-start justify-between gap-2">
+                    <div class="min-w-0">
+                        <p class="text-sm font-semibold text-tinta-900 truncate">✨ {{ nombreGuia }}</p>
+                        <p class="text-[11px] text-tinta-400">Agente principal · coordina al equipo</p>
+                        <span :class="['inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full mt-1',
+                            guia?.ocupada ? 'bg-pastel-azul-2 text-aviso-azul' : 'bg-pastel-verde-2 text-aviso-verde']">
+                            {{ guia?.ocupada ? 'Atendiendo una consulta' : 'Disponible' }}
+                        </span>
+                    </div>
+                    <button type="button" @click="guiaAbierta = false" class="text-tinta-400 hover:text-tinta-700 text-xl leading-none" aria-label="Cerrar">×</button>
+                </div>
+
+                <p class="text-xs text-tinta-500 mt-3 leading-relaxed">
+                    Es el asistente del chat. Le puedes pedir que encienda, apague, programe o cree agentes, que
+                    ponga a uno a trabajar o que cambie sus instrucciones. Antes de hacer cualquier cambio te
+                    muestra qué va a hacer y espera tu confirmación.
+                </p>
+
+                <template v-if="abrirAsistente">
+                    <button type="button" @click="hablarConGuia()"
+                        class="mt-3 w-full text-xs px-3 py-2 rounded-lg text-white font-semibold" style="background:var(--marca);">
+                        Hablar con {{ nombreGuia }}
+                    </button>
+                    <div class="flex flex-wrap gap-1.5 mt-2">
+                        <button v-for="s in SUGERENCIAS_GUIA" :key="s" type="button" @click="hablarConGuia(s)"
+                            class="text-[11px] px-2.5 py-1 rounded-full border border-linea text-tinta-600 hover:bg-realce transition-colors">
+                            {{ s }}
+                        </button>
+                    </div>
+                </template>
+            </aside>
+
         </div>
 
         <!-- Los mismos agentes como botones: para elegir con el teclado o un lector de pantalla -->
         <p class="text-xs text-tinta-400 mt-3 mb-1.5">Toca a un agente en la oficina, o aquí, para ver qué está haciendo y editarlo.</p>
         <div class="flex flex-wrap gap-2">
+            <button type="button" @click="alternarGuia" :aria-pressed="guiaAbierta"
+                :class="['inline-flex items-center gap-1.5 text-[11px] px-2.5 py-1 rounded-full border transition-colors',
+                    guiaAbierta ? 'border-[var(--marca)] text-tinta-900 font-semibold' : 'border-linea text-tinta-500 hover:bg-realce']">
+                <span aria-hidden="true">✨</span>{{ nombreGuia }}
+                <span class="px-1.5 rounded-full text-[10px] bg-pastel-violeta-2 text-aviso-violeta">Principal</span>
+            </button>
             <button v-for="a in agentes" :key="a.id" type="button" @click="elegir(a.id)" :aria-pressed="elegidoId === a.id"
                 :class="['inline-flex items-center gap-1.5 text-[11px] px-2.5 py-1 rounded-full border transition-colors',
                     elegidoId === a.id ? 'border-[var(--marca)] text-tinta-900 font-semibold' : 'border-linea text-tinta-500 hover:bg-realce']">

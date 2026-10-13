@@ -9,6 +9,31 @@ Ruta: `/configuracion/agentes` · Permisos: `agentes.ver`, `agentes.gestionar`
 Quién atiende por WhatsApp, por Instagram, por Facebook y por el chat de la web a nombre de la
 empresa, y **hasta dónde puede llegar**.
 
+## La recepción en vivo *(13 oct 2026)*
+
+Arriba de la lista, en **Atención a clientes**, la recepción en pixel art: un mostrador con un puesto
+por agente —con audífonos y, en la pared, los canales que atiende—, la puerta, la sala de espera y el
+escritorio del **asesor humano**. Cada conversación activa de la bandeja (últimas 24 horas) es un
+cliente:
+
+| La conversación | El cliente |
+|---|---|
+| Lo último lo escribió él | Hace **fila frente al agente de su canal** (el primero encendido que lo atienda); el de adelante dice lo que escribió, y el agente «Respondiendo a …» |
+| Ya le contestaron | Se sienta en la sala de espera, con el celular |
+| La tomó una persona, o se escaló | Va al escritorio del asesor humano; si pidió una persona y nadie la ha tomado, levanta la mano |
+| Dejó de estar activa | Sale por la puerta |
+
+Los nuevos **entran por la puerta** y caminan a su sitio. Un agente apagado deja su puesto
+«CERRADO»; uno fuera de horario lo dice. Tocar a un cliente abre **su conversación en la bandeja**;
+tocar a un agente, su configuración. Al lado, un tablero: agentes atendiendo, conversaciones activas,
+sin leer, sin asignar y clientes nuevos de hoy.
+
+Los datos salen de `GET /api/agentes-ia/recepcion` con la **misma consulta de la bandeja**, así que
+respetan su permiso y la sede: sin `bandeja.ver` (o con la bandeja apagada) la recepción se ve con sus
+agentes pero sin clientes. Del cliente viaja solo el **primer nombre y la inicial** —un teléfono queda
+«Cliente»—, porque es una pantalla para dejar a la vista. Se pide al abrirla y cada 15 s mientras está
+a la vista; en las demás pantallas no cuesta nada.
+
 ## El campo que manda es el perfil
 
 No es una etiqueta: decide **qué catálogo de consultas** ve el agente.

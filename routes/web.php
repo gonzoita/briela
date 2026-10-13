@@ -879,6 +879,8 @@ Route::middleware('auth')->group(function () {
     // Los agentes que atienden por fuera: la web y WhatsApp.
     Route::middleware('permiso:agentes.ver')->group(function () {
         Route::get('/configuracion/agentes', [\App\Http\Controllers\AgenteIaController::class, 'index'])->name('agentes.index');
+        // La recepción en vivo de la pestaña «Atención a clientes». JSON: la pide la escena.
+        Route::get('/api/agentes-ia/recepcion', [\App\Http\Controllers\AgenteIaController::class, 'recepcion'])->name('agentes.recepcion');
     });
 
     Route::middleware('permiso:agentes.gestionar')->group(function () {

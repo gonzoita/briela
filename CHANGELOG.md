@@ -22,6 +22,19 @@ Formato: [versionado semántico](https://semver.org/lang/es/).
   chat cuenta en qué va cada agente y un tablero muestra agentes activos, propuestas por aprobar,
   consumo de IA, lo vendido hoy y las órdenes en curso. Al tocar a un agente ves su ficha y lo puedes
   editar, ejecutar o seguir paso a paso. Tiene pantalla completa para dejarla en un televisor.
+- **La oficina se ve más nítida y los personajes tienen más detalle**: caras con ojos que parpadean,
+  cejas y gestos según cómo les va, ropa con sombras y brazos que se mueven al caminar, monitores,
+  teclados y un holograma en el centro de control.
+- **El agente principal aparece en la oficina coordinando al equipo**: es tu asistente del chat. Lo
+  ves en el centro de control enviando señales a cada agente que trabaja; al tocarlo puedes hablarle.
+- **El asistente configura a los demás agentes desde el chat**: pídele que encienda, apague o
+  programe un agente, que cree uno nuevo, que lo ponga a trabajar ya o que le cambie las
+  instrucciones, también a los agentes que atienden a tus clientes. Siempre te muestra el cambio y
+  espera tu confirmación.
+- **Recepción en vivo en Atención a clientes**: tus agentes atienden detrás de un mostrador y cada
+  cliente que te escribe entra por la puerta, hace fila frente al agente de su canal, espera en la
+  sala cuando ya le respondieron o pasa al asesor humano cuando pide una persona. Al tocar a un
+  cliente se abre su conversación en la bandeja.
 
 ## [2.0.0] — 2026-10-13
 

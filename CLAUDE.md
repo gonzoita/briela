@@ -657,9 +657,14 @@ Lo construido después de la fase 3, que conviene conocer antes de tocar algo ce
   colaboradores. El **cupo de IA de los agentes es aparte** (`IaService::conContexto('agentes', …)`
   manda `X-Briela-Origen: agentes` al superadmin) y el **módulo `equipo_ia` nace apagado**. Sin el cron
   no corre nada: `queue:work --stop-when-empty` desde el scheduler hace de worker. Ver
-  `docs/manual/agentes-internos.md`. **La oficina en vivo** (pixel art, `resources/js/oficina/pixel.js`)
-  se dibuja en código, sin imágenes; sus datos son los de `/api/equipo-ia/oficina` —con `actual` por
-  agente y el `tablero`, cuyas ventas y órdenes exigen `ops.ver`— y no agrega peticiones al pulso.
+  `docs/manual/agentes-internos.md`. **La oficina en vivo** (pixel art)
+  se dibuja en código, sin imágenes (`resources/js/oficina/`: `motor.js` la escena, `sprites.js` las
+  personas, una clase por pantalla); sus datos son los de `/api/equipo-ia/oficina` —con `actual` por
+  agente, el `tablero`, cuyas ventas y órdenes exigen `ops.ver`, y la `guia`— y no agrega peticiones al
+  pulso. **La guía es el agente principal y configura a los demás desde el chat**
+  (`TransaccionesAgentes`), siempre guardando con el controlador de la pantalla, nunca por su cuenta.
+  **La recepción** de Atención a clientes (`recepcion.js`, `/api/agentes-ia/recepcion`) lee la bandeja
+  con `BandejaService::lista`, y del cliente solo manda nombre e inicial.
 - **Automatizaciones (2.1) son un grafo JSON con acciones acotadas** (`App\Services\Automatizaciones`).
   Los documentos que pueden mirar (con sus campos, permiso y barrido) viven en UN sitio,
   `EntidadesAutomatizacion`; eventos y acciones en `CatalogoAutomatizaciones`. Una corrida se crea en un solo
@@ -733,7 +738,7 @@ decían lo contrario y estaban equivocadas.
   relaciones entre archivos antes de leer código a mano.
 - Conviene regenerarlo después de cambios que muevan estructura (borrar módulos,
   mover carpetas), porque un grafo desactualizado es peor que no tenerlo.
-- **Generado y al día.** Al 13 oct 2026: **12.774 nodos, 25.928 aristas, 670 comunidades**
+- **Generado y al día.** Al 13 oct 2026: **12.920 nodos, 26.297 aristas, 693 comunidades**
   (con el Equipo de IA, las Automatizaciones y la vinculación de Meta). Cada entorno nuevo necesita `pip install graphifyy` una vez (en el
   superadmin el grafo se genera igual, pero no va al repo). Cubre el proyecto completo: 926 archivos de
   código por AST y los 70 documentos por subagentes. Se actualiza con
