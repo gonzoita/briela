@@ -14,21 +14,9 @@ Formato: [versionado semántico](https://semver.org/lang/es/).
 
 ## [Sin publicar]
 
-### Agregado — 2.1.0 (Automatizaciones)
-- **Automatizaciones**: «cuando pase esto, haz aquello», conectadas a todo Briela. Arrancan con eventos de
-  cotizaciones, CRM, clientes, producción, calidad, remisiones, cartera, inventario (stock bajo), compras,
-  mantenimiento, RRHH, capacitación, la bandeja de mensajes y el Equipo de IA; a una hora; o revisando cada
-  mañana documentos que cumplan una condición («cada cotización enviada hace 7 días…»).
-- Pasos: condiciones, esperas de hasta 90 días que deciden con los datos del día, y **aprobaciones**: la
-  automatización pregunta a una persona y solo sigue si dice que sí.
-- Acciones: avisar, dejar comentarios o tareas en el documento, tareas y notas comerciales, mover y repartir
-  leads, repartir conversaciones, pedir compras del faltante, redactar y clasificar con IA, poner a trabajar a
-  un agente y enviar los datos a otros sistemas (webhook).
-- Nacen apagadas, se prueban con datos de ejemplo o con un documento real sin efectos, guardan su historial y se
-  pausan solas tras cinco fallas. Vienen 17 plantillas. El módulo **viene apagado**: se enciende en
-  Configuración → Módulos.
+## [2.0.0] — 2026-10-13
 
-### Agregado — 2.0.0 (Equipo de IA)
+### Agregado
 - **Equipo de IA**: agentes internos que trabajan para tu equipo. Leen los datos del negocio con los
   permisos de su cargo, te avisan lo importante y dejan **propuestas** que tú apruebas o rechazas;
   ninguno cambia nada por su cuenta. Está en Agentes → pestaña «Equipo interno», y **viene apagado**:
@@ -52,6 +40,18 @@ Formato: [versionado semántico](https://semver.org/lang/es/).
   manuales.
 - **Facebook e Instagram suscriben solos sus avisos** al conectarse la página, y hay un botón para
   volver a suscribir todo cuando una conexión «salió bien» pero no llega nada.
+- **Automatizaciones**: «cuando pase esto, haz aquello», conectadas a todo Briela. Arrancan con eventos de
+  cotizaciones, CRM, clientes, producción, calidad, remisiones, cartera, inventario (stock bajo), compras,
+  mantenimiento, RRHH, capacitación, la bandeja de mensajes y el Equipo de IA; a una hora; o revisando cada
+  mañana documentos que cumplan una condición («cada cotización enviada hace 7 días…»).
+- Pasos: condiciones, esperas de hasta 90 días que deciden con los datos del día, y **aprobaciones**: la
+  automatización pregunta a una persona y solo sigue si dice que sí.
+- Acciones: avisar, dejar comentarios o tareas en el documento, tareas y notas comerciales, mover y repartir
+  leads, repartir conversaciones, pedir compras del faltante, redactar y clasificar con IA, poner a trabajar a
+  un agente y enviar los datos a otros sistemas (webhook).
+- Nacen apagadas, se prueban con datos de ejemplo o con un documento real sin efectos, guardan su historial y se
+  pausan solas tras cinco fallas. Vienen 17 plantillas. El módulo **viene apagado**: se enciende en
+  Configuración → Módulos.
 
 ### Corregido
 - **Los mensajes y comentarios de Instagram y Facebook no entraban**: la dirección que recibe esos
