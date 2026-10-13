@@ -30,7 +30,7 @@ import {
     faScrewdriverWrench, faChartGantt, faServer, faWrench,
     faUsersGear, faIdCardClip, faBookBookmark, faGraduationCap, faChalkboardUser, faEnvelopeOpenText,
     faBullhorn, faShareNodes, faPhotoFilm,
-    faSliders, faFileLines, faFingerprint, faGear, faRobot, faFilePdf,
+    faSliders, faFileLines, faFingerprint, faGear, faRobot, faFilePdf, faBolt,
     // La bandeja de mensajes.
     faInbox, faComment, faComments, faPaperclip, faPaperPlane, faMagnifyingGlass,
     faBoxArchive, faArrowLeft, faXmark, faTriangleExclamation, faClock, faUserPlus, faRotateLeft,
@@ -64,7 +64,7 @@ const ICONOS = {
     'graduation-cap': faGraduationCap, 'chalkboard-user': faChalkboardUser, 'envelope-open-text': faEnvelopeOpenText,
     'bullhorn': faBullhorn, 'share-nodes': faShareNodes, 'photo-film': faPhotoFilm,
     'sliders': faSliders, 'file-lines': faFileLines, 'fingerprint': faFingerprint,
-    'gear': faGear, 'robot': faRobot, 'file-pdf': faFilePdf,
+    'gear': faGear, 'robot': faRobot, 'file-pdf': faFilePdf, 'bolt': faBolt,
     'inbox': faInbox, 'comment': faComment, 'comments': faComments, 'paperclip': faPaperclip,
     'paper-plane': faPaperPlane, 'magnifying-glass': faMagnifyingGlass, 'box-archive': faBoxArchive,
     'arrow-left': faArrowLeft, 'xmark': faXmark, 'triangle-exclamation': faTriangleExclamation,

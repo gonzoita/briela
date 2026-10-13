@@ -18,7 +18,7 @@ class Automatizacion extends Model
 
     protected $fillable = [
         'nombre', 'descripcion', 'activa', 'grafo', 'version', 'disparador_tipo', 'disparador_clave',
-        'max_por_hora', 'fallas_seguidas', 'creado_por', 'ultima_ejecucion_at',
+        'max_por_hora', 'fallas_seguidas', 'creado_por', 'ultima_ejecucion_at', 'ultima_ventana',
     ];
 
     protected $casts = [

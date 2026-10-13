@@ -42,7 +42,7 @@ export const del  = (url)         => api('DELETE', url)
 export function mensajeDe(r, porDefecto = 'No se pudo completar la acción.') {
     if (!r) return porDefecto
     if (r.status === 403) return 'No tienes permiso para hacer esto.'
-    if (r.status === 404) return 'Esto ya no existe, o el módulo Equipo de IA está apagado.'
+    if (r.status === 404) return 'Esto ya no existe, o su módulo está apagado.'
 
     const errores = r.data?.errors
     if (errores) return Object.values(errores).flat().join(' ')

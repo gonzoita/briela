@@ -59,6 +59,7 @@ class NotificacionService
         'agente_fallo'             => 'equipo_ia',
         'automatizacion_aviso'     => 'automatizaciones',
         'automatizacion_fallo'     => 'automatizaciones',
+        'automatizacion_aprobacion' => 'automatizaciones',
     ];
 
     /**
@@ -153,6 +154,7 @@ class NotificacionService
             'Automatizaciones' => [
                 ['tipo' => 'automatizacion_aviso', 'label' => 'Una automatización te avisa de algo'],
                 ['tipo' => 'automatizacion_fallo', 'label' => 'Una automatización falló o llegó a su límite'],
+                ['tipo' => 'automatizacion_aprobacion', 'label' => 'Una automatización espera tu aprobación'],
             ],
             'Sistema' => [
                 ['tipo' => 'backup_fallido', 'label' => 'El respaldo automático falló'],

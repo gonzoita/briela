@@ -52,6 +52,8 @@ const ESTADO = {
     cancelada: ['Cancelada',  'bg-tinta-100 text-tinta-500'],
 }
 const PASO = { ok: 'text-aviso-verde', omitido: 'text-tinta-400', espera: 'text-aviso-violeta', error: 'text-aviso-rojo' }
+const TIPO = { disparador: 'Arranque', condicion: 'Condición', espera: 'Espera', accion: 'Acción', aprobacion: 'Aprobación' }
+const ORIGEN = { evento: 'por un evento', horario: 'por horario', manual: 'a mano' }
 const cuando = (iso) => iso ? new Date(iso).toLocaleString('es-CO', { dateStyle: 'medium', timeStyle: 'short' }) : ''
 </script>
 
@@ -75,7 +77,7 @@ const cuando = (iso) => iso ? new Date(iso).toLocaleString('es-CO', { dateStyle:
                         <button type="button" @click="abrir(e)" class="text-left min-w-0">
                             <span :class="['text-[11px] px-2 py-0.5 rounded-full font-semibold', ESTADO[e.estado]?.[1]]">{{ ESTADO[e.estado]?.[0] ?? e.estado }}</span>
                             <span class="text-xs text-tinta-600 ml-2">{{ e.documento || '—' }}</span>
-                            <span class="text-[11px] text-tinta-400 ml-2">{{ hace(e.creada) }} · {{ e.origen }}</span>
+                            <span class="text-[11px] text-tinta-400 ml-2">{{ hace(e.creada) }} · {{ ORIGEN[e.origen] ?? e.origen }}</span>
                         </button>
                         <button v-if="ejecutar && ['en_cola', 'esperando'].includes(e.estado)" type="button" @click="cancelar(e)"
                             class="text-xs px-2.5 py-1 rounded-lg border border-linea text-tinta-500 hover:bg-realce">Cancelar</button>
@@ -83,9 +85,15 @@ const cuando = (iso) => iso ? new Date(iso).toLocaleString('es-CO', { dateStyle:
                     <p v-if="e.estado === 'esperando'" class="text-[11px] text-aviso-violeta mt-1">Sigue el {{ cuando(e.reanudar) }}</p>
                     <p v-if="e.error" class="text-[11px] text-tinta-500 mt-1">{{ e.error }}</p>
 
+                    <div v-if="abierta === e.id && detalle && (detalle.url || detalle.aprobaciones?.length)" class="mt-2 space-y-1">
+                        <a v-if="detalle.url" :href="detalle.url" class="text-xs underline text-tinta-600">Abrir el documento</a>
+                        <p v-for="ap in detalle.aprobaciones" :key="ap.id" class="text-[11px] text-tinta-500">
+                            Aprobación: «{{ ap.pregunta }}» — {{ { pendiente: 'esperando respuesta', aprobada: 'aprobada', rechazada: 'rechazada', vencida: 'venció', cancelada: 'cancelada' }[ap.estado] ?? ap.estado }}<span v-if="ap.por"> por {{ ap.por }}</span>
+                        </p>
+                    </div>
                     <ol v-if="abierta === e.id && detalle" class="mt-2 divide-y divide-separador border border-linea rounded-lg">
                         <li v-for="p in detalle.pasos" :key="p.orden" class="p-2 text-xs">
-                            <span :class="['font-semibold', PASO[p.estado]]">{{ p.orden }}. {{ p.tipo }}</span>
+                            <span :class="['font-semibold', PASO[p.estado]]">{{ p.orden }}. {{ TIPO[p.tipo] ?? p.tipo }}</span>
                             <span class="text-tinta-400"> · {{ p.ms }} ms</span>
                             <p class="text-tinta-500 break-words">{{ p.resumen }}</p>
                         </li>

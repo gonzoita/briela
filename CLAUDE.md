@@ -647,11 +647,14 @@ Lo construido después de la fase 3, que conviene conocer antes de tocar algo ce
   no corre nada: `queue:work --stop-when-empty` desde el scheduler hace de worker. Ver
   `docs/manual/agentes-internos.md`.
 - **Automatizaciones (2.1) son un grafo JSON con acciones acotadas** (`App\Services\Automatizaciones`).
-  Una corrida se crea en un solo sitio (`LanzadorAutomatizaciones`) y guarda su propia copia del grafo.
-  Los permisos de quien la guardó son su techo, al guardar y al correr. Una acción nueva entra por
-  `CatalogoAutomatizaciones`; **nunca** envía a clientes, paga, cambia el estado de una orden ni borra.
-  **Los oyentes de modelo de `EventosAutomatizacion` jamás devuelven `false`**: en Eloquent corta a los
-  demás observers y rompió CRM y reservas de stock. Ver `docs/manual/automatizaciones.md`.
+  Los documentos que pueden mirar (con sus campos, permiso y barrido) viven en UN sitio,
+  `EntidadesAutomatizacion`; eventos y acciones en `CatalogoAutomatizaciones`. Una corrida se crea en un solo
+  sitio (`LanzadorAutomatizaciones`) y guarda su propia copia del grafo. Los permisos de quien la guardó son su
+  techo, al guardar y al correr, incluido **ver** el documento. **Nunca** escribe a clientes, paga, cambia el
+  estado de una OP o remisión ni borra: lo delicado pasa por un paso de **aprobación**. Los datos de
+  colaboradores no van a la IA ni a webhooks. **Los oyentes de `EventosAutomatizacion` escuchan `created` y
+  `updated`, nunca `saved` con `wasRecentlyCreated`, y jamás devuelven `false`** (eso corta a los demás
+  observers: rompió CRM y reservas de stock). Ver `docs/manual/automatizaciones.md`.
 - **Todo gasto de IA se anota en un solo sitio**, `IaService::llamar()` → `ia_consumo` (tokens, no
   dinero: el cobro lo lleva el superadmin). Una llamada nueva a la IA pasa por ahí o no existe.
 

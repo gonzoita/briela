@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Schema;
  *   automatización no cambia lo que ya está esperando. Una espera no deja nada corriendo: queda
  *   `esperando` con su `reanudar_at` y la reanuda el cron.
  * - `automatizacion_pasos`: la caja negra de cada corrida, nodo por nodo.
+ * - `automatizacion_aprobaciones`: un paso que espera a que una persona diga sí o no.
  *
  * Solo agrega.
  */
@@ -43,6 +44,9 @@ return new class extends Migration
                 // Quién la armó: sus permisos son el techo de lo que la automatización puede hacer.
                 $table->foreignId('creado_por')->nullable()->constrained('users')->nullOnDelete();
                 $table->timestamp('ultima_ejecucion_at')->nullable();
+                // La última ventana de horario que ya se atendió («2026-10-14», «2026-10-14-09»): el cron
+                // pasa cada minuto, y un barrido no debe volver a recorrer la base en la misma ventana.
+                $table->string('ultima_ventana', 40)->nullable();
                 $table->timestamps();
                 $table->softDeletes();
 
@@ -62,6 +66,9 @@ return new class extends Migration
                 $table->json('grafo');
                 // Lo que se sabía del documento cuando pasó el evento; se refresca al salir de una espera.
                 $table->json('contexto')->nullable();
+                // Lo que los pasos van produciendo (el texto que redactó la IA, la categoría que eligió).
+                // Va aparte del contexto porque el contexto se vuelve a leer de la base tras una espera.
+                $table->json('variables')->nullable();
                 $table->string('entidad_tipo', 20)->nullable();
                 $table->unsignedBigInteger('entidad_id')->nullable();
                 // Cuántas automatizaciones atrás nació esta (anti-bucles).
@@ -77,6 +84,7 @@ return new class extends Migration
 
                 $table->index(['estado', 'reanudar_at']);
                 $table->index(['automatizacion_id', 'id']);
+                $table->index(['automatizacion_id', 'entidad_tipo', 'entidad_id'], 'automatizacion_ejec_documento');
             });
         }
 
@@ -94,6 +102,27 @@ return new class extends Migration
                 $table->timestamp('created_at')->nullable();
 
                 $table->index(['ejecucion_id', 'orden']);
+            });
+        }
+
+        if (! Schema::hasTable('automatizacion_aprobaciones')) {
+            Schema::create('automatizacion_aprobaciones', function (Blueprint $table) {
+                $table->id();
+                $table->foreignId('ejecucion_id')->constrained('automatizacion_ejecuciones')->cascadeOnDelete();
+                $table->string('nodo_id', 40);
+                $table->string('pregunta', 500);
+                // Los ids de quienes pueden decidir. Decide el primero que conteste.
+                $table->json('destinatarios');
+                // pendiente | aprobada | rechazada | vencida | cancelada
+                $table->string('estado', 10)->default('pendiente');
+                $table->foreignId('decidida_por')->nullable()->constrained('users')->nullOnDelete();
+                $table->timestamp('decidida_at')->nullable();
+                $table->string('nota', 500)->nullable();
+                $table->timestamp('vence_at');
+                $table->timestamps();
+
+                $table->index(['estado', 'vence_at']);
+                $table->unique(['ejecucion_id', 'nodo_id']);
             });
         }
     }

@@ -4,10 +4,14 @@ namespace App\Services\Automatizaciones;
 
 use App\Jobs\EjecutarAutomatizacionJob;
 use App\Models\Automatizacion;
+use App\Models\AutomatizacionAprobacion;
 use App\Models\AutomatizacionEjecucion;
 use App\Models\User;
 use App\Services\NotificacionService;
+use App\Support\VentanaHoraria;
 use Carbon\CarbonInterface;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Cache;
 
 /**
@@ -24,10 +28,12 @@ class LanzadorAutomatizaciones
     /** @param array<string, mixed> $contexto */
     public function desdeEvento(Automatizacion $a, string $evento, array $contexto, int $profundidad): ?AutomatizacionEjecucion
     {
-        // Mismo documento, mismo cambio, mismo minuto = una sola corrida: un guardado que dispara dos
-        // veces el evento (observadores encadenados) no duplica los avisos.
-        $huella = md5(json_encode([$contexto['estado'] ?? null, $contexto['etapa'] ?? null]));
-        $clave  = "ev:{$a->id}:{$evento}:" . ($contexto['_id'] ?? 0) . ":{$huella}:" . now()->format('Y-m-d-H-i');
+        // Mismo documento, mismos datos, mismo minuto = una sola corrida: un guardado que dispara dos
+        // veces el evento (observadores encadenados) no duplica los avisos. Si los datos cambiaron
+        // (el stock volvió a bajar, llegó otro mensaje), es otro hecho y sí corre.
+        // Lo «anterior» no cuenta: es lo que el evento sabe, no un dato del documento.
+        $huella = md5(json_encode(array_filter(EvaluadorCondiciones::publicos($contexto), fn ($k) => ! str_ends_with($k, '_anterior'), ARRAY_FILTER_USE_KEY)));
+        $clave  = "ev:{$a->id}:{$evento}:" . ($contexto['_entidad'] ?? '') . ':' . ($contexto['_id'] ?? 0) . ":{$huella}:" . now()->format('Y-m-d-H-i');
 
         return $this->crear($a, 'evento', $contexto, $evento, null, $profundidad, $clave);
     }
@@ -38,25 +44,124 @@ class LanzadorAutomatizaciones
     }
 
     /**
-     * Las automatizaciones por horario a las que ya les toca. La ventana («auto-4:2026-10-14») es la
-     * clave de idempotencia: dos pasadas del cron dentro de la misma ventana chocan contra el índice
-     * único y la segunda se descarta sola.
+     * Las automatizaciones por horario a las que ya les toca. La ventana («2026-10-14») es la clave de
+     * idempotencia: dos pasadas del cron dentro de la misma ventana chocan contra el índice único y la
+     * segunda se descarta sola. Además la ventana atendida se anota en la automatización, para que un
+     * barrido no vuelva a recorrer la base cada minuto durante las tres horas de su ventana.
      */
     public function programadas(CarbonInterface $ahora): int
     {
         $creadas = 0;
 
         foreach (Automatizacion::where('activa', true)->where('disparador_tipo', 'horario')->get() as $a) {
-            $f = $a->disparador()['config']['frecuencia'] ?? [];
+            $cfg     = $a->disparador()['config'] ?? [];
+            $ventana = VentanaHoraria::actual($cfg['frecuencia'] ?? [], $ahora);
 
-            $ventana = \App\Support\VentanaHoraria::actual($f, $ahora);
+            if ($ventana === null || $a->ultima_ventana === $ventana) {
+                continue;
+            }
 
-            if ($ventana !== null && $this->crear($a, 'horario', [], null, null, 0, "auto-{$a->id}:{$ventana}")) {
+            $a->forceFill(['ultima_ventana' => $ventana])->saveQuietly();
+
+            try {
+                $creadas += filled($cfg['para_cada'] ?? null)
+                    ? $this->barrer($a, (string) $cfg['para_cada'], $ventana)
+                    : ($this->crear($a, 'horario', [], null, null, 0, "auto-{$a->id}:{$ventana}") ? 1 : 0);
+            } catch (\Throwable $e) {
+                // Una automatización rota no frena a las demás del mismo minuto.
+                report($e);
+            }
+        }
+
+        return $creadas;
+    }
+
+    /** Cuántos documentos mira un barrido como máximo: más que eso es una consulta, no una revisión. */
+    public const MAX_DOCUMENTOS_BARRIDO = 2000;
+
+    /**
+     * «Cada mañana, para cada cotización enviada que lleve 5 días sin respuesta…». Recorre los
+     * documentos vivos de la entidad y crea una corrida por cada uno que pase las condiciones del
+     * principio. Esas condiciones se evalúan AQUÍ, antes de crear nada: sin eso, un barrido sobre mil
+     * cotizaciones dejaría mil corridas que se detienen en el primer paso.
+     */
+    public function barrer(Automatizacion $a, string $entidad, string $ventana): int
+    {
+        $consulta = EntidadesAutomatizacion::disponible($entidad) ? EntidadesAutomatizacion::consultaBarrido($entidad) : null;
+
+        if ($consulta === null) {
+            return 0;
+        }
+
+        $filtros = self::condicionesIniciales($a->grafo);
+        $limite  = (int) ($a->max_por_hora ?: 60);
+        $creadas = 0;
+        $vistos  = 0;
+        $globales = CatalogoAutomatizaciones::globales();
+
+        foreach ($consulta->lazyById(200) as $doc) {
+            if (++$vistos > self::MAX_DOCUMENTOS_BARRIDO || $creadas >= $limite) {
+                break;
+            }
+
+            $ctx = EntidadesAutomatizacion::contexto($doc);
+
+            if ($ctx === null || ! collect($filtros)->every(fn ($c) => EvaluadorCondiciones::cumple($c['reglas'] ?? [], $c['combinador'] ?? 'y', $ctx + $globales))) {
+                continue;
+            }
+
+            if ($this->crear($a, 'horario', $ctx, null, null, 0, "barr-{$a->id}:{$ventana}:{$ctx['_entidad']}:{$ctx['_id']}")) {
                 $creadas++;
             }
         }
 
         return $creadas;
+    }
+
+    /**
+     * Las condiciones que van justo después del disparador, una tras otra, mientras no tengan rama
+     * «no»: esas deciden si la corrida tiene sentido, y se pueden mirar antes de crearla.
+     *
+     * @return list<array<string, mixed>>
+     */
+    public static function condicionesIniciales(array $grafo): array
+    {
+        $out  = [];
+        $nodo = GrafoAutomatizacion::siguiente($grafo, (string) GrafoAutomatizacion::primero($grafo));
+
+        while ($nodo !== null && count($out) < 10) {
+            $n = GrafoAutomatizacion::nodo($grafo, $nodo);
+
+            if (($n['tipo'] ?? null) !== 'condicion') {
+                break;
+            }
+
+            $tieneNo = collect($grafo['aristas'] ?? [])->contains(fn ($ar) => ($ar['de'] ?? null) === $nodo && ($ar['rama'] ?? null) === 'no');
+
+            if ($tieneNo) {
+                break;
+            }
+
+            $out[] = $n['config'] ?? [];
+            $nodo  = GrafoAutomatizacion::siguiente($grafo, $nodo, 'si');
+        }
+
+        return $out;
+    }
+
+    /** Cancela lo que una automatización tiene en curso (al pausarla, borrarla o desde el historial). */
+    public static function cancelarEnCurso(Builder|HasMany $ejecuciones, string $motivo): int
+    {
+        $ids = (clone $ejecuciones)->whereIn('estado', AutomatizacionEjecucion::EN_CURSO)->pluck('id');
+
+        if ($ids->isEmpty()) {
+            return 0;
+        }
+
+        AutomatizacionAprobacion::whereIn('ejecucion_id', $ids)->where('estado', 'pendiente')->update(['estado' => 'cancelada']);
+
+        return AutomatizacionEjecucion::whereIn('id', $ids)->whereIn('estado', AutomatizacionEjecucion::EN_CURSO)
+            ->update(['estado' => 'cancelada', 'error' => $motivo, 'terminada_at' => now(), 'reanudar_at' => null]);
     }
 
     /** Las corridas que esperaban y ya les llegó la hora. */
@@ -100,6 +205,16 @@ class LanzadorAutomatizaciones
                 );
             }
 
+            return null;
+        }
+
+        // «No repetir con el mismo documento en N días»: la cotización que se reenvía tres veces no
+        // tiene por qué recibir tres seguimientos.
+        $noRepetir = (int) ($a->disparador()['config']['no_repetir_dias'] ?? 0);
+
+        if ($noRepetir > 0 && isset($contexto['_entidad'], $contexto['_id'])
+            && $a->ejecuciones()->where('entidad_tipo', $contexto['_entidad'])->where('entidad_id', $contexto['_id'])
+                ->where('created_at', '>=', now()->subDays($noRepetir))->where('estado', '!=', 'cancelada')->exists()) {
             return null;
         }
 

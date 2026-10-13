@@ -931,9 +931,15 @@ Route::middleware('auth')->group(function () {
     // Automatizaciones: lo que Briela hace sola cuando pasa algo o a una hora. Una página y su API
     // JSON; el módulo apagado corta los dos prefijos. Cada permiso abre solo lo suyo.
     Route::middleware('permiso:automatizaciones.ver')->get('/automatizaciones', [\App\Http\Controllers\AutomatizacionController::class, 'index'])->name('automatizaciones.index');
+    // Una aprobación la decide la persona a la que se le pidió, tenga o no acceso a la pantalla de
+    // automatizaciones: solo exige sesión, y el controlador comprueba que sea una de las destinatarias.
+    Route::get('/automatizaciones/aprobar/{aprobacion}', [\App\Http\Controllers\AutomatizacionController::class, 'aprobacionPagina'])->whereNumber('aprobacion')->name('automatizaciones.aprobar');
 
     Route::prefix('api/automatizaciones')->name('api.automatizaciones.')->group(function () {
         $c = \App\Http\Controllers\AutomatizacionController::class;
+
+        Route::get('/aprobaciones', [$c, 'aprobaciones'])->name('aprobaciones');
+        Route::post('/aprobaciones/{aprobacion}/decidir', [$c, 'decidir'])->whereNumber('aprobacion')->name('decidir');
 
         Route::middleware('permiso:automatizaciones.ver')->group(function () use ($c) {
             Route::get('/',                          [$c, 'lista'])->name('lista');

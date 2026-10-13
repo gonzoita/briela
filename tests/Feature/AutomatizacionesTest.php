@@ -129,13 +129,14 @@ class AutomatizacionesTest extends TestCase
     {
         $v = fn (array $g) => implode(' | ', GrafoAutomatizacion::validar($g, $this->admin));
 
-        // Condiciones y «responsable» necesitan un evento: sin documento no hay datos.
+        // Sin documento, las condiciones solo miran la hora, el día o lo que dejó la IA; y no hay «responsable».
         $manual = ['id' => 'disparo', 'tipo' => 'disparador', 'config' => ['tipo' => 'manual']];
-        $this->assertStringContainsString('evento', $v($this->cadena($manual, $this->condicion('c', 'estado', 'igual', 'x'))));
+        $this->assertStringContainsString('Sin un documento', $v($this->cadena($manual, $this->condicion('c', 'estado', 'igual', 'x'), $this->avisoAlResponsable())));
+        $this->assertStringNotContainsString('Sin un documento', $v($this->cadena($manual, $this->condicion('c', 'hora', 'mayor', '6'), ['id' => 'a', 'tipo' => 'accion', 'accion' => 'notificar', 'config' => ['destinatario' => 'autor', 'titulo' => 'Hola']])));
         $this->assertStringContainsString('responsable', $v($this->cadena($manual, $this->avisoAlResponsable())));
 
         // Una acción de cotización no cuelga de un lead.
-        $this->assertStringContainsString('cotizacion', $v($this->cadena($this->disparo('lead.nuevo'), ['id' => 'n', 'tipo' => 'accion', 'accion' => 'nota_cotizacion', 'config' => ['texto' => 'x']])));
+        $this->assertStringContainsString('trabaja sobre: cotización', $v($this->cadena($this->disparo('lead.nuevo'), ['id' => 'n', 'tipo' => 'accion', 'accion' => 'nota_cotizacion', 'config' => ['texto' => 'x']])));
 
         // Un campo que el evento no tiene, y una espera de más de 90 días.
         $this->assertStringContainsString('no tiene', $v($this->cadena($this->disparo(), $this->condicion('c', 'color', 'igual', 'x'))));
@@ -476,7 +477,9 @@ class AutomatizacionesTest extends TestCase
         $this->assertNotContains('cotizacion.estado', collect($c['eventos'])->pluck('clave')->all());
         $this->assertContains('lead.nuevo', collect($c['eventos'])->pluck('clave')->all());
         $this->assertSame([], $c['agentes'], 'sin el módulo Equipo de IA no se ofrecen agentes');
-        $this->assertCount(4, $c['plantillas']);
+        $this->assertNotEmpty($c['plantillas']);
+        $this->assertFalse(collect($c['plantillas'])->contains(fn ($p) => in_array('cotizaciones', $p['modulos'], true)), 'no se ofrecen plantillas de módulos apagados');
+        $this->assertNotContains('cotizacion', collect($c['entidades'])->pluck('clave')->all());
     }
 
     public function test_las_plantillas_de_fabrica_son_validas(): void
@@ -491,6 +494,10 @@ class AutomatizacionesTest extends TestCase
             foreach ($g['nodos'] as &$n) {
                 if (($n['accion'] ?? null) === 'ejecutar_agente') {
                     $n['config']['agente_id'] = $agente->id;
+                }
+
+                if (in_array($n['accion'] ?? null, ['asignar_lead', 'asignar_conversacion'], true)) {
+                    $n['config']['usuarios'] = [$this->admin->id];
                 }
             }
 
