@@ -204,6 +204,39 @@ class EquipoIaPantallaTest extends TestCase
         $this->assertNotSame($antes, $this->getJson('/api/equipo-ia/pulso')->json('firma'));
     }
 
+    public function test_el_tablero_trae_las_cifras_del_equipo_y_del_negocio(): void
+    {
+        app(AgentesDeFabrica::class)->sembrar();
+        $a = AgenteInterno::first();
+        $a->update(['activo' => true]);
+        AgenteEjecucion::create(['agente_id' => $a->id, 'estado' => 'corriendo', 'origen' => 'manual']);
+        AgenteEjecucion::create(['agente_id' => $a->id, 'estado' => 'terminada', 'origen' => 'manual', 'prueba' => true]);
+        IaConsumo::create(['fecha' => today(), 'origen' => 'agentes', 'tipo' => 'chat', 'modelo' => 'x', 'tokens_entrada' => 1200, 'tokens_salida' => 300, 'created_at' => now()]);
+
+        $t = $this->getJson('/api/equipo-ia/oficina')->json('tablero');
+
+        $this->assertSame(1, $t['agentes_activos']);
+        $this->assertSame(1, $t['trabajando']);
+        $this->assertSame(1, $t['corridas_hoy'], 'las pruebas en seco no cuentan como corridas');
+        $this->assertSame(1500, $t['tokens_hoy']);
+        $this->assertSame('operativo', $t['estado']);
+        // El administrador ve las órdenes y lo vendido hoy.
+        $this->assertSame(0, $t['ops_en_curso']);
+        $this->assertEquals(0, $t['ventas_hoy']);
+    }
+
+    public function test_sin_permiso_de_ordenes_el_tablero_no_muestra_ventas(): void
+    {
+        $usuario = $this->conPermisos(['equipo_ia.ver']);
+        $this->actingAs($usuario);
+
+        $t = $this->getJson('/api/equipo-ia/oficina')->assertOk()->json('tablero');
+
+        $this->assertNull($t['ventas_hoy'], 'el tablero no puede ser la puerta trasera a las ventas');
+        $this->assertNull($t['ops_en_curso']);
+        $this->assertArrayHasKey('agentes_activos', $t);
+    }
+
     // ─── Crear y configurar ──────────────────────────────────────────────────
 
     public function test_crear_un_agente_recorta_las_herramientas_al_techo_del_cargo(): void

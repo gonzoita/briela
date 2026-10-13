@@ -62,27 +62,54 @@ pruebas en seco siguen funcionando porque no escriben nada.
 ### La oficina en vivo *(13 oct 2026)*
 
 Es la vista con la que abre el Equipo interno (pestaña **En vivo**; la de siempre quedó como
-**Tarjetas**). Cada agente está en su escritorio y el estado se ve en el personaje:
+**Tarjetas**): una oficina en **pixel art isométrico**, como la pantalla de un juego, con el nombre de
+la empresa en la pared (el de Configuración → Marca), la **oficina del director** —el director es
+quien está mirando la pantalla— y un cubículo por agente. El estado decide dónde está cada uno:
 
-| Estado | Cómo se ve |
+| Estado | Dónde y cómo |
 |---|---|
-| Trabajando | Teclea, la pantalla brilla y el globo dice qué hace («Revisando cotizaciones sin respuesta») |
-| Necesita aprobación | Levanta la mano, con un «!» y «¡2 por revisar!» |
-| Con error | Humo sobre el computador y cara de preocupación |
-| Terminó | Sonríe, con un ✓ |
-| Libre | Toma café |
-| Apagado | Dormido, con «Zzz» |
+| Trabajando | En su escritorio, tecleando, con código corriendo en la pantalla y un globo con lo que hace («Revisando cotizaciones sin respuesta») |
+| Libre | En su escritorio, con el café humeando |
+| Necesita aprobación | **Camina hasta la oficina del director** y espera con la mano levantada y un papel: «ESPERANDO APROBACIÓN» |
+| Con error | De pie junto al servidor, que echa humo y parpadea en rojo |
+| Terminó | En la zona de café |
+| Apagado | No está: la silla vacía y el monitor apagado |
 
-Lo que dice el globo **lo arma el servidor** con el último paso de la corrida
+Cuando un agente cambia de estado, **camina** a su nuevo sitio por el piso, sin atravesar
+escritorios ni paredes (búsqueda de camino sobre la cuadrícula).
+
+Debajo de la escena van dos ventanas:
+
+- **Chat**: el director pregunta «¿Cómo vas?» y el agente responde con lo que de verdad está
+  haciendo, las propuestas que dejó, el error o el resumen de lo que terminó. Rota entre los que
+  tienen algo que contar; con un agente elegido, se queda en él. No cuesta IA: se arma con los
+  datos de la oficina.
+- **Tablero de control**: agentes activos, trabajando, propuestas por aprobar, corridas de hoy
+  (sin contar las pruebas), tokens de IA de hoy, **lo vendido hoy** (la suma de las órdenes de
+  producción creadas hoy, en la moneda base), **órdenes en curso** (y las nuevas de hoy) y el estado
+  de la oficina (operativo, en pausa o sin IA). Lo vendido y las órdenes solo aparecen a quien tiene
+  `ops.ver`, y respetan la sede: el tablero no puede ser la puerta trasera a un dato que su pantalla
+  no muestra.
+
+Tocar a un personaje —en la escena o en la lista de abajo— abre su ficha (desde abajo en el
+celular, flotando a la derecha en el computador) con lo que hace ahora, lo último que terminó y los
+botones de siempre: **Editar**, Ejecutar ahora, Probar, Revisar propuestas, Actividad y **Ver paso a
+paso en vivo**. Con **Pantalla completa** el chat y el tablero flotan sobre la escena, para dejarla en
+un televisor.
+
+**Cómo está hecha.** `resources/js/oficina/pixel.js` dibuja todo en código: rectángulos de un píxel
+sobre un lienzo pequeño que después se amplía sin suavizar. No hay imágenes ni librerías de juegos,
+así que pesa casi nada, va igual en cada instalación y el plano se arma solo con un cubículo por
+agente. Los textos se escriben aparte, a la resolución real de la pantalla, y se acomodan para no
+taparse entre sí. Lo que dice el globo **lo arma el servidor** con el último paso de la corrida
 (`CatalogoHerramientas::queHace()`, a partir del catálogo: una herramienta nueva se describe sola).
-Tocar a un agente abre su ficha —al lado en el computador, desde abajo en el celular— con lo que hace
-ahora, lo último que terminó y los botones de siempre: **Editar**, Ejecutar ahora, Probar, Actividad
-y **Ver paso a paso en vivo**. Hay un botón de **pantalla completa** para dejarla en un televisor.
 
-No cuesta consultas de más: usa los mismos datos y el mismo pulso que las tarjetas. El pulso ahora
-incluye el último paso registrado, para que el globo cambie a mitad de una corrida, y mientras alguien
-está trabajando y la vista en vivo está abierta, pregunta cada 4 s en vez de 8. Con «reducir
-movimiento» del sistema la escena se queda quieta.
+**No cuesta consultas de más.** Usa la misma petición y el mismo pulso que las tarjetas; el tablero
+llega en esa misma respuesta. El pulso incluye el último paso registrado, para que el globo cambie a
+mitad de una corrida; con alguien trabajando y la vista abierta pregunta cada 4 s en vez de 8, y el
+tablero se refresca cada 2 minutos. La animación (~12 cuadros por segundo) solo corre con el lienzo a
+la vista y la pestaña abierta; con «reducir movimiento» del sistema la escena se queda quieta y nadie
+camina.
 
 ## Crear o configurar un agente
 

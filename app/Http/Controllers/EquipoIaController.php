@@ -92,7 +92,51 @@ class EquipoIaController extends Controller
             'pausado'   => $this->pausado(),
             'ia_lista'  => $this->ia->configurado(),
             'pendientes' => (int) $agentes->sum('pendientes'),
+            'tablero'   => $this->tablero($agentes),
         ]);
+    }
+
+    /**
+     * Las cifras del tablero de la oficina en vivo.
+     *
+     * Las del equipo salen de lo que ya se calculó para la oficina. Las del negocio —ventas y
+     * órdenes— solo van si quien mira tiene el permiso de esa pantalla, y respetan la sede: el
+     * tablero no puede ser la puerta trasera a un dato que su pantalla no le muestra.
+     *
+     * «Vendido hoy» es la suma de las órdenes de producción creadas hoy: una orden es una venta
+     * confirmada, y la cotización no guarda la hora en que se aprobó.
+     *
+     * @param  \Illuminate\Support\Collection<int, array<string, mixed>>  $agentes
+     * @return array<string, mixed>
+     */
+    private function tablero(\Illuminate\Support\Collection $agentes): array
+    {
+        $hoy = today();
+
+        $tablero = [
+            'agentes_activos' => $agentes->where('activo', true)->count(),
+            'trabajando'      => $agentes->where('estado', 'trabajando')->count(),
+            'por_aprobar'     => (int) $agentes->sum('pendientes'),
+            'corridas_hoy'    => AgenteEjecucion::where('created_at', '>=', $hoy)->where('prueba', false)->count(),
+            'tokens_hoy'      => (int) \App\Models\IaConsumo::where('fecha', $hoy->toDateString())
+                ->sum(\Illuminate\Support\Facades\DB::raw('tokens_entrada + tokens_salida')),
+            'estado'          => $this->pausado() ? 'pausa' : ($this->ia->configurado() ? 'operativo' : 'sin_ia'),
+            'ventas_hoy'      => null,
+            'ops_en_curso'    => null,
+            'ops_nuevas_hoy'  => null,
+        ];
+
+        $usuario = auth()->user();
+
+        if ($usuario?->tienePermiso('ops.ver')) {
+            $ops = fn () => \App\Support\ContextoSede::aplicar(\App\Models\Op::query());
+
+            $tablero['ventas_hoy']     = (float) $ops()->where('created_at', '>=', $hoy)->sum('total');
+            $tablero['ops_nuevas_hoy'] = $ops()->where('created_at', '>=', $hoy)->count();
+            $tablero['ops_en_curso']   = $ops()->whereIn('estado', ['confirmada', 'en_produccion', 'calidad', 'reproceso'])->count();
+        }
+
+        return $tablero;
     }
 
     /**

@@ -15,10 +15,13 @@ Formato: [versionado semántico](https://semver.org/lang/es/).
 ## [Sin publicar]
 
 ### Agregado
-- **La oficina en vivo del Equipo de IA**: cada agente aparece en su escritorio trabajando —teclea,
-  levanta la mano cuando necesita tu aprobación, echa humo si algo falló, duerme si está apagado—, con
-  un globo que dice qué está haciendo en ese momento. Al tocarlo ves su ficha y lo puedes editar,
-  ejecutar, probar o seguir paso a paso. Tiene pantalla completa para dejarla en un televisor.
+- **La oficina en vivo del Equipo de IA**, en pixel art como un juego: el nombre de tu empresa en la
+  pared, la oficina del director y un cubículo por agente. Cada uno trabaja en su escritorio con un
+  globo que dice qué está haciendo; cuando necesita tu aprobación camina hasta la oficina del
+  director y espera con la mano levantada; si algo falla, está junto al servidor que echa humo. Un
+  chat cuenta en qué va cada agente y un tablero muestra agentes activos, propuestas por aprobar,
+  consumo de IA, lo vendido hoy y las órdenes en curso. Al tocar a un agente ves su ficha y lo puedes
+  editar, ejecutar o seguir paso a paso. Tiene pantalla completa para dejarla en un televisor.
 
 ## [2.0.0] — 2026-10-13
 

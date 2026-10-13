@@ -26,7 +26,7 @@ const props = defineProps({
 })
 
 const vista     = ref(props.vistaInicial)
-const oficina   = ref({ agentes: [], pausado: false, ia_lista: true, pendientes: 0 })
+const oficina   = ref({ agentes: [], pausado: false, ia_lista: true, pendientes: 0, tablero: null })
 const cargando  = ref(true)
 const catalogos = ref({ cargos: [], roles: [], herramientas: [], usuarios: [], sedes: [], variables: [] })
 const version   = ref(0)           // sube cuando el pulso detecta un cambio
@@ -35,7 +35,10 @@ const esperando = ref([])          // agentes a los que se les pidió una corrid
 const formulario = ref(null)       // { id } al crear o configurar
 const detalle    = ref(null)       // id de la ejecución que se está mirando
 
+let cargadaEn = 0
+
 async function cargarOficina() {
+    cargadaEn = Date.now()
     const r = await get('/api/equipo-ia/oficina')
     cargando.value = false
     if (r.ok) oficina.value = r.data
@@ -68,6 +71,10 @@ async function pulso() {
     if (firma !== null && r.data.firma !== firma) {
         await cargarOficina()
         version.value++
+    } else if (vista.value === 'vivo' && Date.now() - cargadaEn > 120000) {
+        // Las ventas y las órdenes del tablero cambian sin que cambie ningún agente: con la
+        // oficina en vivo abierta se refrescan cada dos minutos.
+        await cargarOficina()
     }
     firma = r.data.firma
 }
@@ -166,6 +173,7 @@ const pestanas = computed(() => [
                 :ia-lista="oficina.ia_lista" :cargando="cargando" :esperando="esperando"
                 @configurar="a => formulario = { id: a.id }" @nuevo="formulario = { id: null }"
                 @ejecutar="a => lanzar(a, false)" @probar="a => lanzar(a, true)" @actividad="verActividad"
+                :tablero="oficina.tablero"
                 @aprobaciones="vista = 'aprobaciones'" @pausar="pausar" @detalle="id => detalle = id" />
 
             <OficinaAgentes v-else-if="vista === 'oficina'" :agentes="oficina.agentes" :permisos="permisos" :pausado="oficina.pausado"
