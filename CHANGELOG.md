@@ -14,6 +14,8 @@ Formato: [versionado semántico](https://semver.org/lang/es/).
 
 ## [Sin publicar]
 
+## [2.2.0] — 2026-10-13
+
 ### Agregado
 - **El asistente diferencia productos que quedaron con el mismo nombre**: pídele «arregla los nombres
   repetidos de los tiradores» y busca los que se llaman igual, propone un nombre distinto para cada
