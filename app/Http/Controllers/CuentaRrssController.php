@@ -47,6 +47,8 @@ class CuentaRrssController extends Controller
             'usuarios' => \App\Models\User::where('activo', true)
                 ->orderBy('name')->get(['id', 'name']),
             'url_webhook' => url('/webhook/meta'),
+            // Lo que el botón «Conectar con Meta» necesita en el navegador. El secreto no viaja.
+            'meta_login' => \App\Support\ConexionMeta::paraPantalla(),
             // Sin App Secret el webhook rechaza lo que no puede verificar, así que la pantalla
             // tiene que decirlo donde se carga el App Secret y no solo en la de WhatsApp.
             'webhook_listo' => CredencialesRrss::valor('meta', 'secret') !== ''
@@ -118,6 +120,21 @@ class CuentaRrssController extends Controller
         }
 
         return back()->with('success', 'Credenciales guardadas. Ya puedes conectar la cuenta.');
+    }
+
+    /**
+     * Guarda el identificador de la configuración de Embedded Signup.
+     *
+     * Va en su propia ruta y no en `guardarCredenciales`: esa guarda el identificador y la URL de
+     * retorno tal como llegan, así que mandarle solo este campo habría borrado los otros dos.
+     */
+    public function guardarConfigMeta(Request $request)
+    {
+        $datos = $request->validate(['config_id' => 'nullable|string|max:64']);
+
+        \App\Support\ConexionMeta::guardarConfigId($datos['config_id'] ?? '');
+
+        return back()->with('success', 'Configuración de Embedded Signup guardada.');
     }
 
     /**

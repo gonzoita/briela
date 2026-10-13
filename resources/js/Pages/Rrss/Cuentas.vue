@@ -1,6 +1,7 @@
 <script setup>
 import { router } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
+import ConectarMeta from '@/Components/ConectarMeta.vue'
 
 import { ref, reactive } from 'vue'
 
@@ -15,6 +16,7 @@ const props = defineProps({
     // `urlWebhook` no se enlazaba ninguno de los dos, así que el campo del webhook salía vacío
     // y el aviso rojo de «no va a entrar nada» se quedaba puesto para siempre.
     url_webhook:   { type: String, default: '' },
+    meta_login:    { type: Object, default: () => ({ app_id: '', config_id: '', version: 'v21.0', listo: false }) },
     webhook_listo: { type: Boolean, default: false },
 })
 
@@ -160,6 +162,10 @@ function reactivar(c) {
                 </button>
                 <h1 class="text-xl font-semibold text-tinta-900">Cuentas conectadas</h1>
             </div>
+
+            <!-- WhatsApp (Embedded Signup) + Facebook e Instagram, en un solo lugar -->
+            <ConectarMeta :meta="meta_login"
+                :paginas="cuentas.filter(c => ['facebook', 'instagram'].includes(c.red) && c.activa).length" />
 
             <!-- Conectar nuevas -->
             <div class="bg-superficie rounded-2xl border border-linea p-5 mb-4">

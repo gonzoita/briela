@@ -17,7 +17,61 @@ mensajes de forma automática sin violar los términos de WhatsApp.
 > **API**, que se crea en Meta y va asociada a un número que no esté usándose en
 > la app del celular.
 
-## Conectar (se hace una sola vez)
+## Conectar con Embedded Signup y coexistencia *(17 oct 2026)*
+
+Es la forma recomendada: un botón, **Conectar WhatsApp**, en `/configuracion/whatsapp-numeros` (y
+arriba de Redes Sociales → Cuentas). Abre la ventana oficial de Meta, y al terminar el sistema
+hace solo lo que antes eran los tres pasos de abajo: canjea el código por el token, guarda la
+cuenta (WABA), crea el número, **suscribe la aplicación a la cuenta** y registra la dirección del
+webhook en la aplicación. Los tres pasos manuales siguen funcionando para quien ya los tenga.
+
+**Coexistencia.** Marcada por defecto: el número **sigue activo en la app WhatsApp Business del
+celular** y a la vez funciona en Briela. Lo que se escribe desde el teléfono llega a la bandeja
+como un mensaje saliente («eco»), y lo que se responde en Briela sale por el mismo número. Un
+número vinculado así lleva la etiqueta *Coexistencia* en la lista.
+
+- El sistema **no registra** en la API en la nube un número en coexistencia: hacerlo lo sacaría de
+  la app del celular, que es justo lo que se quiere evitar. Un número nuevo sí se registra, con un
+  PIN que se guarda cifrado.
+- **Un eco no abre la ventana de 24 horas**: la abre el mensaje del cliente, como siempre.
+- Según la documentación de Meta, el negocio tiene que **abrir la app WhatsApp Business al menos cada 13 días** o Meta desactiva
+  la coexistencia. Es una regla de Meta, no del sistema.
+- El historial de hasta 180 días y los contactos de la app (`history`, `smb_app_state_sync`) llegan
+  por webhook; hoy **se reconocen y se anotan en el log, pero no se importan**: son miles de
+  mensajes que no caben en un webhook que debe contestar rápido.
+
+### Qué hay que preparar en Meta (una sola vez)
+
+1. En [developers.facebook.com](https://developers.facebook.com), la aplicación de tipo **Empresa**
+   con los productos **WhatsApp** e **Inicio de sesión con Facebook para empresas**.
+2. En *Inicio de sesión con Facebook para empresas → Configuraciones*, **crear una configuración**
+   de variación **WhatsApp Embedded Signup**, con los permisos `whatsapp_business_management` y
+   `whatsapp_business_messaging`. Esta configuración solo lleva los permisos de WhatsApp (no se le agregan los de páginas ni de
+   Instagram): por eso Facebook e Instagram se conectan en un segundo paso, con el botón de siempre.
+3. Copiar el **identificador de la configuración** (Config ID) y pegarlo en el cuadro «Conectar con
+   Meta» de la pantalla. El identificador de la aplicación y su clave secreta ya van en Redes
+   Sociales → Cuentas.
+4. En la aplicación, agregar el dominio de la instalación a **Dominios de la aplicación** y a **URI
+   de redireccionamiento de OAuth válidos**, y activar *Inicio de sesión con el SDK de JavaScript*
+   con el dominio en **Dominios permitidos para el SDK de JavaScript**.
+5. Una instalación local no sirve: Meta tiene que poder llamar al webhook y el SDK exige HTTPS.
+
+Si «se conectó y no llega nada», el botón **Volver a suscribir los webhooks** repite las
+suscripciones de cada página, de la cuenta de WhatsApp y de la aplicación, y dice cuál falló.
+
+### Un solo webhook
+
+`/webhook/meta` entiende los tres objetos de Meta —`whatsapp_business_account`, `page` e
+`instagram`— y reparte cada uno a su procesador. `/webhook/whatsapp` se conserva para las
+instalaciones que ya lo tienen configurado. Los dos comprueban la firma `X-Hub-Signature-256` con
+el mismo código (`App\Support\FirmaMeta`) y están excluidos de CSRF.
+
+> **Corrección del 17 oct 2026.** `/webhook/meta` no estaba excluido de CSRF, así que en
+> producción Meta recibía un 419 y nunca entró un mensaje de Instagram ni de Facebook. Las
+> pruebas no lo vieron porque PHPUnit apaga el CSRF. Si esa instalación se conectó antes de esta
+> versión, basta con actualizar: Meta reintenta y vuelve a entregar.
+
+## Conectar a mano (se hace una sola vez)
 
 En `/configuracion/whatsapp-numeros`, arriba, el bloque **Conexión con
 WhatsApp** dice si está **Conectado** o **Sin conectar**, y muestra una lista de

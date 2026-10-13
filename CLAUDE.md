@@ -631,6 +631,18 @@ Lo construido después de la fase 3, que conviene conocer antes de tocar algo ce
   nombre (`Periodo`). Exportar: `ExportadorInformes` (CSV `;` + BOM + coma decimal + protección
   contra fórmulas) y `EscritorXlsx` (sin librerías; sin `zip` cae al CSV). Una fuente nueva = una
   clase en `MotorInformes::fuentes()`. Las cuatro de siempre siguen en `InformeService`.
+- **Meta entra por un solo webhook y se vincula con un botón** (17 oct 2026). `/webhook/meta` reparte
+  por el `object` del cuerpo —`whatsapp_business_account` a `WhatsAppService`, `page` e `instagram`
+  a sí mismo—; `/webhook/whatsapp` queda como alias. La firma se comprueba en **un solo sitio**
+  (`App\Support\FirmaMeta`) y **los dos webhooks tienen que estar en la lista de CSRF de
+  `bootstrap/app.php`**: PHPUnit apaga el CSRF, así que ninguna prueba de POST avisa si falta (a
+  `/webhook/meta` le faltaba y en producción respondía 419). WhatsApp se vincula con Embedded Signup
+  (`EmbeddedSignupService`, `useMetaSdk.js`, `ConectarMeta.vue`): **un número en coexistencia
+  jamás se registra en la API en la nube** —lo sacaría de la app del celular—, y lo que el
+  navegador diga de `waba_id` se contrasta con `debug_token`. Las suscripciones a los webhooks de
+  páginas, de la cuenta y de la aplicación viven en `SuscripcionesMeta`; la versión de la Graph API
+  que usa lo nuevo, en `ConexionMeta`. **Los permisos de Embedded Signup y los de páginas e
+  Instagram no se pueden pedir en una sola ventana**: son dos autorizaciones, en un solo panel.
 - **Una OP con trabajo hecho no cambia sus ítems** (`Op::itemsBloqueados()`), y el candado está
   en el servidor.
 
@@ -719,8 +731,8 @@ decían lo contrario y estaban equivocadas.
   relaciones entre archivos antes de leer código a mano.
 - Conviene regenerarlo después de cambios que muevan estructura (borrar módulos,
   mover carpetas), porque un grafo desactualizado es peor que no tenerlo.
-- **Generado y al día.** Al 13 oct 2026: **12.090 nodos, 23.399 aristas, 675 comunidades**
-  (con el Equipo de IA). Cada entorno nuevo necesita `pip install graphifyy` una vez (en el
+- **Generado y al día.** Al 17 oct 2026: **12.199 nodos, 24.304 aristas, 655 comunidades**
+  (con el Equipo de IA y la vinculación de Meta). Cada entorno nuevo necesita `pip install graphifyy` una vez (en el
   superadmin el grafo se genera igual, pero no va al repo). Cubre el proyecto completo: 926 archivos de
   código por AST y los 70 documentos por subagentes. Se actualiza con
   `python -m graphify update . --force` y luego `cluster-only .` con

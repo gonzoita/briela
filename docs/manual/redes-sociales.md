@@ -28,6 +28,16 @@ de conversaciones de WhatsApp (ver números en Configuración).
 4. Para LinkedIn y Google, la conexión solo funcionará una vez que la
    plataforma haya aprobado el acceso solicitado (ver siguiente sección).
 
+**Desde el 17 oct 2026 el sistema suscribe cada página a los webhooks al conectarla**
+(`POST /{página}/subscribed_apps`, con `messages`, `messaging_postbacks`, `message_echoes` y
+`feed`), que antes se hacía a mano en el panel de Meta. Para eso se pide además el permiso
+`pages_manage_metadata`: **las cuentas conectadas antes hay que reconectarlas una vez** para
+que lo tengan, o usar «Volver a suscribir los webhooks». Si la suscripción falla, la cuenta queda
+conectada —seguir publicando no depende de recibir— y el motivo aparece en la cuenta.
+
+WhatsApp se vincula con su propio botón (Embedded Signup, con coexistencia) en la misma
+pantalla; ver [WhatsApp](./whatsapp.md).
+
 ## Por qué hay que registrar una aplicación
 
 Ninguna red permite publicar desde otro sistema con solo usuario y contraseña.

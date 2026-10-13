@@ -54,8 +54,13 @@ return Application::configure(basePath: dirname(__DIR__))
             'instalada'           => CerrarInstaladorSiYaEstaInstalada::class,
         ]);
 
+        // Meta llama a los dos webhooks sin sesión ni token CSRF; la firma `X-Hub-Signature-256`
+        // es lo que los autentica (ver App\Support\FirmaMeta). `webhook/meta` faltaba aquí: en
+        // producción su POST respondía 419 y nunca entró un mensaje de Instagram ni de Facebook.
+        // Las pruebas no lo vieron porque PHPUnit apaga el CSRF.
         $middleware->validateCsrfTokens(except: [
             'webhook/whatsapp',
+            'webhook/meta',
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

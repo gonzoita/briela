@@ -45,12 +45,25 @@ Formato: [versionado semántico](https://semver.org/lang/es/).
 - **Consumo**: la IA ahora anota cada llamada (modelo, tokens, quién la hizo). Los agentes tienen un
   **cupo diario aparte del asistente**: uno que se pasa no te deja sin asistente.
 - **Pausar todo** detiene a todos los agentes de inmediato.
+- **Conectar WhatsApp con un botón, sin sacar el número del celular.** La vinculación guiada de
+  Meta deja el número funcionando en Briela **y** en la app WhatsApp Business del teléfono: lo que se
+  escribe desde el celular aparece en la bandeja, y lo que se responde aquí sale por el mismo número.
+  El sistema guarda la cuenta, el número y el permiso, y deja suscritos los avisos de Meta sin pasos
+  manuales.
+- **Facebook e Instagram suscriben solos sus avisos** al conectarse la página, y hay un botón para
+  volver a suscribir todo cuando una conexión «salió bien» pero no llega nada.
+
+### Corregido
+- **Los mensajes y comentarios de Instagram y Facebook no entraban**: la dirección que recibe esos
+  avisos rechazaba a Meta. Ya entran; Meta reintenta lo pendiente.
+- Un aviso de «entregado» que llegaba tarde ya no deshace el «leído» de un mensaje de WhatsApp, y un
+  mensaje que no se pudo entregar dice por qué.
 
 ### Para quien instala
 - Hace falta el cron del servidor (`schedule:run` cada minuto): hace de *worker* de la cola. Sin él
   los agentes no corren.
 - Migraciones nuevas, solo agregan: `ia_consumo`, cargos, agentes, ejecuciones, pasos y
-  propuestas. El módulo queda apagado en toda instalación existente.
+  propuestas, y cuatro columnas nulables en `whatsapp_numeros` (cuenta, coexistencia, PIN y fecha de vinculación). El módulo del Equipo de IA queda apagado en toda instalación existente.
 - El superadmin debe estar en la versión que trae el cupo de agentes
   (`X-Briela-Origen: agentes`); sin ella los agentes comparten el cupo del asistente.
 

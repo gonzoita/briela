@@ -280,6 +280,16 @@ class WhatsAppService
     /**
      * Procesa el payload de un webhook entrante de Meta. Nunca debe lanzar
      * excepción: Meta reintenta el webhook si no recibe 200 rápido.
+     *
+     * **Se reparte por lo que trae el valor, no por el nombre del campo.** Un mismo cuerpo puede
+     * traer mensajes y estados juntos, y los ecos de la coexistencia llegan con el campo
+     * `smb_message_echoes` pero con la forma de siempre (`value.message_echoes`): mirar el
+     * contenido evita una rama por cada nombre que Meta decida darle.
+     *
+     * Lo que la coexistencia trae además —el historial de hasta 180 días (`history`) y la
+     * agenda de contactos (`smb_app_state_sync`)— se reconoce y se deja anotado, no se importa:
+     * son miles de mensajes que no caben en un webhook que debe contestar rápido, y traerlos
+     * bien es un trabajo en cola aparte. Ver `docs/manual/whatsapp.md`.
      */
     public function procesarWebhookEntrante(array $payload): void
     {
@@ -298,6 +308,13 @@ class WhatsAppService
 
                     if (!empty($value['message_echoes'])) {
                         $this->procesarMessageEchoes($value);
+                    }
+
+                    if (in_array($change['field'] ?? '', ['history', 'smb_app_state_sync', 'account_update'], true)) {
+                        Log::info('WhatsApp: evento de la cuenta recibido y no procesado.', [
+                            'campo' => $change['field'],
+                            'evento' => $value['event'] ?? null,
+                        ]);
                     }
                 }
             }
@@ -466,14 +483,36 @@ class WhatsAppService
         );
     }
 
+    /** Meta los manda en este orden; uno que llega tarde no debe deshacer al siguiente. */
+    private const ORDEN_ESTADOS = ['sent' => 1, 'delivered' => 2, 'read' => 3];
+
     private function procesarStatuses(array $statuses): void
     {
         foreach ($statuses as $status) {
             $waMessageId = $status['id'] ?? null;
-            if (!$waMessageId) continue;
+            $nuevo = $status['status'] ?? null;
+            if (!$waMessageId || !$nuevo) continue;
 
-            WhatsappMensaje::where('wa_message_id', $waMessageId)
-                ->update(['estado' => $status['status'] ?? null]);
+            $mensaje = WhatsappMensaje::where('wa_message_id', $waMessageId)->first();
+            if (!$mensaje) continue;
+
+            // Los estados no llegan en orden garantizado: un «delivered» retrasado volvía a
+            // poner como entregado un mensaje que ya se había leído. Un fallo sí siempre gana.
+            $actual = self::ORDEN_ESTADOS[$mensaje->estado] ?? 0;
+            $llega  = self::ORDEN_ESTADOS[$nuevo] ?? 0;
+
+            if ($nuevo !== 'failed' && $llega !== 0 && $llega <= $actual) continue;
+
+            $cambios = ['estado' => $nuevo];
+
+            if ($nuevo === 'failed') {
+                // Sin el motivo, un «failed» en la bandeja no dice qué hacer: lo más común es
+                // el plazo de 24 horas vencido o un número sin WhatsApp.
+                $error = $status['errors'][0] ?? [];
+                $cambios['error'] = mb_substr(trim(($error['title'] ?? '') . ' ' . ($error['message'] ?? '')) ?: 'Meta no pudo entregar el mensaje.', 0, 250);
+            }
+
+            $mensaje->update($cambios);
         }
     }
 

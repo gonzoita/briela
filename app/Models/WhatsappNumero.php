@@ -12,10 +12,18 @@ class WhatsappNumero extends Model
 
     protected $fillable = [
         'nombre', 'numero_telefono', 'phone_number_id', 'rol', 'usuario_id', 'activo',
+        // Los que escribe Embedded Signup. Ver EmbeddedSignupService.
+        'waba_id', 'coexistencia', 'pin_registro', 'vinculado_at',
     ];
+
+    // El PIN de registro nunca viaja a la pantalla.
+    protected $hidden = ['pin_registro'];
 
     protected $casts = [
         'activo' => 'boolean',
+        'coexistencia' => 'boolean',
+        'pin_registro' => 'encrypted',
+        'vinculado_at' => 'datetime',
     ];
 
     public function conversaciones(): HasMany

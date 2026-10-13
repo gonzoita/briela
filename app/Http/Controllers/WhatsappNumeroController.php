@@ -43,6 +43,7 @@ class WhatsappNumeroController extends Controller
                     'variables' => $p->variables,
                     'sincronizada' => $p->sincronizada_at?->diffForHumans(),
                 ]),
+            'meta_login' => \App\Support\ConexionMeta::paraPantalla(),
             'automatizacion' => \App\Services\WhatsappAutomatizacionService::config(),
             'agente'         => \App\Services\IA\AgentePublicoService::config(),
             'etapas'         => \App\Models\CrmEtapa::where('activa', true)
