@@ -429,6 +429,7 @@ tocar **Confirmar**.
 | `aprobar_calidad` | Firma las unidades terminadas (las que exigen foto, desde Calidad) | Órdenes → Calidad |
 | `cambiar_estado_cotizacion` | Enviada, aprobada o rechazada | Cotizaciones → Editar |
 | `mover_lead` / `crear_lead` | Embudo del CRM | CRM → Editar / Crear |
+| `renombrar_productos` | Cambia el nombre de uno o varios productos (hasta 100), por su referencia. No deja un nombre repetido nuevo | Productos → Editar |
 | `configurar_agente` | Enciende, apaga, programa o renombra un agente del Equipo de IA, o le cambia la tarea y las instrucciones | Equipo de IA → Gestionar |
 | `crear_agente` | Un agente interno nuevo, con las herramientas de su cargo; **nace apagado** | Equipo de IA → Gestionar |
 | `ejecutar_agente` | Pone a trabajar ya a un agente encendido | Equipo de IA → Ejecutar |
@@ -446,6 +447,23 @@ Cómo está hecho (`App\Services\IA\TransaccionesIaService`):
   propio, así que lo que hace queda igual que hecho a mano.
 - La guía **no puede más que quien la usa**: cada transacción exige el permiso de su pantalla, y un
   módulo apagado se lleva sus permisos.
+
+### Diferenciar productos que se llaman igual *(13 oct 2026)*
+
+Al cargar un catálogo es fácil que varias variantes queden con el mismo nombre —tres «Tirador pasante
+palanca» que solo se distinguen por el código—. Se le pide a la guía *«arregla los nombres repetidos de
+los tiradores»* y ella:
+
+1. Consulta `productos_nombre_repetido`: los productos activos que se llaman igual (sin importar
+   mayúsculas ni espacios de más), agrupados, con su referencia, categoría, variante y descripciones.
+2. Propone un nombre para cada uno con lo que los diferencia («Tirador pasante palanca plana
+   121-140mm», «… redonda 101-120mm»). Si con lo que hay no se ve la diferencia, **pregunta**.
+3. Muestra la tarjeta con cada cambio, *referencia: «antes» → «después»*, y solo renombra al confirmar.
+
+No deja crear un repetido nuevo: si un nombre propuesto choca con otro de la lista o con un producto que
+se queda como está, se lo devuelve a la guía para que proponga otro. Solo cambia el nombre, queda en la
+auditoría, y si alguien renombró uno entre la propuesta y el clic, no lo hace a ciegas: pide repetirlo.
+Está en `App\Services\IA\TransaccionesProductos`.
 
 ### Configurar a los demás agentes *(13 oct 2026)*
 

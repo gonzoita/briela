@@ -14,6 +14,13 @@ Formato: [versionado semántico](https://semver.org/lang/es/).
 
 ## [Sin publicar]
 
+### Agregado
+- **El asistente diferencia productos que quedaron con el mismo nombre**: pídele «arregla los nombres
+  repetidos de los tiradores» y busca los que se llaman igual, propone un nombre distinto para cada
+  uno según su descripción o variante (por ejemplo «Tirador pasante palanca plana 121-140mm») y los
+  renombra todos juntos cuando confirmas. Si no ve qué los diferencia, te pregunta, y nunca deja un
+  nombre repetido nuevo.
+
 ## [2.1.0] — 2026-10-13
 
 ### Agregado

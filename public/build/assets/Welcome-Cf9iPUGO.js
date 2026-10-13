@@ -1,1 +1,0 @@
-import{D as e,L as t,it as n,z as r}from"./app-CSnW0MYf.js";var i={__name:`Welcome`,setup(i){return t(()=>n.visit(`/dashboard`)),(t,n)=>(r(),e(`div`))}};export{i as default};

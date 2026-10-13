@@ -37,10 +37,11 @@ use Illuminate\Support\Facades\DB;
 class TransaccionesIaService
 {
     use TransaccionesAgentes;
+    use TransaccionesProductos;
 
     public static function catalogo(): array
     {
-        return static::catalogoAgentes() + [
+        return static::catalogoAgentes() + static::catalogoProductos() + [
             'generar_op' => [
                 'descripcion' => 'Genera la orden de producción de una cotización APROBADA.',
                 'parametros'  => ['cotizacion' => 'número de la cotización (obligatorio)', 'fecha_entrega' => 'fecha de entrega AAAA-MM-DD (opcional)'],

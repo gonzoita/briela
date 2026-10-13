@@ -66,7 +66,8 @@ function cancelar() {
             :class="estado === 'hecho' ? 'text-aviso-verde' : estado === 'error' ? 'text-aviso-rojo' : 'text-aviso-azul'">
             {{ estado === 'hecho' ? 'Hecho' : estado === 'error' ? 'No se pudo' : estado === 'cancelada' ? 'Cancelado' : 'Para confirmar' }}
         </p>
-        <p class="text-tinta-800">{{ propuesta.resumen }}</p>
+        <!-- Un cambio en lote trae una línea por documento: se respetan los saltos y se desplaza si es largo -->
+        <p class="text-tinta-800 whitespace-pre-line max-h-64 overflow-y-auto">{{ propuesta.resumen }}</p>
 
         <p v-if="resultado" class="mt-1.5 text-xs" :class="resultado.exito ? 'text-aviso-verde' : 'text-aviso-rojo'">
             {{ resultado.mensaje }}

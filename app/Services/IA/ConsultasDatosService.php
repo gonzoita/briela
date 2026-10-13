@@ -13,6 +13,8 @@ use App\Models\Producto;
 use App\Models\Remision;
 use App\Models\SolicitudCompra;
 use App\Support\ContextoSede;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 /**
  * Consultas que el asistente puede hacer sobre los datos del sistema.
@@ -104,6 +106,14 @@ class ConsultasDatosService
                 'parametros'  => ['texto' => 'nombre o referencia a buscar (obligatorio)'],
                 'permiso'     => 'productos.ver',
             ],
+            'productos_nombre_repetido' => [
+                'descripcion' => 'Los productos activos que comparten el MISMO nombre, agrupados, con su referencia (código), '
+                    .'categoría, variante y descripciones: lo necesario para proponer un nombre que diferencie a cada uno. '
+                    .'Úsala cuando pidan "arregla los nombres repetidos", "diferencia los productos que se llaman igual", '
+                    .'y antes de renombrar_productos.',
+                'parametros'  => ['texto' => 'parte del nombre para limitar la búsqueda, ej. "tirador" (opcional)'],
+                'permiso'     => 'productos.ver',
+            ],
             'comparar_proveedores' => [
                 'descripcion' => 'Compara los proveedores de un producto o insumo: el código con que cada uno lo '
                     .'llama, su precio, cuánto tarda en entregar, el mínimo que exige, qué tan reciente es su '
@@ -173,6 +183,7 @@ class ConsultasDatosService
             'productividad'         => $this->productividad($dias ?: 30),
             'buscar_producto'       => $this->buscarProducto((string) ($parametros['texto'] ?? '')),
             'comparar_proveedores'  => $this->compararProveedores((string) ($parametros['texto'] ?? '')),
+            'productos_nombre_repetido' => $this->productosNombreRepetido((string) ($parametros['texto'] ?? '')),
             'recomendar_producto'   => app(RecomendadorProductosService::class)
                                             ->candidatos((string) ($parametros['necesidad'] ?? '')),
             'estado_op'             => $this->estadoOp((string) ($parametros['numero'] ?? '')),
@@ -537,6 +548,58 @@ class ConsultasDatosService
                 ];
             })->all(),
             'encontrados' => $productos->count(),
+        ];
+    }
+
+    /**
+     * Los productos activos que se llaman igual, agrupados. Se compara sin mayúsculas ni espacios
+     * de más, como lo vería una persona. Va lo que distingue a uno de otro —referencia, variante,
+     * categoría y descripciones— para que la guía proponga nombres; no van costos ni precios.
+     */
+    private function productosNombreRepetido(string $texto): array
+    {
+        // Se agrupa en PHP y no en SQL: juntar espacios de más por dentro del nombre pide
+        // REGEXP_REPLACE, que MySQL 5.7 no tiene, y el hosting del cliente puede ser ese.
+        $clave = fn (string $n) => mb_strtolower(trim(preg_replace('/\s+/u', ' ', $n)));
+
+        $repetidos = Producto::where('activo', true)
+            ->when(trim($texto) !== '', fn ($q) => $q->where('nombre', 'like', '%' . trim($texto) . '%'))
+            ->get(['id', 'nombre'])
+            ->groupBy(fn (Producto $p) => $clave($p->nombre))
+            ->filter(fn ($g) => $g->count() > 1)
+            ->sortByDesc(fn ($g) => $g->count())
+            ->take(40);
+
+        if ($repetidos->isEmpty()) {
+            return ['buscado' => $texto ?: null, 'grupos' => [], 'mensaje' => 'No hay productos activos con el nombre repetido' . ($texto ? " que contengan «{$texto}»" : '') . '.'];
+        }
+
+        $productos = Producto::whereIn('id', $repetidos->flatten()->pluck('id')->take(200)->all())
+            ->with(['categoria:id,nombre', 'padre:id,nombre'])
+            ->orderBy('referencia')->orderBy('id')
+            ->get();
+
+        $grupos = $productos->groupBy(fn (Producto $p) => $clave($p->nombre))
+            ->map(fn ($grupo) => [
+                'nombre'    => $grupo->first()->nombre,
+                'cuantos'   => $grupo->count(),
+                'productos' => $grupo->map(fn (Producto $p) => array_filter([
+                    'id'          => $p->id,
+                    'referencia'  => $p->referencia,
+                    'categoria'   => $p->categoria?->nombre,
+                    'variante_de' => $p->padre?->nombre,
+                    'variante'    => $p->valor_variante ? trim(($p->atributo_variante ? $p->atributo_variante . ': ' : '') . $p->valor_variante) : null,
+                    'unidad'      => $p->unidad_medida,
+                    'descripcion' => Str::limit((string) $p->descripcion_corta, 140) ?: null,
+                    'descripcion_cotizacion' => Str::limit((string) $p->descripcion_cotizacion, 140) ?: null,
+                ], fn ($v) => $v !== null && $v !== ''))->values()->all(),
+            ])->values()->all();
+
+        return [
+            'buscado'          => $texto ?: null,
+            'grupos'           => $grupos,
+            'productos_vistos' => $productos->count(),
+            'nota'             => 'Para renombrar usa renombrar_productos con la referencia de cada uno. Si no se ve qué los diferencia, pregunta.',
         ];
     }
 
