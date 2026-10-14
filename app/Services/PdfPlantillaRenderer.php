@@ -39,7 +39,7 @@ class PdfPlantillaRenderer
     private static function opcionesDe(array $p, array $datos): array
     {
         return array_merge(
-            ['agrupar_secciones' => false, 'mostrar_fotos' => true, 'mostrar_precios' => true],
+            ['agrupar_secciones' => false, 'mostrar_fotos' => true, 'mostrar_precios' => true, 'adjuntar_documentos' => false],
             array_filter($p['opciones'] ?? [], fn ($v) => $v !== null),
             ['secciones' => (int) ($datos['secciones_n'] ?? 0)],
         );
@@ -74,6 +74,13 @@ class PdfPlantillaRenderer
             $render[] = $r['html'];
             foreach ($r['errores'] as $e) $errores[] = ucfirst($slot) . ': ' . $e;
             $desconocidas = [...$desconocidas, ...$r['desconocidas']];
+        }
+
+        // Los planos y fichas técnicas van al final del cuerpo, ya armados: pasarlos por el motor
+        // de plantillas haría que una llave en el nombre de un archivo se leyera como variable.
+        // Una plantilla de código los pone donde quiera con {{!documentos.adjuntos}}.
+        if ($visual && ($opciones['adjuntar_documentos'] ?? false)) {
+            $render[1] .= (string) ($datos['documentos.adjuntos'] ?? '');
         }
 
         return [

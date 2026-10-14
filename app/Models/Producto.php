@@ -32,6 +32,11 @@ class Producto extends Model
         'descripcion_larga',
         // El texto técnico corto: cotizaciones y órdenes de producción.
         'descripcion_cotizacion',
+        // Lo que la tienda en línea muestra además del nombre, y si el precio se publica.
+        'marca',
+        'origen',
+        'caracteristicas',
+        'publicar_precio',
         'inventariable',
         'stock_minimo',
         'stock_maximo',
@@ -73,6 +78,8 @@ class Producto extends Model
         'es_insumo'                  => 'boolean',
         'es_padre'                   => 'boolean',
         'activo'                     => 'boolean',
+        'caracteristicas'            => 'array',
+        'publicar_precio'            => 'boolean',
         'precio_costo'               => 'decimal:2',
         'costo_moneda'               => 'decimal:4',
         'precio_promedio_compra'     => 'decimal:2',
@@ -156,6 +163,20 @@ class Producto extends Model
 
         return $precios->count() < 2 ? 0.0 : round($precios->max() - $precios->min(), 2);
     }
+
+    /**
+     * Los planos y las fichas técnicas del producto: archivos que viajan con él a la tienda y que
+     * el vendedor descarga para mandarle al cliente. Las fotos van aparte, en `imagenes()`.
+     */
+    public function documentos(): \Illuminate\Database\Eloquent\Relations\MorphMany
+    {
+        return $this->morphMany(Archivo::class, 'archivable')
+            ->whereIn('categoria', self::CATEGORIAS_DOCUMENTO)
+            ->orderBy('categoria')->orderBy('id');
+    }
+
+    /** Las dos clases de documento que acepta un producto. */
+    public const CATEGORIAS_DOCUMENTO = ['plano', 'ficha_tecnica'];
 
     public function imagenes(): HasMany
     {

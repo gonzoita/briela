@@ -3,7 +3,7 @@
  * Plugin Name:       Briela Connect
  * Plugin URI:        https://briela.app
  * Description:       Conecta este sitio de WordPress con tu instalación de Briela: leads a CRM con atribución UTM, datos estructurados (schema.org) y reseñas post-entrega. WooCommerce y Elementor son módulos opcionales.
- * Version:           0.1.0
+ * Version:           0.2.0
  * Requires at least: 6.0
  * Requires PHP:      7.4
  * Author:            Briela
@@ -19,7 +19,7 @@ if (! defined('ABSPATH')) {
     exit; // Acceso directo no permitido.
 }
 
-define('BRIELA_CONNECT_VERSION', '0.1.0');
+define('BRIELA_CONNECT_VERSION', '0.2.0');
 define('BRIELA_CONNECT_PATH', plugin_dir_path(__FILE__));
 define('BRIELA_CONNECT_URL', plugin_dir_url(__FILE__));
 

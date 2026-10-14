@@ -5,11 +5,13 @@ namespace Tests\Feature;
 use App\Models\Cliente;
 use App\Models\Cotizacion;
 use App\Models\CotizacionItem;
+use App\Models\Producto;
 use App\Services\PdfPlantillaRenderer;
 use App\Services\PdfVariablesEngine;
 use App\Models\Sede;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 /**
@@ -229,5 +231,53 @@ class CotizacionSeccionesTest extends TestCase
         ]), ['cliente_id' => $mia->cliente_id]));
 
         $this->assertSame('Riel ajeno', $ajena->fresh()->descripcion, 'la línea de la otra cotización queda igual');
+    }
+
+    /** Un producto con un plano en imagen y una ficha técnica en PDF; de la variante cuelga sin documentos propios. */
+    private function productoConDocumentos(): array
+    {
+        Storage::fake('public');
+        // Un PNG de 1×1: lo mínimo que se puede incrustar.
+        Storage::disk('public')->put('productos/1/documentos/plano.png', base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII='));
+        Storage::disk('public')->put('productos/1/documentos/ficha.pdf', '%PDF-1.4');
+
+        $base = ['tipo' => 'producto', 'es_insumo' => false, 'es_vendible' => true, 'unidad_medida' => 'unidad', 'activo' => true];
+        $padre = Producto::create($base + ['nombre' => 'Bisagra con rampa', 'referencia' => 'IC10102', 'es_padre' => true]);
+        $variante = Producto::create($base + ['nombre' => 'Bisagra con rampa', 'referencia' => 'IC10102-45', 'producto_padre_id' => $padre->id, 'valor_variante' => '45 mm']);
+
+        foreach ([['plano', 'plano.png', 'png'], ['ficha_tecnica', 'ficha.pdf', 'pdf']] as [$categoria, $archivo, $ext]) {
+            $padre->documentos()->create(['nombre_original' => "Bisagra {$archivo}", 'nombre_archivo' => $archivo,
+                'ruta' => "productos/1/documentos/{$archivo}", 'tipo_mime' => $ext === 'pdf' ? 'application/pdf' : 'image/png',
+                'extension' => $ext, 'tamano' => 10, 'categoria' => $categoria]);
+        }
+
+        return [$padre, $variante];
+    }
+
+    public function test_los_documentos_de_los_productos_salen_con_la_imagen_incrustada_y_el_pdf_enlazado(): void
+    {
+        [$padre, $variante] = $this->productoConDocumentos();
+
+        // La línea es de la variante, que no tiene documentos: salen los de su producto, una sola vez.
+        $html = PdfVariablesEngine::documentosAdjuntos([(object) ['producto_id' => $variante->id], (object) ['producto_id' => $padre->id]]);
+
+        $this->assertStringContainsString('Planos y fichas técnicas', $html);
+        $this->assertSame(1, substr_count($html, 'IC10102<'), 'el producto aparece una sola vez');
+        $this->assertStringContainsString('data:image/png;base64,', $html, 'el plano en imagen se ve en la hoja');
+        $this->assertStringContainsString('productos/1/documentos/ficha.pdf', $html, 'el PDF queda como enlace');
+    }
+
+    public function test_sin_productos_con_documentos_no_sale_la_seccion(): void
+    {
+        $this->assertSame('', PdfVariablesEngine::documentosAdjuntos([(object) ['producto_id' => null]]));
+    }
+
+    public function test_la_plantilla_adjunta_los_documentos_solo_si_la_opcion_esta_encendida(): void
+    {
+        $items = $this->lineas();
+        $datos = array_merge(['empresa' => [], 'items' => $items, 'documentos.adjuntos' => '<p>PLANO-ADJUNTO</p>'], PdfVariablesEngine::agruparSecciones($items));
+
+        $this->assertStringNotContainsString('PLANO-ADJUNTO', PdfPlantillaRenderer::html($this->plantilla([]), $datos)['html']);
+        $this->assertStringContainsString('PLANO-ADJUNTO', PdfPlantillaRenderer::html($this->plantilla(['adjuntar_documentos' => true]), $datos)['html']);
     }
 }

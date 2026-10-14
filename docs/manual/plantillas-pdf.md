@@ -94,13 +94,14 @@ seguían tal cual** —una plantilla que la empresa editó no se toca—. La fir
 
 ## Opciones del documento *(14 oct 2026)*
 
-Las plantillas de **cotización** muestran siempre, debajo del nombre, tres interruptores:
+Las plantillas de **cotización** muestran siempre, debajo del nombre, cuatro interruptores:
 
 | Opción | Qué hace en el PDF |
 |---|---|
 | Agrupar por sección, con subtotal | Un bloque por sección de la cotización: título, líneas y subtotal |
 | Con foto del producto | Apagado, quita de la tabla las columnas de imagen |
 | Mostrar precios | Apagado, quita las columnas de precio, total, descuento, impuesto y comisión, los subtotales y el bloque de totales |
+| Adjuntar planos y fichas técnicas | Encendido, agrega al final una sección con los documentos de los productos cotizados: los planos en imagen (JPG, PNG) se ven en la hoja; los PDF y los de CAD quedan como enlace |
 
 Se guardan en `pdf_plantillas.opciones`; una plantilla sin opciones guardadas sale como antes. Solo
 aplican al editor **visual**: una plantilla de código decide en su propio HTML qué muestra.
@@ -108,6 +109,11 @@ aplican al editor **visual**: una plantilla de código decide en su propio HTML 
 Por dentro, agrupar no usa bucles anidados: `PdfVariablesEngine::agruparSecciones()` deja por cada
 sección `seccion_N_nombre`, `seccion_N_items` y `seccion_N_subtotal`, y la tabla arma un bucle por
 sección. En una plantilla de código se pueden usar esas mismas variables.
+
+Los documentos los arma `PdfVariablesEngine::documentosAdjuntos()` y quedan en
+`{{!documentos.adjuntos}}`, que una plantilla de código pone donde quiera. Una variante sin
+documentos propios usa los de su producto, y cada producto sale una sola vez. Los PDF adjuntos no se
+pegan dentro del documento —unir PDF exige una librería que la instalación no trae—: van como enlace.
 
 ## Lo que hereda de la marca
 

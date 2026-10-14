@@ -651,10 +651,19 @@ Lo construido después de la fase 3, que conviene conocer antes de tocar algo ce
   en el servidor.
 - **Las líneas de una cotización llevan sección** (`cotizacion_items.seccion`, texto libre) y la
   plantilla PDF decide si agrupa (`pdf_plantillas.opciones`: `agrupar_secciones`, `mostrar_fotos`,
-  `mostrar_precios`). El agrupado lo arma `PdfVariablesEngine::agruparSecciones()` **después** de
+  `mostrar_precios`, `adjuntar_documentos`). El agrupado lo arma `PdfVariablesEngine::agruparSecciones()` **después** de
   convertir la moneda, con un bucle por sección (`seccion_N_items`): el motor de plantillas no anida
   bucles. Y `items.*.id` **tiene que seguir en las reglas** de `CotizacionController`, igual que en
   `OpController`: sin ella cada guardado recreaba las líneas. La línea se busca dentro de su cotización.
+- **Lo que la tienda muestra de un producto** (14 oct 2026): `marca`, `origen`, `caracteristicas`
+  (json de pares) y `publicar_precio`. Apagado, **la cifra no sale** —ni a `/api/wp/catalogo` ni a la
+  ficha pública—: se manda `null` y el sitio muestra «Cotizar». Un formulario con archivos no manda una
+  lista vacía, así que `caracteristicas_enviadas` dice que vino; un guardado sin esas claves no las
+  borra. **Planos y fichas técnicas** son `Archivo` (`categoria` `plano`/`ficha_tecnica`, un ENUM de
+  MySQL: un valor nuevo exige migración con la lista completa) guardados con nombre al azar y extensión
+  de una lista cerrada —`store()` adivina la extensión por el contenido y podía dejar un `.php`—. El
+  **catálogo en PDF sale siempre sin precios** (`CatalogoPdfService`). El plugin
+  (`wordpress-plugin/briela-connect`) publica un producto con variantes como **un** producto variable.
 
 - **El Equipo de IA (2.0) son agentes INTERNOS, y no son `agentes_ia`.** Esos atienden clientes; estos
   leen el negocio con el rol de su cargo y **proponen**. Un agente **nunca escribe**: deja una fila en
@@ -748,7 +757,7 @@ decían lo contrario y estaban equivocadas.
   relaciones entre archivos antes de leer código a mano.
 - Conviene regenerarlo después de cambios que muevan estructura (borrar módulos,
   mover carpetas), porque un grafo desactualizado es peor que no tenerlo.
-- **Generado y al día.** Al 14 oct 2026: **13.027 nodos, 26.546 aristas, 711 comunidades**
+- **Generado y al día.** Al 14 oct 2026: **13.139 nodos, 26.764 aristas, 692 comunidades**
   (con el Equipo de IA, las Automatizaciones y la vinculación de Meta). Cada entorno nuevo necesita `pip install graphifyy` una vez (en el
   superadmin el grafo se genera igual, pero no va al repo). Cubre el proyecto completo: 926 archivos de
   código por AST y los 70 documentos por subagentes. Se actualiza con

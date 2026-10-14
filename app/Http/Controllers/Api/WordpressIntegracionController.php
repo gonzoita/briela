@@ -55,6 +55,15 @@ class WordpressIntegracionController extends Controller
     }
 
     /**
+     * El catálogo publicado en PDF, siempre sin precios: el sitio lo guarda y lo ofrece para
+     * descargar (ver `CatalogoPdfService`). Solo lo publicado, igual que `catalogo()`.
+     */
+    public function catalogoPdf(\App\Services\CatalogoPdfService $catalogo): \Symfony\Component\HttpFoundation\Response
+    {
+        return $catalogo->pdf(soloPublicados: true)->download('catalogo.pdf');
+    }
+
+    /**
      * Crea un CrmLead a partir de un formulario del sitio del cliente, con
      * la atribución UTM capturada por el plugin al aterrizar.
      */

@@ -19,10 +19,15 @@ if (! defined('ABSPATH')) {
  * deja el sitio mintiendo para siempre y nadie se entera. Comparar contra la lista
  * completa se autocorrige en la siguiente pasada.
  *
- * **Qué se publica.** Una ficha por unidad que de verdad se vende: un producto simple es
- * una ficha; un producto con variantes son sus variantes, porque lo que alguien compra es
- * «lámina 40 mm», no «lámina». Un ensamble es una ficha más, con su precio marcado como
- * «desde»: el final depende de las medidas.
+ * **Qué se publica.** Una ficha por producto. Un producto con variantes es UNA ficha y el
+ * cliente elige la variante dentro de ella —en WooCommerce, un producto variable con sus
+ * variaciones—: veinte fichas casi iguales, una por medida, llenan la tienda de repetidos y
+ * reparten el posicionamiento entre todas. Un ensamble es una ficha más, con su precio
+ * marcado como «desde»: el final depende de las medidas.
+ *
+ * **Lo que es del ERP se reescribe en cada pasada**: precio, existencias, variantes, marca,
+ * origen, características y documentos (planos, fichas técnicas). Son datos del producto,
+ * no redacción del sitio.
  *
  * **Lo que se deja de publicar no se borra.** Pasa a borrador. Borrar la entrada tira a la
  * basura el posicionamiento que ganó y cualquier texto que el sitio le haya escrito, y
@@ -36,8 +41,8 @@ class Catalogo
     /** Tipo de contenido propio, para sitios sin tienda. */
     public const CPT = 'briela_producto';
 
-    private const META_TIPO   = '_briela_tipo';
-    private const META_ID     = '_briela_id';
+    public const META_TIPO    = '_briela_tipo';
+    public const META_ID      = '_briela_id';
     private const META_DESDE  = '_briela_precio_desde';
     private const META_FICHA  = '_briela_url_ficha';
 
@@ -47,8 +52,22 @@ class Catalogo
     private const META_PRECIO = '_briela_precio';
     private const META_STOCK  = '_briela_stock';
 
+    // Los datos de la ficha que manda el ERP, guardados tal cual para mostrarlos con o sin tienda.
+    private const META_MARCA           = '_briela_marca';
+    private const META_ORIGEN          = '_briela_origen';
+    private const META_CARACTERISTICAS = '_briela_caracteristicas';
+    private const META_DOCUMENTOS      = '_briela_documentos';
+    private const META_VARIANTES       = '_briela_variantes';
+    private const META_ATRIBUTO        = '_briela_atributo_variante';
+
     private const OPT_ULTIMA  = 'briela_connect_ultima_sincronizacion';
     private const OPT_RESUMEN = 'briela_connect_ultimo_resumen';
+
+    private const OPT_PDF_HUELLA = 'briela_connect_catalogo_pdf_huella';
+    private const OPT_PDF_FECHA  = 'briela_connect_catalogo_pdf_fecha';
+
+    /** Cada cuánto se vuelve a pedir el PDF aunque nada haya cambiado: una foto nueva no mueve la huella. */
+    private const PDF_VIGENCIA = 7 * DAY_IN_SECONDS;
 
     public static function registrar(): void
     {
@@ -57,6 +76,8 @@ class Catalogo
         add_action('rest_api_init', [self::class, 'registrar_ruta']);
         add_action('admin_post_briela_connect_sincronizar', [self::class, 'sincronizar_desde_admin']);
         add_shortcode('briela_producto', [self::class, 'shortcode']);
+        add_shortcode('briela_catalogo_pdf', [self::class, 'shortcode_catalogo_pdf']);
+        add_filter('the_content', [self::class, 'contenido_de_ficha']);
 
         // Cada hora es suficiente para un catálogo: los cambios de verdad llegan por el
         // aviso del ERP, y esto es la red de seguridad para cuando ese aviso no llega.
@@ -154,20 +175,22 @@ class Catalogo
         $vistas        = [];
 
         foreach ($items as $item) {
-            foreach (self::unidades_vendibles($item) as $unidad) {
-                $resultado = self::guardar_ficha($unidad);
+            $resultado = self::guardar_ficha($item);
 
-                if ($resultado === 'creada') {
-                    $creadas++;
-                } elseif ($resultado === 'actualizada') {
-                    $actualizadas++;
-                }
-
-                $vistas[] = $unidad['tipo'] . ':' . $unidad['id'];
+            if ($resultado === 'creada') {
+                $creadas++;
+            } elseif ($resultado === 'actualizada') {
+                $actualizadas++;
             }
+
+            $vistas[] = $item['tipo'] . ':' . $item['id'];
         }
 
+        // Las fichas sueltas por variante que publicaban las versiones anteriores no vienen en
+        // esta lista: pasan solas a borrador y su lugar lo toma la ficha del producto.
         $retiradas = self::pasar_a_borrador_las_que_ya_no_estan($vistas);
+
+        self::actualizar_catalogo_pdf($items);
 
         $resumen = sprintf(
             '%d ficha(s) nueva(s), %d actualizada(s), %d pasada(s) a borrador.',
@@ -183,41 +206,7 @@ class Catalogo
     }
 
     /**
-     * De un ítem del ERP a las fichas que hay que crear en el sitio.
-     *
-     * Un producto con variantes no se publica él mismo: no tiene existencias propias ni
-     * precio propio, y lo que un cliente compra es una variante concreta. Se publica una
-     * ficha por variante, con el nombre completo que ya trae el ERP.
-     *
-     * @return array<int, array<string, mixed>>
-     */
-    private static function unidades_vendibles(array $item): array
-    {
-        $variantes = $item['variantes'] ?? [];
-
-        if (empty($variantes)) {
-            return [$item];
-        }
-
-        $unidades = [];
-
-        foreach ($variantes as $variante) {
-            $unidades[] = array_merge($item, [
-                'tipo'       => 'variante',
-                'id'         => $variante['id'],
-                'nombre'     => $variante['nombre'],
-                'referencia' => $variante['referencia'] ?: ($item['referencia'] . '-' . $variante['id']),
-                'precio'     => $variante['precio'],
-                'stock'      => $variante['stock'],
-                'variantes'  => [],
-            ]);
-        }
-
-        return $unidades;
-    }
-
-    /**
-     * Crea o actualiza una ficha.
+     * Crea o actualiza la ficha de un producto o ensamble.
      *
      * @return 'creada'|'actualizada'|'sin_cambios'
      */
@@ -227,53 +216,194 @@ class Catalogo
         $con_tienda = self::hay_tienda();
 
         if ($existente) {
-            // Lo único que Briela reescribe siempre: precio, existencias y referencia. El
-            // texto y las fotos quedan como los tenga el sitio.
-            if ($con_tienda) {
-                Integrations\WooCommerce::actualizar_precio_y_stock($existente, $unidad);
-            }
-
-            self::guardar_precio_y_stock($existente, $unidad);
-            update_post_meta($existente, self::META_DESDE, ! empty($unidad['precio_es_desde']) ? '1' : '0');
-            update_post_meta($existente, self::META_FICHA, (string) ($unidad['url_ficha'] ?? ''));
+            $id_post   = $existente;
+            $resultado = 'actualizada';
 
             // Volver a publicar lo que estaba en borrador: si se retiró y se volvió a
             // marcar en el ERP, el sitio tiene que reflejarlo sin intervención.
             if (get_post_status($existente) !== 'publish') {
                 wp_update_post(['ID' => $existente, 'post_status' => 'publish']);
             }
+        } else {
+            $datos = [
+                'post_title'   => $unidad['nombre'],
+                'post_content' => (string) ($unidad['descripcion_larga'] ?? ''),
+                'post_excerpt' => (string) ($unidad['descripcion_corta'] ?? ''),
+                'post_status'  => 'publish',
+                'post_type'    => $con_tienda ? 'product' : self::CPT,
+            ];
 
-            return 'actualizada';
+            $id_post = wp_insert_post($datos, true);
+
+            if (is_wp_error($id_post) || ! $id_post) {
+                return 'sin_cambios';
+            }
+
+            $resultado = 'creada';
+            update_post_meta($id_post, self::META_TIPO, $unidad['tipo']);
+            update_post_meta($id_post, self::META_ID, (int) $unidad['id']);
         }
 
-        $datos = [
-            'post_title'   => $unidad['nombre'],
-            'post_content' => (string) ($unidad['descripcion_larga'] ?? ''),
-            'post_excerpt' => (string) ($unidad['descripcion_corta'] ?? ''),
-            'post_status'  => 'publish',
-            'post_type'    => $con_tienda ? 'product' : self::CPT,
-        ];
-
-        $id_post = wp_insert_post($datos, true);
-
-        if (is_wp_error($id_post) || ! $id_post) {
-            return 'sin_cambios';
-        }
-
-        update_post_meta($id_post, self::META_TIPO, $unidad['tipo']);
-        update_post_meta($id_post, self::META_ID, (int) $unidad['id']);
+        // El texto y las fotos solo se escriben al crear (después son del sitio); lo que sigue
+        // es del ERP y se reescribe en cada pasada.
         update_post_meta($id_post, self::META_DESDE, ! empty($unidad['precio_es_desde']) ? '1' : '0');
         update_post_meta($id_post, self::META_FICHA, (string) ($unidad['url_ficha'] ?? ''));
         self::guardar_precio_y_stock($id_post, $unidad);
+        self::guardar_datos_de_ficha($id_post, $unidad);
 
         if ($con_tienda) {
-            Integrations\WooCommerce::preparar_producto_nuevo($id_post, $unidad);
+            if ($resultado === 'creada') {
+                Integrations\WooCommerce::preparar_producto_nuevo($id_post, $unidad);
+            }
+
+            Integrations\WooCommerce::sincronizar_producto($id_post, $unidad);
         }
 
-        self::traer_imagenes($id_post, $unidad['imagenes'] ?? []);
-        self::asignar_categoria($id_post, $unidad['categoria'] ?? null, $con_tienda);
+        if ($resultado === 'creada') {
+            self::traer_imagenes($id_post, $unidad['imagenes'] ?? []);
+            self::asignar_categoria($id_post, $unidad['categoria'] ?? null, $con_tienda);
+        }
 
-        return 'creada';
+        return $resultado;
+    }
+
+    /**
+     * Marca, origen, características, documentos y variantes, como meta propia.
+     *
+     * Con tienda, WooCommerce los muestra como atributos y una pestaña; sin tienda, la ficha
+     * los agrega debajo del texto (`contenido_de_ficha`). Guardarlos aquí sirve a los dos.
+     */
+    private static function guardar_datos_de_ficha(int $id_post, array $unidad): void
+    {
+        update_post_meta($id_post, self::META_MARCA, (string) ($unidad['marca'] ?? ''));
+        update_post_meta($id_post, self::META_ORIGEN, (string) ($unidad['origen'] ?? ''));
+        update_post_meta($id_post, self::META_CARACTERISTICAS, self::caracteristicas_limpias($unidad['caracteristicas'] ?? []));
+        update_post_meta($id_post, self::META_DOCUMENTOS, self::documentos_limpios($unidad['documentos'] ?? []));
+        update_post_meta($id_post, self::META_ATRIBUTO, (string) ($unidad['atributo_variante'] ?? ''));
+        update_post_meta($id_post, self::META_VARIANTES, array_map(function ($v) {
+            return [
+                'id'         => (int) ($v['id'] ?? 0),
+                'valor'      => (string) ($v['valor'] ?? ''),
+                'nombre'     => (string) ($v['nombre'] ?? ''),
+                'referencia' => (string) ($v['referencia'] ?? ''),
+                'precio'     => isset($v['precio']) && (float) $v['precio'] > 0 ? (float) $v['precio'] : null,
+            ];
+        }, is_array($unidad['variantes'] ?? null) ? $unidad['variantes'] : []));
+    }
+
+    /** @return array<int, array{nombre: string, valor: string}> */
+    public static function caracteristicas_limpias($lista): array
+    {
+        $limpias = [];
+
+        foreach (is_array($lista) ? $lista : [] as $c) {
+            $nombre = trim((string) ($c['nombre'] ?? ''));
+
+            if ($nombre !== '') {
+                $limpias[] = ['nombre' => $nombre, 'valor' => trim((string) ($c['valor'] ?? ''))];
+            }
+        }
+
+        return $limpias;
+    }
+
+    /**
+     * Solo enlaces http(s): la URL viene del ERP y termina en un `href` del sitio.
+     *
+     * @return array<int, array{tipo: string, nombre: string, url: string}>
+     */
+    private static function documentos_limpios($lista): array
+    {
+        $limpios = [];
+
+        foreach (is_array($lista) ? $lista : [] as $d) {
+            $url = esc_url_raw((string) ($d['url'] ?? ''), ['http', 'https']);
+
+            if ($url !== '') {
+                $limpios[] = [
+                    'tipo'   => (string) ($d['tipo'] ?? ''),
+                    'nombre' => (string) ($d['nombre'] ?? 'Documento'),
+                    'url'    => $url,
+                ];
+            }
+        }
+
+        return $limpios;
+    }
+
+    /** @return array<int, array{tipo: string, nombre: string, url: string}> */
+    public static function documentos(int $id_post): array
+    {
+        $docs = get_post_meta($id_post, self::META_DOCUMENTOS, true);
+
+        return is_array($docs) ? $docs : [];
+    }
+
+    /** La lista de planos y fichas técnicas, lista para pintar. */
+    public static function html_documentos(array $documentos): string
+    {
+        if (! $documentos) {
+            return '';
+        }
+
+        $html = '<ul class="briela-documentos">';
+
+        foreach ($documentos as $doc) {
+            $etiqueta = $doc['tipo'] === 'plano' ? 'Plano' : ($doc['tipo'] === 'ficha_tecnica' ? 'Ficha técnica' : 'Documento');
+            $html .= '<li><span class="briela-documento-tipo">' . esc_html($etiqueta) . ':</span> '
+                . '<a href="' . esc_url($doc['url']) . '" target="_blank" rel="noopener">' . esc_html($doc['nombre']) . '</a></li>';
+        }
+
+        return $html . '</ul>';
+    }
+
+    /**
+     * Sin tienda, la ficha muestra debajo de su texto lo que con WooCommerce serían atributos,
+     * variaciones y la pestaña de documentos. Solo en la ficha abierta, no en los listados.
+     */
+    public static function contenido_de_ficha($contenido)
+    {
+        if (! is_singular(self::CPT) || ! in_the_loop() || ! is_main_query()) {
+            return $contenido;
+        }
+
+        $id_post = (int) get_the_ID();
+        $html    = '';
+
+        $filas = [];
+        foreach (['Marca' => self::META_MARCA, 'Origen' => self::META_ORIGEN] as $nombre => $meta) {
+            $valor = (string) get_post_meta($id_post, $meta, true);
+            if ($valor !== '') {
+                $filas[] = [$nombre, $valor];
+            }
+        }
+        $caracteristicas = get_post_meta($id_post, self::META_CARACTERISTICAS, true);
+        foreach (is_array($caracteristicas) ? $caracteristicas : [] as $c) {
+            $filas[] = [$c['nombre'], $c['valor']];
+        }
+
+        if ($filas) {
+            $html .= '<table class="briela-caracteristicas"><tbody>';
+            foreach ($filas as [$nombre, $valor]) {
+                $html .= '<tr><th>' . esc_html($nombre) . '</th><td>' . esc_html($valor) . '</td></tr>';
+            }
+            $html .= '</tbody></table>';
+        }
+
+        $variantes = get_post_meta($id_post, self::META_VARIANTES, true);
+        if (is_array($variantes) && $variantes) {
+            $atributo = (string) get_post_meta($id_post, self::META_ATRIBUTO, true) ?: 'Opción';
+            $html .= '<table class="briela-variantes"><thead><tr><th>' . esc_html($atributo) . '</th><th>Referencia</th><th>Precio</th></tr></thead><tbody>';
+            foreach ($variantes as $v) {
+                $precio = $v['precio'] !== null ? esc_html(number_format((float) $v['precio'], 0, ',', '.')) : 'Cotizar';
+                $html .= '<tr><td>' . esc_html($v['valor'] ?: $v['nombre']) . '</td><td>' . esc_html($v['referencia']) . '</td><td>' . $precio . '</td></tr>';
+            }
+            $html .= '</tbody></table>';
+        }
+
+        $html .= self::html_documentos(self::documentos($id_post));
+
+        return $contenido . $html;
     }
 
     /**
@@ -285,6 +415,16 @@ class Catalogo
     private static function guardar_precio_y_stock(int $id_post, array $unidad): void
     {
         $precio = $unidad['precio'] ?? null;
+
+        // Un producto con variantes no tiene precio propio: la ficha muestra el menor de ellas.
+        if (! empty($unidad['variantes'])) {
+            $precios = array_filter(array_map(function ($v) {
+                return isset($v['precio']) ? (float) $v['precio'] : 0.0;
+            }, $unidad['variantes']), function ($p) {
+                return $p > 0;
+            });
+            $precio = $precios ? min($precios) : null;
+        }
 
         update_post_meta($id_post, self::META_PRECIO, $precio !== null && (float) $precio > 0 ? (float) $precio : '');
         update_post_meta($id_post, self::META_STOCK, empty($unidad['gestiona_stock']) ? '' : (float) ($unidad['stock'] ?? 0));
@@ -396,6 +536,80 @@ class Catalogo
         }
 
         wp_set_object_terms($id_post, $categoria, $taxonomia, false);
+    }
+
+    /**
+     * Baja el catálogo en PDF del ERP —siempre sin precios— a la carpeta de subidas.
+     *
+     * Solo cuando el catálogo cambió (la huella mira qué hay y cuándo se editó, no precios ni
+     * existencias, que el PDF no lleva) o cuando la copia tiene más de una semana: armar el PDF
+     * con todas las fotos le cuesta al ERP, y la sincronización corre cada hora. Si la descarga
+     * falla se queda el PDF anterior: uno de ayer sirve más que un enlace roto.
+     */
+    private static function actualizar_catalogo_pdf(array $items): void
+    {
+        $huella = md5((string) wp_json_encode(array_map(function ($item) {
+            return [
+                $item['tipo'] ?? '', $item['id'] ?? 0, $item['nombre'] ?? '', $item['actualizado_at'] ?? '',
+                array_column(is_array($item['variantes'] ?? null) ? $item['variantes'] : [], 'id'),
+            ];
+        }, $items)));
+
+        $ruta   = self::ruta_catalogo_pdf();
+        $fecha  = (int) get_option(self::OPT_PDF_FECHA, 0);
+        $vigente = is_file($ruta) && get_option(self::OPT_PDF_HUELLA) === $huella && (time() - $fecha) < self::PDF_VIGENCIA;
+
+        if ($vigente) {
+            return;
+        }
+
+        $respuesta = ApiClient::descargar('catalogo/pdf');
+
+        // Un PDF empieza por «%PDF»: lo demás es una página de error que no se publica.
+        if (! $respuesta['ok'] || strncmp($respuesta['cuerpo'], '%PDF', 4) !== 0) {
+            return;
+        }
+
+        if (! wp_mkdir_p(dirname($ruta)) || file_put_contents($ruta, $respuesta['cuerpo']) === false) {
+            return; // Sin permiso de escritura en las subidas: el catálogo sigue, sin PDF.
+        }
+
+        update_option(self::OPT_PDF_HUELLA, $huella);
+        update_option(self::OPT_PDF_FECHA, time());
+    }
+
+    private static function ruta_catalogo_pdf(): string
+    {
+        return trailingslashit(wp_upload_dir()['basedir']) . 'briela-connect/catalogo.pdf';
+    }
+
+    /** La dirección pública del PDF, o vacío si todavía no se ha bajado. */
+    public static function url_catalogo_pdf(): string
+    {
+        $ruta = self::ruta_catalogo_pdf();
+
+        if (! is_file($ruta)) {
+            return '';
+        }
+
+        // La versión en la dirección evita que el navegador o un caché sirvan el de la semana pasada.
+        return trailingslashit(wp_upload_dir()['baseurl']) . 'briela-connect/catalogo.pdf?v=' . filemtime($ruta);
+    }
+
+    /**
+     * `[briela_catalogo_pdf texto="Descargar catálogo"]` — el botón de descarga del catálogo,
+     * que sale siempre sin precios. No pinta nada mientras el PDF no exista.
+     */
+    public static function shortcode_catalogo_pdf($atributos): string
+    {
+        $atributos = shortcode_atts(['texto' => 'Descargar catálogo (PDF)'], is_array($atributos) ? $atributos : []);
+        $url       = self::url_catalogo_pdf();
+
+        if ($url === '') {
+            return '';
+        }
+
+        return '<a class="briela-catalogo-pdf button" href="' . esc_url($url) . '" download>' . esc_html($atributos['texto']) . '</a>';
     }
 
     public static function hay_tienda(): bool

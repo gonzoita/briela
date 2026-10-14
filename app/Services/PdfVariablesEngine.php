@@ -101,6 +101,9 @@ class PdfVariablesEngine
 
                 // Después de convertir la moneda: los subtotales de cada sección salen en la misma moneda que las líneas.
                 $datos = array_merge($datos, static::agruparSecciones($datos['items']));
+
+                // Planos y fichas técnicas de los productos cotizados (opción de la plantilla).
+                $datos['documentos.adjuntos'] = static::documentosAdjuntos($registro->items);
                 break;
 
             case 'op':
@@ -280,6 +283,74 @@ class PdfVariablesEngine
         }
 
         return $resultado;
+    }
+
+    /** Lo que se incrusta como imagen; el resto (PDF, DWG, DXF) va como enlace. */
+    private const DOC_IMAGEN = ['jpg' => 'image/jpeg', 'jpeg' => 'image/jpeg', 'png' => 'image/png'];
+
+    /** Más pesada que esto, una imagen se enlaza en vez de incrustarse: dompdf la carga entera en memoria. */
+    private const DOC_IMAGEN_MAX = 3 * 1024 * 1024;
+
+    /**
+     * Los planos y fichas técnicas de los productos de las líneas, como una sección al final del
+     * documento: los de imagen se ven en la hoja, los demás quedan como enlace para descargarlos.
+     *
+     * No se pegan los PDF adjuntos dentro del documento: unir PDF exige una librería que la
+     * instalación del cliente no trae, y el enlace abre el archivo tal cual lo subieron. Una
+     * variante sin documentos propios usa los de su producto.
+     */
+    public static function documentosAdjuntos(iterable $items): string
+    {
+        $ids = collect($items)->pluck('producto_id')->filter()->unique()->values();
+        if ($ids->isEmpty()) {
+            return '';
+        }
+
+        $productos = \App\Models\Producto::with(['documentos', 'padre.documentos'])->whereIn('id', $ids)->get();
+
+        $bloques = '';
+        $vistos  = [];
+        foreach ($ids as $id) {
+            $producto = $productos->firstWhere('id', $id);
+            if (! $producto) {
+                continue;
+            }
+
+            $dueno = $producto->documentos->isEmpty() && $producto->padre ? $producto->padre : $producto;
+            if ($dueno->documentos->isEmpty() || isset($vistos[$dueno->id])) {
+                continue;
+            }
+            $vistos[$dueno->id] = true;
+
+            $bloques .= '<div style="margin-top:14px;"><p style="font-size:11px;font-weight:bold;margin:0 0 6px;">'
+                . e($dueno->nombre) . ($dueno->referencia ? ' <span style="color:#666;font-weight:normal;">· ' . e($dueno->referencia) . '</span>' : '')
+                . '</p>';
+
+            foreach ($dueno->documentos as $doc) {
+                $tipo = $doc->categoria === 'plano' ? 'Plano' : 'Ficha técnica';
+                $ext  = strtolower((string) $doc->extension);
+                $ruta = \Illuminate\Support\Facades\Storage::disk('public')->path($doc->ruta);
+
+                if (isset(static::DOC_IMAGEN[$ext]) && is_file($ruta) && filesize($ruta) <= static::DOC_IMAGEN_MAX) {
+                    $src = 'data:' . static::DOC_IMAGEN[$ext] . ';base64,' . base64_encode((string) file_get_contents($ruta));
+                    $bloques .= '<div style="page-break-inside:avoid;margin:6px 0 10px;">'
+                        . '<p style="font-size:9px;color:#555;margin:0 0 4px;">' . $tipo . ': ' . e($doc->nombre_original) . '</p>'
+                        . '<img src="' . $src . '" style="max-width:100%;max-height:640px;" /></div>';
+                } else {
+                    $bloques .= '<p style="font-size:9px;margin:2px 0;">' . $tipo . ': '
+                        . '<a href="' . e($doc->url) . '" style="color:#1d4ed8;">' . e($doc->nombre_original) . '</a></p>';
+                }
+            }
+
+            $bloques .= '</div>';
+        }
+
+        if ($bloques === '') {
+            return '';
+        }
+
+        return '<div style="page-break-before:always;"><p style="font-size:13px;font-weight:bold;margin:0 0 4px;">Planos y fichas técnicas</p>'
+            . $bloques . '</div>';
     }
 
     private static function aplanarModeloSimple(object $modelo): array
@@ -563,6 +634,7 @@ class PdfVariablesEngine
                 ['var' => '{{vendedor.nombre}}',           'desc' => 'Nombre del vendedor',          'grupo' => 'Vendedor'],
                 ['var' => '{{vendedor.email}}',            'desc' => 'Email del vendedor',           'grupo' => 'Vendedor'],
                 ['var' => '{{!vendedor.firma}}',           'desc' => 'Firma del vendedor (imagen de su perfil)', 'grupo' => 'Vendedor'],
+                ['var' => '{{!documentos.adjuntos}}',      'desc' => 'Planos y fichas técnicas de los productos cotizados', 'grupo' => 'Productos'],
                 ['var' => '{{empresa.nombre}}',            'desc' => 'Nombre de la empresa',         'grupo' => 'Empresa'],
                 ['var' => '{{empresa.nit}}',               'desc' => 'NIT de la empresa',            'grupo' => 'Empresa'],
                 ['var' => '{{empresa.ciudad}}',            'desc' => 'Ciudad de la empresa',         'grupo' => 'Empresa'],

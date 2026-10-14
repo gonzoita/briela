@@ -84,6 +84,45 @@ class ApiClient
     }
 
     /**
+     * Descarga un archivo del ERP —hoy, el catálogo en PDF— y devuelve el cuerpo tal cual.
+     *
+     * Aparte de `get()` porque ese decodifica JSON, y un PDF no lo es. El tiempo de espera es
+     * largo: el ERP arma el PDF en el momento, con las fotos de todo lo publicado.
+     *
+     * @return array{ok: bool, cuerpo: string, mensaje: string}
+     */
+    public static function descargar(string $ruta, int $timeout = 90): array
+    {
+        if (! self::configurado()) {
+            return ['ok' => false, 'cuerpo' => '', 'mensaje' => 'Briela Connect no está conectado a un ERP todavía.'];
+        }
+
+        $respuesta = wp_remote_get(self::url_base() . '/api/wp/' . ltrim($ruta, '/'), [
+            'timeout' => $timeout,
+            'headers' => [
+                'Authorization'  => 'Bearer ' . self::token(),
+                'X-Briela-Sitio' => home_url(),
+            ],
+        ]);
+
+        if (is_wp_error($respuesta)) {
+            $mensaje = $respuesta->get_error_message();
+            self::registrar_error($mensaje);
+            return ['ok' => false, 'cuerpo' => '', 'mensaje' => $mensaje];
+        }
+
+        $codigo = wp_remote_retrieve_response_code($respuesta);
+
+        if ($codigo < 200 || $codigo >= 300) {
+            $mensaje = 'El ERP respondió con el código ' . $codigo . ' al pedir ' . $ruta . '.';
+            self::registrar_error($mensaje);
+            return ['ok' => false, 'cuerpo' => '', 'mensaje' => $mensaje];
+        }
+
+        return ['ok' => true, 'cuerpo' => (string) wp_remote_retrieve_body($respuesta), 'mensaje' => ''];
+    }
+
+    /**
      * POST genérico contra un endpoint del namespace /api/wp/ del ERP.
      * Devuelve ['ok' => bool, 'datos' => array, 'mensaje' => string].
      */

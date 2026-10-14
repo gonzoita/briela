@@ -25,4 +25,7 @@ Route::prefix('wp')->middleware('integracion.wordpress')->group(function () {
     // El catálogo publicado, para que el plugin cree o actualice las fichas del sitio.
     // Productos y ensambles en una sola lista: en WordPress no hay diferencia.
     Route::get('/catalogo', [WordpressIntegracionController::class, 'catalogo'])->name('api.wp.catalogo');
+
+    // El mismo catálogo en PDF, siempre sin precios, para que el sitio lo ofrezca para descargar.
+    Route::get('/catalogo/pdf', [WordpressIntegracionController::class, 'catalogoPdf'])->name('api.wp.catalogo-pdf');
 });

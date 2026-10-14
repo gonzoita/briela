@@ -379,6 +379,15 @@ const precioMostrar = (p) => {
                     <span class="hidden sm:inline">Categorías</span>
                 </button>
 
+                <!-- Catálogo en PDF, siempre sin precios: es una descarga normal, no una petición por clic -->
+                <a href="/productos/catalogo-pdf" title="Descargar el catálogo en PDF, sin precios"
+                    class="flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium border border-linea bg-superficie text-tinta-500 shadow-sm hover:bg-realce transition-colors">
+                    <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v12m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/>
+                    </svg>
+                    <span class="hidden sm:inline">Catálogo sin precios</span>
+                </a>
+
                 <!-- Toggle lista/grid -->
                 <div class="flex items-center rounded-xl border border-linea bg-superficie overflow-hidden shadow-sm">
                     <button

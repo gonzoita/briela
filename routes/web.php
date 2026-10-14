@@ -77,6 +77,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ImagenProductoController;
 use App\Http\Controllers\InsumoController;
 use App\Http\Controllers\ProductoController;
+use App\Http\Controllers\ProductoDocumentoController;
 use App\Http\Controllers\ProductoImportController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RRHHConfigController;
@@ -317,6 +318,9 @@ Route::middleware('auth')->group(function () {
             Route::post('/importar',          [ProductoImportController::class, 'importar'])->name('importar.store');
         });
 
+        // El catálogo en PDF, siempre sin precios. Antes de /{id} para no confundirse con un id.
+        Route::get('/catalogo-pdf', [ProductoController::class, 'catalogoPdf'])->middleware('permiso:productos.ver')->name('catalogo-pdf');
+
         Route::get('/crear',       [ProductoController::class, 'create'])->name('create');
         // Duplicar abre el formulario de creación ya lleno: no crea nada hasta que se guarda,
         // así que pide el mismo permiso que crear y va antes de /{id} para no confundirse
@@ -344,6 +348,9 @@ Route::middleware('auth')->group(function () {
         Route::patch('/{id}/precio-costo',       [ProductoController::class, 'actualizarCosto'])->name('precio-costo');
         Route::patch('/{id}/umbrales',           [ProductoController::class, 'umbrales'])->middleware('permiso:productos.editar')->name('umbrales');
         Route::patch('/{id}/nombre',             [ProductoController::class, 'nombre'])->middleware('permiso:productos.editar')->name('nombre');
+        // Planos y fichas técnicas: viajan con el producto a la tienda en línea.
+        Route::post('/{id}/documentos',          [ProductoDocumentoController::class, 'store'])->middleware('permiso:productos.editar')->name('documentos.store');
+        Route::delete('/documentos/{archivo}',   [ProductoDocumentoController::class, 'destroy'])->middleware('permiso:productos.editar')->name('documentos.destroy');
         Route::delete('/imagenes/{id}',          [ImagenProductoController::class, 'destroy'])->name('imagenes.destroy');
         Route::patch('/imagenes/{id}/principal', [ImagenProductoController::class, 'setPrincipal'])->name('imagenes.principal');
     });

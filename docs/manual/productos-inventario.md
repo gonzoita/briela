@@ -101,6 +101,14 @@ Cada ficha tiene un interruptor **Sitio web**, y en el listado puedes marcar
 varios y publicarlos de un golpe. Ver
 [Publicar productos y ensambles en el sitio web](./publicar-en-la-web.md).
 
+Al editar un producto, **Para la tienda en línea** guarda su marca, su origen, sus
+características especiales y si el precio se publica. En el detalle, **Tienda en línea y
+documentos** muestra eso mismo y deja **adjuntar planos y fichas técnicas** (PDF, imagen,
+DWG o DXF, hasta 20 MB). El archivo se guarda con un nombre al azar: el nombre original solo
+se muestra. Las variantes heredan del producto la marca, el origen y lo demás al guardarlo.
+
+En el listado, **Catálogo sin precios** descarga el catálogo completo en PDF, sin una cifra.
+
 ## Duplicar un producto
 
 En la ficha de cualquier producto está el botón **Duplicar**. Abre el formulario

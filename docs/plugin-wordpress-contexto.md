@@ -190,7 +190,18 @@ tomadas, todas visibles en el sitio del cliente:
   publicado: un aviso perdido no deja el sitio mintiendo para siempre.
 - **Briela manda precio y existencias; el sitio manda texto y fotos** después de la
   primera vez.
-- **Una ficha por unidad vendible**: las variantes se publican una a una, el padre no.
+- **Un producto con variantes es UN producto variable** (desde el plugin 0.2.0, 14 oct 2026): el
+  atributo de la variación es `atributo_variante` del ERP y la identidad de cada variación es el id de
+  la variante (`_briela_tipo = variante`, `_briela_id`), no su etiqueta. Las fichas sueltas por
+  variante de la 0.1.0 pasan solas a borrador. Una variante retirada queda privada, no se borra.
+- **Marca, origen y características** son atributos visibles; el plugin anota en `_briela_atributos`
+  cuáles puso él, para no pisar los que el sitio agregó a mano. Los **documentos** van en
+  `_briela_documentos` y en la pestaña «Planos y fichas técnicas».
+- **Sin precio se cotiza**: con `publicar_precio` apagado el ERP manda `precio: null` (también en las
+  variantes) y la tienda muestra «Cotizar».
+- **Catálogo en PDF** (`GET /api/wp/catalogo/pdf`, solo lo publicado, sin precios): el plugin lo baja
+  a `uploads/briela-connect/catalogo.pdf` cuando cambia la huella del catálogo o pasa una semana, y lo
+  ofrece con `[briela_catalogo_pdf]`.
 - **Retirar pasa a borrador**, nunca borra: el posicionamiento y el texto del sitio
   valen más que la limpieza.
 - La URL del sitio **se aprende sola** (cabecera `X-Briela-Sitio` en cada lectura).

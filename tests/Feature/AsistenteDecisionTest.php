@@ -41,7 +41,7 @@ class AsistenteDecisionTest extends TestCase
     public function test_una_decision_cortada_avisa_a_la_redaccion_y_no_inventa_herramientas(): void
     {
         // Lo que devuelve el modelo cuando la lista de 20 cambios se corta a mitad.
-        $cortada = '{"consultas": [], "accion": {"accion": "renombrar_productos", "parametros": {"cambios": [{"referencia": "IC10057", "nombre": "Distanciador de aluminio anodizado 40x20x2 mm Coldtech"}, {"referencia": "IC10058", "nombre": "Distanci';
+        $cortada = '{"consultas": [], "accion": {"accion": "renombrar_productos", "parametros": {"cambios": [{"referencia": "IC10057", "nombre": "Distanciador de aluminio anodizado 40x20x2 mm Acme"}, {"referencia": "IC10058", "nombre": "Distanci';
 
         $prompts = [];
         $this->mock(IaService::class, function ($m) use (&$prompts, $cortada) {

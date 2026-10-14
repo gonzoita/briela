@@ -6,6 +6,7 @@ import GeneradorFichaIa from '@/Components/GeneradorFichaIa.vue'
 import PreciosPorCanal from '@/Components/PreciosPorCanal.vue'
 import ImagenVariante from '@/Components/ImagenVariante.vue'
 import ProveedoresProducto from '@/Components/ProveedoresProducto.vue'
+import DatosTienda from '@/Components/Productos/DatosTienda.vue'
 import { usePreciosPorCanal } from '@/composables/usePreciosPorCanal'
 import { useForm, router } from '@inertiajs/vue3'
 import { monedaBase } from '@/formato'
@@ -74,6 +75,12 @@ const form = useForm({
     // El técnico corto, el que sale en cotizaciones y órdenes de producción.
     descripcion_cotizacion: '',
     descripcion_larga:   '',
+    // Lo que muestra la tienda en línea. La marca dice al servidor que la lista viene, aunque vacía.
+    marca:               '',
+    origen:              '',
+    caracteristicas:     [],
+    caracteristicas_enviadas: true,
+    publicar_precio:     true,
     // Un producto es «un ítem físico inventariable» —lo dice la tarjeta que se acaba de
     // tocar— y casi siempre se vende: nace así. Naciendo apagado, quien no veía los
     // interruptores creaba un producto sin stock inicial ni control de existencias, y la
@@ -523,6 +530,8 @@ const badgeStyle = {
                                 queda en la descripción larga.
                             </p>
                         </div>
+
+                        <DatosTienda :form="form" />
 
                         <div>
                             <div class="flex items-center justify-between mb-1">

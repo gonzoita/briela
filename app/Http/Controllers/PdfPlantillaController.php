@@ -91,6 +91,7 @@ class PdfPlantillaController extends Controller
             'opciones.agrupar_secciones' => 'nullable|boolean',
             'opciones.mostrar_fotos'     => 'nullable|boolean',
             'opciones.mostrar_precios'   => 'nullable|boolean',
+            'opciones.adjuntar_documentos' => 'nullable|boolean',
             'papel'          => 'required|in:' . implode(',', PdfPlantillaRenderer::PAPELES),
             'orientacion'    => 'required|in:portrait,landscape',
             'ancho_mm'       => 'nullable|integer|min:50|max:500',

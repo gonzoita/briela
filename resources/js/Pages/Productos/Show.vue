@@ -2,6 +2,7 @@
 import { monedaBase } from '@/formato'
 import AppLayout from '@/Layouts/AppLayout.vue'
 import InterruptorWeb from '@/Components/InterruptorWeb.vue'
+import TiendaYDocumentos from '@/Components/Productos/TiendaYDocumentos.vue'
 import { router, usePage } from '@inertiajs/vue3'
 import { ref, computed } from 'vue'
 
@@ -641,6 +642,9 @@ const fmtFecha = (d) => d ? new Date(d).toLocaleDateString('es-CO', { day: '2-di
 
             </div>
         </div>
+
+        <!-- ── Lo que muestra la tienda, y los planos y fichas técnicas ─────── -->
+        <TiendaYDocumentos v-if="p.tipo === 'producto'" :producto="p" :puede-editar="puedeEditar" />
 
         <!-- ── Movimientos: de dónde vino cada uno y con qué papel ────────── -->
         <div v-if="movimientos.length" class="mt-5 bg-superficie rounded-2xl shadow-sm overflow-hidden">

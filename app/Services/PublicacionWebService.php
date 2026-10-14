@@ -101,7 +101,7 @@ class PublicacionWebService
      */
     public function catalogo(): array
     {
-        $productos = Producto::with(['categoria', 'imagenes', 'variantes.stocks'])
+        $productos = Producto::with(['categoria', 'imagenes', 'variantes.stocks', 'documentos'])
             ->where('publicado_web', true)
             ->whereNull('producto_padre_id')
             ->orderBy('nombre')
@@ -134,8 +134,17 @@ class PublicacionWebService
             'unidad'            => $producto->unidad_medida,
             'descripcion_corta' => $producto->descripcion_corta,
             'descripcion_larga' => $producto->descripcion_larga,
-            'precio'            => $this->precioParaWeb($producto),
+            // Con el precio oculto no viaja la cifra: el sitio muestra «Cotizar».
+            'precio'            => $producto->publicar_precio === false ? null : $this->precioParaWeb($producto),
+            'publicar_precio'   => $producto->publicar_precio !== false,
             'precio_es_desde'   => false,
+            'marca'             => $producto->marca,
+            'origen'            => $producto->origen,
+            'caracteristicas'   => array_values($producto->caracteristicas ?? []),
+            'documentos'        => $this->documentosDe($producto),
+            // Cómo se llama lo que cambia entre variantes («Medida», «Color»): en WooCommerce es
+            // el atributo con el que el cliente elige.
+            'atributo_variante' => $producto->atributo_variante,
             'gestiona_stock'    => (bool) $producto->inventariable,
             'stock'             => $producto->inventariable ? (float) $producto->stockTotal() : null,
             'imagenes'          => $imagenes,
@@ -147,7 +156,8 @@ class PublicacionWebService
                 'nombre'     => $v->nombre_completo ?? $v->nombre,
                 'valor'      => $v->valor_variante,
                 'referencia' => $v->referencia,
-                'precio'     => $this->precioParaWeb($v),
+                'precio'     => $producto->publicar_precio === false ? null : $this->precioParaWeb($v),
+                'gestiona_stock' => (bool) $v->inventariable,
                 'stock'      => $v->inventariable ? (float) $v->stocks->sum('cantidad') : null,
             ])->values()->all(),
             'actualizado_at'    => $producto->updated_at?->toIso8601String(),
@@ -180,6 +190,13 @@ class PublicacionWebService
             'descripcion_corta' => $ensamble->descripcion_corta,
             'descripcion_larga' => $ensamble->descripcion_larga,
             'precio'            => $this->precioParaWeb($ensamble),
+            'publicar_precio'   => true,
+            // Las mismas claves que un producto, vacías: el sitio no tiene que preguntar el tipo.
+            'marca'             => null,
+            'origen'            => null,
+            'caracteristicas'   => [],
+            'documentos'        => [],
+            'atributo_variante' => null,
             // Lo que hace distinto a un ensamble en la vitrina: el precio es un punto de
             // partida, el de la configuración base, y el final sale de las medidas.
             'precio_es_desde'   => true,
@@ -191,6 +208,21 @@ class PublicacionWebService
             'actualizado_at'    => $ensamble->updated_at?->toIso8601String(),
             'publicado_web_at'  => $ensamble->publicado_web_at?->toIso8601String(),
         ];
+    }
+
+    /**
+     * Los planos y fichas técnicas con su dirección pública, para que el sitio los enlace.
+     *
+     * @return array<int, array{tipo: string, nombre: string, url: string, extension: string}>
+     */
+    private function documentosDe(Producto $producto): array
+    {
+        return $producto->documentos->map(fn ($d) => [
+            'tipo'      => $d->categoria,
+            'nombre'    => $d->nombre_original,
+            'url'       => $d->url,
+            'extension' => $d->extension,
+        ])->values()->all();
     }
 
     /**

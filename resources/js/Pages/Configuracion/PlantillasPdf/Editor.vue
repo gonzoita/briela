@@ -94,6 +94,7 @@ const form = reactive({
         agrupar_secciones: props.plantilla?.opciones?.agrupar_secciones ?? false,
         mostrar_fotos:     props.plantilla?.opciones?.mostrar_fotos     ?? true,
         mostrar_precios:   props.plantilla?.opciones?.mostrar_precios   ?? true,
+        adjuntar_documentos: props.plantilla?.opciones?.adjuntar_documentos ?? false,
     },
     bloques: {
         header: props.plantilla?.bloques_header ?? [],
@@ -437,6 +438,7 @@ const seccionesTabs = [
                     { clave: 'agrupar_secciones', etiqueta: 'Agrupar por sección, con subtotal' },
                     { clave: 'mostrar_fotos',     etiqueta: 'Con foto del producto' },
                     { clave: 'mostrar_precios',   etiqueta: 'Mostrar precios' },
+                    { clave: 'adjuntar_documentos', etiqueta: 'Adjuntar planos y fichas técnicas' },
                 ]" :key="op.clave">
                     <div class="flex items-center gap-2 shrink-0">
                         <button type="button" role="switch" :aria-checked="form.opciones[op.clave]"

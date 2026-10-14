@@ -14,7 +14,8 @@ class CatalogoController extends Controller
     public function producto(int $id, Request $request)
     {
         $producto     = Producto::with(['categoria', 'imagenes', 'padre.imagenes'])->findOrFail($id);
-        $mostrarPrecio = $request->get('precio', '1') !== '0';
+        // Un producto con el precio oculto no lo muestra aunque la dirección pida `?precio=1`.
+        $mostrarPrecio = $request->get('precio', '1') !== '0' && $producto->publicar_precio !== false;
 
         $imagenes = $producto->imagenesVisibles()->map(fn ($img) => [
             'url'       => asset('storage/' . $img->ruta),
@@ -31,7 +32,9 @@ class CatalogoController extends Controller
                 // Cuál es el precio público lo dice la marca en Segmentación, no el nombre
                 // de una columna. La clave vieja se sigue mandando mientras la pantalla se
                 // cambie; esta es la que manda.
-                'precio_publico'   => $this->precioPublico($producto),
+                'precio_publico'   => $mostrarPrecio ? $this->precioPublico($producto) : null,
+                // Oculto, el precio no viaja al navegador: ocultarlo solo en pantalla no basta.
+                'precio_cliente_final' => $mostrarPrecio ? $producto->precio_cliente_final : null,
             ]),
             'mostrarPrecio' => $mostrarPrecio,
         ]);
@@ -91,7 +94,7 @@ class CatalogoController extends Controller
     public function productoPdf(int $id, Request $request)
     {
         $producto      = Producto::with(['categoria', 'imagenes'])->findOrFail($id);
-        $mostrarPrecio = $request->get('precio', '1') !== '0';
+        $mostrarPrecio = $request->get('precio', '1') !== '0' && $producto->publicar_precio !== false;
 
         $principal  = $producto->imagenes->firstWhere('es_principal', true) ?? $producto->imagenes->first();
         $imagenPath = $principal ? public_path('storage/' . $principal->ruta) : null;

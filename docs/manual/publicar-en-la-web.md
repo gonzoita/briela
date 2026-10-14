@@ -45,6 +45,9 @@ con el botón de cotizar. El interruptor te lo advierte antes.
 | Precio | **Briela**, en cada sincronización |
 | Existencias | **Briela**, en cada sincronización |
 | Referencia | **Briela** |
+| Variantes, marca, origen, características | **Briela**, en cada sincronización |
+| Planos y fichas técnicas | **Briela**, en cada sincronización |
+| Si el precio se ve | **Briela** (el interruptor del producto) |
 | Título, descripción, fotos, SEO | **El sitio**, después de la primera vez |
 
 Briela escribe el título, el texto y las fotos **al crear** la ficha. De ahí en
@@ -81,11 +84,42 @@ la primera vez que viene a leer, y Briela la recuerda.
   hay un shortcode `[briela_producto id="12" tipo="ensamble"]` para incrustar una
   ficha en cualquier página armada a mano.
 
-## Una ficha por unidad que se vende
+## Un producto con variantes es una sola ficha *(14 oct 2026)*
 
-Un producto simple es una ficha. Un producto con variantes son **sus variantes**,
-una ficha cada una: lo que alguien compra es «lámina 40 mm», no «lámina». El padre
-no se publica por su cuenta porque no tiene precio ni existencias propias.
+Un producto con variantes se publica como **un solo producto** y el cliente elige la
+variante dentro de la ficha. En WooCommerce es un **producto variable**: el selector se
+llama como el atributo de las variantes en Briela («Medida», «Color»), y cada variación
+lleva su referencia, su precio y sus existencias. Sin tienda, la ficha muestra una tabla
+con las variantes.
+
+Antes cada variante era una ficha suelta. Al actualizar el plugin (0.2.0), esas fichas
+pasan solas a borrador y su lugar lo toma la del producto. Una variante que se quita en
+Briela se **apaga** en la tienda, no se borra: un pedido viejo la nombra.
+
+## Marca, origen, características y documentos *(14 oct 2026)*
+
+En la ficha del producto, la sección **Para la tienda en línea** guarda la marca, el país
+de origen y las características especiales (pares «Material: Acero inoxidable»). En la
+tienda salen como atributos visibles —la pestaña «Información adicional»—, y los que el
+sitio haya agregado a mano se respetan.
+
+Los **planos y fichas técnicas** se adjuntan en el detalle del producto (PDF, imagen,
+DWG o DXF, hasta 20 MB) y en la tienda salen en una pestaña propia, «Planos y fichas
+técnicas». En una cotización también se pueden adjuntar, con la opción de la plantilla PDF.
+
+## Publicar sin precio
+
+Cada producto tiene **Publicar el precio en la tienda**. Apagado, la cifra no sale de
+Briela —ni a la tienda ni a la ficha pública del catálogo—: la tienda muestra «Cotizar» y
+el botón lleva a la ficha. Sirve para lo que se vende por negociación o a distribuidores.
+
+## El catálogo en PDF, siempre sin precios
+
+En **Productos** hay un botón **Catálogo sin precios** que descarga el catálogo completo
+—lo vendible y activo, agrupado por categoría, con foto, referencia, marca, origen y
+características— sin una sola cifra. El sitio web baja el suyo solo (solo lo publicado),
+lo renueva cuando el catálogo cambia, y lo ofrece donde se ponga el shortcode
+`[briela_catalogo_pdf]`.
 
 ## Retirar no es borrar
 

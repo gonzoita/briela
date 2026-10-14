@@ -229,6 +229,9 @@ class ProductoController extends Controller
             'descuento_max_mayorista'     => $request->descuento_max_mayorista ?? 8,
         ];
 
+        // Las variantes nacen con la misma marca, origen y características que su padre.
+        $datosBase = array_merge($datosBase, $this->datosCatalogo($request));
+
         $imagenesDeVariantes = [];
 
         $producto = DB::transaction(function () use ($request, $datosBase, $esPadre, &$imagenesDeVariantes) {
@@ -288,6 +291,7 @@ class ProductoController extends Controller
             'padre.imagenes',
             'stocks.bodega',
             'variantes.stocks',
+            'documentos',
         ])->findOrFail($id);
 
         $imagenes = $producto->imagenesVisibles()->map(fn ($img) => array_merge($img->toArray(), [
@@ -342,6 +346,14 @@ class ProductoController extends Controller
                 'movimientos_recientes' => $movimientos['data'],
                 'movimientos_hay_mas'   => $movimientos['hay_mas'],
                 'remisiones'            => $producto->es_padre ? [] : $this->remisionesDe($producto),
+                'documentos'            => $producto->documentos->map(fn ($d) => [
+                    'id'        => $d->id,
+                    'categoria' => $d->categoria,
+                    'nombre'    => $d->nombre_original,
+                    'extension' => $d->extension,
+                    'tamano'    => $d->tamano_formateado,
+                    'url'       => $d->url,
+                ])->values()->all(),
                 // La comparación de proveedores, ya resuelta: la ficha muestra quién lo
                 // vende más barato y cuánto se ahorra. Antes solo salía el último al que se
                 // le compró, y comparar era abrir un cuaderno.
@@ -452,6 +464,12 @@ class ProductoController extends Controller
                 'variantes.*.imagen'           => 'nullable|image|max:5120',
             'variantes.*.stock_inicial'    => 'nullable|array',
                 'variantes.*.stock_inicial.*'  => 'nullable|numeric|min:0',
+                'marca'                        => 'nullable|string|max:120',
+                'origen'                       => 'nullable|string|max:120',
+                'caracteristicas'              => 'nullable|array|max:30',
+                'caracteristicas.*.nombre'     => 'nullable|string|max:60',
+                'caracteristicas.*.valor'      => 'nullable|string|max:200',
+                'publicar_precio'              => 'nullable|boolean',
             ]);
 
             try {
@@ -462,11 +480,18 @@ class ProductoController extends Controller
                         'nombre'            => $request->nombre,
                         'categoria_id'       => $request->categoria_id ?: null,
                         'atributo_variante' => $request->atributo_variante,
+                        ...$this->datosCatalogo($request),
                     ]);
+
+                    // Las variantes que ya existen muestran la misma marca, origen y características.
+                    if ($catalogo = $this->datosCatalogo($request)) {
+                        $producto->variantes()->each(fn (Producto $v) => $v->update($catalogo));
+                    }
 
                     $datosBase = collect($producto->toArray())->only([
                         'tipo', 'categoria_id', 'proveedor_id', 'nombre', 'unidad_medida',
                         'descripcion_corta', 'descripcion_larga', 'descripcion_cotizacion', 'es_vendible', 'es_insumo',
+                        'marca', 'origen', 'caracteristicas', 'publicar_precio',
                         'inventariable', 'stock_minimo', 'stock_maximo',
                         'precio_costo', 'moneda_costo', 'costo_moneda', 'precio_promedio_compra', 'precio_ultimo_compra',
                         'margen_mayorista', 'margen_distribuidor', 'margen_cliente_final',
@@ -531,6 +556,7 @@ class ProductoController extends Controller
                 'descuento_max_cliente_final' => $request->descuento_max_cliente_final ?? 3,
                 'descuento_max_distribuidor'  => $request->descuento_max_distribuidor ?? 5,
                 'descuento_max_mayorista'     => $request->descuento_max_mayorista ?? 8,
+                ...$this->datosCatalogo($request),
             ]);
 
             $this->guardarCanales($request, $producto);
@@ -880,6 +906,17 @@ class ProductoController extends Controller
     }
 
     /**
+     * El catálogo en PDF, siempre sin precios (ver `CatalogoPdfService`). Por omisión trae todo
+     * lo que se vende; `?publicados=1`, solo lo que está publicado en la web.
+     */
+    public function catalogoPdf(Request $request, \App\Services\CatalogoPdfService $catalogo): \Symfony\Component\HttpFoundation\Response
+    {
+        $soloPublicados = $request->boolean('publicados');
+
+        return $catalogo->pdf($soloPublicados)->download('catalogo-' . now()->format('Y-m-d') . '.pdf');
+    }
+
+    /**
      * Cambia solo el nombre, desde la lista de productos. Respuesta JSON para la edición en línea:
      * no recarga la pantalla ni toca nada más del producto. Los nombres pueden repetirse: la lista
      * se ordena por nombre y referencia, así que dos iguales se distinguen por el código.
@@ -1147,6 +1184,40 @@ class ProductoController extends Controller
         };
     }
 
+    /**
+     * Marca, origen, características y si el precio se publica, solo si el formulario los trae:
+     * los guardados que no los mandan (importar, duplicar, otras pantallas) no los borran.
+     * Las características vacías se descartan y quedan como pares «nombre: valor».
+     *
+     * @return array<string, mixed>
+     */
+    private function datosCatalogo(Request $request): array
+    {
+        $datos = [];
+
+        foreach (['marca', 'origen'] as $campo) {
+            if ($request->has($campo)) {
+                $datos[$campo] = trim((string) $request->input($campo)) ?: null;
+            }
+        }
+
+        // Un formulario con archivos no manda un arreglo vacío: la marca dice que la lista vino.
+        if ($request->has('caracteristicas') || $request->boolean('caracteristicas_enviadas')) {
+            $lista = collect((array) $request->input('caracteristicas'))
+                ->filter(fn ($c) => is_array($c))
+                ->map(fn ($c) => ['nombre' => trim((string) ($c['nombre'] ?? '')), 'valor' => trim((string) ($c['valor'] ?? ''))])
+                ->filter(fn ($c) => $c['nombre'] !== '')
+                ->values()->all();
+            $datos['caracteristicas'] = $lista ?: null;
+        }
+
+        if ($request->has('publicar_precio')) {
+            $datos['publicar_precio'] = $request->boolean('publicar_precio');
+        }
+
+        return $datos;
+    }
+
     private function reglas(string $tipo, ?int $ignoreId = null, bool $esPadre = false): array
     {
         $referenciaRule = ['required', 'string', 'max:60', $this->referenciaLibre($ignoreId)];
@@ -1181,6 +1252,13 @@ class ProductoController extends Controller
             'descripcion_larga'   => 'nullable|string|max:60000',
             // El técnico corto: cotizaciones y órdenes de producción.
             'descripcion_cotizacion' => 'nullable|string|max:600',
+            // Lo que la tienda en línea muestra además del nombre.
+            'marca'                       => 'nullable|string|max:120',
+            'origen'                      => 'nullable|string|max:120',
+            'caracteristicas'             => 'nullable|array|max:30',
+            'caracteristicas.*.nombre'    => 'nullable|string|max:60',
+            'caracteristicas.*.valor'     => 'nullable|string|max:200',
+            'publicar_precio'             => 'nullable|boolean',
             'es_vendible'         => 'nullable|boolean',
             'es_insumo'           => 'nullable|boolean',
             'es_padre'            => 'nullable|boolean',

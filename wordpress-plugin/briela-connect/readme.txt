@@ -4,7 +4,7 @@ Tags: crm, leads, utm, briela
 Requires at least: 6.0
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 0.1.0
+Stable tag: 0.2.0
 License: proprietary
 
 Conecta este sitio de WordPress con tu instalación de Briela.
@@ -37,6 +37,16 @@ Briela.
    el ERP, en Configuración → Integraciones → WordPress.
 
 == Changelog ==
+
+= 0.2.0 =
+* Un producto con variantes se publica como UN producto variable de WooCommerce; el cliente
+  elige la variante («Medida», «Color») en la ficha. Las fichas sueltas por variante de la
+  versión anterior pasan solas a borrador.
+* Marca, origen y características especiales como atributos visibles del producto.
+* Pestaña «Planos y fichas técnicas» con los documentos adjuntos en el ERP.
+* Un producto con el precio oculto en el ERP muestra «Cotizar» en vez de una cifra.
+* Catálogo en PDF, siempre sin precios: se baja solo del ERP y se ofrece con el shortcode
+  `[briela_catalogo_pdf]`.
 
 = 0.1.0 =
 * Fase A: token de integración por instalación, leads con atribución UTM

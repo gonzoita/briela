@@ -21,6 +21,17 @@ Formato: [versionado semántico](https://semver.org/lang/es/).
   con o sin foto del producto, y con o sin precios. Siempre visibles al editar la plantilla.
 - **Editar el nombre de un producto desde la lista**: junto a cada nombre hay un lápiz. Lo tocas, cambias
   el texto, y Enter lo guarda (Esc lo cancela). Funciona en la lista y en las tarjetas.
+- **Marca, origen y características especiales de cada producto**, y un interruptor para publicar o no
+  su precio en la tienda en línea. Sin precio, la tienda muestra «Cotizar».
+- **Planos y fichas técnicas en los productos**: se adjuntan en el detalle del producto (PDF, imagen,
+  DWG o DXF) y se ven en la tienda en línea, en su propia pestaña.
+- **Adjuntar planos y fichas técnicas en la cotización**: una cuarta opción de la plantilla PDF agrega
+  al final los documentos de los productos cotizados.
+- **Catálogo sin precios**: un botón en Productos descarga el catálogo completo en PDF, sin ninguna
+  cifra. El sitio web ofrece el suyo para descargar.
+- **Tienda en línea (plugin Briela Connect 0.2.0)**: un producto con variantes se publica como un solo
+  producto y el cliente elige la variante en la ficha; marca, origen y características salen como
+  atributos, y los planos y fichas técnicas en una pestaña.
 
 ### Corregido
 - Guardar una cotización ya no borra y vuelve a crear todas sus líneas: se conservan.

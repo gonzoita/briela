@@ -139,6 +139,19 @@ class Settings
                     <th scope="row">Resultado</th>
                     <td><?php echo esc_html(\BrielaConnect\Catalogo::ultimo_resumen() ?: '—'); ?></td>
                 </tr>
+                <tr>
+                    <th scope="row">Catálogo en PDF</th>
+                    <td>
+                        <?php $pdf = \BrielaConnect\Catalogo::url_catalogo_pdf(); ?>
+                        <?php if ($pdf) : ?>
+                            <a href="<?php echo esc_url($pdf); ?>" target="_blank" rel="noopener">Ver el PDF</a> —
+                        <?php else : ?>
+                            Se baja en la próxima sincronización. —
+                        <?php endif; ?>
+                        sale siempre sin precios. Pon el botón de descarga donde quieras con
+                        <code>[briela_catalogo_pdf]</code> (o <code>[briela_catalogo_pdf texto="Descarga nuestro catálogo"]</code>).
+                    </td>
+                </tr>
             </table>
 
             <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
@@ -148,7 +161,9 @@ class Settings
             </form>
 
             <p class="description">
-                El precio y las existencias los manda Briela y se reescriben en cada sincronización.
+                El precio, las existencias, las variantes, la marca, el origen, las características y
+                los planos y fichas técnicas los manda Briela y se reescriben en cada sincronización.
+                Un producto con variantes es un solo producto, y el cliente elige la variante en la ficha.
                 El título, el texto y las fotos se escriben la primera vez: si los mejoras aquí, no
                 se pierden. Lo que se retire en el ERP pasa a borrador, no se borra.
             </p>

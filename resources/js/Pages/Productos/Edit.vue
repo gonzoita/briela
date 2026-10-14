@@ -7,6 +7,7 @@ import ImagenVariante from '@/Components/ImagenVariante.vue'
 import ProveedoresProducto from '@/Components/ProveedoresProducto.vue'
 import { usePreciosPorCanal } from '@/composables/usePreciosPorCanal'
 import EditorTexto from '@/Components/EditorTexto.vue'
+import DatosTienda from '@/Components/Productos/DatosTienda.vue'
 import { useForm, router } from '@inertiajs/vue3'
 import { monedaBase } from '@/formato'
 import { ref, computed, reactive, watch, onMounted } from 'vue'
@@ -77,6 +78,12 @@ const formPadre = useForm({
     categoria_id:       String(p.categoria_id ?? ''),
     atributo_variante:  p.atributo_variante ?? '',
     variantes:           [],
+    // Lo que muestra la tienda: lo heredan todas las variantes.
+    marca:              p.marca ?? '',
+    origen:             p.origen ?? '',
+    caracteristicas:    (p.caracteristicas ?? []).map(c => ({ ...c })),
+    caracteristicas_enviadas: true,
+    publicar_precio:    p.publicar_precio ?? true,
 })
 
 const variantesNuevas = ref([])
@@ -122,6 +129,11 @@ const form = useForm({
     unidad_medida:        p.unidad_medida ?? 'unidad',
     descripcion_corta:    p.descripcion_corta ?? '',
     descripcion_cotizacion: p.descripcion_cotizacion ?? '',
+    marca:               p.marca ?? '',
+    origen:              p.origen ?? '',
+    caracteristicas:     (p.caracteristicas ?? []).map(c => ({ ...c })),
+    caracteristicas_enviadas: true,
+    publicar_precio:     p.publicar_precio ?? true,
     descripcion_larga:    p.descripcion_larga ?? '',
     inventariable:        p.inventariable ?? false,
     es_vendible:          p.es_vendible ?? false,
@@ -430,6 +442,7 @@ const badgeStyle = {
                                         class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none bg-superficie focus:border-[var(--marca)]" />
                                 </div>
                             </div>
+                            <DatosTienda :form="formPadre" class="mt-4" />
                         </div>
                     </div>
 
@@ -620,6 +633,8 @@ const badgeStyle = {
                                 queda en la descripción larga.
                             </p>
                         </div>
+
+                        <DatosTienda :form="form" />
 
                         <div>
                             <div class="flex items-center justify-between mb-1">
