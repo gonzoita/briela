@@ -343,6 +343,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/{id}/movimientos',          [ProductoController::class, 'movimientos'])->name('movimientos');
         Route::patch('/{id}/precio-costo',       [ProductoController::class, 'actualizarCosto'])->name('precio-costo');
         Route::patch('/{id}/umbrales',           [ProductoController::class, 'umbrales'])->middleware('permiso:productos.editar')->name('umbrales');
+        Route::patch('/{id}/nombre',             [ProductoController::class, 'nombre'])->middleware('permiso:productos.editar')->name('nombre');
         Route::delete('/imagenes/{id}',          [ImagenProductoController::class, 'destroy'])->name('imagenes.destroy');
         Route::patch('/imagenes/{id}/principal', [ImagenProductoController::class, 'setPrincipal'])->name('imagenes.principal');
     });

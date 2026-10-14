@@ -591,6 +591,9 @@ Lo construido después de la fase 3, que conviene conocer antes de tocar algo ce
   14 oct 2026): generar OP, alistar, remisionar, mover remisión, registrar pago, confirmar abono del
   verificador, cerrar pasos, aprobar calidad, cambiar estado de cotización, mover y crear leads, y
   renombrar productos en lote (`TransaccionesProductos`, que no deja un nombre repetido nuevo).
+  **La decisión del asistente tiene un techo de tokens holgado (`AsistenteController::TOKENS_DECISION`)**:
+  una lista larga sale cortada si el techo es chico, y un JSON cortado no se toma como «no hay acción»:
+  la redacción lo recibe como `sistema.estado = no_pude_preparar_la_accion` y lo cuenta tal cual.
   **Proponer no escribe**: ubica todo y arma un resumen que la pantalla muestra en una tarjeta.
   **Confirmar** (`POST /api/asistente/confirmar`) vuelve a resolver, exige que salga lo mismo que se
   propuso y ejecuta con **los mismos servicios que las pantallas** —nunca un camino propio—. Cada una
@@ -739,7 +742,7 @@ decían lo contrario y estaban equivocadas.
   relaciones entre archivos antes de leer código a mano.
 - Conviene regenerarlo después de cambios que muevan estructura (borrar módulos,
   mover carpetas), porque un grafo desactualizado es peor que no tenerlo.
-- **Generado y al día.** Al 13 oct 2026: **12.954 nodos, 26.380 aristas, 680 comunidades**
+- **Generado y al día.** Al 13 oct 2026: **12.992 nodos, 26.463 aristas, 683 comunidades**
   (con el Equipo de IA, las Automatizaciones y la vinculación de Meta). Cada entorno nuevo necesita `pip install graphifyy` una vez (en el
   superadmin el grafo se genera igual, pero no va al repo). Cubre el proyecto completo: 926 archivos de
   código por AST y los 70 documentos por subagentes. Se actualiza con

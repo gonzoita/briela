@@ -106,6 +106,13 @@ class ConsultasDatosService
                 'parametros'  => ['texto' => 'nombre o referencia a buscar (obligatorio)'],
                 'permiso'     => 'productos.ver',
             ],
+            'productos_resumen' => [
+                'descripcion' => 'Cuántos productos hay en el catálogo: activos e inactivos, cuántos son variantes, '
+                    .'las categorías con más productos y cuántos nombres están repetidos. Úsala para "cuántos productos '
+                    .'tenemos", "resumen del catálogo" o "cómo va el catálogo". Para un producto concreto usa buscar_producto.',
+                'parametros'  => [],
+                'permiso'     => 'productos.ver',
+            ],
             'productos_nombre_repetido' => [
                 'descripcion' => 'Los productos activos que comparten el MISMO nombre, agrupados, con su referencia (código), '
                     .'categoría, variante y descripciones: lo necesario para proponer un nombre que diferencie a cada uno. '
@@ -183,6 +190,7 @@ class ConsultasDatosService
             'productividad'         => $this->productividad($dias ?: 30),
             'buscar_producto'       => $this->buscarProducto((string) ($parametros['texto'] ?? '')),
             'comparar_proveedores'  => $this->compararProveedores((string) ($parametros['texto'] ?? '')),
+            'productos_resumen'         => $this->productosResumen(),
             'productos_nombre_repetido' => $this->productosNombreRepetido((string) ($parametros['texto'] ?? '')),
             'recomendar_producto'   => app(RecomendadorProductosService::class)
                                             ->candidatos((string) ($parametros['necesidad'] ?? '')),
@@ -556,11 +564,45 @@ class ConsultasDatosService
      * de más, como lo vería una persona. Va lo que distingue a uno de otro —referencia, variante,
      * categoría y descripciones— para que la guía proponga nombres; no van costos ni precios.
      */
+    /** La clave con la que se compara un nombre: sin mayúsculas, con espacios de más juntos. */
+    private function claveNombre(string $nombre): string
+    {
+        return mb_strtolower(trim(preg_replace('/\s+/u', ' ', $nombre)));
+    }
+
+    /**
+     * El tamaño del catálogo y lo que conviene revisar. Cuenta en PHP lo que se agrupa por nombre
+     * (MySQL 5.7 no junta espacios de más sin REGEXP_REPLACE) y no carga filas de más.
+     */
+    private function productosResumen(): array
+    {
+        $activos = Producto::where('activo', true);
+
+        $porCategoria = (clone $activos)->with('categoria:id,nombre')->get(['id', 'categoria_id'])
+            ->groupBy(fn (Producto $p) => $p->categoria?->nombre ?? 'Sin categoría')
+            ->map->count()
+            ->sortDesc()
+            ->take(8);
+
+        $repetidos = (clone $activos)->pluck('nombre')
+            ->groupBy(fn ($n) => $this->claveNombre((string) $n))
+            ->filter(fn ($grupo) => $grupo->count() > 1);
+
+        return [
+            'alcance'            => $this->alcance(),
+            'activos'            => (clone $activos)->count(),
+            'inactivos'          => Producto::where('activo', false)->count(),
+            'variantes'          => (clone $activos)->whereNotNull('producto_padre_id')->count(),
+            'categorias_top'     => $porCategoria->map(fn ($n, $cat) => ['categoria' => $cat, 'productos' => $n])->values()->all(),
+            'nombres_repetidos'  => ['grupos' => $repetidos->count(), 'productos' => $repetidos->flatten()->count()],
+        ];
+    }
+
     private function productosNombreRepetido(string $texto): array
     {
         // Se agrupa en PHP y no en SQL: juntar espacios de más por dentro del nombre pide
         // REGEXP_REPLACE, que MySQL 5.7 no tiene, y el hosting del cliente puede ser ese.
-        $clave = fn (string $n) => mb_strtolower(trim(preg_replace('/\s+/u', ' ', $n)));
+        $clave = fn (string $n) => $this->claveNombre($n);
 
         $repetidos = Producto::where('activo', true)
             ->when(trim($texto) !== '', fn ($q) => $q->where('nombre', 'like', '%' . trim($texto) . '%'))

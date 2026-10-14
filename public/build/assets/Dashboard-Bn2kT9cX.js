@@ -1,0 +1,1 @@
+import{A as e,D as t,c as n,et as r,w as i,x as a,z as o}from"./app-RqM5-dfS.js";var s={__name:`Dashboard`,setup(s){return(s,c)=>(o(),t(a,null,[e(r(n),{title:`Dashboard Producción`}),c[0]||=i(`div`,null,[i(`h1`,null,`Dashboard de Producción`)],-1)],64))}};export{s as default};

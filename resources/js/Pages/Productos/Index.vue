@@ -5,7 +5,7 @@ import BotonOrden from '@/Components/BotonOrden.vue'
 import OrdenarLista from '@/Components/OrdenarLista.vue'
 import { useOrden } from '@/composables/useOrden'
 import { router, usePage } from '@inertiajs/vue3'
-import { reactive, ref, computed, watch } from 'vue'
+import { reactive, ref, computed, watch, nextTick } from 'vue'
 import { colorMarca } from '@/marca'
 import { usePublicacionWeb } from '@/composables/usePublicacionWeb'
 import BuscadorModulo from '@/Components/BuscadorModulo.vue'
@@ -89,6 +89,57 @@ const puedeEditarProductos   = computed(() => (page.props.auth?.permisosLista ??
 const puedeEliminarProductos = computed(() => (page.props.auth?.permisosLista ?? []).includes('productos.eliminar'))
 // La misma selección sirve para publicar y para eliminar: se muestra si hay algo que hacer con ella.
 const puedeSeleccionar = computed(() => puedeEditarProductos.value || puedeEliminarProductos.value)
+
+// ─── Editar el nombre sin salir de la lista ─────────────────────────────────
+// Enter guarda, Esc cancela, y salir del campo también guarda. Solo se manda una petición al
+// guardar, y el nombre nuevo se pone en la fila sin volver a cargar la lista.
+const editandoNombre  = ref(null)
+const nombreEditado   = ref('')
+const guardandoNombre = ref(false)
+const errorNombre     = ref('')
+
+async function empezarEditarNombre(p) {
+    editandoNombre.value = p.id
+    nombreEditado.value  = p.nombre
+    errorNombre.value    = ''
+    await nextTick()
+    const campo = document.getElementById(`nombre-${p.id}`)
+    campo?.focus()
+    campo?.select()
+}
+
+function cancelarEditarNombre() {
+    editandoNombre.value = null
+}
+
+async function guardarNombre(p) {
+    // El campo se cierra antes de pedir nada: así el blur que llega después no guarda dos veces.
+    if (editandoNombre.value !== p.id || guardandoNombre.value) return
+
+    const nuevo = nombreEditado.value.trim().replace(/\s+/g, ' ')
+    editandoNombre.value = null
+    if (! nuevo || nuevo === p.nombre) return
+
+    guardandoNombre.value = true
+    try {
+        const res = await fetch(`/productos/${p.id}/nombre`, {
+            method:  'PATCH',
+            headers: { 'Content-Type': 'application/json', Accept: 'application/json', 'X-XSRF-TOKEN': csrf(), 'X-Requested-With': 'XMLHttpRequest' },
+            credentials: 'same-origin',
+            body:    JSON.stringify({ nombre: nuevo }),
+        })
+        const data = await res.json()
+        if (! res.ok) {
+            errorNombre.value = data.message ?? 'No se pudo guardar el nombre.'
+            return
+        }
+        p.nombre = data.nombre
+    } catch {
+        errorNombre.value = 'Error de conexión. El nombre no se guardó.'
+    } finally {
+        guardandoNombre.value = false
+    }
+}
 
 const {
     seleccion,
@@ -490,6 +541,7 @@ const precioMostrar = (p) => {
 
         <!-- ── VISTA LISTA ────────────────────────────────────────────────── -->
         <div v-else-if="viewMode === 'list'" class="bg-superficie rounded-2xl shadow-sm overflow-hidden">
+            <p v-if="errorNombre" class="px-4 py-2 text-xs text-aviso-rojo bg-pastel-rojo border-b border-borde-aviso-rojo">{{ errorNombre }}</p>
             <table class="w-full text-sm">
                 <thead>
                     <tr style="background:var(--superficie-2); border-bottom:1px solid var(--borde);">
@@ -542,7 +594,25 @@ const precioMostrar = (p) => {
                         </td>
                         <!-- Nombre + tipo + chips vendible/insumo -->
                         <td class="px-4 py-2.5">
-                            <p class="font-semibold text-tinta-900 text-sm truncate max-w-xs">{{ p.nombre }}</p>
+                            <div v-if="editandoNombre === p.id" class="max-w-xs" @click.stop>
+                                <input :id="`nombre-${p.id}`" v-model="nombreEditado" type="text" maxlength="200"
+                                    :disabled="guardandoNombre"
+                                    aria-label="Nombre del producto"
+                                    @keydown.enter.prevent="guardarNombre(p)"
+                                    @keydown.esc="cancelarEditarNombre"
+                                    @blur="guardarNombre(p)"
+                                    class="w-full text-sm font-semibold px-2 py-1 rounded-lg border border-[var(--marca)] bg-superficie text-tinta-900 focus:outline-none" />
+                            </div>
+                            <div v-else class="flex items-center gap-1.5 min-w-0 max-w-xs">
+                                <p class="font-semibold text-tinta-900 text-sm truncate">{{ p.nombre }}</p>
+                                <button v-if="puedeEditarProductos" type="button" title="Editar el nombre" aria-label="Editar el nombre"
+                                    @click.stop="empezarEditarNombre(p)"
+                                    class="shrink-0 p-1 rounded-md text-tinta-400 hover:text-tinta-700 hover:bg-realce transition-colors">
+                                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z"/>
+                                    </svg>
+                                </button>
+                            </div>
                             <div class="flex flex-wrap gap-1 mt-0.5">
                                 <span class="text-xs font-medium px-1.5 py-0.5 rounded-full"
                                     :style="{ background: badgeStyle(p.tipo_color).bg, color: badgeStyle(p.tipo_color).text }">
@@ -680,7 +750,25 @@ const precioMostrar = (p) => {
                     </span>
                 </div>
                 <div class="p-3">
-                    <p class="text-sm font-semibold text-tinta-900 leading-tight line-clamp-2 mb-1">{{ p.nombre }}</p>
+                    <div v-if="editandoNombre === p.id" class="mb-1" @click.stop>
+                        <input :id="`nombre-${p.id}`" v-model="nombreEditado" type="text" maxlength="200"
+                            :disabled="guardandoNombre"
+                            aria-label="Nombre del producto"
+                            @keydown.enter.prevent="guardarNombre(p)"
+                            @keydown.esc="cancelarEditarNombre"
+                            @blur="guardarNombre(p)"
+                            class="w-full text-sm font-semibold px-2 py-1 rounded-lg border border-[var(--marca)] bg-superficie text-tinta-900 focus:outline-none" />
+                    </div>
+                    <div v-else class="flex items-start gap-1 mb-1">
+                        <p class="text-sm font-semibold text-tinta-900 leading-tight line-clamp-2 min-w-0">{{ p.nombre }}</p>
+                        <button v-if="puedeEditarProductos" type="button" title="Editar el nombre" aria-label="Editar el nombre"
+                            @click.stop="empezarEditarNombre(p)"
+                            class="shrink-0 p-1 rounded-md text-tinta-400 hover:text-tinta-700 hover:bg-realce transition-colors">
+                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z"/>
+                            </svg>
+                        </button>
+                    </div>
                     <p class="text-xs text-tinta-300 font-mono mb-2">{{ p.referencia }}</p>
                     <span v-if="p.categoria_nombre" class="inline-block text-xs font-medium px-2 py-0.5 rounded-full mb-2"
                         :style="`background-color: ${p.categoria_color}22; color: ${p.categoria_color};`">

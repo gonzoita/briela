@@ -14,6 +14,17 @@ Formato: [versionado semántico](https://semver.org/lang/es/).
 
 ## [Sin publicar]
 
+### Agregado
+- **Editar el nombre de un producto desde la lista**: junto a cada nombre hay un lápiz. Lo tocas, cambias
+  el texto, y Enter lo guarda (Esc lo cancela). Funciona en la lista y en las tarjetas.
+
+### Corregido
+- El asistente ya no dice que «no tiene la herramienta» cuando una instrucción llega cortada. Ahora lo
+  explica y te pide partirla en lotes de 10 o menos.
+- Las listas largas de cambios (20 productos o más) caben en una sola tarjeta de confirmación.
+- «¿Cuántos productos tenemos?» responde con el resumen del catálogo: activos, inactivos, variantes,
+  categorías con más productos y nombres repetidos.
+
 ## [2.2.0] — 2026-10-13
 
 ### Agregado

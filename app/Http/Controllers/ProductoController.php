@@ -879,6 +879,27 @@ class ProductoController extends Controller
         return response()->json(['precio_costo' => (float) $producto->precio_costo]);
     }
 
+    /**
+     * Cambia solo el nombre, desde la lista de productos. Respuesta JSON para la edición en línea:
+     * no recarga la pantalla ni toca nada más del producto. Los nombres pueden repetirse: la lista
+     * se ordena por nombre y referencia, así que dos iguales se distinguen por el código.
+     */
+    public function nombre(Request $request, int $id): JsonResponse
+    {
+        $producto = Producto::findOrFail($id);
+
+        $datos  = $request->validate(['nombre' => 'required|string|max:200']);
+        $nombre = trim(preg_replace('/\s+/u', ' ', $datos['nombre']));
+
+        if ($nombre === '') {
+            return response()->json(['message' => 'El nombre no puede quedar vacío.'], 422);
+        }
+
+        $producto->update(['nombre' => $nombre]);
+
+        return response()->json(['id' => $producto->id, 'nombre' => $producto->nombre]);
+    }
+
     public function umbrales(Request $request, int $id): RedirectResponse
     {
         $producto = Producto::findOrFail($id);

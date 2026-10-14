@@ -11,6 +11,7 @@ use App\Services\IA\ConsultasDatosService;
 use App\Services\IA\IaService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use App\Support\Marca;
@@ -18,6 +19,10 @@ use App\Support\Marca;
 class AsistenteController extends Controller
 {
     /** Tiempos de cada etapa, para poder diagnosticar la lentitud sin adivinar. */
+    // Lo que cabe en la decisión: una acción con una lista larga (20 productos) pasa de 700 tokens.
+    // Se cobra solo lo que el modelo escribe, así que el techo puede ser holgado.
+    private const TOKENS_DECISION = 2000;
+
     private int $msDecision = 0;
     private int $msConsultas = 0;
     private int $msRedaccion = 0;
@@ -27,6 +32,9 @@ class AsistenteController extends Controller
 
     /** El informe que la guía generó en esta respuesta: va a la tarjeta con las descargas. */
     private ?array $informe = null;
+
+    // La decisión llegó cortada o no es JSON: la redacción tiene que decirlo, no improvisar.
+    private bool $decisionRota = false;
     private ?int $informeId = null;
 
     public function __construct(
@@ -235,6 +243,8 @@ class AsistenteController extends Controller
           (Excel, CSV). Si no, omítelo.
 
         Usa los nombres exactos de la lista. Máximo 3 consultas.
+        - Si la acción trae una lista larga (muchos productos, muchas líneas), igual escribe el
+          JSON COMPLETO. Nunca lo acortes ni lo dejes sin cerrar.
         TXT;
 
         // Para DECIDIR qué consultar basta el final de la conversación: solo
@@ -251,12 +261,24 @@ class AsistenteController extends Controller
         // Este paso solo elige una consulta de una lista: no necesita el modelo
         // bueno, necesita el rápido.
         // Un plan de informe pide más espacio que elegir una consulta.
-        $respuesta = $this->ia->texto($prompt, $instrucciones, maxTokens: $catalogoInformes !== '' ? 700 : 300, rapido: true);
+        $respuesta = $this->ia->texto($prompt, $instrucciones, maxTokens: self::TOKENS_DECISION, rapido: true);
 
         $this->msDecision = $this->ia->ultimaDuracionMs;
 
         $limpio   = trim(preg_replace('/^```(?:json)?|```$/m', '', $respuesta));
         $decidido = json_decode($limpio, true);
+
+        // Antes una respuesta cortada se tomaba como «no hay nada que hacer» y la redacción
+        // improvisaba que la herramienta no existía. Ahora queda marcada y se avisa.
+        // Solo cuenta como cortada la que empieza como JSON y no se puede leer: una respuesta en prosa no es eso.
+        $this->decisionRota = str_starts_with($limpio, '{') && ! is_array($decidido);
+
+        if ($this->decisionRota) {
+            Log::warning('Asistente: la decisión no llegó como JSON válido', [
+                'largo' => strlen($respuesta),
+                'final' => mb_substr($limpio, -40),
+            ]);
+        }
 
         // Se acepta también el formato viejo de una sola consulta, por si el
         // modelo responde así.
@@ -392,6 +414,11 @@ class AsistenteController extends Controller
         - No prometas búsquedas que no puedes hacer. Solo puedes pedir los datos que la
           acción acepta como parámetros; no ofrezcas buscar por criterios que no están ahí.
         - Si los datos vienen vacíos o en cero, dilo tal cual; no maquilles el resultado.
+        - NUNCA digas que no tienes una herramienta, una consulta o una acción, ni que "no está
+          habilitada en este turno", "no está disponible en este mensaje" o algo parecido. Esa
+          razón no existe. Si en los datos viene la sección "sistema", cuenta su "detalle" con
+          tus palabras. Si no hay datos ni esa sección, di que no encontraste datos para esa
+          pregunta y ofrece reformularla.
         - Menciona el alcance (sede o todas las sedes) cuando des cifras, para que no haya
           confusión sobre a qué corresponden.
         - Los montos están en pesos colombianos. Formatea con separador de miles.
@@ -425,6 +452,16 @@ class AsistenteController extends Controller
 
         $prompt = ($conversacion !== '' ? "Conversación previa:\n{$conversacion}\n\n" : '')
             . "Pregunta del usuario: {$pregunta}";
+
+        // La decisión no se pudo leer: se le dice a la redacción qué pasó, para que lo cuente
+        // tal cual en vez de inventar un motivo.
+        if ($this->decisionRota) {
+            $datos['sistema'] = [
+                'estado'  => 'no_pude_preparar_la_accion',
+                'detalle' => 'No pude preparar la instrucción completa de una vez. Suele pasar con listas largas: '
+                    . 'pide que la partan en lotes de 10 o menos y que la envíen otra vez.',
+            ];
+        }
 
         if (! empty($datos)) {
             $prompt .= "\n\n# Datos reales del sistema";
