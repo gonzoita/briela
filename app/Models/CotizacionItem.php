@@ -21,6 +21,8 @@ class CotizacionItem extends Model
         'imagenes_instancia',
         'descripcion_larga',
         'orden',
+        // La sección del presupuesto a la que pertenece la línea («Puerta corredera»).
+        'seccion',
         'descripcion',
         'cantidad',
         'precio_unitario',

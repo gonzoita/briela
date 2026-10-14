@@ -27,9 +27,22 @@ class PdfPlantillaRenderer
     public static function desdeModelo(PdfPlantilla $p): array
     {
         return $p->only(['modo_editor', 'html', 'html_header', 'html_footer',
-            'bloques_header', 'bloques_body', 'bloques_footer',
+            'bloques_header', 'bloques_body', 'bloques_footer', 'opciones',
             'alto_header_mm', 'alto_footer_mm', 'margen_mm',
             'papel', 'orientacion', 'ancho_mm', 'alto_mm']);
+    }
+
+    /**
+     * Las opciones con sus valores por omisión: sin nada guardado, la plantilla sale como antes.
+     * `secciones` no es una opción de la plantilla sino cuántas secciones trae este documento.
+     */
+    private static function opcionesDe(array $p, array $datos): array
+    {
+        return array_merge(
+            ['agrupar_secciones' => false, 'mostrar_fotos' => true, 'mostrar_precios' => true],
+            array_filter($p['opciones'] ?? [], fn ($v) => $v !== null),
+            ['secciones' => (int) ($datos['secciones_n'] ?? 0)],
+        );
     }
 
     /** @return array{html: string, errores: string[], desconocidas: string[]} */
@@ -41,10 +54,11 @@ class PdfPlantillaRenderer
         $visual = ($p['modo_editor'] ?? 'codigo') === 'visual' && ! ($sinBloques && trim($p['html'] ?? '') !== '');
 
         if ($visual) {
+            $opciones = static::opcionesDe($p, $datos);
             $partes = [
-                BloquesHtmlService::toHtml($p['bloques_header'] ?? []),
-                BloquesHtmlService::toHtml($p['bloques_body'] ?? []),
-                BloquesHtmlService::toHtml($p['bloques_footer'] ?? []),
+                BloquesHtmlService::toHtml($p['bloques_header'] ?? [], $opciones),
+                BloquesHtmlService::toHtml($p['bloques_body'] ?? [], $opciones),
+                BloquesHtmlService::toHtml($p['bloques_footer'] ?? [], $opciones),
             ];
             $cssBase = BloquesHtmlService::css();
         } else {

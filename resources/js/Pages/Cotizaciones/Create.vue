@@ -118,6 +118,7 @@ const form = useForm({
         variables_instancia:  i.variables_instancia ?? null,
         imagenes_instancia:   i.imagenes_instancia ?? [],
         orden:                i.orden,
+        seccion:              i.seccion ?? '',
         descripcion:          i.descripcion,
         descripcion_corta:    i.descripcion_corta ?? '',
         descripcion_larga:    i.descripcion_larga ?? '',
@@ -940,6 +941,9 @@ const { retenciones, cargando: cargandoRetenciones } = useRetenciones(() => ({
     }),
 }))
 
+// Las secciones ya usadas en esta cotización, para no escribirlas distintas («Puerta corredera» y «Puerta Corredera»).
+const seccionesUsadas = computed(() => [...new Set(form.items.map(i => (i.seccion ?? '').trim()).filter(Boolean))])
+
 const formatCOP   = (v) => new Intl.NumberFormat('es-CO', { maximumFractionDigits: 0 }).format(v ?? 0)
 const formatPrecio = (v) => (v || v === 0) ? new Intl.NumberFormat('es-CO', { maximumFractionDigits: 0 }).format(v) : ''
 const parsePrecio  = (s) => parseFloat(String(s).replace(/[^0-9,]/g, '').replace(',', '.')) || 0
@@ -1286,6 +1290,9 @@ function submit() {
 
                     <!-- Lista de ítems -->
                     <div v-if="form.items.length > 0" class="space-y-3 mb-4">
+                        <datalist id="secciones-cotizacion">
+                            <option v-for="s in seccionesUsadas" :key="s" :value="s"/>
+                        </datalist>
                         <div v-for="(item, idx) in form.items" :key="idx"
                             class="rounded-xl border transition-colors"
                             :class="dragOverIdx === idx && draggingIdx !== idx ? 'border-blue-400 bg-pastel-azul' : 'border-linea'"
@@ -1358,6 +1365,13 @@ function submit() {
 
                             <!-- Cuerpo del ítem -->
                             <div class="px-3 pt-2 pb-3">
+                                <!-- Sección: agrupa las líneas en el PDF («Puerta corredera», «Cocina → Estufa»). Vacía, la línea va sin sección. -->
+                                <div class="flex items-center gap-2 mb-1.5">
+                                    <label :for="`seccion-${idx}`" class="text-xs text-tinta-400 shrink-0">Sección</label>
+                                    <input :id="`seccion-${idx}`" v-model="item.seccion" type="text" maxlength="80" list="secciones-cotizacion"
+                                        placeholder="Ej. Puerta corredera"
+                                        class="flex-1 min-w-0 rounded-lg border border-tinta-200 px-2.5 py-1.5 text-sm focus:ring-2 focus:outline-none"/>
+                                </div>
                                 <textarea v-model="item.descripcion" rows="2" placeholder="Descripción del ítem..."
                                     class="w-full rounded-lg border border-tinta-200 px-3 py-2 text-sm focus:ring-2 focus:outline-none resize-none mb-1"/>
 

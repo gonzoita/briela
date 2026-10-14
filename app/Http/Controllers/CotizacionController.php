@@ -438,7 +438,7 @@ class CotizacionController extends Controller
             $nueva->items()->create($item->only([
                 'tipo', 'producto_id', 'configuracion_puerta_id', 'ensamble_id',
                 'variables_snapshot', 'componentes_snapshot', 'variables_instancia',
-                'descripcion_larga', 'orden',
+                'descripcion_larga', 'orden', 'seccion',
                 'descripcion', 'cantidad', 'precio_unitario', 'precio_mayorista_base', 'descuento_pct',
                 'subtotal', 'impuesto_pct', 'impuesto_valor', 'total_linea',
                 'comision_pct_aplicada', 'comision_valor',
@@ -899,6 +899,10 @@ class CotizacionController extends Controller
             'items.*.descuento_pct'    => 'nullable|numeric|min:0|max:100',
             'items.*.impuesto_pct'     => 'nullable|numeric|min:0|max:100',
             'items.*.orden'            => 'nullable|integer',
+            'items.*.seccion'          => 'nullable|string|max:80',
+            // El id de cada línea tiene que sobrevivir a la validación: sin él, cada guardado
+            // borraba las líneas y las volvía a crear. `validate()` devuelve solo lo que valida.
+            'items.*.id'               => 'nullable|integer',
             'items.*.producto_id'              => ['nullable', new ProductoSeleccionable],
             'items.*.configuracion_puerta_id'  => 'nullable|exists:configuraciones_puerta,id',
             'items.*.ensamble_id'              => 'nullable|exists:ensambles,id',
@@ -918,7 +922,8 @@ class CotizacionController extends Controller
         $idsEnviados = [];
 
         foreach ($items as $i => $datos) {
-            $item = isset($datos['id']) ? CotizacionItem::find($datos['id']) : null;
+            // Solo una línea de ESTA cotización: un id ajeno no se toca, aunque lo mande el navegador.
+            $item = isset($datos['id']) ? $cot->items()->whereKey($datos['id'])->first() : null;
 
             $base     = $datos['cantidad'] * $datos['precio_unitario'];
             $desc     = $base * (($datos['descuento_pct'] ?? 0) / 100);
@@ -937,6 +942,7 @@ class CotizacionController extends Controller
                 'imagenes_instancia'      => $datos['imagenes_instancia'] ?? null,
                 'descripcion_larga'       => $datos['descripcion_larga'] ?? null,
                 'orden'                   => $datos['orden'] ?? $i,
+                'seccion'                 => trim((string) ($datos['seccion'] ?? '')) ?: null,
                 'descripcion'             => $datos['descripcion'],
                 'cantidad'                => $datos['cantidad'],
                 'precio_unitario'         => $datos['precio_unitario'],

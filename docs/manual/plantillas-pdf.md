@@ -92,6 +92,23 @@ Las plantillas de fábrica ya las traen; una migración las agregó a las instal
 seguían tal cual** —una plantilla que la empresa editó no se toca—. La firma se valida al guardarla
 (solo PNG o JPG en base64) y se vuelve a mirar antes de imprimirla.
 
+## Opciones del documento *(14 oct 2026)*
+
+Las plantillas de **cotización** muestran siempre, debajo del nombre, tres interruptores:
+
+| Opción | Qué hace en el PDF |
+|---|---|
+| Agrupar por sección, con subtotal | Un bloque por sección de la cotización: título, líneas y subtotal |
+| Con foto del producto | Apagado, quita de la tabla las columnas de imagen |
+| Mostrar precios | Apagado, quita las columnas de precio, total, descuento, impuesto y comisión, los subtotales y el bloque de totales |
+
+Se guardan en `pdf_plantillas.opciones`; una plantilla sin opciones guardadas sale como antes. Solo
+aplican al editor **visual**: una plantilla de código decide en su propio HTML qué muestra.
+
+Por dentro, agrupar no usa bucles anidados: `PdfVariablesEngine::agruparSecciones()` deja por cada
+sección `seccion_N_nombre`, `seccion_N_items` y `seccion_N_subtotal`, y la tabla arma un bucle por
+sección. En una plantilla de código se pueden usar esas mismas variables.
+
 ## Lo que hereda de la marca
 
 El color y el logo salen del [perfil de marca](./marca.md) salvo que la plantilla los

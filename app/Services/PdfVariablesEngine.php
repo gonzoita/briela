@@ -92,11 +92,15 @@ class PdfVariablesEngine
                         'variables_texto'  => static::variablesInstanciaTexto($item),
                         'comision_pct'     => $item->comision_pct_aplicada ?? 0,
                         'comision_valor'   => $item->comision_valor ?? 0,
+                        'seccion'          => $item->seccion ?? '',
                     ],
                     static::variablesInstanciaExpandidas($item)
                 ))->toArray();
 
                 $datos = static::conMonedaDeCotizacion($registro, $datos);
+
+                // Después de convertir la moneda: los subtotales de cada sección salen en la misma moneda que las líneas.
+                $datos = array_merge($datos, static::agruparSecciones($datos['items']));
                 break;
 
             case 'op':
@@ -242,6 +246,40 @@ class PdfVariablesEngine
         }
 
         return '<img src="'.$dataUrl.'" alt="Firma" style="max-height:54px;max-width:190px;"/>';
+    }
+
+    /**
+     * Agrupa las líneas por su sección, en el orden en que aparecen. Si ninguna línea tiene sección,
+     * no hay nada que agrupar y la cotización sale como siempre: una sola tabla.
+     *
+     * Por cada sección deja `seccion_N_nombre`, `seccion_N_items` y `seccion_N_subtotal` (la suma de
+     * lo que cuesta cada línea con impuesto). Las líneas sin sección van en «Otros».
+     *
+     * @return array<string, mixed>
+     */
+    public static function agruparSecciones(array $items): array
+    {
+        $conSeccion = collect($items)->filter(fn ($i) => trim((string) ($i['seccion'] ?? '')) !== '')->count();
+        if ($conSeccion === 0) {
+            return ['secciones_n' => 0];
+        }
+
+        $grupos = [];
+        foreach ($items as $item) {
+            $nombre = trim((string) ($item['seccion'] ?? '')) ?: 'Otros';
+            $grupos[$nombre]['items'][] = $item;
+        }
+
+        $resultado = ['secciones_n' => count($grupos)];
+        $k = 0;
+        foreach ($grupos as $nombre => $grupo) {
+            $k++;
+            $resultado["seccion_{$k}_nombre"]   = (string) $nombre;
+            $resultado["seccion_{$k}_items"]    = $grupo['items'];
+            $resultado["seccion_{$k}_subtotal"] = array_sum(array_column($grupo['items'], 'total_linea'));
+        }
+
+        return $resultado;
     }
 
     private static function aplanarModeloSimple(object $modelo): array

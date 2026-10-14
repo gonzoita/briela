@@ -89,6 +89,12 @@ const form = reactive({
     activa:      props.plantilla?.activa      ?? true,
     ancho_mm:    props.plantilla?.ancho_mm    ?? 210,
     alto_mm:     props.plantilla?.alto_mm     ?? 297,
+    // Qué sale en el documento de cotización. Sin nada guardado, sale como siempre.
+    opciones: {
+        agrupar_secciones: props.plantilla?.opciones?.agrupar_secciones ?? false,
+        mostrar_fotos:     props.plantilla?.opciones?.mostrar_fotos     ?? true,
+        mostrar_precios:   props.plantilla?.opciones?.mostrar_precios   ?? true,
+    },
     bloques: {
         header: props.plantilla?.bloques_header ?? [],
         body:   props.plantilla?.bloques_body   ?? bloquesPorDefecto(),
@@ -151,6 +157,7 @@ function diseno() {
         alto_header_mm: form.alto_header_mm,
         alto_footer_mm: form.alto_footer_mm,
         margen_mm:      form.margen_mm,
+        opciones:       { ...form.opciones },
     }
 }
 
@@ -399,7 +406,7 @@ const seccionesTabs = [
                             class="relative w-9 h-5 rounded-full transition-colors shrink-0"
                             :style="{ backgroundColor: form.es_default ? 'var(--marca)' : '#D1D5DB' }"
                         >
-                            <span class="absolute top-0.5 w-4 h-4 bg-superficie rounded-full shadow transition-transform"
+                            <span class="absolute left-0.5 top-0.5 w-4 h-4 bg-superficie rounded-full shadow transition-transform"
                                 :class="form.es_default ? 'translate-x-4' : 'translate-x-0.5'" />
                         </button>
                         <span class="text-xs text-tinta-500 whitespace-nowrap">Por defecto</span>
@@ -420,6 +427,28 @@ const seccionesTabs = [
                         </button>
                     </div>
                 </div>
+            </div>
+
+            <!-- Opciones del documento de cotización: siempre visibles en esas plantillas -->
+            <div v-if="props.modulo === 'cotizacion'"
+                class="flex flex-wrap items-center gap-x-5 gap-y-2 bg-superficie rounded-xl border border-linea shadow-sm px-3 py-2">
+                <span class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">Opciones del documento</span>
+                <template v-for="op in [
+                    { clave: 'agrupar_secciones', etiqueta: 'Agrupar por sección, con subtotal' },
+                    { clave: 'mostrar_fotos',     etiqueta: 'Con foto del producto' },
+                    { clave: 'mostrar_precios',   etiqueta: 'Mostrar precios' },
+                ]" :key="op.clave">
+                    <div class="flex items-center gap-2 shrink-0">
+                        <button type="button" role="switch" :aria-checked="form.opciones[op.clave]"
+                            @click="form.opciones[op.clave] = !form.opciones[op.clave]; marcarCambio()"
+                            class="relative w-9 h-5 rounded-full transition-colors shrink-0"
+                            :style="{ backgroundColor: form.opciones[op.clave] ? 'var(--marca)' : '#D1D5DB' }">
+                            <span class="absolute left-0.5 top-0.5 w-4 h-4 bg-superficie rounded-full shadow transition-transform"
+                                :class="form.opciones[op.clave] ? 'translate-x-4' : 'translate-x-0.5'" />
+                        </button>
+                        <span class="text-xs text-tinta-600 whitespace-nowrap">{{ op.etiqueta }}</span>
+                    </div>
+                </template>
             </div>
 
             <!-- Tabs mobile (editor / preview) -->

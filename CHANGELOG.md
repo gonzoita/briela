@@ -15,10 +15,16 @@ Formato: [versionado semántico](https://semver.org/lang/es/).
 ## [Sin publicar]
 
 ### Agregado
+- **Secciones en las cotizaciones**: cada línea puede llevar una sección («Puerta corredera», «Cocina»,
+  «Preparación»). En el PDF, cada sección sale con su título, sus productos y su subtotal.
+- **Opciones del documento en las plantillas PDF de cotización**: agrupar por sección con subtotal,
+  con o sin foto del producto, y con o sin precios. Siempre visibles al editar la plantilla.
 - **Editar el nombre de un producto desde la lista**: junto a cada nombre hay un lápiz. Lo tocas, cambias
   el texto, y Enter lo guarda (Esc lo cancela). Funciona en la lista y en las tarjetas.
 
 ### Corregido
+- Guardar una cotización ya no borra y vuelve a crear todas sus líneas: se conservan.
+- El bloque de totales de las plantillas PDF ya no deja el total destacado sin color.
 - El asistente ya no dice que «no tiene la herramienta» cuando una instrucción llega cortada. Ahora lo
   explica y te pide partirla en lotes de 10 o menos.
 - Las listas largas de cambios (20 productos o más) caben en una sola tarjeta de confirmación.

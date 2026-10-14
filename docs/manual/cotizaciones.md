@@ -20,6 +20,22 @@ editar, pero no se envían, no se aprueban (tampoco por el enlace del cliente), 
 generan orden hasta asignarles uno; la ficha lo avisa arriba. La regla está en cada puerta de
 entrada —pantalla, enlace público, guía, CRM— y el mensaje es uno solo (`Cotizacion::SIN_CLIENTE`).
 
+## Secciones *(14 oct 2026)*
+
+Cada línea tiene un campo **Sección** para agrupar el presupuesto por zonas o por partes: «Puerta
+corredera», «Puerta batiente», «Cocina», «Preparación». Se escribe a mano; las que ya se usaron en
+esa cotización aparecen como sugerencia, para no escribir la misma de dos maneras. Una línea sin
+sección no se agrupa.
+
+Lo que se ve en el PDF lo decide la plantilla (ver `plantillas-pdf.md`, «Opciones del documento»):
+con **Agrupar por sección** encendido, cada sección sale con su título, sus líneas y su subtotal, en
+el orden en que aparecen; las líneas sin sección van al final en «Otros». Si ninguna línea tiene
+sección, el PDF sale como siempre, en una sola tabla.
+
+Los subtotales suman el total de cada línea (con impuesto) y salen en la moneda de la cotización.
+Guardar una cotización **conserva sus líneas** —antes cada guardado las borraba y las volvía a crear—,
+y una línea solo se edita desde su propia cotización.
+
 ## Avisos de estado *(15 oct 2026)*
 
 El responsable se entera de **todo** cambio de estado que no hizo él —el cliente la aprobó o la

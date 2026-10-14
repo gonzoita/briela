@@ -12,12 +12,14 @@ class PdfPlantilla extends Model
         'modulo', 'nombre', 'descripcion', 'html', 'html_header', 'html_footer',
         'alto_header_mm', 'alto_footer_mm', 'margen_mm',
         'bloques_header', 'bloques_body', 'bloques_footer', 'modo_editor',
-        'config_tabla', 'papel', 'orientacion', 'ancho_mm', 'alto_mm',
+        'config_tabla', 'opciones', 'papel', 'orientacion', 'ancho_mm', 'alto_mm',
         'es_default', 'activa', 'creado_por',
     ];
 
     protected $casts = [
         'config_tabla'   => 'array',
+        // Qué sale en la plantilla: agrupar por sección, con o sin foto, con o sin precios.
+        'opciones'       => 'array',
         'bloques_header' => 'array',
         'bloques_body'   => 'array',
         'bloques_footer' => 'array',

@@ -649,6 +649,12 @@ Lo construido después de la fase 3, que conviene conocer antes de tocar algo ce
   Instagram no se pueden pedir en una sola ventana**: son dos autorizaciones, en un solo panel.
 - **Una OP con trabajo hecho no cambia sus ítems** (`Op::itemsBloqueados()`), y el candado está
   en el servidor.
+- **Las líneas de una cotización llevan sección** (`cotizacion_items.seccion`, texto libre) y la
+  plantilla PDF decide si agrupa (`pdf_plantillas.opciones`: `agrupar_secciones`, `mostrar_fotos`,
+  `mostrar_precios`). El agrupado lo arma `PdfVariablesEngine::agruparSecciones()` **después** de
+  convertir la moneda, con un bucle por sección (`seccion_N_items`): el motor de plantillas no anida
+  bucles. Y `items.*.id` **tiene que seguir en las reglas** de `CotizacionController`, igual que en
+  `OpController`: sin ella cada guardado recreaba las líneas. La línea se busca dentro de su cotización.
 
 - **El Equipo de IA (2.0) son agentes INTERNOS, y no son `agentes_ia`.** Esos atienden clientes; estos
   leen el negocio con el rol de su cargo y **proponen**. Un agente **nunca escribe**: deja una fila en
@@ -742,7 +748,7 @@ decían lo contrario y estaban equivocadas.
   relaciones entre archivos antes de leer código a mano.
 - Conviene regenerarlo después de cambios que muevan estructura (borrar módulos,
   mover carpetas), porque un grafo desactualizado es peor que no tenerlo.
-- **Generado y al día.** Al 13 oct 2026: **12.992 nodos, 26.463 aristas, 683 comunidades**
+- **Generado y al día.** Al 14 oct 2026: **13.027 nodos, 26.546 aristas, 711 comunidades**
   (con el Equipo de IA, las Automatizaciones y la vinculación de Meta). Cada entorno nuevo necesita `pip install graphifyy` una vez (en el
   superadmin el grafo se genera igual, pero no va al repo). Cubre el proyecto completo: 926 archivos de
   código por AST y los 70 documentos por subagentes. Se actualiza con

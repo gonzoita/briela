@@ -6,11 +6,19 @@ use App\Support\Marca;
 
 class BloquesHtmlService
 {
-    public static function toHtml(array $bloques): string
+    /**
+     * `$opciones` son las de la plantilla (agrupar_secciones, mostrar_fotos, mostrar_precios) y
+     * `secciones`, cuántas secciones trae la cotización. Sin opciones, sale como siempre.
+     */
+    public static function toHtml(array $bloques, array $opciones = []): string
     {
         $html = '';
         foreach ($bloques as $bloque) {
-            $html .= static::bloqueToHtml($bloque);
+            // Sin precios, el bloque de totales no tiene nada que decir.
+            if (($bloque['tipo'] ?? '') === 'totales' && ! ($opciones['mostrar_precios'] ?? true)) {
+                continue;
+            }
+            $html .= static::bloqueToHtml($bloque, $opciones);
         }
         return $html;
     }
@@ -38,7 +46,7 @@ class BloquesHtmlService
   .sello { border: 2px solid {$marcaColor}; border-radius: 50%; width: 80px; height: 80px; display: inline-block; text-align: center; line-height: 80px; font-size: 9px; color: {$marcaColor}; }";
     }
 
-    private static function bloqueToHtml(array $bloque): string
+    private static function bloqueToHtml(array $bloque, array $opciones = []): string
     {
         $tipo   = $bloque['tipo'] ?? 'texto';
         $props  = $bloque['props'] ?? [];
@@ -78,7 +86,7 @@ class BloquesHtmlService
 
             'columnas' => static::columnaToHtml($bloque),
 
-            'tabla' => static::tablaToHtml($bloque),
+            'tabla' => static::tablaToHtml($bloque, $opciones),
 
             'totales' => static::totalesToHtml($bloque),
 
@@ -113,7 +121,7 @@ class BloquesHtmlService
         foreach ($cols as $col) {
             $html .= "<div class='{$clase}'>";
             foreach ($col['bloques'] ?? [] as $subBloque) {
-                $html .= static::bloqueToHtml($subBloque);
+                $html .= static::bloqueToHtml($subBloque, $opciones);
             }
             $html .= "</div>";
         }
@@ -121,7 +129,12 @@ class BloquesHtmlService
         return $html;
     }
 
-    private static function tablaToHtml(array $bloque): string
+    /**
+     * La tabla de productos. Con `agrupar_secciones`, un bloque por sección —su título, sus líneas y
+     * su subtotal—, armado con bucles propios (`seccion_1_items`…) que prepara `PdfVariablesEngine`.
+     * Así no hace falta un bucle anidado. Sin foto o sin precios se quitan esas columnas.
+     */
+    private static function tablaToHtml(array $bloque, array $opciones = []): string
     {
         $props   = $bloque['props'] ?? [];
         $columnas = $props['columnas'] ?? [
@@ -132,21 +145,47 @@ class BloquesHtmlService
             ['etiqueta' => 'Total',       'variable' => 'total_linea|moneda'],
         ];
 
+        if (! ($opciones['mostrar_fotos'] ?? true)) {
+            $columnas = array_values(array_filter($columnas, fn ($c) => ! str_starts_with((string) ($c['variable'] ?? ''), 'imagen')));
+        }
+        $conPrecios = $opciones['mostrar_precios'] ?? true;
+        if (! $conPrecios) {
+            $columnas = array_values(array_filter($columnas, fn ($c) => ! preg_match('/precio|total|subtotal|descuento|comision|impuesto/', (string) ($c['variable'] ?? ''))));
+        }
+        if ($columnas === []) {
+            $columnas = [['etiqueta' => 'Descripción', 'variable' => 'descripcion']];
+        }
+        $n = count($columnas);
+
         $ths = implode('', array_map(fn ($c) => '<th' . (!empty($c['ancho']) ? " style='width:{$c['ancho']}px;'" : '') . '>' . htmlspecialchars($c['etiqueta'] ?? '', ENT_QUOTES) . '</th>', $columnas));
         $tds = implode('', array_map(fn ($c) => '<td' . (!empty($c['ancho']) ? " style='width:{$c['ancho']}px;'" : '') . '>{{' . ($c['variable'] ?? '') . '}}</td>', $columnas));
+
+        $cuerpo = "{{#items}}\n    <tr>{$tds}</tr>\n    {{/items}}";
+
+        $secciones = (int) ($opciones['secciones'] ?? 0);
+        if (($opciones['agrupar_secciones'] ?? false) && $secciones > 0) {
+            $cuerpo = '';
+            for ($k = 1; $k <= $secciones; $k++) {
+                $cuerpo .= "<tr class='seccion-titulo'><td colspan='{$n}' style='background:#f3f4f6;font-weight:bold;'>{{seccion_{$k}_nombre}}</td></tr>"
+                    . "{{#seccion_{$k}_items}}<tr>{$tds}</tr>{{/seccion_{$k}_items}}";
+                if ($conPrecios) {
+                    $cuerpo .= "<tr class='seccion-subtotal'><td colspan='" . max(1, $n - 1) . "' style='text-align:right;font-style:italic;'>Subtotal {{seccion_{$k}_nombre}}</td>"
+                        . "<td style='font-weight:bold;'>{{seccion_{$k}_subtotal|moneda}}</td></tr>";
+                }
+            }
+        }
 
         return "<table>
   <thead><tr>{$ths}</tr></thead>
   <tbody>
-    {{#items}}
-    <tr>{$tds}</tr>
-    {{/items}}
+    {$cuerpo}
   </tbody>
 </table>";
     }
 
     private static function totalesToHtml(array $bloque): string
     {
+        $marcaColor = Marca::color();
         $props = $bloque['props'] ?? [];
         $filas = $props['filas'] ?? [
             ['etiqueta' => 'Subtotal', 'variable' => 'cotizacion.subtotal|moneda', 'destacado' => false],
