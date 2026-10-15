@@ -1,0 +1,22 @@
+{
+  "iso": "CL",
+  "version": "2026.10.1",
+  "revisado": false,
+  "documento_fiscal": "RUT (e-RUT)",
+  "autoridad": "SII",
+  "moneda": "CLP",
+  "retenciones": false,
+  "facturacion": "Documento tributario electrónico (DTE) autorizado por el SII.",
+  "identificaciones": [
+    { "codigo": "RUT", "nombre": "RUT", "juridica": true, "patron": "^\\d{1,8}$", "dv": "rut_cl", "ayuda": "Sin puntos y sin el dígito verificador, que va aparte (un número o K)." },
+    { "codigo": "RUN", "nombre": "RUN", "juridica": false, "patron": "^\\d{1,8}$", "dv": "rut_cl", "ayuda": "Sin puntos y sin el dígito verificador." },
+    { "codigo": "PAS", "nombre": "Pasaporte", "juridica": false, "patron": "^[A-Za-z0-9]{4,15}$", "dv": null }
+  ],
+  "impuestos": [
+    { "clave": "iva", "nombre": "IVA", "tarifas": [19, 0], "defecto": 19, "nota": "19% general; 0% para lo exento." }
+  ],
+  "importacion": { "iva_descontable": true, "nota": "El IVA pagado en la importación es crédito fiscal." },
+  "notas": [
+    "Valores de partida: confírmalos con tu contador antes de facturar."
+  ]
+}

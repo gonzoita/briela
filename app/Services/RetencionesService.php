@@ -53,7 +53,7 @@ class RetencionesService
         $delCliente = Fiscal::codigos($cliente->responsabilidades_fiscales ?? []);
 
         if ($delCliente === [] && ! $cliente->retenedor_ica) {
-            $out['motivos'][] = 'El cliente no tiene cargadas las responsabilidades de su RUT. Súbelo en su ficha para calcular sus retenciones.';
+            $out['motivos'][] = 'El cliente no tiene cargadas sus responsabilidades fiscales. Sube su documento fiscal en su ficha para calcular sus retenciones.';
 
             return $out;
         }
@@ -67,7 +67,7 @@ class RetencionesService
 
         // ── Renta ──────────────────────────────────────────────────────────
         if (! $tiene($delCliente, '07', '13')) {
-            $out['motivos'][] = 'Retención en la fuente: el cliente no es agente de retención (sin código 07 ni 13 en su RUT).';
+            $out['motivos'][] = 'Retención en la fuente: el cliente no es agente de retención (sin código 07 ni 13 en su documento fiscal).';
         } elseif ($tiene($empresa, '15')) {
             $out['motivos'][] = 'Retención en la fuente: la empresa es autorretenedora, así que el cliente no le retiene.';
         } elseif ($tiene($empresa, '47')) {
@@ -197,14 +197,14 @@ class RetencionesService
         $tiene        = fn (array $codigos, string ...$buscados) => array_intersect($buscados, $codigos) !== [];
 
         if ($delProveedor === []) {
-            $out['avisos'][] = 'El proveedor no tiene cargado su RUT: se calculó como si le aplicaran todas las retenciones. Cárgalo en su ficha para afinarlo.';
+            $out['avisos'][] = 'El proveedor no tiene cargado su documento fiscal: se calculó como si le aplicaran todas las retenciones. Cárgalo en su ficha para afinarlo.';
         }
 
         $out['aplica'] = true;
 
         // ── Renta ──────────────────────────────────────────────────────────
         if (! $tiene($empresa, '07', '13')) {
-            $out['motivos'][] = 'Retención en la fuente: la empresa no es agente de retención (sin código 07 ni 13 en su RUT).';
+            $out['motivos'][] = 'Retención en la fuente: la empresa no es agente de retención (sin código 07 ni 13 en su documento fiscal).';
         } elseif ($tiene($delProveedor, '15')) {
             $out['motivos'][] = 'Retención en la fuente: el proveedor es autorretenedor, así que no se le retiene.';
         } elseif ($tiene($delProveedor, '47')) {

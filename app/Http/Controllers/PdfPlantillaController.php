@@ -335,7 +335,7 @@ class PdfPlantillaController extends Controller
 <div class="header">
   <div class="header-left">
     <h1>{{empresa.nombre}}</h1>
-    <p style="margin:0;color:#666;">NIT: {{empresa.nit}} | {{empresa.ciudad}}</p>
+    <p style="margin:0;color:#666;">{{empresa.tipo_identificacion}}: {{empresa.nit}} | {{empresa.ciudad}}</p>
   </div>
   <div class="header-right">
     <div class="badge">__MODULO__ {{__P__.numero}}</div>

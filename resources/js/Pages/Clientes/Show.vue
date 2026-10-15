@@ -159,9 +159,9 @@ function eliminar() {
                     <p v-if="cliente.retenedor_ica" class="text-sm text-tinta-700">Retiene ICA.</p>
                 </div>
                 <p v-else class="text-sm text-tinta-400">
-                    Sin cargar. Sin sus responsabilidades del RUT no se pueden estimar las retenciones
+                    Sin cargar. Sin sus responsabilidades fiscales no se pueden estimar las retenciones
                     en sus cotizaciones.
-                    <a :href="`/clientes/${cliente.id}/edit`" class="text-aviso-azul font-medium hover:underline">Leer su RUT</a>
+                    <a :href="`/clientes/${cliente.id}/edit`" class="text-aviso-azul font-medium hover:underline">Leer su documento fiscal</a>
                 </p>
             </div>
 

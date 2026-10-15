@@ -113,7 +113,7 @@ class ComprasRetencionesTest extends TestCase
         $r = app(RetencionesService::class)->paraCompra($this->orden($this->proveedor(), 10000000));
 
         $this->assertEquals(250000, collect($r['lineas'])->pluck('valor', 'clave')['retefuente_compras']);
-        $this->assertNotEmpty(collect($r['avisos'])->filter(fn ($m) => str_contains($m, 'no tiene cargado su RUT')));
+        $this->assertNotEmpty(collect($r['avisos'])->filter(fn ($m) => str_contains($m, 'no tiene cargado su documento fiscal')));
     }
 
     public function test_sin_perfil_fiscal_de_la_empresa_no_se_inventa_nada(): void

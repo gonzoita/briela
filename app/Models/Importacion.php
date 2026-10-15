@@ -20,7 +20,7 @@ class Importacion extends Model
 
     protected $fillable = [
         'sede_id', 'numero', 'proveedor_id', 'orden_compra_id', 'estado', 'fecha', 'referencia',
-        'pais_origen', 'incoterm', 'moneda', 'tasa', 'tasa_fecha', 'metodo_prorrateo',
+        'pais_origen', 'incoterm', 'moneda', 'tasa', 'tasa_fecha', 'tasa_nacionalizacion', 'tasa_nacionalizacion_fecha', 'metodo_prorrateo',
         'iva_descontable', 'notas', 'total_fob', 'total_flete_seguro', 'total_arancel', 'total_iva',
         'total_gastos', 'total_costo', 'liquidada_at', 'liquidada_por', 'creado_por',
     ];
@@ -28,6 +28,8 @@ class Importacion extends Model
     protected $casts = [
         'fecha'           => 'date:Y-m-d',
         'tasa_fecha'      => 'date:Y-m-d',
+        'tasa_nacionalizacion_fecha' => 'date:Y-m-d',
+        'tasa_nacionalizacion'       => 'decimal:8',
         'liquidada_at'    => 'datetime',
         'tasa'            => 'decimal:8',
         'iva_descontable' => 'boolean',
@@ -54,6 +56,15 @@ class Importacion extends Model
         return $this->estado === 'borrador';
     }
 
+    /**
+     * La tasa con la que sale el costo: la de la declaración de importación si ya se conoce, y si
+     * no, la de la factura.
+     */
+    public function tasaDelCosto(): float
+    {
+        return (float) $this->tasa_nacionalizacion > 0 ? (float) $this->tasa_nacionalizacion : (float) $this->tasa;
+    }
+
     public function proveedor(): BelongsTo
     {
         return $this->belongsTo(Proveedor::class);
@@ -67,6 +78,11 @@ class Importacion extends Model
     public function items(): HasMany
     {
         return $this->hasMany(ImportacionItem::class)->orderBy('orden')->orderBy('id');
+    }
+
+    public function pagos(): HasMany
+    {
+        return $this->hasMany(ImportacionPago::class)->orderBy('fecha')->orderBy('id');
     }
 
     public function costos(): HasMany

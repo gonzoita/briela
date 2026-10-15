@@ -529,7 +529,7 @@ const precioMostrar = (p) => {
                     <BuscadorModulo
                         v-model="form.buscar"
                         tipos="producto"
-                        placeholder="Buscar por nombre o referencia..."
+                        placeholder="Nombre, referencia o código de proveedor..."
                         @filtrar="filtrar"
                     />
                 </div>
@@ -622,6 +622,8 @@ const precioMostrar = (p) => {
                                     </svg>
                                 </button>
                             </div>
+                            <!-- En el celular no se ve la columna de referencia: el código de proveedor que coincidió va aquí. -->
+                            <p v-if="p.codigo_proveedor" class="sm:hidden text-[11px] text-aviso-azul mt-0.5 truncate">Código de {{ p.codigo_proveedor.proveedor ?? 'proveedor' }}: {{ p.codigo_proveedor.codigo }}</p>
                             <div class="flex flex-wrap gap-1 mt-0.5">
                                 <span class="text-xs font-medium px-1.5 py-0.5 rounded-full"
                                     :style="{ background: badgeStyle(p.tipo_color).bg, color: badgeStyle(p.tipo_color).text }">
@@ -650,7 +652,12 @@ const precioMostrar = (p) => {
                             </div>
                         </td>
                         <!-- Referencia -->
-                        <td class="hidden sm:table-cell px-3 py-2.5 text-xs text-tinta-300 font-mono">{{ p.referencia }}</td>
+                        <td class="hidden sm:table-cell px-3 py-2.5 text-xs text-tinta-300 font-mono">
+                            {{ p.referencia }}
+                            <span v-if="p.codigo_proveedor" class="block mt-0.5 font-sans text-[11px] text-aviso-azul" :title="`Código de ${p.codigo_proveedor.proveedor ?? 'un proveedor'}`">
+                                {{ p.codigo_proveedor.codigo }}<span v-if="p.codigo_proveedor.proveedor"> · {{ p.codigo_proveedor.proveedor }}</span>
+                            </span>
+                        </td>
                         <!-- Categoría -->
                         <td class="hidden md:table-cell px-3 py-2.5">
                             <span v-if="p.categoria_nombre"
@@ -778,7 +785,9 @@ const precioMostrar = (p) => {
                             </svg>
                         </button>
                     </div>
-                    <p class="text-xs text-tinta-300 font-mono mb-2">{{ p.referencia }}</p>
+                    <p class="text-xs text-tinta-300 font-mono mb-2">{{ p.referencia }}
+                        <span v-if="p.codigo_proveedor" class="block font-sans text-[11px] text-aviso-azul">Código de {{ p.codigo_proveedor.proveedor ?? 'proveedor' }}: {{ p.codigo_proveedor.codigo }}</span>
+                    </p>
                     <span v-if="p.categoria_nombre" class="inline-block text-xs font-medium px-2 py-0.5 rounded-full mb-2"
                         :style="`background-color: ${p.categoria_color}22; color: ${p.categoria_color};`">
                         {{ p.categoria_nombre }}

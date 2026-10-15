@@ -35,6 +35,8 @@ const form = useForm({
     moneda:           monedaInicial,
     tasa:             props.importacion?.tasa ?? props.tasas[monedaInicial]?.valor ?? '',
     tasa_fecha:       props.importacion?.tasa_fecha ?? props.tasas[monedaInicial]?.fecha ?? null,
+    tasa_nacionalizacion:       props.importacion?.tasa_nacionalizacion ?? '',
+    tasa_nacionalizacion_fecha: props.importacion?.tasa_nacionalizacion_fecha ?? '',
     metodo_prorrateo: props.importacion?.metodo_prorrateo ?? 'valor',
     iva_descontable:  props.importacion?.iva_descontable ?? props.impuesto.iva_descontable,
     notas:            props.importacion?.notas ?? '',
@@ -130,7 +132,8 @@ async function pedirCalculo(cuerpo) {
 }
 
 watch(() => JSON.stringify({
-    tasa: enBase.value ? 1 : Number(form.tasa) || 0, metodo: form.metodo_prorrateo, iva_descontable: form.iva_descontable,
+    tasa: enBase.value ? 1 : Number(form.tasa) || 0,
+    tasa_nacionalizacion: enBase.value ? null : Number(form.tasa_nacionalizacion) || null, metodo: form.metodo_prorrateo, iva_descontable: form.iva_descontable,
     items: form.items.map(i => ({ cantidad: i.cantidad, valor_unitario: i.valor_unitario, peso_kg: i.peso_kg, arancel_pct: i.arancel_pct, iva_pct: i.iva_pct })),
     costos: form.costos.map(c => ({ tipo: c.tipo, valor: c.valor, en_moneda_base: c.en_moneda_base })),
 }), (cuerpo) => {
@@ -150,6 +153,8 @@ function guardar() {
         pais_origen: d.pais_origen || null,
         incoterm: d.incoterm || null,
         tasa: enBase.value ? 1 : d.tasa,
+        tasa_nacionalizacion: enBase.value || ! Number(d.tasa_nacionalizacion) ? null : d.tasa_nacionalizacion,
+        tasa_nacionalizacion_fecha: enBase.value || ! d.tasa_nacionalizacion_fecha ? null : d.tasa_nacionalizacion_fecha,
         items: d.items.map(i => ({ ...i, peso_kg: i.peso_kg === '' ? null : i.peso_kg, codigo_hs: i.codigo_hs || null })),
     }))
     editando.value ? form.put(`/compras/importaciones/${props.importacion.id}`) : form.post('/compras/importaciones')
@@ -233,6 +238,24 @@ const fecha = (f) => f ? new Date(String(f).slice(0, 10) + 'T12:00:00').toLocale
                     </div>
                 </div>
 
+                <!-- La tasa con la que la aduana liquida: con ella sale el costo puesto en bodega. -->
+                <div v-if="! enBase" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label :class="etiqueta">TRM de nacionalización ({{ base }} por 1 {{ form.moneda }})</label>
+                        <input v-model="form.tasa_nacionalizacion" type="number" step="any" min="0.00000001" :class="ic"
+                            placeholder="La de la declaración de importación"/>
+                        <p class="text-xs text-tinta-300 mt-1">
+                            Con esta sale el costo. Mientras esté vacía se usa la de la factura. Los pagos al proveedor
+                            se registran después, con su propia tasa, y la diferencia queda como diferencia en cambio.
+                        </p>
+                        <p v-if="form.errors.tasa_nacionalizacion" class="text-aviso-rojo text-xs mt-1">{{ form.errors.tasa_nacionalizacion }}</p>
+                    </div>
+                    <div>
+                        <label :class="etiqueta">Fecha de la declaración</label>
+                        <input v-model="form.tasa_nacionalizacion_fecha" type="date" :class="ic"/>
+                    </div>
+                </div>
+
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
                         <label :class="etiqueta">Cómo se reparten flete, seguro y gastos</label>
@@ -260,12 +283,13 @@ const fecha = (f) => f ? new Date(String(f).slice(0, 10) + 'T12:00:00').toLocale
                 <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">Lo que viene en el embarque</p>
 
                 <div class="relative">
-                    <input v-model="buscar" type="text" placeholder="Buscar un producto para agregarlo…" :class="ic" autocomplete="off"/>
+                    <input v-model="buscar" type="text" placeholder="Buscar por nombre, referencia o código del proveedor…" :class="ic" autocomplete="off"/>
                     <div v-if="resultados.length" class="absolute z-10 left-0 right-0 mt-1 bg-superficie border border-linea rounded-lg shadow-lg max-h-56 overflow-y-auto">
                         <button v-for="p in resultados" :key="p.id" type="button" @click="agregarProducto(p)"
                             class="w-full text-left px-3 py-2 text-sm hover:bg-realce">
                             <span class="text-tinta-900">{{ p.nombre }}</span>
                             <span v-if="p.referencia" class="text-xs text-tinta-400 ml-2">{{ p.referencia }}</span>
+                            <span v-if="p.codigo_proveedor" class="text-[11px] text-aviso-azul ml-2">{{ p.codigo_proveedor.codigo }}<span v-if="p.codigo_proveedor.proveedor"> · {{ p.codigo_proveedor.proveedor }}</span></span>
                         </button>
                     </div>
                 </div>

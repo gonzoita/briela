@@ -63,6 +63,16 @@ class Paises
         ['codigo' => 'PAS', 'nombre' => 'Pasaporte',                 'juridica' => false, 'patron' => null, 'dv' => null],
     ];
 
+    /**
+     * La identificación de un tercero del exterior, en formato libre y sin dígito de verificación.
+     *
+     * Va al final de la lista de **todos** los países: un Tax ID que el paquete no conoce —o con un
+     * formato que el patrón no previó— no puede dejar a alguien sin poder registrar a un cliente
+     * real. Es la salida, no la regla: el paquete del país propone primero lo suyo.
+     */
+    public const EXTERIOR = ['codigo' => 'EXT', 'nombre' => 'Identificación tributaria del exterior', 'juridica' => true, 'patron' => null, 'dv' => null,
+        'ayuda' => 'Formato libre: el Tax ID, VAT o número fiscal tal como aparece en el documento.'];
+
     // ─── El país de la casa ──────────────────────────────────────────────────
 
     /** El país de la empresa: el de la sede principal, y Colombia si todavía no se ha dicho. */
@@ -183,7 +193,7 @@ class Paises
             'autoridad'        => $paquete['autoridad'] ?? null,
             'retenciones'      => (bool) ($paquete['retenciones'] ?? false),
             'facturacion'      => $paquete['facturacion'] ?? null,
-            'identificaciones' => array_values(array_merge($paquete['identificaciones'] ?? self::GENERICAS, $ajuste['identificaciones'] ?? [])),
+            'identificaciones' => self::conExterior(array_merge($paquete['identificaciones'] ?? self::GENERICAS, $ajuste['identificaciones'] ?? [])),
             'impuestos'        => array_values($impuestos),
             'otros'            => array_values($paquete['otros'] ?? []),
             'importacion'      => [
@@ -193,6 +203,16 @@ class Paises
             'notas'            => array_values($paquete['notas'] ?? []),
             'con_paquete'      => $paquete !== null,
         ];
+    }
+
+    /** La lista de identificaciones, con la del exterior al final si no está. @return list<array> */
+    private static function conExterior(array $identificaciones): array
+    {
+        if (! in_array(self::EXTERIOR['codigo'], array_column($identificaciones, 'codigo'), true)) {
+            $identificaciones[] = self::EXTERIOR;
+        }
+
+        return array_values($identificaciones);
     }
 
     /** Lo que la instalación ha ajustado, por país. @return array<string, array> */
@@ -279,15 +299,84 @@ class Paises
             return "El formato no parece el de un {$def['nombre']} de " . self::nombre($iso) . ($def['ayuda'] ?? false ? '. ' . $def['ayuda'] : '.');
         }
 
-        if (($def['dv'] ?? null) === 'nit_co' && $dv !== null && $dv !== '') {
-            $esperado = app(ConsultaNitService::class)->calcularDv(preg_replace('/\D/', '', $numero));
+        if (($def['dv'] ?? null) !== null && $dv !== null && $dv !== '') {
+            $esperado = self::calcularDv($iso, $codigo, $numero);
 
-            if ($esperado !== null && $esperado !== $dv) {
+            if ($esperado !== null && strcasecmp($esperado, $dv) !== 0) {
                 return "El dígito de verificación no corresponde: debería ser {$esperado}.";
             }
         }
 
         return null;
+    }
+
+    /**
+     * El dígito de verificación de un número, con la regla de su país, o null si no lleva.
+     *
+     * - `nit_co`: el NIT de Colombia (DIAN), con sus pesos primos.
+     * - `rut_cl`: el RUT de Chile (SII), módulo 11 con pesos 2 a 7; 10 es «K» y 11 es «0».
+     */
+    public static function calcularDv(?string $iso, ?string $codigo, ?string $numero): ?string
+    {
+        $digitos = preg_replace('/\D/', '', (string) $numero);
+
+        if ($digitos === '') {
+            return null;
+        }
+
+        return match (self::identificacion($iso, $codigo)['dv'] ?? null) {
+            'nit_co' => app(ConsultaNitService::class)->calcularDv($digitos),
+            'rut_cl' => self::dvRutChile($digitos),
+            default  => null,
+        };
+    }
+
+    private static function dvRutChile(string $digitos): string
+    {
+        $suma = 0;
+        $peso = 2;
+
+        foreach (array_reverse(str_split($digitos)) as $d) {
+            $suma += (int) $d * $peso;
+            $peso = $peso === 7 ? 2 : $peso + 1;
+        }
+
+        $resto = 11 - ($suma % 11);
+
+        return match ($resto) {
+            11      => '0',
+            10      => 'K',
+            default => (string) $resto,
+        };
+    }
+
+    // ─── La identificación de la empresa ─────────────────────────────────────
+
+    /**
+     * La identificación fiscal de la empresa que usa Briela: tipo (NIT, RFC, RUC, EIN…), número
+     * tal como se guardó y el texto listo para un encabezado («NIT: 900123456-7»).
+     *
+     * El tipo se guarda aparte (`empresa_tipo_identificacion`); si nunca se eligió, es la primera
+     * identificación de empresa del país de la casa. El número sigue en `empresa_nit`, que es la
+     * clave que ya leen los PDF: renombrarla rompería las plantillas guardadas.
+     *
+     * @return array{tipo: string, nombre: string, numero: string, texto: string}
+     */
+    public static function identificacionEmpresa(): array
+    {
+        $casa   = self::casa();
+        $tipo   = (string) Configuracion::get('empresa_tipo_identificacion', '');
+        $def    = $tipo !== '' ? self::identificacion($casa, $tipo) : null;
+        $def  ??= collect(self::perfil($casa)['identificaciones'])->firstWhere('juridica', true) ?? self::EXTERIOR;
+        $numero = trim((string) Configuracion::get('empresa_nit', ''));
+
+        return [
+            'tipo'   => $def['codigo'],
+            'nombre' => $def['nombre'],
+            'numero' => $numero,
+            // La sigla en el encabezado, no el nombre largo: «EIN», no «EIN (Employer…)».
+            'texto'  => $numero === '' ? '' : ($def['codigo'] === self::EXTERIOR['codigo'] ? 'Id. fiscal' : $def['codigo']) . ': ' . $numero,
+        ];
     }
 
     /** Si ese tipo de identificación lleva dígito de verificación calculable. */

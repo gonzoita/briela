@@ -109,6 +109,14 @@ se muestra. Las variantes heredan del producto la marca, el origen y lo demás a
 
 En el listado, **Catálogo sin precios** descarga el catálogo completo en PDF, sin una cifra.
 
+## Buscar por el código del proveedor *(15 oct 2026)*
+
+Todos los buscadores de productos —la lista, la cotización, la orden de compra, la importación y
+Ctrl+K— encuentran también por el **código con que lo llama cada proveedor** (el de la factura que
+se tiene en la mano), y dicen cuál coincidió: «Código de Herrajes del Norte: HT-4410». En la
+lista, un producto con variantes aparece por el código de cualquiera de ellas. La regla vive en
+un solo sitio, `Producto::scopeBuscarTexto()`.
+
 ## Duplicar un producto
 
 En la ficha de cualquier producto está el botón **Duplicar**. Abre el formulario

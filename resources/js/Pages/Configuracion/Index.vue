@@ -1352,7 +1352,7 @@ const configPuntos = computed(() =>
                             </div>
                             <div class="flex-1 min-w-0">
                                 <p class="text-sm font-semibold text-tinta-900">Perfil fiscal</p>
-                                <p class="text-xs text-tinta-400 mt-0.5">Datos de la empresa desde su RUT, UVT y reglas de retención</p>
+                                <p class="text-xs text-tinta-400 mt-0.5">País, identificación fiscal de la empresa, UVT y reglas de retención</p>
                             </div>
                             <svg class="w-4 h-4 text-tinta-300 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />

@@ -20,8 +20,8 @@
 <body>
   <div class="header">
     <h1>{{ strtoupper($marcaNombre) }}</h1>
-    <p>NIT: 900.XXX.XXX-X</p>
-    <p>Bogotá, Colombia</p>
+    @if($marcaIdentificacion)<p>{{ $marcaIdentificacion }}</p>@endif
+    @if($marcaCiudad)<p>{{ $marcaCiudad }}</p>@endif
   </div>
 
   <div style="text-align:center;">

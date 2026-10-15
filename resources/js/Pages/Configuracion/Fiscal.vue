@@ -1,5 +1,5 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, watch } from 'vue'
 import { router, useForm, usePage } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
 import LeerRut from '@/Components/LeerRut.vue'
@@ -9,6 +9,10 @@ const props = defineProps({
     empresa:  { type: Object, default: () => ({}) },
     fiscal:   { type: Object, default: () => ({}) },
     catalogo: { type: Array,  default: () => [] },
+    paises:   { type: Array,  default: () => [] },
+    identificaciones_pais: { type: Object, default: () => ({}) },
+    paises_con_retencion:  { type: Array,  default: () => [] },
+    documentos_fiscales:   { type: Object, default: () => ({}) },
 })
 
 const page = usePage()
@@ -22,6 +26,8 @@ const form = useForm({
         direccion: props.empresa.direccion ?? '',
         telefono:  props.empresa.telefono ?? '',
         email:     props.empresa.email ?? '',
+        pais:      props.empresa.pais ?? 'CO',
+        tipo_identificacion: props.empresa.tipo_identificacion ?? '',
     },
     responsabilidades: props.fiscal.responsabilidades ?? [],
     actividad:         props.fiscal.actividad ?? '',
@@ -30,6 +36,20 @@ const form = useForm({
     reteiva_pct:       props.fiscal.reteiva_pct ?? 15,
     reteica_por_mil:   props.fiscal.reteica_por_mil ?? 0,
 })
+
+// La identificación se revisa con el paquete del país de la empresa.
+const identificaciones = computed(() => (props.identificaciones_pais[form.empresa.pais] ?? []).filter(i => i.juridica))
+const defIdentificacion = computed(() => identificaciones.value.find(i => i.codigo === form.empresa.tipo_identificacion) ?? null)
+const conRetencion = computed(() => props.paises_con_retencion.includes(form.empresa.pais))
+const documentoFiscal = computed(() => props.documentos_fiscales[form.empresa.pais] ?? 'documento fiscal')
+
+// Al cambiar de país, el tipo pasa a la primera identificación de empresa de ese país.
+watch(() => form.empresa.pais, () => {
+    if (! identificaciones.value.some(i => i.codigo === form.empresa.tipo_identificacion)) {
+        form.empresa.tipo_identificacion = identificaciones.value[0]?.codigo ?? ''
+    }
+})
+if (! form.empresa.tipo_identificacion) form.empresa.tipo_identificacion = identificaciones.value[0]?.codigo ?? ''
 
 // DatosFiscales trabaja con los nombres de la ficha del cliente; aquí se le presta un
 // objeto que lee y escribe en este formulario.
@@ -42,6 +62,8 @@ const perfil = {
 
 function usarRut({ datos }) {
     for (const [campo, valor] of Object.entries(datos.empresa ?? {})) {
+        // El tipo leído solo se usa si es de este país: la IA puede proponer uno de otro.
+        if (campo === 'tipo_identificacion' && ! identificaciones.value.some(i => i.codigo === valor)) continue
         if (valor) form.empresa[campo] = valor
     }
     if (datos.responsabilidades?.length) form.responsabilidades = datos.responsabilidades
@@ -75,7 +97,8 @@ const pesos = (v) => new Intl.NumberFormat('es-CO', { maximumFractionDigits: 0 }
                         <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">La empresa</p>
                         <p class="text-xs text-tinta-400 mt-1">Es lo que sale en el encabezado de cotizaciones, órdenes y remisiones.</p>
                     </div>
-                    <LeerRut v-if="puedeEditar" url="/configuracion/fiscal/leer-rut" texto="Llenar con el RUT de la empresa" @leido="usarRut" class="max-w-full"/>
+                    <LeerRut v-if="puedeEditar" url="/configuracion/fiscal/leer-rut" :pais="form.empresa.pais"
+                        :texto="`Leer con IA: ${documentoFiscal}`" @leido="usarRut" class="max-w-full"/>
                 </div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div class="sm:col-span-2">
@@ -83,8 +106,24 @@ const pesos = (v) => new Intl.NumberFormat('es-CO', { maximumFractionDigits: 0 }
                         <input v-model="form.empresa.nombre" type="text" :class="ic"/>
                     </div>
                     <div>
-                        <label class="block text-xs font-medium text-tinta-700 mb-1">NIT</label>
-                        <input v-model="form.empresa.nit" type="text" :class="ic" placeholder="900123456-7"/>
+                        <label class="block text-xs font-medium text-tinta-700 mb-1">País de la empresa</label>
+                        <select v-model="form.empresa.pais" :class="ic">
+                            <option v-for="p in paises" :key="p.iso" :value="p.iso">{{ p.nombre }}</option>
+                        </select>
+                        <p class="text-xs text-tinta-400 mt-1">Es el de la sede principal. Decide qué identificación se pide y qué impuestos se proponen.</p>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-tinta-700 mb-1">Identificación fiscal</label>
+                        <div class="flex gap-2">
+                            <select v-model="form.empresa.tipo_identificacion" class="w-28 shrink-0 rounded-lg border border-tinta-200 px-2 py-2 text-sm bg-superficie focus:outline-none">
+                                <option v-for="i in identificaciones" :key="i.codigo" :value="i.codigo">{{ i.codigo === 'EXT' ? 'Otra' : i.codigo }}</option>
+                            </select>
+                            <input v-model="form.empresa.nit" type="text" :class="ic"
+                                :placeholder="form.empresa.pais === 'CO' ? '900123456-7' : 'Número'"/>
+                        </div>
+                        <p v-if="defIdentificacion?.ayuda" class="text-xs text-tinta-400 mt-1">{{ defIdentificacion.ayuda }}</p>
+                        <p v-if="defIdentificacion?.dv" class="text-xs text-tinta-400 mt-1">Con su dígito de verificación al final, después de un guion.</p>
+                        <p v-if="form.errors['empresa.tipo_identificacion']" class="text-xs text-aviso-rojo mt-1">{{ form.errors['empresa.tipo_identificacion'] }}</p>
                     </div>
                     <div>
                         <label class="block text-xs font-medium text-tinta-700 mb-1">Ciudad</label>
@@ -106,8 +145,13 @@ const pesos = (v) => new Intl.NumberFormat('es-CO', { maximumFractionDigits: 0 }
                 </div>
             </div>
 
+            <p v-if="! conRetencion" class="text-xs rounded-lg px-3 py-2 border bg-pastel-azul border-borde-aviso-azul text-aviso-azul">
+                Las responsabilidades y las reglas de retención que calcula Briela son las de Colombia. Para
+                {{ paises.find(p => p.iso === form.empresa.pais)?.nombre }} no aplican: no se muestran ni se calculan.
+            </p>
+
             <!-- Sus responsabilidades -->
-            <div class="bg-superficie rounded-xl border border-linea p-4 space-y-3">
+            <div v-if="conRetencion" class="bg-superficie rounded-xl border border-linea p-4 space-y-3">
                 <div>
                     <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">Responsabilidades de la empresa</p>
                     <p class="text-xs text-tinta-400 mt-1">
@@ -120,7 +164,7 @@ const pesos = (v) => new Intl.NumberFormat('es-CO', { maximumFractionDigits: 0 }
             </div>
 
             <!-- Reglas de retención -->
-            <div class="bg-superficie rounded-xl border border-linea p-4 space-y-4">
+            <div v-if="conRetencion" class="bg-superficie rounded-xl border border-linea p-4 space-y-4">
                 <div>
                     <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">Reglas de retención</p>
                     <div class="mt-2 rounded-lg bg-pastel-ambar border border-borde-aviso-ambar px-3 py-2 text-xs text-aviso-ambar">

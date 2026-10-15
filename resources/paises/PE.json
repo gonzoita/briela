@@ -1,0 +1,24 @@
+{
+  "iso": "PE",
+  "version": "2026.10.1",
+  "revisado": false,
+  "documento_fiscal": "Ficha RUC",
+  "autoridad": "SUNAT",
+  "moneda": "PEN",
+  "retenciones": false,
+  "facturacion": "Comprobante electrónico emitido por SUNAT o por un Operador de Servicios Electrónicos (OSE).",
+  "identificaciones": [
+    { "codigo": "RUC", "nombre": "RUC", "juridica": true, "patron": "^(10|15|17|20)\\d{9}$", "dv": null, "ayuda": "11 dígitos: empieza por 20 una empresa y por 10 una persona con negocio." },
+    { "codigo": "DNI", "nombre": "DNI", "juridica": false, "patron": "^\\d{8}$", "dv": null },
+    { "codigo": "CE",  "nombre": "Carné de extranjería", "juridica": false, "patron": "^[A-Za-z0-9]{8,12}$", "dv": null },
+    { "codigo": "PAS", "nombre": "Pasaporte", "juridica": false, "patron": "^[A-Za-z0-9]{4,15}$", "dv": null }
+  ],
+  "impuestos": [
+    { "clave": "igv", "nombre": "IGV", "tarifas": [18, 10, 0], "defecto": 18, "nota": "18% (16% de IGV más 2% de IPM); 10% para algunas micro y pequeñas empresas de restaurantes y hoteles; 0% para lo exonerado." }
+  ],
+  "importacion": { "iva_descontable": true, "nota": "El IGV pagado en la importación es crédito fiscal." },
+  "notas": [
+    "Valores de partida: confírmalos con tu contador antes de facturar.",
+    "Las detracciones, percepciones y retenciones de Perú no se calculan en Briela."
+  ]
+}

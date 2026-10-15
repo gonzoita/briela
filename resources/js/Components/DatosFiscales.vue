@@ -32,7 +32,7 @@ function alternar(codigo) {
 <template>
     <div class="space-y-3">
         <div>
-            <p class="block text-xs font-medium text-tinta-700 mb-1.5">Responsabilidades (casilla 53 del RUT)</p>
+            <p class="block text-xs font-medium text-tinta-700 mb-1.5">Responsabilidades tributarias (en Colombia, casilla 53 del RUT)</p>
             <div class="flex flex-wrap gap-1.5">
                 <button v-for="o in catalogo" :key="o.codigo" type="button" @click="alternar(o.codigo)"
                     class="text-xs px-2.5 py-1 rounded-full border transition-colors"
@@ -58,7 +58,7 @@ function alternar(codigo) {
                 <input v-model="modelo.retenedor_ica" type="checkbox" class="rounded mt-0.5"/>
                 <span>
                     Retiene ICA
-                    <span class="block text-xs text-tinta-400">No sale del RUT: cada municipio nombra a sus agentes de retención.</span>
+                    <span class="block text-xs text-tinta-400">No sale del documento fiscal: cada municipio nombra a sus agentes de retención.</span>
                 </span>
             </label>
         </div>

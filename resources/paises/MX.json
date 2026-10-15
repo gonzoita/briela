@@ -1,0 +1,23 @@
+{
+  "iso": "MX",
+  "version": "2026.10.1",
+  "revisado": false,
+  "documento_fiscal": "Constancia de situación fiscal (RFC)",
+  "autoridad": "SAT",
+  "moneda": "MXN",
+  "retenciones": false,
+  "facturacion": "CFDI 4.0 timbrado por un Proveedor de Certificación (PAC) autorizado por el SAT.",
+  "identificaciones": [
+    { "codigo": "RFC",  "nombre": "RFC", "juridica": true, "patron": "^[A-ZÑ&]{3,4}\\d{6}[A-Z0-9]{3}$", "dv": null, "ayuda": "12 caracteres para una persona moral, 13 para una persona física, sin guiones." },
+    { "codigo": "CURP", "nombre": "CURP", "juridica": false, "patron": "^[A-Z]{4}\\d{6}[HMX][A-Z]{5}[A-Z0-9]\\d$", "dv": null, "ayuda": "18 caracteres, sin espacios." },
+    { "codigo": "PAS",  "nombre": "Pasaporte", "juridica": false, "patron": "^[A-Za-z0-9]{4,15}$", "dv": null }
+  ],
+  "impuestos": [
+    { "clave": "iva", "nombre": "IVA", "tarifas": [16, 8, 0], "defecto": 16, "nota": "16% general; 8% en la región fronteriza con estímulo fiscal; 0% para alimentos, medicinas y exportaciones." }
+  ],
+  "importacion": { "iva_descontable": true, "nota": "El IVA pagado en la importación es acreditable para el contribuyente." },
+  "notas": [
+    "Valores de partida: confírmalos con tu contador antes de facturar.",
+    "Las retenciones de ISR e IVA de México no se calculan en Briela."
+  ]
+}

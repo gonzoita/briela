@@ -25,7 +25,7 @@ const csrf = () => {
 // Explicación de cada columna. El orden debe coincidir con la plantilla.
 const descripciones = {
     tipo:                  { obligatoria: false, texto: '"empresa" o "persona". Si se deja vacío, es "empresa".' },
-    tipo_identificacion:   { obligatoria: false, texto: 'NIT o RUT para empresas; CC, CE o PA para personas. Si se deja vacío se elige según el tipo.' },
+    tipo_identificacion:   { obligatoria: false, texto: 'El de su país: NIT, RFC, RUC, EIN… para empresas; CC, CE o PA para personas. EXT para una identificación del exterior en formato libre. Si se deja vacío se elige según el tipo.' },
     numero_identificacion: { obligatoria: false, texto: 'NIT o cédula. Puedes escribirlo con puntos y guiones; se limpia solo. Si ya existe en el sistema, ese cliente se ACTUALIZA en vez de crear uno duplicado. El dígito de verificación se calcula solo, no lo pongas en columna aparte.' },
     nombre:                { obligatoria: true,  texto: 'Razón social de la empresa, o el nombre si es persona natural.' },
     apellido:              { obligatoria: false, texto: 'Solo para personas naturales.' },

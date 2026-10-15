@@ -1677,7 +1677,7 @@ function submit() {
                     <div v-else-if="modalPanel === 'producto'" class="flex flex-col overflow-hidden">
                         <div class="px-5 py-3 shrink-0">
                             <input :value="productoQuery" @input="buscarProducto($event.target.value)"
-                                type="text" placeholder="Nombre o referencia..." autofocus
+                                type="text" placeholder="Nombre, referencia o código de proveedor..." autofocus
                                 class="w-full rounded-xl border border-tinta-200 px-3 py-2.5 text-sm focus:ring-2 focus:border-[var(--marca)] focus:outline-none"/>
                         </div>
                         <div class="overflow-y-auto flex-1">

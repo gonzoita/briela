@@ -1,0 +1,23 @@
+{
+  "iso": "US",
+  "version": "2026.10.1",
+  "revisado": false,
+  "documento_fiscal": "Formulario W-9",
+  "autoridad": "IRS",
+  "moneda": "USD",
+  "retenciones": false,
+  "facturacion": "No hay factura electrónica nacional: la factura es comercial.",
+  "identificaciones": [
+    { "codigo": "EIN",  "nombre": "EIN (Employer Identification Number)", "juridica": true,  "patron": "^\\d{2}-?\\d{7}$", "dv": null, "ayuda": "Nueve dígitos: 12-3456789." },
+    { "codigo": "SSN",  "nombre": "SSN (Social Security Number)", "juridica": false, "patron": "^\\d{3}-?\\d{2}-?\\d{4}$", "dv": null },
+    { "codigo": "ITIN", "nombre": "ITIN", "juridica": false, "patron": "^9\\d{2}-?\\d{2}-?\\d{4}$", "dv": null, "ayuda": "Nueve dígitos que empiezan por 9." },
+    { "codigo": "PAS",  "nombre": "Pasaporte", "juridica": false, "patron": "^[A-Za-z0-9]{4,15}$", "dv": null }
+  ],
+  "impuestos": [
+    { "clave": "sales_tax", "nombre": "Sales tax", "tarifas": [0], "defecto": 0, "nota": "No hay IVA federal: el sales tax lo fija cada estado y condado. Escribe aquí las tarifas que apliquen." }
+  ],
+  "importacion": { "iva_descontable": true, "nota": "No hay impuesto al valor agregado en la importación; los aranceles los cobra la aduana (CBP)." },
+  "notas": [
+    "Valores de partida: confírmalos con tu contador antes de facturar."
+  ]
+}

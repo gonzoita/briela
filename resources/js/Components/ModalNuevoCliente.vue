@@ -14,7 +14,7 @@
  * Valida en el servidor con las mismas reglas que la pantalla completa: una versión
  * recortada es por donde se cuelan los clientes a medio llenar.
  */
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import ChipsSegmentacion from '@/Components/ChipsSegmentacion.vue'
 
 const props = defineProps({
@@ -51,6 +51,36 @@ const form = ref({
 })
 
 const esPersona = computed(() => form.value.tipo === 'persona')
+
+// Los tipos de identificación son los del país de la empresa (NIT, RFC, RUC, EIN…), y se
+// piden al abrir el modal: así una instalación de otro país no ofrece los de Colombia.
+const identificaciones = ref([
+    { codigo: 'NIT', nombre: 'NIT', juridica: true }, { codigo: 'CC', nombre: 'Cédula', juridica: false },
+    { codigo: 'CE', nombre: 'Cédula de extranjería', juridica: false }, { codigo: 'PA', nombre: 'Pasaporte', juridica: false },
+])
+const identificacionesDelTipo = computed(() => {
+    const propias = identificaciones.value.filter(i => i.juridica === ! esPersona.value || i.codigo === 'EXT')
+    return propias.length ? propias : identificaciones.value
+})
+function elegirTipoIdentificacion() {
+    if (! identificacionesDelTipo.value.some(i => i.codigo === form.value.tipo_identificacion)) {
+        form.value.tipo_identificacion = identificacionesDelTipo.value[0]?.codigo ?? ''
+    }
+}
+watch(esPersona, elegirTipoIdentificacion)
+onMounted(async () => {
+    try {
+        const res = await fetch('/api/clientes/identificaciones', { headers: { Accept: 'application/json' }, credentials: 'same-origin' })
+        if (! res.ok) return
+        const json = await res.json()
+        if (json.identificaciones?.length) {
+            identificaciones.value = json.identificaciones
+            elegirTipoIdentificacion()
+        }
+    } catch {
+        // Sin conexión quedan los de Colombia, que es lo que había.
+    }
+})
 
 /** Los tipos de contacto que definen precio, para poder advertir si no eligió ninguno. */
 const canales = computed(() =>
@@ -158,11 +188,7 @@ const claseCampo = (campo) => [
                         <div>
                             <label class="block text-xs font-medium text-tinta-700 mb-1">Tipo de identificación</label>
                             <select v-model="form.tipo_identificacion" :class="claseCampo('tipo_identificacion')">
-                                <option value="NIT">NIT</option>
-                                <option value="CC">Cédula</option>
-                                <option value="CE">Cédula de extranjería</option>
-                                <option value="PA">Pasaporte</option>
-                                <option value="RUT">RUT</option>
+                                <option v-for="i in identificacionesDelTipo" :key="i.codigo" :value="i.codigo">{{ i.nombre }}</option>
                             </select>
                         </div>
                         <div>

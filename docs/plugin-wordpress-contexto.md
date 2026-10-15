@@ -208,6 +208,10 @@ tomadas, todas visibles en el sitio del cliente:
 
 Detalle funcional en `docs/manual/publicar-en-la-web.md`.
 
+> **Pendiente (15 oct 2026):** la versión 0.2.0 del plugin (producto variable, atributos,
+> documentos, catálogo PDF) pasó `php -l` pero **no se ha probado en un WordPress con
+> WooCommerce**. Retomarlo antes de instalarla en un sitio en vivo.
+
 ---
 
 ## 7. Graphify — antes de leer código a mano

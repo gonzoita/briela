@@ -41,13 +41,16 @@ class LiquidacionImportacionService
     public function __construct(private CostosEnMonedaService $reprecio) {}
 
     /**
-     * @param  array{tasa: float|string, metodo?: string, iva_descontable?: bool,
+     * @param  array{tasa: float|string, tasa_nacionalizacion?: float|string|null, metodo?: string, iva_descontable?: bool,
      *   items: list<array<string, mixed>>, costos?: list<array<string, mixed>>}  $e
      * @return array{items: list<array<string, float|null>>, totales: array<string, float>, factor: float|null, avisos: list<string>}
      */
     public function calcular(array $e): array
     {
-        $tasa   = (float) ($e['tasa'] ?? 1);
+        // La tasa de la declaración de importación manda sobre la de la factura: es con la que la
+        // aduana liquida el arancel, y con la que el costo queda puesto en bodega. Lo que se
+        // pague al proveedor a otra tasa es diferencia en cambio (`DiferenciaCambioService`).
+        $tasa   = (float) ($e['tasa_nacionalizacion'] ?? 0) > 0 ? (float) $e['tasa_nacionalizacion'] : (float) ($e['tasa'] ?? 1);
         $metodo = array_key_exists($e['metodo'] ?? 'valor', self::METODOS) ? ($e['metodo'] ?? 'valor') : 'valor';
         $iva    = (bool) ($e['iva_descontable'] ?? true);
         $avisos = [];
@@ -159,6 +162,7 @@ class LiquidacionImportacionService
     {
         return [
             'tasa'            => (float) $imp->tasa,
+            'tasa_nacionalizacion' => $imp->tasa_nacionalizacion !== null ? (float) $imp->tasa_nacionalizacion : null,
             'metodo'          => $imp->metodo_prorrateo,
             'iva_descontable' => $imp->iva_descontable,
             'items'           => $imp->items->map->only(['cantidad', 'valor_unitario', 'peso_kg', 'arancel_pct', 'iva_pct'])->all(),
@@ -186,7 +190,7 @@ class LiquidacionImportacionService
             throw new RuntimeException('Agrega al menos un producto antes de liquidar.');
         }
 
-        if ((float) $imp->tasa <= 0) {
+        if ($imp->tasaDelCosto() <= 0) {
             throw new RuntimeException('Falta la tasa de cambio.');
         }
 

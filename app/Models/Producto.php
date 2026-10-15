@@ -275,6 +275,80 @@ class Producto extends Model
      * Productos que pueden elegirse en un selector (Cotizaciones, OP, Ensambles):
      * variantes, o productos simples que no son padre ni variante.
      */
+    /**
+     * Busca por nombre, por referencia o por el código con que lo llama cualquiera de sus
+     * proveedores (`producto_proveedor.referencia_proveedor`).
+     *
+     * Es UNA regla para todos los buscadores de productos —la lista, la cotización, la orden de
+     * compra, la importación y Ctrl+K—: quien tiene en la mano la factura del proveedor busca
+     * con el código que trae la factura, no con el nuestro. Con `$conPadre`, una variante también
+     * aparece por el nombre de su producto; con `$conVariantes`, un producto aparece por la
+     * referencia o el código de proveedor de una de sus variantes (la lista solo muestra padres).
+     */
+    public function scopeBuscarTexto($query, ?string $termino, bool $conPadre = false, bool $conVariantes = false)
+    {
+        $termino = trim((string) $termino);
+
+        if ($termino === '') {
+            return $query;
+        }
+
+        $like = '%' . addcslashes($termino, '%_\\') . '%';
+        $porCodigo = fn () => ProductoProveedor::query()->where('referencia_proveedor', 'like', $like)->select('producto_id');
+
+        return $query->where(function ($w) use ($like, $porCodigo, $conPadre, $conVariantes) {
+            $w->where('nombre', 'like', $like)
+              ->orWhere('referencia', 'like', $like)
+              ->orWhereIn('id', $porCodigo());
+
+            if ($conPadre) {
+                $w->orWhereHas('padre', fn ($p) => $p->where('nombre', 'like', $like));
+            }
+
+            if ($conVariantes) {
+                $w->orWhereHas('variantes', fn ($v) => $v->where('referencia', 'like', $like)->orWhereIn('id', $porCodigo()));
+            }
+        });
+    }
+
+    /**
+     * El código de proveedor que coincidió con la búsqueda, para decir por qué apareció un
+     * producto: `[producto_id => ['codigo' => 'HT-4410', 'proveedor' => 'Herrajes SAS']]`.
+     * Se busca en el producto y en sus variantes; la variante se reporta en su padre.
+     *
+     * @param  iterable<Producto>  $productos
+     * @return array<int, array{codigo: string, proveedor: ?string}>
+     */
+    public static function codigosProveedorQueCoinciden(iterable $productos, ?string $termino): array
+    {
+        $termino = trim((string) $termino);
+        $dueno   = [];
+
+        foreach ($productos as $p) {
+            $dueno[$p->id] = $p->id;
+            foreach ($p->relationLoaded('variantes') ? $p->variantes : [] as $v) {
+                $dueno[$v->id] = $p->id;
+            }
+        }
+
+        if ($termino === '' || $dueno === []) {
+            return [];
+        }
+
+        $like = '%' . addcslashes($termino, '%_\\') . '%';
+        $resultado = [];
+
+        ProductoProveedor::with('proveedor:id,nombre')
+            ->whereIn('producto_id', array_keys($dueno))
+            ->where('referencia_proveedor', 'like', $like)
+            ->get()
+            ->each(function ($pp) use ($dueno, &$resultado) {
+                $resultado[$dueno[$pp->producto_id]] ??= ['codigo' => $pp->referencia_proveedor, 'proveedor' => $pp->proveedor?->nombre];
+            });
+
+        return $resultado;
+    }
+
     public function scopeSeleccionables($query)
     {
         return $query->where(function ($q) {

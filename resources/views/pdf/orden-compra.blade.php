@@ -50,8 +50,8 @@
         <div class="info-block">
             <label>Proveedor</label>
             <p>{{ $orden->proveedor->nombre }}</p>
-            @if($orden->proveedor->nit)
-                <p style="font-size:10px;color:#666;">NIT: {{ $orden->proveedor->nit }}</p>
+            @if($orden->proveedor->numero_identificacion || $orden->proveedor->nit)
+                <p style="font-size:10px;color:#666;">{{ $orden->proveedor->tipo_identificacion ?: 'Id. fiscal' }}: {{ $orden->proveedor->numero_identificacion ?: $orden->proveedor->nit }}{{ $orden->proveedor->numero_identificacion && $orden->proveedor->digito_verificacion ? '-' . $orden->proveedor->digito_verificacion : '' }}</p>
             @endif
         </div>
         <div class="info-block">

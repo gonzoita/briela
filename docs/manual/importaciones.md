@@ -36,6 +36,27 @@ para que las partes sumen exactamente el total.
 5. **Si el impuesto de importación se recupera.** Lo propone el país de la sede; si se recupera
    no es un costo, y si no, se suma al costo del producto.
 
+## Las tres tasas y la diferencia en cambio *(15 oct 2026)*
+
+Una importación en otra moneda tiene tres tasas:
+
+| Tasa | Dónde | Para qué |
+|---|---|---|
+| La de la factura | Al armar el embarque | Referencia; con ella se calcula mientras no haya otra |
+| **TRM de nacionalización** | Al armar el embarque (con su fecha) | La de la declaración de importación. **Con ella sale el costo** puesto en bodega |
+| La de cada pago | Botón **Registrar pago** en la importación | Lo que de verdad costó pagarle al proveedor |
+
+Cada pago (anticipo, saldo o pago) lleva fecha, valor en la moneda de la factura, TRM del día y
+una referencia. La diferencia de cada uno es `valor × (TRM del pago − TRM del costo)`: positiva
+es **pérdida en cambio** (se pagaron más pesos de los que dice el costo), negativa es ganancia.
+**No cambia el costo del producto**: es un resultado financiero y se muestra aparte, con la
+factura, lo pagado y el saldo por pagar. Los pagos se registran también en una importación ya
+liquidada, porque el saldo suele pagarse después.
+
+Lo que se le debe al proveedor es la factura (las líneas del embarque); el flete y los gastos se
+pagan a otros y no entran en esta cuenta. La cuenta vive en `DiferenciaCambioService`. Sin TRM de
+nacionalización la diferencia se mide contra la de la factura, y la pantalla lo avisa.
+
 ## Liquidar
 
 Mientras es borrador, el cálculo es de hoy y no toca nada. Al **liquidar** (permiso aparte,

@@ -647,13 +647,11 @@ class CotizacionController extends Controller
                 ->seleccionables()
                 ->where('activo', true)
                 ->whereIn('tipo', ['producto', 'servicio'])
-                ->where(fn ($q) => $q
-                    ->where('nombre', 'like', "%{$buscar}%")
-                    ->orWhere('referencia', 'like', "%{$buscar}%")
-                    ->orWhereHas('padre', fn ($q2) => $q2->where('nombre', 'like', "%{$buscar}%"))
-                )
+                ->buscarTexto($buscar, conPadre: true)
                 ->take(20)
                 ->get();
+
+        $porCodigo = Producto::codigosProveedorQueCoinciden($productos, $buscar);
 
         // Lo que otras cotizaciones tienen apartado, para avisarlo al lado del stock. Se excluye
         // la cotización abierta (si llega): lo suyo no le resta a ella.
@@ -666,6 +664,7 @@ class CotizacionController extends Controller
                     'nombre'               => $p->nombre,
                     'nombre_completo'      => $p->nombre_completo,
                     'referencia'           => $p->referencia,
+                    'codigo_proveedor'     => $porCodigo[$p->id] ?? null,
                     'tipo'                 => $p->tipo,
                     'padre_nombre'         => $p->padre?->nombre,
                     'atributo_variante'    => $p->padre?->atributo_variante,

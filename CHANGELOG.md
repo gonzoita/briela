@@ -32,8 +32,20 @@ Formato: [versionado semántico](https://semver.org/lang/es/).
 - **Tienda en línea (plugin Briela Connect 0.2.0)**: un producto con variantes se publica como un solo
   producto y el cliente elige la variante en la ficha; marca, origen y características salen como
   atributos, y los planos y fichas técnicas en una pestaña.
+- **Diferencia en cambio en las importaciones**: la importación guarda la TRM de nacionalización (la
+  de la declaración), con la que sale el costo. El botón **Registrar pago** anota cada anticipo o
+  saldo al proveedor con su TRM, y Briela muestra lo pagado, el saldo y la ganancia o pérdida en
+  cambio, sin mover el costo del producto.
+- **Identificación fiscal de cualquier país**: donde decía «RUT» ahora dice identificación o
+  documento fiscal. La empresa puede ser de otro país (Perfil fiscal), y sus PDF dicen RFC, RUC o EIN
+  en vez de NIT. Llegan México, Ecuador, Perú, Chile y Estados Unidos (valores de partida, por
+  confirmar con un contador), y todo país acepta una identificación del exterior en formato libre.
+- **Buscar productos por el código del proveedor** en la lista, la cotización, la orden de compra,
+  la importación y el buscador Ctrl+K, con el código que coincidió a la vista.
 
 ### Corregido
+- El PDF de cotización por omisión y el recibo de pago ya no imprimen un NIT y una ciudad de
+  ejemplo: muestran la identificación y la ciudad de la empresa.
 - Guardar una cotización ya no borra y vuelve a crear todas sus líneas: se conservan.
 - El bloque de totales de las plantillas PDF ya no deja el total destacado sin color.
 - El asistente ya no dice que «no tiene la herramienta» cuando una instrucción llega cortada. Ahora lo

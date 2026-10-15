@@ -72,11 +72,12 @@ class PaisesTest extends TestCase
 
     public function test_un_pais_sin_paquete_funciona_con_identificaciones_genericas(): void
     {
-        $this->assertFalse(Paises::perfil('PE')['con_paquete']);
-        $this->assertSame(['ID', 'DOC', 'PAS'], Paises::codigosIdentificacion('PE'));
-        $this->assertSame('PEN', Paises::monedaDe('PE'));
+        $this->assertFalse(Paises::perfil('AR')['con_paquete']);
+        // Las genéricas, y al final la del exterior en formato libre, que tiene todo país.
+        $this->assertSame(['ID', 'DOC', 'PAS', 'EXT'], Paises::codigosIdentificacion('AR'));
+        $this->assertSame('ARS', Paises::monedaDe('AR'));
         // Sin impuestos conocidos no se inventa uno: solo ofrece 0 hasta que la empresa lo escriba.
-        $this->assertSame([0.0], Paises::tarifas('PE'));
+        $this->assertSame([0.0], Paises::tarifas('AR'));
     }
 
     public function test_los_paquetes_son_json_valido_y_completo(): void

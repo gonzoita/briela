@@ -254,15 +254,26 @@ class ClienteImportController extends Controller
                     $tipo = 'empresa';
                 }
 
+                // Los tipos son los del país de la empresa (NIT, RFC, RUC, EIN…); uno que no
+                // exista allí toma el primero de empresa o de persona de ese país.
+                $casa   = \App\Support\Paises::casa();
+                $tipos  = \App\Support\Paises::perfil($casa)['identificaciones'];
                 $tipoId = mb_strtoupper(trim($d['tipo_identificacion'] ?? ''));
-                if (! in_array($tipoId, ['CC', 'NIT', 'CE', 'PA', 'RUT'], true)) {
-                    $tipoId = $tipo === 'persona' ? 'CC' : 'NIT';
+                if (! in_array($tipoId, array_column($tipos, 'codigo'), true)) {
+                    $tipoId = collect($tipos)->firstWhere('juridica', $tipo !== 'persona')['codigo'] ?? $tipos[0]['codigo'];
                 }
 
-                // El número se guarda sin puntos ni guiones, y el DV aparte,
-                // igual que cuando se crea desde el formulario.
-                $verificacion = $nit->verificarDv($d['numero_identificacion'] ?? '');
-                $base         = $verificacion['base'];
+                // El número se guarda sin puntos ni guiones, y el DV aparte, igual que cuando se
+                // crea desde el formulario. El NIT de Colombia usa su propia cuenta; los demás
+                // conservan letras (un RFC las lleva) y calculan el DV si su país lo usa.
+                $dvTipo = \App\Support\Paises::identificacion($casa, $tipoId)['dv'] ?? null;
+                if ($dvTipo === 'nit_co') {
+                    $verificacion = $nit->verificarDv($d['numero_identificacion'] ?? '');
+                } else {
+                    $limpio = strtoupper(preg_replace('/[\s.]/', '', (string) ($d['numero_identificacion'] ?? '')));
+                    $verificacion = ['base' => $limpio, 'dv_calculado' => \App\Support\Paises::calcularDv($casa, $tipoId, $limpio)];
+                }
+                $base = $verificacion['base'];
 
                 $cliente = $base !== ''
                     ? Cliente::where('numero_identificacion', $base)->first()
@@ -286,7 +297,7 @@ class ClienteImportController extends Controller
                     'tipo'                  => $tipo,
                     'tipo_identificacion'   => $tipoId,
                     'numero_identificacion' => $base !== '' ? $base : null,
-                    'digito_verificacion'   => in_array($tipoId, ['NIT', 'RUT'], true) ? $verificacion['dv_calculado'] : null,
+                    'digito_verificacion'   => $dvTipo !== null ? $verificacion['dv_calculado'] : null,
                     'nombre'                => $nombre,
                     'apellido'              => $this->texto($d['apellido'] ?? null, $cliente?->apellido),
                     'email'                 => $this->texto($d['email'] ?? null, $cliente?->email),

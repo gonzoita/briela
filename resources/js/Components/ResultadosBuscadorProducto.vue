@@ -44,6 +44,9 @@ const filas = computed(() => {
                     <p class="text-sm text-tinta-900 truncate">{{ fila.producto.nombre }}</p>
                     <div class="flex items-center gap-2 mt-0.5">
                         <span class="text-xs text-tinta-300 font-mono truncate">{{ fila.producto.referencia }}</span>
+                        <!-- Si apareció por el código de un proveedor, se dice cuál. -->
+                        <span v-if="fila.producto.codigo_proveedor" class="text-[11px] px-1.5 py-0.5 rounded-full shrink-0 bg-pastel-azul-2 text-aviso-azul"
+                            :title="`Código con que lo llama ${fila.producto.codigo_proveedor.proveedor ?? 'un proveedor'}`">{{ fila.producto.codigo_proveedor.codigo }}<span v-if="fila.producto.codigo_proveedor.proveedor"> · {{ fila.producto.codigo_proveedor.proveedor }}</span></span>
                         <span v-if="fila.producto.tipo === 'servicio'" class="text-xs px-1.5 py-0.5 rounded-full shrink-0" style="background:var(--pastel-verde);color:var(--texto-verde);">Servicio</span>
                     </div>
                 </div>

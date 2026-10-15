@@ -98,7 +98,7 @@ class LectorRutService
         $responsabilidades = Fiscal::codigos($json['responsabilidades'] ?? []);
 
         if ($responsabilidades === [] ) {
-            $avisos[] = 'No se leyeron responsabilidades tributarias (casilla 53). Si el documento es un RUT, márcalas a mano.';
+            $avisos[] = 'No se leyeron responsabilidades tributarias (casilla 53). Si el documento las trae, márcalas a mano.';
         }
 
         $ciiu = preg_replace('/\D/', '', (string) ($json['actividad_principal'] ?? ''));

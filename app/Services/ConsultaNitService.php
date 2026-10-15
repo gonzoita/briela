@@ -286,8 +286,9 @@ class ConsultaNitService
     }
 
     /**
-     * La consulta para un cliente de otro país: no hay dígito de verificación ni RUES que
-     * valgan —son colombianos—, pero sí se avisa del formato y de los duplicados.
+     * La consulta para un cliente de otro país: el RUES es colombiano y no vale, pero sí se avisa
+     * del formato y de los duplicados, y se calcula el dígito de verificación si su país lo usa
+     * (el RUT de Chile).
      *
      * @return array<string, mixed>  La misma forma que `consultar()`, para que la pantalla no distinga.
      */
@@ -320,7 +321,7 @@ class ConsultaNitService
 
         return [
             'base'       => $numero,
-            'dv'         => null,
+            'dv'         => \App\Support\Paises::calcularDv($pais, $tipo, $numero),
             'dv_aviso'   => \App\Support\Paises::avisoIdentificacion($pais, $tipo, $numero),
             'duplicado'  => $duplicado,
             'rues'       => null,

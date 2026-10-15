@@ -301,11 +301,11 @@ function tipoColor(t) {
                     <h2 class="text-lg font-semibold text-tinta-900 mb-4">
                         {{ editando ? 'Editar proveedor' : 'Nuevo proveedor' }}
                     </h2>
-                    <!-- Cargar desde el RUT: llena los datos y las responsabilidades. Se revisan antes de guardar. -->
+                    <!-- Cargar desde el documento fiscal: llena los datos y las responsabilidades. Se revisan antes de guardar. -->
                     <div class="mb-4 rounded-xl border border-linea p-3" style="background:var(--superficie-2);">
                         <div class="flex items-start justify-between gap-3">
                             <p class="text-xs text-tinta-500">
-                                Sube el RUT (PDF o foto) y se llenan los datos fiscales. Revísalos antes de guardar.
+                                Sube su documento fiscal (RUT, RFC, RUC… en PDF o foto) y se llenan los datos. Revísalos antes de guardar.
                             </p>
                             <LeerRut url="/compras/proveedores/leer-rut" :pais="form.pais || pais_casa" @leido="usarRut" class="shrink-0" />
                         </div>

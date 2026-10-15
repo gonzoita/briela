@@ -176,6 +176,19 @@ class ClienteController extends Controller
      * cotización no muestra precios y el usuario se quedaría mirando una pantalla vacía sin
      * entender por qué.
      */
+    /** Los tipos de identificación del país de la casa: los que acepta `storeApi` sin país. */
+    public function identificacionesApi(): JsonResponse
+    {
+        $casa = \App\Support\Paises::casa();
+
+        return response()->json([
+            'pais' => $casa,
+            'identificaciones' => array_map(fn ($i) => [
+                'codigo' => $i['codigo'], 'nombre' => $i['nombre'], 'juridica' => (bool) ($i['juridica'] ?? false),
+            ], \App\Support\Paises::perfil($casa)['identificaciones']),
+        ]);
+    }
+
     public function storeApi(Request $request): JsonResponse
     {
         $data = $this->normalizarFiscal($request->validate($this->reglas()));

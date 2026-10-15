@@ -201,14 +201,22 @@ class BuscadorGlobalService
                 'tipo' => 'producto', 'etiqueta' => 'Productos', 'color' => 'ambar',
                 'permiso' => 'productos.ver',
                 // Catálogo compartido: no se filtra por sede.
-                'buscar' => fn ($t) => Producto::query()
-                    ->where(fn ($q) => $this->comoEn($q, ['nombre', 'referencia', 'descripcion_corta'], $t))
-                    ->limit($this->porTipo)->get()
-                    ->map(fn (Producto $p) => [
+                // También por el código con que lo llama un proveedor (la factura que se tiene en la mano).
+                'buscar' => function ($t) {
+                    $productos = Producto::query()
+                        ->where(fn ($q) => $this->comoEn($q, ['nombre', 'referencia', 'descripcion_corta'], $t)
+                            ->orWhereIn('id', \App\Models\ProductoProveedor::query()
+                                ->where('referencia_proveedor', 'like', '%' . addcslashes(trim($t), '%_\\') . '%')->select('producto_id')))
+                        ->limit($this->porTipo)->get();
+                    $porCodigo = Producto::codigosProveedorQueCoinciden($productos, $t);
+
+                    return $productos->map(fn (Producto $p) => [
                         'titulo'  => $p->nombre,
-                        'detalle' => trim(($p->referencia ?? '') . ' · ' . $p->tipo),
-                        'url'     => "/productos/{$p->id}",
-                    ])->all(),
+                        'detalle' => trim(($p->referencia ?? '') . ' · ' . $p->tipo
+                            . (isset($porCodigo[$p->id]) ? " · código de " . ($porCodigo[$p->id]['proveedor'] ?? 'proveedor') . ": {$porCodigo[$p->id]['codigo']}" : '')),
+                        'url'     => $p->producto_padre_id ? "/productos/{$p->producto_padre_id}" : "/productos/{$p->id}",
+                    ])->all();
+                },
             ],
             [
                 'tipo' => 'proveedor', 'etiqueta' => 'Proveedores', 'color' => 'gris',

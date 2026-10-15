@@ -48,8 +48,8 @@
         @endif
         <div class="header-empresa">
             <strong style="font-size: 14px;">{{ strtoupper($marcaNombre) }}</strong>
-            <p>NIT: 900.000.000-0</p>
-            <p>Fabricación e instalación de cuartos fríos y puertas refrigeradas</p>
+            @if($marcaIdentificacion)<p>{{ $marcaIdentificacion }}</p>@endif
+            @if($marcaCiudad)<p>{{ $marcaCiudad }}</p>@endif
             @if($marcaWeb)<p>{{ $marcaWeb }}</p>@endif
         </div>
     </div>

@@ -40,10 +40,8 @@ class ProductoController extends Controller
             ->when($request->filled('categoria'), fn ($q) => $q->where('categoria_id', $request->categoria))
             ->when($request->filled('es_vendible'), fn ($q) => $q->where('es_vendible', true))
             ->when($request->filled('es_insumo'), fn ($q) => $q->where('es_insumo', true))
-            ->when($request->filled('buscar'), fn ($q) => $q->where(function ($q) use ($request) {
-                $q->where('nombre', 'like', "%{$request->buscar}%")
-                  ->orWhere('referencia', 'like', "%{$request->buscar}%");
-            }));
+            // Por nombre, referencia o código de proveedor, también el de una variante.
+            ->when($request->filled('buscar'), fn ($q) => $q->buscarTexto($request->buscar, conVariantes: true));
     }
 
     public function index(Request $request): Response
@@ -63,7 +61,10 @@ class ProductoController extends Controller
 
         $productos = $query->paginate(12)->withQueryString();
 
-        $productos->through(function ($p) {
+        // Si apareció por el código de un proveedor, se dice cuál: si no, parece un error.
+        $porCodigo = Producto::codigosProveedorQueCoinciden($productos->getCollection(), $request->buscar);
+
+        $productos->through(function ($p) use ($porCodigo) {
             $principal = $p->imagenes->firstWhere('es_principal', true) ?? $p->imagenes->first();
             $variantes = $p->variantes->map(fn ($v) => [
                 'id'                   => $v->id,
@@ -85,6 +86,7 @@ class ProductoController extends Controller
                 'categoria_nombre' => $p->categoria?->nombre,
                 'categoria_color'  => $p->categoria?->color,
                 'variantes'        => $variantes,
+                'codigo_proveedor' => $porCodigo[$p->id] ?? null,
             ]);
         });
 
@@ -966,13 +968,7 @@ class ProductoController extends Controller
             ->seleccionables()
             ->where('activo', true)
             ->whereIn('tipo', ['producto', 'servicio'])
-            ->where(function ($query) use ($q) {
-                $query->where('nombre', 'like', "%{$q}%")
-                      ->orWhere('referencia', 'like', "%{$q}%")
-                      ->orWhereHas('padre', function ($q2) use ($q) {
-                          $q2->where('nombre', 'like', "%{$q}%");
-                      });
-            })
+            ->buscarTexto($q, conPadre: true)
             ->limit(20)
             ->get()
             ->map(function ($p) use ($bodegas) {

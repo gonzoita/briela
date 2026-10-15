@@ -1,6 +1,6 @@
 <script setup>
 /**
- * Botón para leer un RUT (o una foto de él) con la IA.
+ * Botón para leer un documento fiscal —RUT, RFC, RUC, W-9…— (o una foto de él) con la IA.
  *
  * Solo trae los datos: quien lo usa los pone en su formulario, y la persona los revisa
  * antes de guardar. Lo que la IA avisa —un dígito de verificación que no cuadra, una
@@ -11,7 +11,7 @@ import { ref } from 'vue'
 const props = defineProps({
     // A dónde se sube: la ficha del cliente y el perfil fiscal usan rutas distintas.
     url:   { type: String, required: true },
-    texto: { type: String, default: 'Leer RUT con IA' },
+    texto: { type: String, default: 'Leer identificación fiscal con IA' },
     // El país del documento: cambia lo que se le pide leer a la IA.
     pais:  { type: String, default: '' },
 })

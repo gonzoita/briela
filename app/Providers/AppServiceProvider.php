@@ -74,6 +74,9 @@ class AppServiceProvider extends ServiceProvider
                 'marcaLogoUrl'  => Marca::logoUrl(),
                 'marcaEmail'    => \App\Models\Configuracion::get('empresa_email', ''),
                 'marcaWeb'      => \App\Models\Configuracion::get('empresa_web', ''),
+                // «NIT: 900123456-7», «RFC: ABC010203XY1»… vacío si la empresa no la ha escrito.
+                'marcaIdentificacion' => \App\Support\Paises::identificacionEmpresa()['texto'],
+                'marcaCiudad'   => \App\Models\Configuracion::get('empresa_ciudad', ''),
             ]);
         });
     }

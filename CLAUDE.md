@@ -664,6 +664,19 @@ Lo construido después de la fase 3, que conviene conocer antes de tocar algo ce
   de una lista cerrada —`store()` adivina la extensión por el contenido y podía dejar un `.php`—. El
   **catálogo en PDF sale siempre sin precios** (`CatalogoPdfService`). El plugin
   (`wordpress-plugin/briela-connect`) publica un producto con variantes como **un** producto variable.
+  **La 0.2.0 del plugin no se ha probado en un WordPress real**: pendiente antes de instalarla en vivo.
+- **Una importación tiene tres tasas** (15 oct 2026): la de la factura (`tasa`), la de la declaración
+  (`tasa_nacionalizacion`, con la que sale el costo: `Importacion::tasaDelCosto()`) y la de cada pago
+  (`importacion_pagos`). La diferencia en cambio la calcula **un solo sitio**, `DiferenciaCambioService`,
+  y **no mueve el costo**: es un resultado financiero. Los pagos se registran también liquidada.
+- **«RUT» no se escribe en la interfaz**: se dice identificación o documento fiscal, porque la empresa
+  y los terceros pueden ser de cualquier país. Todo país acepta al final `EXT` (`Paises::EXTERIOR`,
+  formato libre); el DV lo calcula `Paises::calcularDv()` por paquete (`nit_co`, `rut_cl`). La
+  identificación de la empresa es `Paises::identificacionEmpresa()` (número en `empresa_nit`, tipo en
+  `empresa_tipo_identificacion`), y su país es el de la sede principal.
+- **Buscar productos es UNA regla**, `Producto::scopeBuscarTexto()`: nombre, referencia o código de
+  proveedor (`producto_proveedor.referencia_proveedor`). Un buscador nuevo de productos la usa, y
+  `Producto::codigosProveedorQueCoinciden()` dice cuál código coincidió.
 
 - **El Equipo de IA (2.0) son agentes INTERNOS, y no son `agentes_ia`.** Esos atienden clientes; estos
   leen el negocio con el rol de su cargo y **proponen**. Un agente **nunca escribe**: deja una fila en
@@ -757,7 +770,7 @@ decían lo contrario y estaban equivocadas.
   relaciones entre archivos antes de leer código a mano.
 - Conviene regenerarlo después de cambios que muevan estructura (borrar módulos,
   mover carpetas), porque un grafo desactualizado es peor que no tenerlo.
-- **Generado y al día.** Al 14 oct 2026: **13.139 nodos, 26.764 aristas, 692 comunidades**
+- **Generado y al día.** Al 15 oct 2026: **13.228 nodos, 26.963 aristas, 692 comunidades**
   (con el Equipo de IA, las Automatizaciones y la vinculación de Meta). Cada entorno nuevo necesita `pip install graphifyy` una vez (en el
   superadmin el grafo se genera igual, pero no va al repo). Cubre el proyecto completo: 926 archivos de
   código por AST y los 70 documentos por subagentes. Se actualiza con

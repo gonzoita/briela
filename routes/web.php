@@ -467,6 +467,10 @@ Route::middleware('auth')->group(function () {
         // pantalla completa: es la misma acción, solo cambia desde dónde se hace.
         Route::post('/api/clientes', [ClienteController::class, 'storeApi'])
             ->middleware('permiso:clientes.crear')->name('clientes.store-api');
+        // Los tipos de identificación del país de la casa, para el cliente rápido: se piden al
+        // abrir el modal, no en cada navegación.
+        Route::get('/api/clientes/identificaciones', [ClienteController::class, 'identificacionesApi'])
+            ->middleware('permiso:clientes.crear');
 
         Route::post('/api/cotizaciones/condiciones-generales', [CotizacionController::class, 'guardarCondicionesGenerales'])
             ->middleware('permiso:configuracion.editar')->name('cotizaciones.condiciones-generales');
@@ -1236,6 +1240,8 @@ Route::middleware('auth')->group(function () {
             Route::get('/{importacion}/editar',      [ImportacionController::class, 'edit'])->middleware('permiso:importaciones.editar');
             Route::put('/{importacion}',             [ImportacionController::class, 'update'])->middleware('permiso:importaciones.editar');
             Route::post('/{importacion}/liquidar',   [ImportacionController::class, 'liquidar'])->middleware('permiso:importaciones.liquidar');
+            Route::post('/{importacion}/pagos',      [ImportacionController::class, 'registrarPago'])->middleware('permiso:importaciones.editar');
+            Route::delete('/pagos/{pago}',           [ImportacionController::class, 'eliminarPago'])->middleware('permiso:importaciones.editar');
             Route::delete('/{importacion}',          [ImportacionController::class, 'destroy'])->middleware('permiso:importaciones.editar');
         });
         Route::post('/api/importaciones/calcular', [ImportacionController::class, 'calcular']);

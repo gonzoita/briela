@@ -429,6 +429,8 @@ class PdfVariablesEngine
             // escrito a mano: así los PDF de cada cliente salen con SU color.
             'color'     => \App\Support\Marca::color(),
             'nit'       => \App\Models\Configuracion::get('empresa_nit', ''),
+            // El tipo de la identificación de arriba: NIT, RFC, RUC, EIN… («{{empresa.tipo_identificacion}}: {{empresa.nit}}»).
+            'tipo_identificacion' => \App\Support\Paises::identificacionEmpresa()['tipo'],
             'ciudad'    => \App\Models\Configuracion::get('empresa_ciudad', ''),
             'tel'       => \App\Models\Configuracion::get('empresa_telefono', ''),
             'email'     => \App\Models\Configuracion::get('empresa_email', ''),
@@ -636,7 +638,8 @@ class PdfVariablesEngine
                 ['var' => '{{!vendedor.firma}}',           'desc' => 'Firma del vendedor (imagen de su perfil)', 'grupo' => 'Vendedor'],
                 ['var' => '{{!documentos.adjuntos}}',      'desc' => 'Planos y fichas técnicas de los productos cotizados', 'grupo' => 'Productos'],
                 ['var' => '{{empresa.nombre}}',            'desc' => 'Nombre de la empresa',         'grupo' => 'Empresa'],
-                ['var' => '{{empresa.nit}}',               'desc' => 'NIT de la empresa',            'grupo' => 'Empresa'],
+                ['var' => '{{empresa.nit}}',               'desc' => 'Identificación fiscal de la empresa (el número)', 'grupo' => 'Empresa'],
+                ['var' => '{{empresa.tipo_identificacion}}', 'desc' => 'Tipo de identificación fiscal: NIT, RFC, RUC, EIN…', 'grupo' => 'Empresa'],
                 ['var' => '{{empresa.ciudad}}',            'desc' => 'Ciudad de la empresa',         'grupo' => 'Empresa'],
                 ['var' => '{{empresa.tel}}',               'desc' => 'Teléfono de la empresa',       'grupo' => 'Empresa'],
                 ['var' => '{{empresa.logo_url}}',          'desc' => 'URL del logo de la empresa',   'grupo' => 'Empresa'],
@@ -732,7 +735,8 @@ class PdfVariablesEngine
             ],
             default => [
                 ['var' => '{{empresa.nombre}}',   'desc' => 'Nombre de la empresa', 'grupo' => 'Empresa'],
-                ['var' => '{{empresa.nit}}',       'desc' => 'NIT de la empresa',    'grupo' => 'Empresa'],
+                ['var' => '{{empresa.nit}}',       'desc' => 'Identificación fiscal de la empresa', 'grupo' => 'Empresa'],
+                ['var' => '{{empresa.tipo_identificacion}}', 'desc' => 'Tipo de identificación fiscal: NIT, RFC, RUC, EIN…', 'grupo' => 'Empresa'],
                 ['var' => '{{empresa.ciudad}}',    'desc' => 'Ciudad de la empresa', 'grupo' => 'Empresa'],
                 ['var' => '{{empresa.logo_url}}',  'desc' => 'URL del logo',         'grupo' => 'Empresa'],
             ],

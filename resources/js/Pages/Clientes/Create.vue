@@ -210,7 +210,7 @@ function submit() {
                     <div class="flex flex-wrap items-start justify-between gap-2 mb-3">
                         <p class="text-xs font-semibold text-tinta-400 uppercase tracking-[0.12em]">Identificación</p>
                         <LeerRut v-if="tieneLector" url="/clientes/leer-rut" :pais="form.pais"
-                            :texto="form.pais === 'CO' ? 'Leer RUT con IA' : 'Leer documento con IA'" @leido="usarRut" class="max-w-full"/>
+                            texto="Leer identificación fiscal con IA" @leido="usarRut" class="max-w-full"/>
                     </div>
                     <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
                         <div class="col-span-2 sm:col-span-1">

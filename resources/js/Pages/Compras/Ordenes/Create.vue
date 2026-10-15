@@ -190,13 +190,13 @@ function fmtMoney(n) {
                     <!-- Cómo le ha ido con este proveedor: puntualidad, cumplimiento, papeles y precio. -->
                     <CalificacionProveedor v-if="proveedorElegido" :calificacion="proveedorElegido.calificacion" class="mt-2" />
                     <p v-if="proveedorElegido?.responsable_iva === false" class="text-xs text-tinta-500 mt-1">
-                        Según su RUT no es responsable de IVA: las líneas arrancan sin IVA.
+                        Según su documento fiscal no es responsable de IVA: las líneas arrancan sin IVA.
                     </p>
                     <p v-else-if="proveedorElegido?.responsable_iva === true" class="text-xs text-tinta-500 mt-1">
-                        Según su RUT es responsable de IVA: pon la tarifa de cada línea.
+                        Según su documento fiscal es responsable de IVA: pon la tarifa de cada línea.
                     </p>
                     <p v-else-if="proveedorElegido" class="text-xs text-aviso-ambar mt-1">
-                        No tiene RUT cargado, así que no se sabe si factura IVA. Puedes cargarlo en Proveedores.
+                        No tiene cargado su documento fiscal, así que no se sabe si factura IVA. Puedes cargarlo en Proveedores.
                     </p>
                 </div>
                 <div class="grid grid-cols-2 gap-3">

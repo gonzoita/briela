@@ -5,10 +5,12 @@ namespace App\Http\Controllers;
 use App\Models\Configuracion;
 use App\Models\Importacion;
 use App\Models\ImportacionCosto;
+use App\Models\ImportacionPago;
 use App\Models\OrdenCompra;
 use App\Models\Producto;
 use App\Models\Proveedor;
 use App\Services\CanalesPrecioService;
+use App\Services\DiferenciaCambioService;
 use App\Services\LiquidacionImportacionService;
 use App\Services\PreciosPorCanalService;
 use App\Services\TasaCambioService;
@@ -152,7 +154,47 @@ class ImportacionController extends Controller
             'criterio' => LiquidacionImportacionService::criterioCosto(),
             'base'    => Monedas::base(),
             'incoterms' => Importacion::INCOTERMS,
+            'cambio'    => app(DiferenciaCambioService::class)->resumen($importacion),
+            'conceptos_pago' => ImportacionPago::CONCEPTOS,
+            // La tasa de hoy, para proponerla al registrar un pago.
+            'tasa_hoy'  => $importacion->moneda !== Monedas::base() ? app(TasaCambioService::class)->valor($importacion->moneda) : null,
         ]);
+    }
+
+    /**
+     * Registra un pago al proveedor del exterior, con su tasa.
+     *
+     * Se puede también en una importación liquidada: los pagos suelen llegar después, y no
+     * tocan el costo —solo la diferencia en cambio—.
+     */
+    public function registrarPago(Request $request, Importacion $importacion): RedirectResponse
+    {
+        if ($importacion->moneda === Monedas::base()) {
+            return back()->with('error', "La factura está en {$importacion->moneda}, la moneda base: no hay diferencia en cambio.");
+        }
+
+        $d = $request->validate([
+            'fecha'      => 'required|date',
+            'concepto'   => ['required', Rule::in(array_keys(ImportacionPago::CONCEPTOS))],
+            'valor'      => 'required|numeric|gt:0',
+            'tasa'       => 'required|numeric|gt:0',
+            'referencia' => 'nullable|string|max:120',
+            'notas'      => 'nullable|string|max:500',
+        ], [
+            'valor.gt' => 'El valor tiene que ser mayor que cero.',
+            'tasa.gt'  => 'La tasa tiene que ser mayor que cero.',
+        ]);
+
+        $importacion->pagos()->create($d + ['creado_por' => auth()->id()]);
+
+        return back()->with('success', 'Pago registrado.');
+    }
+
+    public function eliminarPago(ImportacionPago $pago): RedirectResponse
+    {
+        $pago->delete();
+
+        return back()->with('success', 'Pago eliminado.');
     }
 
     public function liquidar(Importacion $importacion): RedirectResponse
@@ -182,7 +224,7 @@ class ImportacionController extends Controller
     public function calcular(Request $request): JsonResponse
     {
         $d = $request->validate([
-            'tasa' => 'nullable|numeric', 'metodo' => 'nullable|string', 'iva_descontable' => 'nullable|boolean',
+            'tasa' => 'nullable|numeric', 'tasa_nacionalizacion' => 'nullable|numeric', 'metodo' => 'nullable|string', 'iva_descontable' => 'nullable|boolean',
             'items' => 'nullable|array|max:300', 'items.*' => 'array',
             'costos' => 'nullable|array|max:100', 'costos.*' => 'array',
         ]);
@@ -195,12 +237,16 @@ class ImportacionController extends Controller
     {
         $q = (string) $request->query('q', '');
 
+        $productos = Producto::query()->seleccionables()->where('activo', true)->where('tipo', '!=', 'servicio')
+            ->buscarTexto($q, conPadre: true)
+            ->limit(15)->get();
+        $porCodigo = Producto::codigosProveedorQueCoinciden($productos, $q);
+
         return response()->json(
-            Producto::query()->seleccionables()->where('activo', true)->where('tipo', '!=', 'servicio')
-                ->where(fn ($w) => $w->where('nombre', 'like', "%{$q}%")->orWhere('referencia', 'like', "%{$q}%"))
-                ->limit(15)->get()
+            $productos
                 ->map(fn ($p) => [
                     'id' => $p->id, 'nombre' => $p->nombre_completo ?? $p->nombre, 'referencia' => $p->referencia,
+                    'codigo_proveedor' => $porCodigo[$p->id] ?? null,
                     'codigo_hs' => $p->codigo_hs, 'arancel_pct' => $p->arancel_pct !== null ? (float) $p->arancel_pct : null,
                 ])
         );
@@ -256,6 +302,8 @@ class ImportacionController extends Controller
             'moneda'              => ['required', 'string', Rule::in(array_keys(Monedas::CATALOGO))],
             'tasa'                => 'required|numeric|gt:0',
             'tasa_fecha'          => 'nullable|date',
+            'tasa_nacionalizacion'       => 'nullable|numeric|gt:0',
+            'tasa_nacionalizacion_fecha' => 'nullable|date',
             'metodo_prorrateo'    => ['required', Rule::in(array_keys(LiquidacionImportacionService::METODOS))],
             'iva_descontable'     => 'required|boolean',
             'notas'               => 'nullable|string|max:2000',
@@ -287,7 +335,10 @@ class ImportacionController extends Controller
             'incoterm' => $d['incoterm'] ?? null, 'moneda' => $d['moneda'],
             // En la moneda base la tasa es 1: no hay nada que convertir.
             'tasa' => $d['moneda'] === Monedas::base() ? 1 : $d['tasa'],
-            'tasa_fecha' => $d['tasa_fecha'] ?? null, 'metodo_prorrateo' => $d['metodo_prorrateo'],
+            'tasa_fecha' => $d['tasa_fecha'] ?? null,
+            'tasa_nacionalizacion' => $d['moneda'] === Monedas::base() ? null : ($d['tasa_nacionalizacion'] ?? null),
+            'tasa_nacionalizacion_fecha' => $d['moneda'] === Monedas::base() ? null : ($d['tasa_nacionalizacion_fecha'] ?? null),
+            'metodo_prorrateo' => $d['metodo_prorrateo'],
             'iva_descontable' => (bool) $d['iva_descontable'], 'notas' => $d['notas'] ?? null,
         ];
     }
@@ -319,7 +370,11 @@ class ImportacionController extends Controller
             'id' => $i->id, 'numero' => $i->numero, 'estado' => $i->estado, 'proveedor_id' => $i->proveedor_id,
             'orden_compra_id' => $i->orden_compra_id, 'fecha' => $i->fecha?->toDateString(), 'referencia' => $i->referencia,
             'pais_origen' => $i->pais_origen, 'incoterm' => $i->incoterm, 'moneda' => $i->moneda, 'tasa' => (float) $i->tasa,
-            'tasa_fecha' => $i->tasa_fecha?->toDateString(), 'metodo_prorrateo' => $i->metodo_prorrateo,
+            'tasa_fecha' => $i->tasa_fecha?->toDateString(),
+            'tasa_nacionalizacion' => $i->tasa_nacionalizacion !== null ? (float) $i->tasa_nacionalizacion : null,
+            'tasa_nacionalizacion_fecha' => $i->tasa_nacionalizacion_fecha?->toDateString(),
+            'tasa_costo' => $i->tasaDelCosto(),
+            'metodo_prorrateo' => $i->metodo_prorrateo,
             'iva_descontable' => $i->iva_descontable, 'notas' => $i->notas,
             'items' => $i->relationLoaded('items') ? $i->items->map(fn ($x) => [
                 'producto_id' => $x->producto_id, 'descripcion' => $x->descripcion, 'cantidad' => (float) $x->cantidad,
