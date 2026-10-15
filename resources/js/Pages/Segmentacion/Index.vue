@@ -170,6 +170,19 @@ async function cambiarMargen(op, valor) {
     await cargar()
 }
 
+/** Lleva el margen del canal a los productos y ensambles que ya existen, y recalcula precios y comisiones. */
+async function aplicarMargen(op) {
+    const m = String(op.margen_sugerido).replace('.', ',')
+    if (! confirm(`Esto pone el margen de «${op.etiqueta}» en ${m} % en TODOS los productos y ensambles que ya tienen este canal, vuelve a calcular sus precios (también los escritos a mano en este canal) y reparte de nuevo las comisiones. ¿Continuar?`)) return
+
+    const r = await fetch(`/api/segmentacion-opciones/${op.id}/aplicar-margen`, { method: 'POST', headers: headers() })
+    const d = await r.json().catch(() => ({}))
+
+    mensaje.value = d.message ?? (r.ok ? 'Listo.' : 'No se pudo aplicar el margen.')
+    mensajeEsError.value = ! r.ok
+    setTimeout(() => mensaje.value = '', 4000)
+}
+
 async function cambiarMarca(op, marca) {
     const r = await fetch(`/api/segmentacion-opciones/${op.id}`, {
         method: 'PUT',
@@ -457,6 +470,9 @@ const faltaConfigurar = computed(() => {
                                                 @change="cambiarMargen(op, $event.target.value)"
                                                 class="w-14 rounded border border-linea px-1.5 py-0.5 text-[11px] text-right bg-superficie focus:outline-none focus:border-[var(--marca)]" />
                                             %
+                                            <button type="button" @click="aplicarMargen(op)"
+                                                title="Poner este margen en los productos y ensambles que ya existen, y recalcular precios y comisiones"
+                                                class="ml-1 text-[10px] text-aviso-azul underline whitespace-nowrap">aplicar a los existentes</button>
                                         </label>
                                     </div>
                                 </div>

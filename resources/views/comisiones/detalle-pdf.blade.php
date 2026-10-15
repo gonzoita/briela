@@ -157,10 +157,10 @@ tr:last-child td { border-bottom:none; }
           </span>
         </td>
         <td>{{ number_format($item['cantidad'], 2) }}</td>
-        <td>${{ number_format($item['precio_unitario'], 0, ',', '.') }}</td>
+        <td>${{ number_format($item['precio_unitario'], 2, ',', '.') }}</td>
         <td>{{ $item['descuento_pct'] > 0 ? $item['descuento_pct'] . '%' : '—' }}</td>
         <td style="color:#d97706; font-weight:bold;">{{ $item['comision_pct'] }}%</td>
-        <td style="font-weight:bold;">${{ number_format($item['comision_valor'], 0, ',', '.') }}</td>
+        <td style="font-weight:bold;">${{ number_format($item['comision_valor'], 2, ',', '.') }}</td>
       </tr>
       @endforeach
       @if(count($desglose) === 0)
@@ -174,7 +174,7 @@ tr:last-child td { border-bottom:none; }
     <tfoot>
       <tr class="tfoot-row">
         <td colspan="5" style="text-align:right;">TOTAL COMISIÓN</td>
-        <td>${{ number_format($comision->total_comision, 0, ',', '.') }}</td>
+        <td>${{ number_format($comision->total_comision, 2, ',', '.') }}</td>
       </tr>
     </tfoot>
   </table>
@@ -183,7 +183,7 @@ tr:last-child td { border-bottom:none; }
 <!-- TOTAL DESTACADO -->
 <div class="total-box">
   <p class="total-label">Total a recibir por esta cotización</p>
-  <p class="total-value">${{ number_format($comision->total_comision, 0, ',', '.') }} {{ \App\Support\Monedas::base() }}</p>
+  <p class="total-value">${{ number_format($comision->total_comision, 2, ',', '.') }} {{ \App\Support\Monedas::base() }}</p>
 </div>
 
 <!-- FOOTER -->

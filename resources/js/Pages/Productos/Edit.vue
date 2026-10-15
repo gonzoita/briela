@@ -262,7 +262,7 @@ const jsonHeaders = () => ({
 })
 
 const formatCOP = (v) =>
-    new Intl.NumberFormat('es-CO', { maximumFractionDigits: 0 }).format(Math.round(v ?? 0))
+    new Intl.NumberFormat('es-CO', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(v ?? 0)
 
 // ── Modal nueva categoría ────────────────────────────────────────────────────
 const coloresPaleta = [

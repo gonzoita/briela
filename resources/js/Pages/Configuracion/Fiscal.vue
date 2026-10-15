@@ -75,7 +75,7 @@ function guardar() {
 }
 
 const ic = 'w-full rounded-lg border border-tinta-200 px-3 py-2 text-sm focus:ring-4 focus:ring-[var(--marca-suave)] focus:outline-none'
-const pesos = (v) => new Intl.NumberFormat('es-CO', { maximumFractionDigits: 0 }).format(Math.round(Number(v) || 0))
+const pesos = (v) => new Intl.NumberFormat('es-CO', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Math.round(Number(v) || 0))
 </script>
 
 <template>

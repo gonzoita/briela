@@ -188,6 +188,24 @@ class PlantillasAutomatizacion
                     self::accion('ejecutar_agente', ['agente_id' => null, 'tarea' => '']),
                 ]),
             ],
+            [
+                'clave' => 'agente_solo_si_hay_novedad', 'area' => 'Equipo de IA', 'modulos' => ['cotizaciones', 'equipo_ia'],
+                'nombre' => 'Agente que despierta solo cuando hay una cotización fría',
+                'descripcion' => 'Cada mañana la automatización —sin gastar IA— busca cotizaciones enviadas con 7 días o más sin respuesta, y solo entonces pone a trabajar a un agente (elige cuál) sobre cada una. Sin cotizaciones frías, el agente no gasta ni un token.',
+                'grafo' => self::cadena(['tipo' => 'horario', 'frecuencia' => ['tipo' => 'diaria', 'hora' => '07:30'], 'para_cada' => 'cotizacion', 'no_repetir_dias' => 7], [
+                    self::si([['estado', 'igual', 'enviada'], ['dias_sin_respuesta', 'mayor_igual', '7']]),
+                    self::accion('ejecutar_agente', ['agente_id' => null, 'tarea' => 'Revisa la cotización {{numero}} de {{cliente}} y deja redactado el siguiente contacto.']),
+                ]),
+            ],
+            [
+                'clave' => 'agente_stock_bajo', 'area' => 'Equipo de IA', 'modulos' => ['inventario', 'equipo_ia'],
+                'nombre' => 'Stock bajo: que un agente lo analice',
+                'descripcion' => 'Cuando un producto baja del mínimo y no tiene solicitud de compra abierta, pone a trabajar a un agente (elige cuál) para que lo revise. El agente solo trabaja cuando hay un faltante real.',
+                'grafo' => self::cadena(['tipo' => 'evento', 'evento' => 'stock.bajo'], [
+                    self::si([['solicitud_abierta', 'igual', 'no']]),
+                    self::accion('ejecutar_agente', ['agente_id' => null, 'tarea' => 'El producto {{nombre}} ({{referencia}}) bajó del mínimo: faltan {{faltante}} {{unidad}}. Analiza qué hacer.']),
+                ]),
+            ],
         ];
 
         return array_values(array_filter($todas, fn ($p) => collect($p['modulos'])->every(fn ($m) => Modulos::activo($m))));

@@ -106,6 +106,16 @@ De fábrica el orden es Mayorista, Distribuidor, Cliente directo — así que un
 cliente marcado como mayorista y distribuidor a la vez paga precio mayorista.
 Si prefieres otra prioridad, cambia el orden.
 
+## El canal base puede ir al 0 % *(16 oct 2026)*
+
+Si el costo que registras **ya incluye** la utilidad mínima de la empresa, el margen del canal base puede
+ser **0 %**: el precio es exactamente el costo (`precioDesdeCosto` no redondea nada cuando el margen es
+0). Cambiar un margen ofrece recalcular de una vez
+(`POST /api/segmentacion-opciones/{opcion}/aplicar-margen`), que reprecia lo guardado y recalcula las
+comisiones; por consola, `precios:recalcular` y después **siempre** `comisiones:recalcular`. El flujo no
+cambia: el canal base sigue siendo el piso, sin comisión ni descuento.
+
+
 ## Los únicos dos que no se pueden borrar
 
 **El canal base y el precio público.** Nada más. El sistema necesita saber cuál

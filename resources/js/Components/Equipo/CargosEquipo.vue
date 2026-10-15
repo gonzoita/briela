@@ -180,7 +180,7 @@ const AVATARES = ['🤖', '📊', '🏭', '🤝', '🧾', '📦', '🛒', '📣'
                             <input type="checkbox" :checked="editando.herramientas.includes(h.clave)" @change="alternar(h.clave)" class="accent-blue-600 mt-0.5" />
                             <span class="text-xs text-tinta-600">
                                 <code class="text-tinta-800">{{ h.clave }}</code>
-                                <span v-if="h.tipo === 'propuesta'" class="ml-1 text-[10px] px-1.5 py-0.5 rounded-full bg-pastel-naranja-2 text-aviso-naranja font-semibold">propone</span>
+                                <span v-if="h.tipo === 'propuesta' || h.tipo === 'automatizacion'" class="ml-1 text-[10px] px-1.5 py-0.5 rounded-full bg-pastel-naranja-2 text-aviso-naranja font-semibold">{{ h.tipo === 'automatizacion' ? 'lanza' : 'propone' }}</span>
                                 — {{ h.descripcion }}
                             </span>
                         </label>

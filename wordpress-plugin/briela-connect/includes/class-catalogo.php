@@ -477,6 +477,17 @@ class Catalogo
 
             if (! in_array($clave, $vistas, true)) {
                 wp_update_post(['ID' => $id_post, 'post_status' => 'draft']);
+
+                // Se libera la referencia: WooCommerce no deja repetirla mientras la ficha vieja la
+                // conserve, y la variación que la reemplaza se quedaría sin ella.
+                if (self::hay_tienda() && function_exists('wc_get_product')) {
+                    $viejo = wc_get_product($id_post);
+                    if ($viejo && $viejo->get_sku('edit')) {
+                        $viejo->set_sku('');
+                        $viejo->save();
+                    }
+                }
+
                 $retiradas++;
             }
         }
@@ -551,7 +562,9 @@ class Catalogo
         $huella = md5((string) wp_json_encode(array_map(function ($item) {
             return [
                 $item['tipo'] ?? '', $item['id'] ?? 0, $item['nombre'] ?? '', $item['actualizado_at'] ?? '',
-                array_column(is_array($item['variantes'] ?? null) ? $item['variantes'] : [], 'id'),
+                array_map(function ($v) {
+                    return [$v['id'] ?? 0, $v['valor'] ?? '', $v['referencia'] ?? ''];
+                }, is_array($item['variantes'] ?? null) ? $item['variantes'] : []),
             ];
         }, $items)));
 

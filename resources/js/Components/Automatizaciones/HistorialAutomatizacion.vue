@@ -53,7 +53,7 @@ const ESTADO = {
 }
 const PASO = { ok: 'text-aviso-verde', omitido: 'text-tinta-400', espera: 'text-aviso-violeta', error: 'text-aviso-rojo' }
 const TIPO = { disparador: 'Arranque', condicion: 'Condición', espera: 'Espera', accion: 'Acción', aprobacion: 'Aprobación' }
-const ORIGEN = { evento: 'por un evento', horario: 'por horario', manual: 'a mano' }
+const ORIGEN = { evento: 'por un evento', horario: 'por horario', manual: 'a mano', agente: 'por un agente de IA' }
 const cuando = (iso) => iso ? new Date(iso).toLocaleString('es-CO', { dateStyle: 'medium', timeStyle: 'short' }) : ''
 </script>
 

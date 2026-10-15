@@ -27,7 +27,7 @@ function filtrar() {
 
 const formatCOP = (v) =>
     new Intl.NumberFormat('es-CO', {
-        style: 'currency', currency: monedaBase(), maximumFractionDigits: 0,
+        style: 'currency', currency: monedaBase(), minimumFractionDigits: 2, maximumFractionDigits: 2,
     }).format(v ?? 0)
 
 const formatMes = (mes) => {

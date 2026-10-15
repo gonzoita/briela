@@ -200,23 +200,23 @@ function storePermiso() {
                         <div v-if="bono_mes" class="space-y-1.5 text-sm">
                             <div class="flex justify-between">
                                 <span class="text-tinta-400">Pasos</span>
-                                <span>${{ Number(bono_mes.pasos_valor).toLocaleString('es-CO') }}</span>
+                                <span>${{ Number(bono_mes.pasos_valor).toLocaleString('es-CO', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}</span>
                             </div>
                             <div class="flex justify-between">
                                 <span class="text-tinta-400">Hitos</span>
-                                <span>${{ Number(bono_mes.hitos_valor).toLocaleString('es-CO') }}</span>
+                                <span>${{ Number(bono_mes.hitos_valor).toLocaleString('es-CO', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}</span>
                             </div>
                             <div class="flex justify-between">
                                 <span class="text-tinta-400">Extras</span>
-                                <span>${{ Number(bono_mes.extras_valor).toLocaleString('es-CO') }}</span>
+                                <span>${{ Number(bono_mes.extras_valor).toLocaleString('es-CO', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}</span>
                             </div>
                             <div class="flex justify-between text-aviso-rojo">
                                 <span>Penalizaciones</span>
-                                <span>-${{ Number(bono_mes.penalizaciones).toLocaleString('es-CO') }}</span>
+                                <span>-${{ Number(bono_mes.penalizaciones).toLocaleString('es-CO', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}</span>
                             </div>
                             <div class="flex justify-between font-semibold text-base border-t border-linea pt-2 mt-2">
                                 <span>Total</span>
-                                <span class="text-aviso-verde">${{ Number(bono_mes.total_bono).toLocaleString('es-CO') }}</span>
+                                <span class="text-aviso-verde">${{ Number(bono_mes.total_bono).toLocaleString('es-CO', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}</span>
                             </div>
                         </div>
                         <div v-else class="text-sm text-tinta-300 italic">Sin bono calculado.</div>
@@ -238,7 +238,7 @@ function storePermiso() {
                             class="flex items-center justify-between px-5 py-3">
                             <span class="text-sm text-tinta-700">{{ mesLabel(b.periodo_mes) }} {{ b.periodo_anio }}</span>
                             <span class="text-sm font-semibold text-aviso-verde">
-                                ${{ Number(b.total_bono).toLocaleString('es-CO') }}
+                                ${{ Number(b.total_bono).toLocaleString('es-CO', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}
                             </span>
                         </div>
                     </div>
@@ -518,7 +518,7 @@ function storePermiso() {
                                 {{ h.cumplido ? 'Cumplido' : 'Pendiente' }}
                             </span>
                             <span class="text-xs font-semibold text-tinta-700 shrink-0">
-                                ${{ Number(h.valor_bono).toLocaleString('es-CO') }}
+                                ${{ Number(h.valor_bono).toLocaleString('es-CO', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}
                             </span>
                         </div>
                     </div>

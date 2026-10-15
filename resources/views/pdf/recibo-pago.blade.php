@@ -69,7 +69,7 @@
 
   <div class="total">
     <div style="font-size:11px;color:#666;margin-bottom:4px;">VALOR RECIBIDO</div>
-    <div class="monto">$ {{ number_format($pago->valor, 0, ',', '.') }}</div>
+    <div class="monto">$ {{ number_format($pago->valor, 2, ',', '.') }}</div>
   </div>
 
   <div class="footer">

@@ -715,6 +715,27 @@ Lo construido después de la fase 3, que conviene conocer antes de tocar algo ce
 - **Todo gasto de IA se anota en un solo sitio**, `IaService::llamar()` → `ia_consumo` (tokens, no
   dinero: el cobro lo lleva el superadmin). Una llamada nueva a la IA pasa por ahí o no existe.
 
+- **El canal base puede ir al 0 %** (16 oct 2026): el costo ya trae la utilidad mínima, y el precio es
+  exactamente el costo. `precioDesdeCosto` con margen 0 no redondea nada, y cambiar un margen se
+  aplica con `SegmentacionOpcionController::aplicarMargen` (reprecia y recalcula comisiones). Nada del
+  código puede suponer que un margen es mayor que cero ni usarlo como «¿hay margen?».
+- **Los precios se muestran con DOS decimales, en todo** (16 oct 2026): pantalla, PDF, informes y
+  exportaciones, también en pesos. El formato sale de `App\Support\Monedas` y de `formato.js`; un
+  `toLocaleString` suelto o un `number_format($x, 0)` sobre un precio es un error.
+- **Duplicar o cambiar el cliente reprecia por canal** (`RepreciarCotizacionService`): productos y
+  ensambles directos; un ensamble medido no. Conserva descuento y comisión recortándolos al rango del
+  canal nuevo. `replicate()` copia las relaciones cargadas: hay que descartarlas antes de recargar.
+- **`Producto::costoVigente()`** es el costo que se muestra (promedio de compra si lo hay, y si no el
+  costo definido). El tablero de inventario usa `bodegasParaElegir()`, no `idsBodegasVisibles()`.
+- **La orden de compra admite otra moneda y se edita** (16 oct 2026): `ordenes_compra.moneda/tasa_cambio`
+  y `ordenes_compra_items.precio_moneda` (lo tecleado); por dentro todo en base. Las líneas se actualizan
+  por su id al editar (`items.*.id` tiene que seguir en las reglas de `OrdenCompraController`), y lo
+  recibido manda: ni se quita una línea con recepciones ni se baja de lo recibido.
+- **Un agente puede lanzar automatizaciones, solo las que una persona le ofreció**
+  (`AutomatizacionesParaAgentes`, herramienta `ejecutar_automatizacion`, `automatizaciones.disponible_agentes`):
+  la casilla la pone quien tiene `equipo_ia.gestionar` y editarla sin ese permiso la quita. Corre con los
+  permisos de su autor, tope de 10 por corrida, sin datos de colaboradores. Es el camino barato en tokens.
+
 **Pendiente de negocio sin resolver, y es la más importante: a quién se le
 vende.** El sistema está hecho a la medida de fabricar por pedido con medidas
 variables. Es una ventaja enorme ante un fabricante parecido, y un problema ante
@@ -776,7 +797,7 @@ decían lo contrario y estaban equivocadas.
   relaciones entre archivos antes de leer código a mano.
 - Conviene regenerarlo después de cambios que muevan estructura (borrar módulos,
   mover carpetas), porque un grafo desactualizado es peor que no tenerlo.
-- **Generado y al día.** Al 15 oct 2026: **13.281 nodos, 27.092 aristas, 689 comunidades**
+- **Generado y al día.** Al 16 oct 2026: **13.433 nodos, 27.552 aristas, 714 comunidades**
   (con el Equipo de IA, las Automatizaciones y la vinculación de Meta). Cada entorno nuevo necesita `pip install graphifyy` una vez (en el
   superadmin el grafo se genera igual, pero no va al repo). Cubre el proyecto completo: 926 archivos de
   código por AST y los 70 documentos por subagentes. Se actualiza con

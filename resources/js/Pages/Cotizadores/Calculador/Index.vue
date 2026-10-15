@@ -29,7 +29,7 @@ const {
 const tiposPuerta = TIPOS_PUERTA
 
 const formatCOP = (v) =>
-    new Intl.NumberFormat('es-CO', { maximumFractionDigits: 0 }).format(Math.round(v))
+    new Intl.NumberFormat('es-CO', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(v)
 
 const modalGuardar = ref(false)
 const nombreConfig  = ref('')

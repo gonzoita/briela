@@ -44,6 +44,19 @@ class LanzadorAutomatizaciones
     }
 
     /**
+     * La lanza un agente del Equipo de IA (ver `AutomatizacionesParaAgentes`). Mismo documento en el
+     * mismo minuto = una sola corrida: un agente que repite la llamada no duplica los avisos.
+     *
+     * @param  array<string, mixed>  $contexto
+     */
+    public function paraAgente(Automatizacion $a, User $usuarioAgente, array $contexto, ?\App\Models\AgenteEjecucion $corridaDelAgente): ?AutomatizacionEjecucion
+    {
+        $clave = "ag:{$a->id}:" . ($contexto['_entidad'] ?? '') . ':' . ($contexto['_id'] ?? 0) . ':' . now()->format('Y-m-d-H-i');
+
+        return $this->crear($a, 'agente', $contexto, null, $usuarioAgente, 0, $clave, $corridaDelAgente?->id);
+    }
+
+    /**
      * Las automatizaciones por horario a las que ya les toca. La ventana («2026-10-14») es la clave de
      * idempotencia: dos pasadas del cron dentro de la misma ventana chocan contra el índice único y la
      * segunda se descarta sola. Además la ventana atendida se anota en la automatización, para que un
@@ -190,7 +203,7 @@ class LanzadorAutomatizaciones
     }
 
     /** @param array<string, mixed> $contexto */
-    private function crear(Automatizacion $a, string $origen, array $contexto, ?string $evento, ?User $quien, int $profundidad, ?string $clave): ?AutomatizacionEjecucion
+    private function crear(Automatizacion $a, string $origen, array $contexto, ?string $evento, ?User $quien, int $profundidad, ?string $clave, ?int $agenteEjecucionId = null): ?AutomatizacionEjecucion
     {
         // Un freno por automatización: una regla mal armada que dispara en cada guardado no llena la
         // base ni la cola. Se avisa UNA vez por hora a su autor, no una por cada corrida descartada.
@@ -230,6 +243,7 @@ class LanzadorAutomatizaciones
                 'entidad_id'         => $contexto['_id'] ?? null,
                 'profundidad'        => $profundidad,
                 'disparado_por'      => $quien?->id,
+                'agente_ejecucion_id' => $agenteEjecucionId,
                 'clave_idempotencia' => $clave,
             ]);
         } catch (\Illuminate\Database\UniqueConstraintViolationException) {

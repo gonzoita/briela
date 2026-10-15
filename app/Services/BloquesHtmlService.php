@@ -51,11 +51,12 @@ class BloquesHtmlService
         $tipo   = $bloque['tipo'] ?? 'texto';
         $props  = $bloque['props'] ?? [];
         $estilo = static::estiloInline($props);
+        $marcaColor = Marca::color();
 
         return match ($tipo) {
             'texto' => "<p style='margin:4px 0;{$estilo}'>" . htmlspecialchars($props['contenido'] ?? '', ENT_QUOTES) . "</p>",
 
-            'titulo' => (function () use ($props, $estilo) {
+            'titulo' => (function () use ($props, $estilo, $marcaColor) {
                 $nivel     = (int) ($props['nivel'] ?? 2);
                 $contenido = htmlspecialchars($props['contenido'] ?? '', ENT_QUOTES);
                 return "<h{$nivel} style='color:{$marcaColor};margin:8px 0 4px;{$estilo}'>{$contenido}</h{$nivel}>";
@@ -84,7 +85,7 @@ class BloquesHtmlService
 
             'variable' => "<span style='{$estilo}'>{{{$props['variable']}}}</span>",
 
-            'columnas' => static::columnaToHtml($bloque),
+            'columnas' => static::columnaToHtml($bloque, $opciones),
 
             'tabla' => static::tablaToHtml($bloque, $opciones),
 
@@ -111,7 +112,7 @@ class BloquesHtmlService
         };
     }
 
-    private static function columnaToHtml(array $bloque): string
+    private static function columnaToHtml(array $bloque, array $opciones = []): string
     {
         $props   = $bloque['props'] ?? [];
         $numCols = (int) ($props['columnas'] ?? 2);
@@ -146,7 +147,7 @@ class BloquesHtmlService
         ];
 
         if (! ($opciones['mostrar_fotos'] ?? true)) {
-            $columnas = array_values(array_filter($columnas, fn ($c) => ! str_starts_with((string) ($c['variable'] ?? ''), 'imagen')));
+            $columnas = array_values(array_filter($columnas, fn ($c) => ! str_starts_with(ltrim((string) ($c['variable'] ?? ''), '! '), 'imagen')));
         }
         $conPrecios = $opciones['mostrar_precios'] ?? true;
         if (! $conPrecios) {
@@ -159,7 +160,7 @@ class BloquesHtmlService
 
         $ths = implode('', array_map(fn ($c) => '<th' . (!empty($c['ancho']) ? " style='width:{$c['ancho']}px;'" : '') . '>' . htmlspecialchars($c['etiqueta'] ?? '', ENT_QUOTES) . '</th>', $columnas));
         // Debajo de la primera descripción va, si la hay, la entrega de lo que viene en tránsito.
-        $conEntrega = false;
+        $conEntrega = ! ($opciones['con_entrega'] ?? false);
         $tds = implode('', array_map(function ($c) use (&$conEntrega) {
             $var  = (string) ($c['variable'] ?? '');
             $mas  = '';

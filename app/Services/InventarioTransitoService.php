@@ -210,6 +210,10 @@ class InventarioTransitoService
             ->whereIn('estado', ['borrador', 'enviada', 'aprobada'])
             ->where('updated_at', '>=', now()->subDays(90))
             ->whereNotNull('responsable_id')
+            // Una cotización que ya se volvió orden dejó de esperar: su inventario sale por la orden.
+            ->whereNotExists(fn ($q) => $q->select(\DB::raw(1))->from('ops')->whereColumn('ops.cotizacion_id', 'cotizaciones.id')->whereNull('ops.deleted_at'))
+            // De la sede de la orden (o de cualquiera si la orden no tiene sede).
+            ->when($orden->sede_id, fn ($q) => $q->where(fn ($s) => $s->where('sede_id', $orden->sede_id)->orWhereNull('sede_id')))
             ->whereHas('items', fn ($q) => $q->where('producto_id', $producto->id))
             ->with(['items' => fn ($q) => $q->where('producto_id', $producto->id)])
             ->get();

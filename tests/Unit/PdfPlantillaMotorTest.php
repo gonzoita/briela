@@ -35,7 +35,7 @@ class PdfPlantillaMotorTest extends TestCase
         $this->assertSame('Ana &amp; Cía', $this->r('{{cliente.nombre}}'));
         $this->assertSame('Ana & Cía', $this->r('{{!cliente.nombre}}'));
         $this->assertSame('Ana & Cía', $this->r('{{{cliente.nombre}}}'));
-        $this->assertSame('$1.234.567', $this->r('{{cotizacion.total|moneda}}'));
+        $this->assertSame('$1.234.567,00', $this->r('{{cotizacion.total|moneda}}'));
         $this->assertSame('23/09/2026', $this->r('{{ cotizacion.created_at | fecha }}'));
         $this->assertSame('ANA &amp; CÍA', $this->r('{{cliente.nombre|upper}}'));
         $this->assertSame('2,25%', PdfPlantillaMotor::render('{{p|pct}}', ['p' => '2.25']));

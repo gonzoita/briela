@@ -525,7 +525,7 @@ class OperarioController extends Controller
 
         $total = $this->procesarBonoOperario($operario, (int) $request->mes, (int) $request->anio);
 
-        return back()->with('success', "Bono calculado: $" . number_format($total, 0, ',', '.'));
+        return back()->with('success', "Bono calculado: $" . number_format($total, 2, ',', '.'));
     }
 
     // Calcula el bono de TODOS los colaboradores activos de un mes de una vez,

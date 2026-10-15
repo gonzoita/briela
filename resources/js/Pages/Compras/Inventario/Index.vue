@@ -3,7 +3,9 @@ import { ref, computed } from 'vue'
 import { router, usePage } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
 import OrdenarLista from '@/Components/OrdenarLista.vue'
+import LimiteStock from '@/Components/LimiteStock.vue'
 import { useOrden } from '@/composables/useOrden'
+import { formatCOP } from '@/formato'
 
 const props = defineProps({
     items:       Object,
@@ -34,6 +36,8 @@ const bajo_stock = ref(props.filters?.bajo_stock === 'true')
 const modalItem       = ref(false)
 const editandoItem    = ref(null)
 const guardando       = ref(false)
+// Lo que el servidor rechazó al guardar el material: sin mostrarlo, el modal «no guardaba» y no decía por qué.
+const erroresModal    = ref([])
 const panelMovimientos = ref(false)
 const itemSeleccionado = ref(null)
 const movimientos      = ref([])
@@ -86,24 +90,27 @@ function abrirEditar(item) {
     modalItem.value = true
 }
 
-function cerrarModal() { modalItem.value = false; editandoItem.value = null }
+function cerrarModal() { modalItem.value = false; editandoItem.value = null; erroresModal.value = [] }
 
 function guardar() {
     guardando.value = true
+    erroresModal.value = []
     const payload = { ...form.value }
-    if (!payload.stock_maximo) delete payload.stock_maximo
+    // Vacío es «sin límite»: se manda cero, no se omite (omitirlo dejaba el valor anterior al borrarlo).
+    payload.stock_minimo = payload.stock_minimo === '' || payload.stock_minimo === null ? 0 : payload.stock_minimo
+    payload.stock_maximo = payload.stock_maximo === '' || payload.stock_maximo === null ? 0 : payload.stock_maximo
     if (!payload.proveedor_id) delete payload.proveedor_id
 
+    const opciones = {
+        preserveScroll: true,
+        onSuccess: () => { cerrarModal(); guardando.value = false },
+        onError:   (e) => { erroresModal.value = Object.values(e); guardando.value = false },
+    }
+
     if (editandoItem.value) {
-        router.put(`/inventario/${editandoItem.value.id}`, payload, {
-            onSuccess: () => { cerrarModal(); guardando.value = false },
-            onError:   () => { guardando.value = false },
-        })
+        router.put(`/inventario/${editandoItem.value.id}`, payload, opciones)
     } else {
-        router.post('/inventario', payload, {
-            onSuccess: () => { cerrarModal(); guardando.value = false },
-            onError:   () => { guardando.value = false },
-        })
+        router.post('/inventario', payload, opciones)
     }
 }
 
@@ -159,6 +166,11 @@ function semaforo(item) {
     if (pct <= 1.5) return { bg: 'bg-pastel-ambar-2', text: 'text-aviso-ambar', label: '🟡 Cerca' }
 
     return { bg: 'bg-pastel-verde-2', text: 'text-aviso-verde', label: '🟢 OK' }
+}
+
+/** El costo que se muestra: el promedio de compra si ya hay compras, y si no, el costo definido en el producto. */
+function costoDe(item) {
+    return Number(item.costo_vigente) || 0
 }
 
 function fmt(n) {
@@ -226,7 +238,7 @@ function fmt(n) {
 
             <!-- Tabla -->
             <div class="bg-superficie rounded-xl border border-linea overflow-x-auto">
-                <table class="w-full text-sm min-w-[700px]">
+                <table class="w-full text-sm min-w-[820px]">
                     <thead class="bg-tinta-50 border-b border-linea">
                         <tr>
                             <th class="text-left px-4 py-3 font-semibold text-tinta-500">Referencia</th>
@@ -235,7 +247,9 @@ function fmt(n) {
                                 {{ nombreBodega ? `En ${nombreBodega}` : 'Stock total' }}
                             </th>
                             <th class="text-right px-4 py-3 font-semibold text-tinta-500">Mínimo</th>
-                            <th class="text-right px-4 py-3 font-semibold text-tinta-500">Precio Prom.</th>
+                            <th class="text-right px-4 py-3 font-semibold text-tinta-500">Máximo</th>
+                            <th class="text-right px-4 py-3 font-semibold text-tinta-500"
+                                title="El promedio de lo que se ha pagado en las compras; mientras no haya compras, el costo que ya tiene el producto.">Costo</th>
                             <th class="text-center px-4 py-3 font-semibold text-tinta-500">Estado</th>
                             <th class="px-4 py-3"></th>
                         </tr>
@@ -249,8 +263,9 @@ function fmt(n) {
                                 <p v-if="item.proveedor" class="text-xs text-tinta-300">{{ item.proveedor.nombre }}</p>
                             </td>
                             <td class="px-4 py-3 text-right font-semibold">{{ fmt(item.stock_total) }} <span class="text-xs text-tinta-300">{{ item.unidad_medida }}</span></td>
-                            <td class="px-4 py-3 text-right text-tinta-400">{{ fmt(item.stock_minimo) }}</td>
-                            <td class="px-4 py-3 text-right text-tinta-400">$ {{ Number(item.precio_promedio_compra).toLocaleString('es-CO') }}</td>
+                            <td class="px-4 py-3 text-right"><LimiteStock :item="item" campo="stock_minimo" :puede="puedeAjustar" /></td>
+                            <td class="px-4 py-3 text-right"><LimiteStock :item="item" campo="stock_maximo" :puede="puedeAjustar" /></td>
+                            <td class="px-4 py-3 text-right text-tinta-700">$ {{ formatCOP(costoDe(item)) }}</td>
                             <td class="px-4 py-3 text-center">
                                 <span :class="['text-xs px-2 py-0.5 rounded-full font-medium', semaforo(item).bg, semaforo(item).text]">
                                     {{ semaforo(item).label }}
@@ -265,7 +280,7 @@ function fmt(n) {
                             </td>
                         </tr>
                         <tr v-if="!items.data?.length">
-                            <td colspan="7" class="px-4 py-8 text-center text-tinta-300">No hay materiales / insumos registrados</td>
+                            <td colspan="8" class="px-4 py-8 text-center text-tinta-300">No hay materiales / insumos registrados</td>
                         </tr>
                     </tbody>
                 </table>
@@ -427,6 +442,9 @@ function fmt(n) {
                                 <option v-for="p in proveedores" :key="p.id" :value="p.id">{{ p.nombre }}</option>
                             </select>
                         </div>
+                    </div>
+                    <div v-if="erroresModal.length" class="mt-4 rounded-lg border border-borde-aviso-rojo bg-pastel-rojo px-3 py-2 text-sm text-aviso-rojo">
+                        <p v-for="(e, i) in erroresModal" :key="i">{{ e }}</p>
                     </div>
                     <div class="flex gap-3 mt-5">
                         <button @click="cerrarModal" class="flex-1 py-2.5 rounded-xl border border-tinta-200 text-sm text-tinta-700">Cancelar</button>

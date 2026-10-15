@@ -279,7 +279,7 @@ const mesActual = MESES[new Date().getMonth()]
                             </span>
                             <span v-if="op.bono_mes > 0"
                                 class="text-xs font-semibold text-aviso-verde hidden sm:inline">
-                                ${{ Number(op.bono_mes).toLocaleString('es-CO') }} bono {{ mesActual }}
+                                ${{ Number(op.bono_mes).toLocaleString('es-CO', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }} bono {{ mesActual }}
                             </span>
                         </div>
                     </div>

@@ -104,4 +104,19 @@ class BuscarPorCodigoProveedorTest extends TestCase
         $this->assertSame('Bisagra cazoleta 35 mm', $producto['resultados'][0]['titulo']);
         $this->assertStringContainsString('código de Herrajes del Norte: HT-4410', $producto['resultados'][0]['detalle']);
     }
+
+    /** Cada resultado de Ctrl+K tiene que abrir una pantalla que exista: dos llevaban a un 405 y un 404. */
+    public function test_los_enlaces_de_proveedores_y_solicitudes_abren_su_lista_filtrada(): void
+    {
+        \App\Models\SolicitudCompra::create(['numero' => 'SC-9001', 'estado' => 'aprobada', 'solicitado_por' => User::first()->id, 'sede_id' => \App\Models\Sede::first()->id]);
+
+        $buscar = fn (string $t) => collect(app(BuscadorGlobalService::class)->buscar($t));
+
+        $url = $buscar('Herrajes')->firstWhere('tipo', 'proveedor')['resultados'][0]['url'];
+        $this->assertStringStartsWith('/compras/proveedores?buscar=', $url);
+        $this->get($url)->assertOk();
+
+        $url = $buscar(\App\Models\SolicitudCompra::first()->numero)->first(fn ($g) => str_contains($g['resultados'][0]['url'], 'solicitudes'))['resultados'][0]['url'];
+        $this->get($url)->assertOk();
+    }
 }

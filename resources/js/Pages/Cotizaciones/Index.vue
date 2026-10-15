@@ -38,7 +38,7 @@ const filters = reactive({
 })
 
 const formatCOP = (v) =>
-    new Intl.NumberFormat('es-CO', { maximumFractionDigits: 0 }).format(v ?? 0)
+    new Intl.NumberFormat('es-CO', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(v ?? 0)
 
 const formatFecha = (d) => d
     ? new Date(d).toLocaleDateString('es-CO', { day: '2-digit', month: 'short', year: 'numeric' })

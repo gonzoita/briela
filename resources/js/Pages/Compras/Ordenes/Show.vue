@@ -3,6 +3,7 @@ import { ref, computed } from 'vue'
 import { router, usePage } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
 import RetencionesEstimadas from '@/Components/RetencionesEstimadas.vue'
+import { formatMoneda, monedaBase } from '@/formato'
 
 const props = defineProps({
     orden: Object,
@@ -100,9 +101,13 @@ function estadoBadge(e) {
     return estados[e] ?? { label: e, bg: 'bg-tinta-100', text: 'text-tinta-700' }
 }
 
-function fmtMoney(n) {
-    return '$ ' + Number(n).toLocaleString('es-CO', { minimumFractionDigits: 0, maximumFractionDigits: 0 })
-}
+// Por dentro la orden está en la moneda base; se muestra en la suya, a la tasa con que se hizo.
+const moneda = computed(() => props.orden.moneda || monedaBase())
+const fmtMoney = (n) => formatMoneda(n, moneda.value, props.orden.tasa_cambio || 1)
+// El precio de la línea, exacto como se tecleó (reconvertir pesos a dólares deja centavos de diferencia).
+const fmtPrecio = (item) => item.precio_moneda != null && moneda.value !== monedaBase()
+    ? formatMoneda(item.precio_moneda, moneda.value, 1)
+    : fmtMoney(item.precio_unitario)
 
 function fmt(n) {
     return Number(n).toLocaleString('es-CO', { minimumFractionDigits: 0, maximumFractionDigits: 3 })
@@ -111,6 +116,10 @@ function fmt(n) {
 // El botón solo aparece a quien el servidor dejaría recibir: sin permiso `ordenes.recibir` la
 // ruta responde 403, y un botón que falla al tocarlo es peor que no tenerlo.
 const permisos = computed(() => usePage().props.auth?.permisosLista ?? [])
+const puedeEditar = computed(() =>
+    ['borrador', 'enviada', 'confirmada', 'recibida_parcial'].includes(props.orden.estado)
+    && permisos.value.includes('ordenes.editar')
+)
 const puedeRecibir = computed(() =>
     ['enviada', 'confirmada', 'recibida_parcial'].includes(props.orden.estado)
     && permisos.value.includes('ordenes.recibir')
@@ -144,6 +153,10 @@ const puedeRecibir = computed(() =>
                         class="px-3 py-2 rounded-lg border border-tinta-200 text-sm text-tinta-700 font-medium">
                         PDF
                     </a>
+                    <a v-if="puedeEditar" :href="`/compras/ordenes/${orden.id}/editar`"
+                        class="px-3 py-2 rounded-lg border border-tinta-200 text-sm text-tinta-700 font-medium">
+                        Editar
+                    </a>
                     <button v-if="orden.estado === 'borrador'" @click="enviar"
                         class="px-3 py-2 rounded-lg text-sm font-semibold text-white"
                         style="background:var(--marca)">
@@ -158,6 +171,11 @@ const puedeRecibir = computed(() =>
 
             <!-- Info -->
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+                <div v-if="moneda !== monedaBase()" class="bg-superficie rounded-xl border border-linea p-3">
+                    <p class="text-xs text-tinta-400">Moneda</p>
+                    <p class="font-medium text-tinta-900 text-sm">{{ moneda }}</p>
+                    <p class="text-xs text-tinta-300">1 {{ moneda }} = {{ formatMoneda(orden.tasa_cambio, monedaBase(), 1) }}</p>
+                </div>
                 <div class="bg-superficie rounded-xl border border-linea p-3">
                     <p class="text-xs text-tinta-400">Creado por</p>
                     <p class="font-medium text-tinta-900 text-sm">{{ orden.creado_por?.name }}</p>
@@ -227,7 +245,7 @@ const puedeRecibir = computed(() =>
                                         {{ fmt(item.cantidad_recibida) }}
                                     </span>
                                 </td>
-                                <td class="px-4 py-3 text-right text-tinta-400">{{ fmtMoney(item.precio_unitario) }}</td>
+                                <td class="px-4 py-3 text-right text-tinta-400">{{ fmtPrecio(item) }}</td>
                                 <td class="px-4 py-3 text-right font-semibold text-tinta-900">{{ fmtMoney(item.total_linea) }}</td>
                                 <td class="px-4 py-3">
                                     <div class="w-24 bg-tinta-100 rounded-full h-2">

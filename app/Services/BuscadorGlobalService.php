@@ -227,7 +227,8 @@ class BuscadorGlobalService
                     ->map(fn (Proveedor $p) => [
                         'titulo'  => $p->nombre,
                         'detalle' => trim(($p->nit ?? '') . ($p->ciudad ? " · {$p->ciudad}" : '')),
-                        'url'     => "/compras/proveedores/{$p->id}",
+                        // No hay pantalla de detalle de un proveedor: se abre su lista ya filtrada.
+                        'url'     => '/compras/proveedores?buscar=' . urlencode($p->nombre),
                     ])->all(),
             ],
             [
@@ -252,7 +253,8 @@ class BuscadorGlobalService
                     ->map(fn (SolicitudCompra $s) => [
                         'titulo'  => $s->numero,
                         'detalle' => str_replace('_', ' ', $s->estado),
-                        'url'     => "/compras/solicitudes/{$s->id}",
+                        // Tampoco hay detalle de una solicitud: la lista, filtrada por su número.
+                        'url'     => '/compras/solicitudes?buscar=' . urlencode($s->numero),
                     ])->all(),
             ],
             [

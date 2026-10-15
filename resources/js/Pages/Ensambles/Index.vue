@@ -68,7 +68,7 @@ function aplicarFiltros() {
     }, 300)
 }
 
-const formatCOP = (v) => new Intl.NumberFormat('es-CO', { maximumFractionDigits: 0 }).format(v ?? 0)
+const formatCOP = (v) => new Intl.NumberFormat('es-CO', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(v ?? 0)
 
 function eliminar(id) {
     if (!confirm('¿Eliminar este ensamble?')) return

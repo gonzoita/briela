@@ -513,7 +513,7 @@ async function guardar() {
     router.post('/ensambles', payload, { onError })
 }
 
-const formatCOP = (v) => new Intl.NumberFormat('es-CO', { maximumFractionDigits: 0 }).format(v ?? 0)
+const formatCOP = (v) => new Intl.NumberFormat('es-CO', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(v ?? 0)
 
 // Un ensamble con plantilla necesita el cálculo hecho; uno directo, su receta escrita. Y los
 // dos necesitan su flujo de producción: sin pasos no hay nada que fabricar.

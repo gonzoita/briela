@@ -37,7 +37,7 @@ const fechaHora = (iso) => iso
     : ''
 
 const formatCOP = (v) =>
-    new Intl.NumberFormat('es-CO', { maximumFractionDigits: 0 }).format(v ?? 0)
+    new Intl.NumberFormat('es-CO', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(v ?? 0)
 
 // Por dentro todo está en pesos; así lo ve el cliente.
 const enOtraMoneda = cot.moneda && cot.moneda !== monedaBase() && Number(cot.tasa_cambio) > 0
@@ -272,7 +272,7 @@ function marcarEnviada() {
                         : 'background:var(--pastel-ambar);color:var(--texto-ambar);'">
                 <template v-if="cot.comision && cot.comision.total_comision > 0">
                     Comisión: {{ cot.comision.estado === 'confirmada' ? 'Confirmada' : 'Proyectada' }}
-                    — ${{ new Intl.NumberFormat('es-CO', { maximumFractionDigits: 0 }).format(cot.comision.total_comision) }}
+                    — ${{ new Intl.NumberFormat('es-CO', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(cot.comision.total_comision) }}
                 </template>
                 <template v-else>
                     Sin comisión asignada en esta cotización

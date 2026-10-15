@@ -228,13 +228,22 @@ class PreciosPorCanalService
      * regala margen, y al millar porque es lo que ya hacían la ficha del producto y el
      * recálculo del ensamble.
      */
-    public function precioDesdeCosto(float $costo, float $margenPct): float
+    public function precioDesdeCosto(float $costo, float $margenPct, bool $esCanalBase = false): float
     {
         // Ya no hay tope en 100: como recargo, un 140 % es un precio legítimo —el de un
         // producto que se vende a dos veces y media su costo—. Con la fórmula vieja ese
         // número era una división por un negativo y por eso se cortaba aquí.
-        if ($costo <= 0 || $margenPct <= 0) {
+        if ($costo <= 0 || $margenPct < 0) {
             return 0.0;
+        }
+
+        // El **canal base puede tener margen 0 %**: el costo que se le da al producto ya trae la
+        // utilidad mínima de la empresa, así que el precio base es ese costo, tal cual. No se
+        // sube al millar: no hay margen que redondear, y subirlo sería cobrar un recargo que
+        // nadie pidió. En los demás canales un margen en cero sigue siendo «sin margen puesto» y
+        // el precio queda en cero (lo escribió alguien a mano, o falta).
+        if ($margenPct == 0) {
+            return $esCanalBase ? round($costo, 2) : 0.0;
         }
 
         // Se redondea a dos decimales antes de subir al millar. Sin eso, un costo que da un
@@ -264,7 +273,8 @@ class PreciosPorCanalService
         if ($item) {
             $fila = $item->preciosPorCanal()->where('segmentacion_opcion_id', $canal->id)->first();
 
-            if ($fila && (float) $fila->margen_pct > 0) {
+            // En el canal base un cero guardado es una decisión (precio = costo), no un dato que falta.
+            if ($fila && ((float) $fila->margen_pct > 0 || $canal->es_canal_base)) {
                 return (float) $fila->margen_pct;
             }
         }

@@ -43,7 +43,7 @@ const bloques = computed(() =>
 function dinero(v) {
     if (v == null) return ''
     return new Intl.NumberFormat('es-CO', {
-        style: 'currency', currency: monedaBase(), maximumFractionDigits: 0,
+        style: 'currency', currency: monedaBase(), minimumFractionDigits: 2, maximumFractionDigits: 2,
     }).format(v)
 }
 

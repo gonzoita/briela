@@ -141,6 +141,8 @@ const form = useForm({
         // antes de su declaración lanza un error que deja la pantalla en blanco.
         comision_pct_minima:         0,
         comision_pct_maxima:         0,
+        // El precio de esta línea sale de una fila por canal: se lleva al canal del cliente (ver el watch).
+        repreciable:                 !! i.repreciable,
         // Lo aplicado se respeta tal cual: es lo que se negoció ese día.
         comision_pct_aplicada:       parseFloat(i.comision_pct_aplicada) || 0,
         comision_pct_actual:         parseFloat(i.comision_pct_aplicada) || 0,
@@ -267,8 +269,30 @@ const canalCliente = computed(() => canalPropio.value ?? canalPublico.value)
  *
  * Lo aplicado no se toca: es lo que alguien negoció y se recorta solo si sale del rango.
  */
+// Cuántos precios se llevaron al canal del cliente al abrir o al cambiar de cliente, para decirlo.
+const avisoRepreciado = ref('')
+
 watch(canalCliente, () => {
+    let repreciadas = 0
+
     form.items.forEach(item => {
+        // El precio de lista de un producto depende del segmento del cliente: al abrir la cotización
+        // o cambiarle el cliente, se toma el del canal que le corresponde (lo negociado se recorta).
+        if (item.repreciable) {
+            const precio = parseFloat(filaDelCanal(item)?.precio) || 0
+
+            if (precio > 0 && Math.abs((Number(item.precio_unitario) || 0) - precio) >= 0.005) {
+                item.precio_unitario = precio
+                repreciadas++
+            }
+
+            const base = getPrecioBase(item)
+            if (base > 0) item.precio_mayorista_base = base
+
+            const tope = getDescuentoMaxSegunCanal(item)
+            if ((Number(item.descuento_pct) || 0) > tope) item.descuento_pct = tope
+        }
+
         const min = getCanalComisionMin(item)
         const max = getCanalComisionMax(item)
 
@@ -299,6 +323,10 @@ watch(canalCliente, () => {
             ? Math.min(Math.max(aplicada, min), max)
             : max
     })
+
+    avisoRepreciado.value = repreciadas > 0 && canalCliente.value
+        ? `Se actualizaron ${repreciadas} precio${repreciadas === 1 ? '' : 's'} al canal «${canalCliente.value.etiqueta}» de este cliente.`
+        : ''
 }, { immediate: true })
 
 /** ¿Se está cotizando con el respaldo en vez de con el canal del cliente? */
@@ -531,13 +559,29 @@ function apartadoEnConflicto(item) {
 // Cómo se cubre la cantidad de una línea: primero de bodega, después de lo que viene en
 // tránsito, y lo que falta. Es la misma cuenta de `InventarioTransitoService::cobertura()`
 // (lo apartado por otras se come primero el real): si se cambia una, se cambia la otra.
-function cobertura(item) {
+// Dos líneas del mismo producto se reparten lo que hay en el orden en que están: la segunda
+// descuenta lo que ya tomó la primera, igual que el PDF (`entregaDeCotizacion`).
+const coberturas = computed(() => {
+    const usado = {}
+    const mapa  = new Map()
+
+    for (const item of form.items) {
+        const c = coberturaDe(item, usado[item.producto_id] ?? 0)
+        mapa.set(item, c)
+        if (c) usado[item.producto_id] = (usado[item.producto_id] ?? 0) + c.deReal + c.deTran
+    }
+
+    return mapa
+})
+const cobertura = (item) => coberturas.value.get(item) ?? null
+
+function coberturaDe(item, previo) {
     if (! item.producto_id || item.stock_disponible === null || item.stock_disponible === undefined) return null
     if (! item.inventariable && Number(item.stock_disponible) === 0 && ! Number(item.stock_transito)) return null
 
     const pedida    = Math.max(0, Number(item.cantidad) || 0)
     const stock     = Number(item.stock_disponible) || 0
-    const apartado  = Number(item.stock_apartado) || 0
+    const apartado  = (Number(item.stock_apartado) || 0) + previo
     const transito  = Number(item.stock_transito) || 0
     const libreReal = Math.max(0, stock - apartado)
     const libreTran = Math.max(0, transito - Math.max(0, apartado - stock))
@@ -569,6 +613,8 @@ function agregarItemDesdeProducto(prod) {
     }
     form.items.push({
         tipo: prod.tipo ?? 'producto', producto_id: prod.id, ensamble_id: null,
+        // Su precio sale de una fila por canal: si se cambia el cliente, se lleva al canal del nuevo.
+        repreciable: true,
         descripcion:       prod.nombre + (prod.referencia ? ` (${prod.referencia})` : ''),
         descripcion_corta: prod.descripcion_corta ?? '',
         descripcion_larga: prod.descripcion_larga ?? '',
@@ -971,8 +1017,8 @@ const { retenciones, cargando: cargandoRetenciones } = useRetenciones(() => ({
 // Las secciones ya usadas en esta cotización, para no escribirlas distintas («Puerta corredera» y «Puerta Corredera»).
 const seccionesUsadas = computed(() => [...new Set(form.items.map(i => (i.seccion ?? '').trim()).filter(Boolean))])
 
-const formatCOP   = (v) => new Intl.NumberFormat('es-CO', { maximumFractionDigits: 0 }).format(v ?? 0)
-const formatPrecio = (v) => (v || v === 0) ? new Intl.NumberFormat('es-CO', { maximumFractionDigits: 0 }).format(v) : ''
+const formatCOP   = (v) => new Intl.NumberFormat('es-CO', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(v ?? 0)
+const formatPrecio = (v) => (v || v === 0) ? new Intl.NumberFormat('es-CO', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(v) : ''
 const parsePrecio  = (s) => parseFloat(String(s).replace(/[^0-9,]/g, '').replace(',', '.')) || 0
 
 const expandedDescriptions = ref({})
@@ -1221,6 +1267,10 @@ function submit() {
                                     </svg>
                                 </button>
                             </div>
+
+                            <p v-if="avisoRepreciado" class="mt-2 text-xs rounded-lg px-3 py-2 border bg-pastel-azul border-borde-aviso-azul text-aviso-azul">
+                                {{ avisoRepreciado }}
+                            </p>
 
                             <!-- Cliente sin canal: no hay precios, y se dice por qué y qué
                                  hacer. Antes se le cotizaba como cliente final en silencio. -->

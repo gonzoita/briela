@@ -30,8 +30,12 @@ export function usePreciosPorCanal(canales, precioCosto) {
      * ese costo. Decidido el 21 ago 2026; antes se calculaba como porcentaje del precio de
      * venta y daba unos 13 % mas caro.
      */
-    const calcPrecio = (costo, margenPct) => {
-        if (! costo || margenPct <= 0) return 0
+    const calcPrecio = (costo, margenPct, esCanalBase = false) => {
+        if (! costo || margenPct < 0) return 0
+
+        // El canal base admite 0 %: el costo ya trae la utilidad mínima, y el precio es el costo
+        // tal cual (sin subir al millar). En los demás canales, 0 es «sin margen puesto».
+        if (margenPct === 0) return esCanalBase ? Math.round(costo * 100) / 100 : 0
 
         // Se redondea a dos decimales antes de subir al millar. Sin eso, un costo que da un
         // precio exacto se pasa por el error de la coma flotante y sube mil pesos de mas:
@@ -50,7 +54,7 @@ export function usePreciosPorCanal(canales, precioCosto) {
         [precioCosto, () => (canales.value ?? []).map(c => c.margen_pct).join(',')],
         () => {
             (canales.value ?? []).forEach(c => {
-                c.precio = calcPrecio(Number(precioCosto.value) || 0, Number(c.margen_pct) || 0)
+                c.precio = calcPrecio(Number(precioCosto.value) || 0, Number(c.margen_pct) || 0, !! c.es_canal_base)
             })
         },
         { immediate: true },

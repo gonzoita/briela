@@ -48,6 +48,40 @@ class SegmentacionOpcionController extends Controller
         return response()->json($opcion, 201);
     }
 
+    /**
+     * Lleva el margen de este canal a TODOS los productos y ensambles que ya lo tienen, repreciándolos
+     * y repartiendo de nuevo las comisiones.
+     *
+     * Cambiar el margen de un canal en Segmentación solo cambia con qué nace en un producto nuevo;
+     * lo ya guardado conserva el suyo. Esto es el paso que faltaba —el que hacía
+     * `php artisan precios:recalcular` y después `comisiones:recalcular`— sin salir de la pantalla.
+     * Es lo que se hace al poner el canal base en 0 %: el costo ya trae la utilidad mínima y el
+     * precio base pasa a ser el costo. Es explícito: el botón pide confirmación, y reprecia también
+     * lo que se había escrito a mano **en este canal** (no toca los otros).
+     */
+    public function aplicarMargen(SegmentacionOpcion $opcion): JsonResponse
+    {
+        if (! $opcion->define_precio) {
+            return response()->json(['message' => 'Este tipo de contacto no es un canal de precio.'], 422);
+        }
+
+        $filas = \App\Models\CanalPrecio::where('segmentacion_opcion_id', $opcion->id)
+            ->update(['margen_pct' => (float) $opcion->margen_sugerido]);
+
+        \Illuminate\Support\Facades\Artisan::call('precios:recalcular', ['--incluir-manuales' => true, '--canal' => $opcion->id]);
+
+        // Sin canal base no se pueden repartir comisiones: se dice, no se inventa un piso.
+        $comisiones = app(\App\Services\CanalesPrecioService::class)->base() !== null
+            && \Illuminate\Support\Facades\Artisan::call('comisiones:recalcular') === 0;
+
+        return response()->json([
+            'filas'      => $filas,
+            'comisiones' => $comisiones,
+            'message'    => "Margen aplicado a {$filas} precio(s). "
+                . ($comisiones ? 'Precios y comisiones recalculados.' : 'Precios recalculados; no hay canal base, así que las comisiones no se tocaron.'),
+        ]);
+    }
+
     public function update(Request $request, SegmentacionOpcion $opcion): JsonResponse
     {
         $data = $request->validate([

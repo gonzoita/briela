@@ -149,6 +149,31 @@ recibe**, no el interno: si no, mandan otra cosa o llaman a preguntar.
   ninguno está vigente, el asistente lo dice en vez de recomendar al más barato de hace un año.
   La cuenta vive en `ProveedoresProductoService::comparar()`.
 
+## La orden de compra en otra moneda, y editable *(16 oct 2026)*
+
+**Moneda.** Un proveedor del exterior factura en dólares: al crear la orden eliges su moneda y la tasa
+(sale la del día; se puede corregir). Los precios de las líneas se escriben **en esa moneda**, y la
+orden, su PDF y la lista las muestran así. Por dentro sigue la regla de fondo
+([monedas](./monedas-y-retenciones.md)): `ordenes_compra_items.precio_unitario` y `total_linea` están en
+la moneda base, y la orden guarda `moneda`, `tasa_cambio` y `tasa_fecha`; lo que se tecleó queda en
+`precio_moneda` para mostrarlo exacto (reconvertir pesos a dólares dejaba centavos de diferencia). Así la
+recepción, el costo promedio y los informes siguen sumando una sola moneda. Una orden anterior no
+tiene moneda: es de la base.
+
+**Editar.** `GET /compras/ordenes/{orden}/editar` (permiso `ordenes.editar`) abre el mismo formulario de
+crear con la orden cargada. Se edita mientras no esté `recibida` o `cancelada`:
+
+| Estado | Qué se puede cambiar |
+|---|---|
+| Borrador | Todo |
+| Enviada / confirmada / recibida parcial | Cantidades, precios, líneas nuevas, condiciones y notas |
+| Con recepciones | Lo anterior, **pero** el proveedor y la moneda se quedan; una línea con mercancía recibida no se quita ni baja de lo recibido (ni cambia de producto) |
+
+Las líneas se actualizan **por su id**, no se recrean: `items.*.id` tiene que seguir en las reglas de
+`OrdenCompraController`. Si al bajar una cantidad lo recibido ya cubre todo, la orden pasa a `recibida`. Una
+orden que ya salió al proveedor actualiza los precios acordados (`registrarPrecios`).
+
+
 ## Aviso de material faltante en una OP *(nuevo, 23 jul 2026)*
 
 Antes, el proceso de negocio descrito como "compras centralizado atiende

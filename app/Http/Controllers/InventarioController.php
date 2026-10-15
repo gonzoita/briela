@@ -85,6 +85,7 @@ class InventarioController extends Controller
 
             return array_merge($p->toArray(), [
                 'stock_total' => $stockTotal,
+                'costo_vigente' => $p->costoVigente(),
                 // Sin mínimo definido no está bajo: está sin configurar. Con `<=` a secas,
                 // todo producto con mínimo en cero salía resaltado en rojo —incluido uno con
                 // 250 unidades en bodega—, y un tablero que siempre grita deja de leerse.
@@ -154,17 +155,53 @@ class InventarioController extends Controller
         $data = $request->validate([
             'nombre'            => 'required|string|max:255',
             'referencia'        => "required|string|max:60|unique:productos,referencia,{$item->id}",
-            'descripcion_corta' => 'nullable|string|max:160',
+            // Mismo tope que la ficha del producto (1000): con 160, un material con una descripción
+            // normal no se podía guardar, y el formulario no mostraba por qué.
+            'descripcion_corta' => 'nullable|string|max:1000',
             'unidad_medida'     => 'required|string|max:20',
-            'stock_minimo'      => 'numeric|min:0',
+            'stock_minimo'      => 'nullable|numeric|min:0',
             'stock_maximo'      => 'nullable|numeric|min:0',
             'proveedor_id'      => 'nullable|exists:proveedores,id',
             'activo'            => 'boolean',
         ]);
 
+        // Vacío es «sin mínimo» y «sin máximo» (cero en los dos): no un error.
+        $data['stock_minimo'] = (float) ($data['stock_minimo'] ?? 0);
+        $data['stock_maximo'] = (float) ($data['stock_maximo'] ?? 0);
+
+        if ($data['stock_maximo'] > 0 && $data['stock_minimo'] > 0 && $data['stock_maximo'] < $data['stock_minimo']) {
+            return back()->withErrors(['stock_maximo' => 'El máximo no puede ser menor que el mínimo.']);
+        }
+
         $item->update($data);
 
         return back()->with('success', 'Material actualizado correctamente.');
+    }
+
+    /**
+     * Cambia solo el mínimo y/o el máximo de un material, desde la lista o el tablero.
+     *
+     * Con el mínimo puesto, el material entra al semáforo, al aviso de stock bajo y a la
+     * automatización «Un producto baja de su stock mínimo» (`stock.bajo`) — ese evento lo
+     * emite el movimiento de inventario, así que cambiar un límite no dispara nada por sí solo.
+     */
+    public function limites(Request $request, Producto $item): RedirectResponse
+    {
+        $data = $request->validate([
+            'stock_minimo' => 'sometimes|nullable|numeric|min:0|max:9999999999',
+            'stock_maximo' => 'sometimes|nullable|numeric|min:0|max:9999999999',
+        ]);
+
+        $minimo = array_key_exists('stock_minimo', $data) ? (float) ($data['stock_minimo'] ?? 0) : (float) $item->stock_minimo;
+        $maximo = array_key_exists('stock_maximo', $data) ? (float) ($data['stock_maximo'] ?? 0) : (float) $item->stock_maximo;
+
+        if ($maximo > 0 && $minimo > 0 && $maximo < $minimo) {
+            return back()->withErrors(['stock_maximo' => 'El máximo no puede ser menor que el mínimo.']);
+        }
+
+        $item->update(['stock_minimo' => $minimo, 'stock_maximo' => $maximo]);
+
+        return back()->with('success', 'Límites de «' . $item->nombre . '» guardados.');
     }
 
     public function ajuste(Request $request, Producto $item): RedirectResponse
@@ -320,8 +357,10 @@ class InventarioController extends Controller
 
     public function dashboard(): Response
     {
-        // Todo el tablero se calcula solo sobre las bodegas de la sede activa.
-        $bodegas = ContextoSede::idsBodegasVisibles();
+        // Todo el tablero se calcula solo sobre las bodegas de la sede activa. Con
+        // `bodegasParaElegir()` y no `idsBodegasVisibles()`: en una empresa de una sola sede, cuyas
+        // bodegas nunca tuvieron sede, esta última devuelve cero y todo el stock salía en cero.
+        $bodegas = ContextoSede::bodegasParaElegir()->pluck('id')->all();
 
         $stockDe = fn ($p) => (float) $p->stocks->whereIn('bodega_id', $bodegas)->sum('cantidad');
 
@@ -333,14 +372,25 @@ class InventarioController extends Controller
             ->get();
 
         $itemsBajoStock = $insumos
-            ->filter(fn ($p) => $stockDe($p) <= (float) $p->stock_minimo)
+            // Sin mínimo definido no está bajo: está sin configurar (y sale en su propia lista).
+            ->filter(fn ($p) => (float) $p->stock_minimo > 0 && $stockDe($p) <= (float) $p->stock_minimo)
             ->sortBy($stockDe)
             ->map(fn ($p) => array_merge($p->toArray(), [
                 'stock_total' => $stockDe($p),
             ]))
             ->values();
 
-        $valorTotal = $insumos->sum(fn ($p) => $stockDe($p) * (float) $p->precio_promedio_compra);
+        $valorTotal = $insumos->sum(fn ($p) => $stockDe($p) * $p->costoVigente());
+
+        // Lo que tiene existencias y nadie le ha puesto mínimo: para ponérselo desde el tablero.
+        $sinMinimo = $insumos
+            ->filter(fn ($p) => (float) $p->stock_minimo <= 0)
+            ->sortByDesc($stockDe)
+            ->take(30)
+            ->map(fn ($p) => ['id' => $p->id, 'nombre' => $p->nombre, 'referencia' => $p->referencia, 'unidad_medida' => $p->unidad_medida,
+                'stock_total' => $stockDe($p), 'stock_minimo' => (float) $p->stock_minimo, 'stock_maximo' => (float) $p->stock_maximo])
+            ->values();
+        $totalSinMinimo = $insumos->filter(fn ($p) => (float) $p->stock_minimo <= 0)->count();
 
         $enBodegasVisibles = fn ($q) => $q->where(
             fn ($sub) => $sub->whereIn('bodega_id', $bodegas)->orWhereIn('bodega_destino_id', $bodegas)
@@ -370,6 +420,8 @@ class InventarioController extends Controller
             'transito' => app(\App\Services\InventarioTransitoService::class)->resumen(),
             'totalItems'         => $totalItems,
             'itemsBajoStock'     => $itemsBajoStock,
+            'sinMinimo'          => $sinMinimo,
+            'totalSinMinimo'     => $totalSinMinimo,
             'valorTotal'         => (float) $valorTotal,
             'ultimosMovimientos' => $ultimosMovimientos,
             'movimientosPorDia'  => $movimientosPorDia,

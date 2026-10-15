@@ -17,12 +17,13 @@ class Automatizacion extends Model
     protected $table = 'automatizaciones';
 
     protected $fillable = [
-        'nombre', 'descripcion', 'activa', 'grafo', 'version', 'disparador_tipo', 'disparador_clave',
+        'nombre', 'descripcion', 'activa', 'disponible_agentes', 'grafo', 'version', 'disparador_tipo', 'disparador_clave',
         'max_por_hora', 'fallas_seguidas', 'creado_por', 'ultima_ejecucion_at', 'ultima_ventana',
     ];
 
     protected $casts = [
         'activa'              => 'boolean',
+        'disponible_agentes'  => 'boolean',
         'grafo'               => 'array',
         'ultima_ejecucion_at' => 'datetime',
     ];

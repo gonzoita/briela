@@ -4,18 +4,18 @@
 - cluster-only mode — file stats not available
 
 ## Summary
-- 13281 nodes · 27092 edges · 689 communities (344 shown, 345 thin omitted)
-- Extraction: 98% EXTRACTED · 2% INFERRED · 0% AMBIGUOUS · INFERRED: 498 edges (avg confidence: 0.88)
+- 13433 nodes · 27552 edges · 714 communities (364 shown, 350 thin omitted)
+- Extraction: 98% EXTRACTED · 2% INFERRED · 0% AMBIGUOUS · INFERRED: 499 edges (avg confidence: 0.88)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `81a9ef3e`
+- Built from commit: `e2dd5deb`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
 ## Community Hubs (Navigation)
 - Illuminate\Support\Facades\Schema
-- Illuminate\Http\JsonResponse
+- PlantillaEnsamble
 - Productos/Create.vue
 - Illuminate\Support\Facades\DB
 - Plantillas/Index.vue
@@ -23,18 +23,18 @@
 - Illuminate\Database\Eloquent\Relations\HasMany
 - AppLayout.vue
 - PaisesTest
-- vue
+- useUnsavedChanges
 - Illuminate\Database\Migrations\Migration
 - Clientes/Edit.vue
 - ReservaStockTest
 - Pages/Configuracion/Index.vue
 - Cotizaciones/Create.vue
 - EquipoIaTest
-- Curso
+- Inscripcion
 - web.php
-- IaController
+- Illuminate\Support\Str
 - Illuminate\Database\Eloquent\Relations\BelongsTo
-- OperarioDashboardController.php
+- OpItemTrabajoPaso
 - CatalogoPdfService.php
 - Ensambles/Create.vue
 - FormAgente.vue
@@ -43,32 +43,31 @@
 - Op
 - ImportacionesTest
 - Ops/Create.vue
-- AsistenteBurbuja.vue
+- Asistente/Index.vue
 - SelloBriela.vue
-- WhatsappConversacion
 - AsistenteController.php
 - ComisionController.php
-- AgenteInterno
+- AgenteEjecucion
 - OrdenesBrielaService
-- Insumo
+- CotizacionController.php
 - ChatBurbuja.vue
 - Configuracion
-- EjecutarAgenteJob
+- LanzadorAgentes
 - Comentario
 - BandejaConversacion
 - Remision
-- VerificadorPagosController.php
+- User
 - PdfTemplateController.php
-- Inertia\Response
+- CursoController
 - RemisionController.php
-- CuentaRrss
+- MetaRrssService
 - Ops/Show.vue
 - WhatsappNumeros.vue
 - Illuminate\Support\Facades\Log
 - AutomatizacionEjecucion
 - Productos/Index.vue
 - Monedas
-- Illuminate\Http\Request
+- Instalacion
 - OpItem
 - Sede
 - Configurador/Index.vue
@@ -76,7 +75,7 @@
 - Alistamiento (/produccion/alistamiento)
 - PerfilMarca.vue
 - PublicacionWebService
-- CotizacionController.php
+- CotizacionController
 - Notificacion
 - Productos/Edit.vue
 - Illuminate\Support\Collection
@@ -92,7 +91,7 @@
 - EvaluacionIntento
 - WhatsappPlantilla
 - OficinaEnVivo.vue
-- ImagenMarcaService
+- Illuminate\Console\Command
 - OpCuota
 - BuscadorGlobalService.php
 - Cotizaciones/Show.vue
@@ -105,7 +104,7 @@
 - Ensamble
 - ClienteImportController.php
 - Importaciones/Show.vue
-- OpItemTrabajo
+- CalidadController.php
 - CredencialesRrss
 - Inventario/Index.vue
 - Modulos
@@ -118,46 +117,46 @@
 - package.json
 - Bandeja/Index.vue
 - jsonHdr
-- .config
+- BackupService
 - Producto
 - Profile/Edit.vue
-- Inscripcion
+- EntidadesAutomatizacion
 - ContextoSede
-- FuenteInventario
+- FuenteInventario.php
 - Formularios.vue
 - AutomatizacionesModulosTest
 - Copias de seguridad (Administración → Backup)
-- Rol
+- Permisos
 - BandejaTest
-- Auditable
+- RegistroActividad
 - Illuminate\Database\Seeder
 - Programador/Index.vue
 - monedaBase
-- CanalPrecio
+- ProductosImportarYEliminarTest
 - instalar.php
 - FuenteProduccion
 - CursoShow.vue
 - PdfPlantillaController
 - ProductoProveedor
-- Agentes (/configuracion/agentes)
+- Los canales donde no sabemos quién escribe (web, Instagram, Facebook)
 - Marca — color, favicon y título
 - primera-instalacion.sh
 - BuscadorModulo.vue
 - Calidad/Index.vue
 - Marca.vue
-- Pipeline.vue
+- CatalogoHerramientas
 - Proveedor
-- WhatsappMensaje
+- WhatsappNumero
 - IaService — único punto de salida a IA
-- Buscador global (Ctrl+K)
+- Dashboard
 - AppServiceProvider.php
 - FinancieroOP.vue
 - BandejaService
 - PdfTemplateEditor.vue
-- IaConsumo
+- AutomatizacionController.php
 - Multimedia/Index.vue
 - .escenario
-- php artisan briela:empaquetar
+- Instalar Briela en Hostinger
 - Importar clientes desde CSV
 - ModalSubirArchivo.vue
 - SelectorUnidad.vue
@@ -168,14 +167,14 @@
 - Informes/Create.vue
 - Workflow «Publicar versión»
 - CrmLead
-- PdfVariablesEngine
+- OpItemTrabajo
 - Archivo
 - Fuente
 - CierrePasoService — el único sitio que cierra un paso
 - Una instalación por cliente, con su propia base
-- Publica/Show.vue
+- Ordenes/Show.vue
 - CajaRespuesta.vue
-- ImportacionController.php
+- Usuarios/Edit.vue
 - GraficosPersonalizados.vue
 - Proveedores/Index.vue
 - Crear.vue
@@ -183,12 +182,12 @@
 - Catalogo
 - Plan maestro: agentes configurables y módulo de Automatizaciones
 - HiloComentarios.vue
-- Segmentación de clientes y su efecto en el precio
+- Canal base
 - Actualizacion.vue
 - Insumos/Index.vue
 - MonedasYRetencionesTest
 - CalificacionProveedorTest
-- OrdenCompraItem
+- AsistenteBurbuja.vue
 - RecomendadorProductosService.php
 - dependencies
 - ModalFoto.vue
@@ -202,20 +201,20 @@
 - ProductoController.php
 - MetaEmbeddedSignupTest
 - ComprasCodigoProveedorTest
-- ImportacionDiferenciaCambioTest
+- El asistente (Ofe)
 - BuscadorGlobal.vue
-- ops.calidad_aprobada_at (sello de la orden)
-- User
+- ConsultasPublicasService
+- AccionesAutomatizacion.php
 - Ensamble
 - GeneradorFichaIa.vue
 - ConsultasDatosService.php
 - RevisionCalidad.vue
 - FuenteLeads.php
 - Paises
-- CotizacionObserver.php
+- CrmLeadOrigen
 - FlujoOpRemisionTest
-- AgentePublicoService
-- SegmentacionOpcion
+- ConsultasPublicasService
+- PreciosPorCanalService
 - ProveedoresProducto.vue
 - Estados de la OP
 - Un solo punto de corte: los permisos
@@ -223,9 +222,9 @@
 - PerfilMarca
 - Roles.vue
 - Operarios/Index.vue
-- MotorInformes
+- ClienteController
 - PdfVariablesEngine.php
-- LicenciaService
+- TransporteBriela.php
 - FormulaEvaluatorService
 - Op.php
 - Alistamiento/Index.vue
@@ -239,7 +238,7 @@
 - Conexiones con servicios externos
 - RecepcionEnVivo.vue
 - devDependencies
-- RetencionesService
+- GraficoDashboard
 - Agentes/Index.vue
 - ConexionMeta
 - ProductoMovimiento
@@ -250,7 +249,7 @@
 - ComprasRetencionesTest
 - ConsultaNitService
 - Orden de Producción (Op + OpItem + OpItemTrabajo)
-- La bandeja: una pantalla y dos juegos de tablas
+- Agentes (/configuracion/agentes)
 - GuiaAgentesTest
 - Automatizaciones/Index.vue
 - Plugin Briela Connect
@@ -262,27 +261,26 @@
 - Wordpress.vue
 - Modulos.vue
 - CrmEtapa
-- ProductosTiendaTest
+- LinkedinRrssService
 - ModalIaPlantilla.vue
 - Segmentacion/Index.vue
 - CalidadTest
 - DeleteUserForm.vue
 - RecetasCorte/Index.vue
 - TemplateTrabajo
-- Illuminate\Support\Str
 - FirmaPad.vue
 - OrdenCompra
 - Equipos/Index.vue
 - AsistenteDecisionTest.php
 - Producto.php
-- CotizacionSeccionesTest
+- PdfVariablesEngine
 - Mantenimientos/Index.vue
 - FlujoProductosOpTest
 - Form.vue
-- WhatsappNumero
+- WhatsappNumeroController
 - ApiClient
 - Cliente
-- OpItemTrabajoPaso
+- TransaccionesIaService.php
 - require
 - FichaProceso.vue
 - Informes (/informes)
@@ -290,16 +288,16 @@
 - Reglamento interno de trabajo
 - EquipoMantenimiento
 - IconoMenu.vue
-- RegistroActividad
+- GuiaRenombrarProductosTest
 - BloquesHtmlService
-- useTema.js
+- TransaccionesAgentes
 - ReservaStock
 - TestCase
-- TiendaYDocumentos.vue
-- Monedas.vue
+- Rol
+- Illuminate\Database\Eloquent\Relations\HasOne
 - AgenteIa
-- get
-- Ensambles/Index.vue
+- DetalleEjecucion.vue
+- usePublicacionWeb
 - Las dos bodegas de una OP
 - MovimientoBancario
 - Un precio por canal y siembra de márgenes
@@ -315,26 +313,26 @@
 - ConectarMeta.vue
 - graphify como skill de Claude Code
 - PdfPlantillaIaService
-- Illuminate\Http\RedirectResponse
-- CursoEvaluacion
+- Inertia\Response
+- LicenciaService
 - composer.json
 - require-dev
 - scripts
 - 2026_08_13_120000_add_publicacion_web_a_productos_y_ensambles.php
-- Illuminate\Support\Carbon
+- InformeService
 - Importacion
 - InformesIaTest
-- FuenteClientes
-- ModalLead.vue
-- ChatGrupo
-- Illuminate\Database\Eloquent\SoftDeletes
+- FuenteClientes.php
+- RemisionService
+- Clientes/Index.vue
+- BuscarPorCodigoProveedorTest.php
 - ClienteController.php
-- ImportacionPago
-- DashboardSeccion
-- FuenteVentas.php
-- IdentificacionFiscalTest
+- ImportacionController.php
+- Illuminate\Http\RedirectResponse
+- Illuminate\Support\Carbon
+- CorreoPorBrielaTest.php
 - Aprobaciones.vue
-- EsConversacion
+- Illuminate\Database\Eloquent\Builder
 - CrmTest
 - Reglamento.vue
 - RRHHConfigController
@@ -349,15 +347,16 @@
 - App\Support\Orden::aplicar
 - Reglas del producto instalable
 - config
-- Ordenes/Show.vue
-- Comisiones del vendedor
+- guardarResultado
+- Canal base (piso de utilidad)
 - ModalNuevoCliente.vue
 - ModalQR.vue
-- @inertiajs/vue3
+- vue
 - Publicar una versión
-- InventarioTransitoTest.php
+- InventarioTransitoService
 - Illuminate\Database\Schema\Blueprint
-- CRM — pipeline de leads (/crm)
+- Cero personalización en el código de un cliente
+- RecomendadorModelo.php
 - FuenteCartera
 - 2026_06_17_180001_add_token_trabajo_to_op_item_trabajos.php
 - Correo.vue
@@ -370,7 +369,8 @@
 - Equipo (ficha)
 - compilerOptions
 - FuenteLeads
-- Canales
+- CuentaRrss
+- Fiscal.vue
 - La TRM del día, sola
 - Base de pruebas briela_test (phpunit.xml)
 - psr-4
@@ -384,9 +384,9 @@
 - LectorRutService
 - 2026_05_29_210120_create_template_trabajo_pasos_table.php
 - 2026_05_29_220001_add_telefono_to_users_table.php
-- MonedasYRetencionesTest.php
+- Fiscal
 - Países: impuestos, documentos de identidad y moneda de cada sede
-- EquipoIaController
+- AgenteInterno
 - InventarioTransitoTest
 - 2026_06_11_190134_add_imagen_referencia_to_plantilla_campos_table.php
 - 2026_08_14_130000_referencia_y_unidad_en_ensambles.php
@@ -403,14 +403,14 @@
 - OrdenCompraController.php
 - 2026_05_28_100003_add_motivo_rechazo_to_cotizaciones.php
 - 2026_06_13_000003_add_en_produccion_to_cotizaciones_and_cotizacion_id_to_ordenes_produccion.php
-- EntidadesAutomatizacion
+- GrafoAutomatizacion
 - 2026_06_09_000007_add_margenes_to_productos_table.php
 - 2026_06_25_100001_add_remisionado_to_op_item_trabajos_table.php
 - 2026_06_16_000001_add_formula_real_to_plantilla_componentes_table.php
 - Equipo de IA (agentes internos) *(nuevo en 2.0)*
 - PdfPlantillaMotor
 - 2026_06_27_120001_add_fields_to_crm_formularios_table.php
-- UnidadMedida
+- Illuminate\Http\Request
 - 2026_06_16_000002_add_numero_unidad_to_op_item_trabajos_table.php
 - 2026_06_26_200001_add_requiere_anticipo_to_clientes_table.php
 - AccionesIaService.php
@@ -418,16 +418,16 @@
 - mensajeDe
 - 2026_06_11_190135_add_imagenes_instancia_to_op_items_table.php
 - 2026_06_23_000001_add_seccion_to_plantilla_componentes_table.php
-- PlantillasPdfTest
-- 2026_06_17_171651_add_observacion_to_op_item_componentes.php
+- agregarItemDesdeEnsambleInstancia
+- PantallaPlanta/Show.vue
 - NotificacionService
 - 2026_06_23_100002_add_seccion_id_to_plantilla_componentes_table.php
-- 2026_07_22_000002_add_lead_id_to_cotizaciones_table.php
-- 2026_06_26_000001_add_fotos_to_op_item_trabajo_pasos_table.php
+- CalidadController
+- 2026_07_26_000004_create_roles_y_permisos_tables.php
 - ActualizadorService
-- 2026_08_14_100000_permitir_ensambles_directos.php
+- AutomatizacionesModulosTest.php
 - 2026_06_30_000001_add_drive_fields_to_archivos_table.php
-- 2026_06_30_000002_add_drive_fields_to_imagenes_producto_table.php
+- Mantenimientos/Create.vue
 - postJson
 - Bodega
 - 2026_07_07_000001_add_variantes_to_productos_table.php
@@ -436,34 +436,33 @@
 - generate-icons.js
 - 2026_07_22_000004_add_calidad_aprobada_at_to_ops_table.php
 - PHPUnit\Framework\TestCase
-- FuenteInventario.php
+- GuiaTransaccionesTest
 - 2026_05_29_210150_add_porcentaje_avance_to_ops_table.php
 - Verificador de pagos — confirmar con el banco que el dinero llegó
-- 2026_07_26_000002_add_sede_id_to_bodegas_and_users_tables.php
+- PdfPlantillasSeeder
 - 2026_10_15_100000_alistamiento_parcial_y_cierre_de_remisiones.php
 - RevisionEvaluaciones/Show.vue
 - 2026_07_26_000006_add_sede_id_to_compras_tables.php
-- 2026_08_08_003126_adjuntos_libres_en_comentarios.php
+- Paises.vue
 - 2026_05_26_025652_create_plantillas_ensamble_table.php
 - 2026_05_29_210105_create_operario_horas_extras_table.php
 - Checklist de verificación — cambios de julio 2026
-- MotorAutomatizaciones.php
+- MotorAutomatizaciones
 - 2026_07_15_000006_add_curso_modulo_id_to_curso_evaluaciones_table.php
 - 2026_10_10_100000_add_codigo_proveedor_a_ordenes_y_historial_de_precios.php
 - 0001_01_01_000002_create_jobs_table.php
 - 2026_05_29_210107_create_operario_hitos_table.php
 - 3. Paso a paso, en orden
 - BtnPdf.vue
-- 2026_07_26_000008_add_sede_id_to_ventas_tables.php
-- 2026_10_10_120000_add_documentos_a_movimientos_y_recepciones_de_compra.php
+- UsuarioController
 - 2026_06_09_000003_add_comisiones_to_productos_table.php
 - 2026_08_09_000001_add_origen_web_a_crm_leads_table.php
 - 2026_06_18_000001_add_sub_formulas_to_plantilla_componentes_table.php
 - HistorialAutomatizacion.vue
 - 2026_09_29_000002_add_moneda_costo_to_productos_table.php
-- PASO 2 — Oportunidades para agentes
-- 2026_06_24_100001_create_remisiones_table.php
-- 2026_06_27_100002_create_crm_leads_table.php
+- Agentes de IA internos para Briela — informe de análisis
+- Liquidaciones/Create.vue
+- rangoComisionDe
 - 2026_06_28_213439_add_dimensiones_to_pdf_plantillas_table.php
 - Automatizaciones
 - Componentes y sus fórmulas
@@ -474,33 +473,33 @@
 - 2026_06_28_000001_create_pdf_templates_table.php
 - Operario
 - 2026_05_26_021220_create_formula_insumo_table.php
-- 2026_07_27_000004_create_asistente_mensajes_table.php
+- 2026_10_07_100001_add_bandeja_a_whatsapp_tables.php
 - 2026_08_13_210000_add_descripcion_cotizacion_a_productos_y_ensambles.php
-- 2026_06_20_000004_add_estacion_trabajo_id_to_equipos_mantenimiento_table.php
+- LeerRut.vue
 - 2026_06_09_000004_add_comisiones_to_ensambles_table.php
 - 2026_06_25_000002_add_cantidad_remisionada_to_op_items.php
 - 2026_05_29_210106_create_operario_permisos_table.php
 - 2026_06_23_000002_add_seccion_to_op_item_componentes_table.php
-- 2026_06_26_100003_add_es_saldo_automatico_to_op_cuotas_table.php
-- 2026_07_01_000001_create_proveedores_table.php
+- multipartHdr
+- CotizacionRepreciaPorSegmentoTest
 - 2026_09_29_000003_add_tasa_fecha_to_cotizaciones_table.php
 - 2026_10_14_130000_marca_origen_caracteristicas_y_precio_web_en_productos.php
 - 2026_06_11_190134_add_imagenes_instancia_to_cotizacion_items_table.php
 - PasosProduccion.vue
-- 2026_07_01_100001_create_bodegas_table.php
+- EnsamblePasosProduccionTest
 - 2026_06_05_175852_add_visible_op_to_plantilla_componentes.php
-- 2026_07_01_100003_create_producto_movimientos_table.php
+- 2026_08_30_210000_add_calidad_revisada_to_op_item_trabajos.php
 - 2026_06_24_100003_add_remisionado_to_op_items_table.php
 - 2026_08_30_180000_add_bodega_material_to_op_item_trabajos.php
-- 2026_07_15_000001_create_curso_evaluaciones_table.php
+- ModalAnticipo.vue
 - 2026_07_11_000002_create_curso_modulos_table.php
 - 2026_10_15_100000_trm_nacionalizacion_y_pagos_en_importaciones.php
 - 2026_05_20_000001_create_categorias_producto_table.php
-- 2026_07_22_000005_create_cotizacion_seguimientos_table.php
+- TarjetaTransaccion.vue
 - 2026_07_21_000001_add_objetivo_adjuntos_to_template_trabajo_pasos_table.php
-- 2026_07_24_000001_create_cuentas_rrss_table.php
+- RecepcionEnVivoTest
 - filtrar
-- 2026_08_21_150000_create_dashboard_secciones_table.php
+- UserFactory.php
 - 2026_05_29_220010_create_equipos_mantenimiento_table.php
 - Retenciones estimadas en la cotización
 - autoload-dev
@@ -511,8 +510,8 @@
 - Fila de totales y promedios
 - 2026_10_14_100000_add_remision_id_a_op_item_trabajos.php
 - 2026_06_13_000002_create_op_item_trabajo_paso_operarios_table.php
-- LiquidacionImportacionService
-- 2026_10_16_100000_informes_de_la_ia.php
+- SegmentacionOpcion
+- 2026_05_27_221241_mover_campos_catalogo_de_plantilla_a_ensamble.php
 - Colores del tema: border-linea, divide-separador, hover:bg-realce
 - resources/js/formato.js (formatPct, formatCOP, formatCantidad)
 - correo:sincronizar-eventos
@@ -522,7 +521,7 @@
 - 2026_05_25_000004_create_formulas_componente_table.php
 - php artisan briela:instalar
 - 2026_10_10_110000_add_datos_fiscales_a_proveedores.php
-- PASO 3 — Arquitectura propuesta
+- 2026_06_22_000001_add_dependencias_a_pasos_tables.php
 - base-datos.blade.php
 - cuenta.blade.php
 - listo.blade.php
@@ -558,98 +557,125 @@
 - orden-compra.blade.php
 - remision.blade.php
 - readme.txt de Briela Connect 0.1.0
-- 2026_05_26_025655_create_plantilla_campos_table.php
+- 2026_08_08_010500_create_chat_grupos_table.php
 - actualizar-todo.sh
 - 2026_05_29_210105_create_operario_turnos_config_table.php
 - 2026_08_14_110000_permitir_pasos_de_trabajo_por_ensamble.php
 - EnsambleDirectoService.php
-- 2026_05_29_210107_create_operario_bonos_table.php
+- ExportadorInformes.php
+- 2026_10_14_100000_create_automatizaciones_tables.php
 - CalificacionProveedores.vue
 - 2026_08_22_120000_add_bodega_entrega_to_ops_table.php
 - 2026_06_27_110002_create_crm_formularios_table.php
 - 2026_07_01_000003_create_solicitudes_compra_table.php
-- 2026_05_29_210108_create_templates_trabajo_table.php
+- 2026_08_12_140000_add_marcas_de_precio_a_segmentacion.php
 - 2026_05_20_000003_create_imagenes_producto_table.php
 - 2026_06_09_000006_create_comisiones_vendedor_table.php
-- 2026_07_15_000005_create_certificados_table.php
+- 2026_08_18_170000_create_liquidaciones_comision.php
 - 2026_07_26_000011_create_perfil_marca_table.php
 - 2026_07_01_000004_create_solicitudes_compra_items_table.php
 - 2026_05_29_220012_create_mantenimientos_table.php
 - 2026_06_20_000003_create_estaciones_trabajo_table.php
-- 2026_06_26_100002_create_op_pagos_table.php
-- 2026_07_01_100002_create_producto_stock_table.php
-- PasoProduccionIaService
+- 2026_10_11_100000_create_verificador_de_pagos.php
+- ImagenVariante.vue
 - 2026_06_27_100001_create_crm_etapas_table.php
-- WordpressIntegracionTest
-- 2026_06_10_193149_add_comisiones_canal_to_productos_and_ensambles.php
+- 2026_05_26_200005_alter_cotizacion_items_add_ensamble.php
+- 2026_06_09_000001_add_segmentacion_to_clientes_table.php
 - 2026_07_01_000006_create_ordenes_compra_items_table.php
 - 2026_07_11_000003_create_curso_lecciones_table.php
-- 2026_07_14_000002_create_inscripciones_table.php
+- 2026_06_30_000003_add_drive_fields_to_ensambles_table.php
 - 2026_07_15_000002_create_evaluacion_preguntas_table.php
 - 2026_09_23_100000_add_slots_to_pdf_plantillas_table.php
 - 2026_05_20_000005_create_clientes_table.php
-- 2026_10_07_100006_permitir_archivos_sin_quien_los_subio.php
+- 2026_07_22_000003_add_calidad_reproceso_to_ops_table.php
 - 2026_08_10_120000_add_zona_horaria_to_sedes.php
 - 2026_05_29_210104_create_operarios_table.php
-- 2026_07_24_000002_create_publicaciones_rrss_table.php
+- 2026_07_26_000009_add_sede_id_to_logistica_rrhh_mantenimiento.php
 - CrmNota
+- 2026_08_18_090000_create_checklist_calidad.php
 - class-woocommerce.php
 - PdfPlantillaRenderer
-- 2026_06_17_180000_add_token_publico_to_ops.php
+- 2026_08_22_170000_add_bodega_material_to_ops_table.php
 - 2026_08_18_140000_create_graficos_dashboard.php
 - 2026_07_24_000003_create_publicaciones_rrss_cuentas_table.php
-- 2026_09_29_000001_create_tasas_cambio_table.php
-- WordpressIntegracionController.php
+- 2026_10_16_110000_moneda_en_ordenes_de_compra.php
+- 2026_10_16_120000_automatizaciones_disponibles_para_agentes.php
 - 2026_10_07_100002_create_bandeja_conversaciones_table.php
 - 2026_10_13_100000_add_producto_id_a_templates_trabajo.php
-- 2026_10_13_110000_add_dias_entrega_a_cotizaciones.php
+- 2026_05_25_000001_create_contactos_cliente_table.php
 - 2026_08_12_140100_create_canal_precios_table.php
 - 2026_07_15_000003_create_evaluacion_opciones_table.php
 - 2026_07_15_000004_create_evaluacion_intentos_table.php
-- CorreoPorBrielaTest.php
+- CorreoPorBrielaTest
 - 2026_10_15_110000_add_foto_y_firma_a_users.php
 - Hallazgo: el .env de la copia apuntaba a la base real del sistema de origen
-- Instalar Briela en Hostinger
+- 2026_05_25_000006_create_cotizacion_items_table.php
+- 2026_06_23_000001_create_informes_table.php
 - Aprobar.vue
 - formato.js
 - app.js
-- Cotizacion.php
+- 2026_06_26_100001_create_op_cuotas_table.php
+- 2026_06_27_100003_create_crm_tareas_table.php
 - ModalBodegasEntrega.vue
-- OficinaAgentes.vue
+- 2026_06_28_100001_create_crm_actividades_table.php
+- 2026_07_01_000005_create_ordenes_compra_table.php
+- 2026_07_02_100002_create_whatsapp_conversaciones_table.php
+- 2026_07_02_100003_create_whatsapp_mensajes_table.php
+- 2026_07_07_000002_create_recetas_corte_table.php
 - 2026_06_24_115657_alter_descripcion_corta_ensambles.php
-- 2026_10_10_130000_create_reservas_stock_table.php
+- 2026_07_14_000001_create_invitaciones_capacitacion_table.php
+- 2026_07_14_000003_create_progreso_lecciones_table.php
+- 2026_07_22_000001_create_registros_actividad_table.php
 - 2026_07_23_000001_add_precio_mayorista_base_to_cotizacion_items_table.php
-- 2026_10_12_100000_add_candados_de_inventario_a_despachos.php
+- 2026_07_24_000001_create_notificaciones_table.php
+- 2026_08_07_233921_create_comentarios_table.php
+- 2026_08_15_160000_create_reglamentos_table.php
+- 2026_10_06_000001_create_correo_supresiones_table.php
+- 2026_10_07_100003_create_bandeja_mensajes_table.php
 - ChecksCalidad.vue
 - Reglamento
 - 2026_05_18_000032_create_personal_access_tokens_table.php
 - 2026_05_29_220013_create_mantenimiento_repuestos_table.php
 - 2026_06_23_100001_create_plantilla_secciones_table.php
+- 2026_10_07_100004_create_whatsapp_plantillas_table.php
+- 2026_10_13_100000_create_ia_consumo_table.php
+- 2026_10_15_130000_add_respuesta_a_comentarios.php
 - 2026_07_11_000001_create_cursos_table.php
+- 2026_10_17_100000_embedded_signup_whatsapp_numeros.php
+- scripts
+- iniciarEmbeddedSignup
+- abrirNuevoComponente
+- useRetenciones.js
+- xsrf
+- recalcularPesosProduccion
+- cancelar
+- calcularInstancia
+- clienteCreado
+- agregarSubFormula
 
 ## God Nodes (most connected - your core abstractions)
-1. `User` - 392 edges
-2. `Producto` - 294 edges
-3. `vue` - 215 edges
-4. `Configuracion` - 193 edges
+1. `User` - 410 edges
+2. `Producto` - 309 edges
+3. `vue` - 217 edges
+4. `Configuracion` - 195 edges
 5. `Op` - 180 edges
-6. `@inertiajs/vue3` - 168 edges
-7. `Cotizacion` - 154 edges
+6. `@inertiajs/vue3` - 170 edges
+7. `Cotizacion` - 161 edges
 8. `Controller` - 140 edges
-9. `TestCase` - 127 edges
-10. `Cliente` - 125 edges
+9. `TestCase` - 137 edges
+10. `Cliente` - 130 edges
 
 ## Surprising Connections (you probably didn't know these)
-- `4.3 Cómo funciona por dentro` --references--> `CotizacionObserver`  [INFERRED]
-  docs/agentes-plan-maestro.md → app/Observers/CotizacionObserver.php
+- `2.7 Copiloto de bandeja` --references--> `RecomendadorProductosService`  [INFERRED]
+  docs/agentes-ia.md → app/Services/IA/RecomendadorProductosService.php
+- `3.2 El prompt: editable por capas` --references--> `PerfilMarca`  [INFERRED]
+  docs/agentes-plan-maestro.md → app/Models/PerfilMarca.php
 - `3.4 Cómo se ejecutan las tareas (Hostinger y producto instalable)` --references--> `EjecutarAgenteJob`  [INFERRED]
   docs/agentes-ia.md → app/Jobs/EjecutarAgenteJob.php
 - `3.3 Modelo por agente, con fallback` --references--> `IaService`  [INFERRED]
   docs/agentes-ia.md → app/Services/IA/IaService.php
 - `Infraestructura y costos` --references--> `IaService`  [INFERRED]
   docs/agentes-ia.md → app/Services/IA/IaService.php
-- `Fase 2 — Más agentes y primeras escrituras con aprobación` --references--> `TransaccionesIaService`  [INFERRED]
-  docs/agentes-ia.md → app/Services/IA/TransaccionesIaService.php
 
 ## Import Cycles
 - None detected.
@@ -665,51 +691,51 @@
 - **Catálogo cerrado de claves como frontera de confianza contra lo que manda el navegador** — docs_manual_graficos_tablero_claves_de_catalogo_no_columnas, docs_manual_graficos_tablero_app_support_orden, docs_manual_ia_catalogo_cerrado_de_consultas, docs_manual_hilos_internos_lista_blanca_de_modelos, docs_manual_buscador_global_filtro_por_tipo_en_el_servidor [INFERRED 0.85]
 - **Entrega y despacho por unidad física** — docs_manual_logistica_candado_calidad_por_unidad, docs_manual_logistica_disponibles_para_remision, docs_manual_produccion_op_calidad_unidad_por_unidad, docs_manual_produccion_op_bodega_de_entrega, docs_manual_productos_inventario_registrar_movimiento [INFERRED 0.85]
 
-## Communities (689 total, 345 thin omitted)
+## Communities (714 total, 350 thin omitted)
 
 ### Community 0 - "Illuminate\Support\Facades\Schema"
 Cohesion: 0.02
-Nodes (24): {closure#1}(), {closure#1}(), {closure#1}(), {closure#1}(), {closure#1}(), {closure#1}(), {closure#2}(), {closure#1}() (+16 more)
+Nodes (24): {closure#1}(), {closure#1}(), {closure#1}(), {closure#1}(), {closure#1}(), {closure#1}(), {closure#1}(), {closure#1}() (+16 more)
 
-### Community 1 - "Illuminate\Http\JsonResponse"
-Cohesion: 0.04
-Nodes (16): ActualizacionController, CrmFormularioController, NotificacionController, PlantillaCampoController, PlantillaComponenteController, {closure#3}(), {closure#4}(), {closure#8}() (+8 more)
+### Community 1 - "PlantillaEnsamble"
+Cohesion: 0.05
+Nodes (12): PlantillaCampoController, PlantillaComponenteController, {closure#3}(), {closure#4}(), {closure#8}(), PlantillaEnsambleController, PlantillaSeccionController, PlantillaCampo (+4 more)
 
 ### Community 2 - "Productos/Create.vue"
-Cohesion: 0.04
-Nodes (48): PreciosPorCanalService::precioDesdeCosto(), php artisan precios:recalcular y comisiones:recalcular, elegir(), emit, props, vista, usePreciosPorCanal(), aplicarDescuentosMax() (+40 more)
+Cohesion: 0.05
+Nodes (26): props, badgeStyle, datosParaFicha, descuentoMaxRealClienteFinal, descuentoMaxRealDistribuidor, errorComisionClienteFinal, esPadre, excedenteClienteFinal (+18 more)
 
 ### Community 3 - "Illuminate\Support\Facades\DB"
-Cohesion: 0.01
-Nodes (37): {closure#1}(), {closure#3}(), {closure#1}(), {closure#2}(), {closure#1}(), {closure#1}(), {closure#1}(), {closure#2}() (+29 more)
+Cohesion: 0.02
+Nodes (29): {closure#1}(), {closure#3}(), {closure#1}(), {closure#2}(), {closure#1}(), {closure#1}(), {closure#1}(), {closure#2}() (+21 more)
 
 ### Community 4 - "Plantillas/Index.vue"
 Cohesion: 0.02
-Nodes (85): abrirEditarComponente(), abrirNuevoComponente(), agregarPasoProduccion(), agregarSubFormula(), avisoChecks, ayudaVisible, badgesTipo, busqProducto (+77 more)
+Nodes (72): avisoChecks, ayudaVisible, badgesTipo, busqProducto, busqueda, campoBorrador, camposCalculados, camposEntrada (+64 more)
 
 ### Community 5 - "AlistamientoController.php"
-Cohesion: 0.16
-Nodes (5): AlistamientoController, {closure#1}(), {closure#6}(), {closure#7}(), {closure#8}()
+Cohesion: 0.12
+Nodes (6): AlistamientoController, {closure#1}(), {closure#6}(), {closure#7}(), {closure#8}(), Orden
 
 ### Community 6 - "Illuminate\Database\Eloquent\Relations\HasMany"
-Cohesion: 0.04
+Cohesion: 0.03
 Nodes (4): {closure#1}(), {closure#1}(), {closure#1}(), {closure#1}()
 
 ### Community 7 - "AppLayout.vue"
-Cohesion: 0.02
-Nodes (69): abierto, elegir(), emit, abrirAvisoVivo(), abrirChatEn(), abrirNotif(), actualizando, asistenteRef (+61 more)
-
-### Community 9 - "vue"
 Cohesion: 0.03
-Nodes (61): vue, emit, props, proxyChecked, useUnsavedChanges(), checkChanges(), setOriginal(), errors (+53 more)
+Nodes (65): abrirAvisoVivo(), abrirChatEn(), abrirNotif(), actualizando, asistenteRef, asistenteVivo, avisoVivo, canvasRef (+57 more)
+
+### Community 9 - "useUnsavedChanges"
+Cohesion: 0.04
+Nodes (43): useUnsavedChanges(), checkChanges(), setOriginal(), errors, form, { hasChanges, setOriginal, checkChanges }, props, submit() (+35 more)
 
 ### Community 10 - "Illuminate\Database\Migrations\Migration"
 Cohesion: 0.02
-Nodes (24): {closure#1}(), {closure#1}(), {closure#1}(), {closure#1}(), {closure#2}(), {closure#1}(), {closure#1}(), {closure#1}() (+16 more)
+Nodes (19): {closure#1}(), {closure#1}(), {closure#1}(), {closure#1}(), {closure#1}(), {closure#1}(), {closure#1}(), {closure#1}() (+11 more)
 
 ### Community 11 - "Clientes/Edit.vue"
 Cohesion: 0.04
-Nodes (41): emit, emit, props, toggle(), useConsultaIdentificacion(), consultar(), limpiar(), abrirNuevoContacto() (+33 more)
+Nodes (44): emit, emit, props, toggle(), extra, marcados, props, useConsultaIdentificacion() (+36 more)
 
 ### Community 13 - "Pages/Configuracion/Index.vue"
 Cohesion: 0.03
@@ -717,35 +743,35 @@ Nodes (59): cancelarEstacion(), cancelarNivel(), cancelarTipo(), configForm, con
 
 ### Community 14 - "Cotizaciones/Create.vue"
 Cohesion: 0.03
-Nodes (82): useRetenciones(), agregarItemDesdeEnsamble(), agregarItemDesdeEnsambleInstancia(), agregarItemDesdeProducto(), agregarItemTextoLibre(), ajustarComision(), avisoCondiciones, buildDescripcionLargaInstancia() (+74 more)
+Nodes (54): avisoCondiciones, avisoRepreciado, calculandoInstancia, camposInstancia, canalCliente, canalEsRespaldo, canalPropio, canalPublico (+46 more)
 
-### Community 16 - "Curso"
-Cohesion: 0.07
-Nodes (11): CursoLeccionController, CursoModuloController, Curso, CursoLeccion, CursoModulo, EvaluacionOpcion, {closure#2}(), up() (+3 more)
+### Community 16 - "Inscripcion"
+Cohesion: 0.06
+Nodes (19): CursoLeccionController, CursoModuloController, EvaluacionPreguntaController, {closure#1}(), {closure#2}(), {closure#3}(), {closure#4}(), PortalCapacitacionController (+11 more)
 
 ### Community 17 - "web.php"
 Cohesion: 0.02
-Nodes (4): CarteraController, PantallaPlantaController, TrabajoPasoController, GET /chat/{usuario}()
+Nodes (4): EstudianteAuthController, InvitacionCapacitacionController, InvitacionCapacitacion, GET /chat/{usuario}()
 
 ### Community 19 - "Illuminate\Database\Eloquent\Relations\BelongsTo"
-Cohesion: 0.04
-Nodes (12): EnsambleItem, FormulaInsumo, OpItemComponente, OpItemTrabajoPasoOperario, ProgresoLeccion, PublicacionRrssCuenta, RolPermiso, {closure#1}() (+4 more)
+Cohesion: 0.03
+Nodes (12): EnsambleItem, OpItemComponente, OpItemTrabajoPasoOperario, OrdenCompraItem, OrdenCompraRecepcion, ProgresoLeccion, PublicacionRrssCuenta, SolicitudCompra (+4 more)
 
-### Community 20 - "OperarioDashboardController.php"
-Cohesion: 0.10
-Nodes (3): OperarioDashboardController, PuntoColaborador, PuntosColaboradorService
+### Community 20 - "OpItemTrabajoPaso"
+Cohesion: 0.04
+Nodes (10): OperarioDashboardController, {closure#1}(), PantallaPlantaController, PasoFotoController, ProgramadorController, TrabajoPasoController, OpItemTrabajoPaso, PuntoColaborador (+2 more)
 
 ### Community 21 - "CatalogoPdfService.php"
-Cohesion: 0.21
-Nodes (3): CatalogoPdfService, {closure#3}(), {closure#5}()
+Cohesion: 0.17
+Nodes (3): CatalogoPdfService, {closure#4}(), {closure#6}()
 
 ### Community 22 - "Ensambles/Create.vue"
 Cohesion: 0.03
 Nodes (60): opcionesParseadas, props, autoNombre, calcPrecio(), calculado, calculando, calcular(), canales (+52 more)
 
 ### Community 23 - "FormAgente.vue"
-Cohesion: 0.07
-Nodes (27): AVATARES, aviso, avisoModelo, cargandoAgente, cargandoReco, cargandoVista, cargarVersiones(), cargo (+19 more)
+Cohesion: 0.06
+Nodes (29): AVATARES, aviso, avisoModelo, cargandoAgente, cargandoReco, cargandoVista, cargarVersiones(), cargo (+21 more)
 
 ### Community 24 - "EscenaPixel"
 Cohesion: 0.05
@@ -763,29 +789,29 @@ Nodes (3): OpController, TrabajoPdfController, Op
 Cohesion: 0.04
 Nodes (44): aceptarCambioDeUnidades(), agregarDesdeEnsamble(), agregarDesdeProducto(), avisoUnidades, buildDescripcionLarga(), buscarClientes(), camposInstancia, cerrarModal() (+36 more)
 
-### Community 29 - "AsistenteBurbuja.vue"
-Cohesion: 0.05
-Nodes (59): abierto, abrirCon(), ajustesAbiertos, alternar(), alternarMicrofono(), bajar(), cargando, entrada (+51 more)
+### Community 29 - "Asistente/Index.vue"
+Cohesion: 0.10
+Nodes (31): alternarMicrofono(), cargarPrefs(), useVozAsistente(), detenerDictado(), detenerVoz(), getCookie(), hablar(), hablarNatural() (+23 more)
 
 ### Community 31 - "SelloBriela.vue"
-Cohesion: 0.04
-Nodes (33): colores, props, form, marca, mostrarPassword, form, mostrarPassword, form (+25 more)
+Cohesion: 0.11
+Nodes (10): colores, props, ESTADOS, ESTADOS_ITEM, props, ESTADOS_ORDEN, estadosBadge, pasoActualIndex (+2 more)
 
 ### Community 33 - "AsistenteController.php"
-Cohesion: 0.09
+Cohesion: 0.10
 Nodes (4): AsistenteController, {closure#5}(), {closure#1}(), MensajeAsistente
 
 ### Community 34 - "ComisionController.php"
 Cohesion: 0.05
-Nodes (7): ComisionController, {closure#2}(), {closure#4}(), LiquidacionComisionController, ComisionVendedor, LiquidacionComision, ComisionService
+Nodes (16): ComisionController, {closure#2}(), {closure#4}(), LiquidacionComisionController, ComisionVendedor, LiquidacionComision, ComisionService, 2.2 Seguimiento comercial (+8 more)
 
-### Community 35 - "AgenteInterno"
-Cohesion: 0.07
-Nodes (7): AgenteEjecucion, AgenteInterno, {closure#1}(), {closure#3}(), EjecutorAgente, LanzadorAgentes, PropuestasAgenteService
-
-### Community 37 - "Insumo"
+### Community 35 - "AgenteEjecucion"
 Cohesion: 0.10
-Nodes (8): CalculadorController, ConfiguradorController, InsumoController, ConfiguracionPuerta, FormulaComponente, Insumo, FormulaComponenteSeeder, InsumoSeeder
+Nodes (6): {closure#10}(), AgenteEjecucion, {closure#1}(), {closure#3}(), EjecutorAgente, PropuestasAgenteService
+
+### Community 37 - "CotizacionController.php"
+Cohesion: 0.06
+Nodes (9): CalculadorController, ConfiguradorController, {closure#11}(), {closure#8}(), InsumoController, ConfiguracionPuerta, FormulaComponente, Insumo (+1 more)
 
 ### Community 38 - "ChatBurbuja.vue"
 Cohesion: 0.05
@@ -793,83 +819,79 @@ Nodes (66): abierto, abrirConversacion(), abrirGrupo(), abrirHilo(), abrirPerson
 
 ### Community 39 - "Configuracion"
 Cohesion: 0.03
-Nodes (7): {closure#1}(), Configuracion, Marca, down(), up(), up(), ColorMarcaLegibleTest
+Nodes (14): CorreoConfigController, CrmFormularioPublicoController, IdentificacionConfigController, IntegracionWordpressController, MarcaController, AplicarSmtpConfig, Configuracion, {closure#1}() (+6 more)
+
+### Community 40 - "LanzadorAgentes"
+Cohesion: 0.09
+Nodes (3): EjecutarAgenteJob, EjecutarAutomatizacionJob, LanzadorAgentes
 
 ### Community 41 - "Comentario"
 Cohesion: 0.06
-Nodes (6): ChatDirectoController, {closure#1}(), {closure#9}(), {closure#1}(), ComentarioController, Comentario
+Nodes (7): {closure#1}(), {closure#9}(), {closure#1}(), {closure#4}(), {closure#1}(), ComentarioController, Comentario
 
 ### Community 42 - "BandejaConversacion"
-Cohesion: 0.15
-Nodes (4): BandejaConversacion, BandejaMensaje, {closure#1}(), BandejaRedesTest
+Cohesion: 0.16
+Nodes (3): BandejaConversacion, BandejaMensaje, BandejaRedesTest
 
 ### Community 43 - "Remision"
-Cohesion: 0.05
-Nodes (10): {closure#34}(), {closure#35}(), RemisionController, Remision, RemisionItem, InventarioRemisionService, {closure#1}(), {closure#2}() (+2 more)
+Cohesion: 0.07
+Nodes (4): RemisionController, Remision, InventarioRemisionService, AlistamientoParcialYCierreTest
 
-### Community 44 - "VerificadorPagosController.php"
-Cohesion: 0.09
-Nodes (4): {closure#6}(), VerificadorPagosController, CuentaBancaria, Orden
+### Community 44 - "User"
+Cohesion: 0.05
+Nodes (6): CapacitacionEstudiante, User, AuthenticationTest, EmailVerificationTest, PasswordResetTest, ProfileTest
 
 ### Community 45 - "PdfTemplateController.php"
 Cohesion: 0.20
 Nodes (3): PdfTemplateController, PdfTemplate, PdfTemplateService
 
-### Community 46 - "Inertia\Response"
-Cohesion: 0.03
-Nodes (11): AuditoriaController, CalificacionProveedoresConfigController, CertificadoPublicoController, CursoController, IdentificacionConfigController, IntegracionWordpressController, OpPublicaController, {closure#5}() (+3 more)
-
 ### Community 47 - "RemisionController.php"
 Cohesion: 0.09
 Nodes (7): {closure#1}(), {closure#11}(), {closure#12}(), {closure#18}(), {closure#19}(), {closure#20}(), {closure#21}()
 
-### Community 48 - "CuentaRrss"
-Cohesion: 0.06
-Nodes (8): CuentaRrssController, CuentaRrss, GoogleBusinessRrssService, LinkedinRrssService, MetaMensajeriaService, {closure#1}(), MetaRrssService, TokensRrssService
-
 ### Community 49 - "Ops/Show.vue"
-Cohesion: 0.04
-Nodes (32): confirmar(), emit, error, form, getXsrf(), guardando, props, authUser (+24 more)
+Cohesion: 0.05
+Nodes (25): authUser, BADGE, descExpandido, editandoCantidad, erroresEstado, ESTADOS, ESTADOS_ITEM, financieroRef (+17 more)
 
 ### Community 50 - "WhatsappNumeros.vue"
 Cohesion: 0.05
-Nodes (27): agenteForm, aprobadas, auto, autoAbierta, cambiando, cancelar(), chequeos, copiado (+19 more)
+Nodes (25): agenteForm, aprobadas, auto, autoAbierta, cambiando, chequeos, copiado, cred (+17 more)
 
 ### Community 51 - "Illuminate\Support\Facades\Log"
 Cohesion: 0.08
-Nodes (3): RrssApiException, AgenteWebhookService, UrlPublica
+Nodes (4): RrssApiException, AgenteWebhookService, GoogleBusinessRrssService, {closure#1}()
 
 ### Community 53 - "Productos/Index.vue"
 Cohesion: 0.04
 Nodes (46): abrirModalCategorias(), camposOrden, cargarCategorias(), catCargando, catEditando, categoriasLocal, categoriasUnicas, catError (+38 more)
 
 ### Community 54 - "Monedas"
-Cohesion: 0.06
-Nodes (8): ActualizarTasas, MonedasConfigController, TasaCambio, {closure#1}(), {closure#2}(), CostosEnMonedaService, TasaCambioService, Monedas
+Cohesion: 0.07
+Nodes (7): ActualizarTasas, TasaCambio, {closure#1}(), {closure#2}(), CostosEnMonedaService, TasaCambioService, Monedas
 
-### Community 55 - "Illuminate\Http\Request"
-Cohesion: 0.03
-Nodes (24): AgenteWebController, BandejaController, BuscadorController, CatalogoController, CorreoConfigController, CursoEvaluacionController, InventarioController, OpComponenteController (+16 more)
+### Community 55 - "Instalacion"
+Cohesion: 0.04
+Nodes (12): InstaladorController, Authenticate, BloquearModuloApagado, CerrarInstaladorSiYaEstaInstalada, ExigirInstalacion, HandleInertiaRequests, VerificarPermiso, VerificarRol (+4 more)
 
 ### Community 56 - "OpItem"
-Cohesion: 0.08
-Nodes (8): OpTrabajoController, {closure#1}(), OpItem, {closure#1}(), {closure#2}(), {closure#3}(), {closure#4}(), TrabajoAutoGeneratorService
+Cohesion: 0.11
+Nodes (7): {closure#1}(), OpItem, {closure#1}(), {closure#2}(), {closure#3}(), {closure#4}(), TrabajoAutoGeneratorService
 
 ### Community 57 - "Sede"
-Cohesion: 0.06
-Nodes (11): Instalar, {closure#1}(), NumeracionController, {closure#1}(), SedeController, SecuenciaDocumento, Sede, {closure#1}() (+3 more)
+Cohesion: 0.05
+Nodes (12): Instalar, {closure#1}(), NumeracionController, {closure#1}(), SedeController, SecuenciaDocumento, Sede, {closure#1}() (+4 more)
 
 ### Community 58 - "Configurador/Index.vue"
 Cohesion: 0.06
 Nodes (32): badgesTipo, busqProducto, campoBorrador, compBorrador, crearPlantilla(), csrf(), editandoCampo, editandoComponente (+24 more)
 
 ### Community 59 - "EventosAutomatizacion.php"
-Cohesion: 0.08
-Nodes (17): OperarioPermiso, ProductoStock, {closure#1}(), {closure#10}(), {closure#12}(), {closure#13}(), {closure#14}(), {closure#15}() (+9 more)
+Cohesion: 0.10
+Nodes (15): ProductoStock, {closure#1}(), {closure#10}(), {closure#12}(), {closure#13}(), {closure#15}(), {closure#17}(), {closure#2}() (+7 more)
 
 ### Community 60 - "Alistamiento (/produccion/alistamiento)"
 Cohesion: 0.06
-Nodes (30): Módulo de Calidad (/calidad), Remisionar lo que ya pasó calidad, sin esperar la orden, Reproceso reabre en Trabajos solo las unidades rechazadas, Trabajos se ve como Calidad: la misma ficha grande, Trait Auditable, calidad_aprobada_at — candado obligatorio, Calidad como módulo con permiso propio (ops.calidad), CalidadCheckController bajo dos prefijos (+22 more)
+Nodes (34): Módulo de Calidad (/calidad), Remisionar lo que ya pasó calidad, sin esperar la orden, Reproceso reabre en Trabajos solo las unidades rechazadas, Trabajos se ve como Calidad: la misma ficha grande, Trait Auditable, calidad_aprobada_at — candado obligatorio, Calidad como módulo con permiso propio (ops.calidad), CalidadCheckController bajo dos prefijos (+26 more)
 
 ### Community 61 - "PerfilMarca.vue"
 Cohesion: 0.04
@@ -879,21 +901,13 @@ Nodes (42): abierto, acentos, asistenteNombre, asistentePersonalidad, asistenteR
 Cohesion: 0.14
 Nodes (4): {closure#1}(), {closure#2}(), {closure#4}(), PublicacionWebService
 
-### Community 63 - "CotizacionController.php"
-Cohesion: 0.05
-Nodes (4): {closure#11}(), {closure#8}(), CotizacionController, ProductoSeleccionable
-
-### Community 64 - "Notificacion"
-Cohesion: 0.12
-Nodes (3): Notificacion, ChatNotificacionesPerfilTest, RrssTokensTest
-
 ### Community 65 - "Productos/Edit.vue"
 Cohesion: 0.05
-Nodes (30): props, badgeStyle, coloresPaleta, csrfToken(), datosParaFicha, descuentoMaxRealClienteFinal, descuentoMaxRealDistribuidor, errorComisionClienteFinal (+22 more)
+Nodes (29): badgeStyle, coloresPaleta, csrfToken(), datosParaFicha, descuentoMaxRealClienteFinal, descuentoMaxRealDistribuidor, errorComisionClienteFinal, excedenteClienteFinal (+21 more)
 
 ### Community 66 - "Illuminate\Support\Collection"
-Cohesion: 0.10
-Nodes (6): CalificacionProveedorService, {closure#10}(), {closure#13}(), {closure#2}(), {closure#3}(), {closure#7}()
+Cohesion: 0.06
+Nodes (8): CalificacionProveedorService, {closure#10}(), {closure#13}(), {closure#2}(), {closure#3}(), {closure#1}(), {closure#5}(), {closure#2}()
 
 ### Community 67 - "Cursos/Show.vue"
 Cohesion: 0.07
@@ -908,12 +922,12 @@ Cohesion: 0.12
 Nodes (4): IaException, {closure#1}(), IaService, 3.6 Herramientas (*tools*) y qué modelos las soportan
 
 ### Community 70 - "Productos/Show.vue"
-Cohesion: 0.06
-Nodes (21): cargandoMov, confirmarEliminar, formAjuste, guardandoAjuste, hayMasMov, imagenActiva, masBaratoId, modalAjuste (+13 more)
+Cohesion: 0.04
+Nodes (31): archivo, caracteristicas, categoria, documentos, entrada, error, ETIQUETA, hayDatos (+23 more)
 
 ### Community 71 - "Illuminate\Database\Eloquent\Model"
-Cohesion: 0.04
-Nodes (8): ChecklistCalidad, EquipoComponente, ImportacionCosto, MantenimientoRepuesto, TemplateTrabajoPaso, CanalBandeja, CanalWhatsapp, NormalizaMensajes
+Cohesion: 0.05
+Nodes (10): EquipoComponente, FormulaInsumo, ImagenProducto, ImportacionCosto, MantenimientoRepuesto, OperarioTurnoConfig, RolPermiso, CanalBandeja (+2 more)
 
 ### Community 72 - "Reglamento/Edit.vue"
 Cohesion: 0.06
@@ -932,24 +946,28 @@ Cohesion: 0.06
 Nodes (28): html2canvas, qrcode, descripcionCorta, estadoLabel, mostrar, props, qrCanvas, tipoLabel (+20 more)
 
 ### Community 76 - "EvaluacionIntento"
-Cohesion: 0.13
-Nodes (5): {closure#1}(), RevisionEvaluacionController, Certificado, EvaluacionIntento, EvaluacionService
+Cohesion: 0.15
+Nodes (4): {closure#1}(), Certificado, EvaluacionIntento, EvaluacionService
 
 ### Community 77 - "WhatsappPlantilla"
-Cohesion: 0.12
-Nodes (4): {closure#2}(), WhatsappPlantilla, WhatsappPlantillaService, WhatsappPlantillasTest
+Cohesion: 0.11
+Nodes (5): SincronizarPlantillasWhatsapp, {closure#2}(), WhatsappPlantilla, WhatsappPlantillaService, WhatsappPlantillasTest
 
 ### Community 78 - "OficinaEnVivo.vue"
 Cohesion: 0.06
 Nodes (32): abrirAsistente, alCambiarVisibilidad(), alternarGuia(), animarSiToca(), completa, contenedor, cuenta, director (+24 more)
 
+### Community 79 - "Illuminate\Console\Command"
+Cohesion: 0.07
+Nodes (11): CrearBackup, Empaquetar, Latido, MarcarCotizacionesVencidas, NotificarCursosPorVencer, NotificarEntregasProximas, RecalcularAvanceTrabajos, RevisarTokensRrss (+3 more)
+
 ### Community 80 - "OpCuota"
 Cohesion: 0.07
-Nodes (16): {closure#31}(), OpCuotaController, {closure#1}(), OpCuota, {closure#10}(), {closure#11}(), {closure#12}(), {closure#13}() (+8 more)
+Nodes (14): CarteraController, OpCuotaController, OpCuota, {closure#10}(), {closure#11}(), {closure#12}(), {closure#13}(), {closure#14}() (+6 more)
 
 ### Community 81 - "BuscadorGlobalService.php"
 Cohesion: 0.07
-Nodes (32): BuscadorGlobalService, {closure#11}(), {closure#12}(), {closure#13}(), {closure#14}(), {closure#15}(), {closure#16}(), {closure#17}() (+24 more)
+Nodes (32): {closure#11}(), {closure#12}(), {closure#13}(), {closure#14}(), {closure#15}(), {closure#16}(), {closure#17}(), {closure#18}() (+24 more)
 
 ### Community 82 - "Cotizaciones/Show.vue"
 Cohesion: 0.06
@@ -960,12 +978,12 @@ Cohesion: 0.07
 Nodes (31): pad, abrirEditarHoras(), actualizarPasoConOperarios(), avisoEntrega, bodegaEntrega, bodegaMaterial, cancelarEditarHoras(), csrf() (+23 more)
 
 ### Community 84 - "Cotizacion"
-Cohesion: 0.09
-Nodes (3): CotizacionPublicaController, Cotizacion, ReservaStockService
+Cohesion: 0.05
+Nodes (5): CotizacionPublicaController, Cotizacion, {closure#4}(), CotizacionObserver, ChatNotificacionesPerfilTest
 
 ### Community 85 - "Bandeja de mensajes (/bandeja)"
-Cohesion: 0.07
-Nodes (16): BloquearModuloApagado, Permiso costos.ver, App\Support\Modulos — módulos apagados por instalación, App\Support\Permisos y roles configurables, Middleware permiso: (VerificarPermiso), Ruta pública /api/agente/web con límite de peticiones, Perfil público, Bandeja de mensajes (/bandeja) (+8 more)
+Cohesion: 0.08
+Nodes (16): AdjuntoBandeja — lo que llega se baja al servidor, La bandeja: una pantalla y dos juegos de tablas, BloquearModuloApagado, Permiso costos.ver, App\Support\Modulos — módulos apagados por instalación, App\Support\Permisos y roles configurables, Middleware permiso: (VerificarPermiso), App\Services\Bandeja\AdjuntoBandeja (+8 more)
 
 ### Community 86 - "DetalleLead.vue"
 Cohesion: 0.08
@@ -980,28 +998,28 @@ Cohesion: 0.07
 Nodes (30): StyleCI preset laravel, Pendiente de negocio: a quién se le vende, Briela ERP (single-tenant, una instalación por cliente), Estado de las fases 0 a 6, sistema.briela.app — la instalación propia, Stack: Laravel 13, PHP 8.3, Vue 3 + Inertia 2, Tailwind, Vite 8, MySQL, Pregunta de negocio: a quién se le vende, Documento de arranque de Briela (+22 more)
 
 ### Community 89 - "Ensamble"
-Cohesion: 0.04
-Nodes (7): ArchivoController, EnsambleController, ImagenProductoController, Ensamble, ImagenProducto, ArchivoServidorService, GoogleDriveService
+Cohesion: 0.03
+Nodes (9): ArchivoController, CatalogoController, CategoriaProductoController, EnsambleController, ImagenProductoController, CategoriaProducto, Ensamble, ArchivoServidorService (+1 more)
 
 ### Community 90 - "ClienteImportController.php"
-Cohesion: 0.21
+Cohesion: 0.18
 Nodes (3): ClienteImportController, {closure#5}(), {closure#6}()
 
 ### Community 91 - "Importaciones/Show.vue"
 Cohesion: 0.10
 Nodes (16): borrador, diferenciaPrevia, eliminarPago(), enDivisa(), enMoneda, fecha(), hoy, liquidando (+8 more)
 
-### Community 92 - "OpItemTrabajo"
-Cohesion: 0.04
-Nodes (9): CalidadController, {closure#1}(), {closure#15}(), {closure#2}(), {closure#24}(), {closure#23}(), TrabajoController, OpItemTrabajo (+1 more)
+### Community 92 - "CalidadController.php"
+Cohesion: 0.06
+Nodes (5): {closure#1}(), {closure#15}(), {closure#2}(), {closure#24}(), Urgencia
 
 ### Community 94 - "Inventario/Index.vue"
-Cohesion: 0.07
-Nodes (22): bajo_stock, bodegaVista, buscar, camposOrden, cargandoMov, cerrarModal(), editandoItem, form (+14 more)
+Cohesion: 0.04
+Nodes (30): editando, entrada, error, props, valor, props, puedeEditar, bajo_stock (+22 more)
 
 ### Community 95 - "Modulos"
 Cohesion: 0.04
-Nodes (21): {closure#1}(), {closure#2}(), ModuloController, {closure#2}(), {closure#2}(), Modulos, up(), up() (+13 more)
+Nodes (19): {closure#1}(), {closure#2}(), {closure#2}(), {closure#2}(), Modulos, up(), up(), {closure#11}() (+11 more)
 
 ### Community 96 - "Pages/Dashboard.vue"
 Cohesion: 0.07
@@ -1012,60 +1030,64 @@ Cohesion: 0.07
 Nodes (19): disciplinaErrors, disciplinaForm, DOCS_LISTA, extraErrors, extraForm, guardandoPuntos, hitoErrors, hitoForm (+11 more)
 
 ### Community 98 - "TransaccionesIaService"
-Cohesion: 0.09
-Nodes (3): FaltaDato, TransaccionesAgentes, TransaccionesIaService
+Cohesion: 0.11
+Nodes (3): FaltaDato, TransaccionesIaService, Anexo — Lo verificado en el código
 
 ### Community 101 - "EquipoIaController.php"
-Cohesion: 0.07
-Nodes (10): {closure#1}(), {closure#10}(), {closure#12}(), {closure#14}(), {closure#3}(), {closure#9}(), AgenteUsuarioService, CatalogoHerramientas (+2 more)
+Cohesion: 0.13
+Nodes (5): {closure#1}(), {closure#12}(), {closure#14}(), {closure#3}(), {closure#9}()
 
 ### Community 102 - "package.json"
-Cohesion: 0.08
-Nodes (28): private, $schema, scripts, build, dev, generate-icons, type, autoprefixer (+20 more)
+Cohesion: 0.09
+Nodes (24): private, $schema, type, autoprefixer, concurrently, laravel-vite-plugin, postcss, recharts (+16 more)
 
 ### Community 103 - "Bandeja/Index.vue"
 Cohesion: 0.11
 Nodes (27): abierta, abrirConversacion(), alCambiarVisibilidad(), api(), aplicarFiltros(), archivar(), arrancar(), asignado (+19 more)
 
 ### Community 104 - "jsonHdr"
-Cohesion: 0.09
-Nodes (33): cargarChecksCalidad(), confirmarRenombrar(), crearPlantilla(), crearSeccion(), csrf(), duplicarPlantilla(), ejecutarProbar(), ejecutarProbarFormula() (+25 more)
+Cohesion: 0.10
+Nodes (28): cargarChecksCalidad(), confirmarRenombrar(), crearPlantilla(), crearSeccion(), duplicarPlantilla(), ejecutarProbar(), ejecutarProbarFormula(), eliminarCampo() (+20 more)
 
-### Community 105 - ".config"
-Cohesion: 0.09
-Nodes (5): CrearBackup, BackupController, {closure#1}(), BackupService, {closure#2}()
+### Community 105 - "BackupService"
+Cohesion: 0.15
+Nodes (3): BackupController, {closure#1}(), BackupService
+
+### Community 106 - "Producto"
+Cohesion: 0.08
+Nodes (5): {closure#30}(), {closure#2}(), {closure#4}(), Producto, ProductosVariantesTest
 
 ### Community 107 - "Profile/Edit.vue"
 Cohesion: 0.09
 Nodes (13): cambiandoFirma, confirmandoBorrado, errorFirma, errorFoto, flash, formBorrar, formClave, formDatos (+5 more)
 
-### Community 108 - "Inscripcion"
-Cohesion: 0.13
-Nodes (6): {closure#1}(), {closure#2}(), {closure#3}(), {closure#4}(), PortalCapacitacionController, Inscripcion
+### Community 108 - "EntidadesAutomatizacion"
+Cohesion: 0.04
+Nodes (10): CatalogoAutomatizaciones, {closure#1}(), {closure#2}(), {closure#3}(), EntidadesAutomatizacion, EventosAutomatizacion, PlantillasAutomatizacion, Webhook (+2 more)
 
 ### Community 109 - "ContextoSede"
-Cohesion: 0.11
-Nodes (5): {closure#1}(), {closure#1}(), LecturasEquipoService, ConsultasDatosService, ContextoSede
+Cohesion: 0.09
+Nodes (8): {closure#1}(), {closure#1}(), {closure#1}(), {closure#1}(), LecturasEquipoService, ConsultasDatosService, ContextoSede, 3.5 Permisos, identidad y aprobaciones
 
 ### Community 111 - "Formularios.vue"
 Cohesion: 0.09
 Nodes (20): abrirNuevo(), baseUrl(), CAMPOS_DEFAULT, cerrarModal(), copiado, copiarSnippet(), { copyText }, editando (+12 more)
 
 ### Community 113 - "Copias de seguridad (Administración → Backup)"
+Cohesion: 0.12
+Nodes (12): BuscadorGlobalService (Ctrl+K), NotificacionService — punto único de avisos, Tareas programadas de routes/console.php, Cron de schedule:run por instalación, El cron de Hostinger para las tareas programadas, php artisan backup:crear, Copias de seguridad (Administración → Backup), Respaldo automático a las 2:00 a.m. (+4 more)
+
+### Community 114 - "Permisos"
 Cohesion: 0.10
-Nodes (14): BuscadorGlobalService (Ctrl+K), NotificacionService — punto único de avisos, Respaldo automático de la base antes de cada migración, Tareas programadas de routes/console.php, .github/workflows/deploy.yml y sus cinco secretos, Cron de schedule:run por instalación, El cron de Hostinger para las tareas programadas, php artisan backup:crear (+6 more)
+Nodes (4): {closure#12}(), {closure#6}(), Permisos, up()
 
-### Community 114 - "Rol"
-Cohesion: 0.05
-Nodes (10): SincronizarPermisos, {closure#12}(), {closure#1}(), RolController, UsuarioController, Rol, {closure#6}(), Permisos (+2 more)
-
-### Community 116 - "Auditable"
-Cohesion: 0.11
-Nodes (8): {closure#1}(), {closure#1}(), Auditable, {closure#1}(), {closure#2}(), {closure#3}(), {closure#4}(), {closure#1}()
+### Community 116 - "RegistroActividad"
+Cohesion: 0.09
+Nodes (10): ChatGrupo, {closure#1}(), Auditable, {closure#1}(), {closure#2}(), {closure#3}(), {closure#4}(), {closure#1}() (+2 more)
 
 ### Community 117 - "Illuminate\Database\Seeder"
-Cohesion: 0.13
-Nodes (5): BodegaSeeder, DatabaseSeeder, PdfPlantillasSeeder, PlantillaEnsambleSeeder, ProductoSeeder
+Cohesion: 0.16
+Nodes (5): BodegaSeeder, DatabaseSeeder, InsumoSeeder, PlantillaEnsambleSeeder, ProductoSeeder
 
 ### Community 118 - "Programador/Index.vue"
 Cohesion: 0.09
@@ -1073,14 +1095,10 @@ Nodes (16): cargarFecha(), confirmarProgramar(), desprogramar(), fechaInput, get
 
 ### Community 119 - "monedaBase"
 Cohesion: 0.05
-Nodes (25): cambiarMoneda(), {
+Nodes (26): cambiarMoneda(), {
     canalBase, canalesConComision, excedenteDe, minimoExigido, pisoComisionValor,
     errorEscalera, descuentoMaxDe, sugerirComisiones,
-}, canalesRef, costoRef, emit, enOtraMoneda, props, tasaMoneda (+17 more)
-
-### Community 120 - "CanalPrecio"
-Cohesion: 0.16
-Nodes (4): CanalPrecio, {closure#1}(), {closure#3}(), ProductosImportarYEliminarTest
+}, canalesRef, costoRef, emit, enOtraMoneda, props, tasaMoneda (+18 more)
 
 ### Community 121 - "instalar.php"
 Cohesion: 0.15
@@ -1090,13 +1108,17 @@ Nodes (8): {closure#10}(), {closure#1}(), e(), pantalla(), prepararEnv(), respon
 Cohesion: 0.07
 Nodes (22): props, completadas, csrf(), driveId(), embedUrl(), jsonHdr(), leccionActual, leccionesDisponibles (+14 more)
 
+### Community 124 - "PdfPlantillaController"
+Cohesion: 0.09
+Nodes (3): PdfPlantillaController, PdfPlantilla, PlantillasPdfTest
+
 ### Community 125 - "ProductoProveedor"
 Cohesion: 0.08
 Nodes (7): ProductoProveedor, ProductoProveedorPrecio, {closure#1}(), {closure#2}(), {closure#3}(), {closure#6}(), ProveedoresProductoService
 
-### Community 126 - "Agentes (/configuracion/agentes)"
-Cohesion: 0.12
-Nodes (11): Plugin WordPress «Briela Connect», Portales públicos sin login, Agentes (/configuracion/agentes), Lo que el agente no hace (no promete precios, no aprueba, no inventa), Perfil clientes verificados, Probarlo antes de encenderlo, sin mandar nada, Cuándo el agente suelta la conversación, Quién atiende: asignarse una conversación (+3 more)
+### Community 126 - "Los canales donde no sabemos quién escribe (web, Instagram, Facebook)"
+Cohesion: 0.14
+Nodes (8): Plugin WordPress «Briela Connect», Portales públicos sin login, Ruta pública /api/agente/web con límite de peticiones, Perfil clientes verificados, Perfil público, Briela Connect — el plugin de WordPress, Lo que se publica hacia afuera (rutas sin login), Programador de planta y pantalla de planta
 
 ### Community 127 - "Marca — color, favicon y título"
 Cohesion: 0.07
@@ -1107,32 +1129,32 @@ Cohesion: 0.15
 Nodes (8): La base de datos del hosting (sin root), Entrar y cambiar la contraseña del admin, Reemplazar el catálogo de ejemplo, Cron Job del despliegue automático (traer-cambios.sh), El dominio en hPanel, Primera instalación en un servidor nuevo, PATH, primera-instalacion.sh script
 
 ### Community 129 - "BuscadorModulo.vue"
-Cohesion: 0.06
-Nodes (30): abierto, activo, afuera(), alEnter(), alEscribir(), buscado, buscando, buscar() (+22 more)
+Cohesion: 0.07
+Nodes (26): abierto, activo, afuera(), alEnter(), alEscribir(), buscado, buscando, buscar() (+18 more)
 
 ### Community 130 - "Calidad/Index.vue"
 Cohesion: 0.09
-Nodes (28): aplicarFicha(), avisos, cabeceras, cargando, cerrarModal(), cerrarOp(), fichas, filtros (+20 more)
+Nodes (15): avisos, cabeceras, cargando, cerrarOp(), fichas, filtros, grupos, mandarAReproceso() (+7 more)
 
 ### Community 131 - "Marca.vue"
-Cohesion: 0.08
-Nodes (23): ajustes, elegido, errores, estiloPrevia, faviconOscuroUrl, faviconUrl, form, logoOscuroUrl (+15 more)
+Cohesion: 0.03
+Nodes (58): emit, errores, form, fuentes, getCookie(), guardando, guardar(), props (+50 more)
 
-### Community 132 - "Pipeline.vue"
-Cohesion: 0.10
-Nodes (17): aplicarFiltros(), debounceSearch(), etapaIdInicial, etapas, filtroBuscar, filtroEstado, filtroFuente, filtroMes (+9 more)
+### Community 132 - "CatalogoHerramientas"
+Cohesion: 0.11
+Nodes (3): AutomatizacionesParaAgentes, CatalogoHerramientas, AgentesEjecutanAutomatizacionesTest
 
-### Community 134 - "WhatsappMensaje"
-Cohesion: 0.13
-Nodes (4): WhatsappTestSend, WhatsAppApiException, WhatsappMensaje, WhatsAppService
+### Community 134 - "WhatsappNumero"
+Cohesion: 0.06
+Nodes (8): WhatsappTestSend, WhatsAppApiException, WhatsappWebhookController, WhatsappConversacion, WhatsappMensaje, WhatsappNumero, WhatsappAutomatizacionService, WhatsAppService
 
 ### Community 135 - "IaService — único punto de salida a IA"
 Cohesion: 0.10
 Nodes (16): Configuración → Correo, El correo sale por Briela, firmado y sin caer en spam, Leer el RUT con IA, Briela Superadmin (superadmin.briela.app), IaService — único punto de salida a IA, La llave de OpenRouter nunca vive en la instalación, App\Mail\TransporteBriela, Bloqueo total por suscripción vencida (+8 more)
 
-### Community 136 - "Buscador global (Ctrl+K)"
-Cohesion: 0.08
-Nodes (16): Buscador global (Ctrl+K), BuscadorGlobalService::fuentes(), Encadenamiento desde el cliente, Búsqueda por número de serie, Preguntarle al asistente, Sugerencias mientras escribes por módulo, Panel de Seguimiento, Accesos rápidos (+8 more)
+### Community 136 - "Dashboard"
+Cohesion: 0.13
+Nodes (10): Panel de Seguimiento, Accesos rápidos, Dashboard, Mi tablero — secciones configurables, Permiso graficos.gestionar, App\Support\Orden, Las cuatro decisiones de un gráfico, App\Services\FuentesGraficoService (+2 more)
 
 ### Community 137 - "AppServiceProvider.php"
 Cohesion: 0.18
@@ -1146,25 +1168,25 @@ Nodes (20): cambiarVerificacion(), cargando, cargar(), crearCuota(), cuotas, cuo
 Cohesion: 0.10
 Nodes (18): copiadoVar, { copyText }, form, guardado, guardando, logoPreview, marcarCambio(), previewKey (+10 more)
 
-### Community 141 - "IaConsumo"
-Cohesion: 0.20
-Nodes (3): DespacharAgentes, AgentePaso, IaConsumo
+### Community 141 - "AutomatizacionController.php"
+Cohesion: 0.07
+Nodes (7): {closure#16}(), {closure#20}(), {closure#24}(), {closure#4}(), {closure#5}(), {closure#7}(), AutomatizacionAprobacion
 
 ### Community 142 - "Multimedia/Index.vue"
 Cohesion: 0.10
 Nodes (18): camposOrden, categorias, filtrar(), form, generarImagen(), getCookie(), iaCargando, iaDescripcion (+10 more)
 
-### Community 144 - "php artisan briela:empaquetar"
-Cohesion: 0.11
-Nodes (13): Asistente de instalación /instalar, El botón de actualizar, estilo WordPress, Fase 4 — Asistente de instalación, Fase 5 — El botón de actualizar, Rollback real del actualizador, El asistente de configuración /instalar (tres pasos), php artisan briela:empaquetar, Desplegar una instalación de Briela (+5 more)
+### Community 144 - "Instalar Briela en Hostinger"
+Cohesion: 0.08
+Nodes (18): Asistente de instalación /instalar, El botón de actualizar, estilo WordPress, Fase 4 — Asistente de instalación, Fase 5 — El botón de actualizar, Rollback real del actualizador, El asistente de configuración /instalar (tres pasos), php artisan briela:empaquetar, Desplegar una instalación de Briela (+10 more)
 
 ### Community 145 - "Importar clientes desde CSV"
 Cohesion: 0.10
 Nodes (13): Identificación de clientes, Columna sede (nombre exacto), Columnas contacto_*, Columnas de segmentación (tipos_contacto, industrias, proceso_seguimiento, fuentes_contacto), Importar clientes desde CSV, Permiso Clientes → Crear, Plantilla CSV con filas de ejemplo, Detección automática del separador (+5 more)
 
 ### Community 146 - "ModalSubirArchivo.vue"
-Cohesion: 0.12
-Nodes (19): axios, archivoSeleccionado, categoria, cerrar(), descripcion, emit, errorMsg, extension (+11 more)
+Cohesion: 0.14
+Nodes (18): archivoSeleccionado, categoria, cerrar(), descripcion, emit, errorMsg, extension, inputArchivo (+10 more)
 
 ### Community 147 - "SelectorUnidad.vue"
 Cohesion: 0.13
@@ -1175,11 +1197,11 @@ Cohesion: 0.10
 Nodes (14): archivoSeleccionado, autoSaludable, confirmOk, descargando, ejecutandoPedidos, etiquetasDiagnostico, formRestaurar, hayProblema (+6 more)
 
 ### Community 149 - "ConfiguracionController"
-Cohesion: 0.05
-Nodes (6): {closure#2}(), ConfiguracionController, ProgramadorController, EstacionTrabajo, NivelColaborador, TipoColaborador
+Cohesion: 0.09
+Nodes (6): {closure#2}(), ConfiguracionController, EquipoController, EstacionTrabajo, NivelColaborador, TipoColaborador
 
 ### Community 150 - "ProductoImportController.php"
-Cohesion: 0.14
+Cohesion: 0.15
 Nodes (3): {closure#7}(), {closure#8}(), ProductoImportController
 
 ### Community 151 - "Invitaciones/Index.vue"
@@ -1194,17 +1216,17 @@ Nodes (21): agrupar, camposDisponibles, camposSelec, descripcion, desde, dimensi
 Cohesion: 0.12
 Nodes (13): php artisan briela:empaquetar, Release de GitHub con ZIP, sha256 e instalar.php, Workflow «Publicar versión», Historial de versiones de Briela, Migraciones que corren sobre cualquier versión anterior soportada, Versionado semántico (mayor, menor, parche), La actualización es obligatoria, anclada al serial, Fase 2 — Superadmin y licencias (+5 more)
 
-### Community 154 - "CrmLead"
+### Community 155 - "OpItemTrabajo"
 Cohesion: 0.08
-Nodes (5): CrmPipelineController, CrmLead, CrmLeadOrigen, {closure#1}(), LeadEntranteService
+Nodes (3): {closure#23}(), {closure#1}(), OpItemTrabajo
 
 ### Community 156 - "Archivo"
-Cohesion: 0.09
-Nodes (4): Archivo, AdjuntoBandeja, CanalMeta, WhatsappMediaService
+Cohesion: 0.07
+Nodes (4): Archivo, AdjuntoBandeja, WhatsappMediaService, ProductosTiendaTest
 
 ### Community 157 - "Fuente"
-Cohesion: 0.05
-Nodes (5): Fuente, {closure#1}(), {closure#14}(), {closure#2}(), {closure#3}()
+Cohesion: 0.04
+Nodes (8): Fuente, {closure#1}(), {closure#14}(), {closure#2}(), {closure#3}(), {closure#8}(), MotorInformes, 2.3 Analista del día
 
 ### Community 158 - "CierrePasoService — el único sitio que cierra un paso"
 Cohesion: 0.12
@@ -1214,21 +1236,25 @@ Nodes (16): El último paso pregunta las dos bodegas, Las fechas del proceso se 
 Cohesion: 0.08
 Nodes (17): App\Support\ContextoSede — multisede dentro de la instalación, Configuracion (clave/valor) totalmente global, ConsultasDatosService y las consultas crudas, Opción A: base de datos por empresa (stancl/tenancy), Opción B: una base con tenant_id y global scopes, Opción C: esquema por empresa, PerfilMarca (logo, colores) de instancia única, SecuenciaService — numeración por sede (+9 more)
 
-### Community 160 - "Publica/Show.vue"
-Cohesion: 0.07
-Nodes (20): hayLineas, notas, props, valor(), formatMoneda(), enMoneda(), BADGES, confirmando (+12 more)
+### Community 160 - "Ordenes/Show.vue"
+Cohesion: 0.04
+Nodes (36): hayLineas, notas, props, valor(), formatMoneda(), fmtMoney(), fmtMoney(), abrirRecepcion() (+28 more)
 
 ### Community 161 - "CajaRespuesta.vue"
 Cohesion: 0.13
 Nodes (16): abriendoPlantilla, alTeclear(), archivo, emit, entrada, enviar(), enviarPlantilla(), faltanVariables (+8 more)
 
+### Community 162 - "Usuarios/Edit.vue"
+Cohesion: 0.10
+Nodes (23): usePreciosPorCanal(), aplicarDescuentosMax(), descuentoMaxDe(), errorEscalera(), excedenteDe(), minimoExigido(), pisoComisionValor(), sugerirComisiones() (+15 more)
+
 ### Community 163 - "GraficosPersonalizados.vue"
-Cohesion: 0.08
-Nodes (24): abierto, borrar(), cargando, cargar(), elegirFuente(), error, fmt(), fuenteElegida (+16 more)
+Cohesion: 0.14
+Nodes (16): abierto, borrar(), cargando, cargar(), elegirFuente(), error, fmt(), fuenteElegida (+8 more)
 
 ### Community 164 - "Proveedores/Index.vue"
-Cohesion: 0.04
-Nodes (40): extra, marcados, props, avisos, emit, error, input, leer() (+32 more)
+Cohesion: 0.10
+Nodes (20): abrirCrear(), abrirEditar(), activo, aplicarFiltros(), avisosRut, buscar, camposOrden, cerrarModal() (+12 more)
 
 ### Community 165 - "Crear.vue"
 Cohesion: 0.11
@@ -1239,16 +1265,16 @@ Cohesion: 0.11
 Nodes (15): cuentasPorRed, form, generarImagen(), getCookie(), iaAbierto, iaCargando, iaDescripcion, iaError (+7 more)
 
 ### Community 168 - "Plan maestro: agentes configurables y módulo de Automatizaciones"
-Cohesion: 0.10
-Nodes (19): 0. Decisiones ya tomadas, 10. Versión 2.0, 11. Pendiente de decidir, 1. La idea en una frase, 2. Cargos, 4.1 Piezas del flujo, 4.2 Ejemplos que el módulo permitiría armar, 4.3 Cómo funciona por dentro (+11 more)
+Cohesion: 0.08
+Nodes (25): 0. Decisiones ya tomadas, 10. Versión 2.0, 11. Pendiente de decidir, 1. La idea en una frase, 2. Cargos, 3.1 Qué se configura, 3.2 El prompt: editable por capas, 3.3 Elegir el modelo, y «recomendado según el prompt» (+17 more)
 
 ### Community 169 - "HiloComentarios.vue"
 Cohesion: 0.14
 Nodes (15): Tabla comentarios polimórfica, abiertos, cargando, cargar(), comentarios, csrf(), enviando, enviar() (+7 more)
 
-### Community 170 - "Segmentación de clientes y su efecto en el precio"
-Cohesion: 0.13
-Nodes (9): Configuracion::get() — una consulta por petición, HandleInertiaRequests::share(), ImagenMarcaService, php artisan briela:diagnostico, Canal base, Precio público, Segmentación de clientes y su efecto en el precio, Los márgenes de la plantilla siembran los del ensamble (+1 more)
+### Community 170 - "Canal base"
+Cohesion: 0.14
+Nodes (8): Configuracion::get() — una consulta por petición, HandleInertiaRequests::share(), ImagenMarcaService, php artisan briela:diagnostico, Canal base, Precio público, Los márgenes de la plantilla siembran los del ensamble, Unidades de medida
 
 ### Community 171 - "Actualizacion.vue"
 Cohesion: 0.14
@@ -1258,13 +1284,13 @@ Nodes (17): actualizar(), avance, cancelarProceso(), comprobarAhora(), csrf(), d
 Cohesion: 0.11
 Nodes (8): buscar, editandoId, editandoPrecio, expandidos, formNuevo, formPrecio, modalAgregar, props
 
-### Community 176 - "OrdenCompraItem"
-Cohesion: 0.06
-Nodes (5): OrdenCompraItem, OrdenCompraRecepcion, {closure#1}(), {closure#2}(), {closure#5}()
+### Community 176 - "AsistenteBurbuja.vue"
+Cohesion: 0.15
+Nodes (22): abierto, abrirCon(), ajustesAbiertos, alternar(), bajar(), cargando, entrada, enviar() (+14 more)
 
 ### Community 177 - "RecomendadorProductosService.php"
-Cohesion: 0.18
-Nodes (6): {closure#3}(), {closure#4}(), {closure#5}(), {closure#6}(), RecomendadorProductosService, 2.7 Copiloto de bandeja
+Cohesion: 0.19
+Nodes (5): {closure#3}(), {closure#4}(), {closure#5}(), {closure#6}(), RecomendadorProductosService
 
 ### Community 178 - "dependencies"
 Cohesion: 0.12
@@ -1275,12 +1301,8 @@ Cohesion: 0.16
 Nodes (16): abrirCamara(), archivo, camaraViva, canvas, capturar(), cerrar(), confirmar(), detener() (+8 more)
 
 ### Community 181 - "OpPago"
-Cohesion: 0.21
-Nodes (4): OpPagoController, {closure#1}(), {closure#2}(), OpPago
-
-### Community 182 - "Informe"
-Cohesion: 0.10
-Nodes (4): InformeController, Informe, ExportadorInformes, InformeService
+Cohesion: 0.17
+Nodes (6): {closure#31}(), {closure#1}(), OpPagoController, {closure#1}(), {closure#2}(), OpPago
 
 ### Community 183 - "Movimientos.vue"
 Cohesion: 0.12
@@ -1299,20 +1321,24 @@ Cohesion: 0.12
 Nodes (9): auto, autoAbierta, copiado, form, guardando, guiaAbierta, props, redes (+1 more)
 
 ### Community 187 - "ProductoController.php"
-Cohesion: 0.04
-Nodes (8): CategoriaProductoController, {closure#12}(), {closure#27}(), {closure#28}(), {closure#30}(), {closure#37}(), ProductoController, CategoriaProducto
+Cohesion: 0.05
+Nodes (5): {closure#28}(), {closure#34}(), {closure#35}(), {closure#37}(), RemisionItem
+
+### Community 190 - "El asistente (Ofe)"
+Cohesion: 0.09
+Nodes (9): Buscador global (Ctrl+K), BuscadorGlobalService::fuentes(), Encadenamiento desde el cliente, Búsqueda por número de serie, Preguntarle al asistente, Sugerencias mientras escribes por módulo, Resumen técnico impreso bajo cada ítem, El asistente (Ofe) (+1 more)
 
 ### Community 191 - "BuscadorGlobal.vue"
 Cohesion: 0.13
 Nodes (20): abierto, abrir(), abrirAsistente, activo, alEscribir(), atajoGlobal(), buscado, buscando (+12 more)
 
-### Community 192 - "ops.calidad_aprobada_at (sello de la orden)"
-Cohesion: 0.10
-Nodes (14): ops.calidad_aprobada_at (sello de la orden), op_item_trabajos.calidad_revisada_at (firma de la unidad), checklist_calidad (lista modelo), Marca «Crítico», Ficha de verificación de la unidad, op_item_trabajo_checks, Punto de revisión, Remisión unidad por unidad (+6 more)
+### Community 192 - "ConsultasPublicasService"
+Cohesion: 0.08
+Nodes (17): ops.calidad_aprobada_at (sello de la orden), op_item_trabajos.calidad_revisada_at (firma de la unidad), checklist_calidad (lista modelo), Marca «Crítico», Ficha de verificación de la unidad, op_item_trabajo_checks, Punto de revisión, Remisión unidad por unidad (+9 more)
 
-### Community 193 - "User"
-Cohesion: 0.04
-Nodes (10): CapacitacionEstudiante, CrmActividad, User, AccionesAutomatizacion, {closure#1}(), {closure#3}(), {closure#7}(), {closure#8}() (+2 more)
+### Community 193 - "AccionesAutomatizacion.php"
+Cohesion: 0.08
+Nodes (7): CrmActividad, AccionesAutomatizacion, {closure#1}(), {closure#3}(), {closure#7}(), {closure#8}(), EvaluadorCondiciones
 
 ### Community 194 - "Ensamble"
 Cohesion: 0.12
@@ -1331,12 +1357,16 @@ Cohesion: 0.20
 Nodes (13): alElegirArchivos(), cabeceras(), confirmarFoto(), emit, error, guardando, lista, marcar() (+5 more)
 
 ### Community 199 - "Paises"
-Cohesion: 0.08
-Nodes (5): {closure#2}(), {closure#3}(), {closure#4}(), FiscalConfigController, Paises
+Cohesion: 0.07
+Nodes (4): {closure#3}(), {closure#4}(), Paises, IdentificacionFiscalTest
 
-### Community 203 - "SegmentacionOpcion"
+### Community 200 - "CrmLeadOrigen"
+Cohesion: 0.16
+Nodes (3): CrmLeadOrigen, {closure#1}(), LeadEntranteService
+
+### Community 203 - "PreciosPorCanalService"
 Cohesion: 0.06
-Nodes (12): {closure#1}(), Diagnostico, {closure#1}(), RecalcularComisiones, {closure#1}(), RecalcularPrecios, SegmentacionOpcion, CanalesPrecioService (+4 more)
+Nodes (11): {closure#1}(), Diagnostico, {closure#1}(), RecalcularComisiones, {closure#1}(), RecalcularPrecios, CanalesPrecioService, {closure#2}() (+3 more)
 
 ### Community 204 - "ProveedoresProducto.vue"
 Cohesion: 0.12
@@ -1355,8 +1385,8 @@ Cohesion: 0.13
 Nodes (13): cantidad, clases, estado, hay, hayDato, min, mostrar, noAlcanza (+5 more)
 
 ### Community 208 - "PerfilMarca"
-Cohesion: 0.10
-Nodes (11): {closure#1}(), {closure#2}(), PerfilMarca, {closure#3}(), {closure#5}(), 3.1 Qué se configura, 3.2 El prompt: editable por capas, 3.3 Elegir el modelo, y «recomendado según el prompt» (+3 more)
+Cohesion: 0.09
+Nodes (6): {closure#1}(), {closure#2}(), PerfilMarca, {closure#3}(), {closure#5}(), PasoProduccionIaService
 
 ### Community 209 - "Roles.vue"
 Cohesion: 0.14
@@ -1366,21 +1396,17 @@ Nodes (8): cancelar(), editando, esSistema, form, formVacio, guardar(), props, t
 Cohesion: 0.15
 Nodes (11): bonoAnio, bonoMes, buscar(), calculandoBonos, filters, hoy, limpiarFiltros(), meses (+3 more)
 
-### Community 211 - "MotorInformes"
-Cohesion: 0.20
-Nodes (3): {closure#8}(), MotorInformes, 2.3 Analista del día
-
-### Community 213 - "LicenciaService"
-Cohesion: 0.09
-Nodes (6): Latido, SincronizarEventosCorreo, TransporteBriela, CorreoSupresion, LicenciaService, {closure#1}()
-
 ### Community 216 - "Alistamiento/Index.vue"
 Cohesion: 0.12
 Nodes (13): emit, alistarParte(), estado, { estadoDe, ordenarPor }, faltan(), filtrar(), hayFiltros, limpiar() (+5 more)
 
 ### Community 218 - "Layouts/AppLayout.vue (no persistente en Inertia)"
-Cohesion: 0.20
-Nodes (6): El menú se pliega y queda la columna de iconos, Layouts/AppLayout.vue (no persistente en Inertia), soloUnaVez() del módulo compartido, useAsistente.js — se pide al abrir el panel, useAvisos.js — un solo temporizador compartido, git worktree para trabajar en paralelo
+Cohesion: 0.16
+Nodes (7): El menú se pliega y queda la columna de iconos, Layouts/AppLayout.vue (no persistente en Inertia), soloUnaVez() del módulo compartido, useAsistente.js — se pide al abrir el panel, useAvisos.js — un solo temporizador compartido, En celular una pantalla a la vez, en escritorio dos columnas, git worktree para trabajar en paralelo
+
+### Community 219 - "EquipoIaPantallaTest"
+Cohesion: 0.09
+Nodes (4): DespacharAgentes, AgentePaso, IaConsumo, EquipoIaPantallaTest
 
 ### Community 220 - "Remisiones/Create.vue"
 Cohesion: 0.11
@@ -1399,8 +1425,8 @@ Cohesion: 0.14
 Nodes (10): Cotización en otra moneda (tasa_cambio, tasa_fecha), Filtro |moneda en el PDF, Modo de la tasa: fija o diaria, Botón Validar, Bloques #each, #if y #unless, Encabezado, cuerpo y pie, PdfPlantillaMotor, PdfPlantillaRenderer (+2 more)
 
 ### Community 224 - "Conexiones con servicios externos"
-Cohesion: 0.11
-Nodes (13): Conexiones con servicios externos, App\Support\CredencialesRrss, Google Drive en retirada, Vencimientos de los permisos de las conexiones, Credenciales desde la interfaz, cuentas_rrss, Redes Sociales — Programador de publicaciones, publicaciones_rrss (+5 more)
+Cohesion: 0.07
+Nodes (20): Conexiones con servicios externos, App\Support\CredencialesRrss, Google Drive en retirada, Vencimientos de los permisos de las conexiones, El correo sale por el panel de Briela, SmtpConfigService::aplicar(), App\Mail\TransporteBriela, Cabecera X-Briela-Tipo: masivo (+12 more)
 
 ### Community 225 - "RecepcionEnVivo.vue"
 Cohesion: 0.12
@@ -1410,16 +1436,20 @@ Nodes (21): abrirConversacion(), alCambiarVisibilidad(), animarSiToca(), cargand
 Cohesion: 0.14
 Nodes (14): devDependencies, autoprefixer, concurrently, @inertiajs/vue3, laravel-vite-plugin, postcss, sharp, tailwindcss (+6 more)
 
+### Community 227 - "GraficoDashboard"
+Cohesion: 0.15
+Nodes (4): {closure#1}(), GraficoDashboard, {closure#1}(), FuentesGraficoService
+
 ### Community 228 - "Agentes/Index.vue"
 Cohesion: 0.14
 Nodes (10): abrir(), abrirPorId(), atiendeUnaRed, CANALES, editando, herramientas, motivos, pestana (+2 more)
 
 ### Community 229 - "ConexionMeta"
-Cohesion: 0.12
-Nodes (4): MetaConexionController, EmbeddedSignupService, SuscripcionesMeta, ConexionMeta
+Cohesion: 0.11
+Nodes (4): EmbeddedSignupService, SuscripcionesMeta, ConexionMeta, UrlPublica
 
 ### Community 230 - "ProductoMovimiento"
-Cohesion: 0.21
+Cohesion: 0.19
 Nodes (3): {closure#33}(), ProductoMovimiento, ProductosMovimientosDetalleTest
 
 ### Community 231 - "RRHH/Configuracion/Index.vue"
@@ -1442,9 +1472,9 @@ Nodes (11): useModulos(), BADGE, bodegaEntrega, bodegaMaterial, cerrarModal(), c
 Cohesion: 0.15
 Nodes (8): Fuente: Órdenes de Producción, Generar una plantilla con IA, PdfPlantillaIaService (meta-prompt), Código legacy: OrdenProduccion, LineaOP, ItemOP, Orden de Producción (Op + OpItem + OpItemTrabajo), Progreso general de la OP, Seguimiento público: /op/{token} y /seguimiento, Pantalla de planta /planta/{token}
 
-### Community 238 - "La bandeja: una pantalla y dos juegos de tablas"
-Cohesion: 0.12
-Nodes (11): AdjuntoBandeja — lo que llega se baja al servidor, La bandeja: una pantalla y dos juegos de tablas, App\Support\Canales — las reglas de cada canal, WhatsappAutomatizacionService, App\Services\Bandeja\AdjuntoBandeja, App\Services\Bandeja\CanalBandeja, App\Support\Canales, CanalMeta (+3 more)
+### Community 238 - "Agentes (/configuracion/agentes)"
+Cohesion: 0.09
+Nodes (17): App\Support\Canales — las reglas de cada canal, Agentes (/configuracion/agentes), Lo que el agente no hace (no promete precios, no aprueba, no inventa), Probarlo antes de encenderlo, sin mandar nada, Cuándo el agente suelta la conversación, WhatsappAutomatizacionService, App\Services\Bandeja\BandejaAutomatizacionService, App\Services\Bandeja\CanalBandeja (+9 more)
 
 ### Community 240 - "Automatizaciones/Index.vue"
 Cohesion: 0.11
@@ -1460,15 +1490,15 @@ Nodes (7): abierto, buscando, busqueda, props, resultados, subtotalDe(), total
 
 ### Community 243 - "Ordenes/Create.vue"
 Cohesion: 0.10
-Nodes (18): componentes, nivel, niveles, props, agregarItemDesdeInventario(), aplicarProveedor(), buscando, buscarItem (+10 more)
+Nodes (19): componentes, nivel, niveles, props, agregarItemDesdeInventario(), aMonedaOrden(), aplicarProveedor(), buscando (+11 more)
 
 ### Community 244 - "OrdenarLista.vue"
 Cohesion: 0.02
-Nodes (76): campoActual, dirActual, emit, esTexto, etiquetaActual, leyenda, props, limpiar() (+68 more)
+Nodes (80): campoActual, dirActual, emit, esTexto, etiquetaActual, leyenda, props, limpiar() (+72 more)
 
 ### Community 245 - "EquipoInterno.vue"
-Cohesion: 0.11
-Nodes (20): cargando, cargarCatalogos(), cargarOficina(), catalogos, detalle, esperando, formulario, guardado() (+12 more)
+Cohesion: 0.08
+Nodes (28): cargar(), datos, dias, porDia, totales, cargando, cargarCatalogos(), cargarOficina() (+20 more)
 
 ### Community 247 - "Solicitudes/Create.vue"
 Cohesion: 0.18
@@ -1483,7 +1513,7 @@ Cohesion: 0.18
 Nodes (9): confirmando, dependientes(), efectoDe(), fecha, grupos, guardando, porClave, props (+1 more)
 
 ### Community 250 - "CrmEtapa"
-Cohesion: 0.14
+Cohesion: 0.15
 Nodes (3): CrmEtapaController, CrmReporteController, CrmEtapa
 
 ### Community 252 - "ModalIaPlantilla.vue"
@@ -1491,8 +1521,8 @@ Cohesion: 0.17
 Nodes (16): actualSiIncluye(), aplicarPegado(), cargando, compilarPrompt(), copiado, { copyText }, emit, error (+8 more)
 
 ### Community 253 - "Segmentacion/Index.vue"
-Cohesion: 0.15
-Nodes (20): abiertos, cambiarMarca(), cambiarMargen(), cancelarEdicion(), cancelarNuevo(), cargando, cargar(), csrf() (+12 more)
+Cohesion: 0.14
+Nodes (21): abiertos, aplicarMargen(), cambiarMarca(), cambiarMargen(), cancelarEdicion(), cancelarNuevo(), cargando, cargar() (+13 more)
 
 ### Community 255 - "DeleteUserForm.vue"
 Cohesion: 0.06
@@ -1502,13 +1532,17 @@ Nodes (27): close(), closeOnEscape(), dialog, emit, maxWidthClass, props, showSl
 Cohesion: 0.12
 Nodes (12): cerrarModalConstruir(), cerrarModalReceta(), editandoReceta, form, formConstruir, guardando, guardarConstruir(), guardarReceta() (+4 more)
 
+### Community 257 - "TemplateTrabajo"
+Cohesion: 0.08
+Nodes (5): ChecklistCalidad, TemplateTrabajo, TemplateTrabajoPaso, ProcesoPlanta, PlantillaDuplicarTest
+
 ### Community 259 - "FirmaPad.vue"
 Cohesion: 0.22
 Nodes (14): ajustarTamano(), alCambiarTamano(), emit, empezar(), error, lienzo, limpiar(), mover() (+6 more)
 
 ### Community 260 - "OrdenCompra"
-Cohesion: 0.13
-Nodes (3): OrdenCompraController, OrdenCompra, {closure#29}()
+Cohesion: 0.10
+Nodes (3): OrdenCompra, {closure#7}(), OrdenCompraMonedaYEdicionTest
 
 ### Community 261 - "Equipos/Index.vue"
 Cohesion: 0.25
@@ -1526,17 +1560,9 @@ Nodes (9): aplicarFiltros(), buscar(), equipo, estado, estadoBadge, props, searc
 Cohesion: 0.11
 Nodes (11): agregarProducto(), buscar, calculando, calculo, editando, enBase, form, hoy (+3 more)
 
-### Community 268 - "WhatsappNumero"
-Cohesion: 0.10
-Nodes (3): WhatsappNumeroController, WhatsappNumero, WhatsappDiagnosticoService
-
 ### Community 270 - "Cliente"
-Cohesion: 0.06
-Nodes (5): ClienteController, Cliente, {closure#2}(), ConsultasClienteService, {closure#9}()
-
-### Community 271 - "OpItemTrabajoPaso"
-Cohesion: 0.05
-Nodes (12): PasoFotoController, OpItemTrabajoPaso, CierrePasoService, {closure#8}(), Archivos y módulos que tocaría la Fase 0 + Fase 1, Fase 0 — Cimientos (sin agentes visibles), Fase 1 — Tres agentes de alto valor, bajo riesgo (solo lectura y propuesta), Fase 2 — Más agentes y primeras escrituras con aprobación (+4 more)
+Cohesion: 0.14
+Nodes (4): Cliente, {closure#2}(), ConsultasClienteService, 2.1 Vigía de producción y entregas
 
 ### Community 272 - "require"
 Cohesion: 0.18
@@ -1547,8 +1573,8 @@ Cohesion: 0.20
 Nodes (9): Tablero de calidad, acento, claseUrgencia, color(), emit, estiloBoton(), fondoFicha, PALETA (+1 more)
 
 ### Community 274 - "Informes (/informes)"
-Cohesion: 0.08
-Nodes (16): El correo sale por el panel de Briela, SmtpConfigService::aplicar(), App\Mail\TransporteBriela, Cabecera X-Briela-Tipo: masivo, Generar imágenes con IA, Integración de IA, OpenRouter (una sola cuenta y un solo saldo), Voz natural del asistente (+8 more)
+Cohesion: 0.18
+Nodes (8): Fuente: Colaboradores, Fuente: Cotizaciones, Fuente: Pasos de Trabajo, Informes (/informes), Permisos de informes (propios, públicos, admin), Estaciones de trabajo, Programador de planta, Tiempo estimado en minutos
 
 ### Community 275 - "Hilos internos"
 Cohesion: 0.12
@@ -1560,51 +1586,43 @@ Nodes (5): Botón «Detectar títulos», Enlace público /reglamento/{token}, In
 
 ### Community 277 - "EquipoMantenimiento"
 Cohesion: 0.07
-Nodes (5): DashboardController, EquipoController, MantenimientoController, EquipoMantenimiento, Mantenimiento
+Nodes (6): MantenimientoController, {closure#1}(), EquipoMantenimiento, Mantenimiento, OperarioPermiso, {closure#14}()
 
 ### Community 278 - "IconoMenu.vue"
 Cohesion: 0.20
 Nodes (9): @fortawesome/free-brands-svg-icons, @fortawesome/free-solid-svg-icons, contenedor, etiquetaDeDia(), porDia, props, icono, ICONOS (+1 more)
 
-### Community 279 - "RegistroActividad"
-Cohesion: 0.13
-Nodes (3): RegistroActividad, GuiaRenombrarProductosTest, ProductoNombreRapidoTest
-
-### Community 281 - "useTema.js"
-Cohesion: 0.24
-Nodes (10): aplicar(), aplicarColorDeBarra(), aplicarFavicon(), esDeNoche(), faviconClaro, faviconOscuro, horaSede, preferencia (+2 more)
-
 ### Community 282 - "ReservaStock"
-Cohesion: 0.14
-Nodes (8): {closure#17}(), ReservaStock, {closure#1}(), {closure#2}(), {closure#3}(), {closure#5}(), {closure#6}(), {closure#8}()
+Cohesion: 0.10
+Nodes (10): LiberarReservasStock, {closure#17}(), ReservaStock, {closure#1}(), {closure#2}(), {closure#3}(), {closure#5}(), {closure#6}() (+2 more)
 
 ### Community 283 - "TestCase"
-Cohesion: 0.03
-Nodes (14): {closure#1}(), AuthenticationTest, EmailVerificationTest, PasswordConfirmationTest, PasswordResetTest, PasswordUpdateTest, RegistrationTest, BuscarPorCodigoProveedorTest (+6 more)
+Cohesion: 0.04
+Nodes (12): CotizacionItem, App\Support\Modulos::catalogo(), PasswordConfirmationTest, PasswordUpdateTest, RegistrationTest, {closure#1}(), ExampleTest, {closure#1}() (+4 more)
 
-### Community 284 - "TiendaYDocumentos.vue"
-Cohesion: 0.14
-Nodes (10): archivo, caracteristicas, categoria, documentos, entrada, error, ETIQUETA, hayDatos (+2 more)
-
-### Community 285 - "Monedas.vue"
-Cohesion: 0.11
-Nodes (11): actualizando, ajustes, baseElegida, FUENTES, hoy, manual, page, props (+3 more)
+### Community 284 - "Rol"
+Cohesion: 0.21
+Nodes (3): {closure#1}(), RolController, Rol
 
 ### Community 286 - "AgenteIa"
 Cohesion: 0.09
 Nodes (6): AgenteIaController, {closure#4}(), {closure#6}(), AgenteIa, {closure#1}(), AgentesTest
 
-### Community 287 - "get"
-Cohesion: 0.13
-Nodes (16): cargar(), datos, dias, porDia, totales, cargar(), detener(), e (+8 more)
+### Community 287 - "DetalleEjecucion.vue"
+Cohesion: 0.14
+Nodes (14): cargar(), detener(), e, emit, error, ETIQUETAS, props, TIPOS (+6 more)
 
-### Community 288 - "Ensambles/Index.vue"
-Cohesion: 0.09
-Nodes (13): usePublicacionWeb(), limpiar(), publicar(), buscar, camposOrden, ensamblesLocal, { ordenarPor }, page (+5 more)
+### Community 288 - "usePublicacionWeb"
+Cohesion: 0.50
+Nodes (3): usePublicacionWeb(), limpiar(), publicar()
 
 ### Community 289 - "Las dos bodegas de una OP"
 Cohesion: 0.18
 Nodes (5): Aviso de entrega próxima, Avisos Fase 1 (Producción), Recordatorios diarios (requieren cron), Se guarda en bodega (producto terminado), Bodega de entrega de la OP
+
+### Community 290 - "MovimientoBancario"
+Cohesion: 0.09
+Nodes (4): {closure#6}(), CuentaBancaria, MovimientoBancario, VerificadorPagosService
 
 ### Community 291 - "Un precio por canal y siembra de márgenes"
 Cohesion: 0.20
@@ -1646,20 +1664,16 @@ Cohesion: 0.20
 Nodes (7): cancelar(), editando, form, formVacio, guardar(), props, sedes
 
 ### Community 301 - "ConectarMeta.vue"
-Cohesion: 0.14
-Nodes (15): coexistencia, conectando, conectarWhatsapp(), configId, csrf(), guardandoConfig, postJson(), props (+7 more)
+Cohesion: 0.15
+Nodes (12): coexistencia, conectando, conectarWhatsapp(), configId, csrf(), guardandoConfig, postJson(), props (+4 more)
 
 ### Community 302 - "graphify como skill de Claude Code"
 Cohesion: 0.25
 Nodes (4): Skill graphify (.claude/skills), Cierre obligatorio de toda tarea (grafo, commit+push, deploy), graphify como skill de Claude Code, El grafo del proyecto (graphify-out)
 
-### Community 304 - "Illuminate\Http\RedirectResponse"
-Cohesion: 0.03
-Nodes (21): AuthenticatedSessionController, ConfirmablePasswordController, EmailVerificationNotificationController, EmailVerificationPromptController, EstudianteAuthController, NewPasswordController, PasswordController, PasswordResetLinkController (+13 more)
-
-### Community 305 - "CursoEvaluacion"
-Cohesion: 0.17
-Nodes (3): EvaluacionPreguntaController, CursoEvaluacion, EvaluacionPregunta
+### Community 304 - "Inertia\Response"
+Cohesion: 0.02
+Nodes (24): WordpressIntegracionController, AuditoriaController, AuthenticatedSessionController, ConfirmablePasswordController, EmailVerificationNotificationController, EmailVerificationPromptController, NewPasswordController, PasswordController (+16 more)
 
 ### Community 306 - "composer.json"
 Cohesion: 0.22
@@ -1677,41 +1691,41 @@ Nodes (9): scripts, dev, post-autoload-dump, post-create-project-cmd, post-root-
 Cohesion: 0.28
 Nodes (7): {closure#1}(), {closure#2}(), {closure#3}(), {closure#4}(), down(), existeIndice(), up()
 
-### Community 314 - "ModalLead.vue"
-Cohesion: 0.28
-Nodes (8): emit, errores, form, fuentes, getCookie(), guardando, guardar(), props
-
-### Community 315 - "ChatGrupo"
-Cohesion: 0.15
-Nodes (5): ChatGrupoController, {closure#1}(), {closure#4}(), ChatGrupo, GET /chat/grupos/{grupo}()
-
-### Community 316 - "Illuminate\Database\Eloquent\SoftDeletes"
-Cohesion: 0.12
-Nodes (6): {closure#1}(), {closure#2}(), {closure#4}(), RecetaCorteController, {closure#1}(), RecetaCorte
-
-### Community 318 - "ImportacionPago"
+### Community 311 - "Importacion"
 Cohesion: 0.13
-Nodes (9): ImportacionPago, {closure#2}(), DiferenciaCambioService, Cómo se arma, Importaciones — cuánto cuesta de verdad lo que se trae de afuera, La cuenta, producto por producto, Las tres tasas y la diferencia en cambio *(15 oct 2026)*, Liquidar (+1 more)
+Nodes (3): ImportacionController, Importacion, LiquidacionImportacionService
 
-### Community 319 - "DashboardSeccion"
-Cohesion: 0.07
-Nodes (7): DashboardSeccionController, GraficoDashboardController, {closure#1}(), DashboardSeccion, GraficoDashboard, {closure#1}(), FuentesGraficoService
+### Community 314 - "RemisionService"
+Cohesion: 0.18
+Nodes (3): {closure#1}(), {closure#2}(), RemisionService
+
+### Community 315 - "Clientes/Index.vue"
+Cohesion: 0.14
+Nodes (10): aplicarFiltros(), buscar, camposOrden, fuente_contacto, industria, limpiar(), { ordenarPor }, proceso_seguimiento (+2 more)
+
+### Community 318 - "ImportacionController.php"
+Cohesion: 0.06
+Nodes (11): {closure#5}(), ImportacionPago, {closure#2}(), DiferenciaCambioService, Cómo se arma, Importaciones — cuánto cuesta de verdad lo que se trae de afuera, La cuenta, producto por producto, Las tres tasas y la diferencia en cambio *(15 oct 2026)* (+3 more)
+
+### Community 319 - "Illuminate\Http\RedirectResponse"
+Cohesion: 0.03
+Nodes (15): DashboardSeccionController, GraficoDashboardController, MonedasConfigController, OpTrabajoController, PaisesConfigController, ProductoDocumentoController, ProfileController, {closure#5}() (+7 more)
+
+### Community 320 - "Illuminate\Support\Carbon"
+Cohesion: 0.05
+Nodes (4): {closure#7}(), FuenteVentas, Periodo, HoraSistema
+
+### Community 321 - "CorreoPorBrielaTest.php"
+Cohesion: 0.14
+Nodes (4): SincronizarEventosCorreo, CorreoSupresion, {closure#4}(), {closure#8}()
 
 ### Community 322 - "Aprobaciones.vue"
 Cohesion: 0.14
 Nodes (14): aviso, cargando, cargar(), COLOR, decidir(), emit, ETIQUETA, filtro (+6 more)
 
-### Community 324 - "CrmTest"
-Cohesion: 0.16
-Nodes (3): CrmFormularioPublicoController, CrmFormulario, CrmTest
-
 ### Community 325 - "Reglamento.vue"
 Cohesion: 0.17
 Nodes (7): abierto, activo, avance, cuerpo, indice, props, subtitulo
-
-### Community 326 - "RRHHConfigController"
-Cohesion: 0.26
-Nodes (3): RRHHConfigController, OperarioTarifaExtra, OperarioTurnoConfig
 
 ### Community 328 - "ListaConversaciones.vue"
 Cohesion: 0.32
@@ -1730,32 +1744,32 @@ Cohesion: 0.29
 Nodes (4): App\Support\Orden::aplicar(), OrdenarLista.vue y BotonOrden.vue, useOrden (resources/js/composables/useOrden.js), Orden configurable en las 16 listas
 
 ### Community 336 - "Reglas del producto instalable"
-Cohesion: 0.12
-Nodes (15): BackupService (cae a PHP si no hay mysqldump), Cero personalización en el código de un cliente, Migraciones siempre hacia adelante y nunca destructivas, Nada que dependa del hosting del cliente, Nunca migrate:fresh, migrate:refresh ni db:wipe, Nunca sobreescribir .env, storage/ ni public/storage, Reglas del producto instalable, EsConversacion::ventanaAbierta() — el plazo de 24 horas (+7 more)
+Cohesion: 0.13
+Nodes (12): BackupService (cae a PHP si no hay mysqldump), Migraciones siempre hacia adelante y nunca destructivas, Nada que dependa del hosting del cliente, Nunca sobreescribir .env, storage/ ni public/storage, Reglas del producto instalable, Respaldo automático de la base antes de cada migración, EsConversacion::ventanaAbierta() — el plazo de 24 horas, .github/workflows/deploy.yml y sus cinco secretos (+4 more)
 
 ### Community 337 - "config"
 Cohesion: 0.29
 Nodes (7): pestphp/pest-plugin, php-http/discovery, config, allow-plugins, optimize-autoloader, preferred-install, sort-packages
 
-### Community 338 - "Ordenes/Show.vue"
-Cohesion: 0.12
-Nodes (11): abrirRecepcion(), cantidadesRecibidas, estados, guardando, hoy(), modalRecepcion, papel, papelEnBlanco() (+3 more)
+### Community 338 - "guardarResultado"
+Cohesion: 0.26
+Nodes (13): aplicarFicha(), cerrarModal(), guardarResultado(), marcarFalla(), marcarOcupada(), pedirFoto(), reabrirUnidad(), recalcularGrupo() (+5 more)
 
-### Community 339 - "Comisiones del vendedor"
-Cohesion: 0.18
-Nodes (7): Canal base (piso de utilidad), Comisiones del vendedor, php artisan comisiones:recalcular, Excedente, Liquidación de comisiones, Migración comision_como_porcentaje_del_precio, Cálculo de la comisión en la cotización
+### Community 339 - "Canal base (piso de utilidad)"
+Cohesion: 0.25
+Nodes (5): Canal base (piso de utilidad), php artisan comisiones:recalcular, Excedente, Migración comision_como_porcentaje_del_precio, Cálculo de la comisión en la cotización
 
 ### Community 341 - "ModalNuevoCliente.vue"
 Cohesion: 0.14
 Nodes (13): canales, csrf(), emit, errores, errorGeneral, esPersona, form, guardando (+5 more)
 
 ### Community 342 - "ModalQR.vue"
-Cohesion: 0.21
-Nodes (11): html5-qrcode, buscarOP(), cerrar(), copiar(), { copyText }, detenerScanner(), emit, error (+3 more)
+Cohesion: 0.13
+Nodes (16): html5-qrcode, buscarOP(), cerrar(), copiar(), { copyText }, detenerScanner(), emit, error (+8 more)
 
-### Community 343 - "@inertiajs/vue3"
+### Community 343 - "vue"
 Cohesion: 0.02
-Nodes (51): @inertiajs/vue3, licencia, mensaje, page, pospuestoHoy, pospuestos, sePuedePosponer, tipo (+43 more)
+Nodes (76): @inertiajs/vue3, vue, licencia, mensaje, page, pospuestoHoy, pospuestos, sePuedePosponer (+68 more)
 
 ### Community 344 - "Publicar una versión"
 Cohesion: 0.29
@@ -1763,11 +1777,11 @@ Nodes (7): El serial de licencia (LicenciaService), php artisan briela:empaqueta
 
 ### Community 346 - "Illuminate\Database\Schema\Blueprint"
 Cohesion: 0.02
-Nodes (99): {closure#1}(), {closure#2}(), {closure#3}(), {closure#1}(), {closure#2}(), {closure#1}(), {closure#2}(), {closure#1}() (+91 more)
+Nodes (94): {closure#1}(), {closure#2}(), {closure#3}(), {closure#1}(), {closure#2}(), {closure#1}(), {closure#2}(), {closure#1}() (+86 more)
 
-### Community 347 - "CRM — pipeline de leads (/crm)"
-Cohesion: 0.14
-Nodes (9): Precios por canal (canal_precios, morph), App\Services\Bandeja\BandejaAutomatizacionService, «Cuando alguien escribe»: aviso, agente, comentarios y lead, Bandeja de mensajes (/bandeja), Clientes (/clientes), NIT y RUES, Comisiones y liquidaciones, Cotizaciones (/cotizaciones), CRM — pipeline de leads (/crm) (+1 more)
+### Community 347 - "Cero personalización en el código de un cliente"
+Cohesion: 0.20
+Nodes (8): Cero personalización en el código de un cliente, Nunca migrate:fresh, migrate:refresh ni db:wipe, PreciosPorCanalService::precioDesdeCosto(), Precios por canal (canal_precios, morph), php artisan precios:recalcular y comisiones:recalcular, Canales de precio configurables (define_precio, es_canal_base, es_precio_publico), Entorno local: Laragon, PHP 8.3, base briela, Lo que nunca se hace
 
 ### Community 350 - "2026_06_17_180001_add_token_trabajo_to_op_item_trabajos.php"
 Cohesion: 0.33
@@ -1789,9 +1803,13 @@ Nodes (10): archivo, camposSegmentacion, csrf(), descripciones, error, importand
 Cohesion: 0.10
 Nodes (15): alternar(), aviso, csrf(), emit, error, estado, fecha, guardando (+7 more)
 
+### Community 356 - "NormalizadorExtracto"
+Cohesion: 0.13
+Nodes (3): RechazoDelPanel, {closure#1}(), NormalizadorExtracto
+
 ### Community 357 - "Roles y permisos configurables"
 Cohesion: 0.06
-Nodes (22): Recetas de corte, Acceso a todas las sedes, Alcance: sedes y almacenes por usuario, Roles de sistema, Roles y permisos configurables, Bono mensual, Cálculo de bono masivo, Gamificación: puntos y estrellas (+14 more)
+Nodes (20): Recetas de corte, Acceso a todas las sedes, Alcance: sedes y almacenes por usuario, Roles de sistema, Roles y permisos configurables, Gamificación: puntos y estrellas, Almacenes (bodegas) por sede, Módulos que filtran por sede (+12 more)
 
 ### Community 358 - "Equipo (ficha)"
 Cohesion: 0.33
@@ -1801,9 +1819,13 @@ Nodes (6): Componentes del equipo, Equipo (ficha), Frecuencia en días, Mantenim
 Cohesion: 0.33
 Nodes (5): compilerOptions, baseUrl, paths, exclude, ziggy-js
 
-### Community 361 - "Canales"
-Cohesion: 0.09
-Nodes (3): MetaWebhookController, BandejaAutomatizacionService, Canales
+### Community 361 - "CuentaRrss"
+Cohesion: 0.05
+Nodes (8): MetaWebhookController, CuentaRrss, BandejaAutomatizacionService, {closure#1}(), CanalMeta, MetaMensajeriaService, Canales, FirmaMeta
+
+### Community 362 - "Fiscal.vue"
+Cohesion: 0.15
+Nodes (9): conRetencion, defIdentificacion, documentoFiscal, form, identificaciones, page, perfil, props (+1 more)
 
 ### Community 363 - "La TRM del día, sola"
 Cohesion: 0.50
@@ -1821,29 +1843,33 @@ Nodes (5): autoload, psr-4, App\\, Database\\Factories\\, Database\\Seeders\\
 Cohesion: 0.15
 Nodes (9): año, años, maxEtapa, maxFuente, maxMes, mes, meses, periodo (+1 more)
 
+### Community 369 - "ArmadorPrompt"
+Cohesion: 0.14
+Nodes (4): AgenteUsuarioService, ArmadorPrompt, {closure#1}(), Para quien programa
+
 ### Community 372 - "El candado de calidad es por unidad"
 Cohesion: 0.25
 Nodes (4): Anular libera los ítems, Despachos parciales por unidad, Estados de la remisión (borrador → confirmada → en_camino → entregada), Remisión
 
 ### Community 374 - "AgentePropuesta"
-Cohesion: 0.08
+Cohesion: 0.09
 Nodes (5): CrmTareaController, AgentePropuesta, CrmTarea, AprobacionService, {closure#1}()
 
 ### Community 379 - "Países: impuestos, documentos de identidad y moneda de cada sede"
 Cohesion: 0.22
 Nodes (9): Cómo se lee un documento fiscal de otro país, El dígito de verificación, La empresa de otro país, La identificación del exterior *(15 oct 2026)*, Los paquetes de país, Países: impuestos, documentos de identidad y moneda de cada sede, Qué cambia por país, Qué hace Briela y qué no (+1 more)
 
-### Community 380 - "EquipoIaController"
+### Community 380 - "AgenteInterno"
 Cohesion: 0.07
-Nodes (5): {closure#5}(), EquipoIaController, CargoIa, PromptVersionIa, AgentesDeFabrica
+Nodes (6): {closure#5}(), EquipoIaController, AgenteInterno, CargoIa, PromptVersionIa, AgentesDeFabrica
 
 ### Community 384 - "2026_08_14_130000_referencia_y_unidad_en_ensambles.php"
 Cohesion: 0.29
 Nodes (4): {closure#1}(), {closure#2}(), {closure#3}(), {closure#4}()
 
 ### Community 385 - "Cotizaciones"
-Cohesion: 0.06
-Nodes (18): Precio público (canal), Condiciones comerciales, Cotizaciones, Crear el cliente sin salir de la cotización, Resumen técnico impreso bajo cada ítem, Etapa con accion_automatica = cotizacion, Convertir un lead a cliente, crm_etapas (+10 more)
+Cohesion: 0.07
+Nodes (21): Anticipo, cuotas y pagos de una OP, Cartera, No emite factura electrónica ni conecta con la DIAN, Precio público (canal), Comisiones del vendedor, Liquidación de comisiones, Generar OP desde una cotización aprobada, Trabajos de producción automáticos (+13 more)
 
 ### Community 388 - "2026_10_14_120000_seccion_en_cotizacion_items_y_opciones_pdf.php"
 Cohesion: 0.29
@@ -1857,37 +1883,57 @@ Nodes (5): Concepto libre (mano de obra, transporte), EnsambleDirectoService, Fo
 Cohesion: 0.19
 Nodes (4): {closure#3}(), {closure#5}(), {closure#6}(), TransaccionesProductos
 
-### Community 398 - "EntidadesAutomatizacion"
-Cohesion: 0.02
-Nodes (27): AutomatizacionController, {closure#16}(), {closure#17}(), {closure#20}(), {closure#24}(), {closure#4}(), {closure#5}(), {closure#7}() (+19 more)
+### Community 395 - "OrdenCompraController.php"
+Cohesion: 0.09
+Nodes (4): {closure#14}(), {closure#6}(), {closure#9}(), OrdenCompraController
+
+### Community 398 - "GrafoAutomatizacion"
+Cohesion: 0.05
+Nodes (11): AutomatizacionController, {closure#17}(), Automatizacion, {closure#1}(), {closure#2}(), GrafoAutomatizacion, {closure#2}(), {closure#4}() (+3 more)
 
 ### Community 402 - "Equipo de IA (agentes internos) *(nuevo en 2.0)*"
 Cohesion: 0.17
-Nodes (11): Aprobaciones, Crear o configurar un agente, Cómo corre en un hosting compartido, Cómo piensa el sistema, El consumo y el cupo, Equipo de IA (agentes internos) *(nuevo en 2.0)*, La oficina, La oficina en vivo *(13 oct 2026)* (+3 more)
+Nodes (12): Aprobaciones, Crear o configurar un agente, Cómo corre en un hosting compartido, Cómo piensa el sistema, El consumo y el cupo, Equipo de IA (agentes internos) *(nuevo en 2.0)*, La oficina, La oficina en vivo *(13 oct 2026)* (+4 more)
 
-### Community 405 - "UnidadMedida"
-Cohesion: 0.27
-Nodes (3): {closure#1}(), UnidadMedidaController, UnidadMedida
+### Community 405 - "Illuminate\Http\Request"
+Cohesion: 0.03
+Nodes (21): ActualizacionController, AgenteWebController, BandejaController, BuscadorController, ChatDirectoController, ChatGrupoController, CrmFormularioController, CursoEvaluacionController (+13 more)
 
 ### Community 410 - "mensajeDe"
 Cohesion: 0.13
 Nodes (28): probar(), abrir(), AVATARES, aviso, borrar(), copiar(), editando, emit (+20 more)
 
-### Community 415 - "NotificacionService"
-Cohesion: 0.04
-Nodes (17): AvisarLeadsQuietos, Empaquetar, LiberarReservasStock, MarcarCotizacionesVencidas, NotificarCursosPorVencer, NotificarEntregasProximas, {closure#1}(), NotificarRecordatoriosDiarios (+9 more)
+### Community 413 - "agregarItemDesdeEnsambleInstancia"
+Cohesion: 0.33
+Nodes (13): agregarItemDesdeEnsamble(), agregarItemDesdeEnsambleInstancia(), agregarItemDesdeProducto(), agregarItemTextoLibre(), buildDescripcionLargaInstancia(), cerrarModal(), filaDelCanal(), getCanalComisionMax() (+5 more)
 
-### Community 420 - "2026_08_14_100000_permitir_ensambles_directos.php"
-Cohesion: 0.40
-Nodes (4): {closure#1}(), {closure#2}(), quitarLlaveForanea(), up()
+### Community 414 - "PantallaPlanta/Show.vue"
+Cohesion: 0.15
+Nodes (8): horaActual, mensajesMotivacion, mensajeTicker, ops, props, ranking, tickerIdx, trabajos
+
+### Community 415 - "NotificacionService"
+Cohesion: 0.07
+Nodes (6): AvisarLeadsQuietos, {closure#1}(), NotificarRecordatoriosDiarios, {closure#5}(), NotificacionService, 1.3 Colas, scheduler, notificaciones y permisos
+
+### Community 418 - "2026_07_26_000004_create_roles_y_permisos_tables.php"
+Cohesion: 0.18
+Nodes (8): {closure#1}(), {closure#2}(), {closure#3}(), {closure#4}(), {closure#5}(), {closure#8}(), sembrarRolesDeSistema(), up()
+
+### Community 420 - "AutomatizacionesModulosTest.php"
+Cohesion: 0.24
+Nodes (5): {closure#3}(), {closure#1}(), {closure#2}(), {closure#4}(), {closure#5}()
+
+### Community 422 - "Mantenimientos/Create.vue"
+Cohesion: 0.17
+Nodes (8): costoRepuestos, costoTotal, errors, form, { hasChanges, setOriginal, checkChanges }, props, submit(), urlParams
 
 ### Community 423 - "postJson"
 Cohesion: 0.29
 Nodes (7): csrf(), enviarPrueba(), postJson(), probarAgente(), probarNumero(), probarWebhook(), sincronizarPlantillas()
 
 ### Community 424 - "Bodega"
-Cohesion: 0.08
-Nodes (4): BodegaController, Bodega, CotizacionItem, GuiaTransaccionesTest
+Cohesion: 0.07
+Nodes (3): BodegaController, Bodega, InventarioLimitesTest
 
 ### Community 426 - "AccionesIaService"
 Cohesion: 0.24
@@ -1898,16 +1944,12 @@ Cohesion: 0.22
 Nodes (4): sharp, __dirname, outDir, tamanos
 
 ### Community 430 - "PHPUnit\Framework\TestCase"
-Cohesion: 0.16
-Nodes (3): PreciosPorCanalService::sugerirComisiones(), ExampleTest, PrecioDesdeCostoTest
+Cohesion: 0.13
+Nodes (3): ColorMarcaLegibleTest, ExampleTest, PrecioDesdeCostoTest
 
 ### Community 433 - "Verificador de pagos — confirmar con el banco que el dinero llegó"
-Cohesion: 0.14
-Nodes (11): Anticipo, cuotas y pagos de una OP, Cartera, No emite factura electrónica ni conecta con la DIAN, Avisos, Cómo entra el dinero a Briela, Deshacer y borrar, El emparejamiento, El extracto (+3 more)
-
-### Community 434 - "2026_07_26_000002_add_sede_id_to_bodegas_and_users_tables.php"
-Cohesion: 0.29
-Nodes (4): {closure#1}(), {closure#2}(), {closure#3}(), {closure#4}()
+Cohesion: 0.25
+Nodes (8): Avisos, Cómo entra el dinero a Briela, Deshacer y borrar, El emparejamiento, El extracto, Lo que falta: la conexión con el banco, Preguntas para Belvo (o para cualquier agregador), Verificador de pagos — confirmar con el banco que el dinero llegó
 
 ### Community 435 - "2026_10_15_100000_alistamiento_parcial_y_cierre_de_remisiones.php"
 Cohesion: 0.29
@@ -1917,13 +1959,17 @@ Nodes (4): {closure#1}(), {closure#2}(), {closure#3}(), {closure#4}()
 Cohesion: 0.33
 Nodes (6): calificar(), csrf(), error, guardando, notas, props
 
+### Community 438 - "Paises.vue"
+Cohesion: 0.18
+Nodes (6): form, guardando, opciones, page, props, puedeEditar
+
 ### Community 441 - "Checklist de verificación — cambios de julio 2026"
 Cohesion: 0.18
 Nodes (8): php artisan comisiones:recalcular, PreciosPorCanalService::precioDesdeCosto(), php artisan precios:recalcular, Prueba: anticipo y comisión al generar la OP, Prueba: calidad bloquea la remisión, Checklist de verificación — cambios de julio 2026, Subir foto: cámara o galería, no cámara directo, Prueba: importación CSV de productos
 
-### Community 442 - "MotorAutomatizaciones.php"
-Cohesion: 0.15
-Nodes (5): AvanzarAutomatizaciones, AutomatizacionPaso, {closure#2}(), {closure#3}(), {closure#4}()
+### Community 442 - "MotorAutomatizaciones"
+Cohesion: 0.11
+Nodes (6): AvanzarAutomatizaciones, AutomatizacionPaso, {closure#2}(), {closure#3}(), {closure#4}(), MotorAutomatizaciones
 
 ### Community 443 - "2026_07_15_000006_add_curso_modulo_id_to_curso_evaluaciones_table.php"
 Cohesion: 0.25
@@ -1945,21 +1991,25 @@ Nodes (12): 1. Lo que necesitas antes de empezar, 2. Las direcciones que vas a p
 Cohesion: 0.22
 Nodes (9): abierto, cargando, cargarPlantillas(), claseBoton, claseDropdown, getCookie(), plantillas, props (+1 more)
 
-### Community 450 - "2026_10_10_120000_add_documentos_a_movimientos_y_recepciones_de_compra.php"
-Cohesion: 0.33
-Nodes (3): {closure#1}(), {closure#2}(), {closure#3}()
-
 ### Community 454 - "HistorialAutomatizacion.vue"
 Cohesion: 0.16
 Nodes (13): abierta, abrir(), aviso, cancelar(), cargar(), detalle, emit, ESTADO (+5 more)
 
-### Community 456 - "PASO 2 — Oportunidades para agentes"
-Cohesion: 0.08
-Nodes (23): 0. Resumen ejecutivo, 2.1 Vigía de producción y entregas, 2.2 Seguimiento comercial, 2.4 Cobranza, 2.5 Auditor de datos, 2.6 Abastecimiento, 2.8 Analista de calidad, 4.1 Concepto (+15 more)
+### Community 456 - "Agentes de IA internos para Briela — informe de análisis"
+Cohesion: 0.06
+Nodes (28): 0. Resumen ejecutivo, 3.1 Principio rector: reutilizar, no reinventar, 3.2 Tablas necesarias (todas nuevas; ninguna migración toca tablas existentes), 3.3 Modelo por agente, con fallback, 3.4 Cómo se ejecutan las tareas (Hostinger y producto instalable), 3.7 Cómo se mide el costo por agente, 3.8 Riesgos transversales y mitigaciones, 4.1 Concepto (+20 more)
+
+### Community 457 - "Liquidaciones/Create.vue"
+Cohesion: 0.20
+Nodes (6): elegidas, fecha, notas, props, total, vendedor
+
+### Community 458 - "rangoComisionDe"
+Cohesion: 0.29
+Nodes (10): ajustarComision(), comisionActualDe(), comisionActualValor(), descuentoMaxDisponible(), dosDecimales(), itemTieneComision(), onComisionChange(), onDescuentoChange() (+2 more)
 
 ### Community 460 - "Automatizaciones"
 Cohesion: 0.25
-Nodes (7): Automatizaciones, Cómo arranca, Las acciones, Los pasos, Los textos, Plantillas de fábrica, Reglas de seguridad
+Nodes (8): Automatizaciones, Cómo arranca, Las acciones, Los pasos, Los textos, Para los agentes del Equipo de IA *(16 oct 2026)*, Plantillas de fábrica, Reglas de seguridad
 
 ### Community 461 - "Componentes y sus fórmulas"
 Cohesion: 0.18
@@ -1971,11 +2021,31 @@ Nodes (3): {closure#1}(), {closure#2}(), {closure#3}()
 
 ### Community 467 - "Operario"
 Cohesion: 0.06
-Nodes (7): {closure#9}(), OperarioController, Operario, OperarioBono, OperarioDisciplina, OperarioHito, OperarioHoraExtra
+Nodes (9): {closure#9}(), OperarioController, TrabajoController, TrabajoOperarioController, Operario, OperarioBono, OperarioDisciplina, OperarioHito (+1 more)
+
+### Community 470 - "2026_10_07_100001_add_bandeja_a_whatsapp_tables.php"
+Cohesion: 0.28
+Nodes (6): {closure#1}(), {closure#2}(), {closure#4}(), indice(), rellenarUltimoEntrante(), up()
+
+### Community 472 - "LeerRut.vue"
+Cohesion: 0.25
+Nodes (8): avisos, emit, error, input, leer(), leyendo, listo, props
+
+### Community 477 - "multipartHdr"
+Cohesion: 0.22
+Nodes (9): csrf(), eliminarImagenOpcionSelector(), eliminarImagenReferenciaCampo(), importarArchivo(), mostrarToast(), multipartHdr(), subirAdjuntoPasoProduccion(), subirImagenOpcionSelector() (+1 more)
 
 ### Community 482 - "PasosProduccion.vue"
 Cohesion: 0.33
 Nodes (7): agregar(), marcarFinal(), props, quitar(), repartirPesos(), suma, sumaOk
+
+### Community 488 - "ModalAnticipo.vue"
+Cohesion: 0.32
+Nodes (7): confirmar(), emit, error, form, getXsrf(), guardando, props
+
+### Community 492 - "TarjetaTransaccion.vue"
+Cohesion: 0.32
+Nodes (6): confirmar(), cookie(), emit, estado, props, resultado
 
 ### Community 495 - "filtrar"
 Cohesion: 0.50
@@ -1997,37 +2067,53 @@ Nodes (3): extra, laravel, dont-discover
 Cohesion: 0.67
 Nodes (3): Orden de compra, Recepción de mercancía, Solicitud de compra
 
-### Community 521 - "PASO 3 — Arquitectura propuesta"
-Cohesion: 0.22
-Nodes (7): 3.1 Principio rector: reutilizar, no reinventar, 3.2 Tablas necesarias (todas nuevas; ninguna migración toca tablas existentes), 3.3 Modelo por agente, con fallback, 3.4 Cómo se ejecutan las tareas (Hostinger y producto instalable), 3.7 Cómo se mide el costo por agente, 3.8 Riesgos transversales y mitigaciones, PASO 3 — Arquitectura propuesta
+### Community 509 - "SegmentacionOpcion"
+Cohesion: 0.09
+Nodes (7): CanalPrecio, SegmentacionOpcion, {closure#1}(), {closure#1}(), {closure#3}(), {closure#1}(), SegmentacionCanalPrecioTest
+
+### Community 510 - "2026_05_27_221241_mover_campos_catalogo_de_plantilla_a_ensamble.php"
+Cohesion: 0.29
+Nodes (4): {closure#1}(), {closure#2}(), {closure#3}(), {closure#4}()
+
+### Community 521 - "2026_06_22_000001_add_dependencias_a_pasos_tables.php"
+Cohesion: 0.29
+Nodes (4): {closure#1}(), {closure#2}(), {closure#3}(), {closure#4}()
+
+### Community 615 - "2026_08_08_010500_create_chat_grupos_table.php"
+Cohesion: 0.29
+Nodes (4): {closure#1}(), {closure#2}(), {closure#3}(), {closure#4}()
+
+### Community 621 - "2026_10_14_100000_create_automatizaciones_tables.php"
+Cohesion: 0.29
+Nodes (4): {closure#1}(), {closure#2}(), {closure#3}(), {closure#4}()
 
 ### Community 622 - "CalificacionProveedores.vue"
 Cohesion: 0.22
 Nodes (5): form, page, props, puedeEditar, total
 
-### Community 639 - "2026_06_10_193149_add_comisiones_canal_to_productos_and_ensambles.php"
-Cohesion: 0.29
-Nodes (4): {closure#1}(), {closure#2}(), {closure#3}(), {closure#4}()
+### Community 626 - "2026_08_12_140000_add_marcas_de_precio_a_segmentacion.php"
+Cohesion: 0.40
+Nodes (4): {closure#1}(), {closure#2}(), conservarLaPrioridadDeHoy(), up()
 
-### Community 655 - "2026_06_17_180000_add_token_publico_to_ops.php"
+### Community 629 - "2026_08_18_170000_create_liquidaciones_comision.php"
 Cohesion: 0.33
-Nodes (3): {closure#1}(), {closure#3}(), up()
+Nodes (3): {closure#1}(), {closure#2}(), {closure#3}()
+
+### Community 634 - "2026_10_11_100000_create_verificador_de_pagos.php"
+Cohesion: 0.33
+Nodes (3): {closure#1}(), {closure#2}(), {closure#3}()
+
+### Community 635 - "ImagenVariante.vue"
+Cohesion: 0.40
+Nodes (4): elegir(), emit, props, vista
 
 ### Community 663 - "2026_08_12_140100_create_canal_precios_table.php"
 Cohesion: 0.40
 Nodes (3): {closure#1}(), rellenar(), up()
 
-### Community 667 - "CorreoPorBrielaTest.php"
-Cohesion: 0.09
-Nodes (8): {closure#3}(), {closure#4}(), {closure#8}(), CorreoPorBrielaTest, {closure#1}(), {closure#2}(), {closure#4}(), {closure#5}()
-
 ### Community 669 - "Hallazgo: el .env de la copia apuntaba a la base real del sistema de origen"
 Cohesion: 0.50
 Nodes (3): Fase 0 — Higiene y arranque del repo, La base de este proyecto es briela, Montar en local con Laragon
-
-### Community 672 - "Instalar Briela en Hostinger"
-Cohesion: 0.33
-Nodes (5): La base se crea vacía y el instalador arma las tablas, Certificado SSL para el subdominio, Instalar Briela en Hostinger, Síntomas y causas habituales, PHP 8.3 y sus extensiones en hPanel
 
 ### Community 673 - "Aprobar.vue"
 Cohesion: 0.20
@@ -2035,19 +2121,39 @@ Nodes (8): abierta, ap, enviando, error, ESTADO, nota, props, vencida
 
 ### Community 674 - "formato.js"
 Cohesion: 0.05
-Nodes (29): columnas, metricas, muestra, props, resumen, decimalesBase(), formatCantidad(), formatCOP() (+21 more)
+Nodes (28): columnas, metricas, muestra, props, resumen, decimalesBase(), formatCantidad(), formatCOP() (+20 more)
+
+### Community 675 - "app.js"
+Cohesion: 0.25
+Nodes (3): axios, setup(), setMonedaBase()
 
 ### Community 678 - "ModalBodegasEntrega.vue"
 Cohesion: 0.40
 Nodes (5): confirmar(), emit, entregaId, materialId, props
 
-### Community 683 - "OficinaAgentes.vue"
-Cohesion: 0.29
-Nodes (6): aprobacionesTotales, cuando(), emit, props, ESTADOS, hace()
-
 ### Community 695 - "Reglamento"
-Cohesion: 0.17
+Cohesion: 0.16
 Nodes (3): ReglamentoController, {closure#1}(), Reglamento
+
+### Community 704 - "scripts"
+Cohesion: 0.50
+Nodes (4): scripts, build, dev, generate-icons
+
+### Community 705 - "iniciarEmbeddedSignup"
+Cohesion: 0.83
+Nodes (3): cargarSdk(), ES_DE_FACEBOOK(), iniciarEmbeddedSignup()
+
+### Community 706 - "abrirNuevoComponente"
+Cohesion: 0.50
+Nodes (4): abrirEditarComponente(), abrirNuevoComponente(), enviarAComponentes(), inicializarProbarVals()
+
+### Community 708 - "xsrf"
+Cohesion: 0.67
+Nodes (3): refrescarDisponibilidad(), subirImagenInstancia(), xsrf()
+
+### Community 709 - "recalcularPesosProduccion"
+Cohesion: 0.67
+Nodes (3): agregarPasoProduccion(), quitarPasoProduccion(), recalcularPesosProduccion()
 
 ## Ambiguous Edges - Review These
 - `ops.calidad_aprobada_at (sello de la orden)` → `Consumo de inventario al despachar`  [AMBIGUOUS]
@@ -2055,24 +2161,24 @@ Nodes (3): ReglamentoController, {closure#1}(), Reglamento
 
 ## Knowledge Gaps
 - **231 isolated node(s):** `autoprefixer`, `concurrently`, `postcss`, `recharts`, `tailwindcss` (+226 more)
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 5961 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
-- **345 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 6004 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+- **350 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `vue` connect `vue` to `Productos/Create.vue`, `Plantillas/Index.vue`, `AppLayout.vue`, `Clientes/Edit.vue`, `Pages/Configuracion/Index.vue`, `Cotizaciones/Create.vue`, `Ensambles/Create.vue`, `FormAgente.vue`, `EditorAutomatizacion.vue`, `Ops/Create.vue`, `AsistenteBurbuja.vue`, `SelloBriela.vue`, `ChatBurbuja.vue`, `Ops/Show.vue`, `WhatsappNumeros.vue`, `Productos/Index.vue`, `Configurador/Index.vue`, `PerfilMarca.vue`, `Productos/Edit.vue`, `Cursos/Show.vue`, `Editor.vue`, `Productos/Show.vue`, `Reglamento/Edit.vue`, `VerificadorPagos.vue`, `EditorBloques.vue`, `colorMarca`, `OficinaEnVivo.vue`, `Cotizaciones/Show.vue`, `Trabajos/Show.vue`, `DetalleLead.vue`, `Trabajos/Index.vue`, `Importaciones/Show.vue`, `Inventario/Index.vue`, `Pages/Dashboard.vue`, `Operarios/Show.vue`, `package.json`, `Bandeja/Index.vue`, `Profile/Edit.vue`, `CalificacionProveedores.vue`, `Formularios.vue`, `Programador/Index.vue`, `monedaBase`, `CursoShow.vue`, `BuscadorModulo.vue`, `Calidad/Index.vue`, `Marca.vue`, `Pipeline.vue`, `FinancieroOP.vue`, `PdfTemplateEditor.vue`, `Multimedia/Index.vue`, `ModalSubirArchivo.vue`, `SelectorUnidad.vue`, `Backup/Index.vue`, `Invitaciones/Index.vue`, `Informes/Create.vue`, `Publica/Show.vue`, `CajaRespuesta.vue`, `formato.js`, `app.js`, `Proveedores/Index.vue`, `GraficosPersonalizados.vue`, `ModalBodegasEntrega.vue`, `Aprobar.vue`, `Crear.vue`, `HiloComentarios.vue`, `Editar.vue`, `OficinaAgentes.vue`, `Actualizacion.vue`, `Insumos/Index.vue`, `ModalFoto.vue`, `Movimientos.vue`, `PlantillasPdf/Index.vue`, `Informes/Show.vue`, `Cuentas.vue`, `BuscadorGlobal.vue`, `GeneradorFichaIa.vue`, `RevisionCalidad.vue`, `ProveedoresProducto.vue`, `EtiquetaStock.vue`, `Roles.vue`, `Operarios/Index.vue`, `Alistamiento/Index.vue`, `Remisiones/Create.vue`, `RecepcionEnVivo.vue`, `Agentes/Index.vue`, `RRHH/Configuracion/Index.vue`, `Remisiones/Show.vue`, `Trabajo/Show.vue`, `Automatizaciones/Index.vue`, `LineasEnsambleDirecto.vue`, `Ordenes/Create.vue`, `OrdenarLista.vue`, `EquipoInterno.vue`, `Solicitudes/Create.vue`, `Wordpress.vue`, `Modulos.vue`, `ModalIaPlantilla.vue`, `Segmentacion/Index.vue`, `DeleteUserForm.vue`, `RecetasCorte/Index.vue`, `FirmaPad.vue`, `Equipos/Index.vue`, `Mantenimientos/Index.vue`, `Form.vue`, `FichaProceso.vue`, `IconoMenu.vue`, `useTema.js`, `TiendaYDocumentos.vue`, `Monedas.vue`, `get`, `Ensambles/Index.vue`, `SeccionComisiones.vue`, `AsistenteIaPaso.vue`, `Calculador/Index.vue`, `PasoFotos.vue`, `RichTextEditor.vue`, `Bodegas.vue`, `Sedes.vue`, `ConectarMeta.vue`, `ModalLead.vue`, `Aprobaciones.vue`, `Reglamento.vue`, `Ordenes/Show.vue`, `ModalNuevoCliente.vue`, `ModalQR.vue`, `@inertiajs/vue3`, `Correo.vue`, `Productos/Importar.vue`, `Clientes/Importar.vue`, `Ensambles/Show.vue`, `Reportes.vue`, `mensajeDe`, `RevisionEvaluaciones/Show.vue`, `BtnPdf.vue`, `HistorialAutomatizacion.vue`, `PasosProduccion.vue`?**
-  _High betweenness centrality (0.410) - this node is a cross-community bridge._
+- **Why does `vue` connect `vue` to `Productos/Create.vue`, `Plantillas/Index.vue`, `AppLayout.vue`, `useUnsavedChanges`, `Clientes/Edit.vue`, `Pages/Configuracion/Index.vue`, `Cotizaciones/Create.vue`, `Ensambles/Create.vue`, `FormAgente.vue`, `EditorAutomatizacion.vue`, `Ops/Create.vue`, `Asistente/Index.vue`, `ChatBurbuja.vue`, `Ops/Show.vue`, `WhatsappNumeros.vue`, `Productos/Index.vue`, `Configurador/Index.vue`, `PerfilMarca.vue`, `Productos/Edit.vue`, `Cursos/Show.vue`, `Editor.vue`, `Productos/Show.vue`, `Reglamento/Edit.vue`, `VerificadorPagos.vue`, `EditorBloques.vue`, `colorMarca`, `OficinaEnVivo.vue`, `Cotizaciones/Show.vue`, `Trabajos/Show.vue`, `DetalleLead.vue`, `Trabajos/Index.vue`, `Importaciones/Show.vue`, `Inventario/Index.vue`, `Pages/Dashboard.vue`, `Operarios/Show.vue`, `package.json`, `Bandeja/Index.vue`, `Profile/Edit.vue`, `CalificacionProveedores.vue`, `Formularios.vue`, `Programador/Index.vue`, `monedaBase`, `ImagenVariante.vue`, `CursoShow.vue`, `BuscadorModulo.vue`, `Calidad/Index.vue`, `Marca.vue`, `FinancieroOP.vue`, `PdfTemplateEditor.vue`, `Multimedia/Index.vue`, `ModalSubirArchivo.vue`, `SelectorUnidad.vue`, `Backup/Index.vue`, `Invitaciones/Index.vue`, `Informes/Create.vue`, `Ordenes/Show.vue`, `CajaRespuesta.vue`, `formato.js`, `app.js`, `GraficosPersonalizados.vue`, `Aprobar.vue`, `ModalBodegasEntrega.vue`, `Proveedores/Index.vue`, `Crear.vue`, `HiloComentarios.vue`, `Editar.vue`, `Actualizacion.vue`, `Insumos/Index.vue`, `AsistenteBurbuja.vue`, `ModalFoto.vue`, `Movimientos.vue`, `PlantillasPdf/Index.vue`, `Informes/Show.vue`, `Cuentas.vue`, `BuscadorGlobal.vue`, `GeneradorFichaIa.vue`, `useRetenciones.js`, `RevisionCalidad.vue`, `ProveedoresProducto.vue`, `EtiquetaStock.vue`, `Roles.vue`, `Operarios/Index.vue`, `Alistamiento/Index.vue`, `Remisiones/Create.vue`, `RecepcionEnVivo.vue`, `Agentes/Index.vue`, `RRHH/Configuracion/Index.vue`, `Remisiones/Show.vue`, `Trabajo/Show.vue`, `Automatizaciones/Index.vue`, `LineasEnsambleDirecto.vue`, `Ordenes/Create.vue`, `OrdenarLista.vue`, `EquipoInterno.vue`, `Solicitudes/Create.vue`, `Wordpress.vue`, `Modulos.vue`, `ModalIaPlantilla.vue`, `Segmentacion/Index.vue`, `DeleteUserForm.vue`, `RecetasCorte/Index.vue`, `FirmaPad.vue`, `Equipos/Index.vue`, `Mantenimientos/Index.vue`, `Form.vue`, `FichaProceso.vue`, `IconoMenu.vue`, `DetalleEjecucion.vue`, `SeccionComisiones.vue`, `AsistenteIaPaso.vue`, `Calculador/Index.vue`, `PasoFotos.vue`, `RichTextEditor.vue`, `Bodegas.vue`, `Sedes.vue`, `ConectarMeta.vue`, `Usuarios/Edit.vue`, `Clientes/Index.vue`, `Aprobaciones.vue`, `Reglamento.vue`, `ModalNuevoCliente.vue`, `ModalQR.vue`, `Correo.vue`, `Productos/Importar.vue`, `Clientes/Importar.vue`, `Ensambles/Show.vue`, `Fiscal.vue`, `Reportes.vue`, `mensajeDe`, `PantallaPlanta/Show.vue`, `Mantenimientos/Create.vue`, `RevisionEvaluaciones/Show.vue`, `Paises.vue`, `BtnPdf.vue`, `HistorialAutomatizacion.vue`, `Liquidaciones/Create.vue`, `LeerRut.vue`, `PasosProduccion.vue`, `ModalAnticipo.vue`, `TarjetaTransaccion.vue`?**
+  _High betweenness centrality (0.431) - this node is a cross-community bridge._
 - **Are the 3 inferred relationships involving `User` (e.g. with `3.5 Permisos, identidad y aprobaciones` and `Archivos y módulos que tocaría la Fase 0 + Fase 1`) actually correct?**
   _`User` has 3 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `autoprefixer`, `concurrently`, `postcss` to the rest of the system?**
   _231 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Illuminate\Support\Facades\Schema` be split into smaller, more focused modules?**
-  _Cohesion score 0.02040816326530612 - nodes in this community are weakly interconnected._
-- **Why does `PreciosPorCanalService::sugerirComisiones()` connect `PHPUnit\Framework\TestCase` to `Productos/Create.vue`, `Comisiones del vendedor`?**
-  _High betweenness centrality (0.369) - this node is a cross-community bridge._
-- **Should `Illuminate\Http\JsonResponse` be split into smaller, more focused modules?**
-  _Cohesion score 0.038680659670164916 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.021052631578947368 - nodes in this community are weakly interconnected._
+- **Why does `PreciosPorCanalService::sugerirComisiones()` connect `SugerirComisionesTest` to `Canal base (piso de utilidad)`, `vue`?**
+  _High betweenness centrality (0.393) - this node is a cross-community bridge._
+- **Are the 3 inferred relationships involving `Producto` (e.g. with `.insumosFaltantes()` and `.recibir()`) actually correct?**
+  _`Producto` has 3 INFERRED edges - model-reasoned connections that need verification._
 
 ### Low-confidence Hints
 _AMBIGUOUS edges — the extractor was unsure. Verify before acting on these._

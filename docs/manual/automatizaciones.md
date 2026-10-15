@@ -90,6 +90,14 @@ seguida de un aviso a quien lo hace, o un agente del Equipo de IA.
 - Cinco fallas seguidas la pausan sola y avisan a quien la creó.
 - Pausar o eliminar cancela lo que estaba en cola o esperando, aprobaciones incluidas.
 
+## Para los agentes del Equipo de IA *(16 oct 2026)*
+
+La casilla **«Disponible para los agentes del Equipo de IA»** (al pie del editor, solo con el módulo encendido y
+el permiso `equipo_ia.gestionar`) deja que un agente decida cuándo ponerla en marcha y sobre qué documento. Es
+el camino barato: la automatización hace el trabajo sin tokens. Detalle y límites en
+[Equipo de IA](./agentes-internos.md). En la lista aparece la insignia «Para agentes», y en el historial las
+corridas dicen «por un agente de IA».
+
 ## Plantillas de fábrica
 
 Agrupadas por área, y solo las de módulos encendidos: cotización sin respuesta, cotizaciones frías al CRM,

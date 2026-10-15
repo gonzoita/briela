@@ -271,6 +271,10 @@ class ClienteImportController extends Controller
                     $verificacion = $nit->verificarDv($d['numero_identificacion'] ?? '');
                 } else {
                     $limpio = strtoupper(preg_replace('/[\s.]/', '', (string) ($d['numero_identificacion'] ?? '')));
+                    // «12.345.678-5»: el dígito de verificación va aparte y no entra a la cuenta.
+                    if ($dvTipo !== null && preg_match('/^(.+)-([0-9K])$/', $limpio, $m)) {
+                        $limpio = $m[1];
+                    }
                     $verificacion = ['base' => $limpio, 'dv_calculado' => \App\Support\Paises::calcularDv($casa, $tipoId, $limpio)];
                 }
                 $base = $verificacion['base'];

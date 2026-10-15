@@ -42,7 +42,11 @@ class PdfVariablesEngine
     }
 
     // ─── PREPARAR DATOS COMPLETOS POR MÓDULO ──────────────────────────────────
-    public static function prepararDatos(string $modulo, mixed $registro): array
+    /**
+     * @param  bool  $conDocumentos  Armar `{{!documentos.adjuntos}}`. Cuesta consultas y leer imágenes
+     *   del disco, así que `PdfPlantillaRenderer::paraRegistro` solo lo pide si la plantilla lo usa.
+     */
+    public static function prepararDatos(string $modulo, mixed $registro, bool $conDocumentos = true): array
     {
         $empresa = static::datosEmpresa();
         $datos   = ['empresa' => $empresa];
@@ -110,7 +114,7 @@ class PdfVariablesEngine
                 $datos = array_merge($datos, static::agruparSecciones($datos['items']));
 
                 // Planos y fichas técnicas de los productos cotizados (opción de la plantilla).
-                $datos['documentos.adjuntos'] = static::documentosAdjuntos($registro->items);
+                $datos['documentos.adjuntos'] = $conDocumentos ? static::documentosAdjuntos($registro->items) : '';
                 break;
 
             case 'op':

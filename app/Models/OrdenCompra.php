@@ -13,7 +13,7 @@ class OrdenCompra extends Model
     protected $table = 'ordenes_compra';
 
     protected $fillable = [
-        'sede_id', 'numero', 'estado', 'proveedor_id', 'solicitud_id', 'creado_por',
+        'sede_id', 'numero', 'estado', 'proveedor_id', 'moneda', 'tasa_cambio', 'tasa_fecha', 'solicitud_id', 'creado_por',
         'fecha_entrega_esperada', 'fecha_recepcion',
         'subtotal', 'impuesto', 'total', 'condiciones', 'notas',
     ];
@@ -25,6 +25,8 @@ class OrdenCompra extends Model
         // vacío y el usuario no puede leer ni corregir una fecha que sí está guardada.
         'fecha_entrega_esperada' => 'date:Y-m-d',
         'fecha_recepcion'        => 'date:Y-m-d',
+        'tasa_fecha'             => 'date:Y-m-d',
+        'tasa_cambio'            => 'decimal:8',
         'subtotal'               => 'decimal:2',
         'impuesto'               => 'decimal:2',
         'total'                  => 'decimal:2',
@@ -63,6 +65,30 @@ class OrdenCompra extends Model
     public function items(): HasMany
     {
         return $this->hasMany(OrdenCompraItem::class, 'orden_id');
+    }
+
+    /** ¿Se escribió en otra moneda que la base? Una orden anterior no tiene moneda: es de la base. */
+    public function esEnOtraMoneda(): bool
+    {
+        return ($this->moneda ?: \App\Support\Monedas::base()) !== \App\Support\Monedas::base() && (float) $this->tasa_cambio > 0;
+    }
+
+    /** Un valor de la moneda de la orden, en la moneda base (lo que se guarda). */
+    public function aBase(float $valor): float
+    {
+        return $this->esEnOtraMoneda() ? round($valor * (float) $this->tasa_cambio, 2) : $valor;
+    }
+
+    /** Un valor en la moneda base, escrito en la moneda de esta orden. */
+    public function enSuMoneda(float|int|string|null $valorEnBase): string
+    {
+        return \App\Support\Monedas::formatear($valorEnBase, (string) ($this->moneda ?: \App\Support\Monedas::base()), (float) ($this->tasa_cambio ?: 1));
+    }
+
+    /** ¿Se puede editar? Hasta que se reciba todo o se cancele; con recepciones, con candados. */
+    public function esEditable(): bool
+    {
+        return in_array($this->estado, ['borrador', 'enviada', 'confirmada', 'recibida_parcial'], true);
     }
 
     public function recalcularTotales(): void

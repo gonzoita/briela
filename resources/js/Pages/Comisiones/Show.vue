@@ -37,7 +37,7 @@ const formatMes = (mes) => {
 
 const formatCOP = (val) => new Intl.NumberFormat('es-CO', {
     style: 'currency', currency: monedaBase(),
-    minimumFractionDigits: 0, maximumFractionDigits: 0
+    minimumFractionDigits: 2, maximumFractionDigits: 2
 }).format(val || 0)
 
 const formatFecha = (f) => {

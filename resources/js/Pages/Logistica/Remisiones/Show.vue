@@ -261,7 +261,7 @@ function eliminar() {
                     <div>
                         <span class="text-tinta-300 text-xs">Costo flete</span>
                         <p class="font-medium text-tinta-900 mt-0.5">
-                            {{ remision.costo_flete ? '$ ' + parseFloat(remision.costo_flete).toLocaleString('es-CO') : '—' }}
+                            {{ remision.costo_flete ? '$ ' + parseFloat(remision.costo_flete).toLocaleString('es-CO', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '—' }}
                         </p>
                     </div>
                     <div>

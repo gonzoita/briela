@@ -19,6 +19,8 @@ use Illuminate\Support\Str;
  * Tres tipos:
  * - `lectura`: consulta datos, respeta permisos y sede. Reutiliza `ConsultasDatosService`.
  * - `propuesta`: deja algo por aprobar. **No escribe en el negocio.**
+ * - `automatizacion`: pone en marcha una automatización que una persona armó y ofreció a los
+ *   agentes. Hace pasos fijos, sin modelo, y lo delicado sigue pidiendo aprobación.
  *
  * Hay consultas del asistente que NO se ofrecen a un agente, a propósito: las que muestran costos
  * (`comparar_proveedores`), las de personas (`productividad`, `rrhh_resumen`) y las que a su vez
@@ -76,6 +78,14 @@ class CatalogoHerramientas
                 'descripcion' => 'Historial comercial de UN cliente: sus cotizaciones y órdenes recientes. Úsala antes de proponer un contacto, para saber con quién se está hablando.',
                 'parametros'  => ['cliente' => ['tipo' => 'string', 'descripcion' => 'nombre o número de documento del cliente', 'obligatorio' => true]],
             ],
+            'ejecutar_automatizacion' => [
+                'tipo' => 'automatizacion', 'grupo' => 'Automatizaciones', 'permiso' => 'automatizaciones.ejecutar',
+                'descripcion' => 'PONE EN MARCHA una automatización que una persona ya armó y marcó como disponible para agentes. Es el camino barato: hace pasos fijos sin gastar tokens. Tú decides cuál y sobre qué documento; ella hace el trabajo. Queda en cola: no es un hecho consumado.',
+                'parametros'  => [
+                    'automatizacion_id' => ['tipo' => 'integer', 'descripcion' => 'el número de la automatización', 'obligatorio' => true],
+                    'documento'         => ['tipo' => 'string', 'descripcion' => 'número o id del documento, si la automatización trabaja sobre uno', 'obligatorio' => false],
+                ],
+            ],
             'proponer_tarea_crm' => [
                 'tipo' => 'propuesta', 'grupo' => 'Propuestas', 'permiso' => 'crm.ver', 'accion' => 'tarea_crm',
                 'descripcion' => 'PROPONE una tarea de seguimiento en un lead. No la crea: una persona la aprueba. Pon en la descripción el mensaje borrador que el vendedor puede enviar.',
@@ -116,9 +126,11 @@ class CatalogoHerramientas
         $cfg = self::catalogo()[$herramienta] ?? null;
         $legible = str_replace('_', ' ', preg_replace('/^proponer_/', '', $herramienta));
 
-        return ($cfg['tipo'] ?? 'lectura') === 'propuesta'
-            ? 'Redactando una propuesta: ' . $legible
-            : 'Revisando ' . $legible;
+        return match ($cfg['tipo'] ?? 'lectura') {
+            'propuesta'      => 'Redactando una propuesta: ' . $legible,
+            'automatizacion' => 'Poniendo en marcha una automatización',
+            default          => 'Revisando ' . $legible,
+        };
     }
 
     /**
@@ -132,12 +144,26 @@ class CatalogoHerramientas
         $catalogo = self::catalogo();
         $claves   = $agente->herramientasEfectivas();
 
-        return collect($claves)
+        $herramientas = collect($claves)
             ->filter(fn ($k) => isset($catalogo[$k]))
-            ->filter(fn ($k) => $catalogo[$k]['tipo'] !== 'propuesta' || $agente->modo === 'propone')
+            ->filter(fn ($k) => ! in_array($catalogo[$k]['tipo'], ['propuesta', 'automatizacion'], true) || $agente->modo === 'propone')
             ->filter(fn ($k) => $usuario->tienePermiso($catalogo[$k]['permiso']))
             ->mapWithKeys(fn ($k) => [$k => $catalogo[$k]])
             ->all();
+
+        // Las automatizaciones se le describen UNA por una al modelo, y solo si hay alguna: sin
+        // ninguna disponible la herramienta no se ofrece, y no gasta ni una línea del prompt.
+        if (isset($herramientas['ejecutar_automatizacion'])) {
+            $disponibles = AutomatizacionesParaAgentes::disponibles();
+
+            if ($disponibles->isEmpty()) {
+                unset($herramientas['ejecutar_automatizacion']);
+            } else {
+                $herramientas['ejecutar_automatizacion']['descripcion'] .= "\nDisponibles:\n" . AutomatizacionesParaAgentes::describir($disponibles);
+            }
+        }
+
+        return $herramientas;
     }
 
     /**
@@ -209,6 +235,13 @@ class CatalogoHerramientas
                 };
 
                 return $this->envolver($r, ($r['exito'] ?? false) === true);
+            }
+
+            if ($h['tipo'] === 'automatizacion') {
+                $r = app(AutomatizacionesParaAgentes::class)->lanzar($args, $agente, $ejecucion, $prueba, auth()->user());
+
+                // Lanzada de verdad cuenta como acción del agente (como una propuesta), no como lectura.
+                return $this->envolver($r, ($r['lanzada'] ?? false) === true);
             }
 
             $lecturas = app(LecturasEquipoService::class);

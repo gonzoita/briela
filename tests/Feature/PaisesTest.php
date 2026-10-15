@@ -204,7 +204,7 @@ class PaisesTest extends TestCase
         $this->assertNotContains('USD', Monedas::extranjeras());
         $this->assertSame('US$1.350,00', Monedas::formatear(1350));
         // El peso ya no es la base, así que se escribe como moneda de un documento: con espacio.
-        $this->assertSame('$ 6.075.000', Monedas::formatear(6075000, 'COP', 1));
+        $this->assertSame('$ 6.075.000,00', Monedas::formatear(6075000, 'COP', 1));
     }
 
     public function test_con_documentos_guardados_la_moneda_base_ya_no_cambia(): void

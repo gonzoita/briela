@@ -223,7 +223,7 @@ class InformeService
     private function formatearAgregado(string $campo, string $tipo, float $valor): string
     {
         if ($campo === 'total') {
-            return '$' . number_format($valor, 0, ',', '.');
+            return '$' . number_format($valor, 2, ',', '.');
         }
         if ($campo === 'porcentaje_avance') {
             return round($valor, 1) . '%';

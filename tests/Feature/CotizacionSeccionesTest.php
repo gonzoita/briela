@@ -280,4 +280,35 @@ class CotizacionSeccionesTest extends TestCase
         $this->assertStringNotContainsString('PLANO-ADJUNTO', PdfPlantillaRenderer::html($this->plantilla([]), $datos)['html']);
         $this->assertStringContainsString('PLANO-ADJUNTO', PdfPlantillaRenderer::html($this->plantilla(['adjuntar_documentos' => true]), $datos)['html']);
     }
+
+    public function test_un_bloque_de_columnas_no_revienta_y_pasa_las_opciones_a_su_tabla(): void
+    {
+        $plantilla = $this->plantilla(['mostrar_precios' => false]);
+        array_unshift($plantilla['bloques_body'], ['tipo' => 'columnas', 'props' => ['columnas' => 2, 'contenido_columnas' => [
+            ['bloques' => [['tipo' => 'titulo', 'props' => ['contenido' => 'Cotización', 'nivel' => 2]]]],
+            ['bloques' => [['tipo' => 'tabla', 'props' => ['columnas' => [
+                ['etiqueta' => 'Descripción', 'variable' => 'descripcion'],
+                ['etiqueta' => 'Total', 'variable' => 'total_linea|moneda'],
+            ]]]]],
+        ]]]);
+
+        $items = $this->lineas();
+        $datos = array_merge(['empresa' => [], 'items' => $items], PdfVariablesEngine::agruparSecciones($items));
+        $html  = PdfPlantillaRenderer::html($plantilla, $datos)['html'];
+
+        $this->assertStringContainsString('Cotización', $html);
+        $this->assertStringContainsString('Riel superior', $html);
+        $this->assertStringNotContainsString('<th>Total</th>', $html, 'sin precios la tabla anidada también quita su columna');
+    }
+
+    public function test_sin_foto_se_quita_tambien_la_columna_de_imagen_escrita_como_html_crudo(): void
+    {
+        $plantilla = $this->plantilla(['mostrar_fotos' => false]);
+        $plantilla['bloques_body'][0]['props']['columnas'][] = ['etiqueta' => 'Foto 2', 'variable' => '!imagen_base64'];
+
+        $items = $this->lineas();
+        $datos = array_merge(['empresa' => [], 'items' => $items], PdfVariablesEngine::agruparSecciones($items));
+
+        $this->assertStringNotContainsString('Foto 2', PdfPlantillaRenderer::html($plantilla, $datos)['html']);
+    }
 }

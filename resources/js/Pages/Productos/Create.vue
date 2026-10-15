@@ -225,7 +225,7 @@ function aplicarFicha({ descripcion_corta, descripcion_cotizacion, descripcion_l
 }
 
 const formatCOP = (v) =>
-    new Intl.NumberFormat('es-CO', { maximumFractionDigits: 0 }).format(Math.round(v ?? 0))
+    new Intl.NumberFormat('es-CO', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(v ?? 0)
 
 // ── Imágenes ──────────────────────────────────────────────────────────────────
 const previews = ref([])

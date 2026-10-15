@@ -119,7 +119,7 @@ async function compartir() {
                         class="bg-pastel-verde border border-borde-aviso-verde rounded-xl p-4">
                         <p class="text-xs text-aviso-verde font-medium mb-0.5">Precio de referencia</p>
                         <p class="text-2xl font-semibold text-aviso-verde">
-                            ${{ Number(precioPublico).toLocaleString('es-CO') }}
+                            ${{ Number(precioPublico).toLocaleString('es-CO', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}
                         </p>
                         <p class="text-xs text-aviso-verde mt-1">IVA no incluido · Precio sujeto a cambio sin aviso</p>
                     </div>

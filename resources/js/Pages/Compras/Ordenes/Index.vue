@@ -4,6 +4,7 @@ import { router } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
 import OrdenarLista from '@/Components/OrdenarLista.vue'
 import { useOrden } from '@/composables/useOrden'
+import { formatMoneda } from '@/formato'
 
 const props = defineProps({
     ordenes:     Object,
@@ -52,9 +53,8 @@ function estadoBadge(e) {
     return estados[e] ?? { label: e, bg: 'bg-tinta-100', text: 'text-tinta-700' }
 }
 
-function fmtMoney(n) {
-    return '$ ' + Number(n).toLocaleString('es-CO', { minimumFractionDigits: 0, maximumFractionDigits: 0 })
-}
+// El total se muestra en la moneda de la orden (por dentro está en la base).
+const fmtMoney = (n, o) => formatMoneda(n, o?.moneda || null, o?.tasa_cambio || 1)
 </script>
 
 <template>
@@ -117,7 +117,7 @@ function fmtMoney(n) {
                             </p>
                         </div>
                         <div class="text-right">
-                            <p class="font-semibold text-tinta-900">{{ fmtMoney(o.total) }}</p>
+                            <p class="font-semibold text-tinta-900">{{ fmtMoney(o.total, o) }}</p>
                             <p class="text-xs text-tinta-300">{{ new Date(o.created_at).toLocaleDateString('es-CO') }}</p>
                         </div>
                     </div>

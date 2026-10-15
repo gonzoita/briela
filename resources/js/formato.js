@@ -29,17 +29,17 @@ export function formatPct(valor) {
  * en las dos: `tests/Feature/PaisesTest.php` compara las listas.
  */
 const MONEDAS = {
-    COP: { simbolo: '$',    decimales: 0 },
+    COP: { simbolo: '$',    decimales: 2 },
     USD: { simbolo: 'US$',  decimales: 2 },
     EUR: { simbolo: '€',    decimales: 2 },
     VES: { simbolo: 'Bs.S', decimales: 2 },
     PEN: { simbolo: 'S/',   decimales: 2 },
     MXN: { simbolo: 'MX$',  decimales: 2 },
-    CLP: { simbolo: 'CL$',  decimales: 0 },
+    CLP: { simbolo: 'CL$',  decimales: 2 },
     ARS: { simbolo: 'AR$',  decimales: 2 },
     BRL: { simbolo: 'R$',   decimales: 2 },
     BOB: { simbolo: 'Bs',   decimales: 2 },
-    PYG: { simbolo: '₲',    decimales: 0 },
+    PYG: { simbolo: '₲',    decimales: 2 },
     UYU: { simbolo: '$U',   decimales: 2 },
     CRC: { simbolo: '₡',    decimales: 2 },
     GTQ: { simbolo: 'Q',    decimales: 2 },

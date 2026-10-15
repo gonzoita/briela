@@ -52,6 +52,9 @@ const nombreMoneda = (c) => props.monedas.find(m => m.codigo === c)?.nombre ?? c
 watch(() => form.moneda, (m) => {
     form.tasa = m === props.base ? 1 : (props.tasas[m]?.valor ?? '')
     form.tasa_fecha = m === props.base ? null : (props.tasas[m]?.fecha ?? null)
+    // La TRM de la declaración era de la otra moneda: se borra para que no se use con la nueva.
+    form.tasa_nacionalizacion = ''
+    form.tasa_nacionalizacion_fecha = ''
 })
 
 // El proveedor propone el país de origen.

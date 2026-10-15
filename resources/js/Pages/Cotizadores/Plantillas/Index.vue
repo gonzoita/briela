@@ -1077,7 +1077,7 @@ async function importarArchivo(e) {
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
-const formatCOP = (v) => new Intl.NumberFormat('es-CO', { maximumFractionDigits: 0 }).format(v ?? 0)
+const formatCOP = (v) => new Intl.NumberFormat('es-CO', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(v ?? 0)
 
 const badgesTipo = {
     texto:    'bg-tinta-100 text-tinta-500',

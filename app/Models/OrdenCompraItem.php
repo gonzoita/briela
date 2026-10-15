@@ -11,7 +11,7 @@ class OrdenCompraItem extends Model
 
     protected $fillable = [
         'orden_id', 'item_id', 'referencia_proveedor', 'descripcion', 'cantidad',
-        'cantidad_recibida', 'unidad', 'precio_unitario',
+        'cantidad_recibida', 'unidad', 'precio_unitario', 'precio_moneda',
         'impuesto_pct', 'total_linea',
     ];
 
@@ -19,6 +19,7 @@ class OrdenCompraItem extends Model
         'cantidad'          => 'decimal:3',
         'cantidad_recibida' => 'decimal:3',
         'precio_unitario'   => 'decimal:2',
+        'precio_moneda'     => 'decimal:4',
         'impuesto_pct'      => 'decimal:2',
         'total_linea'       => 'decimal:2',
     ];

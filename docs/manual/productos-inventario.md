@@ -297,6 +297,16 @@ Se ven los 30 últimos; «Ver movimientos anteriores» trae los siguientes con u
 repetiría el último de la 1. Debajo, **Remisiones** lista las últimas diez en las que salió el
 producto, con su cliente y cantidad. Las cuentas están en `ProductoController::movimientosDe()`.
 
+## Mínimos y máximos a un toque *(16 oct 2026)*
+
+En la lista y en el tablero de inventario cada fila lleva su mínimo y su máximo **editables ahí mismo**
+(`LimiteStock.vue`, `PATCH /inventario/{item}/limites`, permiso `inventario.editar`): escribes, Enter o
+sales del campo, y guarda. Aceptan decimales (las columnas pasaron a `decimal(14,3)`). El aviso de stock
+bajo y el evento `stock.bajo` de las automatizaciones leen estos mismos valores. Un producto **sin mínimo
+configurado** no cuenta como «bajo»; y la columna **Precio Prom.** muestra el costo vigente
+(`Producto::costoVigente()`: el promedio de compra si lo hay, y si no el costo definido).
+
+
 ## Avisos de stock bajo
 
 Cada producto puede tener un **stock mínimo** y un **stock máximo**. Cuando las

@@ -272,6 +272,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/api/segmentacion-opciones',                    [SegmentacionOpcionController::class, 'index']);
         Route::post('/api/segmentacion-opciones',                   [SegmentacionOpcionController::class, 'store']);
         Route::put('/api/segmentacion-opciones/{opcion}',           [SegmentacionOpcionController::class, 'update']);
+        Route::post('/api/segmentacion-opciones/{opcion}/aplicar-margen', [SegmentacionOpcionController::class, 'aplicarMargen']);
         Route::delete('/api/segmentacion-opciones/{opcion}',        [SegmentacionOpcionController::class, 'destroy']);
         Route::post('/api/segmentacion-opciones/reordenar',         [SegmentacionOpcionController::class, 'reordenar']);
         Route::get('/administracion/segmentacion',                  fn () => inertia('Segmentacion/Index'))->name('segmentacion.index');
@@ -1223,7 +1224,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/buscar-productos', [OrdenCompraController::class, 'buscarProductos'])->name('ordenes-compra.buscar-productos');
         Route::post('/',              [OrdenCompraController::class, 'store']);
         Route::get('/{orden}',        [OrdenCompraController::class, 'show'])->name('ordenes-compra.show');
-        Route::put('/{orden}',        [OrdenCompraController::class, 'update']);
+        Route::get('/{orden}/editar', [OrdenCompraController::class, 'edit'])->middleware('permiso:ordenes.editar');
+        Route::put('/{orden}',        [OrdenCompraController::class, 'update'])->middleware('permiso:ordenes.editar');
         Route::post('/{orden}/enviar',[OrdenCompraController::class, 'enviar']);
         Route::post('/{orden}/recibir',[OrdenCompraController::class, 'recibir'])->middleware('permiso:ordenes.recibir');
         Route::get('/{orden}/pdf',    [OrdenCompraController::class, 'pdf']);
@@ -1256,6 +1258,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/apartados',                [InventarioController::class, 'apartados'])->name('inventario.apartados');
         Route::post('/',                        [InventarioController::class, 'store']);
         Route::put('/{item}',                   [InventarioController::class, 'update']);
+        // El mínimo y el máximo se cambian en la misma lista, sin abrir el formulario completo.
+        Route::patch('/{item}/limites',         [InventarioController::class, 'limites'])->middleware('permiso:inventario.editar');
         Route::post('/{item}/ajuste',           [InventarioController::class, 'ajuste'])->middleware('permiso:inventario.editar');
         Route::get('/{item}/movimientos',       [InventarioController::class, 'movimientos']);
     });

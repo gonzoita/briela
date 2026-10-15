@@ -20,7 +20,7 @@ const emit = defineEmits([
 ])
 
 const formatCOP = (v) =>
-    new Intl.NumberFormat('es-CO', { maximumFractionDigits: 0 }).format(Math.round(v ?? 0))
+    new Intl.NumberFormat('es-CO', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(v ?? 0)
 
 // El precio mínimo absoluto de la empresa ES el precio mayorista.
 // El margen mayorista ya garantiza la utilidad mínima de la empresa.

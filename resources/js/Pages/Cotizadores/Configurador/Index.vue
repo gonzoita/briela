@@ -221,7 +221,7 @@ async function ejecutarProbar() {
     finally { probarCargando.value = false }
 }
 
-const formatCOP = (v) => new Intl.NumberFormat('es-CO', { maximumFractionDigits: 0 }).format(v ?? 0)
+const formatCOP = (v) => new Intl.NumberFormat('es-CO', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(v ?? 0)
 
 // ── Variables disponibles (hint para fórmulas) ────────────────────────────────
 const variablesDisponibles = computed(() => {

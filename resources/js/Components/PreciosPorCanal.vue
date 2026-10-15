@@ -132,7 +132,7 @@ const {
                 <div class="grid grid-cols-2 gap-3 items-end">
                     <div>
                         <label class="block text-xs font-medium text-tinta-400 mb-1">Margen %</label>
-                        <input v-model.number="canal.margen_pct" type="number" min="1" max="99" step="0.01"
+                        <input v-model.number="canal.margen_pct" type="number" min="0" max="1000" step="0.01"
                             class="w-full border border-linea rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[var(--marca)]" />
                     </div>
                     <div>

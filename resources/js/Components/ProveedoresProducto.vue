@@ -127,7 +127,7 @@ function marcarPreferido(i) {
 }
 
 const formatCOP = (v) =>
-    new Intl.NumberFormat('es-CO', { maximumFractionDigits: 0 }).format(Number(v) || 0)
+    new Intl.NumberFormat('es-CO', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Number(v) || 0)
 </script>
 
 <template>

@@ -90,10 +90,12 @@ class CostosEnMonedaService
             $precio = (float) $fila->precio;
 
             $calculado = $precio <= 0
-                || abs($this->precios->precioDesdeCosto($costoAnterior, $margen) - $precio) < 0.01;
+                || abs($this->precios->precioDesdeCosto($costoAnterior, $margen, (bool) $fila->canal?->es_canal_base) - $precio) < 0.01;
 
-            if ($margen > 0 && $calculado) {
-                $precio = $this->precios->precioDesdeCosto($costoNuevo, $margen);
+            $esBase = (bool) $fila->canal?->es_canal_base;
+
+            if (($margen > 0 || $esBase) && $calculado) {
+                $precio = $this->precios->precioDesdeCosto($costoNuevo, $margen, $esBase);
             }
 
             return [

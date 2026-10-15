@@ -353,7 +353,10 @@ class ProductoController extends Controller
                 'transito'             => [
                     'cantidad' => round((float) collect($transito)->sum('cantidad'), 3),
                     'llega'    => collect($transito)->pluck('llega')->filter()->sort()->first(),
-                    'ordenes'  => collect($transito)->flatMap(fn ($t) => $t['ordenes'])->sortBy(fn ($o) => $o['fecha_esperada'] ?? '9999')->values()->all(),
+                    // Qué orden, de qué proveedor y para cuándo es información de compras.
+                    'ordenes'  => auth()->user()?->tienePermiso('ordenes.ver')
+                        ? collect($transito)->flatMap(fn ($t) => $t['ordenes'])->sortBy(fn ($o) => $o['fecha_esperada'] ?? '9999')->values()->all()
+                        : [],
                 ],
                 'tipo_label'           => $producto->tipoLabel(),
                 'tipo_color'           => $producto->tipoColor(),
@@ -1150,11 +1153,14 @@ class ProductoController extends Controller
         if (is_array($filas)) {
             $precios = app(PreciosPorCanalService::class);
 
+            $idBase = app(\App\Services\CanalesPrecioService::class)->base()?->id;
+
             foreach ($filas as $i => $fila) {
                 $margen = (float) ($fila['margen_pct'] ?? 0);
+                $esBase = $idBase !== null && (int) ($fila['segmentacion_opcion_id'] ?? 0) === (int) $idBase;
 
-                if ($margen > 0) {
-                    $filas[$i]['precio'] = $precios->precioDesdeCosto($pesos, $margen);
+                if ($margen > 0 || $esBase) {
+                    $filas[$i]['precio'] = $precios->precioDesdeCosto($pesos, $margen, $esBase);
                 }
             }
 
@@ -1285,9 +1291,9 @@ class ProductoController extends Controller
             'precio_costo'                => 'nullable|numeric|min:0',
             'moneda_costo'                => 'nullable|in:' . implode(',', array_keys(Monedas::CATALOGO)),
             'costo_moneda'                => 'nullable|numeric|min:0',
-            'margen_mayorista'            => 'nullable|numeric|min:1|max:99',
-            'margen_distribuidor'         => 'nullable|numeric|min:1|max:99',
-            'margen_cliente_final'        => 'nullable|numeric|min:1|max:99',
+            'margen_mayorista'            => 'nullable|numeric|min:0|max:99',
+            'margen_distribuidor'         => 'nullable|numeric|min:0|max:99',
+            'margen_cliente_final'        => 'nullable|numeric|min:0|max:99',
             'precio_mayorista'            => 'nullable|numeric|min:0',
             'precio_distribuidor'         => 'nullable|numeric|min:0',
             'precio_cliente_final'        => 'nullable|numeric|min:0',

@@ -33,7 +33,7 @@ const uid = () => `p${siguienteUid++}`
 const frecuenciaVacia = () => ({ tipo: 'diaria', hora: '07:00', dias: [1, 2, 3, 4, 5], dia_mes: 1, intervalo: 2, desde: '08:00', hasta: '18:00' })
 
 const vacio = () => ({
-    id: null, nombre: '', descripcion: '', max_por_hora: 60,
+    id: null, nombre: '', descripcion: '', max_por_hora: 60, disponible_agentes: false,
     disparador: { tipo: 'evento', evento: '', para_cada: '', no_repetir_dias: 0, frecuencia: frecuenciaVacia() },
     pasos: [],
 })
@@ -139,7 +139,7 @@ onMounted(async () => {
     const r = await get(`/api/automatizaciones/${props.id}`)
     if (! r.ok) { error.value = [mensajeDe(r)]; return }
 
-    const { form, lineal } = grafoAFormulario(r.data.grafo, { ...vacio(), id: r.data.id, nombre: r.data.nombre, descripcion: r.data.descripcion ?? '', max_por_hora: r.data.max_por_hora })
+    const { form, lineal } = grafoAFormulario(r.data.grafo, { ...vacio(), id: r.data.id, nombre: r.data.nombre, descripcion: r.data.descripcion ?? '', max_por_hora: r.data.max_por_hora, disponible_agentes: !! r.data.disponible_agentes })
     f.value = form
     soloLectura.value = ! lineal
 })
@@ -265,7 +265,7 @@ async function guardar(activar = false) {
     aviso.value = ''
     guardando.value = true
 
-    const cuerpo = { nombre: f.value.nombre, descripcion: f.value.descripcion || null, grafo: formularioAGrafo(), max_por_hora: Number(f.value.max_por_hora) || 60 }
+    const cuerpo = { nombre: f.value.nombre, descripcion: f.value.descripcion || null, grafo: formularioAGrafo(), max_por_hora: Number(f.value.max_por_hora) || 60, disponible_agentes: !! f.value.disponible_agentes }
     const r = f.value.id ? await put(`/api/automatizaciones/${f.value.id}`, cuerpo) : await post('/api/automatizaciones', cuerpo)
 
     if (! r.ok) { guardando.value = false; error.value = r.data?.errors?.grafo ?? [mensajeDe(r)]; return }
@@ -573,6 +573,20 @@ const colorPaso = { condicion: 'border-l-aviso-azul', espera: 'border-l-aviso-vi
                 <span>Máximo</span>
                 <input v-model.number="f.max_por_hora" type="number" min="1" max="1000" step="1" :disabled="soloLectura" class="w-20 border border-linea rounded-lg px-2 py-1 text-xs bg-superficie" />
                 <span>corridas por hora. Es un freno: si algo da vueltas, se detiene y te avisa.</span>
+            </section>
+
+            <!-- Para los agentes -->
+            <section v-if="catalogo.puede_ofrecer_a_agentes" class="rounded-lg border border-linea p-3 space-y-1">
+                <label class="flex items-start gap-2 text-xs text-tinta-700 cursor-pointer">
+                    <input v-model="f.disponible_agentes" type="checkbox" :disabled="soloLectura" class="mt-0.5 accent-blue-600" />
+                    <span>
+                        <b>Disponible para los agentes del Equipo de IA</b>
+                        <span class="block text-tinta-400">
+                            Un agente puede decidir cuándo ponerla en marcha y sobre qué documento; ella hace el trabajo sin gastar tokens.
+                            Corre con tus permisos y lo delicado sigue pidiendo aprobación. Solo cuenta si está encendida.
+                        </span>
+                    </span>
+                </label>
             </section>
 
             <!-- Probar -->

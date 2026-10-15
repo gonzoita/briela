@@ -22,7 +22,7 @@ const countRojo     = computed(() => props.cuotas.filter(c => c.semaforo === 'ro
 const countAmarillo = computed(() => props.cuotas.filter(c => c.semaforo === 'amarillo').length)
 
 function fmt(v) {
-  return Number(v || 0).toLocaleString('es-CO')
+  return Number(v || 0).toLocaleString('es-CO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 }
 
 function fmtFecha(d) {

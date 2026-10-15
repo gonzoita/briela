@@ -28,7 +28,8 @@ class RecalcularPrecios extends Command
 {
     protected $signature = 'precios:recalcular
                             {--simular : Muestra lo que cambiaría sin escribir nada}
-                            {--incluir-manuales : Reprecia también lo que alguien escribió a mano}';
+                            {--incluir-manuales : Reprecia también lo que alguien escribió a mano}
+                            {--canal= : Solo este canal (el id de su opción en Segmentación)}';
 
     protected $description = 'Recalcula los precios por canal de productos y ensambles desde su costo y su margen';
 
@@ -117,8 +118,12 @@ class RecalcularPrecios extends Command
         $cambio = false;
 
         foreach ($filas as $i => $fila) {
+            if ($this->option('canal') && (int) $fila['segmentacion_opcion_id'] !== (int) $this->option('canal')) {
+                continue;
+            }
+
             // Sin margen guardado el precio es una decisión de alguien, no una cuenta: se deja.
-            if ($fila['margen_pct'] <= 0) {
+            if ($fila['margen_pct'] <= 0 && ! $fila['es_canal_base']) {
                 continue;
             }
 
@@ -134,7 +139,7 @@ class RecalcularPrecios extends Command
                 continue;
             }
 
-            $nuevo = $precios->precioDesdeCosto($costo, $fila['margen_pct']);
+            $nuevo = $precios->precioDesdeCosto($costo, $fila['margen_pct'], (bool) $fila['es_canal_base']);
 
             if ($nuevo <= 0 || abs($nuevo - $fila['precio']) < 0.01) {
                 continue;
@@ -202,6 +207,11 @@ class RecalcularPrecios extends Command
             return false;
         }
 
+        // El canal base con margen 0 % vale lo que cuesta, sin redondear.
+        if ($margen <= 0 && ! empty($fila['es_canal_base'])) {
+            return abs($guardado - round($costo, 2)) >= 0.01;
+        }
+
         $recargo = ceil(round($costo * (1 + $margen / 100), 2) / 1000) * 1000;
         $sobreVenta = $margen < 100
             ? ceil(round($costo / (1 - $margen / 100), 2) / 1000) * 1000
@@ -212,6 +222,6 @@ class RecalcularPrecios extends Command
 
     private function pesos(float $v): string
     {
-        return '$' . number_format($v, 0, ',', '.');
+        return '$' . number_format($v, 2, ',', '.');
     }
 }

@@ -104,6 +104,21 @@ clic en la tarjeta equivocada es una venta por debajo.
 explica qué hacer. Cuál canal le corresponde a cada cliente se decide en
 [Segmentación](./segmentacion-y-precios.md).
 
+## Duplicar o editar reprecia según el segmento *(16 oct 2026)*
+
+El precio de lista de un producto depende del canal del cliente. Si **duplicas** una cotización para otro
+cliente, o **cambias el cliente** de una existente a uno de otro segmento, las líneas se vuelven a preciar
+con el canal del nuevo cliente (el suyo, y si no tiene, el de precio público) y la pantalla avisa cuántos
+precios cambiaron. Lo hace `RepreciarCotizacionService`, con la misma cuenta de `PreciosPorCanalService` y
+`Cotizaciones/Create.vue`.
+
+- Se reprecian las líneas de **producto** y de **ensamble directo** (receta escrita a mano): su precio es una
+  fila guardada. Un ensamble medido se cotizó con sus medidas y una receta congelada; no se toca.
+- Lo negociado no se pierde: el descuento y la comisión se conservan y solo se **recortan** si quedan fuera del
+  rango del canal nuevo. El canal base no paga comisión ni admite descuento.
+- Al duplicar, la copia no arrastra las líneas de la original (`replicate()` copia las relaciones ya cargadas:
+  se descartan antes de recargar).
+
 ## La comisión de un ensamble se calcula igual que la de un producto
 
 La comisión se paga sobre el **excedente por encima del precio del canal base**, y ese

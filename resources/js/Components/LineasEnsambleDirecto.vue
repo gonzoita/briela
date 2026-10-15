@@ -104,7 +104,7 @@ const subtotalDe = (l) => (Number(l.cantidad) || 0) * (Number(l.precio_unit) || 
 const total = computed(() => props.lineas.reduce((s, l) => s + subtotalDe(l), 0))
 
 const formatCOP = (v) =>
-    new Intl.NumberFormat('es-CO', { maximumFractionDigits: 0 }).format(Math.round(v ?? 0))
+    new Intl.NumberFormat('es-CO', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(v ?? 0)
 
 defineExpose({ total })
 </script>

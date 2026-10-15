@@ -87,6 +87,10 @@ class FiscalConfigController extends Controller
         $pais = $datos['empresa']['pais'];
         $tipo = $datos['empresa']['tipo_identificacion'] ?? '';
 
+        if (! Sede::principal() && $pais !== Paises::casa()) {
+            return back()->withErrors(['empresa.pais' => 'Crea primero la sede principal: el país de la empresa es el de esa sede.']);
+        }
+
         if ($tipo !== '' && Paises::identificacion($pais, $tipo) === null) {
             return back()->withErrors(['empresa.tipo_identificacion' => 'Ese tipo de identificación no es de ' . Paises::nombre($pais) . '.']);
         }

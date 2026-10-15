@@ -110,9 +110,9 @@
                 </td>
                 <td class="right">{{ number_format($item->cantidad, 2) }}</td>
                 <td>{{ $item->unidad }}</td>
-                <td class="right">$ {{ number_format($item->precio_unitario, 0, ',', '.') }}</td>
+                <td class="right">{{ $item->precio_moneda !== null && $orden->esEnOtraMoneda() ? \App\Support\Monedas::formatear((float) $item->precio_moneda, $orden->moneda, 1) : $orden->enSuMoneda($item->precio_unitario) }}</td>
                 <td class="right">{{ number_format($item->impuesto_pct, 0) }}%</td>
-                <td class="right" style="font-weight:600;">$ {{ number_format($item->total_linea, 0, ',', '.') }}</td>
+                <td class="right" style="font-weight:600;">{{ $orden->enSuMoneda($item->total_linea) }}</td>
             </tr>
             @endforeach
         </tbody>
@@ -122,15 +122,15 @@
 <div class="totales">
     <div class="total-row">
         <span>Subtotal</span>
-        <span>$ {{ number_format($orden->subtotal, 0, ',', '.') }}</span>
+        <span>{{ $orden->enSuMoneda($orden->subtotal) }}</span>
     </div>
     <div class="total-row">
         <span>Impuesto</span>
-        <span>$ {{ number_format($orden->impuesto, 0, ',', '.') }}</span>
+        <span>{{ $orden->enSuMoneda($orden->impuesto) }}</span>
     </div>
     <div class="total-row final">
         <span>TOTAL</span>
-        <span>$ {{ number_format($orden->total, 0, ',', '.') }}</span>
+        <span>{{ $orden->enSuMoneda($orden->total) }}</span>
     </div>
 </div>
 

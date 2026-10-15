@@ -152,15 +152,15 @@ body {
     <div class="precios-grid">
       <div class="precio-card">
         <div class="precio-canal">Mayorista</div>
-        <div class="precio-valor">${{ number_format($ensamble->precio_mayorista, 0, ',', '.') }}</div>
+        <div class="precio-valor">${{ number_format($ensamble->precio_mayorista, 2, ',', '.') }}</div>
       </div>
       <div class="precio-card">
         <div class="precio-canal">Distribuidor</div>
-        <div class="precio-valor">${{ number_format($ensamble->precio_distribuidor, 0, ',', '.') }}</div>
+        <div class="precio-valor">${{ number_format($ensamble->precio_distribuidor, 2, ',', '.') }}</div>
       </div>
       <div class="precio-card highlight">
         <div class="precio-canal">Cliente final</div>
-        <div class="precio-valor">${{ number_format($ensamble->precio_cliente_final, 0, ',', '.') }}</div>
+        <div class="precio-valor">${{ number_format($ensamble->precio_cliente_final, 2, ',', '.') }}</div>
       </div>
     </div>
     <div class="precio-nota">* Precios base en {{ \App\Support\Monedas::base() }} · El precio final depende de la configuración · IVA no incluido · Sujetos a cambio sin aviso previo</div>

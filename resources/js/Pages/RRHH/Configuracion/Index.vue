@@ -155,7 +155,7 @@ function saveConfig() {
                                 <p class="text-sm font-medium text-tinta-900 capitalize">{{ tarifa.tipo }}</p>
                             </div>
                             <span class="text-sm font-semibold text-tinta-700">
-                                ${{ Number(tarifa.valor_hora).toLocaleString('es-CO') }}/h
+                                ${{ Number(tarifa.valor_hora).toLocaleString('es-CO', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}/h
                             </span>
                             <span class="text-xs px-2 py-0.5 rounded-full"
                                 :class="tarifa.activo ? 'bg-pastel-verde-2 text-aviso-verde' : 'bg-tinta-100 text-tinta-400'">

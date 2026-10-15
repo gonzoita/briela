@@ -16,7 +16,7 @@ const errors = computed(() => page.props.errors ?? {})
 const cot = props.cotizacion
 
 const formatCOP   = (v) =>
-    new Intl.NumberFormat('es-CO', { maximumFractionDigits: 0 }).format(v ?? 0)
+    new Intl.NumberFormat('es-CO', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(v ?? 0)
 
 // Los valores se guardan en pesos; al cliente se le muestran en la moneda de su cotización.
 const enOtraMoneda = cot.moneda && cot.moneda !== monedaBase() && Number(cot.tasa_cambio) > 0

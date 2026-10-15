@@ -86,7 +86,9 @@ function alternarHerramienta(clave) {
     i >= 0 ? l.splice(i, 1) : l.push(clave)
 }
 
-const esPropuesta = (clave) => props.herramientas.find(h => h.clave === clave)?.tipo === 'propuesta'
+// Las que proponen y las que lanzan una automatización exigen el modo «propone»: un agente de solo lectura no escribe nada.
+const tipoDe = (clave) => props.herramientas.find(h => h.clave === clave)?.tipo
+const esPropuesta = (clave) => ['propuesta', 'automatizacion'].includes(tipoDe(clave))
 
 const AVATARES = ['🤖', '📊', '🏭', '🤝', '🧾', '📦', '🛒', '📣', '🔎', '🧠', '⚙️', '📞']
 const DIAS = [[1, 'L'], [2, 'M'], [3, 'X'], [4, 'J'], [5, 'V'], [6, 'S'], [7, 'D']]
@@ -461,14 +463,14 @@ const input = 'w-full border border-linea rounded-xl px-3 py-2 text-sm focus:out
                             <input type="checkbox" :checked="f.herramientas.includes(h.clave)" @change="alternarHerramienta(h.clave)" class="accent-blue-600 mt-0.5" />
                             <span class="text-xs text-tinta-600">
                                 <code class="text-tinta-800">{{ h.clave }}</code>
-                                <span v-if="esPropuesta(h.clave)" class="ml-1 text-[10px] px-1.5 py-0.5 rounded-full bg-pastel-naranja-2 text-aviso-naranja font-semibold">propone</span>
+                                <span v-if="esPropuesta(h.clave)" class="ml-1 text-[10px] px-1.5 py-0.5 rounded-full bg-pastel-naranja-2 text-aviso-naranja font-semibold">{{ tipoDe(h.clave) === 'automatizacion' ? 'lanza' : 'propone' }}</span>
                                 — {{ h.descripcion }}
                             </span>
                         </label>
                     </div>
                 </div>
                 <p v-if="f.modo === 'solo_lectura' && f.herramientas.some(esPropuesta)" class="text-[11px] text-aviso-ambar">
-                    En modo «solo lectura» las herramientas que proponen no se le ofrecen al agente.
+                    En modo «solo lectura» las herramientas que proponen o lanzan automatizaciones no se le ofrecen al agente.
                 </p>
             </section>
 
@@ -500,6 +502,12 @@ const input = 'w-full border border-linea rounded-xl px-3 py-2 text-sm focus:out
                 </div>
                 <p v-if="frecuenciaProgramada" class="text-[11px] text-tinta-400">
                     Arranca dentro de las 3 horas siguientes a esa hora, cuando el cron del servidor lo tome. Una vez por día como máximo.
+                </p>
+                <p class="text-[11px] text-tinta-400">
+                    ¿Gastar menos tokens? Déjalo en «Solo cuando yo lo pida» y crea una
+                    <a href="/automatizaciones" class="underline text-aviso-azul">automatización</a>
+                    que lo despierte únicamente cuando haya algo que revisar (paso «Poner a trabajar a un agente»), o ponle la herramienta
+                    <code>ejecutar_automatizacion</code> para que, en vez de repetir a mano lo mecánico, lance las automatizaciones que marques como «disponibles para agentes».
                 </p>
             </section>
 

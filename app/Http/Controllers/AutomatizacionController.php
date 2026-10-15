@@ -92,6 +92,7 @@ class AutomatizacionController extends Controller
             // Un agente solo se ofrece si el módulo está encendido y esta persona puede ponerlo a trabajar.
             'agentes'    => Modulos::activo('equipo_ia') && $u->tienePermiso('equipo_ia.ejecutar')
                 ? AgenteInterno::where('activo', true)->orderBy('nombre')->get(['id', 'nombre']) : [],
+            'puede_ofrecer_a_agentes' => $this->puedeOfrecerAAgentes(),
             'plantillas' => $plantillas,
         ]);
     }
@@ -168,6 +169,11 @@ class AutomatizacionController extends Controller
 
             $automatizacion->creado_por = auth()->id();
             $automatizacion->fallas_seguidas = 0;
+
+            // Pasa a ser de quien la enciende: sin permiso sobre el Equipo de IA no hereda el visto bueno.
+            if (! $this->puedeOfrecerAAgentes()) {
+                $automatizacion->disponible_agentes = false;
+            }
         } else {
             LanzadorAutomatizaciones::cancelarEnCurso($automatizacion->ejecuciones(), 'Se pausó la automatización.');
         }
@@ -337,12 +343,25 @@ class AutomatizacionController extends Controller
 
     private function validar(Request $request): array
     {
-        return $request->validate([
+        $d = $request->validate([
             'nombre'       => ['required', 'string', 'max:150'],
             'descripcion'  => ['nullable', 'string', 'max:400'],
             'grafo'        => ['required', 'array'],
             'max_por_hora' => ['nullable', 'integer', 'min:1', 'max:1000'],
-        ]) + ['max_por_hora' => 60];
+            'disponible_agentes' => ['nullable', 'boolean'],
+        ]) + ['max_por_hora' => 60, 'disponible_agentes' => false];
+
+        // Ofrecerla a los agentes es darles un poder: solo lo decide quien gestiona el Equipo de IA.
+        // Quien no puede, al guardar la deja sin ofrecer: editarla cambia lo que hace (y de quién es),
+        // así que no hereda sin más el visto bueno que le dio otra persona.
+        $d['disponible_agentes'] = $this->puedeOfrecerAAgentes() && (bool) ($d['disponible_agentes'] ?? false);
+
+        return $d;
+    }
+
+    private function puedeOfrecerAAgentes(): bool
+    {
+        return Modulos::activo('equipo_ia') && auth()->user()->tienePermiso('equipo_ia.gestionar');
     }
 
     /** @return array{disparador_tipo: string, disparador_clave: ?string} */
@@ -393,6 +412,7 @@ class AutomatizacionController extends Controller
 
         return [
             'id' => $a->id, 'nombre' => $a->nombre, 'descripcion' => $a->descripcion, 'activa' => $a->activa,
+            'disponible_agentes' => (bool) $a->disponible_agentes,
             'disparador' => $this->describirDisparador($a->grafo), 'disparador_tipo' => $d['tipo'],
             'pasos' => max(0, count($a->grafo['nodos'] ?? []) - 1),
             'acciones' => collect($a->grafo['nodos'] ?? [])->where('tipo', 'accion')

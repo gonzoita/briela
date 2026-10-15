@@ -28,9 +28,10 @@ class CatalogoPdfService
                 'variantes' => fn ($q) => $q->where('activo', true)->orderBy('valor_variante')->orderBy('id'),
             ])
             ->where('activo', true)
-            ->where('es_vendible', true)
             ->whereNull('producto_padre_id')
-            ->when($soloPublicados, fn ($q) => $q->where('publicado_web', true))
+            // Lo publicado en la web sale en el PDF de la web, aunque sea un padre sin la marca de
+            // vendible (la publicación solo se lo exige a quien no es padre); el catálogo interno, solo lo vendible.
+            ->when($soloPublicados, fn ($q) => $q->where('publicado_web', true), fn ($q) => $q->where('es_vendible', true))
             ->orderBy('nombre')->orderBy('id')
             ->get();
     }

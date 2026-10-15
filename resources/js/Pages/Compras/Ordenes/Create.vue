@@ -3,23 +3,60 @@ import { ref, watch, computed, onUnmounted } from 'vue'
 import { router } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
 import CalificacionProveedor from '@/Components/CalificacionProveedor.vue'
+import { formatMoneda } from '@/formato'
 
 const props = defineProps({
     proveedores: Array,
+    // La orden que se edita; sin ella, es una nueva.
+    orden:       { type: Object, default: null },
+    base:        { type: String, default: 'COP' },
+    // Las monedas distintas de la base, y las tasas vigentes de cada una.
+    monedas:     { type: Array,  default: () => [] },
+    tasas:       { type: Object, default: () => ({}) },
 })
+
+const editando = !!props.orden
 
 const guardando  = ref(false)
 const errores    = ref({})
 const buscarItem = ref('')
 
 const form = ref({
-    proveedor_id:            '',
+    proveedor_id:            props.orden?.proveedor_id ?? '',
     solicitud_id:            '',
-    fecha_entrega_esperada:  '',
-    condiciones:             '',
-    notas:                   '',
-    items:                   [],
+    moneda:                  props.orden?.moneda ?? props.base,
+    tasa_cambio:             props.orden?.tasa_cambio ?? '',
+    tasa_fecha:              props.orden?.tasa_fecha ?? null,
+    fecha_entrega_esperada:  props.orden?.fecha_entrega_esperada ?? '',
+    condiciones:             props.orden?.condiciones ?? '',
+    notas:                   props.orden?.notas ?? '',
+    // Al editar, las líneas llegan con lo que tecleó quien las hizo: se respeta (`_*_editado`),
+    // y los precios sugeridos del proveedor no los pisan.
+    items:                   (props.orden?.items ?? []).map(i => ({
+        ...i, _codigo_editado: true, _precio_editado: true, _iva_editado: true,
+        _proveedores: {}, _equivalencias: [],
+    })),
 })
+
+// Con recepciones, el proveedor y la moneda ya no cambian: lo recibido es de ese proveedor y a esa tasa.
+const bloqueada = !!props.orden?.bloqueada
+const enBase    = computed(() => form.value.moneda === props.base)
+
+// Al cambiar de moneda se pone la tasa del día. No corre al abrir: una orden que se edita
+// conserva la tasa con la que se hizo.
+watch(() => form.value.moneda, (m) => {
+    form.value.tasa_cambio = m === props.base ? '' : (props.tasas[m]?.valor ?? '')
+    form.value.tasa_fecha  = m === props.base ? null : (props.tasas[m]?.fecha ?? null)
+    form.value.items.forEach(aplicarProveedor)
+})
+// Los precios sugeridos —del proveedor, el promedio— están en la moneda base; en la línea se
+// escribe en la moneda de la orden.
+const aMonedaOrden = (valorBase) => {
+    const t = Number(form.value.tasa_cambio) || 0
+    const v = Number(valorBase) || 0
+
+    return enBase.value || t <= 0 ? v : Math.round((v / t) * 10000) / 10000
+}
 
 // El buscador pregunta al servidor: encuentra cualquier producto que se pueda comprar —no solo
 // los marcados como insumo— por su nombre, su referencia interna o el código de cualquiera de sus
@@ -67,7 +104,7 @@ function aplicarProveedor(item) {
     }
     if (!item._precio_editado) {
         const precio = Number(datos?.precio) || 0
-        item.precio_unitario = precio > 0 ? precio : (Number(item._precio_promedio) || 0)
+        item.precio_unitario = aMonedaOrden(precio > 0 ? precio : (Number(item._precio_promedio) || 0))
     }
     // Un proveedor que según su RUT no es responsable de IVA no lo factura: la línea arranca
     // en 0. Para uno responsable no se pone tarifa —depende del bien—: la pone quien compra.
@@ -85,7 +122,7 @@ function agregarItemDesdeInventario(item) {
         descripcion:          item.nombre,
         cantidad:             1,
         unidad:               item.unidad,
-        precio_unitario:      Number(item.precio_promedio) || 0,
+        precio_unitario:      aMonedaOrden(item.precio_promedio),
         impuesto_pct:         0,
         _nombre_item:         item.nombre,
         _codigo_item:         item.codigo,
@@ -120,7 +157,7 @@ function pista(item) {
     }
     const partes = []
     if (d.referencia) partes.push(`su código: ${d.referencia}`)
-    if (Number(d.precio) > 0) partes.push(`último precio: ${fmtMoney(d.precio)}`)
+    if (Number(d.precio) > 0) partes.push(`último precio: ${formatMoneda(d.precio, form.value.moneda, form.value.tasa_cambio)}`)
     if (d.dias_actualizado != null) partes.push(`hace ${d.dias_actualizado} días`)
     if (d.dias_entrega != null) partes.push(`entrega en ${d.dias_entrega} días`)
     if (d.minimo_compra) partes.push(`mínimo ${d.minimo_compra}`)
@@ -153,28 +190,30 @@ function guardar() {
     guardando.value = true
     errores.value = {}
 
-    router.post('/compras/ordenes', form.value, {
+    const opciones = {
         onError:  (e) => { errores.value = e; guardando.value = false },
         onFinish: ()  => { guardando.value = false },
-    })
+    }
+
+    if (editando) router.put(`/compras/ordenes/${props.orden.id}`, form.value, opciones)
+    else router.post('/compras/ordenes', form.value, opciones)
 }
 
-function fmtMoney(n) {
-    return '$ ' + Number(n).toLocaleString('es-CO', { minimumFractionDigits: 0, maximumFractionDigits: 0 })
-}
+// Los montos de las líneas ya están en la moneda de la orden: tasa 1 para no convertirlos otra vez.
+const fmtMoney = (n) => formatMoneda(n, form.value.moneda, 1)
 </script>
 
 <template>
-    <AppLayout title="Nueva Orden de Compra">
+    <AppLayout :title="editando ? `Editar ${orden.numero}` : 'Nueva Orden de Compra'">
         <div class="max-w-3xl mx-auto px-4 py-4">
 
             <div class="flex items-center gap-3 mb-4">
-                <a href="/compras/ordenes" class="text-tinta-300 hover:text-tinta-500">
+                <a :href="editando ? `/compras/ordenes/${orden.id}` : '/compras/ordenes'" class="text-tinta-300 hover:text-tinta-500">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M15 19l-7-7 7-7"/>
                     </svg>
                 </a>
-                <h1 class="text-xl font-semibold text-tinta-900">Nueva Orden de Compra</h1>
+                <h1 class="text-xl font-semibold text-tinta-900">{{ editando ? `Editar orden ${orden.numero}` : 'Nueva Orden de Compra' }}</h1>
             </div>
 
             <!-- Info general -->
@@ -182,11 +221,12 @@ function fmtMoney(n) {
                 <h2 class="font-semibold text-tinta-900">Información general</h2>
                 <div>
                     <label class="block text-sm font-medium text-tinta-700 mb-1">Proveedor *</label>
-                    <select v-model="form.proveedor_id" class="w-full rounded-lg border border-tinta-200 px-3 py-2 text-sm focus:ring-4 focus:ring-[var(--marca-suave)] focus:outline-none">
+                    <select v-model="form.proveedor_id" :disabled="bloqueada" class="w-full rounded-lg border border-tinta-200 px-3 py-2 text-sm focus:ring-4 focus:ring-[var(--marca-suave)] focus:outline-none">
                         <option value="">Seleccionar proveedor...</option>
                         <option v-for="p in proveedores" :key="p.id" :value="p.id">{{ p.nombre }}</option>
                     </select>
                     <p v-if="errores.proveedor_id" class="text-aviso-rojo text-xs mt-1">{{ errores.proveedor_id }}</p>
+                    <p v-if="bloqueada" class="text-xs text-tinta-400 mt-1">Ya tiene mercancía recibida: el proveedor y la moneda no se cambian.</p>
                     <!-- Cómo le ha ido con este proveedor: puntualidad, cumplimiento, papeles y precio. -->
                     <CalificacionProveedor v-if="proveedorElegido" :calificacion="proveedorElegido.calificacion" class="mt-2" />
                     <p v-if="proveedorElegido?.responsable_iva === false" class="text-xs text-tinta-500 mt-1">
@@ -199,6 +239,28 @@ function fmtMoney(n) {
                         No tiene cargado su documento fiscal, así que no se sabe si factura IVA. Puedes cargarlo en Proveedores.
                     </p>
                 </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-sm font-medium text-tinta-700 mb-1">Moneda de la orden</label>
+                        <select v-model="form.moneda" :disabled="bloqueada"
+                            class="w-full rounded-lg border border-tinta-200 px-3 py-2 text-sm">
+                            <option :value="base">{{ base }} — moneda base</option>
+                            <option v-for="m in monedas" :key="m.codigo" :value="m.codigo">{{ m.codigo }} — {{ m.nombre }}</option>
+                        </select>
+                    </div>
+                    <div v-if="!enBase">
+                        <label class="block text-sm font-medium text-tinta-700 mb-1">Tasa ({{ base }} por 1 {{ form.moneda }})</label>
+                        <input v-model="form.tasa_cambio" type="number" step="any" min="0.00000001" :disabled="bloqueada"
+                            class="w-full rounded-lg border border-tinta-200 px-3 py-2 text-sm" />
+                        <p v-if="!tasas[form.moneda] && !form.tasa_cambio" class="text-xs text-aviso-ambar mt-1">
+                            No hay tasa de {{ form.moneda }} guardada: escríbela aquí, o regístrala en Configuración → Monedas.
+                        </p>
+                        <p v-if="errores.tasa_cambio" class="text-aviso-rojo text-xs mt-1">{{ errores.tasa_cambio }}</p>
+                    </div>
+                </div>
+                <p v-if="!enBase" class="text-xs text-tinta-400">
+                    Los precios de las líneas se escriben en {{ form.moneda }}; por dentro la orden se guarda en {{ base }} a esa tasa, así el inventario, el costo y los informes siguen sumando una sola moneda.
+                </p>
                 <div class="grid grid-cols-2 gap-3">
                     <div>
                         <label class="block text-sm font-medium text-tinta-700 mb-1">Fecha entrega esperada</label>
@@ -231,7 +293,7 @@ function fmtMoney(n) {
                             @click="agregarItemDesdeInventario(item)"
                             class="w-full text-left px-3 py-2 hover:bg-realce text-sm border-b border-separador last:border-0">
                             <span class="font-medium">{{ item.nombre }}</span>
-                            <span class="text-tinta-300 ml-2 text-xs">Ref. {{ item.codigo }} · {{ item.unidad }} · $ {{ Number(item.precio_promedio).toLocaleString('es-CO') }}</span>
+                            <span class="text-tinta-300 ml-2 text-xs">Ref. {{ item.codigo }} · {{ item.unidad }} · {{ formatMoneda(item.precio_promedio, form.moneda, form.tasa_cambio) }}</span>
                             <span v-if="item.coincidencia" class="block text-xs text-aviso-azul">Lo encontró el código de {{ item.coincidencia }}</span>
                             <span v-if="item.equivalencias?.length" class="block text-xs text-tinta-300">
                                 {{ item.equivalencias.length }} {{ item.equivalencias.length === 1 ? 'proveedor' : 'proveedores' }}
@@ -252,7 +314,7 @@ function fmtMoney(n) {
                                 <template v-if="item.item_id">Ref. interna: {{ item._codigo_item }}</template>
                                 <template v-else>Manual · sin producto del inventario</template>
                             </span>
-                            <button @click="quitarItem(idx)" class="text-red-400 hover:text-aviso-rojo">
+                            <button v-if="!(Number(item.cantidad_recibida) > 0)" @click="quitarItem(idx)" title="Quitar" class="text-red-400 hover:text-aviso-rojo">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M6 18L18 6M6 6l12 12"/>
                                 </svg>
@@ -281,7 +343,7 @@ function fmtMoney(n) {
                                             <span v-if="e.puntaje !== null" class="text-tinta-300">· nota {{ e.puntaje }}</span>
                                         </span>
                                         <span class="text-tinta-500">
-                                            <template v-if="e.precio > 0">{{ fmtMoney(e.precio) }}<span v-if="!e.precio_vigente" class="text-aviso-ambar"> (precio viejo)</span></template>
+                                            <template v-if="e.precio > 0">{{ formatMoneda(e.precio, form.moneda, form.tasa_cambio) }}<span v-if="!e.precio_vigente" class="text-aviso-ambar"> (precio viejo)</span></template>
                                             <template v-else>sin precio</template>
                                             <span v-if="e.mas_barato" class="ml-1 font-semibold text-aviso-verde">más barato</span>
                                         </span>
@@ -304,7 +366,7 @@ function fmtMoney(n) {
                                         class="w-full rounded border border-tinta-200 px-2 py-1.5 text-sm" />
                                 </div>
                                 <div>
-                                    <label class="block text-xs text-tinta-500 mb-0.5">Precio Unit. *</label>
+                                    <label class="block text-xs text-tinta-500 mb-0.5">Precio Unit. ({{ form.moneda }}) *</label>
                                     <input v-model="item.precio_unitario" type="number" min="0" step="0.01"
                                         @input="item._precio_editado = true"
                                         class="w-full rounded border border-tinta-200 px-2 py-1.5 text-sm" />
@@ -316,6 +378,9 @@ function fmtMoney(n) {
                                         class="w-full rounded border border-tinta-200 px-2 py-1.5 text-sm" />
                                 </div>
                             </div>
+                            <p v-if="Number(item.cantidad_recibida) > 0" class="text-xs text-aviso-ambar">
+                                Ya se recibieron {{ item.cantidad_recibida }}: la cantidad no puede ser menor y la línea no se puede quitar.
+                            </p>
                             <p class="text-xs text-right text-tinta-400">
                                 Total: {{ fmtMoney(Number(item.cantidad) * Number(item.precio_unitario) * (1 + Number(item.impuesto_pct)/100)) }}
                             </p>
@@ -349,7 +414,7 @@ function fmtMoney(n) {
             <button @click="guardar" :disabled="guardando || !form.proveedor_id"
                 class="w-full py-3 rounded-xl text-sm font-semibold text-white disabled:opacity-50"
                 style="background:var(--marca)">
-                {{ guardando ? 'Creando...' : 'Crear Orden de Compra' }}
+                {{ guardando ? 'Guardando...' : (editando ? 'Guardar cambios' : 'Crear Orden de Compra') }}
             </button>
         </div>
     </AppLayout>

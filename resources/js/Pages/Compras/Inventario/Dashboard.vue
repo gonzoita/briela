@@ -1,9 +1,15 @@
 <script setup>
+import { computed } from 'vue'
 import AppLayout from '@/Layouts/AppLayout.vue'
+import LimiteStock from '@/Components/LimiteStock.vue'
+import { usePage } from '@inertiajs/vue3'
 
 const props = defineProps({
     totalItems:         Number,
     itemsBajoStock:     Array,
+    // Materiales con existencias y sin mínimo: se les pone desde aquí mismo.
+    sinMinimo:          { type: Array, default: () => [] },
+    totalSinMinimo:     { type: Number, default: 0 },
     valorTotal:         Number,
     ultimosMovimientos: Array,
     movimientosPorDia:  Array,
@@ -13,12 +19,14 @@ const props = defineProps({
 
 const fechaCorta = (f) => f ? new Date(String(f).slice(0, 10) + 'T12:00:00').toLocaleDateString('es-CO', { day: 'numeric', month: 'short' }) : ''
 
+const puedeEditar = computed(() => (usePage().props.auth?.permisosLista ?? []).includes('inventario.editar'))
+
 function fmt(n) {
     return Number(n).toLocaleString('es-CO', { minimumFractionDigits: 0, maximumFractionDigits: 3 })
 }
 
 function fmtMoney(n) {
-    return '$ ' + Number(n).toLocaleString('es-CO', { minimumFractionDigits: 0, maximumFractionDigits: 0 })
+    return '$ ' + Number(n).toLocaleString('es-CO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 }
 
 function tipoColor(tipo) {
@@ -86,6 +94,30 @@ function tipoSimbolo(tipo) {
                 </div>
             </div>
 
+            <!-- Sin mínimo: ponerlo aquí mismo -->
+            <div v-if="totalSinMinimo > 0" class="bg-superficie rounded-xl border border-linea p-4 mb-6">
+                <h2 class="font-semibold text-tinta-900">Sin mínimo definido <span class="text-sm font-normal text-tinta-400">({{ totalSinMinimo }})</span></h2>
+                <p class="text-xs text-tinta-400 mt-0.5 mb-3">
+                    Toca el mínimo o el máximo, escribe y Enter. Con el mínimo puesto, el material entra al semáforo, al aviso de stock bajo y a las
+                    <a href="/automatizaciones" class="text-aviso-azul underline">automatizaciones</a> de stock bajo.
+                </p>
+                <div class="divide-y divide-separador">
+                    <div v-for="item in sinMinimo" :key="item.id" class="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 py-2">
+                        <div class="min-w-0 flex-1 basis-48">
+                            <p class="text-sm font-medium text-tinta-900 truncate">{{ item.nombre }}</p>
+                            <p class="text-xs text-tinta-400">{{ item.referencia }} · hay {{ fmt(item.stock_total) }} {{ item.unidad_medida }}</p>
+                        </div>
+                        <div class="flex items-center gap-4 text-xs text-tinta-400">
+                            <span>Mín. <LimiteStock :item="item" campo="stock_minimo" :puede="puedeEditar" /></span>
+                            <span>Máx. <LimiteStock :item="item" campo="stock_maximo" :puede="puedeEditar" /></span>
+                        </div>
+                    </div>
+                </div>
+                <a v-if="totalSinMinimo > sinMinimo.length" href="/inventario" class="mt-3 inline-block text-sm text-aviso-azul font-medium">
+                    Ver todos en la lista →
+                </a>
+            </div>
+
             <!-- Items bajo stock -->
             <div v-if="itemsBajoStock.length" class="bg-superficie rounded-xl border border-borde-aviso-rojo p-4 mb-6">
                 <h2 class="font-semibold text-aviso-rojo mb-3 flex items-center gap-2">
@@ -100,7 +132,7 @@ function tipoSimbolo(tipo) {
                         </div>
                         <div class="text-right">
                             <p class="text-sm font-semibold text-aviso-rojo">{{ fmt(item.stock_total) }} {{ item.unidad_medida }}</p>
-                            <p class="text-xs text-tinta-300">mín. {{ fmt(item.stock_minimo) }}</p>
+                            <p class="text-xs text-tinta-300">mín. <LimiteStock :item="item" campo="stock_minimo" :puede="puedeEditar" /> · máx. <LimiteStock :item="item" campo="stock_maximo" :puede="puedeEditar" /></p>
                         </div>
                     </div>
                 </div>

@@ -335,7 +335,7 @@ async function eliminarCategoria(cat) {
 
 // ── Formato ────────────────────────────────────────────────────────────────────
 const formatCOP = (v) =>
-    new Intl.NumberFormat('es-CO', { style: 'currency', currency: monedaBase(), minimumFractionDigits: 0 }).format(v ?? 0)
+    new Intl.NumberFormat('es-CO', { style: 'currency', currency: monedaBase(), minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(v ?? 0)
 
 const badgeStyle = (color) => {
     const map = {

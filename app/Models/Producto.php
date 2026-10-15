@@ -349,6 +349,18 @@ class Producto extends Model
         return $resultado;
     }
 
+    /**
+     * Lo que vale una unidad en bodega: el promedio de lo pagado en compras si ya hay compras, y
+     * si no, el costo definido en el producto. Con solo el promedio, un inventario cargado con
+     * existencias y costo —sin compras— valía cero.
+     */
+    public function costoVigente(): float
+    {
+        $promedio = (float) $this->precio_promedio_compra;
+
+        return $promedio > 0 ? $promedio : (float) $this->precio_costo;
+    }
+
     public function scopeSeleccionables($query)
     {
         return $query->where(function ($q) {

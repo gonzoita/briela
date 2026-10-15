@@ -304,7 +304,7 @@ class CotizacionController extends Controller
         $ensambles = $ensambles->isEmpty()
             ? collect()
             : \App\Models\Ensamble::with('preciosPorCanal')->whereIn('id', $ensambles)
-                ->get(['id', 'nombre'])->keyBy('id');
+                ->get(['id', 'nombre', 'tipo_armado'])->keyBy('id');
 
         // Mismo criterio que el buscador y el inventario: solo las bodegas de esta sede.
         $bodegas = \App\Support\ContextoSede::idsBodegasVisibles();
@@ -339,6 +339,9 @@ class CotizacionController extends Controller
             $item['stock_disponible'] = $producto ? $producto->stockEnBodegas($bodegas) : null;
             $item['stock_apartado']   = $producto ? (float) ($apartado[$producto->id] ?? 0) : 0;
             $item['stock_transito']   = $producto ? (float) ($transito[$producto->id]['cantidad'] ?? 0) : 0;
+            // El precio de la línea sale de una fila por canal (producto o ensamble directo): al cambiar
+            // el cliente o abrirla, se lleva al canal que le corresponde (`RepreciarCotizacionService`).
+            $item['repreciable']      = (bool) $producto || (bool) ($item['ensamble_id'] && $ensambles->get($item['ensamble_id'])?->esDirecto());
             $item['transito_llega']   = $producto ? ($transito[$producto->id]['llega'] ?? null) : null;
             $item['stock_minimo']     = (float) ($producto->stock_minimo ?? 0);
             $item['inventariable']    = (bool) ($producto->inventariable ?? false);
@@ -449,10 +452,18 @@ class CotizacionController extends Controller
             ]));
         }
 
+        // `replicate()` copia también las relaciones ya cargadas: sin esto, `$nueva->items` seguía siendo
+        // la colección de la ORIGINAL, y los totales (y todo lo que se hiciera a «las líneas de la
+        // copia») se calculaban y escribían sobre las líneas de la otra cotización.
+        $nueva->unsetRelation('items')->load('items');
         $nueva->recalcularTotales();
 
+        // Los precios de la copia son los de HOY para el canal de su cliente, no los que tenía la original.
+        $repreciado = app(\App\Services\RepreciarCotizacionService::class)->aplicar($nueva);
+
         return redirect("/cotizaciones/{$nueva->id}")
-            ->with('success', "Cotización duplicada como {$nueva->numero}.");
+            ->with('success', "Cotización duplicada como {$nueva->numero}."
+                . ($repreciado['lineas'] > 0 ? " Se actualizaron {$repreciado['lineas']} precio(s) al canal «{$repreciado['canal']}» de su cliente." : ''));
     }
 
     /**

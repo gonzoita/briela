@@ -72,6 +72,15 @@ canal con ese costo. La importación por CSV trae las columnas `moneda_costo` y 
   nuevas: `cotizacion.nota_moneda`, `cotizacion.total_cop`, `cotizacion.retenciones_total`,
   `cotizacion.neto_a_recibir`.
 
+## Dos decimales en todos los precios *(16 oct 2026)*
+
+Todo precio se muestra con **dos decimales** —en pantalla, en los PDF, en los informes y en las
+exportaciones—, también en pesos. Antes unas pantallas mostraban pesos enteros y otras no, y la misma
+cifra se veía distinta según dónde se mirara. El formato sale de `Monedas` (PHP) y `formato.js`
+(`formatCOP`, `formatMoneda`); las columnas ya eran `decimal(_,2)`. Las **órdenes de compra** también
+admiten otra moneda: ver [compras-inventario](./compras-inventario.md).
+
+
 ## Leer el RUT — `LectorRutService`
 
 Botón **«Leer RUT con IA»** en crear/editar cliente y **«Llenar con el RUT de la empresa»** en

@@ -42,6 +42,8 @@ class PdfPlantillaRenderer
             ['agrupar_secciones' => false, 'mostrar_fotos' => true, 'mostrar_precios' => true, 'adjuntar_documentos' => false],
             array_filter($p['opciones'] ?? [], fn ($v) => $v !== null),
             ['secciones' => (int) ($datos['secciones_n'] ?? 0)],
+            // Solo la cotización trae `entrega_html` en sus líneas: en las demás, la variable sería desconocida.
+            ['con_entrega' => isset($datos['items'][0]) && is_array($datos['items'][0]) && array_key_exists('entrega_html', $datos['items'][0])],
         );
     }
 
@@ -191,7 +193,13 @@ HTML;
             return null;
         }
 
-        return static::pdf(static::desdeModelo($plantilla), PdfVariablesEngine::prepararDatos($modulo, $registro));
+        $p = static::desdeModelo($plantilla);
+
+        // Los planos y fichas solo se arman si la plantilla los pide: la opción, o la variable en una de código.
+        $conDocumentos = ! empty($p['opciones']['adjuntar_documentos'])
+            || str_contains(implode(' ', [$p['html'] ?? '', $p['html_header'] ?? '', $p['html_footer'] ?? '']), 'documentos.adjuntos');
+
+        return static::pdf($p, PdfVariablesEngine::prepararDatos($modulo, $registro, $conDocumentos));
     }
 
     public static function aplicarPapel($pdf, string $papel, string $orientacion, ?int $anchoMm, ?int $altoMm): void

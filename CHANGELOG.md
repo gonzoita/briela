@@ -47,8 +47,34 @@ Formato: [versionado semántico](https://semver.org/lang/es/).
   al cliente cuándo llega; y al recibir la orden se avisa al vendedor que contaba con esa mercancía.
 - **Buscar productos por el código del proveedor** en la lista, la cotización, la orden de compra,
   la importación y el buscador Ctrl+K, con el código que coincidió a la vista.
+- **Órdenes de compra en otra moneda y editables**: al crear una orden eliges la moneda del proveedor
+  (dólar, euro…) y su tasa; los precios de las líneas se escriben en esa moneda y la orden, el PDF y
+  la lista la muestran así, mientras el inventario, el costo y los informes siguen sumando en pesos.
+  Y ahora **se puede editar** una orden mientras no esté recibida por completo: en borrador cambia
+  todo; ya enviada o con recepciones, lo recibido se respeta (no se quita una línea que ya entró ni se
+  baja su cantidad de lo recibido, y el proveedor y la moneda se quedan).
+- **Mínimos y máximos de inventario a un toque**: se editan en el mismo tablero de inventario, sin abrir
+  el modal, y aceptan decimales.
+- **Margen del canal base en 0 %**: si el costo que registras ya incluye la utilidad mínima de la
+  empresa, el canal base puede ir sin margen y el precio es exactamente el costo. Al cambiar un margen
+  se ofrece recalcular los precios y las comisiones.
+- **Duplicar o editar una cotización la reprecia según el segmento del cliente**: si el cliente es de
+  otro segmento (o cambió de canal), los precios de las líneas se actualizan, con aviso de lo que cambió.
+- **Los agentes del Equipo de IA pueden poner en marcha automatizaciones**: marcas una automatización
+  como «Disponible para los agentes» y el agente decide cuándo y sobre qué documento lanzarla; ella hace
+  el trabajo sin gastar tokens y lo delicado sigue pidiendo aprobación. Además, dos plantillas nuevas
+  despiertan a un agente solo cuando hay algo que revisar (cotizaciones frías, stock bajo).
 
 ### Corregido
+- **Dos decimales en todos los precios**, en todos los módulos y PDF (antes algunos se mostraban en
+  pesos enteros).
+- El modal **Editar** del inventario no guardaba (el campo de descripción corta era más largo que lo
+  permitido, y no decía por qué): ahora guarda y muestra el error si algo falla.
+- La columna **Precio Prom.** del inventario mostraba $0 aunque el costo estuviera definido: ahora
+  muestra el costo vigente. El valor del tablero y el conteo de «stock bajo» tampoco cuentan ya los
+  productos sin mínimo configurado.
+- En una instalación de una sola sede, el tablero de inventario no mostraba existencias.
+- En Ctrl+K, proveedores y solicitudes de compra abren su lista filtrada en vez de una pantalla que no existe.
 - El PDF de cotización por omisión y el recibo de pago ya no imprimen un NIT y una ciudad de
   ejemplo: muestran la identificación y la ciudad de la empresa.
 - Guardar una cotización ya no borra y vuelve a crear todas sus líneas: se conservan.

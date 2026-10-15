@@ -514,7 +514,7 @@ class ProductoImportController extends Controller
                     $margen = round(max(0, ($precio / $costo - 1) * 100), 2);
                 }
             } elseif ($costo > 0 && ($costoEnFila || $margenCelda !== null || ! $fila || (float) $fila->precio <= 0)) {
-                $precio = $this->precios->precioDesdeCosto($costo, $margen);
+                $precio = $this->precios->precioDesdeCosto($costo, $margen, (bool) $canal->es_canal_base);
             } else {
                 $precio = $fila ? (float) $fila->precio : 0.0;
             }

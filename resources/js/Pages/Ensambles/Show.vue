@@ -47,7 +47,7 @@ function verBodega(id) {
 const page = usePage()
 const puedeEditar = computed(() => (page.props.auth?.permisosLista ?? []).includes('ensambles.editar'))
 
-const formatCOP = (v) => new Intl.NumberFormat('es-CO', { maximumFractionDigits: 0 }).format(v ?? 0)
+const formatCOP = (v) => new Intl.NumberFormat('es-CO', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(v ?? 0)
 
 // Las imágenes nuevas se guardan como ruta relativa, pero las viejas quedaron
 // con la URL completa de Google Drive. Se respeta la que ya venga absoluta.

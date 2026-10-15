@@ -166,7 +166,14 @@ class WooCommerce
             $atributo->set_variation($variacion);
             $atributo->set_position(count($nuestros));
 
-            $nuestros[sanitize_title($nombre)] = $atributo;
+            // Una característica con el nombre de otra ya puesta (la variante, «Marca»…) se descarta:
+            // si la pisara, la variación dejaría de coincidir con su atributo y no se podría elegir.
+            $clave = sanitize_title($nombre);
+            if (isset($nuestros[$clave])) {
+                return;
+            }
+
+            $nuestros[$clave] = $atributo;
         };
 
         if ($etiquetas) {
@@ -204,11 +211,16 @@ class WooCommerce
 
             if (! $id_variacion) {
                 $variacion->set_parent_id($id_padre);
+            }
 
+            // La referencia se intenta en cada pasada mientras la variación no la tenga: las fichas
+            // sueltas de la versión anterior pasan a borrador con la misma referencia, y WooCommerce
+            // la da por repetida hasta que se les vacía (ver `Catalogo::pasar_a_borrador_las_que_ya_no_estan`).
+            if (! $variacion->get_sku('edit') && ! empty($v['referencia'])) {
                 try {
-                    $variacion->set_sku((string) ($v['referencia'] ?? ''));
+                    $variacion->set_sku((string) $v['referencia']);
                 } catch (\Throwable $e) {
-                    // Referencia repetida en la tienda: la variación se crea sin ella.
+                    // Referencia repetida en la tienda: queda sin ella y se vuelve a intentar.
                 }
             }
 

@@ -153,6 +153,7 @@ const ICONO_DISPARO = { evento: '⚡', horario: '⏰', manual: '▶' }
                                 <span v-if="a.en_curso" class="text-[11px] px-2 py-0.5 rounded-full bg-pastel-violeta-2 text-aviso-violeta">{{ a.en_curso }} en curso</span>
                                 <span v-if="pausadaPorFallas(a)" class="text-[11px] px-2 py-0.5 rounded-full bg-pastel-rojo-2 text-aviso-rojo">Pausada por fallas</span>
                                 <span class="text-[11px] px-2 py-0.5 rounded-full" :class="a.activa ? 'bg-pastel-verde-2 text-aviso-verde' : 'bg-tinta-100 text-tinta-500'">{{ a.activa ? 'Encendida' : 'Apagada' }}</span>
+                                <span v-if="a.disponible_agentes" class="text-[11px] px-2 py-0.5 rounded-full bg-pastel-violeta-2 text-aviso-violeta" title="Un agente del Equipo de IA puede ponerla en marcha">Para agentes</span>
                             </div>
                         </div>
 

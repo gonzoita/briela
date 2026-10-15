@@ -176,8 +176,8 @@ class ImportacionController extends Controller
         $d = $request->validate([
             'fecha'      => 'required|date',
             'concepto'   => ['required', Rule::in(array_keys(ImportacionPago::CONCEPTOS))],
-            'valor'      => 'required|numeric|gt:0',
-            'tasa'       => 'required|numeric|gt:0',
+            'valor'      => 'required|numeric|gt:0|max:9999999999999',
+            'tasa'       => 'required|numeric|gt:0|max:9999999999',
             'referencia' => 'nullable|string|max:120',
             'notas'      => 'nullable|string|max:500',
         ], [

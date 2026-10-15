@@ -18,7 +18,7 @@ class AutomatizacionEjecucion extends Model
 
     protected $fillable = [
         'automatizacion_id', 'estado', 'origen', 'evento', 'grafo', 'contexto', 'variables', 'entidad_tipo', 'entidad_id',
-        'profundidad', 'nodo_actual', 'reanudar_at', 'error', 'clave_idempotencia', 'disparado_por',
+        'profundidad', 'nodo_actual', 'reanudar_at', 'error', 'clave_idempotencia', 'disparado_por', 'agente_ejecucion_id',
         'iniciada_at', 'terminada_at',
     ];
 

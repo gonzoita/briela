@@ -687,8 +687,10 @@ class EnsambleController extends Controller
             ->map(function (array $fila) use ($totalCosto) {
                 $margen = (float) $fila['margen_pct'];
 
-                $fila['precio'] = $margen > 0 && $margen < 100
-                    ? app(\App\Services\PreciosPorCanalService::class)->precioDesdeCosto($totalCosto, $margen)
+                $esBase = ! empty($fila['es_canal_base']);
+
+                $fila['precio'] = ($margen > 0 && $margen < 100) || ($margen == 0 && $esBase)
+                    ? app(\App\Services\PreciosPorCanalService::class)->precioDesdeCosto($totalCosto, $margen, $esBase)
                     : $fila['precio'];
 
                 return $fila;

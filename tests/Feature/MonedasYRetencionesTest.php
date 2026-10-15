@@ -192,7 +192,7 @@ class MonedasYRetencionesTest extends TestCase
 
         // Y una en pesos no cambia.
         $pesos = PdfVariablesEngine::prepararDatos('cotizacion', $this->cotizacion());
-        $this->assertSame('$6.075.000', PdfPlantillaMotor::render('{{cotizacion.total|moneda}}', $pesos));
+        $this->assertSame('$6.075.000,00', PdfPlantillaMotor::render('{{cotizacion.total|moneda}}', $pesos));
     }
 
     // ─── Retenciones ─────────────────────────────────────────────────────────

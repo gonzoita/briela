@@ -115,7 +115,7 @@ table.items td.left { text-align:left; }
     <div class="rh-right">
       <div class="total-mes-badge">
         <p class="total-mes-label">TOTAL DEL MES</p>
-        <p class="total-mes-valor">${{ number_format($totalMes, 0, ',', '.') }}</p>
+        <p class="total-mes-valor">${{ number_format($totalMes, 2, ',', '.') }}</p>
       </div>
     </div>
   </div>
@@ -140,7 +140,7 @@ table.items td.left { text-align:left; }
           {{ ucfirst($comision->estado) }}
         </span>
         <span style="font-weight:bold; color:{{ $marcaColor }}; font-size:10px; margin-left:8px;">
-          ${{ number_format($comision->total_comision, 0, ',', '.') }}
+          ${{ number_format($comision->total_comision, 2, ',', '.') }}
         </span>
       </div>
     </div>
@@ -163,10 +163,10 @@ table.items td.left { text-align:left; }
       <tr>
         <td class="left">{{ $item['descripcion'] }}</td>
         <td>{{ number_format($item['cantidad'], 2) }}</td>
-        <td>${{ number_format($item['precio_unitario'], 0, ',', '.') }}</td>
+        <td>${{ number_format($item['precio_unitario'], 2, ',', '.') }}</td>
         <td>{{ $item['descuento_pct'] > 0 ? $item['descuento_pct'] . '%' : '—' }}</td>
         <td style="color:#d97706; font-weight:bold;">{{ $item['comision_pct'] }}%</td>
-        <td style="font-weight:bold;">${{ number_format($item['comision_valor'], 0, ',', '.') }}</td>
+        <td style="font-weight:bold;">${{ number_format($item['comision_valor'], 2, ',', '.') }}</td>
       </tr>
       @endforeach
     </tbody>
@@ -175,7 +175,7 @@ table.items td.left { text-align:left; }
         <td colspan="5" style="text-align:right;">
           Subtotal comisión {{ $comision->cotizacion->numero }}
         </td>
-        <td>${{ number_format($comision->total_comision, 0, ',', '.') }}</td>
+        <td>${{ number_format($comision->total_comision, 2, ',', '.') }}</td>
       </tr>
     </tfoot>
   </table>
@@ -199,7 +199,7 @@ table.items td.left { text-align:left; }
       <p class="grand-sub">{{ $mesTitulo }} · Solo cotizaciones confirmadas</p>
     </div>
     <div class="gt-right">
-      <p class="grand-valor">${{ number_format($totalMes, 0, ',', '.') }} {{ \App\Support\Monedas::base() }}</p>
+      <p class="grand-valor">${{ number_format($totalMes, 2, ',', '.') }} {{ \App\Support\Monedas::base() }}</p>
     </div>
   </div>
 </div>

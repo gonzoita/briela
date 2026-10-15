@@ -30,17 +30,17 @@ class Monedas
      * @var array<string, array{nombre: string, simbolo: string, decimales: int}>
      */
     public const CATALOGO = [
-        'COP' => ['nombre' => 'Peso colombiano',       'simbolo' => '$',     'decimales' => 0],
+        'COP' => ['nombre' => 'Peso colombiano',       'simbolo' => '$',     'decimales' => 2],
         'USD' => ['nombre' => 'Dólar estadounidense',  'simbolo' => 'US$',   'decimales' => 2],
         'EUR' => ['nombre' => 'Euro',                  'simbolo' => '€',     'decimales' => 2],
         'VES' => ['nombre' => 'Bolívar venezolano',    'simbolo' => 'Bs.S',  'decimales' => 2],
         'PEN' => ['nombre' => 'Sol peruano',           'simbolo' => 'S/',    'decimales' => 2],
         'MXN' => ['nombre' => 'Peso mexicano',         'simbolo' => 'MX$',   'decimales' => 2],
-        'CLP' => ['nombre' => 'Peso chileno',          'simbolo' => 'CL$',   'decimales' => 0],
+        'CLP' => ['nombre' => 'Peso chileno',          'simbolo' => 'CL$',   'decimales' => 2],
         'ARS' => ['nombre' => 'Peso argentino',        'simbolo' => 'AR$',   'decimales' => 2],
         'BRL' => ['nombre' => 'Real brasileño',        'simbolo' => 'R$',    'decimales' => 2],
         'BOB' => ['nombre' => 'Boliviano',             'simbolo' => 'Bs',    'decimales' => 2],
-        'PYG' => ['nombre' => 'Guaraní paraguayo',     'simbolo' => '₲',     'decimales' => 0],
+        'PYG' => ['nombre' => 'Guaraní paraguayo',     'simbolo' => '₲',     'decimales' => 2],
         'UYU' => ['nombre' => 'Peso uruguayo',         'simbolo' => '$U',    'decimales' => 2],
         'CRC' => ['nombre' => 'Colón costarricense',   'simbolo' => '₡',     'decimales' => 2],
         'GTQ' => ['nombre' => 'Quetzal guatemalteco',  'simbolo' => 'Q',     'decimales' => 2],

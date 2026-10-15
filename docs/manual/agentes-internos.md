@@ -154,6 +154,33 @@ Un agente solo se enciende si tiene un cargo con **rol activo** y al menos una h
 **Probar** corre el agente con el caso que escribas, aunque esté apagado, **sin guardar
 propuestas ni avisar a nadie**.
 
+## Un agente que pone en marcha automatizaciones *(16 oct 2026)*
+
+Un agente gasta tokens en cada paso, incluso en los mecánicos. Una [automatización](./automatizaciones.md)
+es el camino barato: pasos fijos, sin modelo. Hay dos maneras de combinarlos:
+
+1. **La automatización despierta al agente** (la que ya existía): una automatización de horario o de evento
+   hace el filtro sin IA y solo cuando hay algo que revisar pone a trabajar a un agente (paso «Poner a trabajar a
+   un agente»). Dos plantillas de fábrica lo hacen: *cotizaciones frías* y *stock bajo*. El agente queda en
+   «Solo cuando yo lo pida» y no gasta nada mientras no haya novedad.
+2. **El agente lanza la automatización**: la herramienta `ejecutar_automatizacion`. Quien gestiona el Equipo
+   de IA marca una automatización como **«Disponible para los agentes»** (casilla en el editor, requiere
+   `equipo_ia.gestionar`); el agente ve la lista de las encendidas y marcadas, y decide **cuál** y **sobre
+   qué documento** (`documento` = número o id). Ella hace el trabajo.
+
+Los límites no cambian (`App\Services\Agentes\AutomatizacionesParaAgentes`):
+
+- Solo se ofrecen las **encendidas** y marcadas; sin ninguna, la herramienta ni siquiera se le describe al modelo.
+- Corre con los permisos de **su autor**, y lo delicado sigue pidiendo aprobación. Editarla otra persona sin
+  permiso sobre el Equipo de IA le quita la marca.
+- Solo agentes que **proponen** (uno de solo lectura no escribe), y cuyo **rol** tenga `automatizaciones.ejecutar`
+  y el permiso de ver el documento; nunca sobre datos de colaboradores; respeta la sede del agente.
+- Las condiciones del principio se miran antes de lanzar: si el documento no aplica, no se lanza y el agente lo sabe.
+- Tope de **10 por corrida**; el mismo documento en el mismo minuto no se duplica; en una prueba en seco solo simula.
+- La corrida queda con origen «por un agente de IA» y guarda qué corrida del agente la pidió
+  (`automatizacion_ejecuciones.agente_ejecucion_id`). Queda en cola: el agente no puede decir que «ya se hizo».
+
+
 ## Aprobaciones
 
 Un agente no escribe en el negocio: deja una propuesta. Al **aprobar**, el servidor vuelve a
