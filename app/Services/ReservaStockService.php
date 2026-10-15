@@ -323,20 +323,32 @@ class ReservaStockService
      *
      * @param  array<int, int>  $productoIds
      * @param  array<int, int>  $bodegaIds  las bodegas que ve quien pregunta; vacío = todas
-     * @return array<int, array{stock: float, apartado: float, disponible: float}>
+     * Con lo que viene **en tránsito** (`InventarioTransitoService`): lo apartado se come primero
+     * el real, y lo que no cabe ahí se come el tránsito; `transito_libre` es lo que queda en camino
+     * para esta cotización.
+     *
+     * @return array<int, array{stock: float, apartado: float, disponible: float, transito: float,
+     *   transito_libre: float, llega: ?string, transito_atrasado: bool}>
      */
     public function disponibilidad(array $productoIds, array $bodegaIds, ?int $exceptoCotizacionId = null): array
     {
         $apartado = $this->apartadoPorProducto($productoIds, $exceptoCotizacionId);
+        $transito = app(InventarioTransitoService::class)->porProducto($productoIds);
 
-        return Producto::whereIn('id', $productoIds)->get()->mapWithKeys(function (Producto $p) use ($bodegaIds, $apartado) {
-            $stock = $p->stockEnBodegas($bodegaIds);
+        return Producto::whereIn('id', $productoIds)->get()->mapWithKeys(function (Producto $p) use ($bodegaIds, $apartado, $transito) {
+            $stock  = $p->stockEnBodegas($bodegaIds);
             $aparta = (float) ($apartado[$p->id] ?? 0);
+            $camino = (float) ($transito[$p->id]['cantidad'] ?? 0);
+            $cubre  = InventarioTransitoService::cobertura(0, $stock, $aparta, $camino);
 
             return [$p->id => [
-                'stock'      => $stock,
-                'apartado'   => $aparta,
-                'disponible' => max(0.0, $stock - $aparta),
+                'stock'             => $stock,
+                'apartado'          => $aparta,
+                'disponible'        => max(0.0, $stock - $aparta),
+                'transito'          => $camino,
+                'transito_libre'    => $cubre['libre_transito'],
+                'llega'             => $transito[$p->id]['llega'] ?? null,
+                'transito_atrasado' => (bool) ($transito[$p->id]['atrasada'] ?? false),
             ]];
         })->all();
     }

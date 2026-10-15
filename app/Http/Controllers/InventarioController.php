@@ -366,6 +366,8 @@ class InventarioController extends Controller
             ->get();
 
         return Inertia::render('Compras/Inventario/Dashboard', [
+            // Lo pedido a proveedores que todavía no llega, y las órdenes que ya pasaron su fecha.
+            'transito' => app(\App\Services\InventarioTransitoService::class)->resumen(),
             'totalItems'         => $totalItems,
             'itemsBajoStock'     => $itemsBajoStock,
             'valorTotal'         => (float) $valorTotal,

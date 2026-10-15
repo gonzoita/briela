@@ -7,7 +7,11 @@ const props = defineProps({
     valorTotal:         Number,
     ultimosMovimientos: Array,
     movimientosPorDia:  Array,
+    // Lo pedido a proveedores que todavía no llega (InventarioTransitoService::resumen).
+    transito:           { type: Object, default: () => ({ unidades: 0, valor: 0, ordenes: 0, productos: 0, atrasadas: [] }) },
 })
+
+const fechaCorta = (f) => f ? new Date(String(f).slice(0, 10) + 'T12:00:00').toLocaleDateString('es-CO', { day: 'numeric', month: 'short' }) : ''
 
 function fmt(n) {
     return Number(n).toLocaleString('es-CO', { minimumFractionDigits: 0, maximumFractionDigits: 3 })
@@ -52,6 +56,33 @@ function tipoSimbolo(tipo) {
                 <div class="bg-superficie rounded-xl border border-linea p-4 col-span-2 sm:col-span-1">
                     <p class="text-xs text-tinta-400 font-medium uppercase tracking-wide">Valor total</p>
                     <p class="text-2xl font-semibold text-tinta-900 mt-1">{{ fmtMoney(valorTotal) }}</p>
+                </div>
+            </div>
+
+            <!-- En tránsito: pedido a proveedores, sin recibir -->
+            <div v-if="transito.ordenes > 0" class="bg-superficie rounded-xl border border-borde-aviso-azul p-4 mb-6">
+                <div class="flex flex-wrap items-start justify-between gap-3">
+                    <div>
+                        <h2 class="font-semibold text-aviso-azul flex items-center gap-2"><span>🚚</span> En tránsito</h2>
+                        <p class="text-xs text-tinta-400 mt-0.5">Pedido en órdenes de compra enviadas y todavía sin recibir. Entra a bodega al recibir la orden contra su remisión.</p>
+                    </div>
+                    <a href="/compras/ordenes" class="text-sm text-aviso-azul font-medium shrink-0">Órdenes de compra →</a>
+                </div>
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-3">
+                    <div><p class="text-xs text-tinta-400">Unidades</p><p class="text-xl font-semibold text-tinta-900">{{ fmt(transito.unidades) }}</p></div>
+                    <div><p class="text-xs text-tinta-400">Valor</p><p class="text-xl font-semibold text-tinta-900">{{ fmtMoney(transito.valor) }}</p></div>
+                    <div><p class="text-xs text-tinta-400">Productos</p><p class="text-xl font-semibold text-tinta-900">{{ transito.productos }}</p></div>
+                    <div><p class="text-xs text-tinta-400">Órdenes</p><p class="text-xl font-semibold text-tinta-900">{{ transito.ordenes }}</p></div>
+                </div>
+                <div v-if="transito.atrasadas.length" class="mt-4">
+                    <p class="text-xs font-semibold text-aviso-rojo uppercase tracking-wide mb-1">Atrasadas: pasaron su fecha y no han llegado</p>
+                    <div class="divide-y divide-separador">
+                        <a v-for="o in transito.atrasadas" :key="o.id" :href="`/compras/ordenes/${o.id}`"
+                            class="flex items-center justify-between gap-3 py-2 hover:bg-realce rounded px-1">
+                            <span class="text-sm text-tinta-900 truncate">{{ o.numero }}<span v-if="o.proveedor" class="text-tinta-400"> · {{ o.proveedor }}</span></span>
+                            <span class="text-xs text-aviso-rojo shrink-0">{{ fmt(o.pendiente) }} sin llegar · esperada {{ fechaCorta(o.fecha_esperada) }} ({{ o.dias }} {{ o.dias === 1 ? 'día' : 'días' }})</span>
+                        </a>
+                    </div>
                 </div>
             </div>
 

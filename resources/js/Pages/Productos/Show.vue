@@ -174,6 +174,8 @@ const entraStock = (tipo) => ['entrada', 'devolucion', 'creacion_producto'].incl
 const fmtCant    = (n) => Number(n).toLocaleString('es-CO', { maximumFractionDigits: 3 })
 
 const fmtFecha = (d) => d ? new Date(d).toLocaleDateString('es-CO', { day: '2-digit', month: 'short', year: 'numeric' }) : '—'
+
+const fechaTransito = (f) => f ? new Date(String(f).slice(0, 10) + 'T12:00:00').toLocaleDateString('es-CO', { day: 'numeric', month: 'short' }) : ''
 </script>
 
 <template>
@@ -571,6 +573,20 @@ const fmtFecha = (d) => d ? new Date(d).toLocaleDateString('es-CO', { day: '2-di
                                 <div class="flex justify-between mt-1">
                                     <span class="text-xs text-tinta-300">Mín: {{ p.stock_minimo }}</span>
                                     <span class="text-xs text-tinta-300">Máx: {{ p.stock_maximo }}</span>
+                                </div>
+                            </div>
+                            <!-- En tránsito: pedido a proveedores y sin recibir. Entra a bodega al recibir la orden. -->
+                            <div v-if="p.transito?.cantidad > 0" class="rounded-lg border border-borde-aviso-azul bg-pastel-azul px-3 py-2">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-xs font-medium text-aviso-azul">🚚 En tránsito</span>
+                                    <span class="text-sm font-semibold text-aviso-azul">{{ p.transito.cantidad }} {{ p.unidad_medida }}</span>
+                                </div>
+                                <div v-for="o in p.transito.ordenes" :key="o.id + '-' + o.pendiente" class="flex items-center justify-between gap-2 mt-1">
+                                    <a :href="`/compras/ordenes/${o.id}`" @click.prevent="router.visit(`/compras/ordenes/${o.id}`)"
+                                        class="text-[11px] text-aviso-azul hover:underline truncate">{{ o.numero }}<span v-if="o.proveedor"> · {{ o.proveedor }}</span></a>
+                                    <span class="text-[11px] shrink-0" :class="o.atrasada ? 'text-aviso-rojo font-semibold' : 'text-aviso-azul'">
+                                        {{ o.pendiente }}<span v-if="o.fecha_esperada"> · {{ o.atrasada ? 'atrasada desde' : 'llega' }} {{ fechaTransito(o.fecha_esperada) }}</span>
+                                    </span>
                                 </div>
                             </div>
                             <!-- Tabla por bodega -->

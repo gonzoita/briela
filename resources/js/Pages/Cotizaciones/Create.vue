@@ -158,6 +158,9 @@ const form = useForm({
         stock_disponible: i.stock_disponible ?? null,
         // Cuánto tienen apartado OTRAS cotizaciones de este producto (ver `ReservaStockService`).
         stock_apartado:   Number(i.stock_apartado) || 0,
+        // Lo que viene en camino en órdenes de compra sin recibir, y cuándo llega lo primero.
+        stock_transito:   Number(i.stock_transito) || 0,
+        transito_llega:   i.transito_llega ?? null,
         stock_minimo:     Number(i.stock_minimo) || 0,
         inventariable:    i.inventariable !== false,
         // Las filas por canal del producto o del ensamble, para que la comisión y el
@@ -506,6 +509,8 @@ async function refrescarDisponibilidad() {
             if (!d) return
             item.stock_disponible = d.stock
             item.stock_apartado   = d.apartado
+            item.stock_transito   = d.transito ?? 0
+            item.transito_llega   = d.llega ?? null
         })
     } catch (e) { /* una consulta de cortesía: si falla, se queda lo que había */ }
 }
@@ -522,6 +527,26 @@ function apartadoEnConflicto(item) {
 
     return Math.max(0, Number(item.cantidad) - libres) > 0 ? apartado : 0
 }
+
+// Cómo se cubre la cantidad de una línea: primero de bodega, después de lo que viene en
+// tránsito, y lo que falta. Es la misma cuenta de `InventarioTransitoService::cobertura()`
+// (lo apartado por otras se come primero el real): si se cambia una, se cambia la otra.
+function cobertura(item) {
+    if (! item.producto_id || item.stock_disponible === null || item.stock_disponible === undefined) return null
+    if (! item.inventariable && Number(item.stock_disponible) === 0 && ! Number(item.stock_transito)) return null
+
+    const pedida    = Math.max(0, Number(item.cantidad) || 0)
+    const stock     = Number(item.stock_disponible) || 0
+    const apartado  = Number(item.stock_apartado) || 0
+    const transito  = Number(item.stock_transito) || 0
+    const libreReal = Math.max(0, stock - apartado)
+    const libreTran = Math.max(0, transito - Math.max(0, apartado - stock))
+    const deReal    = Math.min(pedida, libreReal)
+    const deTran    = Math.min(Math.max(0, pedida - deReal), libreTran)
+
+    return { deReal, deTran, faltan: Math.max(0, pedida - deReal - deTran), libreTran }
+}
+
 
 function expandirProducto(p) {
     productoExpandido.value = productoExpandido.value?.id === p.id ? null : p
@@ -573,6 +598,8 @@ function agregarItemDesdeProducto(prod) {
         // verdad se comprueba al despachar.
         stock_disponible: Number(prod.stock_total) || 0,
         stock_apartado:   Number(prod.stock_apartado) || 0,
+        stock_transito:   Number(prod.stock_transito) || 0,
+        transito_llega:   prod.transito_llega ?? null,
         stock_minimo:     Number(prod.stock_minimo) || 0,
         inventariable:    prod.inventariable !== false,
     })
@@ -1395,7 +1422,7 @@ function submit() {
                                                 :stock="item.stock_disponible"
                                                 :minimo="item.stock_minimo"
                                                 :inventariable="item.inventariable"
-                                                :pedida="item.cantidad"
+                                                :pedida="cobertura(item)?.deTran > 0 ? null : item.cantidad"
                                             />
                                         </div>
                                         <!-- Solo aviso, no bloquea: la cotización sale igual. Es de
@@ -1406,8 +1433,16 @@ function submit() {
                                         </p>
                                         <input v-model.number="item.cantidad" type="number" step="0.001" min="0"
                                             :class="['w-full rounded-lg border px-2 py-1.5 text-sm text-right focus:outline-none',
-                                                (item.inventariable || Number(item.stock_disponible) !== 0) && item.stock_disponible !== null && Number(item.cantidad) > Number(item.stock_disponible)
-                                                    ? 'border-borde-aviso-rojo bg-pastel-rojo' : 'border-tinta-200']"/>
+                                                cobertura(item)?.faltan > 0 ? 'border-borde-aviso-rojo bg-pastel-rojo'
+                                                    : cobertura(item)?.deTran > 0 ? 'border-borde-aviso-ambar bg-pastel-ambar' : 'border-tinta-200']"/>
+                                        <!-- Lo que viene en camino: se puede cotizar contra eso, avisando. -->
+                                        <p v-if="cobertura(item)?.deTran > 0" class="mt-1 text-[11px] leading-snug text-aviso-ambar"
+                                            title="Unidades pedidas a un proveedor en órdenes de compra que todavía no llegan. Se confirman al recibir la orden contra su remisión.">
+                                            🚚 {{ formatCantidad(cobertura(item).deReal) }} en bodega + {{ formatCantidad(cobertura(item).deTran) }} en tránsito<span v-if="item.transito_llega">, llegan ~{{ fechaCorta(item.transito_llega) }}</span>
+                                        </p>
+                                        <p v-if="cobertura(item)?.faltan > 0 && Number(item.stock_transito) > 0" class="mt-1 text-[11px] leading-snug text-aviso-rojo">
+                                            Faltan {{ formatCantidad(cobertura(item).faltan) }}: no alcanza ni con lo que viene en tránsito.
+                                        </p>
                                     </div>
                                     <div>
                                         <label class="block text-xs text-tinta-400 mb-1">Precio unit.</label>
@@ -1701,6 +1736,9 @@ function submit() {
                                         </div>
                                         <p v-if="producto.stock_apartado > 0" class="mt-0.5 text-[11px] text-aviso-ambar">
                                             ⏳ {{ formatCantidad(producto.stock_apartado) }} apartadas en otras cotizaciones
+                                        </p>
+                                        <p v-if="producto.stock_transito > 0" class="mt-0.5 text-[11px] text-aviso-azul">
+                                            🚚 {{ formatCantidad(producto.stock_transito) }} en tránsito<span v-if="producto.transito_llega">, ~{{ fechaCorta(producto.transito_llega) }}</span>
                                         </p>
                                     </div>
                                 </template>

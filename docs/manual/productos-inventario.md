@@ -109,6 +109,32 @@ se muestra. Las variantes heredan del producto la marca, el origen y lo demás a
 
 En el listado, **Catálogo sin precios** descarga el catálogo completo en PDF, sin una cifra.
 
+## Inventario en tránsito *(15 oct 2026)*
+
+Lo **pedido a un proveedor y todavía sin recibir**: lo que falta por llegar de toda orden de
+compra **enviada, confirmada o recibida en parte**. No se anota en ningún lado; es una cuenta, y
+por eso no se puede desajustar: al **recibir la orden contra la remisión o la factura** del
+proveedor, entra a bodega y sale del tránsito sola; si la orden se cancela, deja de contar.
+
+- **Se ve** en la lista de productos («🚚 +10 en tránsito»), en la ficha (las órdenes que lo
+  traen, con su fecha esperada y las atrasadas en rojo) y en el tablero de inventario (unidades,
+  valor y las órdenes que pasaron su fecha sin llegar).
+- **Se cotiza contra él, con aviso.** La cotización usa primero lo que hay en bodega y lo que
+  falta lo toma de lo que viene en camino: «30 en bodega + 10 en tránsito, llegan ~21 oct». Si
+  tampoco alcanza, lo dice en rojo. Solo avisa; nunca bloquea.
+- **Se aparta igual que el real.** Lo apartado por otras cotizaciones se descuenta primero del
+  real y, lo que no cabe, del tránsito: otra cotización ve que esas unidades en camino ya están
+  comprometidas.
+- **El PDF le dice al cliente cuándo llega** lo que depende del tránsito: «Entrega: 30 de
+  inmediato y 10 a partir del 21 de octubre de 2026». El faltante no sale en el PDF: es interno.
+- **Al llegar avisa.** Al recibir la orden, el vendedor de cada cotización viva (borrador,
+  enviada o aprobada, de los últimos 90 días) que pedía más de lo que había en bodega recibe
+  «Llegó mercancía que esperabas».
+
+Una orden sin sede cuenta en todas las sedes (las viejas no la tienen). La cuenta vive en
+`InventarioTransitoService`; `cobertura()` reparte una cantidad en real, tránsito y faltante, y
+`Cotizaciones/Create.vue` la repite para mostrarla mientras se teclea.
+
 ## Buscar por el código del proveedor *(15 oct 2026)*
 
 Todos los buscadores de productos —la lista, la cotización, la orden de compra, la importación y

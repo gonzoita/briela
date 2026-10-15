@@ -358,6 +358,8 @@ const precioMostrar = (p) => {
     if (p.precio_mayorista > 0) return p.precio_mayorista
     return p.precio_costo
 }
+
+const fechaCorta = (f) => f ? new Date(String(f).slice(0, 10) + 'T12:00:00').toLocaleDateString('es-CO', { day: 'numeric', month: 'short' }) : ''
 </script>
 
 <template>
@@ -692,6 +694,11 @@ const precioMostrar = (p) => {
                                 <span v-if="p.stock_total <= p.stock_minimo" class="text-xs text-red-400 ml-1">↓</span>
                             </template>
                             <span v-else class="text-xs text-tinta-200">—</span>
+                            <!-- Lo pedido a proveedores que todavía no llega -->
+                            <span v-if="p.stock_transito > 0" class="block text-[11px] text-aviso-azul whitespace-nowrap"
+                                :title="p.transito_llega ? `Llega lo primero ~${fechaCorta(p.transito_llega)}` : 'En órdenes de compra sin recibir'">
+                                🚚 +{{ p.stock_transito }} en tránsito
+                            </span>
                         </td>
                     </tr>
                     <!-- Filas de variantes (indentadas) -->
@@ -817,6 +824,7 @@ const precioMostrar = (p) => {
                             <span class="text-xs text-tinta-400">
                                 {{ p.stock_total }} en stock
                                 <span v-if="p.stock_total <= p.stock_minimo" class="text-aviso-rojo font-semibold"> (bajo mínimo)</span>
+                                <span v-if="p.stock_transito > 0" class="text-aviso-azul"> · 🚚 +{{ p.stock_transito }} en tránsito</span>
                             </span>
                         </div>
                     </template>

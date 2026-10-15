@@ -76,10 +76,17 @@ class PdfVariablesEngine
                 // La firma guardada en el perfil del responsable, lista: {{!vendedor.firma}}.
                 $datos['vendedor.firma'] = static::imgFirma($registro->responsable?->firma);
 
+                // Cuándo llega lo que se cotizó contra inventario en tránsito (vacío si no aplica).
+                $entregas = app(\App\Services\InventarioTransitoService::class)->entregaDeCotizacion($registro);
+
                 $datos['items'] = $registro->items->map(fn ($item, $i) => array_merge(
                     static::aplanarModeloSimple($item),
                     [
                         'index'             => $i + 1,
+                        'entrega'           => $entregas[$item->id] ?? '',
+                        // Lista para pegar debajo de la descripción en la tabla visual.
+                        'entrega_html'      => isset($entregas[$item->id])
+                            ? '<br><span style="font-size:8px;color:#92400e;">' . e($entregas[$item->id]) . '</span>' : '',
                         'descripcion_corta' => substr($item->descripcion ?? '', 0, 80),
                         'descripcion_larga' => $item->descripcion_larga ?? '',
                         'subtotal_linea'    => $item->subtotal ?? 0,

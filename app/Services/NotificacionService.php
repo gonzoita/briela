@@ -28,6 +28,7 @@ class NotificacionService
         'stock_bajo'               => 'inventario',
         'stock_apartado_usado'     => 'inventario',
         'stock_apartado_vencido'   => 'inventario',
+        'transito_recibido'        => 'inventario',
         'abonos_por_revisar'       => 'verificador_pagos',
         'pago_verificado'          => 'verificador_pagos',
         'op_a_calidad'             => 'calidad',
@@ -126,6 +127,7 @@ class NotificacionService
             'Compras' => [
                 ['tipo' => 'solicitud_compra',    'label' => 'Solicitud de compra por revisar'],
                 ['tipo' => 'mercancia_recibida',  'label' => 'Mercancía recibida'],
+                ['tipo' => 'transito_recibido',   'label' => 'Llegó mercancía en tránsito con la que contaba una de tus cotizaciones'],
                 ['tipo' => 'stock_bajo',          'label' => 'Insumo por debajo del stock mínimo'],
             ],
             'Financiero' => [

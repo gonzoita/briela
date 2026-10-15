@@ -137,6 +137,9 @@
                     @if($item->descripcion_larga)
                     <div class="descripcion-larga">{!! $item->descripcion_larga !!}</div>
                     @endif
+                    @if(! empty($entregas[$item->id]))
+                    <div style="font-size:8px;color:#92400e;margin-top:2px;">{{ $entregas[$item->id] }}</div>
+                    @endif
                 </td>
                 <td class="text-right">{{ number_format($item->cantidad, 2) }}</td>
                 <td class="text-right">{{ $cotizacion->enSuMoneda($item->precio_unitario) }}</td>

@@ -158,7 +158,18 @@ class BloquesHtmlService
         $n = count($columnas);
 
         $ths = implode('', array_map(fn ($c) => '<th' . (!empty($c['ancho']) ? " style='width:{$c['ancho']}px;'" : '') . '>' . htmlspecialchars($c['etiqueta'] ?? '', ENT_QUOTES) . '</th>', $columnas));
-        $tds = implode('', array_map(fn ($c) => '<td' . (!empty($c['ancho']) ? " style='width:{$c['ancho']}px;'" : '') . '>{{' . ($c['variable'] ?? '') . '}}</td>', $columnas));
+        // Debajo de la primera descripción va, si la hay, la entrega de lo que viene en tránsito.
+        $conEntrega = false;
+        $tds = implode('', array_map(function ($c) use (&$conEntrega) {
+            $var  = (string) ($c['variable'] ?? '');
+            $mas  = '';
+            if (! $conEntrega && str_starts_with($var, 'descripcion')) {
+                $mas = '{{!entrega_html}}';
+                $conEntrega = true;
+            }
+
+            return '<td' . (!empty($c['ancho']) ? " style='width:{$c['ancho']}px;'" : '') . '>{{' . $var . '}}' . $mas . '</td>';
+        }, $columnas));
 
         $cuerpo = "{{#items}}\n    <tr>{$tds}</tr>\n    {{/items}}";
 

@@ -674,6 +674,12 @@ Lo construido después de la fase 3, que conviene conocer antes de tocar algo ce
   formato libre); el DV lo calcula `Paises::calcularDv()` por paquete (`nit_co`, `rut_cl`). La
   identificación de la empresa es `Paises::identificacionEmpresa()` (número en `empresa_nit`, tipo en
   `empresa_tipo_identificacion`), y su país es el de la sede principal.
+- **El inventario en tránsito es una cuenta, no una tabla** (`InventarioTransitoService`, 15 oct 2026):
+  lo pedido y no recibido de las órdenes de compra `enviada`, `confirmada` y `recibida_parcial`. Sale
+  solo al recibir (`OrdenCompra::recibir`, que además avisa con `transito_recibido` a quien cotizó
+  contando con él). **Primero lo real, después lo que viene**: `cobertura()` reparte una cantidad, y
+  lo apartado por otras cotizaciones se come primero el real. `Cotizaciones/Create.vue` repite esa
+  cuenta para la pantalla: si se cambia una, se cambia la otra. Una orden sin sede cuenta en todas.
 - **Buscar productos es UNA regla**, `Producto::scopeBuscarTexto()`: nombre, referencia o código de
   proveedor (`producto_proveedor.referencia_proveedor`). Un buscador nuevo de productos la usa, y
   `Producto::codigosProveedorQueCoinciden()` dice cuál código coincidió.
@@ -770,7 +776,7 @@ decían lo contrario y estaban equivocadas.
   relaciones entre archivos antes de leer código a mano.
 - Conviene regenerarlo después de cambios que muevan estructura (borrar módulos,
   mover carpetas), porque un grafo desactualizado es peor que no tenerlo.
-- **Generado y al día.** Al 15 oct 2026: **13.228 nodos, 26.963 aristas, 692 comunidades**
+- **Generado y al día.** Al 15 oct 2026: **13.281 nodos, 27.092 aristas, 689 comunidades**
   (con el Equipo de IA, las Automatizaciones y la vinculación de Meta). Cada entorno nuevo necesita `pip install graphifyy` una vez (en el
   superadmin el grafo se genera igual, pero no va al repo). Cubre el proyecto completo: 926 archivos de
   código por AST y los 70 documentos por subagentes. Se actualiza con

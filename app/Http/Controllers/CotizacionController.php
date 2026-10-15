@@ -312,8 +312,10 @@ class CotizacionController extends Controller
         // Lo que OTRAS cotizaciones tienen apartado (no la propia: lo suyo no le resta a ella).
         $apartado = app(\App\Services\ReservaStockService::class)
             ->apartadoPorProducto($productos->keys()->all(), $cotizacion->id);
+        // Lo que viene en camino (órdenes de compra sin recibir): se puede cotizar contra eso.
+        $transito = app(\App\Services\InventarioTransitoService::class)->porProducto($productos->keys()->all());
 
-        $datos['items'] = collect($datos['items'])->map(function (array $item) use ($productos, $ensambles, $bodegas, $apartado) {
+        $datos['items'] = collect($datos['items'])->map(function (array $item) use ($productos, $ensambles, $bodegas, $apartado, $transito) {
             $producto = $item['producto_id'] ? $productos->get($item['producto_id']) : null;
 
             // Las filas por canal del producto o del ensamble, con la MISMA forma que manda
@@ -336,6 +338,8 @@ class CotizacionController extends Controller
             // `EtiquetaStock.vue`, y tenerla en dos sitios es tenerla en ninguno.
             $item['stock_disponible'] = $producto ? $producto->stockEnBodegas($bodegas) : null;
             $item['stock_apartado']   = $producto ? (float) ($apartado[$producto->id] ?? 0) : 0;
+            $item['stock_transito']   = $producto ? (float) ($transito[$producto->id]['cantidad'] ?? 0) : 0;
+            $item['transito_llega']   = $producto ? ($transito[$producto->id]['llega'] ?? null) : null;
             $item['stock_minimo']     = (float) ($producto->stock_minimo ?? 0);
             $item['inventariable']    = (bool) ($producto->inventariable ?? false);
 
@@ -556,7 +560,10 @@ class CotizacionController extends Controller
             }
         }
 
-        $pdf = Pdf::loadView('pdf.cotizacion', ['cotizacion' => $cotizacion])
+        $pdf = Pdf::loadView('pdf.cotizacion', [
+            'cotizacion' => $cotizacion,
+            'entregas'   => app(\App\Services\InventarioTransitoService::class)->entregaDeCotizacion($cotizacion),
+        ])
             ->setPaper('a4', 'portrait');
 
         return $pdf->download("cotizacion-{$cotizacion->numero}.pdf");
@@ -657,6 +664,7 @@ class CotizacionController extends Controller
         // la cotización abierta (si llega): lo suyo no le resta a ella.
         $apartado = app(\App\Services\ReservaStockService::class)
             ->apartadoPorProducto($productos->pluck('id')->all(), $request->integer('cotizacion_id') ?: null);
+        $transito = app(\App\Services\InventarioTransitoService::class)->porProducto($productos->pluck('id')->all());
 
         return response()->json(
             $productos->map(fn ($p) => [
@@ -671,6 +679,8 @@ class CotizacionController extends Controller
                     'valor_variante'       => $p->valor_variante,
                     'stock_total'          => $p->stockTotal(),
                     'stock_apartado'       => (float) ($apartado[$p->id] ?? 0),
+                    'stock_transito'       => (float) ($transito[$p->id]['cantidad'] ?? 0),
+                    'transito_llega'       => $transito[$p->id]['llega'] ?? null,
                     'unidad_medida'        => $p->unidad_medida,
                     'descripcion_corta'    => $p->descripcion_corta,
                     // El bloque que se imprime debajo del ítem en la cotización y en la OP

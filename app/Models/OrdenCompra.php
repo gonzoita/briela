@@ -132,6 +132,8 @@ class OrdenCompra extends Model
             // inventario_items que producción nunca miraba.
             if ($ocItem->item_id && $bodegaPrincipal) {
                 $producto = Producto::find($ocItem->item_id);
+                // Lo que había antes de que entrara: con eso se sabe quién esperaba esta mercancía.
+                $stockAntes = $producto ? $producto->stockTotal() : 0.0;
                 $producto?->registrarMovimiento(
                     tipo: 'entrada',
                     cantidad: $cantidadRecibida,
@@ -145,6 +147,11 @@ class OrdenCompra extends Model
                     documentoNumero: $numeroDoc,
                     documentoFecha: $documento['fecha_documento'] ?? null,
                 );
+
+                // Salió del tránsito y entró a bodega: avisa a quien cotizó contando con ella.
+                if ($producto) {
+                    app(\App\Services\InventarioTransitoService::class)->avisarLlegada($producto, (float) $stockAntes, $cantidadRecibida, $this);
+                }
             }
         }
 

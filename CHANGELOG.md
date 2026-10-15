@@ -40,6 +40,11 @@ Formato: [versionado semántico](https://semver.org/lang/es/).
   documento fiscal. La empresa puede ser de otro país (Perfil fiscal), y sus PDF dicen RFC, RUC o EIN
   en vez de NIT. Llegan México, Ecuador, Perú, Chile y Estados Unidos (valores de partida, por
   confirmar con un contador), y todo país acepta una identificación del exterior en formato libre.
+- **Inventario en tránsito**: lo pedido a proveedores en órdenes enviadas y todavía sin recibir.
+  Se ve en la lista y la ficha de productos y en el tablero de inventario (con las órdenes atrasadas).
+  Al cotizar se usa primero lo que hay en bodega y después lo que viene en camino, con aviso («30 en
+  bodega + 10 en tránsito, llegan ~21 oct»); se aparta igual que el inventario real; el PDF le dice
+  al cliente cuándo llega; y al recibir la orden se avisa al vendedor que contaba con esa mercancía.
 - **Buscar productos por el código del proveedor** en la lista, la cotización, la orden de compra,
   la importación y el buscador Ctrl+K, con el código que coincidió a la vista.
 

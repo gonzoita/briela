@@ -64,7 +64,11 @@ class ProductoController extends Controller
         // Si apareció por el código de un proveedor, se dice cuál: si no, parece un error.
         $porCodigo = Producto::codigosProveedorQueCoinciden($productos->getCollection(), $request->buscar);
 
-        $productos->through(function ($p) use ($porCodigo) {
+        // Lo que viene en camino, de la página entera en una sola consulta (variantes incluidas).
+        $idsPagina = $productos->getCollection()->flatMap(fn ($p) => [$p->id, ...$p->variantes->pluck('id')->all()])->all();
+        $transito  = app(\App\Services\InventarioTransitoService::class)->porProducto($idsPagina);
+
+        $productos->through(function ($p) use ($porCodigo, $transito) {
             $principal = $p->imagenes->firstWhere('es_principal', true) ?? $p->imagenes->first();
             $variantes = $p->variantes->map(fn ($v) => [
                 'id'                   => $v->id,
@@ -87,6 +91,10 @@ class ProductoController extends Controller
                 'categoria_color'  => $p->categoria?->color,
                 'variantes'        => $variantes,
                 'codigo_proveedor' => $porCodigo[$p->id] ?? null,
+                'stock_transito'   => round((float) ($transito[$p->id]['cantidad'] ?? 0)
+                    + (float) $p->variantes->sum(fn ($v) => $transito[$v->id]['cantidad'] ?? 0), 3),
+                'transito_llega'   => collect([$p->id, ...$p->variantes->pluck('id')->all()])
+                    ->map(fn ($id) => $transito[$id]['llega'] ?? null)->filter()->sort()->first(),
             ]);
         });
 
@@ -334,10 +342,19 @@ class ProductoController extends Controller
         // Un padre no tiene stock propio: sus movimientos son los de cada variante.
         $movimientos = $producto->es_padre ? ['data' => [], 'hay_mas' => false] : $this->movimientosDe($producto);
 
+        // Lo que viene en camino: de este producto, o de sus variantes si es un padre.
+        $idsTransito = $producto->es_padre ? $producto->variantes->pluck('id')->all() : [$producto->id];
+        $transito    = app(\App\Services\InventarioTransitoService::class)->porProducto($idsTransito);
+
         return Inertia::render('Productos/Show', [
             'importaciones' => $importaciones,
             'producto'   => array_merge($producto->toArray(), [
                 'stock_total'          => $producto->stockTotal(),
+                'transito'             => [
+                    'cantidad' => round((float) collect($transito)->sum('cantidad'), 3),
+                    'llega'    => collect($transito)->pluck('llega')->filter()->sort()->first(),
+                    'ordenes'  => collect($transito)->flatMap(fn ($t) => $t['ordenes'])->sortBy(fn ($o) => $o['fecha_esperada'] ?? '9999')->values()->all(),
+                ],
                 'tipo_label'           => $producto->tipoLabel(),
                 'tipo_color'           => $producto->tipoColor(),
                 'categoria_nombre'     => $producto->categoria?->nombre,
