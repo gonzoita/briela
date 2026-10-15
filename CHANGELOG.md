@@ -14,6 +14,8 @@ Formato: [versionado semántico](https://semver.org/lang/es/).
 
 ## [Sin publicar]
 
+## [2.3.0] — 15 oct 2026
+
 ### Agregado
 - **Secciones en las cotizaciones**: cada línea puede llevar una sección («Puerta corredera», «Cocina»,
   «Preparación»). En el PDF, cada sección sale con su título, sus productos y su subtotal.
