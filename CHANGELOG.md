@@ -14,6 +14,22 @@ Formato: [versionado semántico](https://semver.org/lang/es/).
 
 ## [Sin publicar]
 
+### Agregado
+- **Secciones como zonas en la cotización**: creas una sección (+ Sección), le arrastras los ítems o
+  usas «+ Ítem» dentro de ella, y las secciones también se reordenan arrastrándolas. Cada sección
+  muestra su subtotal en vivo, se pliega y se renombra ahí mismo. Lo que no tiene sección se imprime
+  como «Otros». En el celular, la sección y el orden se cambian desde el detalle de cada ítem.
+- **Ítems en vista de tabla**: cada ítem ocupa una sola fila (descripción, cantidad, precio, descuento,
+  IVA y subtotal, editables ahí mismo). Al tocar la fila se expande con la descripción, la
+  disponibilidad, la comisión y el resto. El botón **Detallado** abre todos a la vez.
+- **Activar o desactivar el IVA y las retenciones estimadas** en los totales de la cotización. Con el
+  IVA apagado, las líneas quedan en 0 % y el total sale sin impuesto; al encenderlo, cada línea recupera
+  su tarifa. Las retenciones estimadas se pueden ocultar (el navegador lo recuerda).
+
+### Corregido
+- Reordenar los ítems de una cotización ya guardada ahora se conserva al guardar (antes volvían a su
+  posición anterior).
+
 ## [2.3.0] — 15 oct 2026
 
 ### Agregado

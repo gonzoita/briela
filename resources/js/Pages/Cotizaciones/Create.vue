@@ -10,6 +10,7 @@ import ResultadosBuscadorProducto from '@/Components/ResultadosBuscadorProducto.
 import EtiquetaStock from '@/Components/EtiquetaStock.vue'
 import ModalNuevoCliente from '@/Components/ModalNuevoCliente.vue'
 import RetencionesEstimadas from '@/Components/RetencionesEstimadas.vue'
+import ItemsPorSeccion from '@/Components/Cotizaciones/ItemsPorSeccion.vue'
 import { useRetenciones } from '@/composables/useRetenciones'
 import { useUnsavedChanges } from '@/composables/useUnsavedChanges'
 
@@ -178,6 +179,169 @@ const form = useForm({
 })
 
 watch(() => form.data(), (v) => checkChanges(v), { deep: true })
+
+// ─── Secciones, vista y impuestos ─────────────────────────────────────────────
+// Lo que cada persona prefiere ver (tabla o detallado, retenciones a la vista) se recuerda en su
+// navegador. Nunca se guarda en la cotización: es una preferencia de pantalla, no un dato.
+const preferencia = {
+    leer(clave, defecto) { try { return localStorage.getItem(`cotizacion.${clave}`) ?? defecto } catch (e) { return defecto } },
+    guardar(clave, valor) { try { localStorage.setItem(`cotizacion.${clave}`, valor) } catch (e) { /* sin almacenamiento: no se recuerda */ } },
+}
+
+const modoVista = ref(preferencia.leer('vista', 'tabla') === 'detallado' ? 'detallado' : 'tabla')
+const listaItems = ref(null)
+watch(modoVista, (m) => { preferencia.guardar('vista', m); listaItems.value?.reiniciar() })
+
+const mostrarRetenciones = ref(preferencia.leer('retenciones', '1') !== '0')
+watch(mostrarRetenciones, (v) => preferencia.guardar('retenciones', v ? '1' : '0'))
+
+// El IVA se puede apagar para esta cotización: todas las líneas pasan a 0 % y el total sale sin
+// impuesto. Al volver a encenderlo se recupera lo que cada línea tenía. Una cotización que ya está
+// guardada con todo en 0 % se abre con el IVA apagado.
+const calcularIva = ref(! form.items.length || form.items.some(i => Number(i.impuesto_pct) > 0))
+
+function alternarIva() {
+    calcularIva.value = ! calcularIva.value
+
+    form.items.forEach(item => {
+        if (! calcularIva.value) {
+            if (Number(item.impuesto_pct) > 0) item._iva_previo = Number(item.impuesto_pct)
+            item.impuesto_pct = 0
+        } else if (Number(item._iva_previo) > 0) {
+            item.impuesto_pct = Number(item._iva_previo)
+        }
+    })
+}
+
+// Las secciones, en su orden. Salen de las líneas (por orden de aparición) y se pueden crear vacías.
+const secciones = ref([])
+form.items.forEach(i => {
+    const s = (i.seccion ?? '').trim()
+    if (s && ! secciones.value.includes(s)) secciones.value.push(s)
+})
+
+/** Deja las líneas contiguas por sección, en el orden de las secciones, y numera `orden`. */
+function normalizarOrden() {
+    const grupos = [...secciones.value, '']
+    const clave  = (i) => { const k = grupos.indexOf((i.seccion ?? '').trim()); return k === -1 ? grupos.length - 1 : k }
+
+    form.items.forEach(i => {
+        const s = (i.seccion ?? '').trim()
+        if (s && ! secciones.value.includes(s)) secciones.value.push(s)
+    })
+
+    const ordenadas = form.items.map((item, n) => ({ item, n }))
+        .sort((a, b) => clave(a.item) - clave(b.item) || a.n - b.n)
+        .map(x => x.item)
+
+    if (ordenadas.some((item, k) => item !== form.items[k])) form.items.splice(0, ordenadas.length, ...ordenadas)
+}
+
+// Al cargar, lo guardado se agrupa por sección; `setOriginal` corre después, así que no cuenta como cambio.
+normalizarOrden()
+
+// A dónde va la línea que se está agregando: la sección desde la que se pulsó «+ Ítem».
+const seccionDestino = ref('')
+
+// Toda línea nueva nace en esa sección y respeta el IVA apagado.
+watch(() => form.items.length, (n, antes) => {
+    if (n <= antes) return
+
+    form.items.slice(antes).forEach(item => {
+        if (item.seccion === undefined || item.seccion === null) item.seccion = seccionDestino.value || ''
+        if (! calcularIva.value) item.impuesto_pct = 0
+    })
+
+    seccionDestino.value = ''
+    normalizarOrden()
+})
+
+/** Mueve una línea a una sección, antes o después de otra, o al final de la sección. */
+function moverA({ item, seccion, referencia, despues }) {
+    const resto = form.items.filter(i => i !== item)
+    item.seccion = seccion
+
+    let posicion
+    if (referencia && referencia !== item) {
+        const k = resto.indexOf(referencia)
+        posicion = k === -1 ? resto.length : (despues ? k + 1 : k)
+    } else {
+        posicion = resto.length
+    }
+
+    resto.splice(posicion, 0, item)
+    form.items.splice(0, resto.length, ...resto)
+    normalizarOrden()
+}
+
+/** Subir o bajar una línea dentro de su sección (la alternativa a arrastrar en el celular). */
+function moverDentro(item, dir) {
+    const misma = form.items.filter(i => (i.seccion ?? '').trim() === (item.seccion ?? '').trim())
+    const k = misma.indexOf(item)
+    const vecino = misma[k + dir]
+    if (! vecino) return
+    moverA({ item, seccion: item.seccion ?? '', referencia: vecino, despues: dir > 0 })
+}
+
+function nombreDeSeccionValido(nombre, excepto = null) {
+    const limpio = String(nombre ?? '').trim().slice(0, 80)
+    if (! limpio) return null
+    const repetida = secciones.value.some(n => n !== excepto && n.toLowerCase() === limpio.toLowerCase())
+    return repetida ? null : limpio
+}
+
+const creandoSeccion = ref(false)
+const nombreNuevaSeccion = ref('')
+
+function crearSeccion() {
+    const nombre = nombreDeSeccionValido(nombreNuevaSeccion.value)
+    if (! nombre) { avisoSeccion.value = 'Escribe un nombre que no esté repetido.'; return }
+    secciones.value.push(nombre)
+    nombreNuevaSeccion.value = ''
+    avisoSeccion.value = ''
+    creandoSeccion.value = false
+}
+const avisoSeccion = ref('')
+
+function renombrarSeccion(viejo, nuevo) {
+    const nombre = nombreDeSeccionValido(nuevo, viejo)
+    if (! nombre || nombre === viejo) return
+    form.items.forEach(i => { if ((i.seccion ?? '').trim() === viejo) i.seccion = nombre })
+    secciones.value = secciones.value.map(n => n === viejo ? nombre : n)
+}
+
+function eliminarSeccion(nombre) {
+    const n = form.items.filter(i => (i.seccion ?? '').trim() === nombre).length
+    if (n && ! confirm(`La sección «${nombre}» tiene ${n} ${n === 1 ? 'ítem' : 'ítems'}: pasan a «Sin sección». ¿Quitarla?`)) return
+    form.items.forEach(i => { if ((i.seccion ?? '').trim() === nombre) i.seccion = '' })
+    secciones.value = secciones.value.filter(x => x !== nombre)
+    normalizarOrden()
+}
+
+function moverSeccion(nombre, antesDe) {
+    const resto = secciones.value.filter(n => n !== nombre)
+    const k = antesDe ? resto.indexOf(antesDe) : -1
+    resto.splice(k === -1 ? resto.length : k, 0, nombre)
+    secciones.value = resto
+    normalizarOrden()
+}
+
+/** El cambio de sección desde el detalle de una línea; «__nueva» pide el nombre. */
+function cambiarSeccionDe(item, valor) {
+    let destino = valor
+
+    if (valor === '__nueva') {
+        const nombre = nombreDeSeccionValido(window.prompt('Nombre de la nueva sección'))
+        if (! nombre) return
+        secciones.value.push(nombre)
+        destino = nombre
+    }
+
+    moverA({ item, seccion: destino, referencia: null, despues: true })
+}
+
+// Lo que suma cada sección, en vivo: es lo mismo que muestra cada línea, con su impuesto.
+const totalDeFilas = (filas) => filas.reduce((s, f) => s + calcularSubtotalItem(f.item), 0)
 
 // ─── Moneda y tasa ────────────────────────────────────────────────────────────
 // Los ítems se escriben y se guardan en pesos, como todo el sistema: la moneda y la tasa
@@ -482,7 +646,10 @@ function limpiarCliente() {
 // ─── Modal ────────────────────────────────────────────────────────────────────
 const modalPanel = ref(null) // null | 'opciones' | 'producto' | 'ensamble' | 'ensamble_instancia'
 
-function abrirModal() { modalPanel.value = 'opciones' }
+function abrirModal(seccion = '') {
+    seccionDestino.value = typeof seccion === 'string' ? seccion : ''
+    modalPanel.value = 'opciones'
+}
 function cerrarModal() {
     modalPanel.value = null
     productoQuery.value = ''; productoResultados.value = []; productoExpandido.value = null
@@ -967,32 +1134,6 @@ const itemsConProblema = computed(() =>
         .filter(({ item }) => item.problema)
 )
 
-// ─── Reordenar ────────────────────────────────────────────────────────────────
-function moverItem(idx, dir) {
-    const ni = idx + dir
-    if (ni < 0 || ni >= form.items.length) return
-    const arr = [...form.items]
-    ;[arr[idx], arr[ni]] = [arr[ni], arr[idx]]
-    form.items.splice(0, arr.length, ...arr)
-}
-
-const draggingIdx = ref(null)
-const dragOverIdx = ref(null)
-
-function onDragStart(idx) { draggingIdx.value = idx }
-function onDragOver(e, idx) { e.preventDefault(); dragOverIdx.value = idx }
-function onDrop(idx) {
-    if (draggingIdx.value === null || draggingIdx.value === idx) {
-        draggingIdx.value = null; dragOverIdx.value = null; return
-    }
-    const arr = [...form.items]
-    const [moved] = arr.splice(draggingIdx.value, 1)
-    arr.splice(idx, 0, moved)
-    form.items.splice(0, arr.length, ...arr)
-    draggingIdx.value = null; dragOverIdx.value = null
-}
-function onDragEnd() { draggingIdx.value = null; dragOverIdx.value = null }
-
 // ─── Totales ──────────────────────────────────────────────────────────────────
 function calcularSubtotalItem(item) {
     const base  = (item.cantidad || 0) * (item.precio_unitario || 0)
@@ -1008,22 +1149,52 @@ const total          = computed(() => subtotalBruto.value - totalDescuento.value
 const { retenciones, cargando: cargandoRetenciones } = useRetenciones(() => ({
     cliente_id: form.cliente_id,
     iva:        Math.round(totalImpuesto.value * 100) / 100,
-    items:      ! props.retenciones_activas ? [] : form.items.map(i => {
+    items:      ! props.retenciones_activas || ! mostrarRetenciones.value ? [] : form.items.map(i => {
         const bruto = (Number(i.cantidad) || 0) * (Number(i.precio_unitario) || 0)
         return { producto_id: i.producto_id ?? null, base: Math.round(bruto * (1 - (Number(i.descuento_pct) || 0) / 100) * 100) / 100 }
     }),
 }))
 
-// Las secciones ya usadas en esta cotización, para no escribirlas distintas («Puerta corredera» y «Puerta Corredera»).
-const seccionesUsadas = computed(() => [...new Set(form.items.map(i => (i.seccion ?? '').trim()).filter(Boolean))])
-
 const formatCOP   = (v) => new Intl.NumberFormat('es-CO', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(v ?? 0)
 const formatPrecio = (v) => (v || v === 0) ? new Intl.NumberFormat('es-CO', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(v) : ''
 const parsePrecio  = (s) => parseFloat(String(s).replace(/[^0-9,]/g, '').replace(',', '.')) || 0
 
-const expandedDescriptions = ref({})
-function toggleDescripcion(idx) {
-    expandedDescriptions.value = { ...expandedDescriptions.value, [idx]: !expandedDescriptions.value[idx] }
+// ─── La tabla de ítems ────────────────────────────────────────────────────────
+// Las columnas de la fila cambian si el IVA está apagado: sin él no hay columna que mostrar.
+const columnasTabla = computed(() => calcularIva.value
+    ? 'minmax(0,1fr) 5.5rem 8.5rem 4.5rem 5rem 8.5rem'
+    : 'minmax(0,1fr) 5.5rem 8.5rem 4.5rem 8.5rem')
+
+function tipoInfo(item) {
+    return ({
+        producto: { etiqueta: 'Producto', estilo: 'background:var(--pastel-azul);color:var(--texto-azul);' },
+        servicio: { etiqueta: 'Servicio', estilo: 'background:var(--pastel-verde);color:var(--texto-verde);' },
+        ensamble: { etiqueta: 'Ensamble', estilo: 'background:var(--pastel-naranja);color:#C2410C;' },
+    })[item.tipo] ?? { etiqueta: 'Texto', estilo: 'background:var(--pastel-ambar-2);color:var(--texto-ambar);' }
+}
+
+/** Lo que conviene mirar de una línea sin abrirla: no alcanza el stock, o se cuenta con lo que viene en camino. */
+function alertaStock(item) {
+    const c = cobertura(item)
+
+    if (c?.faltan > 0) return { tono: 'rojo', corto: `Faltan ${formatCantidad(c.faltan)}`, texto: `No alcanza el stock: faltan ${formatCantidad(c.faltan)}.` }
+    if (c?.deTran > 0) return { tono: 'ambar', corto: 'En tránsito', texto: 'Parte de la cantidad sale de lo que viene en camino.' }
+    if (apartadoEnConflicto(item)) return { tono: 'ambar', corto: 'Apartado', texto: 'Hay unidades apartadas en otras cotizaciones.' }
+
+    return null
+}
+
+const claseCantidad = (item) => cobertura(item)?.faltan > 0 ? 'border-borde-aviso-rojo bg-pastel-rojo'
+    : cobertura(item)?.deTran > 0 ? 'border-borde-aviso-ambar bg-pastel-ambar' : 'border-tinta-200'
+
+function fijarPrecio(item, evento) {
+    item.precio_unitario = parsePrecio(evento.target.value)
+    evento.target.value = formatPrecio(item.precio_unitario)
+}
+
+function cambiarDescuento(item, idx, valor) {
+    if (canalSinDescuento.value) return
+    itemTieneComision(item) ? onDescuentoChange(item, idx, valor) : (item.descuento_pct = parseFloat(valor) || 0)
 }
 
 // ─── Panel de comisión con barra ──────────────────────────────────────────────
@@ -1161,11 +1332,15 @@ function submit() {
     // Con `comisionActualDe` y no con `actual || maxima`: una comisión negociada en 0 es
     // legítima —el vendedor entregó todo el descuento— y el `||` la reemplazaba por el
     // máximo, así que se guardaba el descuento máximo Y la comisión máxima a la vez.
-    form.items = form.items.map(item => {
+    normalizarOrden()
+    form.items = form.items.map((item, posicion) => {
         const comisionPct = itemTieneComision(item) ? comisionActualDe(item) : 0
         const cantidad    = parseFloat(item.cantidad) || 1
         return {
             ...item,
+            // La posición que se ve es la que se guarda: antes viajaba el `orden` con el que se cargó
+            // la línea y reordenar no cambiaba nada al guardar.
+            orden: posicion,
             comision_pct_aplicada: comisionPct,
             comision_valor: (parseFloat(item.precio_unitario) || 0) * cantidad * (comisionPct / 100),
         }
@@ -1359,190 +1534,191 @@ function submit() {
                 </div>
 
                 <!-- ── Ítems ───────────────────────────────────────────────── -->
-                <div class="bg-superficie rounded-2xl border border-linea p-5">
-                    <div class="flex items-center justify-between mb-4">
-                        <h2 class="text-sm font-semibold text-tinta-700">Ítems de la cotización</h2>
-                        <span v-if="form.items.length > 0" class="text-xs text-tinta-300">{{ form.items.length }} ítem{{ form.items.length !== 1 ? 's' : '' }}</span>
+                <div class="bg-superficie rounded-2xl border border-linea p-3 sm:p-5">
+                    <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+                        <h2 class="text-sm font-semibold text-tinta-700">
+                            Ítems de la cotización
+                            <span v-if="form.items.length > 0" class="ml-1 text-xs font-normal text-tinta-300">{{ form.items.length }} ítem{{ form.items.length !== 1 ? 's' : '' }}</span>
+                        </h2>
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <!-- Cómo se ven las líneas: una fila por ítem (tabla) o todas abiertas (detallado) -->
+                            <div role="group" aria-label="Vista de los ítems" class="inline-flex rounded-lg border border-linea overflow-hidden text-xs">
+                                <button type="button" @click="modoVista = 'tabla'" :aria-pressed="modoVista === 'tabla'"
+                                    :class="['px-2.5 py-1.5 font-medium', modoVista === 'tabla' ? 'bg-[var(--marca-suave)] text-[var(--marca)]' : 'text-tinta-500 hover:bg-realce']">Tabla</button>
+                                <button type="button" @click="modoVista = 'detallado'" :aria-pressed="modoVista === 'detallado'"
+                                    :class="['px-2.5 py-1.5 font-medium border-l border-linea', modoVista === 'detallado' ? 'bg-[var(--marca-suave)] text-[var(--marca)]' : 'text-tinta-500 hover:bg-realce']">Detallado</button>
+                            </div>
+                            <button type="button" @click="creandoSeccion = ! creandoSeccion"
+                                class="px-2.5 py-1.5 rounded-lg border border-linea text-xs font-medium text-tinta-600 hover:bg-realce">+ Sección</button>
+                        </div>
                     </div>
 
-                    <!-- Lista de ítems -->
-                    <div v-if="form.items.length > 0" class="space-y-3 mb-4">
-                        <datalist id="secciones-cotizacion">
-                            <option v-for="s in seccionesUsadas" :key="s" :value="s"/>
-                        </datalist>
-                        <div v-for="(item, idx) in form.items" :key="idx"
-                            class="rounded-xl border transition-colors"
-                            :class="dragOverIdx === idx && draggingIdx !== idx ? 'border-blue-400 bg-pastel-azul' : 'border-linea'"
-                            :draggable="true"
-                            @dragstart="onDragStart(idx)"
-                            @dragover="onDragOver($event, idx)"
-                            @drop="onDrop(idx)"
-                            @dragend="onDragEnd">
+                    <!-- Crear una sección: un nombre y listo; después se le arrastran o se le agregan ítems -->
+                    <div v-if="creandoSeccion" class="mb-3 flex flex-wrap items-center gap-2">
+                        <input v-model="nombreNuevaSeccion" type="text" maxlength="80" placeholder="Nombre de la sección, ej. Puerta corredera" autofocus
+                            class="flex-1 min-w-[12rem] rounded-lg border border-tinta-200 px-3 py-1.5 text-sm focus:ring-2 focus:outline-none"
+                            @keydown.enter.prevent="crearSeccion" @keydown.esc="creandoSeccion = false"/>
+                        <button type="button" @click="crearSeccion" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-white" style="background:var(--marca)">Crear</button>
+                        <button type="button" @click="creandoSeccion = false" class="px-3 py-1.5 rounded-lg text-xs text-tinta-500 hover:bg-realce">Cancelar</button>
+                        <p v-if="avisoSeccion" class="basis-full text-xs text-aviso-rojo">{{ avisoSeccion }}</p>
+                    </div>
 
-                            <!-- Barra superior: badge + controles -->
-                            <div class="flex items-center gap-2 px-3 pt-2.5 pb-0">
-                                <!-- Grip (solo desktop) -->
-                                <div class="hidden sm:flex cursor-grab text-tinta-200 hover:text-tinta-300 shrink-0 select-none" title="Arrastrar para reordenar">
-                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                                        <circle cx="9" cy="5" r="1.5"/><circle cx="15" cy="5" r="1.5"/>
-                                        <circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/>
-                                        <circle cx="9" cy="19" r="1.5"/><circle cx="15" cy="19" r="1.5"/>
-                                    </svg>
-                                </div>
-                                <!-- Badge tipo -->
-                                <span v-if="item.tipo === 'producto'" class="text-xs px-2 py-0.5 rounded-full font-medium shrink-0" style="background:var(--pastel-azul);color:var(--texto-azul);">Producto</span>
-                                <span v-else-if="item.tipo === 'servicio'" class="text-xs px-2 py-0.5 rounded-full font-medium shrink-0" style="background:var(--pastel-verde);color:var(--texto-verde);">Servicio</span>
-                                <span v-else-if="item.tipo === 'ensamble'" class="text-xs px-2 py-0.5 rounded-full font-medium shrink-0" style="background:var(--pastel-naranja);color:#C2410C;">Ensamble</span>
-                                <span v-else class="text-xs px-2 py-0.5 rounded-full font-medium bg-tinta-100 text-tinta-400 shrink-0">Texto libre</span>
+                    <!-- Las líneas: una fila por ítem, agrupadas en secciones que se arrastran -->
+                    <ItemsPorSeccion v-if="form.items.length > 0 || secciones.length > 0" ref="listaItems" class="mb-3"
+                        :items="form.items" :secciones="secciones" :modo="modoVista" :columnas="columnasTabla"
+                        @mover="moverA" @mover-seccion="moverSeccion" @agregar="abrirModal"
+                        @renombrar-seccion="renombrarSeccion" @eliminar-seccion="eliminarSeccion">
 
-                                <div class="flex-1"/>
+                        <template #cabecera>
+                            <span>Descripción</span>
+                            <span class="text-right">Cant.</span>
+                            <span class="text-right">Precio unit.</span>
+                            <span class="text-right">Dto. %</span>
+                            <span v-if="calcularIva" class="text-right">{{ impuesto.nombre }} %</span>
+                            <span class="text-right">Subtotal</span>
+                        </template>
 
-                                <!-- ↑↓ botones (solo mobile) -->
-                                <div class="flex sm:hidden gap-0.5 shrink-0">
-                                    <button type="button" @click="moverItem(idx, -1)" :disabled="idx === 0"
-                                        class="w-7 h-7 rounded-lg flex items-center justify-center text-tinta-300 hover:text-tinta-700 hover:bg-tinta-100 disabled:opacity-30 text-sm font-semibold transition-colors">↑</button>
-                                    <button type="button" @click="moverItem(idx, 1)" :disabled="idx === form.items.length - 1"
-                                        class="w-7 h-7 rounded-lg flex items-center justify-center text-tinta-300 hover:text-tinta-700 hover:bg-tinta-100 disabled:opacity-30 text-sm font-semibold transition-colors">↓</button>
-                                </div>
+                        <template #total-seccion="{ filas }">${{ formatCOP(totalDeFilas(filas)) }}</template>
 
-                                <!-- Editar las medidas del ensamble. Solo en los de ensamble:
-                                     un producto no tiene medidas que recalcular. -->
-                                <button v-if="item.tipo === 'ensamble' && item.ensamble_id"
-                                    type="button" @click="editarEnsambleDeItem(idx)"
-                                    title="Cambiar medidas y recalcular"
-                                    class="w-7 h-7 rounded-lg flex items-center justify-center text-tinta-300 hover:text-[var(--marca)] hover:bg-realce transition-colors shrink-0">
-                                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                                    </svg>
-                                </button>
-
-                                <!-- Eliminar -->
-                                <button type="button" @click="eliminarItem(idx)"
-                                    class="w-7 h-7 rounded-lg flex items-center justify-center text-tinta-300 hover:text-aviso-rojo hover:bg-pastel-rojo transition-colors shrink-0">
-                                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                                    </svg>
-                                </button>
+                        <!-- La fila: en el celular una línea de texto, desde md las celdas se editan ahí mismo -->
+                        <template #fila="{ item, idx }">
+                            <div class="min-w-0 flex items-center gap-2">
+                                <span class="text-[10px] px-1.5 py-0.5 rounded-full font-medium shrink-0" :style="tipoInfo(item).estilo">{{ tipoInfo(item).etiqueta }}</span>
+                                <span class="truncate text-sm text-tinta-800" :title="item.descripcion">{{ item.descripcion || 'Sin descripción' }}</span>
+                                <span v-if="item.problema" class="shrink-0 text-[11px] font-semibold text-aviso-rojo" title="Este ítem no se puede guardar: ábrelo para verlo">⚠ Revisar</span>
+                                <span v-else-if="alertaStock(item)" class="shrink-0 text-[11px] font-medium" :class="alertaStock(item).tono === 'rojo' ? 'text-aviso-rojo' : 'text-aviso-ambar'" :title="alertaStock(item).texto">● {{ alertaStock(item).corto }}</span>
                             </div>
+                            <p class="md:hidden text-xs text-tinta-400">
+                                {{ formatCantidad(item.cantidad) }} × ${{ formatCOP(item.precio_unitario) }}<span v-if="Number(item.descuento_pct) > 0"> − {{ formatPct(item.descuento_pct) }}%</span>
+                                · <b class="text-tinta-700">${{ formatCOP(calcularSubtotalItem(item)) }}</b>
+                            </p>
 
-                            <!-- Este ítem no se puede guardar. Va DENTRO del ítem y con el
-                                 botón que lo arregla: el mismo aviso al final de la pantalla
-                                 no decía en qué línea, y con ocho ítems eso manda a revisar
-                                 el equivocado. -->
-                            <div v-if="item.problema"
-                                class="mx-3 mt-2 rounded-lg bg-pastel-rojo border border-borde-aviso-rojo px-3 py-2.5">
-                                <div class="flex items-start justify-between gap-2">
-                                    <p class="text-xs text-aviso-rojo leading-relaxed">{{ item.problema }}</p>
-                                    <button type="button" @click="eliminarItem(idx)"
-                                        class="text-xs font-semibold text-aviso-rojo underline underline-offset-2 shrink-0">
-                                        Quitar
+                            <input v-model.number="item.cantidad" type="number" step="0.001" min="0" aria-label="Cantidad"
+                                :class="['hidden md:block w-full rounded-md border px-1.5 py-1 text-sm text-right focus:outline-none', claseCantidad(item)]"/>
+                            <input type="text" inputmode="numeric" aria-label="Precio unitario"
+                                :value="formatPrecio(item.precio_unitario)"
+                                @focus="$event.target.value = item.precio_unitario || ''"
+                                @blur="fijarPrecio(item, $event)"
+                                class="hidden md:block w-full rounded-md border border-tinta-200 px-1.5 py-1 text-sm text-right focus:outline-none"/>
+                            <input type="number" step="0.01" min="0" aria-label="Descuento"
+                                :max="itemTieneComision(item) ? descuentoMaxDisponible(item) : 100"
+                                :value="item.descuento_pct" :disabled="canalSinDescuento"
+                                :class="['hidden md:block w-full rounded-md border border-tinta-200 px-1.5 py-1 text-sm text-right focus:outline-none', canalSinDescuento ? 'bg-tinta-100 cursor-not-allowed text-tinta-300' : '']"
+                                @change="cambiarDescuento(item, idx, $event.target.value)"/>
+                            <select v-if="calcularIva" v-model.number="item.impuesto_pct" :aria-label="impuesto.nombre"
+                                class="hidden md:block w-full rounded-md border border-tinta-200 px-1 py-1 text-sm focus:outline-none">
+                                <option v-for="t in opcionesImpuesto(item)" :key="t" :value="t">{{ formatPct(t) }}%</option>
+                            </select>
+                            <span class="hidden md:block text-right text-sm font-semibold" style="color:var(--marca)">${{ formatCOP(calcularSubtotalItem(item)) }}</span>
+                        </template>
+
+                        <!-- El detalle: lo que no cabe en una fila -->
+                        <template #detalle="{ item, idx }">
+                            <div class="space-y-2">
+                                <div class="flex flex-wrap items-center gap-2">
+                                    <label :for="`seccion-${idx}`" class="text-xs text-tinta-400 shrink-0">Sección</label>
+                                    <select :id="`seccion-${idx}`" :value="(item.seccion ?? '')" @change="cambiarSeccionDe(item, $event.target.value)"
+                                        class="min-w-0 max-w-[14rem] rounded-lg border border-tinta-200 px-2 py-1 text-sm focus:outline-none">
+                                        <option value="">Sin sección</option>
+                                        <option v-for="s in secciones" :key="s" :value="s">{{ s }}</option>
+                                        <option value="__nueva">+ Nueva sección…</option>
+                                    </select>
+                                    <div class="flex-1"/>
+
+                                    <!-- Subir y bajar: lo que en el celular reemplaza al arrastre -->
+                                    <button type="button" @click="moverDentro(item, -1)" title="Subir" aria-label="Subir"
+                                        class="w-7 h-7 rounded-lg flex items-center justify-center text-tinta-400 hover:text-tinta-700 hover:bg-realce text-sm font-semibold">↑</button>
+                                    <button type="button" @click="moverDentro(item, 1)" title="Bajar" aria-label="Bajar"
+                                        class="w-7 h-7 rounded-lg flex items-center justify-center text-tinta-400 hover:text-tinta-700 hover:bg-realce text-sm font-semibold">↓</button>
+
+                                    <!-- Editar las medidas del ensamble: un producto no tiene medidas que recalcular. -->
+                                    <button v-if="item.tipo === 'ensamble' && item.ensamble_id" type="button" @click="editarEnsambleDeItem(idx)"
+                                        title="Cambiar medidas y recalcular"
+                                        class="w-7 h-7 rounded-lg flex items-center justify-center text-tinta-400 hover:text-[var(--marca)] hover:bg-realce">
+                                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                        </svg>
+                                    </button>
+                                    <button type="button" @click="eliminarItem(idx)" title="Quitar el ítem"
+                                        class="w-7 h-7 rounded-lg flex items-center justify-center text-tinta-400 hover:text-aviso-rojo hover:bg-pastel-rojo">
+                                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                        </svg>
                                     </button>
                                 </div>
-                            </div>
 
-                            <!-- Cuerpo del ítem -->
-                            <div class="px-3 pt-2 pb-3">
-                                <!-- Sección: agrupa las líneas en el PDF («Puerta corredera», «Cocina → Estufa»). Vacía, la línea va sin sección. -->
-                                <div class="flex items-center gap-2 mb-1.5">
-                                    <label :for="`seccion-${idx}`" class="text-xs text-tinta-400 shrink-0">Sección</label>
-                                    <input :id="`seccion-${idx}`" v-model="item.seccion" type="text" maxlength="80" list="secciones-cotizacion"
-                                        placeholder="Ej. Puerta corredera"
-                                        class="flex-1 min-w-0 rounded-lg border border-tinta-200 px-2.5 py-1.5 text-sm focus:ring-2 focus:outline-none"/>
+                                <!-- Este ítem no se puede guardar. Va DENTRO del ítem y con el botón que lo arregla:
+                                     el mismo aviso al final de la pantalla no decía en qué línea. -->
+                                <div v-if="item.problema" class="rounded-lg bg-pastel-rojo border border-borde-aviso-rojo px-3 py-2.5">
+                                    <div class="flex items-start justify-between gap-2">
+                                        <p class="text-xs text-aviso-rojo leading-relaxed">{{ item.problema }}</p>
+                                        <button type="button" @click="eliminarItem(idx)" class="text-xs font-semibold text-aviso-rojo underline underline-offset-2 shrink-0">Quitar</button>
+                                    </div>
                                 </div>
+
                                 <textarea v-model="item.descripcion" rows="2" placeholder="Descripción del ítem..."
-                                    class="w-full rounded-lg border border-tinta-200 px-3 py-2 text-sm focus:ring-2 focus:outline-none resize-none mb-1"/>
+                                    class="w-full rounded-lg border border-tinta-200 px-3 py-2 text-sm focus:ring-2 focus:outline-none resize-none"/>
 
                                 <!-- Descripción corta (solo lectura, referencia catálogo) -->
-                                <p v-if="item.descripcion_corta" class="text-xs text-tinta-300 italic mb-1">{{ item.descripcion_corta }}</p>
-                                <!-- Descripción larga editable -->
-                                <div class="mb-1">
-                                    <EditorTexto v-model="item.descripcion_larga"
-                                        placeholder="Descripción larga o detalles adicionales..."
-                                        min-height="80px" />
-                                </div>
+                                <p v-if="item.descripcion_corta" class="text-xs text-tinta-300 italic">{{ item.descripcion_corta }}</p>
+                                <EditorTexto v-model="item.descripcion_larga" placeholder="Descripción larga o detalles adicionales..." min-height="80px" />
 
-                                <div class="grid grid-cols-2 md:grid-cols-4 gap-2 mt-2">
+                                <!-- En el celular las cifras no caben en la fila: se editan aquí -->
+                                <div class="grid grid-cols-2 gap-2 md:hidden">
                                     <div>
-                                        <div class="flex items-center justify-between gap-1 mb-1">
-                                            <label class="block text-xs text-tinta-400">Cantidad</label>
-                                            <!-- Lo que queda, al lado de lo que se pide: si la
-                                                 cantidad pasa el stock lo dice ahí mismo, sin
-                                                 tener que abrir el inventario en otra pestaña. -->
-                                            <EtiquetaStock
-                                                :stock="item.stock_disponible"
-                                                :minimo="item.stock_minimo"
-                                                :inventariable="item.inventariable"
-                                                :pedida="cobertura(item)?.deTran > 0 ? null : item.cantidad"
-                                            />
-                                        </div>
-                                        <!-- Solo aviso, no bloquea: la cotización sale igual. Es de
-                                             uso interno; el cliente nunca ve el stock. -->
-                                        <p v-if="apartadoEnConflicto(item)" class="mb-1 text-[11px] leading-snug text-aviso-ambar"
-                                            title="Otras cotizaciones enviadas tienen unidades apartadas por 24 horas. Si alguna se aprueba antes, esas unidades se le ceden y se le avisa a su vendedor.">
-                                            ⏳ {{ formatCantidad(item.stock_apartado) }} apartadas en otras cotizaciones
-                                        </p>
+                                        <label class="block text-xs text-tinta-400 mb-1">Cantidad</label>
                                         <input v-model.number="item.cantidad" type="number" step="0.001" min="0"
-                                            :class="['w-full rounded-lg border px-2 py-1.5 text-sm text-right focus:outline-none',
-                                                cobertura(item)?.faltan > 0 ? 'border-borde-aviso-rojo bg-pastel-rojo'
-                                                    : cobertura(item)?.deTran > 0 ? 'border-borde-aviso-ambar bg-pastel-ambar' : 'border-tinta-200']"/>
-                                        <!-- Lo que viene en camino: se puede cotizar contra eso, avisando. -->
-                                        <p v-if="cobertura(item)?.deTran > 0" class="mt-1 text-[11px] leading-snug text-aviso-ambar"
-                                            title="Unidades pedidas a un proveedor en órdenes de compra que todavía no llegan. Se confirman al recibir la orden contra su remisión.">
-                                            🚚 {{ formatCantidad(cobertura(item).deReal) }} en bodega + {{ formatCantidad(cobertura(item).deTran) }} en tránsito<span v-if="item.transito_llega">, llegan ~{{ fechaCorta(item.transito_llega) }}</span>
-                                        </p>
-                                        <p v-if="cobertura(item)?.faltan > 0 && Number(item.stock_transito) > 0" class="mt-1 text-[11px] leading-snug text-aviso-rojo">
-                                            Faltan {{ formatCantidad(cobertura(item).faltan) }}: no alcanza ni con lo que viene en tránsito.
-                                        </p>
+                                            :class="['w-full rounded-lg border px-2 py-1.5 text-sm text-right focus:outline-none', claseCantidad(item)]"/>
                                     </div>
                                     <div>
                                         <label class="block text-xs text-tinta-400 mb-1">Precio unit.</label>
-                                        <input
-                                            type="text" inputmode="numeric"
-                                            :value="formatPrecio(item.precio_unitario)"
-                                            @focus="$event.target.value = item.precio_unitario || ''"
-                                            @blur="item.precio_unitario = parsePrecio($event.target.value); $event.target.value = formatPrecio(item.precio_unitario)"
+                                        <input type="text" inputmode="numeric" :value="formatPrecio(item.precio_unitario)"
+                                            @focus="$event.target.value = item.precio_unitario || ''" @blur="fijarPrecio(item, $event)"
                                             class="w-full rounded-lg border border-tinta-200 px-2 py-1.5 text-sm text-right focus:outline-none"/>
-                                        <p v-if="enOtraMoneda" class="text-[11px] text-tinta-300 text-right mt-0.5">{{ enMoneda(item.precio_unitario) }}</p>
                                     </div>
                                     <div>
                                         <label class="block text-xs text-tinta-400 mb-1">Dto. %</label>
-                                        <input type="number" step="0.01" min="0"
-                                            :max="itemTieneComision(item) ? descuentoMaxDisponible(item) : 100"
-                                            :value="item.descuento_pct"
-                                            :disabled="canalSinDescuento"
-                                            class="w-full rounded-lg border border-tinta-200 px-2 py-1.5 text-sm text-right focus:outline-none"
-                                            :class="canalSinDescuento ? 'bg-tinta-100 cursor-not-allowed text-tinta-300' : ''"
-                                            @change="!canalSinDescuento && (itemTieneComision(item)
-                                                ? onDescuentoChange(item, idx, $event.target.value)
-                                                : (item.descuento_pct = parseFloat($event.target.value) || 0))"/>
+                                        <input type="number" step="0.01" min="0" :max="itemTieneComision(item) ? descuentoMaxDisponible(item) : 100"
+                                            :value="item.descuento_pct" :disabled="canalSinDescuento"
+                                            :class="['w-full rounded-lg border border-tinta-200 px-2 py-1.5 text-sm text-right focus:outline-none', canalSinDescuento ? 'bg-tinta-100 cursor-not-allowed text-tinta-300' : '']"
+                                            @change="cambiarDescuento(item, idx, $event.target.value)"/>
                                     </div>
-                                    <div>
+                                    <div v-if="calcularIva">
                                         <label class="block text-xs text-tinta-400 mb-1">{{ impuesto.nombre }} %</label>
-                                        <select v-model.number="item.impuesto_pct"
-                                            class="w-full rounded-lg border border-tinta-200 px-2 py-1.5 text-sm focus:outline-none">
+                                        <select v-model.number="item.impuesto_pct" class="w-full rounded-lg border border-tinta-200 px-2 py-1.5 text-sm focus:outline-none">
                                             <option v-for="t in opcionesImpuesto(item)" :key="t" :value="t">{{ t === 0 ? '0% (No grava)' : `${formatPct(t)}% (${impuesto.nombre})` }}</option>
                                         </select>
                                     </div>
                                 </div>
+                                <p v-if="enOtraMoneda" class="text-[11px] text-tinta-300">Precio unitario para el cliente: {{ enMoneda(item.precio_unitario) }}</p>
 
-                                <div class="flex justify-end mt-2">
-                                    <span class="text-sm font-semibold" style="color:var(--marca)">
-                                        ${{ formatCOP(calcularSubtotalItem(item)) }}
+                                <!-- Lo que queda, al lado de lo que se pide. Solo aviso, no bloquea: la cotización sale
+                                     igual. Es de uso interno; el cliente nunca ve el stock. -->
+                                <div v-if="item.producto_id" class="flex flex-wrap items-center gap-x-3 gap-y-1">
+                                    <span class="text-xs text-tinta-400">Disponibilidad</span>
+                                    <EtiquetaStock :stock="item.stock_disponible" :minimo="item.stock_minimo" :inventariable="item.inventariable"
+                                        :pedida="cobertura(item)?.deTran > 0 ? null : item.cantidad" />
+                                    <span v-if="apartadoEnConflicto(item)" class="text-[11px] leading-snug text-aviso-ambar"
+                                        title="Otras cotizaciones enviadas tienen unidades apartadas por 24 horas. Si alguna se aprueba antes, esas unidades se le ceden y se le avisa a su vendedor.">
+                                        ⏳ {{ formatCantidad(item.stock_apartado) }} apartadas en otras cotizaciones
+                                    </span>
+                                    <span v-if="cobertura(item)?.deTran > 0" class="text-[11px] leading-snug text-aviso-ambar"
+                                        title="Unidades pedidas a un proveedor en órdenes de compra que todavía no llegan. Se confirman al recibir la orden contra su remisión.">
+                                        🚚 {{ formatCantidad(cobertura(item).deReal) }} en bodega + {{ formatCantidad(cobertura(item).deTran) }} en tránsito<span v-if="item.transito_llega">, llegan ~{{ fechaCorta(item.transito_llega) }}</span>
+                                    </span>
+                                    <span v-if="cobertura(item)?.faltan > 0 && Number(item.stock_transito) > 0" class="text-[11px] leading-snug text-aviso-rojo">
+                                        Faltan {{ formatCantidad(cobertura(item).faltan) }}: no alcanza ni con lo que viene en tránsito.
                                     </span>
                                 </div>
 
                                 <!-- Badge canal mayorista -->
-                                <div v-if="canalSinDescuento"
-                                    class="mt-2 p-2 bg-pastel-azul border border-borde-aviso-azul rounded-lg">
-                                    <p class="text-xs text-aviso-azul text-center">
-                                        Canal mayorista — precio fijo sin descuento ni comisión
-                                    </p>
+                                <div v-if="canalSinDescuento" class="px-2 py-1 bg-pastel-azul border border-borde-aviso-azul rounded-lg">
+                                    <p class="text-xs text-aviso-azul text-center">Canal mayorista — precio fijo sin descuento ni comisión</p>
                                 </div>
 
                                 <!-- Panel comisión compacto -->
-                                <div v-if="itemTieneComision(item)" class="mt-2">
-                                    <div class="flex items-center gap-2 px-3 py-2 rounded-xl"
-                                        style="background:var(--pastel-ambar);border:1px solid #FCD34D;">
+                                <div v-if="itemTieneComision(item)">
+                                    <div class="flex items-center gap-2 px-3 py-2 rounded-xl" style="background:var(--pastel-ambar);border:1px solid #FCD34D;">
                                         <span class="text-xs font-medium shrink-0" style="color:var(--texto-ambar);">Com.</span>
                                         <button type="button" @click="ajustarComision(item, idx, -0.5)"
                                             :disabled="comisionActualDe(item) <= rangoComisionDe(item).min"
@@ -1553,11 +1729,8 @@ function submit() {
                                              vuelve a dibujar y la barra se queda donde la soltó el dedo, enseñando un
                                              valor que no es el guardado. -->
                                         <input type="range"
-                                            :min="rangoComisionDe(item).min"
-                                            :max="rangoComisionDe(item).max"
-                                            :step="0.01"
-                                            :value="comisionActualDe(item)"
-                                            :disabled="! rangoComisionDe(item).hayRango"
+                                            :min="rangoComisionDe(item).min" :max="rangoComisionDe(item).max" :step="0.01"
+                                            :value="comisionActualDe(item)" :disabled="! rangoComisionDe(item).hayRango"
                                             @input="onComisionChange(item, idx, $event.target.value); $event.target.value = comisionActualDe(item)"
                                             class="flex-1 h-1.5 accent-amber-500 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed" />
                                         <button type="button" @click="ajustarComision(item, idx, 0.5)"
@@ -1569,8 +1742,7 @@ function submit() {
                                         </span>
                                     </div>
 
-                                    <!-- Una barra que no se puede mover tiene que decir por qué. Antes se quedaba
-                                         quieta y el descuento no se llenaba, y eso se lee como que está dañada. -->
+                                    <!-- Una barra que no se puede mover tiene que decir por qué. -->
                                     <p v-if="! rangoComisionDe(item).hayRango" class="text-xs text-aviso-ambar mt-1">
                                         Comisión fija en {{ formatPct(rangoComisionDe(item).max) }}%: el canal
                                         {{ canalCliente?.etiqueta }} tiene la comisión mínima igual a la máxima en este
@@ -1579,16 +1751,16 @@ function submit() {
                                     </p>
                                 </div>
                             </div>
-                        </div>
-                    </div>
+                        </template>
+                    </ItemsPorSeccion>
 
-                    <p v-else class="text-sm text-tinta-300 text-center py-8 border border-dashed border-linea rounded-xl mb-4">
+                    <p v-else class="text-sm text-tinta-300 text-center py-8 border border-dashed border-linea rounded-xl mb-3">
                         Sin ítems. Agrega al menos uno.
                     </p>
 
                     <!-- Botón agregar -->
-                    <button type="button" @click="abrirModal"
-                        class="w-full py-2.5 rounded-xl border-2 border-dashed border-tinta-200 text-sm font-medium text-tinta-400 hover:border-blue-400 hover:text-aviso-azul hover:bg-realce transition-colors flex items-center justify-center gap-2">
+                    <button type="button" @click="abrirModal()"
+                        class="w-full py-2 rounded-xl border-2 border-dashed border-tinta-200 text-sm font-medium text-tinta-400 hover:border-blue-400 hover:text-aviso-azul hover:bg-realce transition-colors flex items-center justify-center gap-2">
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
                         </svg>
@@ -1596,9 +1768,9 @@ function submit() {
                     </button>
 
                     <!-- Totales -->
-                    <div v-if="form.items.length > 0" class="mt-5 pt-4 border-t border-linea">
+                    <div v-if="form.items.length > 0" class="mt-4 pt-4 border-t border-linea">
                         <div class="flex justify-end">
-                            <div class="w-64 space-y-1.5">
+                            <div class="w-full sm:w-72 space-y-1.5">
                                 <div class="flex justify-between text-sm text-tinta-500">
                                     <span>Subtotal</span>
                                     <span>${{ formatCOP(subtotalBruto) }}</span>
@@ -1607,8 +1779,8 @@ function submit() {
                                     <span>Descuento</span>
                                     <span class="text-aviso-rojo">-${{ formatCOP(totalDescuento) }}</span>
                                 </div>
-                                <div v-if="totalImpuesto > 0" class="flex justify-between text-sm text-tinta-500">
-                                    <span>IVA</span>
+                                <div v-if="calcularIva && totalImpuesto > 0" class="flex justify-between text-sm text-tinta-500">
+                                    <span>{{ impuesto.nombre }}</span>
                                     <span>${{ formatCOP(totalImpuesto) }}</span>
                                 </div>
                                 <div class="flex justify-between text-base font-semibold border-t border-linea pt-2 mt-2" style="color:var(--marca)">
@@ -1624,7 +1796,27 @@ function submit() {
                                         Los precios se escriben en {{ monedaBase() }}; el cliente los ve en {{ form.moneda }} a la tasa de arriba.
                                     </p>
                                 </template>
-                                <RetencionesEstimadas v-if="retenciones_activas" :retenciones="retenciones" :cargando="cargandoRetenciones"
+
+                                <!-- Qué impuestos se calculan. Apagar el IVA deja todas las líneas en 0 % y el total sin
+                                     impuesto; al encenderlo vuelve cada línea a lo que tenía. -->
+                                <div class="pt-2 mt-1 border-t border-separador space-y-1.5">
+                                    <div class="flex items-center justify-between gap-3">
+                                        <span class="text-xs text-tinta-500">Calcular {{ impuesto.nombre }}</span>
+                                        <button type="button" role="switch" :aria-checked="calcularIva" aria-label="Calcular el impuesto" @click="alternarIva"
+                                            :class="['relative w-9 h-5 rounded-full transition-colors shrink-0', calcularIva ? 'bg-[var(--marca)]' : 'bg-tinta-200']">
+                                            <span :class="['absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform', calcularIva ? 'translate-x-4' : '']"/>
+                                        </button>
+                                    </div>
+                                    <div v-if="retenciones_activas" class="flex items-center justify-between gap-3">
+                                        <span class="text-xs text-tinta-500">Mostrar retenciones estimadas</span>
+                                        <button type="button" role="switch" :aria-checked="mostrarRetenciones" aria-label="Mostrar retenciones estimadas" @click="mostrarRetenciones = ! mostrarRetenciones"
+                                            :class="['relative w-9 h-5 rounded-full transition-colors shrink-0', mostrarRetenciones ? 'bg-[var(--marca)]' : 'bg-tinta-200']">
+                                            <span :class="['absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform', mostrarRetenciones ? 'translate-x-4' : '']"/>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <RetencionesEstimadas v-if="retenciones_activas && mostrarRetenciones" :retenciones="retenciones" :cargando="cargandoRetenciones"
                                     :total="total" :moneda="form.moneda" :tasa="form.tasa_cambio" />
                             </div>
                         </div>

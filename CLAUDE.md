@@ -736,6 +736,12 @@ Lo construido después de la fase 3, que conviene conocer antes de tocar algo ce
   la casilla la pone quien tiene `equipo_ia.gestionar` y editarla sin ese permiso la quita. Corre con los
   permisos de su autor, tope de 10 por corrida, sin datos de colaboradores. Es el camino barato en tokens.
 
+- **La lista de ítems de una cotización es `ItemsPorSeccion.vue` + `Cotizaciones/Create.vue`** (16 oct 2026):
+  tabla compacta con fila expandible y secciones que se arrastran. El componente solo dibuja y avisa;
+  las reglas (`moverA`, `normalizarOrden`, nombres de sección) viven en la pantalla. Las filas llevan una
+  clave estable (`WeakMap`), **nunca un índice** ni un campo escrito en el ítem. `orden` se guarda como la
+  posición en pantalla. Apagar el IVA pone las líneas en 0 % y guarda la tarifa en `_iva_previo`.
+
 **Pendiente de negocio sin resolver, y es la más importante: a quién se le
 vende.** El sistema está hecho a la medida de fabricar por pedido con medidas
 variables. Es una ventaja enorme ante un fabricante parecido, y un problema ante
@@ -797,7 +803,7 @@ decían lo contrario y estaban equivocadas.
   relaciones entre archivos antes de leer código a mano.
 - Conviene regenerarlo después de cambios que muevan estructura (borrar módulos,
   mover carpetas), porque un grafo desactualizado es peor que no tenerlo.
-- **Generado y al día.** Al 16 oct 2026: **13.433 nodos, 27.552 aristas, 714 comunidades**
+- **Generado y al día.** Al 16 oct 2026: **13.478 nodos, 27.628 aristas, 693 comunidades**
   (con el Equipo de IA, las Automatizaciones y la vinculación de Meta). Cada entorno nuevo necesita `pip install graphifyy` una vez (en el
   superadmin el grafo se genera igual, pero no va al repo). Cubre el proyecto completo: 926 archivos de
   código por AST y los 70 documentos por subagentes. Se actualiza con

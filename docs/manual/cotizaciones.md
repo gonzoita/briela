@@ -13,6 +13,27 @@ ensambles configurados), totales calculados y un estado:
 Cuando se aprueba y se genera una Orden de Producción, queda marcada como
 `en_produccion` y ya no se puede editar.
 
+## Ítems en tabla, secciones que se arrastran e impuestos a voluntad *(16 oct 2026)*
+
+Pantalla: `Cotizaciones/Create.vue` + `Components/Cotizaciones/ItemsPorSeccion.vue`.
+
+- **Una fila por ítem.** Descripción, cantidad, precio, descuento, IVA y subtotal se editan en la misma
+  fila (en el celular la fila es una línea de resumen y las cifras se editan en el detalle). Al tocar la
+  fila se expande: sección, descripción, texto largo, disponibilidad (bodega, apartado, tránsito),
+  comisión y canal. **Tabla** deja todo plegado; **Detallado** abre todo. La preferencia es del navegador.
+- **Secciones.** `+ Sección` crea una zona vacía; los ítems se sueltan encima (o entre sus filas), o se usa
+  `+ Ítem` en su cabecera, que agrega ahí. Las secciones se arrastran por su asa, se renombran escribiendo
+  en su nombre, se pliegan y se quitan (sus ítems pasan a «Sin sección», que el PDF imprime como «Otros»).
+  El subtotal de cada sección se recalcula en vivo. HTML5 no arrastra con el dedo: en el celular, la sección
+  y el orden (↑ ↓) se cambian desde el detalle del ítem. Una sección **sin ítems no se guarda**: la
+  cotización solo guarda `seccion` por línea.
+- **El orden se guarda.** Al guardar, `orden` es la posición en pantalla (antes viajaba el `orden` con el que se
+  cargó la línea y reordenar no se conservaba). `ItemsPorSeccion` no muta nada: avisa con eventos y la
+  pantalla aplica las reglas (`moverA`, `normalizarOrden`).
+- **IVA.** El interruptor «Calcular IVA» deja todas las líneas en 0 % (recuerda la tarifa de cada una) y quita
+  la columna; al encenderlo se restauran. Una cotización guardada con todo en 0 % se abre con el IVA apagado.
+  «Mostrar retenciones estimadas» solo oculta la estimación (no se pide al servidor mientras está oculta).
+
 ## Sin cliente no hay cotización *(15 oct 2026)*
 
 Una cotización sin cliente **no se guarda**. Las viejas que quedaron sin cliente se pueden abrir y
