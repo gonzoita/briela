@@ -14,6 +14,8 @@ Formato: [versionado semántico](https://semver.org/lang/es/).
 
 ## [Sin publicar]
 
+## [2.4.0] — 16 oct 2026
+
 ### Agregado
 - **Secciones como zonas en la cotización**: creas una sección (+ Sección), le arrastras los ítems o
   usas «+ Ítem» dentro de ella, y las secciones también se reordenan arrastrándolas. Cada sección
